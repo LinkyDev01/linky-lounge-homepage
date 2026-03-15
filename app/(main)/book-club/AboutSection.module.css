@@ -1,6 +1,6 @@
 .section {
   background-color: #f5ede4;
-  padding: 48px 24px;
+  padding: 48px 24px 0;
   word-break: keep-all;
 }
 

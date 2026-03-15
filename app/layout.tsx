@@ -7,6 +7,7 @@ import { MetaPixelTracker } from "@/components/meta-pixel-tracker"
 import "./globals.css"
 
 const META_PIXEL_ID = "1350610706836537"
+const GA_MEASUREMENT_ID = "G-3B2E7FK9MJ"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -33,6 +34,22 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}');
+            `,
+          }}
+        />
         <Script
           id="meta-pixel"
           strategy="afterInteractive"

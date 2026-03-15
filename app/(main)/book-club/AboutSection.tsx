@@ -4,15 +4,15 @@ export function AboutSection() {
   return (
     <section className={styles.section}>
       <div className={styles.block}>
-        <h2 className={styles.blockTitle}>책을 읽다 문득, 내 이야기가 하고 싶어질 때.</h2>
+        <h2 className={styles.blockTitle}>LazyDay라는 시간 속에서</h2>
         <div className={styles.blockContent}>
           <p className={styles.paragraph}>
-            지식을 채우는 공부 대신, 마음을 비우는 대화를 선택합니다.
-            타인의 목소리에서 나를 발견하고, 나의 고백이 누군가의 영감이 되는 경험.
+            무언가를 배워야 한다는 부담은 내려놓으세요. 대신 마음을 나누는 대화를 채워요.
+            누군가의 말 한마디에 나를 발견하고, 내 진심이 누군가에게 영감을 주는 포근한 시간.
           </p>
           <p className={styles.paragraph}>
-            <span className={styles.accent}>LazyDay</span>는 책이라는 거울을 통해
-            각자의 삶을 가만히 비춰보는 느슨한 연대의 공동체입니다.
+            책이라는 거울 앞에 모여 서로의 삶을 가만히 들여다보는 곳,{" "}
+            <span className={styles.accent}>LazyDay</span>에서 우리 천천히, 그리고 깊게 연결되어요.
           </p>
         </div>
       </div>

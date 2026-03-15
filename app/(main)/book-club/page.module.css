@@ -1,6 +1,7 @@
 .container {
     max-width: 600px;
     margin: 0 auto;
+    padding: 0;
 }
 
 .mainImage {
@@ -61,11 +62,6 @@
 }
 
 @media (max-width: 767px) {
-    .container {
-        padding: 0;
-        padding-bottom: 80px;
-    }
-
     .mainImage {
         border-radius: 0;
         box-shadow: none;

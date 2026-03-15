@@ -36,7 +36,7 @@ export function FaqSection() {
       <div className={styles.contact}>
         <p className={styles.contactText}>다른 질문이 있어요</p>
         <a
-          href="https://www.instagram.com/linkylounge"
+          href="https://www.instagram.com/linky_lounge"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.contactLink}

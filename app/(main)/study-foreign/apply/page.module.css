@@ -1,0 +1,603 @@
+:root {
+    --bg-color: #FFFFFF;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --border-color: #e0e0e0;
+    --accent-color: #4CAF50;
+    --light-green: #E8F5E9;
+    --medium-green: #66BB6A;
+}
+
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+.application {
+    background: var(--bg-color);
+    padding: 100px 0;
+}
+
+.sectionHeader {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 80px;
+}
+
+.sectionLabel {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+.sectionTitle {
+    font-size: 48px;
+    font-weight: 300;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+}
+
+.sectionDescription {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-weight: 300;
+    word-break: keep-all;
+}
+
+/* Form Progress */
+.formProgress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 60px auto 50px;
+    max-width: 300px;
+}
+
+.progressStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.progressStep.active {
+    opacity: 1;
+}
+
+.progressStep.completed {
+    opacity: 0.7;
+}
+
+.progressNumber {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.progressStep.active .progressNumber {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.progressStep.completed .progressNumber {
+    background: var(--medium-green);
+    color: white;
+    border-color: var(--medium-green);
+}
+
+.progressLabel {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Form */
+.applicationForm {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.formStep {
+    display: none;
+}
+
+.formStep.active {
+    display: block;
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.formGroup {
+    margin-bottom: 30px;
+}
+
+.formLabel {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+    word-break: keep-all;
+}
+
+.formInput {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 400;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.formInput:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: var(--light-green);
+}
+
+.formInput::placeholder {
+    color: #999;
+    font-weight: 300;
+    opacity: 1;
+}
+
+.textareaResize {
+    resize: vertical;
+}
+
+/* Hide number input spinners */
+.formInput[type="number"]::-webkit-inner-spin-button,
+.formInput[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.charCounter {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    text-align: right;
+}
+
+.formNote {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    line-height: 1.6;
+}
+
+/* Schedule options animation */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scheduleOptions {
+    animation: fadeInDown 0.3s ease;
+}
+
+.scheduleHint {
+    font-size: 13px;
+    color: #000000;
+    margin-top: 10px;
+    font-weight: 300;
+}
+
+/* Day Group */
+.dayGroup {
+    margin-top: 16px;
+}
+
+.dayGroup:first-of-type {
+    margin-top: 8px;
+}
+
+.dayLabel {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    /* color: white; */
+    /* background: var(--accent-color); */
+    /* padding: 4px 12px; */
+    border-radius: 20px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* Radio */
+.radioGroup {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.radioLabel {
+    flex: 1;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.radioLabelCompact {
+    composes: radioLabel;
+    padding: 10px 16px;
+}
+
+.radioLabel:hover {
+    border-color: var(--accent-color);
+    background: #f9f9f9;
+}
+
+.radioLabel input[type="radio"],
+.radioLabel input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+    flex-shrink: 0;
+}
+
+.radioLabel input[type="radio"]:checked+.radioText,
+.radioLabel input[type="checkbox"]:checked+.radioText {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.radioLabel:has(input[type="radio"]:checked),
+.radioLabel:has(input[type="checkbox"]:checked) {
+    border-color: var(--accent-color);
+    background: white;
+}
+
+/* Language-specific radio styles */
+.radioLabelJa,
+.radioLabelZh {
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radioLabelJa input[type="radio"],
+.radioLabelZh input[type="radio"] {
+    display: none;
+}
+
+.radioLabelJa:has(input[type="radio"]:checked),
+.radioLabelZh:has(input[type="radio"]:checked) {
+    border-color: var(--accent-color);
+    background: var(--accent-color);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.35);
+}
+
+.radioLabelJa:has(input[type="radio"]:checked) .radioText,
+.radioLabelZh:has(input[type="radio"]:checked) .radioText {
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.radioText {
+    font-size: 15px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+/* Buttons */
+.formButtons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btnPrevious {
+    width: 100%;
+    padding: 18px 30px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 400;
+    border-radius: 6px;
+}
+
+.btnPrevious:hover {
+    background: var(--light-green);
+    border-color: var(--accent-color);
+}
+
+.btnNext {
+    width: 100%;
+    padding: 18px 30px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--accent-color);
+    color: white;
+    border: 1px solid var(--accent-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 400;
+    border-radius: 6px;
+}
+
+.btnNext:hover {
+    background: var(--medium-green);
+    border-color: var(--medium-green);
+}
+
+.submitButton {
+    width: 100%;
+    padding: 18px 42px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 400;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.submitButton:hover {
+    background: var(--medium-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* Privacy */
+.formPrivacySection {
+    border-top: 1px solid var(--border-color);
+    padding-top: 30px;
+    margin-top: 40px;
+}
+
+.formCheckboxLabel {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.formCheckboxLabel input[type="checkbox"] {
+    margin-right: 12px;
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+.formCheckboxLabel span {
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 300;
+    word-break: keep-all;
+}
+
+.formPrivacyNotice {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--light-green);
+    line-height: 1.7;
+    border-radius: 6px;
+}
+
+/* Loading */
+.loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loadingContent {
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.loadingSpinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+.loadingText {
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Footer */
+.footer {
+    background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+    padding: 60px 0 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+.footerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 60px;
+    margin: 40px 250px;
+    flex-wrap: wrap;
+}
+
+.footerLogo {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-color);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.footerInfo {
+    flex: 1;
+    min-width: 300px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    text-align: left;
+}
+
+.footerInfo p {
+    margin: 6px 0;
+    font-weight: 300;
+}
+
+.footerInfo p:first-child {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.footerLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.footerLink {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 400;
+}
+
+.footerLink:hover {
+    color: var(--accent-color);
+}
+
+.footerCopyright {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    font-weight: 300;
+    opacity: 0.7;
+    text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sectionTitle {
+        word-break: keep-all;
+        font-size: 32px;
+    }
+
+    .application {
+        padding: 60px 0;
+    }
+
+    /* iOS Safari 자동 줌인 방지 (font-size 16px 미만이면 포커스 시 줌) */
+    .formInput {
+        font-size: 16px;
+    }
+
+    .radioGroup {
+        flex-direction: column;
+    }
+
+    .radioLabel {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .footerContent {
+        flex-direction: column;
+        gap: 40px;
+        margin: 40px auto;
+    }
+
+    .footerLinks {
+        align-items: flex-start;
+    }
+
+    .footerCopyright {
+        text-align: center;
+    }
+}

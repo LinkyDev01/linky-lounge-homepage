@@ -34,13 +34,13 @@ export const currentSeasonConfig: SeasonConfig = {
   introTitle: "왜 이 네 권인가요?",
   introParagraphs: [
     "시중에 좋은 책은 많지만, 레이지데이는 '나를 정면으로 마주하게 하는 힘'이 있는 책들을 골랐습니다.",
-    "고전부터 에세이까지 장르는 제각각이지만 관통하는 질문은 하나입니다. \"타인의 속도가 아닌, 나의 상태를 확인하고 있는가?\"",
+    "고전부터 자기계발까지 장르는 제각각이지만 관통하는 질문은 하나입니다. \"타인의 속도가 아닌, 나의 상태를 확인하고 있는가?\"",
     "익숙한 줄 알았던 《어린 왕자》에서 나의 집착을 발견하고, 《시지프 신화》에 이르러 비로소 '그럼에도 살아가는 나'를 긍정하게 되는 여정. 이 흐름을 따라가다 보면 마지막 페이지를 덮을 때쯤, 책보다 더 선명해진 '나'의 이야기를 만나게 될 거예요.",
   ],
   books: [
     {
       week: 1,
-      weekLabel: "1회차 — 멈춘 자리",
+      weekLabel: "1회차",
       title: "어린 왕자",
       author: "생텍쥐페리",
       tagline: "나도 모르게 '이상한 어른'이 되어버린 지점을 발견합니다.",
@@ -54,7 +54,7 @@ export const currentSeasonConfig: SeasonConfig = {
     },
     {
       week: 2,
-      weekLabel: "2회차 — 나한테 맞는 것",
+      weekLabel: "2회차",
       title: "부처님 말씀대로 살아보니",
       author: "토니 페르난도",
       tagline: "내 삶의 해상도를 높여주는 실질적인 렌즈를 장착합니다.",
@@ -71,7 +71,7 @@ export const currentSeasonConfig: SeasonConfig = {
     },
     {
       week: 3,
-      weekLabel: "3회차 — 내 몫",
+      weekLabel: "3회차",
       title: "엥케이리디온",
       author: "에픽테토스",
       tagline: "불필요한 감정 소모를 줄이고, 오직 '내 것'에만 집중합니다.",
@@ -85,7 +85,7 @@ export const currentSeasonConfig: SeasonConfig = {
     },
     {
       week: 4,
-      weekLabel: "4회차 — 그래도 산다",
+      weekLabel: "4회차",
       title: "시지프 신화",
       author: "알베르 카뮈",
       tagline: "반복되는 일상이라는 형벌을 축제로 바꾸는 마지막 퍼즐입니다.",

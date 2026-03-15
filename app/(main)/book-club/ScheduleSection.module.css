@@ -1,0 +1,64 @@
+.section {
+  background-color: #ede0d0;
+  padding: 48px 24px;
+  word-break: keep-all;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 28px;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background-color: #ddc8b0;
+  border: 1px solid #c4a880;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 8px;
+}
+
+.time {
+  font-size: 20px;
+  font-weight: 700;
+  color: #d2691e;
+  margin: 0 0 6px;
+}
+
+.dates {
+  font-size: 14px;
+  color: #4a3020;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.note {
+  font-size: 13px;
+  color: #6a5038;
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (min-width: 480px) {
+  .cards {
+    flex-direction: row;
+  }
+
+  .card {
+    flex: 1;
+  }
+}

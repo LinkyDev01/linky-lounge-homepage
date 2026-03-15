@@ -1,8 +1,14 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import styles from "./page.module.css"
-import { ApplyButton } from "./apply-button"
+import { StickyApplyButton } from "./sticky-apply-button"
+import { AboutSection } from "./AboutSection"
+import { HowToSection } from "./HowToSection"
+import { ScheduleSection } from "./ScheduleSection"
+import { RulesSection } from "./RulesSection"
 import { BookSection } from "./BookSection"
+import { FaqSection } from "./FaqSection"
+import { ClosingSection } from "./ClosingSection"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
@@ -20,19 +26,23 @@ export default function StudyForeignPage() {
     <>
       <main className={styles.container} data-track-section="독서모임_홈">
         <Image
-          src="/linky-lounge/book-club/book-club.png"
-          alt="Linky Study"
+          src="/linky-lounge/book-club/book-club-hero.png"
+          alt="bookclub hero image"
           className={styles.mainImage}
           width={600}
           height={3000}
           priority
         />
+        <AboutSection />
+        <HowToSection />
+        <RulesSection />
+        <ScheduleSection />
         <BookSection />
+        <FaqSection />
+        <ClosingSection />
       </main>
 
-      <div className={styles.fixedButtonContainer}>
-        <ApplyButton />
-      </div>
+      <StickyApplyButton />
     </>
   )
 }

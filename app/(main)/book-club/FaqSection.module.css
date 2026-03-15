@@ -1,0 +1,66 @@
+.section {
+  background-color: #181818;
+  padding: 48px 24px 0;
+  word-break: keep-all;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f0ebe5;
+  margin: 0 0 40px;
+}
+
+/* FAQ 목록 */
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  padding: 28px 0;
+  border-top: 1px solid #2e2e2e;
+}
+
+.item:last-child {
+  border-bottom: 1px solid #2e2e2e;
+}
+
+.question {
+  font-size: 15px;
+  font-weight: 700;
+  color: #d2691e;
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.answer {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #c8bdb4;
+  margin: 0;
+}
+
+/* 문의 */
+.contact {
+  padding: 40px 0;
+}
+
+.contactText {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0ebe5;
+  margin: 0 0 10px;
+}
+
+.contactLink {
+  font-size: 14px;
+  color: #D2691E;
+  text-decoration: none;
+  line-height: 1.6;
+  transition: opacity 0.15s ease;
+}
+
+.contactLink:hover {
+  opacity: 0.75;
+}

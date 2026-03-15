@@ -3,15 +3,13 @@ import { currentSeasonConfig } from "./book-config"
 import styles from "./BookSection.module.css"
 
 export function BookSection() {
-  const { sectionTitle, introTitle, introParagraphs, books, schedules, scheduleNote } =
-    currentSeasonConfig
+  const { sectionTitle, introParagraphs, books } = currentSeasonConfig
 
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
 
       <div className={styles.intro}>
-        {/* <h3 className={styles.introTitle}>{introTitle}</h3> */}
         {introParagraphs.map((text, i) => (
           <p key={i} className={styles.introParagraph}>
             {text}
@@ -63,20 +61,6 @@ export function BookSection() {
             <p className={styles.note}>{book.note}</p>
           </article>
         ))}
-      </div>
-
-      <div className={styles.schedule}>
-        <h2 className={styles.scheduleTitle}>모임 일정</h2>
-        <div className={styles.scheduleCards}>
-          {schedules.map((s) => (
-            <div key={s.name} className={styles.scheduleCard}>
-              <p className={styles.scheduleName}>{s.name}</p>
-              <p className={styles.scheduleTime}>{s.time}</p>
-              <p className={styles.scheduleDates}>{s.dates}</p>
-            </div>
-          ))}
-        </div>
-        <p className={styles.scheduleNote}>{scheduleNote}</p>
       </div>
     </section>
   )

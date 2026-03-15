@@ -1,0 +1,152 @@
+.section {
+  background-color: #f5ede4;
+  padding: 48px 24px;
+  word-break: keep-all;
+}
+
+.hero {
+  padding: 32px 0 48px;
+  border-bottom: 1px solid #d4bfaa;
+  margin-bottom: 48px;
+}
+
+.tagline {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* 블록 */
+.block {
+  margin-bottom: 56px;
+}
+
+.block:last-child {
+  margin-bottom: 0;
+}
+
+.blockTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 20px;
+}
+
+.blockContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lead {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1208;
+  margin: 16px 0 4px;
+  line-height: 1.6;
+}
+
+.lead:first-child {
+  margin-top: 0;
+}
+
+.accent {
+  color: #d2691e;
+  font-weight: 700;
+}
+
+.paragraph {
+  font-size: 15px;
+  line-height: 1.85;
+  color: #4a3020;
+  margin: 0 0 8px;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* 규칙 */
+.ruleList {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  counter-reset: rule-counter;
+}
+
+.ruleItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1208;
+  line-height: 1.6;
+  counter-increment: rule-counter;
+}
+
+.ruleItem::before {
+  content: counter(rule-counter) ".";
+  color: #D2691E;
+  font-weight: 700;
+  flex-shrink: 0;
+  min-width: 20px;
+}
+
+/* 운영 방식 */
+.operationGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.operationItem {
+  padding: 16px 20px;
+  background-color: #edddd0;
+  border-radius: 10px;
+}
+
+.operationLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1208;
+  margin-bottom: 6px;
+}
+
+.operationDesc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #4a3020;
+  margin: 0;
+}
+
+/* 대상 */
+.targetList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+
+.targetItem {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #4a3020;
+  padding-left: 16px;
+  border-left: 2px solid #d4bfaa;
+  margin: 0;
+}
+
+.closing {
+  font-size: 15px;
+  font-style: italic;
+  color: #7a5838;
+  margin: 0;
+  line-height: 1.7;
+}

@@ -1,7 +1,6 @@
 .container {
     max-width: 600px;
     margin: 0 auto;
-    padding-bottom: 80px;
 }
 
 .mainImage {
@@ -19,6 +18,14 @@
     background: linear-gradient(to top, #b8a38ac2 80%, rgba(239, 173, 112, 0));
     padding-top: 32px;
     z-index: 50;
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.fixedButtonContainerHidden {
+    transform: translateY(100%);
+    opacity: 0;
 }
 
 .applyButton {

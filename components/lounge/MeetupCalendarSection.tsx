@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { AnimatedSection } from "@/components/animated-section"
 import { SectionHeader, CTAButton } from "@/components/common"
 import { trackCustom } from "@/lib/meta-pixel"
+import { trackEvent } from "@/lib/gtag"
 import { CATEGORY_STYLES } from "@/constants/lounge"
 import { useGoogleCalendarMeetups } from "@/hooks/use-google-calendar-meetups"
 import type { Meetup } from "@/types"
@@ -55,21 +56,27 @@ export function MeetupCalendarSection() {
     const prev = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
     setCurrentMonth(prev)
     setSelectedDay(null)
-    trackCustom("캘린더_월이동", { 방향: "이전", 월: `${prev.getFullYear()}-${prev.getMonth() + 1}` })
+    const monthStr = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`
+    trackCustom("캘린더_월이동", { 방향: "이전", 월: monthStr })
+    trackEvent("calendar_month_nav", { direction: "prev", month: monthStr })
   }
 
   const nextMonth = () => {
     const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
     setCurrentMonth(next)
     setSelectedDay(null)
-    trackCustom("캘린더_월이동", { 방향: "다음", 월: `${next.getFullYear()}-${next.getMonth() + 1}` })
+    const monthStr = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`
+    trackCustom("캘린더_월이동", { 방향: "다음", 월: monthStr })
+    trackEvent("calendar_month_nav", { direction: "next", month: monthStr })
   }
 
   const handleDayClick = (day: number) => {
     const dayMeetups = getMeetupsForDay(day)
     if (dayMeetups.length > 0) {
       setSelectedDay(selectedDay === day ? null : day)
+      const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
       trackCustom("캘린더_날짜클릭", { 날짜: day, 밋업수: dayMeetups.length })
+      trackEvent("calendar_date_click", { date: dateStr, meetup_count: dayMeetups.length })
     }
   }
 
@@ -568,6 +575,7 @@ function MeetupSliderCard({ meetup, currentMonth }: MeetupSliderCardProps) {
   const handleRegisterClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     trackCustom("밋업_신청클릭", { 밋업명: meetup.title, 카테고리: meetup.category })
+    trackEvent("meetup_apply_click", { meetup_title: meetup.title, category: meetup.category })
   }
 
   return (
@@ -650,6 +658,7 @@ function MeetupListItem({ meetup, currentMonth }: MeetupListItemProps) {
   const handleRegisterClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     trackCustom("밋업_신청클릭", { 밋업명: meetup.title, 카테고리: meetup.category })
+    trackEvent("meetup_apply_click", { meetup_title: meetup.title, category: meetup.category })
   }
 
   return (

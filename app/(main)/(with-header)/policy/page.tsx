@@ -3,14 +3,14 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { Suspense } from "react"
 
-type PolicyType = "study" | "wine" | "night"
+type PolicyType = "study" | "wine" | "night" | "bookclub"
 
 function PolicyContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
   const typeParam = searchParams.get("type")
-  const activeTab: PolicyType = typeParam === "wine" ? "wine" : typeParam === "night" ? "night" : "study"
+  const activeTab: PolicyType = typeParam === "wine" ? "wine" : typeParam === "night" ? "night" : typeParam === "bookclub" ? "bookclub" : "study"
 
   const handleTabChange = (type: PolicyType) => {
     router.push(`/policy?type=${type}`)
@@ -60,12 +60,25 @@ function PolicyContent() {
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9CB7A4]" />
             )}
           </button>
+          <button
+            onClick={() => handleTabChange("bookclub")}
+            className={`px-6 py-3 font-medium transition-colors relative ${activeTab === "bookclub"
+              ? "text-[#9CB7A4]"
+              : "text-foreground/60 hover:text-foreground/80"
+              }`}
+          >
+            북클럽
+            {activeTab === "bookclub" && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9CB7A4]" />
+            )}
+          </button>
         </div>
 
         {/* Content */}
         {activeTab === "study" && <StudyPolicy />}
         {activeTab === "wine" && <WinePolicy />}
         {activeTab === "night" && <NightPolicy />}
+        {activeTab === "bookclub" && <BookClubPolicy />}
       </div>
     </main>
   )
@@ -474,6 +487,78 @@ function NightPolicy() {
         <ul className="space-y-3 text-foreground/80">
           <li className="flex gap-2"><span className="text-[#9CB7A4]">•</span><span>최소 인원(3명) 미달 시 전액 환불됩니다</span></li>
           <li className="flex gap-2"><span className="text-[#9CB7A4]">•</span><span>모임 예정일 전일까지 안내 및 처리됩니다</span></li>
+        </ul>
+      </section>
+    </>
+  )
+}
+
+
+function BookClubPolicy() {
+  return (
+    <>
+      <h2 className="text-2xl font-bold mb-6 text-[#9CB7A4]">신청 및 참가 안내</h2>
+
+      <section className="mb-10">
+        <h3 className="text-xl font-semibold mb-4 text-[#9CB7A4]">1. 신청 접수</h3>
+        <ul className="space-y-3 text-foreground/80">
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span><strong>신청 방법:</strong> 신청 폼 작성 후 인터뷰를 통해 참가 여부가 결정됩니다</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span><strong>참가 확정:</strong> 인터뷰 진행 후 희망 일정을 고려하여 반 배정을 진행합니다</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span><strong>조기 마감:</strong> 정원 충족 시 마감일 이전에도 조기 마감될 수 있습니다</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span><strong>최소 인원:</strong> 반 구성 최소 인원 미달 시 모임이 취소되고 전액 환불됩니다</span>
+          </li>
+        </ul>
+      </section>
+
+      <section className="mb-10">
+        <h3 className="text-xl font-semibold mb-4 text-[#9CB7A4]">2. 참가 확정 및 안내</h3>
+        <ul className="space-y-3 text-foreground/80">
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span>입금 확인 후 문자메시지로 참가 확정을 개별 안내해드립니다</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span>반 확정 시 카카오톡 단체방을 개설하여 상세 일정과 공지사항을 안내합니다</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span>모임 일정 변경 시 문자메시지로 사전 안내드립니다</span>
+          </li>
+        </ul>
+      </section>
+
+      <h2 className="text-2xl font-bold mb-6 mt-12 text-[#9CB7A4]">환불 안내</h2>
+
+      <section className="mb-10">
+        <ul className="space-y-3 text-foreground/80">
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span>첫 모임 시작일로부터 1주 전까지 전액 환불</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span>1회 참여 후 중단 시 미참여 회차 환불</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span><strong>2회차 이후 환불 불가</strong></span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-[#9CB7A4]">•</span>
+            <span>최소 인원 미달 시 전액 환불</span>
+          </li>
         </ul>
       </section>
     </>

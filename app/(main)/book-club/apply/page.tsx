@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
+import { trackEvent } from "@/lib/gtag"
 import styles from "./page.module.css"
 
 export default function BookClubApplyPage() {
@@ -9,16 +10,14 @@ export default function BookClubApplyPage() {
 
   const scheduleInfo = [
     {
-      label: "목요일",
+      label: "목요일 저녁반",
       time: "19:30 – 22:30",
-      datesA: "3/12, 3/26, 4/9, 4/23",
-      datesB: "3/19, 4/2, 4/16, 4/30",
+      dates: "3/26, 4/9, 4/23, 5/7",
     },
     {
-      label: "일요일",
-      time: "10:30 – 13:30 , 14:30 – 17:30",
-      datesA: "3/8, 3/22, 4/5, 4/19",
-      datesB: "3/15, 3/29, 4/12, 4/26",
+      label: "일요일 오후반",
+      time: "14:30 – 17:30",
+      dates: "3/29, 4/12, 4/26, 5/10",
     },
   ]
 
@@ -76,6 +75,7 @@ export default function BookClubApplyPage() {
       )
       trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
       trackStandard("Lead", { content_name: "독서모임_신청완료" })
+      trackEvent("apply_complete", { program: "book_club" })
       alert("신청이 완료되었습니다!\n\n운영진 검토 후 개별 연락드리겠습니다.")
       window.location.replace("/lounge")
     } catch {
@@ -90,79 +90,78 @@ export default function BookClubApplyPage() {
       <section className={styles.application} id="apply">
         <div className={styles.container}>
           <div className={styles.formContainer}>
-          <div className={styles.sectionHeader}>
-            <div className={styles.sectionLabel}>APPLY NOW</div>
-            <h2 className={styles.sectionTitle}>Lazy Day Book Club</h2>
-          </div>
-
-          {/* 일정 공지 */}
-          <div className={styles.scheduleNotice}>
-            <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽]</p>
-            <div className={styles.scheduleNoticeGrid}>
-              {scheduleInfo.map(({ label, time, datesA, datesB }) => (
-                <div key={label} className={styles.scheduleNoticeItem}>
-                  <span className={styles.scheduleNoticeDay}>{label}</span>
-                  <span className={styles.scheduleNoticeTime}>{time}</span>
-                  <span className={styles.scheduleNoticeDates}>A반 {datesA}</span>
-                  <span className={styles.scheduleNoticeDates}>B반 {datesB}</span>
-                </div>
-              ))}
+            <div className={styles.sectionHeader}>
+              <div className={styles.sectionLabel}>APPLY NOW</div>
+              <h2 className={styles.sectionTitle}>Lazy Day Book Club</h2>
             </div>
-            <p className={styles.scheduleNoticeNote}>인터뷰 진행 후, 희망 일정을 고려하여 반배정을 진행합니다.</p>
-          </div>
 
-          <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>이름 *</label>
-              <input type="text" name="name" className={styles.formInput} required placeholder="성함을 기입해주세요." />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>성별 *</label>
-              <div className={styles.radioGroup}>
-                <label className={styles.radioLabel}>
-                  <input type="radio" name="gender" value="남성" required />
-                  <span className={styles.radioText}>남성</span>
-                </label>
-                <label className={styles.radioLabel}>
-                  <input type="radio" name="gender" value="여성" required />
-                  <span className={styles.radioText}>여성</span>
-                </label>
+            {/* 일정 공지 */}
+            <div className={styles.scheduleNotice}>
+              <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽]</p>
+              <div className={styles.scheduleNoticeGrid}>
+                {scheduleInfo.map(({ label, time, dates }) => (
+                  <div key={label} className={styles.scheduleNoticeItem}>
+                    <span className={styles.scheduleNoticeDay}>{label}</span>
+                    <span className={styles.scheduleNoticeTime}>{time}</span>
+                    <span className={styles.scheduleNoticeDates}>{dates}</span>
+                  </div>
+                ))}
               </div>
+              <p className={styles.scheduleNoticeNote}>인터뷰 진행 후, 희망 일정을 고려하여 반배정을 진행합니다.</p>
             </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>나이 *</label>
-              <input
-                type="number"
-                name="age"
-                className={styles.formInput}
-                required
-                placeholder="만 나이를 입력해주세요."
-                min={1}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>전화번호 *</label>
-              <input
-                type="tel"
-                name="phone"
-                className={styles.formInput}
-                required
-                placeholder="휴대전화 번호를 입력해주세요."
-                onChange={e => { e.target.value = formatPhone(e.target.value) }}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>직업 *</label>
-              <input type="text" name="job" className={styles.formInput} required placeholder="직업 또는 하고 있는 일을 간단히 알려주세요" />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>인스타그램 아이디 <span className={styles.optionalTag}>(선택)</span></label>
-              <input type="text" name="instagram" className={styles.formInput} placeholder="@your_instagram" />
-            </div>
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              신청 완료하기
-            </button>
-          </form>
+
+            <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>이름 *</label>
+                <input type="text" name="name" className={styles.formInput} required placeholder="성함을 기입해주세요." />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>성별 *</label>
+                <div className={styles.radioGroup}>
+                  <label className={styles.radioLabel}>
+                    <input type="radio" name="gender" value="남성" required />
+                    <span className={styles.radioText}>남성</span>
+                  </label>
+                  <label className={styles.radioLabel}>
+                    <input type="radio" name="gender" value="여성" required />
+                    <span className={styles.radioText}>여성</span>
+                  </label>
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>나이 *</label>
+                <input
+                  type="number"
+                  name="age"
+                  className={styles.formInput}
+                  required
+                  placeholder="만 나이를 입력해주세요."
+                  min={1}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>전화번호 *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  className={styles.formInput}
+                  required
+                  placeholder="휴대전화 번호를 입력해주세요."
+                  onChange={e => { e.target.value = formatPhone(e.target.value) }}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>직업 *</label>
+                <input type="text" name="job" className={styles.formInput} required placeholder="직업 또는 하고 있는 일을 간단히 알려주세요" />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>인스타그램 아이디 <span className={styles.optionalTag}>(선택)</span></label>
+                <input type="text" name="instagram" className={styles.formInput} placeholder="@your_instagram" />
+              </div>
+              <button type="submit" className={styles.submitButton} disabled={loading}>
+                신청 완료하기
+              </button>
+            </form>
           </div>
         </div>
       </section>
@@ -195,7 +194,7 @@ export default function BookClubApplyPage() {
               <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
               <a href="https://naver.me/F4LgLoQx" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>오시는 길</a>
               <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>문의하기</a>
-              <a href="https://linky-korea.vercel.app/lounge/policy?type=study" className={styles.footerLink}>교환환불정책</a>
+              <a href="https://linky-korea.vercel.app/lounge/policy?type=bookclub" className={styles.footerLink}>교환환불정책</a>
             </div>
           </div>
           <p className={styles.footerCopyright}>

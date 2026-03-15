@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import { trackStandard, trackCustom } from "@/lib/meta-pixel"
+import { trackEvent } from "@/lib/gtag"
 import styles from "./page.module.css"
 
 export default function StudyForeignApplyPage() {
@@ -101,6 +102,7 @@ export default function StudyForeignApplyPage() {
       )
       trackStandard("CompleteRegistration", { content_name: "외국어회화_신청완료" })
       trackStandard("Lead", { content_name: "외국어회화_신청완료" })
+      trackEvent("apply_complete", { program: "study_foreign", language: payload.language ?? "" })
       alert("신청이 완료되었습니다!")
       window.location.replace("https://buy.tosspayments.com/products/SCBnFcyXiE?shopId=prreBmgHJwPY")
     } catch {

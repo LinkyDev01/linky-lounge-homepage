@@ -346,7 +346,7 @@ export default function StudyForeignApplyPage() {
               <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
               <a href="https://naver.me/F4LgLoQx" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>오시는 길</a>
               <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>문의하기</a>
-              <a href="https://linky-korea.vercel.app/lounge/policy?type=study" className={styles.footerLink}>교환환불정책</a>
+              <a href="/lounge/policy?type=study" className={styles.footerLink}>교환환불정책</a>
             </div>
           </div>
           <p className={styles.footerCopyright}>

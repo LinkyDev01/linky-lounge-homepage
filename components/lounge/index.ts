@@ -2,7 +2,6 @@ export { SpaceIntroSection } from "./SpaceIntroSection"
 export { ProgramsSection } from "./ProgramsSection"
 export { MeetupCalendarSection } from "./MeetupCalendarSection"
 export { GallerySection } from "./GallerySection"
-export { LoungeFooter } from "./LoungeFooter"
 
 // Legacy exports (kept for compatibility, can be removed later)
 export { LoungeHeroSection } from "./LoungeHeroSection"

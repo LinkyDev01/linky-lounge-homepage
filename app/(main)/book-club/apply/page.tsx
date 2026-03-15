@@ -77,7 +77,7 @@ export default function BookClubApplyPage() {
       trackStandard("Lead", { content_name: "독서모임_신청완료" })
       trackEvent("apply_complete", { program: "book_club" })
       alert("신청이 완료되었습니다!\n\n운영진 검토 후 개별 연락드리겠습니다.")
-      window.location.replace("/lounge")
+      window.location.replace("/")
     } catch {
       alert("전송 중 오류가 발생했습니다.")
     } finally {
@@ -194,7 +194,7 @@ export default function BookClubApplyPage() {
               <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
               <a href="https://naver.me/F4LgLoQx" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>오시는 길</a>
               <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>문의하기</a>
-              <a href="https://linky-korea.vercel.app/lounge/policy?type=bookclub" className={styles.footerLink}>교환환불정책</a>
+              <a href="/policy?type=bookclub" className={styles.footerLink}>교환환불정책</a>
             </div>
           </div>
           <p className={styles.footerCopyright}>

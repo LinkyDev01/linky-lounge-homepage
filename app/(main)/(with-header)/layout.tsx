@@ -1,17 +1,17 @@
 import type React from "react"
 import { Header } from "@/components/header"
-import { LoungeFooter } from "@/components/lounge"
+import { Footer } from "@/components/footer"
 
-export default function LoungeWithHeaderLayout({
+export default function WithHeaderLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
     <>
-      <Header variant="lounge" />
+      <Header />
       {children}
-      <LoungeFooter />
+      <Footer />
     </>
   )
 }

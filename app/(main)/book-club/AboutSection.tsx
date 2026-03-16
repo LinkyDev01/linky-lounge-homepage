@@ -46,7 +46,7 @@ export function AboutSection() {
             <p className={styles.operationDesc}>
               함께할 사람을 확인하고 결정해요.
               인터뷰는 심사가 아니라 대화예요.
-              30분, 링키라운지에서 편하게 이야기해요.
+              15분 전화로 즐겁게 이야기해요.
             </p>
           </div>
           <div className={styles.operationItem}>

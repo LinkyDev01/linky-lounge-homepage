@@ -44,7 +44,7 @@ export const currentSeasonConfig: SeasonConfig = {
       title: "어린 왕자",
       author: "생텍쥐페리",
       tagline: "나도 모르게 '이상한 어른'이 되어버린 지점을 발견합니다.",
-      quotes: ["네가 길들인 것에 대해서는 영원히 책임이 있어."],
+      quotes: ["어른들이란 그렇다. 그렇다고 그런 걸로 어른들을 탓해서는 안 된다. 어린이들은 어른들에게 너그러워야 한다."],
       paragraphs: [
         "어린 왕자가 만난 소유욕 강한 사업가, 박수받길 원하는 허영쟁이, 명령만 내리는 왕. 어릴 땐 그저 풍자적인 캐릭터였지만, 사회생활을 하며 다시 펼친 이 책 속에는 지금 나의 결핍이 투영되어 있습니다.",
       ],
@@ -59,7 +59,6 @@ export const currentSeasonConfig: SeasonConfig = {
       author: "토니 페르난도",
       tagline: "내 삶의 해상도를 높여주는 실질적인 렌즈를 장착합니다.",
       quotes: [
-        "그럴 수도 있고, 아닐 수도 있다.",
         "마음은 언제든 바뀔 수 있고, 언젠가는 바뀌기 마련이라는 사실을 기억해야 한다.",
       ],
       paragraphs: [
@@ -89,7 +88,7 @@ export const currentSeasonConfig: SeasonConfig = {
       title: "시지프 신화",
       author: "알베르 카뮈",
       tagline: "반복되는 일상이라는 형벌을 축제로 바꾸는 마지막 퍼즐입니다.",
-      quotes: ["시지프가 행복하다고 상상해야 한다."],
+      quotes: ["그럼에도, 남김없이 살아갈 것이다."],
       paragraphs: [
         "매일 돌을 굴려 올리는 시지프의 삶은 어쩌면 매일 출근하고 퇴근하는 우리의 일상과 닮아 있습니다. 카뮈는 이 허무함 속에서 비로소 '자유'와 '열정'을 찾으라고 말합니다.",
       ],

@@ -37,6 +37,9 @@ export default function BookClubApplyPage() {
     if (!phone?.value.trim()) { alert("전화번호를 입력해주세요."); phone?.focus(); return false }
     if (!job?.value.trim()) { alert("직업을 입력해주세요."); job?.focus(); return false }
 
+    const reason = form.querySelector<HTMLInputElement>('input[name="reason"]')
+    if (!reason?.value.trim()) { alert("레이지데이 북클럽에 끌린 한줄을 입력해주세요."); reason?.focus(); return false }
+
     return true
   }
 
@@ -60,12 +63,13 @@ export default function BookClubApplyPage() {
       age: form.querySelector<HTMLInputElement>('input[name="age"]')?.value,
       phone: form.querySelector<HTMLInputElement>('input[name="phone"]')?.value,
       job: form.querySelector<HTMLInputElement>('input[name="job"]')?.value,
+      reason: form.querySelector<HTMLInputElement>('input[name="reason"]')?.value,
       instagram: form.querySelector<HTMLInputElement>('input[name="instagram"]')?.value || "",
     }
 
     try {
       await fetch(
-        "https://script.google.com/macros/s/AKfycbyCR99RKgFtdXUREKhmdQKXP4AIVFjrxHCIF7GlGIdDOb4HHq_AsYkn6hvbeYUsuO8/exec",
+        "https://script.google.com/macros/s/AKfycbzUNpmrpiD5xejebLoD2v9Y7oCmzff6qZSXLH-ZB_W62722do20pLEJvEcNY1ciS18/exec",
         {
           method: "POST",
           mode: "no-cors",
@@ -153,6 +157,10 @@ export default function BookClubApplyPage() {
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>직업 *</label>
                 <input type="text" name="job" className={styles.formInput} required placeholder="직업 또는 하고 있는 일을 간단히 알려주세요" />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>레이지데이 북클럽에 끌린 이유 한줄 *</label>
+                <input type="text" name="reason" className={styles.formInput} required placeholder="북클럽에 끌린 이유를 한 줄로 적어주세요." />
               </div>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>인스타그램 아이디 <span className={styles.optionalTag}>(선택)</span></label>

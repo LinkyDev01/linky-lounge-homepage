@@ -13,6 +13,38 @@ export default function LoungeInfoPage() {
   const [wifiToast, setWifiToast] = useState(false)
   const [mapLoaded, setMapLoaded] = useState(false)
 
+  const scrollToSection = useCallback((id: string, e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    const el = document.getElementById(id)
+    if (!el) return
+    const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-h") || "56")
+    const tabH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--tab-h") || "50")
+    const top = el.getBoundingClientRect().top + window.scrollY - navH - tabH - 8
+    window.scrollTo({ top, behavior: "smooth" })
+  }, [])
+
+  const openNaverMap = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    const lat = 37.4786
+    const lng = 126.9794
+    const name = encodeURIComponent("링키라운지")
+    const appname = encodeURIComponent("linkylounge.com")
+    const webUrl = "https://naver.me/5K6llGWp"
+    const ua = navigator.userAgent
+    if (/Android/i.test(ua)) {
+      window.location.href = `intent://place?lat=${lat}&lng=${lng}&name=${name}&appname=${appname}#Intent;scheme=nmap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.nhn.android.nmap;end`
+    } else if (/iPhone|iPad|iPod/i.test(ua)) {
+      const nmapUrl = `nmap://place?lat=${lat}&lng=${lng}&name=${name}&appname=${appname}`
+      const clickedAt = +new Date()
+      window.location.href = nmapUrl
+      setTimeout(() => {
+        if (+new Date() - clickedAt < 2000) window.open(webUrl, "_blank")
+      }, 1500)
+    } else {
+      window.open(webUrl, "_blank")
+    }
+  }, [])
+
   // Tab scroll tracking
   useEffect(() => {
     const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-h") || "56")
@@ -68,12 +100,17 @@ export default function LoungeInfoPage() {
 
       {/* ── Section Tabs ── */}
       <div className={styles.sectionTabs}>
-        <div className={styles.sectionTabsInner}>
+        <div
+          className={styles.sectionTabsInner}
+          style={{ "--active-tab": activeTab } as React.CSSProperties}
+        >
+          <div className={styles.tabIndicator} aria-hidden="true" />
           {(["찾아오는 길", "건물 입구", "주차안내", "퇴실 체크리스트"] as const).map((label, i) => (
             <a
               key={label}
               href={`#${SECTION_IDS[i]}`}
               className={`${styles.tabLink} ${activeTab === i ? styles.tabLinkActive : ""}`}
+              onClick={(e) => scrollToSection(SECTION_IDS[i], e)}
             >
               {label}
             </a>
@@ -168,13 +205,13 @@ export default function LoungeInfoPage() {
                   <p className={styles.naverMapInfoTitle}>서울 동작구 동작대로7길 44</p>
                   <p className={styles.naverMapInfoSub}>사당역 10번 출구 도보 3분 · 지하 1층</p>
                 </div>
-                <a href="https://naver.me/5K6llGWp" target="_blank" rel="noopener noreferrer" className={styles.naverOpenBtn}>
+                <a href="https://naver.me/5K6llGWp" rel="noopener noreferrer" className={styles.naverOpenBtn} onClick={openNaverMap}>
                   지도 열기
                 </a>
               </div>
             </div>
             <div className={styles.mapActions}>
-              <a href="https://naver.me/5K6llGWp" target="_blank" rel="noopener noreferrer" className={`${styles.mapBtn} ${styles.mapBtnNaver}`}>
+              <a href="https://naver.me/5K6llGWp" rel="noopener noreferrer" className={`${styles.mapBtn} ${styles.mapBtnNaver}`} onClick={openNaverMap}>
                 네이버 지도
               </a>
               <a href="https://place.map.kakao.com/59708189" target="_blank" rel="noopener noreferrer" className={`${styles.mapBtn} ${styles.mapBtnKakao}`}>

@@ -70,16 +70,16 @@
   z-index: 0;
 }
 .tabLink {
-  display: flex; align-items: center; justify-content: flex-start;
+  display: flex; align-items: center; justify-content: center;
   flex: 1;
   padding: 0 12px;
   font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
   color: var(--t-mid); text-decoration: none; white-space: nowrap;
   transition: color 0.26s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
+  text-align: center;
   position: relative; z-index: 1;
 }
-.tabLink:hover { color: var(--accent); }
+.tabLink:not(.tabLinkActive):hover { color: var(--accent); }
 .tabLinkActive { color: white; font-weight: 600; }
 
 /* ── Hero ── */
@@ -151,7 +151,7 @@
 .entranceSteps { border-left: 2px solid var(--border); margin-left: 12px; padding-left: 24px; }
 .entranceStep { position: relative; padding-bottom: 28px; }
 .entranceStep:last-child { padding-bottom: 0; }
-.entranceStep::before { content: ''; position: absolute; left: -31px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--s-warm); }
+.entranceStep::before { content: ''; position: absolute; left: -32px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--s-warm); box-sizing: content-box; }
 .stepNum { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 3px; }
 .stepTitle { font-size: 16px; font-weight: 600; color: var(--t-ink); margin-bottom: 6px; }
 .stepDesc { font-size: 13px; color: var(--t-brown); line-height: 1.8; font-weight: 300; }
@@ -228,6 +228,7 @@
 .checkoutText { font-size: 13px; color: var(--t-brown); line-height: 1.75; font-weight: 300; transition: all 0.18s; }
 .checkoutTextChecked { text-decoration: line-through; opacity: 0.45; }
 .checkoutTextStrong { color: var(--t-ink); font-weight: 600; }
+.checkoutRequired { color: #DC2626; font-weight: 600; }
 .checkoutNote { margin-top: 20px; padding: 16px 18px; background: var(--accent-tint); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
 .checkoutNoteText { font-size: 13px; color: var(--t-brown); line-height: 1.75; font-weight: 300; }
 .checkoutNoteStrong { color: var(--accent-deep); font-weight: 600; }
@@ -235,13 +236,14 @@
 /* ── CTA ── */
 .ctaSection { background: var(--s-page); }
 .ctaDesc { font-size: 14px; color: var(--t-brown); font-weight: 300; line-height: 1.85; margin-bottom: 24px; }
-.ctaBtn { display: block; width: 100%; padding: 18px; text-align: center; font-size: 14px; font-weight: 600; letter-spacing: 0.06em; border-radius: 100px; text-decoration: none; transition: all 0.25s ease; background: var(--accent); color: white; }
+.ctaBtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 18px; font-size: 14px; font-weight: 600; letter-spacing: 0.06em; border-radius: 100px; text-decoration: none; transition: all 0.25s ease; background: var(--accent); color: white; }
 .ctaBtn:hover { background: var(--accent-deep); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(210,105,30,0.3); }
 .ctaDivider { height: 1px; background: var(--border-lt); margin: 24px 0; }
 .contactRow { display: flex; gap: 8px; }
-.contactChip { flex: 1; padding: 14px; background: var(--s-cream); border: 1px solid var(--border-lt); border-radius: 10px; text-align: center; text-decoration: none; transition: all 0.2s ease; }
+.contactChip { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 14px 10px; background: var(--s-cream); border: 1px solid var(--border-lt); border-radius: 10px; text-decoration: none; transition: all 0.2s ease; }
 .contactChip:hover { border-color: var(--accent); background: var(--accent-tint); }
-.contactChipLabel { font-size: 10px; color: var(--t-mid); letter-spacing: 0.05em; margin-bottom: 4px; }
+.contactChipIcon { display: flex; color: var(--accent); margin-bottom: 6px; }
+.contactChipLabel { font-size: 10px; color: var(--t-mid); letter-spacing: 0.05em; margin-bottom: 2px; }
 .contactChipValue { font-size: 12px; font-weight: 600; color: var(--t-ink); }
 
 /* ── Footer ── */

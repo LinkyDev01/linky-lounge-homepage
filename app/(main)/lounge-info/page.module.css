@@ -106,6 +106,16 @@
   .naverMapPreview { height: 200px; }
 }
 .naverMapPreview iframe { width: 100%; height: 100%; border: none; display: block; }
+.mapPlaceholder {
+  width: 100%; height: 100%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--s-warm) 0%, var(--s-tan) 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  transition: background 0.2s;
+}
+.mapPlaceholder:hover { background: linear-gradient(135deg, var(--s-tan) 0%, #D0B898 100%); }
+.mapPlaceholderIcon { color: var(--accent); opacity: 0.9; }
+.mapPlaceholderTitle { font-size: 14px; font-weight: 600; color: var(--t-ink); letter-spacing: 0.02em; }
+.mapPlaceholderSub { font-size: 12px; color: var(--t-mid); font-weight: 300; }
 .naverMapFooter { background: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-lt); }
 .naverMapInfoTitle { font-size: 13px; font-weight: 600; color: var(--t-ink); }
 .naverMapInfoSub { font-size: 12px; color: var(--t-brown); font-weight: 300; }
@@ -135,7 +145,30 @@
 
 /* ── Parking ── */
 .parkingSection { background: var(--s-cream); }
-.parkingCards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.parkingCards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+/* New card-link style */
+.parkingCardLink {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--s-page); border: 1px solid var(--border-lt); border-radius: 12px; padding: 16px 18px;
+  text-decoration: none; transition: all 0.2s ease;
+}
+.parkingCardLink:hover { border-color: var(--accent); background: var(--accent-tint); }
+.parkingPinIcon {
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: var(--accent-tint); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); transition: background 0.2s;
+}
+.parkingCardLink:hover .parkingPinIcon { background: var(--accent); color: white; }
+.parkingCardInfo { flex: 1; min-width: 0; }
+.parkingTagBadge { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; color: var(--t-mid); display: block; margin-bottom: 3px; }
+.parkingCardName2 { font-size: 15px; font-weight: 600; color: var(--t-ink); line-height: 1.3; }
+.parkingCardWalk { font-size: 12px; color: var(--t-brown); font-weight: 300; margin-top: 3px; }
+.parkingCardChevron { color: var(--t-mid); flex-shrink: 0; transition: color 0.2s; }
+.parkingCardLink:hover .parkingCardChevron { color: var(--accent); }
+
+/* Legacy (unused but kept) */
 .parkingCard { background: var(--s-page); border: 1px solid var(--border-lt); border-radius: 12px; padding: 18px; }
 .parkingCardHead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .parkingBadge { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 100px; }

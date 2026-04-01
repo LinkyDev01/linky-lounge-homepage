@@ -11,6 +11,7 @@ export default function LoungeInfoPage() {
   const [activeTab, setActiveTab] = useState(0)
   const [checked, setChecked] = useState<boolean[]>(Array(6).fill(false))
   const [wifiToast, setWifiToast] = useState(false)
+  const [mapLoaded, setMapLoaded] = useState(false)
 
   // Tab scroll tracking
   useEffect(() => {
@@ -143,13 +144,24 @@ export default function LoungeInfoPage() {
             <h2 className={styles.sectionTitle}>찾아오는 길</h2>
             <div className={styles.naverMapCard}>
               <div className={styles.naverMapPreview}>
-                <iframe
-                  src="https://map.naver.com/p/entry/place/2050370003"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="링키라운지 위치"
-                />
+                {mapLoaded ? (
+                  <iframe
+                    src="https://map.naver.com/p/entry/place/2050370003"
+                    allowFullScreen
+                    title="링키라운지 위치"
+                  />
+                ) : (
+                  <button className={styles.mapPlaceholder} onClick={() => setMapLoaded(true)}>
+                    <div className={styles.mapPlaceholderIcon}>
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.15"/>
+                      </svg>
+                    </div>
+                    <p className={styles.mapPlaceholderTitle}>지도 보기</p>
+                    <p className={styles.mapPlaceholderSub}>탭하면 네이버 지도를 불러옵니다</p>
+                  </button>
+                )}
               </div>
               <div className={styles.naverMapFooter}>
                 <div>
@@ -218,16 +230,28 @@ export default function LoungeInfoPage() {
             <p className={styles.sectionTag}>주차 안내</p>
             <h2 className={styles.sectionTitle}>주차하기</h2>
             <div className={styles.parkingCards}>
-              <div className={styles.parkingCard}>
-                <div className={styles.parkingCardHead}>
-                  <span className={`${styles.parkingBadge} ${styles.badgePaid}`}>공영 유료</span>
-                  <span className={styles.parkingName}>사당 공영주차장</span>
-                </div>
-                <p className={styles.parkingDesc}>
-                  • <a href="https://naver.me/53lKjoLk" target="_blank" rel="noopener noreferrer" className={styles.parkingDescLink}>사당1호 공영주차장</a> — 도보 4분<br />
-                  • <a href="https://naver.me/5YFcoQBD" target="_blank" rel="noopener noreferrer" className={styles.parkingDescLink}>사당2호 공영주차장</a> — 도보 5분
-                </p>
-              </div>
+              {[
+                { name: "사당1호 공영주차장", walk: "도보 4분", href: "https://naver.me/53lKjoLk" },
+                { name: "사당2호 공영주차장", walk: "도보 5분", href: "https://naver.me/5YFcoQBD" },
+              ].map(({ name, walk, href }) => (
+                <a key={name} href={href} target="_blank" rel="noopener noreferrer" className={styles.parkingCardLink}>
+                  <div className={styles.parkingPinIcon}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div className={styles.parkingCardInfo}>
+                    <span className={styles.parkingTagBadge}>공영 유료</span>
+                    <p className={styles.parkingCardName2}>{name}</p>
+                    <p className={styles.parkingCardWalk}>{walk}</p>
+                  </div>
+                  <div className={styles.parkingCardChevron}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </a>
+              ))}
             </div>
             <Image src="/location/parking.png" alt="주차장 입구 위치" width={600} height={300} className={styles.parkingPhoto} />
           </div>

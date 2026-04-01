@@ -197,13 +197,22 @@
 .contactChipValue { font-size: 12px; font-weight: 600; color: var(--t-ink); }
 
 /* ── Footer ── */
-.footer { background: var(--s-warm); border-top: 1px solid var(--border-lt); padding: 28px 0; }
-.footerInner { text-align: center; }
-.footerLogoMark { height: 26px; width: auto; margin-bottom: 6px; opacity: 0.5; display: block; margin-left: auto; margin-right: auto; }
-.footerCopy { font-size: 11px; color: var(--t-mid); opacity: 0.6; font-weight: 300; letter-spacing: 0.03em; }
+.footer { background: #1A1208; color: rgba(255,255,255,0.85); padding: 48px 0 28px; }
+.footerWrap { max-width: 600px; margin: 0 auto; padding: 0 24px; }
+.footerGrid { display: grid; grid-template-columns: 1fr; gap: 32px; margin-bottom: 32px; }
+.footerSectionTitle { font-size: 14px; font-weight: 600; color: white; margin-bottom: 12px; letter-spacing: 0.03em; }
+.footerList { display: flex; flex-direction: column; gap: 6px; list-style: none; padding: 0; margin: 0; }
+.footerList li { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.6; font-weight: 300; word-break: keep-all; }
+.footerLink { color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s; }
+.footerLink:hover { color: white; }
+.footerBottom { border-top: 1px solid rgba(255,255,255,0.12); padding-top: 20px; }
+.footerCopy { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; font-weight: 300; letter-spacing: 0.03em; }
 
 /* ── Desktop ── */
 @media (min-width: 720px) {
+  .footerWrap { max-width: 720px; padding: 0 48px; }
+  .footerGrid { grid-template-columns: 1fr 1fr; }
+
   .root { --nav-h: 60px; --tab-h: 54px; }
   html { background: #DDD0C2; }
   .root { max-width: 720px; margin: 0 auto; box-shadow: 0 0 0 1px rgba(180,140,100,0.18), 0 8px 48px rgba(80,40,10,0.13); min-height: 100vh; }

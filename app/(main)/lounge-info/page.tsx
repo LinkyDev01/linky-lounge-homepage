@@ -361,10 +361,30 @@ export default function LoungeInfoPage() {
 
       {/* ── Footer ── */}
       <footer className={styles.footer}>
-        <div className={styles.wrap}>
-          <div className={styles.footerInner}>
-            <Image src="/logos/logo.png" alt="링키라운지" width={26} height={26} className={styles.footerLogoMark} />
-            <p className={styles.footerCopy}>© 2025 Linky Lounge · linkylounge@gmail.com</p>
+        <div className={styles.footerWrap}>
+          <div className={styles.footerGrid}>
+            <div>
+              <h4 className={styles.footerSectionTitle}>사업자정보</h4>
+              <ul className={styles.footerList}>
+                <li>주식회사 링키</li>
+                <li>대표 : 안동민 | 개인정보관리책임자 : 안동민</li>
+                <li>사업자등록번호 : 557-81-03588 | 통신판매업신고번호: 2026-별내-0077</li>
+                <li>이메일 : linkylounge@gmail.com | 대표번호 : 010-7444-5790</li>
+                <li>주소: 경기도 남양주시 별내3로 322, 404호</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className={styles.footerSectionTitle}>고객지원</h4>
+              <ul className={styles.footerList}>
+                <li><a href="/policy" className={styles.footerLink}>교환환불정책</a></li>
+                <li><a href="https://www.instagram.com/linky_lounge" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a></li>
+                <li><a href="http://pf.kakao.com/_cuWDn" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>KakaoTalk</a></li>
+                <li><a href="https://naver.me/FLebi2a9" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Naver</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className={styles.footerBottom}>
+            <p className={styles.footerCopy}>© 2026 Linky Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>

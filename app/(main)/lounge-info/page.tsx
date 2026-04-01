@@ -198,11 +198,11 @@ export default function LoungeInfoPage() {
               </div>
               <div className={styles.entranceStep}>
                 <p className={styles.stepNum}>Step 02</p>
-                <p className={styles.stepTitle}>왼쪽 지하 계단 소잤운 내려오기</p>
+                <p className={styles.stepTitle}>왼쪽 지하 계단으로 내려오기</p>
                 <p className={styles.stepDesc}>
-                  걺물 진장 후 <strong className={styles.stepDescStrong}>좛쪩 지하 계단</strong>을 따라 내려옵니다.<br />
-                  계단 아래 트릭킹짐(B1) 간판읭 보이쫠� 별,<br />
-                  <strong className={styles.stepDescStrong}>앂면 링키라운지 문</strong>으로 들어오시면 됩니다.
+                  건물 진입 후 <strong className={styles.stepDescStrong}>왼쪽 지하 계단</strong>을 따라 내려옵니다.<br />
+                  계단 아래 트릭킹짐(B1) 간판이 보이고,<br />
+                  <strong className={styles.stepDescStrong}>정면 링키라운지 문</strong>으로 들어오시면 됩니다.
                 </p>
                 <Image src="/location/entrance-stairs.png" alt="지하 계단 아래 링키라운지 입구" width={600} height={800} className={styles.stepPhoto} />
               </div>
@@ -211,16 +211,16 @@ export default function LoungeInfoPage() {
         </div>
       </div>
 
-      {/*  ── 주차안내 ── */}
+      {/* ── 주차안내 ── */}
       <div id="parking" className={`${styles.parkingSection} ${styles.scrollAnchor}`}>
         <div className={styles.wrap}>
           <div className={styles.section}>
             <p className={styles.sectionTag}>주차 안내</p>
-            <h2 className={styles.sectionTitle}>주차았기</h2>
+            <h2 className={styles.sectionTitle}>주차하기</h2>
             <div className={styles.parkingCards}>
               <div className={styles.parkingCard}>
                 <div className={styles.parkingCardHead}>
-                  <span className={`${styles.parkingBadge} ${styles.badgePaid}`}>공은 유롌</span>
+                  <span className={`${styles.parkingBadge} ${styles.badgePaid}`}>공영 유료</span>
                   <span className={styles.parkingName}>사당 공영주차장</span>
                 </div>
                 <p className={styles.parkingDesc}>
@@ -229,6 +229,145 @@ export default function LoungeInfoPage() {
                 </p>
               </div>
             </div>
-            <Image src="/location/parking.png" alt="�;��
-���R��^�Z���N˙�"v�GF�׳c��V�v�C׳3�6�74��S׷7G��W2�&���u��F������F�c���F�c���F�cࠢ��)H)H�;^�Bȹ��JB)H)H��Т�F�b6�74��S׷7G��W2�f6�ƗF�W56V7F������F�b6�74��S׷7G��W2�w&���F�b6�74��S׷7G��W2�6V7F������6�74��S׷7G��W2�6V7F���Fw��;^�B�	^�;C���ƃ"6�74��S׷7G��W2�6V7F���F�F�W��;^�Bȹ��JB�X��+C���#��F�b6�74��S׷7G��W2�f6�ƗF�W4w&�G�������6��/	��"��&Vâ.ȉ�ɪ��ێɹ"�FW63�.�Yθ�C��U���+B�����L+~ɸ����;R���R"�����6��/	�;����"��&Vâ.��B�HN���	��K"�FW63�#�ێ˙�ȪN�κk��K~�Hκj�ȪL+~��ةλ�����R"�����6��/	�H�"��&Vâ.ȪN�K�˺B"�FW63�$$�4R��N�:�؊�ȪB"�����6��/	�+�"��&Vâ.�[�ث��h"�FW63�#^�ێ˙��Zλ�B"�����6��/	��r"��&Vâ.ɘ�ێ��B"�FW63�.�ێɹ�y��jB�Zλ�E�⎺ˎ�ق�XNɩB�"�����6��.)ʂ"��&Vâ.�ێ�Xκj��kB"�FW63�.�	Nɫ�Y�ɫȪB�	�K"����������6����&V��FW62Ғ�����F�b�W�׶�&V��6�74��S׷7G��W2�f6�ƗG��FV����7�6�74��S׷7G��W2�f4�6���綖6�����7���F�c��6�74��S׷7G��W2�f4�&V����&V������6�74��S׷7G��W2�f4FW67��FW67������F�c���F�c���Т��F�c���F�c���F�c���F�cࠢ��)H)Hv��f�bٙN��^ȺB)H)H��Т�F�b6�74��S׷7G��W2��f�6V7F������F�b6�74��S׷7G��W2�w&���F�b6�74��S׷7G��W2�6V7F������6�74��S׷7G��W2�6V7F���Fw����Nɪ��	^�;C���ƃ"6�74��S׷7G��W2�6V7F���F�F�W��v��f�+rٙN��^ȺC���#��F�b6�74��S׷7G��W2��f�6&G7���F�b6�74��S׷7G��W2��f�6&G���7�6�74��S׷7G��W2��f�6&D�6����	�;c��7���F�b6�74��S׷7G��W2��f�6&Df�W����6�74��S׷7G��W2��f�6&D�&V���v��f�����F�b6�74��S׷7G��W2�v�f�&�w���6�74��S׷7G��W2��f�6&Ef�VW��Ĕ䵕���T�tS����'WGF��6�74��S׷7G��W2�v�f�'F����6Ɩ6�׶6��v�f��N��(�ً��;^�*���'WGF����7�6�74��S׶G�7G��W2�v�f�F�7G�G�v�f�F�7B�7G��W2�v�f�F�7Ef�6�&�R�"'���)�2�;^�*ι
-���7����F�c��6�74��S׷7G��W2��f�6&E7V'�N��(�ً��Ʒ�Ʒ�Ʒ�3�����F�c���F�c��F�b6�74��S׷7G��W2��f�6&G���7�6�74��S׷7G��W2��f�6&D�6����	�����7���F�c��6�74��S׷7G��W2��f�6&D�&V���ٙN��^ȺC����6�74��S׷7G��W2��f�6&Ef�VW��#+rˋR�;^ɪ�����6�74��S׷7G��W2��f�6&E7V'��ˋR��Nɪ�ȹ�ȪN��N˙��XN���7G&��r6�74��S׷7G��W2��f�6&E7V$66V�G��ɘ�ێ��B˛N�9��*C��7G&��s��x��������F�c���F�c��F�b6�74��S׷7G��W2��f�6&G���7�6�74��S׷7G��W2��f�6&D�6����	�I��7���F�c��6�74��S׷7G��W2��f�6&D�&V����N�kN�����N��(�ً�����6�74��S׷7G��W2��f�6&Ef�VW��;N�iޫ����^���ٸB�N�������6�74��S׷7G��W2��f�6&E7V'����^���ɘN�8�ȹ���N�kN����*N�[��8N��B�X��+N�9κk޸����B��'"���i�ɫBȹΫB�	��K�ɩB	��������F�c���F�c���F�c���F�c���F�c���F�cࠢ��)H)H�{NȺB�+N�κj�ȪNث�)H)H��Т�F�b�C�&6�V6��WB"6�74��S׶G�7G��W2�6�V6��WE6V7F����G�7G��W2�67&����6��'����F�b6�74��S׷7G��W2�w&���F�b6�74��S׷7G��W2�6V7F������6�74��S׷7G��W2�6V7F���Fw���{NȺB�X��+C���ƃ"6�74��S׷7G��W2�6V7F���F�F�W���{NȺB�+N�κj�ȪNث����#��V�6�74��S׷7G��W2�6�V6��WDƗ7G���6�V6�Ɨ7D�FV�2�����FV���������ƒ�W�׶��6�74��S׷7G��W2�6�V6��WD�FV����6Ɩ6�ײ����F�vv�T6�V6�������7�6�74��S׶G�7G��W2�6�V6��WD&���G�6�V6�VE����7G��W2�6�V6��WD&��6�V6�VB�"'����6�V6�VE���bb���7frv�GF��#2"�V�v�C�#"f�Wt&���#2"f����&���R#��F�C�$��RT�R��T��R�R"7G&��S�'v��FR"7G&��Uv�GF��#""7G&��TƖ�V6�'&�V�B"7G&��TƖ�V�����'&�V�B"����7fs��Т��7���6�74��S׶G�7G��W2�6�V6��WEFW�G�G�6�V6�VE����7G��W2�6�V6��WEFW�D6�V6�VB�"'�����FV�Т�����Ɠ���Т��V����F�c���F�c���F�cࠢ��)H)H�ˎ�ق)H)H��Т�F�b6�74��S׷7G��W2�7F6V7F������F�b6�74��S׷7G��W2�w&���F�b6�74��S׷7G��W2�6V7F������6�74��S׷7G��W2�6V7F���Fw��ˎ�قf��Ɉ��[����ƃ"6�74��S׷7G��W2�6V7F���F�F�W����N��N�)����H�ˎ�ك���#��6�74��S׷7G��W2�7FFW67��h����Y�Ⱥ�	��˛N˛NɊN�j��κ����Y��(��y�H�;��K�ɩB������&Vc�&�GG3���b����6����7UtF�"F&vWC�%�&��"&V��&���V�W"��&VfW'&W""6�74��S׷7G��W2�7F'F���˛N˛NɊN�j��κ��ˎ�َ�Y��� �����F�b6�74��S׷7G��W2�7FF�f�FW'����F�b6�74��S׷7G��W2�6��F7E&�w����&Vc�'FVãSr�Cs"�Ss�"6�74��S׷7G��W2�6��F7D6�����6�74��S׷7G��W2�6��F7D6���&V����NٙC����6�74��S׷7G��W2�6��F7D6��f�VW��Sr�Cs"�Ss���������&Vc�&���F�Ɩ淖��V�vTv����6��"6�74��S׷7G��W2�6��F7D6�����6�74��S׷7G��W2�6��F7D6���&V�����N��N�������6�74��S׷7G��W2�6��F7D6��f�VW��Ɩ淖��V�vTv����6����������&Vc�&�GG3�����7Fw&��6���Ɩ淕���V�vR"F&vWC�%�&��"&V��&���V�W"��&VfW'&W""6�74��S׷7G��W2�6��F7D6�����6�74��S׷7G��W2�6��F7D6���&V����ێȪN�8�{�������6�74��S׷7G��W2�6��F7D6��f�VW��Ɩ淕���V�vS��������F�c���F�c���F�c���F�cࠢ��)H)Hf��FW")H)H��Т�f��FW"6�74��S׷7G��W2�f��FW'���F�b6�74��S׷7G��W2�w&���F�b6�74��S׷7G��W2�f��FW$���W'��Ė�vR7&3�"���v�2���v���r"�C�.�x�*N���ɫN�x"v�GF�׳#g��V�v�C׳#g�6�74��S׷7G��W2�f��FW$��v��&�����6�74��S׷7G��W2�f��FW$6����*�##RƖ淒��V�vR+rƖ淖��V�vTv����6�������F�c���F�c���f��FW#���F�c����
+            <Image src="/location/parking.png" alt="주차장 입구 위치" width={600} height={300} className={styles.parkingPhoto} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── 공간 시설 ── */}
+      <div className={styles.facilitiesSection}>
+        <div className={styles.wrap}>
+          <div className={styles.section}>
+            <p className={styles.sectionTag}>공간 정보</p>
+            <h2 className={styles.sectionTitle}>공간 시설 안내</h2>
+            <div className={styles.facilitiesGrid}>
+              {[
+                { icon: "🪑", label: "수용 인원", desc: "최대 40명\n단체 모임·워크샵 가능" },
+                { icon: "📽️", label: "빔 프로젝터", desc: "100인치 스크린\n넷플릭스·유튜브 가능" },
+                { icon: "🔊", label: "스피커", desc: "BOSE 블루투스" },
+                { icon: "💻", label: "노트북", desc: "15인치 구비" },
+                { icon: "🍷", label: "와인잔", desc: "인원 맞춤 구비\n(문의 필요)" },
+                { icon: "✨", label: "인테리어", desc: "바우하우스 감성" },
+              ].map(({ icon, label, desc }) => (
+                <div key={label} className={styles.facilityItem}>
+                  <span className={styles.facIcon}>{icon}</span>
+                  <div>
+                    <p className={styles.facLabel}>{label}</p>
+                    <p className={styles.facDesc}>{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Wi-Fi & 화장실 ── */}
+      <div className={styles.infoSection}>
+        <div className={styles.wrap}>
+          <div className={styles.section}>
+            <p className={styles.sectionTag}>이용 정보</p>
+            <h2 className={styles.sectionTitle}>Wi-Fi · 화장실</h2>
+            <div className={styles.infoCards}>
+              <div className={styles.infoCard}>
+                <span className={styles.infoCardIcon}>📶</span>
+                <div className={styles.infoCardFlex}>
+                  <p className={styles.infoCardLabel}>Wi-Fi</p>
+                  <div className={styles.wifiRow}>
+                    <p className={styles.infoCardValue}>LINKY_LOUNGE</p>
+                    <button className={styles.wifiBtn} onClick={copyWifi}>비밀번호 복사</button>
+                    <span className={`${styles.wifiToast} ${wifiToast ? styles.wifiToastVisible : ""}`}>✓ 복사됨</span>
+                  </div>
+                  <p className={styles.infoCardSub}>비밀번호: lkylkylky3</p>
+                </div>
+              </div>
+              <div className={styles.infoCard}>
+                <span className={styles.infoCardIcon}>🚽</span>
+                <div>
+                  <p className={styles.infoCardLabel}>화장실</p>
+                  <p className={styles.infoCardValue}>B1 · 1층 공용</p>
+                  <p className={styles.infoCardSub}>
+                    1층 이용 시 스위치 아래 <strong className={styles.infoCardSubAccent}>와인잔 카드키</strong> 지참
+                  </p>
+                </div>
+              </div>
+              <div className={styles.infoCard}>
+                <span className={styles.infoCardIcon}>🔐</span>
+                <div>
+                  <p className={styles.infoCardLabel}>도어락 비밀번호</p>
+                  <p className={styles.infoCardValue}>보증금 입금 후 전달</p>
+                  <p className={styles.infoCardSub}>입금 완료 시 도어락 키를 별도 안내드립니다.<br />즐거운 시간 되세요 😊</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 퇴실 체크리스트 ── */}
+      <div id="checkout" className={`${styles.checkoutSection} ${styles.scrollAnchor}`}>
+        <div className={styles.wrap}>
+          <div className={styles.section}>
+            <p className={styles.sectionTag}>퇴실 안내</p>
+            <h2 className={styles.sectionTitle}>퇴실 체크리스트</h2>
+            <ul className={styles.checkoutList}>
+              {checklistItems.map((item, i) => (
+                <li key={i} className={styles.checkoutItem} onClick={() => toggleCheck(i)}>
+                  <span className={`${styles.checkoutBox} ${checked[i] ? styles.checkoutBoxChecked : ""}`}>
+                    {checked[i] && (
+                      <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+                        <path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+                  <p className={`${styles.checkoutText} ${checked[i] ? styles.checkoutTextChecked : ""}`}>
+                    {item}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 문의 ── */}
+      <div className={styles.ctaSection}>
+        <div className={styles.wrap}>
+          <div className={styles.section}>
+            <p className={styles.sectionTag}>문의 &amp; 예약</p>
+            <h2 className={styles.sectionTitle}>모임이나 대관 문의</h2>
+            <p className={styles.ctaDesc}>궁금하신 점은 카카오톡으로 편하게 말씀 주세요.</p>
+            <a href="https://pf.kakao.com/_cuWDn" target="_blank" rel="noopener noreferrer" className={styles.ctaBtn}>
+              카카오톡으로 문의하기
+            </a>
+            <div className={styles.ctaDivider} />
+            <div className={styles.contactRow}>
+              <a href="tel:0507-1472-5790" className={styles.contactChip}>
+                <p className={styles.contactChipLabel}>전화</p>
+                <p className={styles.contactChipValue}>0507-1472-5790</p>
+              </a>
+              <a href="mailto:linkylounge@gmail.com" className={styles.contactChip}>
+                <p className={styles.contactChipLabel}>이메일</p>
+                <p className={styles.contactChipValue}>linkylounge@gmail.com</p>
+              </a>
+              <a href="https://instagram.com/linky_lounge" target="_blank" rel="noopener noreferrer" className={styles.contactChip}>
+                <p className={styles.contactChipLabel}>인스타그램</p>
+                <p className={styles.contactChipValue}>@linky_lounge</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Footer ── */}
+      <footer className={styles.footer}>
+        <div className={styles.wrap}>
+          <div className={styles.footerInner}>
+            <Image src="/logos/logo.png" alt="링키라운지" width={26} height={26} className={styles.footerLogoMark} />
+            <p className={styles.footerCopy}>© 2025 Linky Lounge · linkylounge@gmail.com</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}

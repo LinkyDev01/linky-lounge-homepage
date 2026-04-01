@@ -47,29 +47,32 @@
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-lt);
   height: var(--tab-h);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  overflow: hidden;
 }
-.sectionTabs::-webkit-scrollbar { display: none; }
 .sectionTabsInner {
   max-width: 600px; margin: 0 auto;
   height: 100%; display: flex; align-items: stretch;
-  min-width: max-content; padding: 0 4px;
+  justify-content: center;
+  padding: 0;
 }
 .tabLink {
   display: flex; align-items: center; justify-content: center;
-  padding: 0 18px;
+  flex: 1;
+  padding: 0 8px;
   font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
   color: var(--t-mid); text-decoration: none; white-space: nowrap;
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
+  text-align: center;
 }
 .tabLink:hover { color: var(--accent); }
 .tabLinkActive { color: var(--accent); border-bottom-color: var(--accent); }
 
 /* ── Hero ── */
 .hero { position: relative; overflow: hidden; height: 480px; }
+@media (max-width: 719px) {
+  .hero { height: auto; aspect-ratio: 1859 / 1162; }
+}
 .heroImg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .heroOverlay {
   position: absolute; inset: 0;
@@ -98,7 +101,10 @@
 /* ── Map ── */
 .mapSection { background: var(--s-page); }
 .naverMapCard { margin-top: 4px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-lt); }
-.naverMapPreview { width: 100%; height: 280px; }
+.naverMapPreview { width: 100%; height: 240px; }
+@media (max-width: 719px) {
+  .naverMapPreview { height: 200px; }
+}
 .naverMapPreview iframe { width: 100%; height: 100%; border: none; display: block; }
 .naverMapFooter { background: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-lt); }
 .naverMapInfoTitle { font-size: 13px; font-weight: 600; color: var(--t-ink); }
@@ -136,7 +142,8 @@
 .badgePaid { background: var(--s-warm); color: var(--t-brown); }
 .parkingName { font-size: 15px; font-weight: 600; color: var(--t-ink); }
 .parkingDesc { font-size: 13px; color: var(--t-brown); line-height: 1.8; font-weight: 300; }
-.parkingDescLink { color: var(--accent); text-decoration: none; font-weight: 500; }
+.parkingDescLink { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+.parkingDescLink:hover { color: var(--accent-deep); }
 .parkingPhoto { width: 100%; border-radius: 12px; display: block; margin-top: 14px; height: auto; }
 
 /* ── Facilities ── */
@@ -220,7 +227,6 @@
 @media (max-width: 460px) {
   .facilitiesGrid { grid-template-columns: 1fr; }
   .contactRow { flex-direction: column; }
-  .hero { height: 400px; }
 }
 
 /* scroll offset */

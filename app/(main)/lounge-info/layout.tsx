@@ -8,6 +8,7 @@ export const metadata: Metadata = {
     title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
     description: "링키라운지 안내사항",
     images: ["/linky-lounge/gallary/main.jpg"],
+    url: "https://linkylounge.com/lounge-info",
   },
 }
 

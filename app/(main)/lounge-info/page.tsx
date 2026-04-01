@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useState, useCallback } from "react"
 import styles from "./page.module.css"
 
 /* ── SVG Icon Components ── */
@@ -79,7 +79,6 @@ export default function LoungeInfoPage() {
   const [activeTab, setActiveTab] = useState(0)
   const [checked, setChecked] = useState<boolean[]>(Array(6).fill(false))
   const [wifiToast, setWifiToast] = useState(false)
-  const [mapLoaded, setMapLoaded] = useState(false)
 
   const scrollToSection = useCallback((id: string, e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -249,24 +248,12 @@ export default function LoungeInfoPage() {
             <h2 className={styles.sectionTitle}>찾아오는 길</h2>
             <div className={styles.naverMapCard}>
               <div className={styles.naverMapPreview}>
-                {mapLoaded ? (
-                  <iframe
-                    src="https://map.naver.com/p/entry/place/2050370003"
-                    allowFullScreen
-                    title="링키라운지 위치"
-                  />
-                ) : (
-                  <button className={styles.mapPlaceholder} onClick={() => setMapLoaded(true)}>
-                    <div className={styles.mapPlaceholderIcon}>
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.15"/>
-                      </svg>
-                    </div>
-                    <p className={styles.mapPlaceholderTitle}>지도 보기</p>
-                    <p className={styles.mapPlaceholderSub}>탭하면 네이버 지도를 불러옵니다</p>
-                  </button>
-                )}
+                <iframe
+                  src="https://map.naver.com/p/entry/place/2050370003"
+                  allowFullScreen
+                  loading="lazy"
+                  title="링키라운지 위치"
+                />
               </div>
               <div className={styles.naverMapFooter}>
                 <div>
@@ -426,7 +413,7 @@ export default function LoungeInfoPage() {
                 <div>
                   <p className={styles.infoCardLabel}>도어락 비밀번호</p>
                   <p className={styles.infoCardValue}>보증금 입금 후 전달</p>
-                  <p className={styles.infoCardSub}>입금 완료 시 도어락 키를 별도 안내드립니다.<br />즐거운 시간 되세요 😊</p>
+                  <p className={styles.infoCardSub}>입금 완료 시 도어락 키를 별도 안내드립니다.</p>
                 </div>
               </div>
             </div>

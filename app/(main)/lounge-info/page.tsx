@@ -181,8 +181,8 @@ export default function LoungeInfoPage() {
             <h2 className={styles.sectionTitle}>링키라운지 건물 입구 안내</h2>
             <div className={styles.noticeBox}>
               <p className={styles.noticeText}>
-                ⚠️ 링키라운지는 <strong className={styles.noticeTextStrong}>지하 1층</strong>에 위치해 입구가 다소 찾기 어려울 수 있습니다.<br />
-                아래 사진을 참고해 주세요. 헷갈리시면 카카오톡 또는 전화로 문의 주세요.
+                ⚠️ 링키라운지는 <strong className={styles.noticeTextStrong}>지하 1층</strong>에 위치해 있습니다.<br />
+                위치가 헷갈리시면 아래 건물 입구 정보를 확인하세요.
               </p>
             </div>
             <div className={styles.entranceSteps}>
@@ -335,7 +335,7 @@ export default function LoungeInfoPage() {
         <div className={styles.wrap}>
           <div className={styles.section}>
             <p className={styles.sectionTag}>문의 &amp; 예약</p>
-            <h2 className={styles.sectionTitle}>모임이나 대관 문의</h2>
+            <h2 className={styles.sectionTitle}>대관 문의</h2>
             <p className={styles.ctaDesc}>궁금하신 점은 카카오톡으로 편하게 말씀 주세요.</p>
             <a href="https://pf.kakao.com/_cuWDn" target="_blank" rel="noopener noreferrer" className={styles.ctaBtn}>
               카카오톡으로 문의하기

@@ -18,9 +18,11 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://linkylounge.com"),
-  title: "사당파티룸 링키라운지",
+  title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
+  description: "덴마크 휘게를 담은 사당의 아늑한 공간",
   openGraph: {
-    title: "사당파티룸 링키라운지",
+    title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
+    description: "덴마크 휘게를 담은 사당의 아늑한 공간",
     images: ["/linky-lounge/gallary/e.jpg"],
   },
 }

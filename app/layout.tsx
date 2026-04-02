@@ -18,12 +18,10 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://linkylounge.com"),
-  title: "Linky - 사람과 사람을 잇는 공간·플랫폼 서비스",
-  description: "오프라인 공간과 온라인 플랫폼을 통해 사람, 공간, 일을 유기적으로 연결하는 라이프스타일 기반 서비스",
+  title: "사당파티룸 링키라운지",
   openGraph: {
-    title: "Linky - 사람과 사람을 잇는 공간·플랫폼 서비스",
-    description: "오프라인 공간과 온라인 플랫폼을 통해 사람, 공간, 일을 유기적으로 연결하는 라이프스타일 기반 서비스",
-    images: ["/main/main04.png"],
+    title: "사당파티룸 링키라운지",
+    images: ["/main/main03.png"],
   },
 }
 

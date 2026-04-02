@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "사당파티룸 링키라운지",
   openGraph: {
     title: "사당파티룸 링키라운지",
-    images: ["/main/main03.png"],
+    images: ["/linky-lounge/gallary/e.jpg"],
   },
 }
 

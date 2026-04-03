@@ -7,22 +7,22 @@ import { AnimatedSection } from "@/components/animated-section"
 import { SectionHeader } from "@/components/common"
 
 const PROGRAMS = [
-  {
-    id: 1,
-    title: "회화 스터디",
-    image: "/linky-lounge/foreign_class.png",
-    schedule: "매주 월화 저녁 1시간 반 진행",
-    description: "선생님과 함께, 웃으며 배우는 회화 스터디",
-    link: "/study-foreign",
-  },
-  {
-    id: 2,
-    title: "와인 한 잔",
-    image: "/linky-lounge/wine_party.png",
-    schedule: "매주 토 3시간 진행",
-    description: "와인과 함께 나누는 다정함 속깊은 대화",
-    link: "https://linky-wine-party01.vercel.app/",
-  },
+  // {
+  //   id: 1,
+  //   title: "회화 스터디",
+  //   image: "/linky-lounge/foreign_class.png",
+  //   schedule: "매주 월화 저녁 1시간 반 진행",
+  //   description: "선생님과 함께, 웃으며 배우는 회화 스터디",
+  //   link: "/study-foreign",
+  // },
+  // {
+  //   id: 2,
+  //   title: "와인 한 잔",
+  //   image: "/linky-lounge/wine_party.png",
+  //   schedule: "매주 토 3시간 진행",
+  //   description: "와인과 함께 나누는 다정함 속깊은 대화",
+  //   link: "https://linky-wine-party01.vercel.app/",
+  // },
   {
     id: 3,
     title: "몰입의 밤",
@@ -31,14 +31,14 @@ const PROGRAMS = [
     description: "디지털 디톡스, 나의 내면에 접속하는 시간",
     link: "https://focus-night.vercel.app/",
   },
-  {
-    id: 4,
-    title: "감튀소개팅",
-    image: "/linky-lounge/potato_meeting.png",
-    schedule: "매주 금 저녁 진행",
-    description: "짭짤한 감튀와 함께 찾는 달콤한 인연",
-    link: "https://tally.so/r/lbrdkN",
-  },
+  // {
+  //   id: 4,
+  //   title: "감튀소개팅",
+  //   image: "/linky-lounge/potato_meeting.png",
+  //   schedule: "매주 금 저녁 진행",
+  //   description: "짭짤한 감튀와 함께 찾는 달콤한 인연",
+  //   link: "https://tally.so/r/lbrdkN",
+  // },
   {
     id: 5,
     title: "레이지데이 북클럽",

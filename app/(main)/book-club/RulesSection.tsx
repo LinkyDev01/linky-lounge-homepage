@@ -9,7 +9,7 @@ const rules = [
 export function RulesSection() {
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>LazyDay 규칙</h2>
+      <h2 className={styles.sectionTitle}>레이지데이 규칙</h2>
       <p className={styles.intro}>레이지데이 북클럽의 규칙은 세 가지예요.</p>
 
       <ol className={styles.list}>

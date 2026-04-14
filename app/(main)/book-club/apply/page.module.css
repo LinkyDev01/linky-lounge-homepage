@@ -55,6 +55,13 @@
     height: auto;
     display: block;
     margin: 0 auto 32px;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .sectionTitleImage {
+        max-width: 100%;
+    }
 }
 
 /* Notice Box */

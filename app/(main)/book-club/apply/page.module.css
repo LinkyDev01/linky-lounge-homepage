@@ -360,18 +360,23 @@
 
 .scheduleNoticeItem {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 2px 10px;
+    flex-direction: column;
+    gap: 3px;
     font-size: 13px;
     color: var(--text-secondary);
-    line-height: 1.7;
+    line-height: 1.6;
+}
+
+.scheduleNoticeRow {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
 }
 
 .scheduleNoticeDay {
     font-weight: 600;
     color: var(--text-primary);
-    min-width: 72px;
+    min-width: 80px;
 }
 
 .scheduleNoticeTime {
@@ -379,10 +384,9 @@
     font-weight: 500;
 }
 
-.scheduleNoticeDates {
+.scheduleNoticeSub {
     font-size: 12px;
     color: var(--text-secondary);
-    width: 100%;
     padding-left: 2px;
 }
 

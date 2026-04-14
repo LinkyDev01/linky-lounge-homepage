@@ -203,31 +203,6 @@ export default function BookClubApplyPage() {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.container}>
-          <div className={styles.footerContent}>
-            <div>
-              <div className={styles.footerLogo}>LINKY LOUNGE</div>
-              <div className={styles.footerInfo}>
-                <p>주식회사 링키</p>
-                <p>사업자등록번호 : 557-81-03588</p>
-                <p>이메일 : linkylounge@gmail.com | 대표번호 : 010-7444-5790</p>
-                <p>주소: 경기도 남양주시 별내3로 322, 404호</p>
-              </div>
-            </div>
-            <div className={styles.footerLinks}>
-              <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
-              <a href="https://naver.me/F4LgLoQx" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>오시는 길</a>
-              <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>문의하기</a>
-              <a href="/policy?type=bookclub" className={styles.footerLink}>교환환불정책</a>
-            </div>
-          </div>
-          <p className={styles.footerCopyright}>
-            &copy; 2025 Linky Inc. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </>
   )
 }

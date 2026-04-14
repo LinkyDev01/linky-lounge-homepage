@@ -80,7 +80,7 @@ export default function BookClubApplyPage() {
       trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
       trackStandard("Lead", { content_name: "독서모임_신청완료" })
       trackEvent("apply_complete", { program: "book_club" })
-      alert("신청이 완료되었습니다!\n\n운영진 검토 후 개별 연락드리겠습니다.")
+      alert("신청해주셔서 감사합니다.\n\n인터뷰 일정 조율을 위해 링키라운지 카카오톡채널을 통해 연락 드릴게요.\n레이지데이 북클럽에서 곧 만나요.")
       window.location.replace("/")
     } catch {
       alert("전송 중 오류가 발생했습니다.")

@@ -30,7 +30,7 @@ const steps = [
 export function HowToSection() {
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>LazyDay의 타임라인</h2>
+      <h2 className={styles.sectionTitle}>레이지데이의 타임라인</h2>
       <p className={styles.intro}>한 번의 모임은 <span className={styles.accent}>3시간</span>동안 진행돼요.</p>
 
       <div className={styles.steps}>

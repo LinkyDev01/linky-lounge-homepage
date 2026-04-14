@@ -81,7 +81,7 @@ export default function BookClubApplyPage() {
       trackStandard("Lead", { content_name: "독서모임_신청완료" })
       trackEvent("apply_complete", { program: "book_club" })
       alert("신청해주셔서 감사합니다.\n\n인터뷰 일정 조율을 위해 링키라운지 카카오톡채널을 통해 연락 드릴게요.\n레이지데이 북클럽에서 곧 만나요.")
-      window.location.replace("/")
+      window.location.replace("https://www.instagram.com/lazydaybookclub/")
     } catch {
       alert("전송 중 오류가 발생했습니다.")
     } finally {

@@ -7,17 +7,18 @@ import styles from "./page.module.css"
 
 export default function BookClubApplyPage() {
   const [loading, setLoading] = useState(false)
+  const [marketingConsent, setMarketingConsent] = useState(false)
 
   const scheduleInfo = [
     {
-      label: "목요일 저녁반",
+      label: "평일 저녁반",
       time: "19:30 – 22:30",
-      dates: "3/26, 4/9, 4/23, 5/7",
+      dates: "5/18 ~ 7/17",
     },
     {
-      label: "일요일 오후반",
+      label: "주말 오후반",
       time: "14:30 – 17:30",
-      dates: "3/29, 4/12, 4/26, 5/10",
+      dates: "5/24 ~ 7/19",
     },
   ]
 
@@ -65,6 +66,7 @@ export default function BookClubApplyPage() {
       job: form.querySelector<HTMLInputElement>('input[name="job"]')?.value,
       reason: form.querySelector<HTMLInputElement>('input[name="reason"]')?.value,
       instagram: form.querySelector<HTMLInputElement>('input[name="instagram"]')?.value || "",
+      marketingConsent: marketingConsent ? "동의" : "미동의",
     }
 
     try {
@@ -101,7 +103,7 @@ export default function BookClubApplyPage() {
 
             {/* 일정 공지 */}
             <div className={styles.scheduleNotice}>
-              <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽]</p>
+              <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽 2기]</p>
               <div className={styles.scheduleNoticeGrid}>
                 {scheduleInfo.map(({ label, time, dates }) => (
                   <div key={label} className={styles.scheduleNoticeItem}>
@@ -165,6 +167,19 @@ export default function BookClubApplyPage() {
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>인스타그램 아이디 <span className={styles.optionalTag}>(선택)</span></label>
                 <input type="text" name="instagram" className={styles.formInput} placeholder="@your_instagram" />
+              </div>
+              <div className={styles.formPrivacySection}>
+                <label className={styles.formCheckboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={marketingConsent}
+                    onChange={e => setMarketingConsent(e.target.checked)}
+                  />
+                  <span>마케팅 활용 및 개인정보 수집에 동의합니다. <span className={styles.optionalTag}>(선택)</span></span>
+                </label>
+                <p className={styles.formPrivacyNotice}>
+                  수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.
+                </p>
               </div>
               <button type="submit" className={styles.submitButton} disabled={loading}>
                 신청 완료하기

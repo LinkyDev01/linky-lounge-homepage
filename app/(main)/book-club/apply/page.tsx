@@ -170,7 +170,7 @@ export default function BookClubApplyPage() {
               </div>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>추천인 <span className={styles.optionalTag}>(선택)</span></label>
-                <input type="text" name="referral" className={styles.formInput} placeholder="지인 성함을 입력하시면 10% 할인을 적용해드립니다." />
+                <input type="text" name="referral" className={styles.formInput} placeholder="지인 성함 입력 시 10% 할인 적용해드려요." />
               </div>
               <div className={styles.formPrivacySection}>
                 <label className={styles.formCheckboxLabel}>

@@ -12,15 +12,13 @@ export default function BookClubApplyPage() {
   const scheduleInfo = [
     {
       label: "평일 저녁반",
-      frequency: "고정 요일 격주",
       time: "19:30 – 22:30",
-      dates: "5/18 ~ 7/17",
+      sub: "격주 고정 요일 진행 · 5/18 ~ 7/17",
     },
     {
       label: "일요일 오후반",
-      frequency: "격주 일요일",
       time: "14:30 – 17:30",
-      dates: "5/24 ~ 7/19",
+      sub: "격주 일요일 진행 · 5/24 ~ 7/19",
     },
   ]
 
@@ -109,12 +107,13 @@ export default function BookClubApplyPage() {
             <div className={styles.scheduleNotice}>
               <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽 2기]</p>
               <div className={styles.scheduleNoticeGrid}>
-                {scheduleInfo.map(({ label, frequency, time, dates }) => (
+                {scheduleInfo.map(({ label, time, sub }) => (
                   <div key={label} className={styles.scheduleNoticeItem}>
-                    <span className={styles.scheduleNoticeDay}>{label}</span>
-                    <span className={styles.scheduleNoticeFrequency}>{frequency} ·</span>
-                    <span className={styles.scheduleNoticeTime}>{time} ·</span>
-                    <span className={styles.scheduleNoticeDates}>{dates}</span>
+                    <div className={styles.scheduleNoticeRow}>
+                      <span className={styles.scheduleNoticeDay}>{label}</span>
+                      <span className={styles.scheduleNoticeTime}>{time}</span>
+                    </div>
+                    <div className={styles.scheduleNoticeSub}>{sub}</div>
                   </div>
                 ))}
               </div>

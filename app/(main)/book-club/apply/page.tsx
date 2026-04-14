@@ -61,7 +61,6 @@ export default function BookClubApplyPage() {
       age: form.querySelector<HTMLInputElement>('input[name="age"]')?.value,
       phone: form.querySelector<HTMLInputElement>('input[name="phone"]')?.value,
       job: form.querySelector<HTMLInputElement>('input[name="job"]')?.value,
-      reason: form.querySelector<HTMLInputElement>('input[name="reason"]')?.value,
       instagram: form.querySelector<HTMLInputElement>('input[name="instagram"]')?.value || "",
       referral: form.querySelector<HTMLInputElement>('input[name="referral"]')?.value || "",
       marketingConsent: marketingConsent ? "동의" : "미동의",

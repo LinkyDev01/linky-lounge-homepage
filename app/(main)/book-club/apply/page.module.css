@@ -49,6 +49,14 @@
     color: var(--text-primary);
 }
 
+.sectionTitleImage {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+    margin: 0 auto 32px;
+}
+
 /* Notice Box */
 .noticeBox {
     background: var(--light-accent);

@@ -6,7 +6,7 @@ import { AboutSection } from "./AboutSection"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { RulesSection } from "./RulesSection"
-import { BookSection } from "./BookSection"
+// import { BookSection } from "./BookSection"
 import { FaqSection } from "./FaqSection"
 import { ClosingSection } from "./ClosingSection"
 
@@ -37,7 +37,7 @@ export default function StudyForeignPage() {
         <HowToSection />
         <RulesSection />
         <ScheduleSection />
-        <BookSection />
+        {/* <BookSection /> */}
         <FaqSection />
         <ClosingSection />
       </main>

@@ -205,7 +205,6 @@ export default function BookClubApplyPage() {
               <div className={styles.footerLogo}>LINKY LOUNGE</div>
               <div className={styles.footerInfo}>
                 <p>주식회사 링키</p>
-                <p>대표 : 안동민 | 개인정보관리책임자 : 안동민</p>
                 <p>사업자등록번호 : 557-81-03588</p>
                 <p>이메일 : linkylounge@gmail.com | 대표번호 : 010-7444-5790</p>
                 <p>주소: 경기도 남양주시 별내3로 322, 404호</p>

@@ -57,6 +57,12 @@
     margin: 0 auto 32px;
 }
 
+@media (max-width: 768px) {
+    .sectionTitleImage {
+        max-width: 100%;
+    }
+}
+
 /* Notice Box */
 .noticeBox {
     background: var(--light-accent);

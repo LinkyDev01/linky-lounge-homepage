@@ -15,6 +15,7 @@ export type Schedule = {
   name: string
   day: string
   time: string
+  sub?: string
   dates: string
 }
 
@@ -99,16 +100,18 @@ export const currentSeasonConfig: SeasonConfig = {
   ],
   schedules: [
     {
-      name: "목요일 저녁반",
-      day: "목요일",
+      name: "평일 저녁반",
+      day: "평일",
       time: "19:30 – 22:30",
-      dates: "3/26, 4/9, 4/23, 5/7",
+      sub: "격주 고정 요일 진행",
+      dates: "5/18 · 6/1 · 6/15 · 6/29 · 7/13",
     },
     {
       name: "일요일 오후반",
       day: "일요일",
       time: "14:30 – 17:30",
-      dates: "3/29, 4/12, 4/26, 5/10",
+      sub: "격주 일요일 진행",
+      dates: "5/25 · 6/8 · 6/22 · 7/6 · 7/20",
     },
   ],
   scheduleNote: "반 배정은 인터뷰 후 희망 일정을 반영해서 확정됩니다.",

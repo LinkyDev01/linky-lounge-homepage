@@ -11,7 +11,10 @@ export function ScheduleSection() {
         {schedules.map((s) => (
           <div key={s.name} className={styles.card}>
             <p className={styles.name}>{s.name}</p>
-            <p className={styles.time}>{s.time}</p>
+            <div className={styles.timeRow}>
+              <span className={styles.time}>{s.time}</span>
+              {s.sub && <span className={styles.sub}>{s.sub}</span>}
+            </div>
             <p className={styles.dates}>{s.dates}</p>
           </div>
         ))}

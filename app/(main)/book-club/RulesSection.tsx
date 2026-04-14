@@ -9,8 +9,8 @@ const rules = [
 export function RulesSection() {
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>레이지데이 규칙</h2>
-      <p className={styles.intro}>레이지데이 북클럽의 규칙은 세 가지예요.</p>
+      <h2 className={styles.sectionTitle}>레이지데이에서는</h2>
+      <p className={styles.intro}>대화를 더 깊게 만드는 세 가지를 지켜요.</p>
 
       <ol className={styles.list}>
         {rules.map((rule, i) => (

@@ -185,6 +185,13 @@
     margin-left: 4px;
 }
 
+.requiredTag {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent-color);
+    margin-left: 4px;
+}
+
 .formInput {
     width: 100%;
     padding: 16px 20px;
@@ -661,13 +668,11 @@
 }
 
 .formPrivacyNotice {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: 16px;
-    padding: 18px 20px;
-    background: var(--light-accent);
-    line-height: 1.8;
-    border-radius: 6px;
+    font-size: 11px;
+    color: #c0afa0;
+    margin-top: 6px;
+    padding-left: 29px;
+    line-height: 1.7;
     font-weight: 300;
     word-break: keep-all;
 }

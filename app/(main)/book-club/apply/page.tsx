@@ -37,6 +37,7 @@ export default function BookClubApplyPage() {
     if (!age?.value.trim()) { alert("나이를 입력해주세요."); age?.focus(); return false }
     if (!phone?.value.trim()) { alert("전화번호를 입력해주세요."); phone?.focus(); return false }
     if (!job?.value.trim()) { alert("직업을 입력해주세요."); job?.focus(); return false }
+    if (!marketingConsent) { alert("마케팅 활용 및 개인정보 수집 동의가 필요합니다."); return false }
 
     return true
   }
@@ -172,7 +173,7 @@ export default function BookClubApplyPage() {
                     checked={marketingConsent}
                     onChange={e => setMarketingConsent(e.target.checked)}
                   />
-                  <span>마케팅 활용 및 개인정보 수집에 동의합니다. <span className={styles.optionalTag}>(선택)</span></span>
+                  <span>마케팅 활용 및 개인정보 수집에 동의합니다. <span className={styles.requiredTag}>(필수)</span></span>
                 </label>
                 <p className={styles.formPrivacyNotice}>
                   수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.

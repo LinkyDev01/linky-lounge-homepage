@@ -17,7 +17,7 @@ export function ClosingSection() {
         <p className={styles.title}>
           레이지데이 북클럽 <span className={styles.accent}>2기</span> 모집 중
         </p>
-        <Link href="/book-club/apply" className={styles.cta}>
+        <Link href="/lazyday/apply" className={styles.cta}>
           지금 바로 신청하세요
         </Link>
       </div>

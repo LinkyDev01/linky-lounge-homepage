@@ -41,6 +41,13 @@
   margin: 0;
 }
 
+.answerNote {
+  font-size: 11px;
+  color: #706860;
+  margin: 6px 0 0;
+  line-height: 1.6;
+}
+
 /* 문의 */
 .contact {
   padding: 40px 0;

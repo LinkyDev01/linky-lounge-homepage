@@ -81,7 +81,7 @@ export default function BookClubApplyPage() {
       trackStandard("Lead", { content_name: "독서모임_신청완료" })
       trackEvent("apply_complete", { program: "book_club" })
       alert("신청해주셔서 감사합니다.\n\n인터뷰 일정 조율을 위해 링키라운지 카카오톡채널을 통해 연락 드릴게요.\n레이지데이 북클럽에서 곧 만나요.")
-      window.location.replace("https://www.instagram.com/lazydaybookclub/")
+      window.location.replace("/")
     } catch {
       alert("전송 중 오류가 발생했습니다.")
     } finally {
@@ -203,6 +203,31 @@ export default function BookClubApplyPage() {
         </div>
       )}
 
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <div className={styles.container}>
+          <div className={styles.footerContent}>
+            <div>
+              <div className={styles.footerLogo}>LINKY LOUNGE</div>
+              <div className={styles.footerInfo}>
+                <p>주식회사 링키</p>
+                <p>사업자등록번호 : 557-81-03588</p>
+                <p>이메일 : linkylounge@gmail.com | 대표번호 : 010-7444-5790</p>
+                <p>주소: 경기도 남양주시 별내3로 322, 404호</p>
+              </div>
+            </div>
+            <div className={styles.footerLinks}>
+              <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
+              <a href="https://naver.me/F4LgLoQx" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>오시는 길</a>
+              <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>문의하기</a>
+              <a href="/policy?type=bookclub" className={styles.footerLink}>교환환불정책</a>
+            </div>
+          </div>
+          <p className={styles.footerCopyright}>
+            &copy; 2025 Linky Inc. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </>
   )
 }

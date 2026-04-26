@@ -7,7 +7,7 @@ import styles from "./page.module.css"
 export function ApplyButton() {
   return (
     <Link
-      href="/book-club/apply"
+      href="/lazyday/apply"
       className={styles.applyButton}
       onClick={() => trackCustom("ClickCTA", { button: "독서모임_신청하기" })}
     >

@@ -45,7 +45,7 @@ const PROGRAMS = [
     image: "/linky-lounge/book-club.png",
     schedule: "격주 3시간 진행",
     description: "책과 함께 시작하는 만남",
-    link: "/book-club",
+    link: "/lazyday",
   },
 ]
 

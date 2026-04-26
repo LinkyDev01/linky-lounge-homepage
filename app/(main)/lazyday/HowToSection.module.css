@@ -1,5 +1,5 @@
 .section {
-  background-color: #f5ece4;
+  background-color: #ede0d0;
   padding: 48px 24px 0;
   word-break: keep-all;
 }
@@ -8,19 +8,13 @@
   font-size: 24px;
   font-weight: 700;
   color: #1a1208;
-  margin: 0 0 16px;
+  margin: 0 0 6px;
 }
 
-.intro {
-  font-size: 15px;
-  line-height: 1.85;
-  color: #4a3020;
-  margin: 0 0 40px;
-}
-
-.accent {
-  color: #d2691e;
-  font-weight: 600;
+.meta {
+  font-size: 13px;
+  color: #8a6a50;
+  margin: 0 0 32px;
 }
 
 /* 스텝 */
@@ -44,11 +38,11 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #D2691E;
+  background-color: #d2691e;
 }
 
 .step:last-child {
-  padding-bottom: 20;
+  padding-bottom: 20px;
 }
 
 .stepHeader {
@@ -64,37 +58,7 @@
   color: #1a1208;
 }
 
-.stepDuration {
-  font-size: 12px;
-  font-weight: 500;
-  color: #D2691E;
-  background-color: rgba(210, 105, 30, 0.12);
-  padding: 2px 8px;
-  border-radius: 20px;
-}
-
 .stepDesc {
-  font-size: 14px;
-  line-height: 1.8;
-  color: #4a3020;
-  margin: 0;
-}
-
-/* 게더링 */
-.gathering {
-  padding: 28px 0 0;
-  border-top: 1px solid #c4a078;
-}
-
-.gatheringTitle {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #D2691E;
-  margin: 0 0 12px;
-}
-
-.gatheringDesc {
   font-size: 14px;
   line-height: 1.8;
   color: #4a3020;

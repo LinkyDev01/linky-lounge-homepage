@@ -12,7 +12,7 @@ const navItems = [
   { href: "https://linky-wine-party01.vercel.app/", label: "와인파티", external: true },
   { href: "https://focus-night.vercel.app/", label: "몰입의 밤", external: true },
   { href: "https://tally.so/r/lbrdkN", label: "감튀 소개팅", external: true },
-  { href: "/book-club", label: "북클럽", external: true },
+  { href: "/lazyday", label: "북클럽", external: true },
 ]
 
 export function Header() {

@@ -15,9 +15,9 @@ export function ClosingSection() {
         />
         <p className={styles.sub}>책과 대화로 시작해서 사람이 남는 모임</p>
         <p className={styles.title}>
-          레이지데이 북클럽 <span className={styles.accent}>1기</span> 모집 중
+          레이지데이 북클럽 <span className={styles.accent}>2기</span> 모집 중
         </p>
-        <Link href="/book-club/apply" className={styles.cta}>
+        <Link href="/lazyday/apply" className={styles.cta}>
           지금 바로 신청하세요
         </Link>
       </div>

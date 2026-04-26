@@ -30,15 +30,15 @@
 
 .stepLabel {
   display: block;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   color: #1a1208;
   margin-bottom: 8px;
 }
 
 .stepDesc {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.8;
-  color: #4a3020;
+  color: #6a5038;
   margin: 0;
 }

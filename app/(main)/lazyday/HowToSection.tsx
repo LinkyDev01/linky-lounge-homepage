@@ -27,9 +27,7 @@ export function HowToSection() {
       <div className={styles.steps}>
         {steps.map((step) => (
           <div key={step.label} className={styles.step}>
-            <div className={styles.stepHeader}>
-              <span className={styles.stepLabel}>{step.label}</span>
-            </div>
+            <span className={styles.stepLabel}>{step.label}</span>
             <p className={styles.stepDesc}>{step.description}</p>
           </div>
         ))}

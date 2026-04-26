@@ -1,10 +1,26 @@
 import styles from "./ScheduleSection.module.css"
 
-const sessions = ["1회차", "2회차", "3회차", "4회차"]
-
-const rows = [
-  { name: "목요일 저녁", time: "19:30 – 22:30", dates: ["5/21", "6/4", "6/18", "7/2"] },
-  { name: "일요일 오후", time: "14:30 – 17:30", dates: ["5/24", "6/7", "6/21", "7/5"] },
+const sessions = [
+  {
+    label: "1회차",
+    thu: { date: "5/21", time: "19:30 – 22:30" },
+    sun: { date: "5/24", time: "14:30 – 17:30" },
+  },
+  {
+    label: "2회차",
+    thu: { date: "6/4", time: "19:30 – 22:30" },
+    sun: { date: "6/7", time: "14:30 – 17:30" },
+  },
+  {
+    label: "3회차",
+    thu: { date: "6/18", time: "19:30 – 22:30" },
+    sun: { date: "6/21", time: "14:30 – 17:30" },
+  },
+  {
+    label: "4회차",
+    thu: { date: "7/2", time: "19:30 – 22:30" },
+    sun: { date: "7/5", time: "14:30 – 17:30" },
+  },
 ]
 
 export function ScheduleSection() {
@@ -12,22 +28,21 @@ export function ScheduleSection() {
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>모임 일정</h2>
 
-      <div className={styles.grid}>
-        <div className={styles.cornerCell} />
+      <div className={styles.timeline}>
         {sessions.map((s) => (
-          <div key={s} className={styles.sessionHeader}>{s}</div>
-        ))}
-
-        {rows.map((row) => (
-          <>
-            <div key={`header-${row.name}`} className={styles.rowHeader}>
-              <span className={styles.rowName}>{row.name}</span>
-              <span className={styles.rowTime}>{row.time}</span>
-            </div>
-            {row.dates.map((date, i) => (
-              <div key={`${row.name}-${i}`} className={styles.dateCell}>{date}</div>
-            ))}
-          </>
+          <div key={s.label} className={styles.item}>
+            <span className={styles.label}>{s.label}</span>
+            <p className={styles.row}>
+              <span className={styles.day}>목</span>
+              <span className={styles.date}>{s.thu.date}</span>
+              <span className={styles.time}>{s.thu.time}</span>
+            </p>
+            <p className={styles.row}>
+              <span className={styles.day}>일</span>
+              <span className={styles.date}>{s.sun.date}</span>
+              <span className={styles.time}>{s.sun.time}</span>
+            </p>
+          </div>
         ))}
       </div>
 

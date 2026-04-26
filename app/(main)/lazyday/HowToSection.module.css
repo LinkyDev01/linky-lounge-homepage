@@ -1,6 +1,6 @@
 .section {
   background-color: #ede0d0;
-  padding: 48px 24px 0;
+  padding: 48px 24px;
   word-break: keep-all;
 }
 
@@ -17,45 +17,23 @@
   margin: 0 0 32px;
 }
 
-/* 스텝 */
 .steps {
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 16px;
 }
 
 .step {
-  padding: 24px 0 24px 20px;
-  border-left: 2px solid #c4a078;
-  position: relative;
-}
-
-.step::before {
-  content: "";
-  position: absolute;
-  left: -5px;
-  top: 28px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #d2691e;
-}
-
-.step:last-child {
-  padding-bottom: 20px;
-}
-
-.stepHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  border-left: 3px solid #d2691e;
+  padding: 2px 0 2px 16px;
 }
 
 .stepLabel {
+  display: block;
   font-size: 15px;
   font-weight: 700;
   color: #1a1208;
+  margin-bottom: 8px;
 }
 
 .stepDesc {

@@ -52,15 +52,17 @@
 .sectionTitleImage {
     width: 100%;
     max-width: 320px;
-    height: auto;
+    height: 96px;
+    object-fit: cover;
+    object-position: center;
     display: block;
-    margin: 0 auto 32px;
-    overflow: hidden;
+    margin: 0 auto 24px;
 }
 
 @media (max-width: 768px) {
     .sectionTitleImage {
         max-width: 100%;
+        height: 88px;
     }
 }
 

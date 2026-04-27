@@ -1,36 +1,19 @@
-import Image from "next/image"
 import { currentSeasonConfig } from "./book-config"
 import styles from "./BookSection.module.css"
 
 export function BookSection() {
-  const { sectionTitle, introParagraphs, books } = currentSeasonConfig
+  const { books } = currentSeasonConfig
 
   return (
-    <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
-
-      <div className={styles.intro}>
-        {introParagraphs.map((text, i) => (
-          <p key={i} className={styles.introParagraph}>
-            {text}
-          </p>
-        ))}
-      </div>
+    <section id="book" className={styles.section}>
+      <h2 className={styles.sectionTitle}>책 소개</h2>
 
       <div className={styles.bookList}>
         {books.map((book) => (
           <article key={book.week} className={styles.bookItem}>
             <p className={styles.weekLabel}>{book.weekLabel}</p>
 
-            <div className={styles.coverWrapper}>
-              <Image
-                src={book.imagePath}
-                alt={book.title}
-                width={120}
-                height={180}
-                className={styles.cover}
-              />
-            </div>
+            <div className={styles.coverPlaceholder} />
 
             <div className={styles.bookInfo}>
               <h3 className={styles.title}>{book.title}</h3>

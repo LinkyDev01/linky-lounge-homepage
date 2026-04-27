@@ -2,6 +2,7 @@
   background-color: #f5ede4;
   padding: 48px 24px 56px;
   word-break: keep-all;
+  scroll-margin-top: 52px;
 }
 
 .hero {

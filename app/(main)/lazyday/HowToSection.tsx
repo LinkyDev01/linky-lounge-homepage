@@ -20,7 +20,7 @@ const steps = [
 
 export function HowToSection() {
   return (
-    <section className={styles.section}>
+    <section id="howto" className={styles.section}>
       <h2 className={styles.sectionTitle}>진행 순서</h2>
       <p className={styles.meta}>총 3시간 진행</p>
 

@@ -35,7 +35,7 @@ const faqs: Faq[] = [
 
 export function FaqSection() {
   return (
-    <section className={styles.section}>
+    <section id="faq" className={styles.section}>
       <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
 
       <div className={styles.list}>

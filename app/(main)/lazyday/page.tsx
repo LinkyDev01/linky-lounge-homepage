@@ -2,9 +2,12 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import styles from "./page.module.css"
 import { StickyApplyButton } from "./sticky-apply-button"
+import { NavBar } from "./NavBar"
 import { AboutSection } from "./AboutSection"
+import { VibeSection } from "./VibeSection"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
+import { BookSection } from "./BookSection"
 import { FaqSection } from "./FaqSection"
 import { ClosingSection } from "./ClosingSection"
 
@@ -22,6 +25,7 @@ export const metadata: Metadata = {
 export default function StudyForeignPage() {
   return (
     <>
+      <NavBar />
       <main className={styles.container} data-track-section="독서모임_홈">
         <Image
           src="/linky-lounge/book-club/book-club-hero.png"
@@ -32,8 +36,10 @@ export default function StudyForeignPage() {
           priority
         />
         <AboutSection />
+        <VibeSection />
         <HowToSection />
         <ScheduleSection />
+        <BookSection />
         <FaqSection />
         <ClosingSection />
       </main>

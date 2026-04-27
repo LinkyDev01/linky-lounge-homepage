@@ -1,38 +1,15 @@
 .section {
-  background-color: #1c1c1c;
+  background-color: #f0e8df;
   padding: 48px 24px 0;
   word-break: keep-all;
+  scroll-margin-top: 52px;
 }
 
-/* 섹션 제목 */
 .sectionTitle {
   font-size: 24px;
   font-weight: 700;
-  color: #f0ebe5;
+  color: #1a1208;
   margin: 0 0 32px;
-}
-
-/* 인트로 */
-.intro {
-  margin-bottom: 48px;
-}
-
-.introTitle {
-  font-size: 17px;
-  font-weight: 700;
-  color: #f0ebe5;
-  margin: 0 0 16px;
-}
-
-.introParagraph {
-  font-size: 15px;
-  line-height: 1.85;
-  color: #c8bdb4;
-  margin-bottom: 14px;
-}
-
-.introParagraph:last-child {
-  margin-bottom: 0;
 }
 
 /* 책 목록 */
@@ -43,7 +20,7 @@
 
 .bookItem {
   padding: 40px 0;
-  border-top: 1px solid #2e2e2e;
+  border-top: 1px solid #d4bfaa;
 }
 
 .bookItem:first-child {
@@ -53,45 +30,38 @@
 
 /* 주차 라벨 */
 .weekLabel {
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #D2691E;
-  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #d2691e;
   margin-bottom: 20px;
 }
 
-/* 책 표지 */
-.coverWrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.cover {
-  width: auto;
+/* 표지 플레이스홀더 */
+.coverPlaceholder {
+  width: 120px;
   height: 180px;
-  object-fit: cover;
+  background-color: #ddd2c8;
   border-radius: 4px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  margin: 0 auto 20px;
 }
 
 /* 책 제목/저자 */
 .bookInfo {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .title {
   font-size: 20px;
   font-weight: 700;
-  color: #f0ebe5;
+  color: #1a1208;
   margin: 0 0 6px;
 }
 
 .author {
   font-size: 14px;
-  color: #7a6a60;
+  color: #6a5038;
   margin: 0;
 }
 
@@ -100,22 +70,24 @@
   font-size: 15px;
   font-weight: 600;
   line-height: 1.6;
-  color: #e0d4c8;
-  margin: 0 0 20px;
+  color: #4a3020;
+  margin: 0 0 16px;
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }
 
 /* 인용구 */
 .quotes {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .quote {
   margin: 0 0 10px;
-  padding: 0 0 0 16px;
-  border-left: 3px solid #D2691E;
+  padding: 0 0 0 14px;
+  border-left: 3px solid #d2691e;
   font-size: 14px;
   line-height: 1.75;
-  color: #c8bdb4;
+  color: #6a5038;
   font-style: italic;
 }
 
@@ -129,21 +101,23 @@
 }
 
 .description p {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.85;
-  color: #c8bdb4;
+  color: #4a3020;
   margin-bottom: 10px;
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }
 
 .description p:last-child {
   margin-bottom: 0;
 }
 
-/* 큐레이터 노트 블록 */
+/* 큐레이터 노트 */
 .curatorNoteBlock {
   margin: 16px 0;
   padding: 14px 16px;
-  background-color: #232323;
+  background-color: #edddd0;
   border-radius: 8px;
 }
 
@@ -152,15 +126,17 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: #D2691E;
+  color: #d2691e;
   margin-bottom: 6px;
 }
 
 .curatorNote {
   font-size: 14px;
   line-height: 1.75;
-  color: #a08878;
+  color: #6a5038;
   margin: 0;
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }
 
 /* 이탤릭 노트 */
@@ -170,68 +146,4 @@
   color: #d2691e;
   font-style: italic;
   margin: 0;
-}
-
-/* 일정 */
-.schedule {
-  border-top: 1px solid #2e2e2e;
-  padding: 40px 0;
-  margin-top: 8px;
-}
-
-.scheduleTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #f0ebe5;
-  margin: 0 0 20px;
-}
-
-.scheduleCards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.scheduleCard {
-  background-color: #252525;
-  border-radius: 10px;
-  padding: 16px 20px;
-}
-
-.scheduleName {
-  font-size: 14px;
-  font-weight: 600;
-  color: #f0ebe5;
-  margin: 0 0 6px;
-}
-
-.scheduleTime {
-  font-size: 13px;
-  color: #D2691E;
-  font-weight: 500;
-  margin: 0 0 4px;
-}
-
-.scheduleDates {
-  font-size: 13px;
-  color: #8a7a6e;
-  margin: 0;
-}
-
-.scheduleNote {
-  font-size: 13px;
-  color: #5a4e47;
-  margin: 0;
-  line-height: 1.6;
-}
-
-@media (min-width: 480px) {
-  .scheduleCards {
-    flex-direction: row;
-  }
-
-  .scheduleCard {
-    flex: 1;
-  }
 }

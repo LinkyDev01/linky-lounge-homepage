@@ -12,7 +12,7 @@ const SUN_TIME = "14:30–17:30"
 
 export function ScheduleSection() {
   return (
-    <section className={styles.section}>
+    <section id="schedule" className={styles.section}>
       <h2 className={styles.sectionTitle}>모임 일정</h2>
 
       <div className={styles.grid}>

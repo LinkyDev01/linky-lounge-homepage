@@ -1,13 +1,14 @@
 .section {
-  background-color: #181818;
+  background-color: #ede0d0;
   padding: 48px 24px 0;
   word-break: keep-all;
+  scroll-margin-top: 52px;
 }
 
 .sectionTitle {
   font-size: 24px;
   font-weight: 700;
-  color: #f0ebe5;
+  color: #1a1208;
   margin: 0 0 40px;
 }
 
@@ -19,12 +20,12 @@
 
 .item {
   padding: 28px 0;
-  border-top: 1px solid #2e2e2e;
+  border-top: 1px solid #c4a078;
   scroll-margin-top: 80px;
 }
 
 .item:last-child {
-  border-bottom: 1px solid #2e2e2e;
+  border-bottom: 1px solid #c4a078;
 }
 
 .question {
@@ -40,7 +41,7 @@
 .answer {
   font-size: 14px;
   line-height: 1.85;
-  color: #c8bdb4;
+  color: #4a3020;
   margin: 0;
   word-break: auto-phrase;
   text-wrap: pretty;
@@ -53,7 +54,7 @@
 
 .answerNote {
   font-size: 11px;
-  color: #706860;
+  color: #8a6a50;
   margin: 6px 0 0;
   line-height: 1.6;
 }
@@ -66,7 +67,7 @@
 .contactText {
   font-size: 15px;
   font-weight: 600;
-  color: #f0ebe5;
+  color: #1a1208;
   margin: 0 0 10px;
 }
 

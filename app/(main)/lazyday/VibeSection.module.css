@@ -1,0 +1,45 @@
+.section {
+  background-color: #f5ede4;
+  padding: 48px 24px;
+  word-break: keep-all;
+  scroll-margin-top: 52px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 32px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.item {
+  border-left: 3px solid #d2691e;
+  padding-left: 16px;
+}
+
+.question {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.paragraph {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #4a3020;
+  margin: 0 0 8px;
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}

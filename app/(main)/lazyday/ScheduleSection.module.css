@@ -2,6 +2,7 @@
   background-color: #f5ede4;
   padding: 48px 24px;
   word-break: keep-all;
+  scroll-margin-top: 52px;
 }
 
 .sectionTitle {
@@ -52,10 +53,10 @@
   margin-bottom: 6px;
 }
 
-.specialDate {
+.specialTime {
   font-size: 12px;
-  color: #6a5038;
-  margin: 0 0 8px;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .row {

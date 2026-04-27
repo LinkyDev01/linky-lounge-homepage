@@ -2,6 +2,7 @@
   background-color: #ede0d0;
   padding: 48px 24px 0;
   word-break: keep-all;
+  scroll-margin-top: 52px;
 }
 
 .sectionTitle {

@@ -12,7 +12,7 @@ const SUN_TIME = "14:30–17:30"
 
 export function ScheduleSection() {
   return (
-    <section className={styles.section}>
+    <section id="schedule" className={styles.section}>
       <h2 className={styles.sectionTitle}>모임 일정</h2>
 
       <div className={styles.grid}>
@@ -32,14 +32,10 @@ export function ScheduleSection() {
 
         <div className={styles.specialCard}>
           <a href="#gathering" className={styles.labelLink}>레이지선데이 미드나잇</a>
-          <p className={styles.specialDate}>7/12 (일)</p>
-          <p className={styles.row}>
-            <span className={styles.rowDate}>1부</span>
-            <span className={styles.rowTime}>17:30–20:30</span>
-          </p>
-          <p className={styles.row}>
-            <span className={styles.rowDate}>2부</span>
-            <span className={styles.rowTime}>20:30–22:30</span>
+          <p className={styles.specialTime}>
+            <span className={styles.rowDate}>7/12 (일)</span>
+            {" "}
+            <span className={styles.rowTime}>1부 17:30–20:30 · 2부 20:30–22:30</span>
           </p>
         </div>
       </div>

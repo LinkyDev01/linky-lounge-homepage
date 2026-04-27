@@ -20,8 +20,6 @@ export function BookSection() {
               <p className={styles.author}>{book.author}</p>
             </div>
 
-            <p className={styles.tagline}>{book.tagline}</p>
-
             <div className={styles.quotes}>
               {book.quotes.map((quote, i) => (
                 <blockquote key={i} className={styles.quote}>
@@ -41,7 +39,6 @@ export function BookSection() {
               <p className={styles.curatorNote}>{book.curatorNote}</p>
             </div>
 
-            <p className={styles.note}>{book.note}</p>
           </article>
         ))}
       </div>

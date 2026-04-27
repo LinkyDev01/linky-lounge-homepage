@@ -4,17 +4,17 @@ import type { Book } from "./book-config"
 import styles from "./BookSection.module.css"
 
 function BookItem({ book, withImage }: { book: Book; withImage: boolean }) {
-  const hasContent = book.title !== ""
+  const hasContent = book.quotes.length > 0 || book.paragraphs.length > 0 || book.curatorNote
 
   return (
     <article className={styles.bookItem}>
       <p className={styles.weekLabel}>{book.weekLabel}</p>
 
-      {withImage && hasContent ? (
+      {withImage && book.imagePath ? (
         <div className={styles.coverWrapper}>
           <Image
             src={book.imagePath}
-            alt={book.title}
+            alt={book.title || book.weekLabel}
             width={120}
             height={180}
             className={styles.cover}
@@ -34,13 +34,15 @@ function BookItem({ book, withImage }: { book: Book; withImage: boolean }) {
         <div className={styles.coverPlaceholder} />
       )}
 
+      {book.title && (
+        <div className={styles.bookInfo}>
+          <h3 className={styles.title}>{book.title}</h3>
+          <p className={styles.author}>{book.author}</p>
+        </div>
+      )}
+
       {hasContent && (
         <>
-          <div className={styles.bookInfo}>
-            <h3 className={styles.title}>{book.title}</h3>
-            <p className={styles.author}>{book.author}</p>
-          </div>
-
           {book.quotes.length > 0 && (
             <div className={styles.quotes}>
               {book.quotes.map((quote, i) => (
@@ -81,7 +83,7 @@ export function BookSection() {
         </p>
         <div className={styles.bookList}>
           {season2Config.books.map((book) => (
-            <BookItem key={book.week} book={book} withImage={false} />
+            <BookItem key={book.week} book={book} withImage={true} />
           ))}
         </div>
       </div>

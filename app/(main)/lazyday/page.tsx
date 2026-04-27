@@ -37,9 +37,9 @@ export default function StudyForeignPage() {
         />
         <AboutSection />
         <VibeSection />
+        <BookSection />
         <HowToSection />
         <ScheduleSection />
-        <BookSection />
         <FaqSection />
         <ClosingSection />
       </main>

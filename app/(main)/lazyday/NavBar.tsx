@@ -4,10 +4,9 @@ import styles from './NavBar.module.css'
 
 const navItems = [
   { id: 'about',    label: '모임소개' },
-  { id: 'vibe',     label: '이런 모임' },
+  { id: 'book',     label: '책소개' },
   { id: 'howto',    label: '진행방식' },
   { id: 'schedule', label: '모임일정' },
-  { id: 'book',     label: '책소개' },
   { id: 'faq',      label: 'FAQ' },
 ]
 
@@ -36,17 +35,18 @@ export function NavBar() {
 
   return (
     <nav className={styles.nav}>
-      <div className={styles.track}>
-        {navItems.map(({ id, label }) => (
-          <button
-            key={id}
-            className={`${styles.item} ${activeId === id ? styles.active : ''}`}
-            onClick={() => scrollTo(id)}
-          >
-            {label}
-          </button>
+      <ul className={styles.list}>
+        {navItems.map((item) => (
+          <li key={item.id}>
+            <button
+              className={`${styles.item} ${activeId === item.id ? styles.active : ''}`}
+              onClick={() => scrollTo(item.id)}
+            >
+              {item.label}
+            </button>
+          </li>
         ))}
-      </div>
+      </ul>
     </nav>
   )
 }

@@ -6,7 +6,7 @@ export function AboutSection() {
       <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
 
       <div className={styles.block}>
-        <p className={styles.question}>어떤 대화가 오가나요?</p>
+        <p className={styles.question}>모임에선 어떤 대화가 오가나요?</p>
         <blockquote className={styles.quote}>
           <p>대부분의 독서모임은 잡담 위주이거나, 모임장 한 사람이 방향을 끌어가는 방식이에요.</p>
           <p>레이지데이에서는 열린 질문 하나로 각자의 이야기가 자연스럽게 나오고, 그 안에서 서로의 시각이 넓어집니다.</p>

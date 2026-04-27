@@ -83,7 +83,7 @@ export default function BookClubApplyPage() {
         <div className={styles.container}>
           <div className={styles.formContainer}>
             <div className={styles.sectionHeader}>
-              <div className={styles.sectionLabel}>APPLY NOW</div>
+              <div className={styles.sectionLabel}>복잡함 속에서 찾는 단순함 — 레이지데이 북클럽</div>
               <img
                 src="/linky-lounge/book-club/lazyday_typo.png"
                 alt="Lazy Day Book Club"

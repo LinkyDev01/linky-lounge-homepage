@@ -99,16 +99,18 @@ export function BookSection() {
             <span className={styles.chevron}>›</span>
           </summary>
           <div id="past-seasons-content" className={styles.pastSeasonsContent}>
-            <p className={styles.seasonLabel}>
-            {season1Config.label}
-            {season1Config.dateRange && (
-              <span className={styles.dateRange}>{season1Config.dateRange}</span>
-            )}
-          </p>
-            <div className={styles.bookList}>
-              {season1Config.books.map((book) => (
-                <BookItem key={book.week} book={book} withImage={true} />
-              ))}
+            <div className={styles.pastSeasonsContentInner}>
+              <p className={styles.seasonLabel}>
+                {season1Config.label}
+                {season1Config.dateRange && (
+                  <span className={styles.dateRange}>{season1Config.dateRange}</span>
+                )}
+              </p>
+              <div className={styles.bookList}>
+                {season1Config.books.map((book) => (
+                  <BookItem key={book.week} book={book} withImage={true} />
+                ))}
+              </div>
             </div>
           </div>
         </details>

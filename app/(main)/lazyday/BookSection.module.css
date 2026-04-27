@@ -174,8 +174,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #d2691e;
-  color: #ffffff;
+  background-color: #c4a882;
+  color: #1a1208;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -191,8 +191,8 @@
 
 .chevron {
   font-size: 20px;
-  color: #ffffff;
-  transition: transform 0.2s ease;
+  color: #1a1208;
+  transition: transform 0.3s ease;
   display: inline-block;
   line-height: 1;
 }
@@ -202,7 +202,25 @@ details[open] .chevron {
 }
 
 .pastSeasonsContent {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+  overflow: hidden;
+  scroll-margin-top: 88px;
+}
+
+details[open] .pastSeasonsContent {
+  grid-template-rows: 1fr;
+}
+
+.pastSeasonsContentInner {
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: padding-top 0.35s ease, padding-bottom 0.35s ease;
+}
+
+details[open] .pastSeasonsContentInner {
   padding-top: 32px;
   padding-bottom: 48px;
-  scroll-margin-top: 88px;
 }

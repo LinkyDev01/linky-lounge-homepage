@@ -26,7 +26,7 @@ export function BookSubNav() {
     if (details) {
       details.open = true
       setTimeout(() => {
-        details.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        document.getElementById('past-seasons-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 50)
     }
   }

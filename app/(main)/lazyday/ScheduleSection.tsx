@@ -13,7 +13,8 @@ const SUN_TIME = "14:30–17:30"
 export function ScheduleSection() {
   return (
     <section id="schedule" className={styles.section}>
-      <h2 className={styles.sectionTitle}>모임 일정</h2>
+      <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
+      <p className={styles.note}>*같은 회차의 모임 중 자유롭게 참여 가능</p>
 
       <div className={styles.grid}>
         {regularSessions.map((s) => (
@@ -39,8 +40,6 @@ export function ScheduleSection() {
           </p>
         </div>
       </div>
-
-      <p className={styles.note}>*같은 주차의 모임 중 자유롭게 참여 가능</p>
     </section>
   )
 }

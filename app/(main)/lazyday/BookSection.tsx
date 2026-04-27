@@ -98,7 +98,7 @@ export function BookSection() {
             지난 기수
             <span className={styles.chevron}>›</span>
           </summary>
-          <div className={styles.pastSeasonsContent}>
+          <div id="past-seasons-content" className={styles.pastSeasonsContent}>
             <p className={styles.seasonLabel}>
             {season1Config.label}
             {season1Config.dateRange && (

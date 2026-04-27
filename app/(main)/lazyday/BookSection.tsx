@@ -1,5 +1,6 @@
 import Image from "next/image"
-import { season1Config, season2Config, type Book } from "./book-config"
+import { season1Config, season2Config } from "./book-config"
+import type { Book } from "./book-config"
 import styles from "./BookSection.module.css"
 
 function BookItem({ book, withImage }: { book: Book; withImage: boolean }) {
@@ -9,27 +10,29 @@ function BookItem({ book, withImage }: { book: Book; withImage: boolean }) {
     <article className={styles.bookItem}>
       <p className={styles.weekLabel}>{book.weekLabel}</p>
 
-      <div className={styles.coverWrapper}>
-        {withImage ? (
+      {withImage && book.imagePath ? (
+        <div className={styles.coverWrapper}>
           <Image
             src={book.imagePath}
-            alt={book.title}
+            alt={book.title || book.weekLabel}
             width={120}
             height={180}
             className={styles.cover}
           />
-        ) : book.imagePath ? (
+        </div>
+      ) : book.imagePath ? (
+        <div className={styles.coverWrapper}>
           <Image
             src={book.imagePath}
-            alt={book.title}
+            alt={book.title || book.weekLabel}
             width={120}
             height={180}
             className={styles.cover}
           />
-        ) : (
-          <div className={styles.coverPlaceholder} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className={styles.coverPlaceholder} />
+      )}
 
       {book.title && (
         <div className={styles.bookInfo}>
@@ -73,12 +76,10 @@ export function BookSection() {
     <section id="book" className={styles.section}>
       <h2 className={styles.sectionTitle}>책 소개</h2>
 
+      {/* 2기 */}
       <div className={styles.currentSeason}>
         <p className={styles.seasonLabel}>
-          {season2Config.label}
-          {season2Config.dateRange && (
-            <span className={styles.dateRange}>{season2Config.dateRange}</span>
-          )}
+          2기 <span className={styles.dateRange}>{season2Config.dateRange}</span>
         </p>
         <div className={styles.bookList}>
           {season2Config.books.map((book) => (
@@ -87,13 +88,14 @@ export function BookSection() {
         </div>
       </div>
 
+      {/* 지난 기수 */}
       <details className={styles.pastSeasons}>
         <summary className={styles.pastSeasonsSummary}>
           지난 기수
           <span className={styles.chevron}>›</span>
         </summary>
         <div className={styles.pastSeasonsContent}>
-          <p className={styles.seasonLabel}>{season1Config.label}</p>
+          <p className={styles.seasonLabel}>1기</p>
           <div className={styles.bookList}>
             {season1Config.books.map((book) => (
               <BookItem key={book.week} book={book} withImage={true} />

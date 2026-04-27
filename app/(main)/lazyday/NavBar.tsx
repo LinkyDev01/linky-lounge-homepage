@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import styles from './NavBar.module.css'
 
@@ -17,17 +16,16 @@ export function NavBar() {
   useEffect(() => {
     const handleScroll = () => {
       const offset = 56
-      for (let i = navItems.length - 1; i >= 0; i--) {
-        const el = document.getElementById(navItems[i].id)
-        if (el && el.getBoundingClientRect().top <= offset) {
-          setActiveId(navItems[i].id)
-          return
-        }
+      const scrollY = window.scrollY + offset
+      let current = navItems[0].id
+      for (const { id } of navItems) {
+        const el = document.getElementById(id)
+        if (el && el.offsetTop <= scrollY) current = id
       }
-      setActiveId('about')
+      setActiveId(current)
     }
-
     window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 

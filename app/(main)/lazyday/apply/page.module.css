@@ -359,59 +359,59 @@
     margin: 0 0 14px 0;
 }
 
-/* 시간대 */
-.scheduleTimeSlots {
+/* 일정 테이블 */
+.scheduleTable {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 14px;
-}
-
-.scheduleTimeRow {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    font-size: 13px;
-    margin: 0;
-}
-
-.scheduleTimeDay {
-    font-weight: 700;
-    color: var(--text-primary);
-    width: 44px;
-    flex-shrink: 0;
-}
-
-.scheduleTimeValue {
-    color: var(--accent-color);
-    font-weight: 600;
-}
-
-/* 회차별 날짜 */
-.scheduleDateGrid {
-    display: grid;
-    grid-template-columns: 44px 1fr 1fr;
-    gap: 6px 10px;
     margin-bottom: 10px;
 }
 
-.scheduleDateRow {
-    display: contents;
+.scheduleTableHeader,
+.scheduleTableRow {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr;
+    gap: 0 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(212, 191, 170, 0.5);
 }
 
-.scheduleDateLabel {
+.scheduleTableHeader {
+    border-bottom: 1px solid #d4bfaa;
+    padding-bottom: 8px;
+    margin-bottom: 2px;
+}
+
+.schColHead {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.schColTime {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent-color);
+}
+
+.schColLabel {
     font-size: 12px;
     font-weight: 700;
     color: var(--accent-color);
-    align-self: center;
+    display: flex;
+    align-items: center;
 }
 
-.scheduleDateCell {
+.schColCell {
     font-size: 12px;
     color: var(--text-secondary);
+    display: flex;
+    align-items: center;
 }
 
-.scheduleMidnight {
+.schColMidnight {
     grid-column: 2 / 4;
     font-weight: 600;
     color: var(--accent-color);

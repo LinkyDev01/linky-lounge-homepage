@@ -95,38 +95,34 @@ export default function BookClubApplyPage() {
             <div className={styles.scheduleNotice}>
               <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽 2기]</p>
 
-              <div className={styles.scheduleTimeSlots}>
-                <p className={styles.scheduleTimeRow}>
-                  <span className={styles.scheduleTimeDay}>목요일</span>
-                  <span className={styles.scheduleTimeValue}>19:30–22:30</span>
-                </p>
-                <p className={styles.scheduleTimeRow}>
-                  <span className={styles.scheduleTimeDay}>일요일</span>
-                  <span className={styles.scheduleTimeValue}>14:30–17:30</span>
-                </p>
-              </div>
-
-              <div className={styles.scheduleDateGrid}>
+              <div className={styles.scheduleTable}>
+                {/* 헤더 */}
+                <div className={styles.scheduleTableHeader}>
+                  <div className={styles.schColLabel} />
+                  <div className={styles.schColHead}>목요일<span className={styles.schColTime}>19:30–22:30</span></div>
+                  <div className={styles.schColHead}>일요일<span className={styles.schColTime}>14:30–17:30</span></div>
+                </div>
+                {/* 회차 rows */}
                 {[
-                  { label: "1회차", thu: "5/21 (목)", sun: "5/24 (일)" },
-                  { label: "2회차", thu: "6/4 (목)",  sun: "6/7 (일)" },
-                  { label: "3회차", thu: "6/18 (목)", sun: "6/21 (일)" },
-                  { label: "4회차", thu: "7/2 (목)",  sun: "7/5 (일)" },
+                  { label: "1회차", thu: "5/21", sun: "5/24" },
+                  { label: "2회차", thu: "6/4",  sun: "6/7"  },
+                  { label: "3회차", thu: "6/18", sun: "6/21" },
+                  { label: "4회차", thu: "7/2",  sun: "7/5"  },
                 ].map((s) => (
-                  <div key={s.label} className={styles.scheduleDateRow}>
-                    <span className={styles.scheduleDateLabel}>{s.label}</span>
-                    <span className={styles.scheduleDateCell}>{s.thu}</span>
-                    <span className={styles.scheduleDateCell}>{s.sun}</span>
+                  <div key={s.label} className={styles.scheduleTableRow}>
+                    <div className={styles.schColLabel}>{s.label}</div>
+                    <div className={styles.schColCell}>{s.thu}</div>
+                    <div className={styles.schColCell}>{s.sun}</div>
                   </div>
                 ))}
-                <div className={styles.scheduleDateRow}>
-                  <span className={styles.scheduleDateLabel}>✦</span>
-                  <span className={`${styles.scheduleDateCell} ${styles.scheduleMidnight}`}>레이지선데이 미드나잇 · 7/12 (일)</span>
+                {/* 미드나잇 */}
+                <div className={styles.scheduleTableRow}>
+                  <div className={styles.schColLabel}>✦</div>
+                  <div className={`${styles.schColCell} ${styles.schColMidnight}`}>레이지선데이 미드나잇 · 7/12 (일)</div>
                 </div>
               </div>
 
               <p className={styles.scheduleNoticeNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
-              <p className={styles.scheduleNoticeNote}>인터뷰 후 희망 요일을 반영하여 배정합니다.</p>
             </div>
 
             <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>

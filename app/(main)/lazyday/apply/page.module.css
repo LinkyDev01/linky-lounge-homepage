@@ -403,6 +403,13 @@
     margin-top: 14px;
 }
 
+.scheduleNoticeExtra {
+    font-size: 12px;
+    color: #d2691e;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
 /* Schedule (legacy) */
 .scheduleOptions {
     display: flex;

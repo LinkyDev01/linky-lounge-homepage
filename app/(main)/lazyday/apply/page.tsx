@@ -118,6 +118,7 @@ export default function BookClubApplyPage() {
                 ))}
               </div>
               <p className={styles.scheduleNoticeNote}>인터뷰 진행 후, 희망 일정을 고려하여 반배정을 진행합니다.</p>
+              <p className={styles.scheduleNoticeExtra}>✦ 레이지선데이 미드나잇 · 7/12 (일) — 전체 멤버 포틀럭 파티 (참가비 2만원)</p>
             </div>
 
             <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>

@@ -29,7 +29,7 @@ export default function StudyForeignPage() {
       <main className={styles.container} data-track-section="독서모임_홈">
         <div className={styles.heroWrapper}>
           <Image
-            src="/linky-lounge/book-club/lazyday_typo.png"
+            src="/linky-lounge/book-club/lazy_typo_brown.png"
             alt="lazyday typo"
             className={styles.mainImage}
             width={600}

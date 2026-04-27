@@ -15,31 +15,73 @@
 .meta {
   font-size: 13px;
   color: #8a6a50;
-  margin: 0 0 32px;
+  margin: 0 0 36px;
 }
 
-.steps {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 타임라인 */
+.timeline {
+  position: relative;
+  padding-left: 0;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: linear-gradient(to bottom, #d2691e, #d4bfaa);
 }
 
 .step {
-  border-left: 3px solid #d2691e;
-  padding: 2px 0 2px 16px;
+  position: relative;
+  display: flex;
+  gap: 20px;
+  padding-bottom: 36px;
+}
+
+.step:last-child {
+  padding-bottom: 0;
+}
+
+.dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #d2691e;
+  margin-top: 2px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step:last-child .dot {
+  background-color: #b8571a;
+  box-shadow: 0 0 0 3px #ede0d0, 0 0 0 5px #d2691e;
+}
+
+.stepContent {
+  padding-top: 2px;
 }
 
 .stepLabel {
   display: block;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: #1a1208;
   margin-bottom: 8px;
+  line-height: 1.3;
 }
 
 .stepDesc {
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.85;
   color: #6a5038;
   margin: 0;
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }

@@ -69,7 +69,7 @@ export const season2Config: SeasonConfig = {
   label: "2기",
   dateRange: "5.21 – 7.5",
   books: [
-    { week: 1, weekLabel: "1회차", title: "가장 젊은 날의 철학", author: "이중녕", quotes: [], paragraphs: [], curatorNote: "", imagePath: "/linky-lounge/book-club/books/2기-1-가장 젊은 날의 철학.jpg" },
+    { week: 1, weekLabel: "1회차", title: "가장 젊은 날의 철학", author: "이충녕", quotes: [], paragraphs: [], curatorNote: "", imagePath: "/linky-lounge/book-club/books/2기-1-가장 젊은 날의 철학.jpg" },
     { week: 2, weekLabel: "2회차", title: "브람스를 좋아하세요...", author: "프랑수아즈 사강", quotes: [], paragraphs: [], curatorNote: "", imagePath: "/linky-lounge/book-club/books/2기-2-브람스를 좋아하세요.jpg" },
     { week: 3, weekLabel: "3회차", title: "사랑의 기술", author: "에리히 프롬", quotes: [], paragraphs: [], curatorNote: "", imagePath: "/linky-lounge/book-club/books/2기-3-사랑의 기술.jpg" },
     { week: 4, weekLabel: "4회차", title: "이방인", author: "알베르 카뮈", quotes: [], paragraphs: [], curatorNote: "", imagePath: "/linky-lounge/book-club/books/2기-4-이방인.jpg" },

@@ -5,6 +5,49 @@
   scroll-margin-top: 52px;
 }
 
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 32px;
+}
+
+.block {
+  margin-bottom: 40px;
+}
+
+.block:last-child {
+  margin-bottom: 0;
+}
+
+.question {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.quote {
+  margin: 0;
+  padding: 0 0 0 16px;
+  border-left: 3px solid #d4bfaa;
+}
+
+.quote p {
+  font-size: 15px;
+  font-weight: 400;
+  color: #4a3020;
+  line-height: 1.8;
+  margin: 0 0 10px;
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+
+.quote p:last-child {
+  margin-bottom: 0;
+}
+
 .hero {
   padding: 32px 0 48px;
   border-bottom: 1px solid #d4bfaa;

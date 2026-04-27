@@ -18,13 +18,18 @@
   list-style: none;
   max-width: 600px;
   margin: 0 auto;
-  padding: 0;
+  padding: 0 24px;
+}
+
+.list > li {
+  flex: 1;
+  display: flex;
 }
 
 .item {
-  flex-shrink: 0;
+  flex: 1;
   height: 48px;
-  padding: 0 16px;
+  padding: 0;
   font-size: 13px;
   font-weight: 500;
   color: #8a6a50;
@@ -35,6 +40,7 @@
   transition: color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
   letter-spacing: 0.01em;
+  text-align: center;
 }
 
 .item.active {

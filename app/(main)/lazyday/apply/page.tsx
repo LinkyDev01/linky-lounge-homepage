@@ -99,8 +99,8 @@ export default function BookClubApplyPage() {
                 {/* 헤더 */}
                 <div className={styles.scheduleTableHeader}>
                   <div className={styles.schColLabel} />
-                  <div className={styles.schColHead}>목요일<span className={styles.schColTime}>19:30–22:30</span></div>
-                  <div className={styles.schColHead}>일요일<span className={styles.schColTime}>14:30–17:30</span></div>
+                  <div className={styles.schColHead}><span>목요일</span><span className={styles.schColTime}>19:30–22:30</span></div>
+                  <div className={styles.schColHead}><span>일요일</span><span className={styles.schColTime}>14:30–17:30</span></div>
                 </div>
                 {/* 회차 rows */}
                 {[
@@ -117,8 +117,8 @@ export default function BookClubApplyPage() {
                 ))}
                 {/* 미드나잇 */}
                 <div className={styles.scheduleTableRow}>
-                  <div className={styles.schColLabel}>✦</div>
-                  <div className={`${styles.schColCell} ${styles.schColMidnight}`}>레이지선데이 미드나잇 · 7/12 (일)</div>
+                  <div className={styles.schMidnightLabel}>✦ 레이지선데이 미드나잇</div>
+                  <div className={styles.schColCell}>7/12 &nbsp;17:30–</div>
                 </div>
               </div>
 

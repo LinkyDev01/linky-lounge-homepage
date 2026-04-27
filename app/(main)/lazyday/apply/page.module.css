@@ -383,17 +383,29 @@
 
 .schColHead {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 5px;
     font-size: 12px;
     font-weight: 700;
     color: var(--text-primary);
+    flex-wrap: wrap;
 }
 
 .schColTime {
     font-size: 11px;
     font-weight: 500;
     color: var(--accent-color);
+    white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+    .schColHead {
+        font-size: 11px;
+    }
+    .schColTime {
+        font-size: 10px;
+    }
 }
 
 .schColLabel {
@@ -411,10 +423,13 @@
     align-items: center;
 }
 
-.schColMidnight {
-    grid-column: 2 / 4;
-    font-weight: 600;
+.schMidnightLabel {
+    grid-column: 1 / 3;
+    font-size: 12px;
+    font-weight: 700;
     color: var(--accent-color);
+    display: flex;
+    align-items: center;
 }
 
 .scheduleNoticeNote {

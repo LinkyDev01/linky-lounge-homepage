@@ -9,77 +9,7 @@
   font-size: 24px;
   font-weight: 700;
   color: #1a1208;
-  margin: 0 0 20px;
-}
-
-/* 2열 카드 그리드 */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.card {
-  background-color: #fdf8f3;
-  border-radius: 10px;
-  padding: 16px;
-}
-
-.specialCard {
-  grid-column: 1 / -1;
-  background-color: #fdf8f3;
-  border-radius: 10px;
-  padding: 16px 16px 16px 14px;
-  border-left: 3px solid #d2691e;
-}
-
-.label {
-  display: block;
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1208;
-  margin-bottom: 10px;
-}
-
-.labelLink {
-  display: block;
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1208;
-  text-decoration: underline;
-  text-decoration-color: rgba(210, 105, 30, 0.5);
-  text-underline-offset: 3px;
-  margin-bottom: 6px;
-}
-
-.specialTime {
-  font-size: 12px;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.row {
-  display: flex;
-  gap: 6px;
-  margin: 0 0 4px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.row:last-of-type {
-  margin-bottom: 0;
-}
-
-.rowDate {
-  color: #6a5038;
-  white-space: nowrap;
-}
-
-.rowTime {
-  color: #d2691e;
-  font-weight: 600;
-  white-space: nowrap;
+  margin: 0 0 6px;
 }
 
 .titleSub {
@@ -92,6 +22,86 @@
   font-size: 13px;
   font-weight: 600;
   color: #6a5038;
-  margin: 0 0 20px;
+  margin: 0 0 32px;
   line-height: 1.6;
+}
+
+/* 일정 리스트 */
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid #d4bfaa;
+}
+
+.row:first-child {
+  border-top: 1px solid #d4bfaa;
+}
+
+.sessionLabel {
+  font-size: 22px;
+  font-weight: 800;
+  color: #d2691e;
+  width: 64px;
+  flex-shrink: 0;
+  line-height: 1.2;
+  padding-top: 1px;
+}
+
+.dates {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.dateRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dateText {
+  color: #6a5038;
+  white-space: nowrap;
+}
+
+.timeText {
+  color: #d2691e;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 레이지선데이 미드나잇 */
+.special {
+  margin-top: 20px;
+  padding: 18px 16px 18px 14px;
+  background-color: #fdf8f3;
+  border-radius: 10px;
+  border-left: 3px solid #d2691e;
+}
+
+.specialLabel {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  text-decoration: underline;
+  text-decoration-color: rgba(210, 105, 30, 0.4);
+  text-underline-offset: 3px;
+  margin-bottom: 8px;
+}
+
+.specialDates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }

@@ -94,20 +94,38 @@ export default function BookClubApplyPage() {
             {/* 일정 공지 */}
             <div className={styles.scheduleNotice}>
               <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽 2기]</p>
-              <div className={styles.scheduleSimple}>
-                <p className={styles.scheduleSimpleRow}>
-                  <span className={styles.scheduleSimpleDay}>목요일</span>
-                  <span className={styles.scheduleSimpleTime}>19:30–22:30</span>
-                  <span className={styles.scheduleSimpleRange}>5/21 – 7/2 (격주)</span>
+
+              <div className={styles.scheduleTimeSlots}>
+                <p className={styles.scheduleTimeRow}>
+                  <span className={styles.scheduleTimeDay}>목요일</span>
+                  <span className={styles.scheduleTimeValue}>19:30–22:30</span>
                 </p>
-                <p className={styles.scheduleSimpleRow}>
-                  <span className={styles.scheduleSimpleDay}>일요일</span>
-                  <span className={styles.scheduleSimpleTime}>14:30–17:30</span>
-                  <span className={styles.scheduleSimpleRange}>5/24 – 7/5 (격주)</span>
+                <p className={styles.scheduleTimeRow}>
+                  <span className={styles.scheduleTimeDay}>일요일</span>
+                  <span className={styles.scheduleTimeValue}>14:30–17:30</span>
                 </p>
-                <p className={styles.scheduleSimpleExtra}>✦ 레이지선데이 미드나잇 · 7/12 (일)</p>
               </div>
-              <p className={styles.scheduleNoticeNote}>인터뷰 진행 후, 희망 일정을 고려하여 반배정을 진행합니다.</p>
+
+              <div className={styles.scheduleDateGrid}>
+                {[
+                  { label: "1회차", thu: "5/21 (목)", sun: "5/24 (일)" },
+                  { label: "2회차", thu: "6/4 (목)",  sun: "6/7 (일)" },
+                  { label: "3회차", thu: "6/18 (목)", sun: "6/21 (일)" },
+                  { label: "4회차", thu: "7/2 (목)",  sun: "7/5 (일)" },
+                ].map((s) => (
+                  <div key={s.label} className={styles.scheduleDateRow}>
+                    <span className={styles.scheduleDateLabel}>{s.label}</span>
+                    <span className={styles.scheduleDateCell}>{s.thu}</span>
+                    <span className={styles.scheduleDateCell}>{s.sun}</span>
+                  </div>
+                ))}
+                <div className={styles.scheduleDateRow}>
+                  <span className={styles.scheduleDateLabel}>✦</span>
+                  <span className={`${styles.scheduleDateCell} ${styles.scheduleMidnight}`}>레이지선데이 미드나잇 · 7/12 (일)</span>
+                </div>
+              </div>
+
+              <p className={styles.scheduleNoticeNote}>*회차별 참여 요일 선택 가능 · 인터뷰 후 일정 조율</p>
             </div>
 
             <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>

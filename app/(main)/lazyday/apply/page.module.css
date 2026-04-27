@@ -359,13 +359,15 @@
     margin: 0 0 14px 0;
 }
 
-.scheduleSimple {
+/* 시간대 */
+.scheduleTimeSlots {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    margin-bottom: 14px;
 }
 
-.scheduleSimpleRow {
+.scheduleTimeRow {
     display: flex;
     align-items: baseline;
     gap: 10px;
@@ -373,30 +375,46 @@
     margin: 0;
 }
 
-.scheduleSimpleDay {
+.scheduleTimeDay {
     font-weight: 700;
     color: var(--text-primary);
     width: 44px;
     flex-shrink: 0;
 }
 
-.scheduleSimpleTime {
+.scheduleTimeValue {
     color: var(--accent-color);
     font-weight: 600;
-    white-space: nowrap;
 }
 
-.scheduleSimpleRange {
+/* 회차별 날짜 */
+.scheduleDateGrid {
+    display: grid;
+    grid-template-columns: 44px 1fr 1fr;
+    gap: 6px 10px;
+    margin-bottom: 10px;
+}
+
+.scheduleDateRow {
+    display: contents;
+}
+
+.scheduleDateLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-color);
+    align-self: center;
+}
+
+.scheduleDateCell {
+    font-size: 12px;
     color: var(--text-secondary);
-    font-size: 12px;
-    white-space: nowrap;
 }
 
-.scheduleSimpleExtra {
-    font-size: 12px;
+.scheduleMidnight {
+    grid-column: 2 / 4;
     font-weight: 600;
     color: var(--accent-color);
-    margin: 6px 0 0;
 }
 
 .scheduleNoticeNote {

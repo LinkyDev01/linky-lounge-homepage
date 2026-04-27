@@ -9,14 +9,18 @@ export default function BookClubApplyPage() {
   const [loading, setLoading] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
 
-  const sessions = [
-    { label: "1회차", thuDate: "5/21 (목)", sunDate: "5/24 (일)" },
-    { label: "2회차", thuDate: "6/4 (목)",  sunDate: "6/7 (일)" },
-    { label: "3회차", thuDate: "6/18 (목)", sunDate: "6/21 (일)" },
-    { label: "4회차", thuDate: "7/2 (목)",  sunDate: "7/5 (일)" },
+  const scheduleInfo = [
+    {
+      label: "평일 저녁반",
+      time: "19:30 – 22:30",
+      sub: "격주 목요일 · 5/21 – 7/2",
+    },
+    {
+      label: "일요일 오후반",
+      time: "14:30 – 17:30",
+      sub: "격주 일요일 · 5/24 – 7/5",
+    },
   ]
-  const THU_TIME = "19:30–22:30"
-  const SUN_TIME = "14:30–17:30"
 
   function validateForm(): boolean {
     const form = document.getElementById("applicationForm") as HTMLFormElement
@@ -102,34 +106,19 @@ export default function BookClubApplyPage() {
             {/* 일정 공지 */}
             <div className={styles.scheduleNotice}>
               <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽 2기]</p>
-              <div className={styles.scheduleList}>
-                {sessions.map((s) => (
-                  <div key={s.label} className={styles.scheduleRow}>
-                    <span className={styles.scheduleLabel}>{s.label}</span>
-                    <div className={styles.scheduleDates}>
-                      <div className={styles.scheduleDateRow}>
-                        <span className={styles.scheduleDateText}>{s.thuDate}</span>
-                        <span className={styles.scheduleTimeText}>{THU_TIME}</span>
-                      </div>
-                      <div className={styles.scheduleDateRow}>
-                        <span className={styles.scheduleDateText}>{s.sunDate}</span>
-                        <span className={styles.scheduleTimeText}>{SUN_TIME}</span>
-                      </div>
+              <div className={styles.scheduleNoticeGrid}>
+                {scheduleInfo.map(({ label, time, sub }) => (
+                  <div key={label} className={styles.scheduleNoticeItem}>
+                    <div className={styles.scheduleNoticeRow}>
+                      <span className={styles.scheduleNoticeDay}>{label}</span>
+                      <span className={styles.scheduleNoticeTime}>{time}</span>
                     </div>
+                    <div className={styles.scheduleNoticeSub}>{sub}</div>
                   </div>
                 ))}
-                <div className={styles.scheduleRow}>
-                  <span className={styles.scheduleStarLabel}>✦</span>
-                  <div className={styles.scheduleDates}>
-                    <span className={styles.scheduleSpecialName}>레이지선데이 미드나잇</span>
-                    <div className={styles.scheduleDateRow}>
-                      <span className={styles.scheduleDateText}>7/12 (일)</span>
-                      <span className={styles.scheduleTimeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
-                    </div>
-                  </div>
-                </div>
               </div>
-              <p className={styles.scheduleNoticeNote}>*같은 회차의 모임 중 자유롭게 참여 가능 · 인터뷰 후 일정 조율</p>
+              <p className={styles.scheduleNoticeNote}>인터뷰 진행 후, 희망 일정을 고려하여 반배정을 진행합니다.</p>
+              <p className={styles.scheduleNoticeExtra}>✦ 레이지선데이 미드나잇 · 7/12 (일) — 전체 멤버 포틀럭 파티 (참가비 2만원)</p>
             </div>
 
             <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>

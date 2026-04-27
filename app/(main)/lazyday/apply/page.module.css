@@ -359,67 +359,44 @@
     margin: 0 0 14px 0;
 }
 
-.scheduleList {
+.scheduleSimple {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
 }
 
-.scheduleRow {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-}
-
-.scheduleLabel {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent-color);
-    width: 40px;
-    flex-shrink: 0;
-    padding-top: 1px;
-}
-
-.scheduleStarLabel {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent-color);
-    width: 40px;
-    flex-shrink: 0;
-    padding-top: 1px;
-}
-
-.scheduleDates {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.scheduleDateRow {
+.scheduleSimpleRow {
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 10px;
     font-size: 13px;
-    line-height: 1.6;
+    margin: 0;
 }
 
-.scheduleDateText {
-    color: var(--text-secondary);
-    white-space: nowrap;
+.scheduleSimpleDay {
+    font-weight: 700;
+    color: var(--text-primary);
+    width: 44px;
+    flex-shrink: 0;
 }
 
-.scheduleTimeText {
+.scheduleSimpleTime {
     color: var(--accent-color);
     font-weight: 600;
     white-space: nowrap;
 }
 
-.scheduleSpecialName {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 2px;
+.scheduleSimpleRange {
+    color: var(--text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.scheduleSimpleExtra {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin: 6px 0 0;
 }
 
 .scheduleNoticeNote {

@@ -28,11 +28,11 @@ export default function StudyForeignPage() {
       <NavBar />
       <main className={styles.container} data-track-section="독서모임_홈">
         <Image
-          src="/linky-lounge/book-club/book-club-hero.png"
-          alt="bookclub hero image"
+          src="/linky-lounge/book-club/lazyday_typo.png"
+          alt="lazyday typo"
           className={styles.mainImage}
           width={600}
-          height={3000}
+          height={300}
           priority
         />
         <AboutSection />

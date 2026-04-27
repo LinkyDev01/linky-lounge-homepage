@@ -3,7 +3,6 @@ import styles from "./AboutSection.module.css"
 export function AboutSection() {
   return (
     <section id="about" className={styles.section}>
-      <h2 className={styles.blockTitle}>레이지데이 북클럽은</h2>
       <p className={styles.lead}>복잡함 속에서 찾는 단순함.</p>
       <p className={styles.paragraph}>일상을 더 복잡하게 만드는 질문들은 앞세우지 않으려고 해요.</p>
       <p className={styles.paragraph}>

@@ -13,10 +13,10 @@ import { ClosingSection } from "./ClosingSection"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
-  description: "책 얘기로 시작해요. 어느 순간 내 얘기가 나와요. 완독의 강박 대신 나를 읽는 여유, 레이지데이 북클럽",
+  description: "당신의 이야기, 그리고 당신만의 방향이 남는 모임",
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "책 얘기로 시작해요. 어느 순간 내 얘기가 나와요. 완독의 강박 대신 나를 읽는 여유, 레이지데이 북클럽",
+    description: "당신의 이야기, 그리고 당신만의 방향이 남는 모임",
     images: ["/linky-lounge/book-club/bookclub-og-image.png"],
     type: "website",
   },

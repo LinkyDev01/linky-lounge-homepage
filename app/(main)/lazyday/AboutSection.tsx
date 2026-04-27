@@ -3,23 +3,17 @@ import styles from "./AboutSection.module.css"
 export function AboutSection() {
   return (
     <section id="about" className={styles.section}>
-      <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
-
-      <div className={styles.block}>
-        <p className={styles.question}>모임에선 어떤 대화가 오가나요?</p>
-        <div className={styles.quote}>
-          <p>대부분의 독서모임은 잡담 위주이거나, 모임장 한 사람이 방향을 끌어가는 방식이에요.</p>
-          <p>레이지데이에서는 열린 질문 하나로 각자의 이야기가 자연스럽게 나오고, 그 안에서 서로의 시각이 넓어집니다.</p>
-          <p>모임장은 정답을 주는 사람이 아니라, 여러분의 생각이 잘 꺼내질 수 있도록 곁에서 돕는 역할이에요.</p>
-        </div>
-      </div>
-
-      <div className={styles.block}>
-        <p className={styles.question}>어떤 사람과 함께하나요?</p>
-        <div className={styles.quote}>
-          <p>자기개발도 좋지만, 문학·철학·예술을 통해 평소에 닿기 어려운 시각을 경험해보고 싶은 분들이 오세요.</p>
-        </div>
-      </div>
+      <h2 className={styles.sectionTitle}>레이지데이 북클럽은</h2>
+      <p className={styles.lead}>복잡함 속에서 찾는 단순함.</p>
+      <p className={styles.body}>일상을 더 복잡하게 만드는 질문들은 앞세우지 않으려고 해요.</p>
+      <p className={styles.body}>
+        중요한 건 딱 두 가지입니다. 이 책의 진짜 의도가 무엇인지,
+        그리고 거기서 내 이야기가 나올 수 있는지. 백 번의 독서모임을 하며
+        결국 제게 남은 질문도 이것뿐이었거든요.
+      </p>
+      <p className={styles.body}>
+        결국 이곳에 남는 건 책의 지식이 아니라 당신의 이야기, 그리고 당신만의 방향입니다.
+      </p>
     </section>
   )
 }

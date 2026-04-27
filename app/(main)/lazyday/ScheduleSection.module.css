@@ -8,41 +8,34 @@
   font-size: 24px;
   font-weight: 700;
   color: #1a1208;
-  margin: 0 0 28px;
+  margin: 0 0 20px;
 }
 
-/* 타임라인 */
-.timeline {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  margin-bottom: 16px;
+/* 2열 카드 그리드 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.item {
-  padding: 20px 0 20px 20px;
-  border-left: 2px solid #c4a078;
-  position: relative;
+.card {
+  background-color: #fdf8f3;
+  border-radius: 10px;
+  padding: 16px;
 }
 
-.item::before {
-  content: "";
-  position: absolute;
-  left: -5px;
-  top: 24px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #d2691e;
-}
-
-.item:last-child {
-  padding-bottom: 0;
+.specialCard {
+  grid-column: 1 / -1;
+  background-color: #fdf8f3;
+  border-radius: 10px;
+  padding: 16px 16px 16px 14px;
+  border-left: 3px solid #d2691e;
 }
 
 .label {
   display: block;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a1208;
   margin-bottom: 10px;
@@ -50,28 +43,27 @@
 
 .labelLink {
   display: block;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a1208;
   text-decoration: underline;
   text-decoration-color: rgba(210, 105, 30, 0.5);
   text-underline-offset: 3px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .specialDate {
-  font-size: 13px;
+  font-size: 12px;
   color: #6a5038;
-  margin: 0 0 4px;
+  margin: 0 0 8px;
 }
 
-/* 날짜-시간 행 — 그리드로 좌측 정렬 */
 .row {
-  display: grid;
-  grid-template-columns: 76px 1fr;
-  margin: 0 0 3px;
-  font-size: 13px;
-  white-space: nowrap;
+  display: flex;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .row:last-of-type {
@@ -80,11 +72,13 @@
 
 .rowDate {
   color: #6a5038;
+  white-space: nowrap;
 }
 
 .rowTime {
   color: #d2691e;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .note {

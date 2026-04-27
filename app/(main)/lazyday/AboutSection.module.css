@@ -42,17 +42,25 @@
 }
 
 .lead {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 24px;
+  line-height: 1.4;
+}
+
+.body {
   font-size: 17px;
   font-weight: 600;
   color: #1a1208;
-  margin: 16px 0 4px;
-  line-height: 1.6;
+  margin: 0 0 16px;
+  line-height: 1.75;
   word-break: auto-phrase;
   text-wrap: pretty;
 }
 
-.lead:first-child {
-  margin-top: 0;
+.body:last-child {
+  margin-bottom: 0;
 }
 
 .accent {

@@ -13,7 +13,7 @@ export function ClosingSection() {
           height={40}
           className={styles.logo}
         />
-        <p className={styles.sub}>책과 대화로 시작해서 사람이 남는 모임</p>
+        <p className={styles.sub}>당신의 이야기, 그리고 당신만의 방향이 남는 모임</p>
         <p className={styles.title}>
           레이지데이 북클럽 <span className={styles.accent}>2기</span> 모집 중
         </p>

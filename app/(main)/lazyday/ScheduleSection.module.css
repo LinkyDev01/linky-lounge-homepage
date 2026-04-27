@@ -48,15 +48,43 @@
   margin-bottom: 10px;
 }
 
-.row {
-  margin: 0 0 3px;
+.labelLink {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1208;
+  text-decoration: underline;
+  text-decoration-color: rgba(210, 105, 30, 0.5);
+  text-underline-offset: 3px;
+  margin-bottom: 10px;
+}
+
+.specialDate {
   font-size: 13px;
   color: #6a5038;
+  margin: 0 0 4px;
+}
+
+/* 날짜-시간 행 — 그리드로 좌측 정렬 */
+.row {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  margin: 0 0 3px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
 .row:last-of-type {
   margin-bottom: 0;
+}
+
+.rowDate {
+  color: #6a5038;
+}
+
+.rowTime {
+  color: #d2691e;
+  font-weight: 600;
 }
 
 .note {

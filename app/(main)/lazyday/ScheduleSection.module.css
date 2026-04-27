@@ -54,6 +54,17 @@
   padding-top: 1px;
 }
 
+/* 미드나잇 ✦ 라벨 */
+.starLabel {
+  font-size: 22px;
+  font-weight: 800;
+  color: #d2691e;
+  width: 64px;
+  flex-shrink: 0;
+  line-height: 1.2;
+  padding-top: 1px;
+}
+
 .dates {
   display: flex;
   flex-direction: column;
@@ -80,28 +91,13 @@
   white-space: nowrap;
 }
 
-/* 레이지선데이 미드나잇 */
-.special {
-  margin-top: 20px;
-  padding: 18px 16px 18px 14px;
-  background-color: #fdf8f3;
-  border-radius: 10px;
-  border-left: 3px solid #d2691e;
-}
-
-.specialLabel {
+.specialName {
   display: block;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: #1a1208;
   text-decoration: underline;
-  text-decoration-color: rgba(210, 105, 30, 0.4);
+  text-decoration-color: rgba(210, 105, 30, 0.45);
   text-underline-offset: 3px;
-  margin-bottom: 8px;
-}
-
-.specialDates {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  margin-bottom: 5px;
 }

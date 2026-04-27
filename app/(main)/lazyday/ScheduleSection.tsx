@@ -32,14 +32,15 @@ export function ScheduleSection() {
             </div>
           </div>
         ))}
-      </div>
 
-      <div className={styles.special}>
-        <a href="#gathering" className={styles.specialLabel}>레이지선데이 미드나잇</a>
-        <div className={styles.specialDates}>
-          <div className={styles.dateRow}>
-            <span className={styles.dateText}>7/12 (일)</span>
-            <span className={styles.timeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
+        <div className={styles.row}>
+          <span className={styles.starLabel}>✦</span>
+          <div className={styles.dates}>
+            <a href="#gathering" className={styles.specialName}>레이지선데이 미드나잇</a>
+            <div className={styles.dateRow}>
+              <span className={styles.dateText}>7/12 (일)</span>
+              <span className={styles.timeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
+            </div>
           </div>
         </div>
       </div>

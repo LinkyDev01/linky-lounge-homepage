@@ -19,7 +19,7 @@ export type SeasonConfig = {
 export const season1Config: SeasonConfig = {
   season: 1,
   label: "1기",
-  dateRange: "",
+  dateRange: "3.19 – 5.17",
   books: [
     {
       week: 1,

@@ -14,7 +14,7 @@ export function ScheduleSection() {
   return (
     <section id="schedule" className={styles.section}>
       <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
-      <p className={styles.note}>*같은 회차의 모임 중 자유롭게 참여 가능</p>
+      <p className={styles.note}>*회차별 목·일 중 참여 요일 선택 가능</p>
 
       <div className={styles.list}>
         {regularSessions.map((s) => (

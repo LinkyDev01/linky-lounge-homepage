@@ -125,7 +125,8 @@ export default function BookClubApplyPage() {
                 </div>
               </div>
 
-              <p className={styles.scheduleNoticeNote}>*회차별 참여 요일 선택 가능 · 인터뷰 후 일정 조율</p>
+              <p className={styles.scheduleNoticeNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
+              <p className={styles.scheduleNoticeNote}>인터뷰 후 희망 요일을 반영하여 배정합니다.</p>
             </div>
 
             <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>

@@ -18,17 +18,23 @@
   gap: 32px;
 }
 
-.item {
-  border-left: 3px solid #d2691e;
-  padding-left: 16px;
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .question {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a1208;
-  margin: 0 0 12px;
+  margin: 0;
   line-height: 1.5;
+}
+
+.quote {
+  border-left: 2px solid #b0a090;
+  padding-left: 14px;
 }
 
 .paragraph {

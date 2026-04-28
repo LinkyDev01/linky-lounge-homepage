@@ -49,3 +49,11 @@
 .paragraph:last-child {
   margin-bottom: 0;
 }
+
+.blockIllustration {
+  width: 140px;
+  height: auto;
+  color: #d2691e;
+  margin-bottom: 16px;
+  opacity: 0.9;
+}

@@ -1,6 +1,15 @@
 import styles from './VibeSection.module.css'
+import { Cluster, Solo } from "@/components/illustrations/poppy"
+import { FadeUp } from "@/components/animation/FadeUp"
+import type { ComponentType, SVGAttributes } from "react"
 
-const items = [
+type IllustrationProps = SVGAttributes<SVGElement> & { className?: string }
+
+const items: {
+  question: string
+  paragraphs: string[]
+  Illustration: ComponentType<IllustrationProps>
+}[] = [
   {
     question: '모임에선 어떤 대화가 오가나요?',
     paragraphs: [
@@ -8,29 +17,34 @@ const items = [
       '하지만, 레이지데이에서는 열린 질문을 통해 서로의 이야기를 꺼내며 각자의 시각이 넓어집니다.',
       '함께하는 모임장은 정답을 주는 사람이 아니라, 여러분의 생각과 목소리가 꺼내질 수 있도록 곁에서 돕기 때문이에요.',
     ],
+    Illustration: Cluster,
   },
   {
     question: '어떤 사람과 함께하고 있나요?',
     paragraphs: [
       '자기개발도 좋지만, 문학·철학·예술을 통해 평소에 닿기 어려운 시각을 경험해보고 싶은 분들이 오세요.',
     ],
+    Illustration: Solo,
   },
 ]
 
 export function VibeSection() {
   return (
     <section id="vibe" className={styles.section}>
-      <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
+      <FadeUp>
+        <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
+      </FadeUp>
       <div className={styles.list}>
-        {items.map((item) => (
-          <div key={item.question} className={styles.block}>
-            <p className={styles.question}>{item.question}</p>
+        {items.map(({ question, paragraphs, Illustration }, i) => (
+          <FadeUp key={question} delay={i * 0.1} className={styles.block}>
+            <Illustration className={styles.blockIllustration} aria-hidden />
+            <p className={styles.question}>{question}</p>
             <div className={styles.quote}>
-              {item.paragraphs.map((p, i) => (
-                <p key={i} className={styles.paragraph}>{p}</p>
+              {paragraphs.map((p, j) => (
+                <p key={j} className={styles.paragraph}>{p}</p>
               ))}
             </div>
-          </div>
+          </FadeUp>
         ))}
       </div>
     </section>

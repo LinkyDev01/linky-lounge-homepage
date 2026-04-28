@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     description: "덴마크 휘게를 담은 사당의 아늑한 공간",
     images: ["/linky-lounge/gallary/e.jpg"],
   },
+  other: {
+    "facebook-domain-verification": "d4x4wq5k1cywer0jeh6fhhclbydhm3",
+  },
 }
 
 export default function RootLayout({

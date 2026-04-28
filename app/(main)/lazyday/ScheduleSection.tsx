@@ -1,4 +1,6 @@
 import styles from "./ScheduleSection.module.css"
+import { FadeUp } from "@/components/animation/FadeUp"
+import { ScheduleMark } from "@/components/illustrations/bauhaus"
 
 const regularSessions = [
   { label: "1회차", thuDate: "5/21 (목)", sunDate: "5/24 (일)" },
@@ -13,36 +15,47 @@ const SUN_TIME = "14:30–17:30"
 export function ScheduleSection() {
   return (
     <section id="schedule" className={styles.section}>
-      <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
-      <p className={styles.note}>*회차별 목·일 중 참여 요일 선택 가능</p>
+      <FadeUp>
+        <ScheduleMark className={styles.mark} />
+      </FadeUp>
+      <FadeUp delay={0.05}>
+        <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
+      </FadeUp>
+      <FadeUp delay={0.1}>
+        <p className={styles.note}>*회차별 목·일 중 참여 요일 선택 가능</p>
+      </FadeUp>
 
       <div className={styles.list}>
-        {regularSessions.map((s) => (
-          <div key={s.label} className={styles.row}>
-            <span className={styles.sessionLabel}>{s.label}</span>
-            <div className={styles.dates}>
-              <div className={styles.dateRow}>
-                <span className={styles.dateText}>{s.thuDate}</span>
-                <span className={styles.timeText}>{THU_TIME}</span>
-              </div>
-              <div className={styles.dateRow}>
-                <span className={styles.dateText}>{s.sunDate}</span>
-                <span className={styles.timeText}>{SUN_TIME}</span>
+        {regularSessions.map((s, i) => (
+          <FadeUp key={s.label} delay={0.15 + i * 0.06}>
+            <div className={styles.row}>
+              <span className={styles.sessionLabel}>{s.label}</span>
+              <div className={styles.dates}>
+                <div className={styles.dateRow}>
+                  <span className={styles.dateText}>{s.thuDate}</span>
+                  <span className={styles.timeText}>{THU_TIME}</span>
+                </div>
+                <div className={styles.dateRow}>
+                  <span className={styles.dateText}>{s.sunDate}</span>
+                  <span className={styles.timeText}>{SUN_TIME}</span>
+                </div>
               </div>
             </div>
-          </div>
+          </FadeUp>
         ))}
 
-        <div className={styles.row}>
-          <span className={styles.starLabel}>✦</span>
-          <div className={styles.dates}>
-            <a href="#gathering" className={styles.specialName}>레이지선데이 미드나잇</a>
-            <div className={styles.dateRow}>
-              <span className={styles.dateText}>7/12 (일)</span>
-              <span className={styles.timeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
+        <FadeUp delay={0.4}>
+          <div className={styles.row}>
+            <span className={styles.starLabel}>✦</span>
+            <div className={styles.dates}>
+              <a href="#gathering" className={styles.specialName}>레이지선데이 미드나잇</a>
+              <div className={styles.dateRow}>
+                <span className={styles.dateText}>7/12 (일)</span>
+                <span className={styles.timeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
+              </div>
             </div>
           </div>
-        </div>
+        </FadeUp>
       </div>
     </section>
   )

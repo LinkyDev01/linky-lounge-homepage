@@ -2,6 +2,8 @@ import Image from "next/image"
 import { season1Config, season2Config } from "./book-config"
 import type { Book } from "./book-config"
 import { BookSubNav } from "./BookSubNav"
+import { FadeUp } from "@/components/animation/FadeUp"
+import { BookMark } from "@/components/illustrations/bauhaus"
 import styles from "./BookSection.module.css"
 
 function BookItem({ book, withImage }: { book: Book; withImage: boolean }) {
@@ -78,16 +80,25 @@ export function BookSection() {
       <BookSubNav />
 
       <div className={styles.content}>
-        <h2 className={styles.sectionTitle}>책 소개</h2>
+        <FadeUp>
+          <BookMark className={styles.mark} />
+        </FadeUp>
+        <FadeUp delay={0.05}>
+          <h2 className={styles.sectionTitle}>책 소개</h2>
+        </FadeUp>
 
         {/* 2기 */}
         <div className={styles.currentSeason}>
-          <p className={styles.seasonLabel}>
-            2기 <span className={styles.dateRange}>{season2Config.dateRange}</span>
-          </p>
+          <FadeUp delay={0.1}>
+            <p className={styles.seasonLabel}>
+              2기 <span className={styles.dateRange}>{season2Config.dateRange}</span>
+            </p>
+          </FadeUp>
           <div className={styles.bookList}>
-            {season2Config.books.map((book) => (
-              <BookItem key={book.week} book={book} withImage={true} />
+            {season2Config.books.map((book, i) => (
+              <FadeUp key={book.week} delay={i * 0.08}>
+                <BookItem book={book} withImage={true} />
+              </FadeUp>
             ))}
           </div>
         </div>
@@ -107,8 +118,10 @@ export function BookSection() {
                 )}
               </p>
               <div className={styles.bookList}>
-                {season1Config.books.map((book) => (
-                  <BookItem key={book.week} book={book} withImage={true} />
+                {season1Config.books.map((book, i) => (
+                  <FadeUp key={book.week} delay={i * 0.06}>
+                    <BookItem book={book} withImage={true} />
+                  </FadeUp>
                 ))}
               </div>
             </div>

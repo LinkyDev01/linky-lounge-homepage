@@ -1,5 +1,6 @@
 import styles from './VibeSection.module.css'
 import { FadeUp } from "@/components/animation/FadeUp"
+import { VibeMark } from "@/components/illustrations/bauhaus"
 
 const items: {
   question: string
@@ -25,6 +26,9 @@ export function VibeSection() {
   return (
     <section id="vibe" className={styles.section}>
       <FadeUp>
+        <VibeMark className={styles.mark} />
+      </FadeUp>
+      <FadeUp delay={0.05}>
         <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
       </FadeUp>
       <div className={styles.list}>

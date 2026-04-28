@@ -1,5 +1,7 @@
 import type { ReactNode } from "react"
 import styles from "./FaqSection.module.css"
+import { FadeUp } from "@/components/animation/FadeUp"
+import { FaqMark } from "@/components/illustrations/bauhaus"
 
 type Faq = {
   id?: string
@@ -36,29 +38,38 @@ const faqs: Faq[] = [
 export function FaqSection() {
   return (
     <section id="faq" className={styles.section}>
-      <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+      <FadeUp>
+        <FaqMark className={styles.mark} />
+      </FadeUp>
+      <FadeUp delay={0.05}>
+        <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+      </FadeUp>
 
       <div className={styles.list}>
-        {faqs.map((faq) => (
-          <div key={faq.q} id={faq.id} className={styles.item}>
-            <p className={styles.question}>{faq.q}</p>
-            <p className={styles.answer}>{faq.a}</p>
-            {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
-          </div>
+        {faqs.map((faq, i) => (
+          <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
+            <div id={faq.id} className={styles.item}>
+              <p className={styles.question}>{faq.q}</p>
+              <p className={styles.answer}>{faq.a}</p>
+              {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
+            </div>
+          </FadeUp>
         ))}
       </div>
 
-      <div className={styles.contact}>
-        <p className={styles.contactText}>다른 질문이 있어요</p>
-        <a
-          href="https://www.instagram.com/linky_lounge"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.contactLink}
-        >
-          인스타그램 DM으로 편하게 물어보세요 →
-        </a>
-      </div>
+      <FadeUp delay={0.4}>
+        <div className={styles.contact}>
+          <p className={styles.contactText}>다른 질문이 있어요</p>
+          <a
+            href="https://www.instagram.com/linky_lounge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.contactLink}
+          >
+            인스타그램 DM으로 편하게 물어보세요 →
+          </a>
+        </div>
+      </FadeUp>
     </section>
   )
 }

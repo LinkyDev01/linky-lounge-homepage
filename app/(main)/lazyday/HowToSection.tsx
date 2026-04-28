@@ -1,5 +1,6 @@
 import styles from "./HowToSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { HowToMark } from "@/components/illustrations/bauhaus"
 
 const steps: {
   label: string
@@ -26,9 +27,12 @@ export function HowToSection() {
   return (
     <section id="howto" className={styles.section}>
       <FadeUp>
-        <h2 className={styles.sectionTitle}>진행 순서</h2>
+        <HowToMark className={styles.mark} />
       </FadeUp>
       <FadeUp delay={0.05}>
+        <h2 className={styles.sectionTitle}>진행 순서</h2>
+      </FadeUp>
+      <FadeUp delay={0.1}>
         <p className={styles.meta}>총 3시간 진행</p>
       </FadeUp>
 

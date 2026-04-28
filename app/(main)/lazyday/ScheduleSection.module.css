@@ -5,6 +5,21 @@
   scroll-margin-top: 52px;
 }
 
+.mark {
+  width: 88px;
+  height: 88px;
+  display: block;
+  margin: 0 0 24px 0;
+}
+
+@media (max-width: 480px) {
+  .mark {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 20px;
+  }
+}
+
 .sectionTitle {
   font-size: 24px;
   font-weight: 700;

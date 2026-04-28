@@ -55,3 +55,23 @@
 .cta:hover {
   background-color: #b8571a;
 }
+
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.locationMarker {
+  width: 18px;
+  height: 22px;
+  color: #d2691e;
+  flex-shrink: 0;
+}
+
+.locationText {
+  font-size: 13px;
+  color: #c8b8a8;
+  letter-spacing: 0.02em;
+}

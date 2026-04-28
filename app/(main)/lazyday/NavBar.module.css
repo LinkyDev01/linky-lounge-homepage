@@ -2,6 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 40;
+  background-color: rgba(245, 237, 228, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(212, 191, 170, 0.5);
 }
 
 .list {
@@ -10,8 +14,6 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 0 24px;
-  background-color: #f5ede4;
-  border-bottom: 1px solid #d4bfaa;
 }
 
 .list > li {
@@ -30,14 +32,51 @@
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.18s ease, border-color 0.18s ease;
   white-space: nowrap;
   letter-spacing: 0.01em;
   text-align: center;
+  font-family: inherit;
+}
+
+.item:hover:not(.active) {
+  color: #4a3020;
 }
 
 .item.active {
   font-weight: 700;
   color: #d2691e;
   border-bottom-color: #d2691e;
+}
+
+/* PC — 더 여유있고 정제된 룩 */
+@media (min-width: 768px) {
+  .list {
+    max-width: 760px;
+    padding: 0 56px;
+  }
+
+  .item {
+    height: 60px;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    border-bottom-width: 2px;
+  }
+
+  .item.active {
+    border-bottom-width: 3px;
+  }
+}
+
+/* 큰 데스크탑 — 더 여백 + 헤더가 본문보다 살짝 넓게 */
+@media (min-width: 1280px) {
+  .list {
+    max-width: 880px;
+    padding: 0 80px;
+  }
+
+  .item {
+    height: 64px;
+    font-size: 16px;
+  }
 }

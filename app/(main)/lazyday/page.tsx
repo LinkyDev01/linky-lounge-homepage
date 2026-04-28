@@ -10,8 +10,6 @@ import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
 import { FaqSection } from "./FaqSection"
 import { ClosingSection } from "./ClosingSection"
-import { ParallaxFloat } from "@/components/animation/ParallaxFloat"
-import { Petal, Leaf, Bud } from "@/components/illustrations/poppy"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
@@ -46,16 +44,6 @@ export default function StudyForeignPage() {
         <ScheduleSection />
         <FaqSection />
         <ClosingSection />
-
-        <ParallaxFloat className={styles.divider1} yRange={[30, -100]} rotateRange={[-8, 20]}>
-          <Petal className={styles.dividerLeaf} aria-hidden />
-        </ParallaxFloat>
-        <ParallaxFloat className={styles.divider2} yRange={[20, -80]} rotateRange={[20, -10]}>
-          <Leaf className={styles.dividerLeaf} aria-hidden />
-        </ParallaxFloat>
-        <ParallaxFloat className={styles.divider3} yRange={[40, -120]} rotateRange={[-5, 15]}>
-          <Bud className={styles.dividerLeaf} aria-hidden />
-        </ParallaxFloat>
       </main>
 
       <StickyApplyButton />

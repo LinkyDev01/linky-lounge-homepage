@@ -1,5 +1,4 @@
 import styles from "./AboutSection.module.css"
-import { Specimen } from "@/components/illustrations/poppy"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 export function AboutSection() {
@@ -8,12 +7,9 @@ export function AboutSection() {
       <FadeUp>
         <h2 className={styles.sectionTitle}>레이지데이 북클럽은</h2>
       </FadeUp>
-      <div className={styles.leadRow}>
-        <FadeUp delay={0.05}>
-          <p className={styles.lead}>복잡함 속에서 찾는 단순함.</p>
-        </FadeUp>
-        <Specimen className={styles.specimen} />
-      </div>
+      <FadeUp delay={0.05}>
+        <p className={styles.lead}>복잡함 속에서 찾는 단순함.</p>
+      </FadeUp>
       <FadeUp delay={0.1}>
         <p className={styles.body}>
           일상을 더 복잡하게 만드는 질문들은<br />

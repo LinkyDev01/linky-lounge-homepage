@@ -6,17 +6,17 @@
 }
 
 .mark {
-  width: 88px;
-  height: 88px;
+  width: 130px;
+  height: 130px;
   display: block;
-  margin: 0 0 24px 0;
+  margin: 0 0 28px 0;
 }
 
 @media (max-width: 480px) {
   .mark {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 20px;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 22px;
   }
 }
 

@@ -64,17 +64,17 @@
 }
 
 .mark {
-  width: 88px;
-  height: 88px;
+  width: 130px;
+  height: 130px;
   display: block;
-  margin: 0 auto 32px;
+  margin: 0 auto 36px;
 }
 
 @media (max-width: 480px) {
   .mark {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 24px;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 28px;
   }
 }
 

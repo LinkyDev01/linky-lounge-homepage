@@ -1,7 +1,39 @@
 .container {
+    position: relative;
     max-width: 600px;
     margin: 0 auto;
     padding: 0;
+    overflow: hidden;
+}
+
+.divider1 {
+  position: absolute;
+  top: 30vh;
+  right: 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.divider2 {
+  position: absolute;
+  top: 65vh;
+  left: 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.divider3 {
+  position: absolute;
+  top: 110vh;
+  right: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dividerLeaf {
+  width: 36px;
+  height: 36px;
+  color: rgba(210, 105, 30, 0.22);
 }
 
 .heroWrapper {

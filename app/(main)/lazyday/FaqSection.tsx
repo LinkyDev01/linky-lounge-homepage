@@ -22,7 +22,7 @@ const faqs: Faq[] = [
     q: "정기 독서모임 외 함께하는 시간이 있나요?",
     a: (
       <>
-        <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 포틀럭 파티입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다. 참가비는 <strong className={styles.answerStrong}>2만원</strong>이며, 와인 등 주류·음료를 <strong className={styles.answerStrong}>무제한</strong>으로 즐기실 수 있습니다.
+        <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 포틀럭 파티입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다.
       </>
     ),
   },

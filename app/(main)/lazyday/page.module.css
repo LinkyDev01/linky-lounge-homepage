@@ -4,6 +4,10 @@
     padding: 0;
 }
 
+.heroWrapper {
+    background: #ffffff;
+}
+
 .mainImage {
     width: 100%;
     height: auto;

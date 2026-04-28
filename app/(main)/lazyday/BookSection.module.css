@@ -1,8 +1,12 @@
 .section {
   background-color: #f0e8df;
-  padding: 48px 24px 0;
+  padding: 0;
   word-break: keep-all;
   scroll-margin-top: 52px;
+}
+
+.content {
+  padding: 48px 24px 0;
 }
 
 .sectionTitle {
@@ -163,21 +167,22 @@
 
 /* 지난 기수 드롭다운 */
 .pastSeasons {
-  border-top: 1px solid #d4bfaa;
-  margin-top: 8px;
-  padding: 24px 0 48px;
+  margin-top: 24px;
 }
 
 .pastSeasonsSummary {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: #c8b8a8;
+  color: #1a1208;
   font-size: 14px;
   font-weight: 600;
-  color: #6a5038;
   cursor: pointer;
   list-style: none;
   user-select: none;
+  padding: 16px 24px;
+  margin: 0 -24px;
 }
 
 .pastSeasonsSummary::-webkit-details-marker {
@@ -186,8 +191,8 @@
 
 .chevron {
   font-size: 20px;
-  color: #8a6a50;
-  transition: transform 0.2s ease;
+  color: #1a1208;
+  transition: transform 0.3s ease;
   display: inline-block;
   line-height: 1;
 }
@@ -197,5 +202,25 @@ details[open] .chevron {
 }
 
 .pastSeasonsContent {
-  padding-top: 24px;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+  overflow: hidden;
+  scroll-margin-top: 88px;
+}
+
+details[open] .pastSeasonsContent {
+  grid-template-rows: 1fr;
+}
+
+.pastSeasonsContentInner {
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: padding-top 0.35s ease, padding-bottom 0.35s ease;
+}
+
+details[open] .pastSeasonsContentInner {
+  padding-top: 32px;
+  padding-bottom: 48px;
 }

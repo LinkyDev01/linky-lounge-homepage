@@ -1,28 +1,15 @@
-.nav {
+.subNav {
   position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
-.list {
-  display: flex;
-  list-style: none;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 24px;
-  background-color: #f5ede4;
+  top: 48px;
+  z-index: 30;
+  background-color: #ffffff;
   border-bottom: 1px solid #d4bfaa;
-}
-
-.list > li {
-  flex: 1;
   display: flex;
 }
 
 .item {
   flex: 1;
-  height: 48px;
-  padding: 0;
+  height: 40px;
   font-size: 13px;
   font-weight: 500;
   color: #8a6a50;
@@ -32,8 +19,6 @@
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
-  letter-spacing: 0.01em;
-  text-align: center;
 }
 
 .item.active {

@@ -24,11 +24,14 @@ export function HowToSection() {
       <h2 className={styles.sectionTitle}>진행 순서</h2>
       <p className={styles.meta}>총 3시간 진행</p>
 
-      <div className={styles.steps}>
+      <div className={styles.timeline}>
         {steps.map((step) => (
           <div key={step.label} className={styles.step}>
-            <span className={styles.stepLabel}>{step.label}</span>
-            <p className={styles.stepDesc}>{step.description}</p>
+            <div className={styles.dot} />
+            <div className={styles.stepContent}>
+              <span className={styles.stepLabel}>{step.label}</span>
+              <p className={styles.stepDesc}>{step.description}</p>
+            </div>
           </div>
         ))}
       </div>

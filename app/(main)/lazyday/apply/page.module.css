@@ -29,15 +29,14 @@
 .sectionHeader {
     text-align: center;
     max-width: 640px;
-    margin: 0 auto 60px;
+    margin: 0 auto 20px;
 }
 
 .sectionLabel {
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0;
     color: var(--text-secondary);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     font-weight: 400;
 }
 
@@ -54,8 +53,7 @@
     max-width: 320px;
     height: auto;
     display: block;
-    margin: 0 auto 32px;
-    overflow: hidden;
+    margin: 0 auto;
 }
 
 @media (max-width: 768px) {
@@ -359,48 +357,83 @@
     margin: 0 0 14px 0;
 }
 
-.scheduleNoticeGrid {
+/* 일정 테이블 */
+.scheduleTable {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    margin-bottom: 10px;
 }
 
-.scheduleNoticeItem {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.6;
+.scheduleTableHeader,
+.scheduleTableRow {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr;
+    gap: 0 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(212, 191, 170, 0.5);
 }
 
-.scheduleNoticeRow {
+.scheduleTableHeader {
+    border-bottom: 1px solid #d4bfaa;
+    padding-bottom: 8px;
+    margin-bottom: 2px;
+}
+
+.schColHead {
     display: flex;
+    flex-direction: row;
     align-items: baseline;
-    gap: 10px;
-}
-
-.scheduleNoticeDay {
-    font-weight: 600;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
     color: var(--text-primary);
-    min-width: 80px;
+    flex-wrap: wrap;
 }
 
-.scheduleNoticeTime {
-    color: var(--accent-color);
+.schColTime {
+    font-size: 11px;
     font-weight: 500;
+    color: var(--accent-color);
+    white-space: nowrap;
 }
 
-.scheduleNoticeSub {
+@media (max-width: 360px) {
+    .schColHead {
+        font-size: 11px;
+    }
+    .schColTime {
+        font-size: 10px;
+    }
+}
+
+.schColLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+}
+
+.schColCell {
     font-size: 12px;
     color: var(--text-secondary);
-    padding-left: 2px;
+    display: flex;
+    align-items: center;
+}
+
+.schMidnightLabel {
+    grid-column: 1 / 3;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
 }
 
 .scheduleNoticeNote {
     font-size: 12px;
     color: var(--text-secondary);
-    margin-top: 14px;
+    margin-top: 12px;
 }
 
 /* Schedule (legacy) */

@@ -9,18 +9,6 @@ export default function BookClubApplyPage() {
   const [loading, setLoading] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
 
-  const scheduleInfo = [
-    {
-      label: "평일 저녁반",
-      time: "19:30 – 22:30",
-      sub: "격주 고정 요일 진행 · 5/18 ~ 7/17",
-    },
-    {
-      label: "일요일 오후반",
-      time: "14:30 – 17:30",
-      sub: "격주 일요일 진행 · 5/24 ~ 7/19",
-    },
-  ]
 
   function validateForm(): boolean {
     const form = document.getElementById("applicationForm") as HTMLFormElement
@@ -95,9 +83,8 @@ export default function BookClubApplyPage() {
         <div className={styles.container}>
           <div className={styles.formContainer}>
             <div className={styles.sectionHeader}>
-              <div className={styles.sectionLabel}>APPLY NOW</div>
               <img
-                src="/linky-lounge/book-club/lazyday_typo.png"
+                src="/linky-lounge/book-club/lazy_typo_brown.png"
                 alt="Lazy Day Book Club"
                 className={styles.sectionTitleImage}
               />
@@ -106,18 +93,35 @@ export default function BookClubApplyPage() {
             {/* 일정 공지 */}
             <div className={styles.scheduleNotice}>
               <p className={styles.scheduleNoticeTitle}>[레이지데이 북클럽 2기]</p>
-              <div className={styles.scheduleNoticeGrid}>
-                {scheduleInfo.map(({ label, time, sub }) => (
-                  <div key={label} className={styles.scheduleNoticeItem}>
-                    <div className={styles.scheduleNoticeRow}>
-                      <span className={styles.scheduleNoticeDay}>{label}</span>
-                      <span className={styles.scheduleNoticeTime}>{time}</span>
-                    </div>
-                    <div className={styles.scheduleNoticeSub}>{sub}</div>
+
+              <div className={styles.scheduleTable}>
+                {/* 헤더 */}
+                <div className={styles.scheduleTableHeader}>
+                  <div className={styles.schColLabel} />
+                  <div className={styles.schColHead}><span>목요일</span><span className={styles.schColTime}>19:30–22:30</span></div>
+                  <div className={styles.schColHead}><span>일요일</span><span className={styles.schColTime}>14:30–17:30</span></div>
+                </div>
+                {/* 회차 rows */}
+                {[
+                  { label: "1회차", thu: "5/21", sun: "5/24" },
+                  { label: "2회차", thu: "6/4",  sun: "6/7"  },
+                  { label: "3회차", thu: "6/18", sun: "6/21" },
+                  { label: "4회차", thu: "7/2",  sun: "7/5"  },
+                ].map((s) => (
+                  <div key={s.label} className={styles.scheduleTableRow}>
+                    <div className={styles.schColLabel}>{s.label}</div>
+                    <div className={styles.schColCell}>{s.thu}</div>
+                    <div className={styles.schColCell}>{s.sun}</div>
                   </div>
                 ))}
+                {/* 미드나잇 */}
+                <div className={styles.scheduleTableRow}>
+                  <div className={styles.schMidnightLabel}>✦ 레이지선데이 미드나잇</div>
+                  <div className={styles.schColCell}>7/12 &nbsp;17:30–</div>
+                </div>
               </div>
-              <p className={styles.scheduleNoticeNote}>인터뷰 진행 후, 희망 일정을 고려하여 반배정을 진행합니다.</p>
+
+              <p className={styles.scheduleNoticeNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
             </div>
 
             <form className={styles.applicationForm} id="applicationForm" onSubmit={handleSubmit}>
@@ -202,32 +206,6 @@ export default function BookClubApplyPage() {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.container}>
-          <div className={styles.footerContent}>
-            <div>
-              <div className={styles.footerLogo}>LINKY LOUNGE</div>
-              <div className={styles.footerInfo}>
-                <p>주식회사 링키</p>
-                <p>사업자등록번호 : 557-81-03588</p>
-                <p>이메일 : linkylounge@gmail.com | 대표번호 : 010-7444-5790</p>
-                <p>주소: 경기도 남양주시 별내3로 322, 404호</p>
-              </div>
-            </div>
-            <div className={styles.footerLinks}>
-              <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
-              <a href="https://naver.me/F4LgLoQx" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>오시는 길</a>
-              <a href="https://www.instagram.com/linky_lounge/" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>문의하기</a>
-              <a href="/policy?type=bookclub" className={styles.footerLink}>교환환불정책</a>
-            </div>
-          </div>
-          <p className={styles.footerCopyright}>
-            &copy; 2025 Linky Inc. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </>
   )
 }

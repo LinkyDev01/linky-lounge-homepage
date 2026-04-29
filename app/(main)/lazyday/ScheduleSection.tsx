@@ -46,7 +46,7 @@ export function ScheduleSection() {
 
         <FadeUp delay={0.4}>
           <div className={styles.row}>
-            <span className={styles.starLabel}>✦</span>
+            <span className={styles.sessionLabel}>파티</span>
             <div className={styles.dates}>
               <a href="#gathering" className={styles.specialName}>레이지선데이 미드나잇</a>
               <div className={styles.dateRow}>

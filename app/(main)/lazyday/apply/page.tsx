@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, type FormEvent, type ReactNode } from "react"
-import Link from "next/link"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -151,14 +150,33 @@ export default function ApplyPage() {
           </FadeUp>
           <FadeUp delay={0.2}>
             <p className={styles.successBody}>
-              인터뷰 일정 조율을 위해 링키라운지 카카오톡채널을 통해 연락 드릴게요.
+              <span className={styles.successAccent}>인터뷰</span> 일정 조율을 위해
+              <br />
+              <span className={styles.successAccent}>링키라운지 카카오톡채널</span>을 통해 연락 드릴게요.
             </p>
           </FadeUp>
           <FadeUp delay={0.3}>
             <p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p>
           </FadeUp>
           <FadeUp delay={0.4}>
-            <Link href="/" className={styles.successHomeLink}>홈으로</Link>
+            <div className={styles.successActions}>
+              <a
+                href="https://instagram.com/linky_lounge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.successSecondaryLink}
+              >
+                돌아가기
+              </a>
+              <a
+                href="https://pf.kakao.com/_gixaAX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.successPrimaryLink}
+              >
+                인터뷰 일정 잡기
+              </a>
+            </div>
           </FadeUp>
         </div>
       </main>

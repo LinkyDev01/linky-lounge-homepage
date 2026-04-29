@@ -173,14 +173,16 @@ export default function ApplyPage() {
               className={styles.headerImage}
             />
             <h1 className={styles.headerTitle}>
-              레이지데이 북클럽 <span className={styles.headerSeason}>2기</span>
-              <br />신청하기
+              레이지데이 북클럽
+              <br />
+              <span className={styles.headerSeason}>2기</span> 신청하기
             </h1>
           </div>
         </FadeUp>
 
         <FadeUp delay={0.1}>
           <section className={styles.scheduleNotice}>
+            <h2 className={styles.scheduleHeader}>2기 일정</h2>
             <table className={styles.scheduleTable}>
               <thead>
                 <tr>
@@ -204,9 +206,10 @@ export default function ApplyPage() {
                   </tr>
                 ))}
                 <tr>
-                  <td colSpan={2} className={styles.schTdMidnight}>
-                    <span className={styles.schMidnightIcon}>✦</span> 레이지선데이 미드나잇
+                  <td className={styles.schTdLabel}>
+                    <span className={styles.schMidnightIcon}>✦</span> 파티
                   </td>
+                  <td className={styles.schTdDate}></td>
                   <td className={styles.schTdDate}>7/12  17:30–</td>
                 </tr>
               </tbody>

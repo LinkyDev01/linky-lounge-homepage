@@ -20,26 +20,17 @@ const sections = [
 export function SectionIndicator() {
   const [activeId, setActiveId] = useState(sections[0].id)
 
-  // 모바일 URL바 노출 여부에 따라 위치가 흔들리는 문제 — viewport 최댓값을 추적해 CSS var로 고정
+  // 모바일 URL바 노출 여부에 따라 fixed 위치가 흔들리는 문제 —
+  // 마운트 시 layout viewport 기준으로 한 번만 설정. 회전 시에만 갱신.
   useEffect(() => {
-    let maxVh = window.innerHeight
-    const setVh = (val: number) => {
-      document.documentElement.style.setProperty("--stable-vh", `${val}px`)
+    const setStableHeight = () => {
+      // documentElement.clientHeight는 layout viewport 높이 — URL바 변화에 영향 안 받음
+      const h = document.documentElement.clientHeight || window.innerHeight
+      document.documentElement.style.setProperty("--stable-vh", `${h}px`)
     }
-    setVh(maxVh)
-    const onResize = () => {
-      const cur = window.innerHeight
-      if (cur > maxVh) {
-        maxVh = cur
-        setVh(maxVh)
-      }
-    }
-    window.addEventListener("resize", onResize)
-    window.addEventListener("scroll", onResize, { passive: true })
-    return () => {
-      window.removeEventListener("resize", onResize)
-      window.removeEventListener("scroll", onResize)
-    }
+    setStableHeight()
+    window.addEventListener("orientationchange", setStableHeight)
+    return () => window.removeEventListener("orientationchange", setStableHeight)
   }, [])
 
   useEffect(() => {

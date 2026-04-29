@@ -7,8 +7,8 @@ export function AboutSection() {
     <section id="about" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>레이지데이 북클럽</h2>
           <AboutMark className={styles.mark} />
+          <h2 className={styles.sectionTitle}>레이지데이 북클럽</h2>
         </div>
       </FadeUp>
       <div className={styles.leadBox}>

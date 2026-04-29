@@ -82,8 +82,8 @@ export function BookSection() {
       <div className={styles.content}>
         <FadeUp>
           <div className={styles.titleRow}>
-            <h2 className={styles.sectionTitle}>책 소개</h2>
             <BookMark className={styles.mark} />
+            <h2 className={styles.sectionTitle}>책 소개</h2>
           </div>
         </FadeUp>
 

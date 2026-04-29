@@ -28,11 +28,11 @@ export function HowToSection() {
     <section id="howto" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
+          <HowToMark className={styles.mark} />
           <div className={styles.titleGroup}>
             <h2 className={styles.sectionTitle}>진행 순서</h2>
             <p className={styles.meta}>총 <span className={styles.accent}>3시간</span> 진행</p>
           </div>
-          <HowToMark className={styles.mark} />
         </div>
       </FadeUp>
 

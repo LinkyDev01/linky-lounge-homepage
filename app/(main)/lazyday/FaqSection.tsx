@@ -40,8 +40,8 @@ export function FaqSection() {
     <section id="faq" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
           <FaqMark className={styles.mark} />
+          <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
         </div>
       </FadeUp>
 

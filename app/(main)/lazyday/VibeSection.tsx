@@ -27,8 +27,8 @@ export function VibeSection() {
     <section id="vibe" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
           <VibeMark className={styles.mark} />
+          <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
         </div>
       </FadeUp>
       <div className={styles.list}>

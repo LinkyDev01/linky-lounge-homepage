@@ -17,11 +17,11 @@ export function ScheduleSection() {
     <section id="schedule" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
+          <ScheduleMark className={styles.mark} />
           <div className={styles.titleGroup}>
             <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
             <p className={styles.note}>*회차별 목·일 중 참여 요일 선택 가능</p>
           </div>
-          <ScheduleMark className={styles.mark} />
         </div>
       </FadeUp>
 

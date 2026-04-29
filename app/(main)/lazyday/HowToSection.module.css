@@ -45,6 +45,7 @@
   width: 96px;
   height: 96px;
   flex-shrink: 0;
+  margin-left: -32px;
 }
 
 @media (max-width: 480px) {

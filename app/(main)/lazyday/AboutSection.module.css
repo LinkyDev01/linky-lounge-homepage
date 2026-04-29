@@ -29,6 +29,7 @@
   width: 96px;
   height: 96px;
   flex-shrink: 0;
+  margin-left: -8px;
 }
 
 @media (max-width: 480px) {

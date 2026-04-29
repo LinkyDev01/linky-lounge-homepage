@@ -2,15 +2,16 @@ import Image from "next/image"
 import { season1Config, season2Config } from "./book-config"
 import type { Book } from "./book-config"
 import { BookSubNav } from "./BookSubNav"
+import { BookCoverStrip } from "./BookCoverStrip"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BookMark } from "@/components/illustrations/bauhaus"
 import styles from "./BookSection.module.css"
 
-function BookItem({ book, withImage }: { book: Book; withImage: boolean }) {
+function BookItem({ book, withImage, seasonPrefix }: { book: Book; withImage: boolean; seasonPrefix: string }) {
   const hasContent = book.quotes.length > 0 || book.paragraphs.length > 0 || book.curatorNote
 
   return (
-    <article className={styles.bookItem}>
+    <article id={`book-${seasonPrefix}-w${book.week}`} className={styles.bookItem}>
       <p className={styles.weekLabel}>{book.weekLabel}</p>
 
       {withImage && book.imagePath ? (
@@ -94,10 +95,11 @@ export function BookSection() {
               2기 <span className={styles.dateRange}>{season2Config.dateRange}</span>
             </p>
           </FadeUp>
+          <BookCoverStrip books={season2Config.books} seasonPrefix="s2" />
           <div className={styles.bookList}>
             {season2Config.books.map((book, i) => (
               <FadeUp key={book.week} delay={i * 0.08}>
-                <BookItem book={book} withImage={true} />
+                <BookItem book={book} withImage={true} seasonPrefix="s2" />
               </FadeUp>
             ))}
           </div>
@@ -117,10 +119,11 @@ export function BookSection() {
                   <span className={styles.dateRange}>{season1Config.dateRange}</span>
                 )}
               </p>
+              <BookCoverStrip books={season1Config.books} seasonPrefix="s1" />
               <div className={styles.bookList}>
                 {season1Config.books.map((book, i) => (
                   <FadeUp key={book.week} delay={i * 0.06}>
-                    <BookItem book={book} withImage={true} />
+                    <BookItem book={book} withImage={true} seasonPrefix="s1" />
                   </FadeUp>
                 ))}
               </div>

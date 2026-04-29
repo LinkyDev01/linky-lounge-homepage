@@ -22,18 +22,26 @@ export function SectionIndicator() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.innerHeight * 0.45
-      const scrollY = window.scrollY + offset
+      const threshold = window.innerHeight * 0.45
       let current = sections[0].id
       for (const { id } of sections) {
         const el = document.getElementById(id)
-        if (el && el.offsetTop <= scrollY) current = id
+        if (!el) continue
+        const top = el.getBoundingClientRect().top
+        if (top <= threshold) current = id
       }
       setActiveId(current)
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
-    handleScroll()
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener("resize", handleScroll)
+    const t1 = setTimeout(handleScroll, 0)
+    const t2 = setTimeout(handleScroll, 300)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleScroll)
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
   }, [])
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {

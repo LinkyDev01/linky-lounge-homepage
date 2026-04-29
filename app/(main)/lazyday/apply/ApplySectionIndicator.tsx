@@ -13,17 +13,27 @@ export function ApplySectionIndicator() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const threshold = window.scrollY + 120
+      const threshold = 120
       let current = sections[0].id
       for (const { id } of sections) {
         const el = document.getElementById(id)
-        if (el && el.offsetTop <= threshold) current = id
+        if (!el) continue
+        const top = el.getBoundingClientRect().top
+        if (top <= threshold) current = id
       }
       setActiveId(current)
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
-    handleScroll()
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener("resize", handleScroll)
+    // 초기 레이아웃이 안정된 후 측정
+    const t1 = setTimeout(handleScroll, 0)
+    const t2 = setTimeout(handleScroll, 300)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleScroll)
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
   }, [])
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {

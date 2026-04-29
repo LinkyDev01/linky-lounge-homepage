@@ -167,44 +167,46 @@ export default function ApplyPage() {
       <div className={styles.container}>
         <FadeUp>
           <div className={styles.header}>
-            <img
-              src="/linky-lounge/book-club/lazy_typo_brown.png"
-              alt="Lazy Day Book Club"
-              className={styles.headerImage}
-            />
+            <h1 className={styles.headerTitle}>
+              레이지데이 북클럽 <span className={styles.headerSeason}>2기</span>
+              <br />신청하기
+            </h1>
             <ClosingMark className={styles.headerMark} />
           </div>
         </FadeUp>
 
         <FadeUp delay={0.1}>
           <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleTitle}>[레이지데이 북클럽 2기]</h2>
-            <div className={styles.scheduleList}>
-              {sessions.map((s) => (
-                <div key={s.label} className={styles.scheduleRow}>
-                  <span className={styles.scheduleLabel}>{s.label}</span>
-                  <div className={styles.scheduleDates}>
-                    <div className={styles.scheduleDate}>
-                      <span className={styles.scheduleDay}>목</span>
-                      <span className={styles.scheduleDateText}>{s.thu}</span>
-                      <span className={styles.scheduleTime}>19:30–22:30</span>
-                    </div>
-                    <div className={styles.scheduleDate}>
-                      <span className={styles.scheduleDay}>일</span>
-                      <span className={styles.scheduleDateText}>{s.sun}</span>
-                      <span className={styles.scheduleTime}>14:30–17:30</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div className={styles.scheduleSpecial}>
-                <span className={styles.scheduleSpecialIcon}>✦</span>
-                <div>
-                  <p className={styles.scheduleSpecialName}>레이지선데이 미드나잇</p>
-                  <p className={styles.scheduleSpecialDate}>7/12  17:30–</p>
-                </div>
-              </div>
-            </div>
+            <table className={styles.scheduleTable}>
+              <thead>
+                <tr>
+                  <th className={styles.schThEmpty} />
+                  <th className={styles.schThDay}>
+                    목요일<br />
+                    <span className={styles.schThTime}>19:30–22:30</span>
+                  </th>
+                  <th className={styles.schThDay}>
+                    일요일<br />
+                    <span className={styles.schThTime}>14:30–17:30</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sessions.map((s) => (
+                  <tr key={s.label}>
+                    <td className={styles.schTdLabel}>{s.label}</td>
+                    <td className={styles.schTdDate}>{s.thu}</td>
+                    <td className={styles.schTdDate}>{s.sun}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan={2} className={styles.schTdMidnight}>
+                    <span className={styles.schMidnightIcon}>✦</span> 레이지선데이 미드나잇
+                  </td>
+                  <td className={styles.schTdDate}>7/12  17:30–</td>
+                </tr>
+              </tbody>
+            </table>
             <p className={styles.scheduleNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
           </section>
         </FadeUp>

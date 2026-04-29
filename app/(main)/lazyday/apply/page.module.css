@@ -30,129 +30,117 @@
   margin-bottom: 28px;
 }
 
-.headerImage {
+.headerTitle {
   flex: 1;
-  width: auto;
-  max-width: 280px;
-  height: auto;
-  display: block;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  word-break: keep-all;
+}
+
+.headerSeason {
+  color: #d2691e;
 }
 
 .headerMark {
-  width: 88px;
-  height: 88px;
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
 }
 
 @media (max-width: 480px) {
   .applyPage { padding: 24px 0 64px; }
   .header { gap: 14px; margin-bottom: 24px; }
-  .headerImage { max-width: 220px; }
-  .headerMark { width: 72px; height: 72px; }
+  .headerTitle { font-size: 22px; }
+  .headerMark { width: 60px; height: 60px; }
 }
 
-/* ========== Schedule notice ========== */
+/* ========== Schedule notice (compact table) ========== */
 .scheduleNotice {
   background: #ffffff;
   border-radius: 12px;
-  padding: 24px 20px;
-  margin-bottom: 36px;
+  padding: 18px 16px;
+  margin-bottom: 32px;
   border: 1px solid #e8dccd;
 }
 
-.scheduleTitle {
-  font-size: 17px;
-  font-weight: 700;
-  color: #1a1208;
-  margin: 0 0 18px;
-  letter-spacing: -0.01em;
-}
-
-.scheduleNote {
-  font-size: 12px;
-  color: #8a6a50;
-  margin: 16px 0 0;
-}
-
-.scheduleList {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.scheduleRow {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 12px;
-  padding: 12px 0;
-  border-top: 1px solid #f0e8df;
-  align-items: center;
-}
-
-.scheduleLabel {
-  font-size: 14px;
-  font-weight: 700;
-  color: #d2691e;
-  letter-spacing: -0.01em;
-}
-
-.scheduleDates {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.scheduleDate {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+.scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 13px;
 }
 
-.scheduleDay {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6a5038;
-  background: #f0e8df;
-  padding: 2px 6px;
-  border-radius: 3px;
+.scheduleTable th,
+.scheduleTable td {
+  padding: 8px 6px;
+  text-align: center;
+  vertical-align: middle;
 }
 
-.scheduleDateText {
+.schThEmpty { width: 50px; }
+
+.schThDay {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1208;
+  border-bottom: 1.5px solid #d2691e;
+  padding-bottom: 8px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.schThTime {
+  font-size: 10px;
+  font-weight: 500;
+  color: #8a6a50;
+  letter-spacing: 0;
+}
+
+.schTdLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #d2691e;
+  text-align: left;
+  padding-left: 4px;
+  letter-spacing: -0.01em;
+}
+
+.schTdDate {
+  font-size: 14px;
   font-weight: 600;
   color: #1a1208;
-}
-
-.scheduleTime {
-  color: #8a6a50;
-  font-size: 12px;
-}
-
-.scheduleSpecial {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0 0;
+  font-feature-settings: "tnum";
   border-top: 1px solid #f0e8df;
-  align-items: flex-start;
 }
 
-.scheduleSpecialIcon {
-  color: #d2691e;
-  font-size: 18px;
-  line-height: 1;
+.scheduleTable thead + tbody tr:first-child .schTdDate,
+.scheduleTable thead + tbody tr:first-child .schTdLabel {
+  border-top: none;
 }
 
-.scheduleSpecialName {
-  font-size: 14px;
+.schTdMidnight {
+  text-align: left;
+  padding-left: 4px;
+  font-size: 12px;
   font-weight: 700;
   color: #1a1208;
-  margin: 0 0 4px;
+  border-top: 1px solid #f0e8df;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
 }
 
-.scheduleSpecialDate {
-  font-size: 12px;
-  color: #6a5038;
-  margin: 0;
+.schMidnightIcon {
+  color: #d2691e;
+}
+
+.scheduleNote {
+  font-size: 11px;
+  color: #8a6a50;
+  margin: 12px 0 0;
+  text-align: center;
 }
 
 /* ========== Form ========== */

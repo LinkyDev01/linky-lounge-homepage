@@ -39,7 +39,7 @@
     right: 0 !important;
     padding: 16px 20px;
     /* iPhone notch/home-bar 회피용 safe-area 추가 */
-    padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    padding-bottom: max(48px, calc(env(safe-area-inset-bottom, 0px) + 48px));
     background: linear-gradient(to top, #b8a38ac2 80%, rgba(239, 173, 112, 0));
     padding-top: 32px;
     z-index: 100;

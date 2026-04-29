@@ -24,6 +24,16 @@
   margin-right: -24px;
   padding: 10px 24px 14px;
   margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  pointer-events: none;
+}
+
+.stripVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .coverBtn {

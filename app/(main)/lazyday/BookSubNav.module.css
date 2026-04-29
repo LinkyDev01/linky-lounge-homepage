@@ -5,6 +5,16 @@
   background-color: #ffffff;
   border-bottom: 1px solid #d4bfaa;
   display: flex;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  pointer-events: none;
+}
+
+.subNav.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .item {

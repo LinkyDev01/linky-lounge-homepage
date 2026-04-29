@@ -13,6 +13,7 @@ interface Props {
 
 export function BookCoverStrip({ books, seasonPrefix, isSticky = false }: Props) {
   const [activeWeek, setActiveWeek] = useState<number>(books[0]?.week ?? 1)
+  const [stripVisible, setStripVisible] = useState(false)
 
   useEffect(() => {
     const observers: IntersectionObserver[] = []
@@ -31,14 +32,31 @@ export function BookCoverStrip({ books, seasonPrefix, isSticky = false }: Props)
     return () => observers.forEach(o => o.disconnect())
   }, [books, seasonPrefix])
 
+  useEffect(() => {
+    if (!isSticky) return
+    const checkVisibility = () => {
+      const section = document.getElementById('book')
+      if (!section) return
+      const rect = section.getBoundingClientRect()
+      // strip visible when section top has scrolled past BookSubNav (88px)
+      setStripVisible(rect.top <= 88 && rect.bottom > 140)
+    }
+    window.addEventListener('scroll', checkVisibility, { passive: true })
+    checkVisibility()
+    return () => window.removeEventListener('scroll', checkVisibility)
+  }, [isSticky])
+
   const handleClick = (week: number) => {
     setActiveWeek(week)
     const el = document.getElementById(`book-${seasonPrefix}-w${week}`)
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  const stickyClass = isSticky ? styles.sticky : ''
+  const visibleClass = isSticky && stripVisible ? styles.stripVisible : ''
+
   return (
-    <div className={`${styles.strip} ${isSticky ? styles.sticky : ''}`}>
+    <div className={`${styles.strip} ${stickyClass} ${visibleClass}`}>
       {books.map(book => (
         <button
           key={book.week}

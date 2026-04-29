@@ -5,15 +5,25 @@ import styles from './BookSubNav.module.css'
 
 export function BookSubNav() {
   const [active, setActive] = useState<'current' | 'past'>('current')
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
+      const section = document.getElementById('book')
       const pastEl = document.getElementById('past-seasons')
-      if (!pastEl) return
-      const rect = pastEl.getBoundingClientRect()
-      setActive(rect.top <= 96 ? 'past' : 'current')
+
+      if (section) {
+        const rect = section.getBoundingClientRect()
+        setVisible(rect.top <= 48 && rect.bottom > 88)
+      }
+
+      if (pastEl) {
+        const rect = pastEl.getBoundingClientRect()
+        setActive(rect.top <= 96 ? 'past' : 'current')
+      }
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -32,7 +42,7 @@ export function BookSubNav() {
   }
 
   return (
-    <div className={styles.subNav}>
+    <div className={`${styles.subNav} ${visible ? styles.visible : ''}`}>
       <button
         className={`${styles.item} ${active === 'current' ? styles.active : ''}`}
         onClick={goToCurrent}

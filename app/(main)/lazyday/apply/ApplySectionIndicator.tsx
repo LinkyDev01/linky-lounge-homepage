@@ -26,7 +26,7 @@ export function ApplySectionIndicator() {
   // 활성 섹션 추적 — DOM 순서대로 viewport 30% 라인을 넘은 마지막 섹션
   useEffect(() => {
     const updateActive = () => {
-      const triggerLine = window.innerHeight * 0.75
+      const triggerLine = window.innerHeight * 0.9
       let current = sections[0].id
       for (const { id } of sections) {
         const el = document.getElementById(id)

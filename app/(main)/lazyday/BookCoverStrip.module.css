@@ -46,9 +46,9 @@
   border-radius: 5px;
   overflow: hidden;
   background: #ddd2c8;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
-  opacity: 0.45;
-  transform: scale(0.88);
+  transition: transform 0.38s ease-out, box-shadow 0.38s ease-out, opacity 0.38s ease-out;
+  opacity: 0.68;
+  transform: scale(0.94);
   transform-origin: center bottom;
 }
 

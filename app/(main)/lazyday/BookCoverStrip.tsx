@@ -8,9 +8,10 @@ import styles from './BookCoverStrip.module.css'
 interface Props {
   books: Book[]
   seasonPrefix: string
+  isSticky?: boolean
 }
 
-export function BookCoverStrip({ books, seasonPrefix }: Props) {
+export function BookCoverStrip({ books, seasonPrefix, isSticky = false }: Props) {
   const [activeWeek, setActiveWeek] = useState<number>(books[0]?.week ?? 1)
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export function BookCoverStrip({ books, seasonPrefix }: Props) {
   }
 
   return (
-    <div className={styles.strip}>
+    <div className={`${styles.strip} ${isSticky ? styles.sticky : ''}`}>
       {books.map(book => (
         <button
           key={book.week}
@@ -49,8 +50,9 @@ export function BookCoverStrip({ books, seasonPrefix }: Props) {
             <Image
               src={book.imagePath}
               alt={book.title || book.weekLabel}
-              fill
-              sizes="(max-width: 600px) 25vw, 140px"
+              width={120}
+              height={180}
+              style={{ width: '100%', height: 'auto', display: 'block' }}
               className={styles.coverImg}
             />
           ) : (

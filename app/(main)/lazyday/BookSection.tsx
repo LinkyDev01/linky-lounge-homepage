@@ -95,7 +95,7 @@ export function BookSection() {
               2기 <span className={styles.dateRange}>{season2Config.dateRange}</span>
             </p>
           </FadeUp>
-          <BookCoverStrip books={season2Config.books} seasonPrefix="s2" />
+          <BookCoverStrip books={season2Config.books} seasonPrefix="s2" isSticky />
           <div className={styles.bookList}>
             {season2Config.books.map((book, i) => (
               <FadeUp key={book.week} delay={i * 0.08}>

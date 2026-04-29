@@ -6,6 +6,7 @@ import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { ClosingMark } from "@/components/illustrations/bauhaus"
+import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import styles from "./page.module.css"
 
 const SUBMIT_URL =
@@ -30,6 +31,7 @@ function FormField({
   optional,
   error,
   children,
+  sectionId,
 }: {
   label: string
   name: string
@@ -37,9 +39,10 @@ function FormField({
   optional?: boolean
   error?: string
   children: ReactNode
+  sectionId?: string
 }) {
   return (
-    <div className={styles.formGroup}>
+    <div id={sectionId} className={styles.formGroup}>
       <label htmlFor={name} className={styles.formLabel}>
         {label}
         {required && <span className={styles.required}>*</span>}
@@ -164,9 +167,10 @@ export default function ApplyPage() {
 
   return (
     <main className={styles.applyPage}>
+      <ApplySectionIndicator />
       <div className={styles.container}>
         <FadeUp>
-          <div className={styles.header}>
+          <div id="apply-info" className={styles.header}>
             <img
               src="/linky-lounge/book-club/lazy_typo_brown.png"
               alt="Lazy Day Book Club"
@@ -220,7 +224,7 @@ export default function ApplyPage() {
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <FadeUp delay={0.15}>
-            <FormField label="이름" name="name" required error={errors.name}>
+            <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
                 id="name"
                 type="text"
@@ -308,7 +312,7 @@ export default function ApplyPage() {
           </FadeUp>
 
           <FadeUp delay={0.4}>
-            <FormField label="인스타그램 아이디" name="instagram" optional>
+            <FormField label="인스타그램 아이디" name="instagram" optional sectionId="apply-optional">
               <input
                 id="instagram"
                 type="text"

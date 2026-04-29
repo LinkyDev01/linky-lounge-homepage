@@ -11,26 +11,50 @@ const sections = [
 export function ApplySectionIndicator() {
   const [activeId, setActiveId] = useState(sections[0].id)
 
+  // 모바일 URL바 노출 여부에 따라 위치가 흔들리는 문제 — viewport 최댓값을 추적해 CSS var로 고정
   useEffect(() => {
-    const handleScroll = () => {
-      const threshold = 120
+    let maxVh = window.innerHeight
+    const setVh = (val: number) => {
+      document.documentElement.style.setProperty("--stable-vh", `${val}px`)
+    }
+    setVh(maxVh)
+    const onResize = () => {
+      const cur = window.innerHeight
+      if (cur > maxVh) {
+        maxVh = cur
+        setVh(maxVh)
+      }
+    }
+    window.addEventListener("resize", onResize)
+    window.addEventListener("scroll", onResize, { passive: true })
+    return () => {
+      window.removeEventListener("resize", onResize)
+      window.removeEventListener("scroll", onResize)
+    }
+  }, [])
+
+  // 활성 섹션 추적 — DOM 순서대로 viewport 30% 라인을 넘은 마지막 섹션
+  useEffect(() => {
+    const updateActive = () => {
+      const triggerLine = window.innerHeight * 0.3
       let current = sections[0].id
       for (const { id } of sections) {
         const el = document.getElementById(id)
         if (!el) continue
-        const top = el.getBoundingClientRect().top
-        if (top <= threshold) current = id
+        const rect = el.getBoundingClientRect()
+        if (rect.top <= triggerLine) {
+          current = id
+        }
       }
       setActiveId(current)
     }
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    window.addEventListener("resize", handleScroll)
-    // 초기 레이아웃이 안정된 후 측정
-    const t1 = setTimeout(handleScroll, 0)
-    const t2 = setTimeout(handleScroll, 300)
+    window.addEventListener("scroll", updateActive, { passive: true })
+    window.addEventListener("resize", updateActive)
+    const t1 = setTimeout(updateActive, 100)
+    const t2 = setTimeout(updateActive, 500)
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-      window.removeEventListener("resize", handleScroll)
+      window.removeEventListener("scroll", updateActive)
+      window.removeEventListener("resize", updateActive)
       clearTimeout(t1)
       clearTimeout(t2)
     }

@@ -27,20 +27,21 @@ export function HowToSection() {
   return (
     <section id="howto" className={styles.section}>
       <FadeUp>
-        <HowToMark className={styles.mark} />
-      </FadeUp>
-      <FadeUp delay={0.05}>
-        <h2 className={styles.sectionTitle}>진행 순서</h2>
-      </FadeUp>
-      <FadeUp delay={0.1}>
-        <p className={styles.meta}>총 3시간 진행</p>
+        <div className={styles.titleRow}>
+          <div className={styles.titleGroup}>
+            <h2 className={styles.sectionTitle}>진행 순서</h2>
+            <p className={styles.meta}>총 <span className={styles.accent}>3시간</span> 진행</p>
+          </div>
+          <HowToMark className={styles.mark} />
+        </div>
       </FadeUp>
 
       <div className={styles.timeline}>
         {steps.map(({ label, description }, i) => (
-          <FadeUp key={label} delay={i * 0.1} className={styles.step}>
+          <FadeUp key={label} delay={0.1 + i * 0.1} className={styles.step}>
+            <span className={styles.stepNumber}>{String(i + 1).padStart(2, "0")}</span>
             <div className={styles.stepContent}>
-              <span className={styles.stepLabel}>{label}</span>
+              <h3 className={styles.stepLabel}>{label}</h3>
               <p className={styles.stepDesc}>{description}</p>
             </div>
           </FadeUp>

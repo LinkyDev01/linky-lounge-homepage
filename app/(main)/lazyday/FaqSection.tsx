@@ -39,10 +39,10 @@ export function FaqSection() {
   return (
     <section id="faq" className={styles.section}>
       <FadeUp>
-        <FaqMark className={styles.mark} />
-      </FadeUp>
-      <FadeUp delay={0.05}>
-        <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+        <div className={styles.titleRow}>
+          <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+          <FaqMark className={styles.mark} />
+        </div>
       </FadeUp>
 
       <div className={styles.list}>

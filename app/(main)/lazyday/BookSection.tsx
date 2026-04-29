@@ -81,10 +81,10 @@ export function BookSection() {
 
       <div className={styles.content}>
         <FadeUp>
-          <BookMark className={styles.mark} />
-        </FadeUp>
-        <FadeUp delay={0.05}>
-          <h2 className={styles.sectionTitle}>책 소개</h2>
+          <div className={styles.titleRow}>
+            <h2 className={styles.sectionTitle}>책 소개</h2>
+            <BookMark className={styles.mark} />
+          </div>
         </FadeUp>
 
         {/* 2기 */}

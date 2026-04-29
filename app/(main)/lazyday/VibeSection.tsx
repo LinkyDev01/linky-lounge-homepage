@@ -26,14 +26,14 @@ export function VibeSection() {
   return (
     <section id="vibe" className={styles.section}>
       <FadeUp>
-        <VibeMark className={styles.mark} />
-      </FadeUp>
-      <FadeUp delay={0.05}>
-        <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
+        <div className={styles.titleRow}>
+          <h2 className={styles.sectionTitle}>이런 모임이에요</h2>
+          <VibeMark className={styles.mark} />
+        </div>
       </FadeUp>
       <div className={styles.list}>
         {items.map(({ question, paragraphs }, i) => (
-          <FadeUp key={question} delay={i * 0.1} className={styles.block}>
+          <FadeUp key={question} delay={0.1 + i * 0.1} className={styles.block}>
             <p className={styles.question}>{question}</p>
             <div className={styles.quote}>
               {paragraphs.map((p, j) => (

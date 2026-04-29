@@ -13,12 +13,11 @@ export function ApplySectionIndicator() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.innerHeight * 0.45
-      const scrollY = window.scrollY + offset
+      const threshold = window.scrollY + 120
       let current = sections[0].id
       for (const { id } of sections) {
         const el = document.getElementById(id)
-        if (el && el.offsetTop <= scrollY) current = id
+        if (el && el.offsetTop <= threshold) current = id
       }
       setActiveId(current)
     }

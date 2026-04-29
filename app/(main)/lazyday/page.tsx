@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import styles from "./page.module.css"
+import { Footer } from "@/components/footer"
 import { StickyApplyButton } from "./sticky-apply-button"
 import { NavBar } from "./NavBar"
 import { HeroParallax } from "./HeroParallax"
@@ -40,6 +41,7 @@ export default function StudyForeignPage() {
 
       <SectionIndicator />
       <StickyApplyButton />
+      <Footer />
     </>
   )
 }

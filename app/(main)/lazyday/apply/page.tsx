@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent, type ReactNode } from "react"
+import { useState, useEffect, type FormEvent, type ReactNode } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -120,23 +120,25 @@ export default function ApplyPage() {
       marketingConsent: marketingConsent ? "동의" : "미동의",
     }
 
-    try {
-      await fetch(SUBMIT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
-      trackStandard("Lead", { content_name: "독서모임_신청완료" })
-      trackEvent("apply_complete", { program: "book_club" })
-      setSubmitted(true)
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    } catch {
-      setErrors({ _form: "전송 중 오류가 발생했습니다." })
-      setLoading(false)
-    }
+    // Fire-and-forget: no-cors POST는 응답을 읽을 수 없으므로 await 없이 백그라운드로 보냄
+    fetch(SUBMIT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {})
+
+    trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
+    trackStandard("Lead", { content_name: "독서모임_신청완료" })
+    trackEvent("apply_complete", { program: "book_club" })
+    setSubmitted(true)
   }
+
+  useEffect(() => {
+    if (submitted) {
+      window.scrollTo(0, 0)
+    }
+  }, [submitted])
 
   if (submitted) {
     return (
@@ -161,7 +163,7 @@ export default function ApplyPage() {
           <FadeUp delay={0.4}>
             <div className={styles.successActions}>
               <a
-                href="https://instagram.com/linky_lounge"
+                href="https://www.instagram.com/linky_lounge"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.successSecondaryLink}

@@ -111,6 +111,8 @@ export function BookSection() {
             지난 기수
             <span className={styles.chevron}>›</span>
           </summary>
+          {/* overflow:hidden 컨테이너 밖에 배치해야 sticky 작동 */}
+          <BookCoverStrip books={season1Config.books} seasonPrefix="s1" isSticky />
           <div id="past-seasons-content" className={styles.pastSeasonsContent}>
             <div className={styles.pastSeasonsContentInner}>
               <p className={styles.seasonLabel}>
@@ -119,7 +121,6 @@ export function BookSection() {
                   <span className={styles.dateRange}>{season1Config.dateRange}</span>
                 )}
               </p>
-              <BookCoverStrip books={season1Config.books} seasonPrefix="s1" />
               <div className={styles.bookList}>
                 {season1Config.books.map((book, i) => (
                   <FadeUp key={book.week} delay={i * 0.06}>

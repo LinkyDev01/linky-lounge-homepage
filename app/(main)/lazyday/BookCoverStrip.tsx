@@ -39,7 +39,7 @@ export function BookCoverStrip({ books, seasonPrefix, isSticky = false }: Props)
       if (!section) return
       const rect = section.getBoundingClientRect()
       // strip visible when section top has scrolled past BookSubNav (88px)
-      setStripVisible(rect.top <= 88 && rect.bottom > 140)
+      setStripVisible(rect.top <= 100 && rect.bottom > 140)
     }
     window.addEventListener('scroll', checkVisibility, { passive: true })
     checkVisibility()

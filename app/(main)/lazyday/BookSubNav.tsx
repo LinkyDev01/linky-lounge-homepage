@@ -14,7 +14,7 @@ export function BookSubNav() {
 
       if (section) {
         const rect = section.getBoundingClientRect()
-        setVisible(rect.top <= 48 && rect.bottom > 88)
+        setVisible(rect.top <= 60 && rect.bottom > 88)
       }
 
       if (pastEl) {

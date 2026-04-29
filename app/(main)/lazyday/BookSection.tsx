@@ -3,6 +3,7 @@ import { season1Config, season2Config } from "./book-config"
 import type { Book } from "./book-config"
 import { BookSubNav } from "./BookSubNav"
 import { BookCoverStrip } from "./BookCoverStrip"
+import { PastSeasonStripWrapper } from "./PastSeasonStripWrapper"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BookMark } from "@/components/illustrations/bauhaus"
 import styles from "./BookSection.module.css"
@@ -105,14 +106,17 @@ export function BookSection() {
           </div>
         </div>
 
+        {/* 1기 strip: <details> 완전 밖에서 sticky 보장, details open 시만 노출 */}
+        <PastSeasonStripWrapper>
+          <BookCoverStrip books={season1Config.books} seasonPrefix="s1" isSticky />
+        </PastSeasonStripWrapper>
+
         {/* 지난 기수 */}
         <details id="past-seasons" className={styles.pastSeasons}>
           <summary className={styles.pastSeasonsSummary}>
             지난 기수
             <span className={styles.chevron}>›</span>
           </summary>
-          {/* overflow:hidden 컨테이너 밖에 배치해야 sticky 작동 */}
-          <BookCoverStrip books={season1Config.books} seasonPrefix="s1" isSticky />
           <div id="past-seasons-content" className={styles.pastSeasonsContent}>
             <div className={styles.pastSeasonsContentInner}>
               <p className={styles.seasonLabel}>

@@ -45,6 +45,16 @@
   border-bottom: 1px solid rgba(210, 105, 30, 0.35);
 }
 
+.leadHero {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0 0 32px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
 .leadIntro {
   font-size: 15px;
   font-weight: 400;
@@ -88,6 +98,7 @@
 
 @media (max-width: 480px) {
   .leadBox { padding: 28px 12px; margin: 0 0 28px; }
+  .leadHero { font-size: 22px; margin-bottom: 26px; }
   .leadIntro { font-size: 14px; margin-bottom: 26px; }
   .leadAccent { font-size: 19px; margin-bottom: 22px; }
   .leadBody { font-size: 15px; margin-bottom: 22px; line-height: 1.65; }

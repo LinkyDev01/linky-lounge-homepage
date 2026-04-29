@@ -7,14 +7,14 @@ export function AboutSection() {
     <section id="about" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>
-            복잡함 속에서<br />
-            찾는 단순함
-          </h2>
+          <h2 className={styles.sectionTitle}>레이지데이 북클럽</h2>
           <AboutMark className={styles.mark} />
         </div>
       </FadeUp>
       <div className={styles.leadBox}>
+        <FadeUp delay={0.08}>
+          <p className={styles.leadHero}>복잡함 속에서 찾는 단순함</p>
+        </FadeUp>
         <FadeUp delay={0.1}>
           <p className={styles.leadIntro}>
             일상을 더 복잡하게 만드는 질문들은<br />

@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import styles from "./page.module.css"
 import { StickyApplyButton } from "./sticky-apply-button"
 import { NavBar } from "./NavBar"
+import { HeroParallax } from "./HeroParallax"
+import { SectionIndicator } from "./SectionIndicator"
 import { AboutSection } from "./AboutSection"
 import { VibeSection } from "./VibeSection"
 import { HowToSection } from "./HowToSection"
@@ -27,16 +28,7 @@ export default function StudyForeignPage() {
     <>
       <NavBar />
       <main className={styles.container} data-track-section="독서모임_홈">
-        <div className={styles.heroWrapper}>
-          <Image
-            src="/linky-lounge/book-club/lazyday_poster_v2.png"
-            alt="Lazy Day Book Club"
-            className={styles.mainImage}
-            width={1080}
-            height={1350}
-            priority
-          />
-        </div>
+        <HeroParallax />
         <AboutSection />
         <VibeSection />
         <BookSection />
@@ -46,6 +38,7 @@ export default function StudyForeignPage() {
         <ClosingSection />
       </main>
 
+      <SectionIndicator />
       <StickyApplyButton />
     </>
   )

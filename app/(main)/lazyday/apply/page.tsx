@@ -167,11 +167,15 @@ export default function ApplyPage() {
       <div className={styles.container}>
         <FadeUp>
           <div className={styles.header}>
+            <img
+              src="/linky-lounge/book-club/lazy_typo_brown.png"
+              alt="Lazy Day Book Club"
+              className={styles.headerImage}
+            />
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽 <span className={styles.headerSeason}>2기</span>
               <br />신청하기
             </h1>
-            <ClosingMark className={styles.headerMark} />
           </div>
         </FadeUp>
 

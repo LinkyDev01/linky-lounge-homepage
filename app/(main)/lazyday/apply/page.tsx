@@ -12,10 +12,10 @@ const SUBMIT_URL =
   "https://script.google.com/macros/s/AKfycbyjnX2RMK1_N2ZX31vqMmNhYORbTa_qcM3K07Ku1BkQls86uNyG3KfSA9oNgSEZCO0/exec"
 
 const sessions = [
-  { label: "1회차", thuDate: "5/21", sunDate: "5/24" },
-  { label: "2회차", thuDate: "6/4", sunDate: "6/7" },
-  { label: "3회차", thuDate: "6/18", sunDate: "6/21" },
-  { label: "4회차", thuDate: "7/2", sunDate: "7/5" },
+  { label: "1회차", thu: "5/21", sun: "5/24" },
+  { label: "2회차", thu: "6/4", sun: "6/7" },
+  { label: "3회차", thu: "6/18", sun: "6/21" },
+  { label: "4회차", thu: "7/2", sun: "7/5" },
 ]
 
 type Errors = Partial<Record<
@@ -87,17 +87,12 @@ export default function ApplyPage() {
     const instagram = (data.get("instagram") as string)?.trim() || ""
     const referral = (data.get("referral") as string)?.trim() || ""
 
-    if (!name) newErrors.name = "성함을 입력해주세요."
+    if (!name) newErrors.name = "이름을 입력해주세요."
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
-    else if (Number(age) < 1 || Number(age) > 120) newErrors.age = "나이를 다시 확인해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
-    else {
-      const digits = phone.replace(/[^0-9]/g, "")
-      if (digits.length < 10 || digits.length > 11) newErrors.phone = "휴대전화 번호를 다시 확인해주세요."
-    }
     if (!job) newErrors.job = "직업을 입력해주세요."
-    if (!marketingConsent) newErrors.marketingConsent = "동의가 필요해요."
+    if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -112,7 +107,16 @@ export default function ApplyPage() {
 
     setErrors({})
     setLoading(true)
-    const payload = { name, gender, age, phone, job, instagram, referral, marketingConsent: "동의" }
+    const payload = {
+      name,
+      gender,
+      age,
+      phone,
+      job,
+      instagram,
+      referral,
+      marketingConsent: marketingConsent ? "동의" : "미동의",
+    }
 
     try {
       await fetch(SUBMIT_URL, {
@@ -127,7 +131,7 @@ export default function ApplyPage() {
       setSubmitted(true)
       window.scrollTo({ top: 0, behavior: "smooth" })
     } catch {
-      setErrors({ _form: "전송 중 오류가 발생했어요. 잠시 후 다시 시도해주세요." })
+      setErrors({ _form: "전송 중 오류가 발생했습니다." })
       setLoading(false)
     }
   }
@@ -140,17 +144,15 @@ export default function ApplyPage() {
             <ClosingMark className={styles.successMark} />
           </FadeUp>
           <FadeUp delay={0.1}>
-            <h1 className={styles.successTitle}>신청 받았어요</h1>
+            <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
           </FadeUp>
           <FadeUp delay={0.2}>
             <p className={styles.successBody}>
-              인터뷰 일정 조율을 위해<br />
-              링키라운지 카카오톡채널을 통해<br />
-              곧 연락 드릴게요.
+              인터뷰 일정 조율을 위해 링키라운지 카카오톡채널을 통해 연락 드릴게요.
             </p>
           </FadeUp>
           <FadeUp delay={0.3}>
-            <p className={styles.successCloser}>레이지데이 북클럽에서 만나요.</p>
+            <p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p>
           </FadeUp>
           <FadeUp delay={0.4}>
             <Link href="/" className={styles.successHomeLink}>홈으로</Link>
@@ -165,30 +167,18 @@ export default function ApplyPage() {
       <div className={styles.container}>
         <FadeUp>
           <div className={styles.header}>
-            <div className={styles.headerText}>
-              <p className={styles.headerSub}>레이지데이 북클럽 2기</p>
-              <h1 className={styles.headerTitle}>신청하기</h1>
-            </div>
+            <img
+              src="/linky-lounge/book-club/lazy_typo_brown.png"
+              alt="Lazy Day Book Club"
+              className={styles.headerImage}
+            />
             <ClosingMark className={styles.headerMark} />
-          </div>
-        </FadeUp>
-
-        <FadeUp delay={0.05}>
-          <div className={styles.processFlow}>
-            <span className={styles.processStep}>신청서 작성</span>
-            <span className={styles.processArrow}>→</span>
-            <span className={styles.processStep}>15분 전화 인터뷰</span>
-            <span className={styles.processArrow}>→</span>
-            <span className={styles.processStep}>확정</span>
           </div>
         </FadeUp>
 
         <FadeUp delay={0.1}>
           <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleTitle}>
-              2기 일정 <span className={styles.scheduleSub}>(격주)</span>
-            </h2>
-            <p className={styles.scheduleNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
+            <h2 className={styles.scheduleTitle}>[레이지데이 북클럽 2기]</h2>
             <div className={styles.scheduleList}>
               {sessions.map((s) => (
                 <div key={s.label} className={styles.scheduleRow}>
@@ -196,12 +186,12 @@ export default function ApplyPage() {
                   <div className={styles.scheduleDates}>
                     <div className={styles.scheduleDate}>
                       <span className={styles.scheduleDay}>목</span>
-                      <span className={styles.scheduleDateText}>{s.thuDate}</span>
+                      <span className={styles.scheduleDateText}>{s.thu}</span>
                       <span className={styles.scheduleTime}>19:30–22:30</span>
                     </div>
                     <div className={styles.scheduleDate}>
                       <span className={styles.scheduleDay}>일</span>
-                      <span className={styles.scheduleDateText}>{s.sunDate}</span>
+                      <span className={styles.scheduleDateText}>{s.sun}</span>
                       <span className={styles.scheduleTime}>14:30–17:30</span>
                     </div>
                   </div>
@@ -211,10 +201,11 @@ export default function ApplyPage() {
                 <span className={styles.scheduleSpecialIcon}>✦</span>
                 <div>
                   <p className={styles.scheduleSpecialName}>레이지선데이 미드나잇</p>
-                  <p className={styles.scheduleSpecialDate}>7/12 (일) · 17:30 ~ 22:30</p>
+                  <p className={styles.scheduleSpecialDate}>7/12  17:30–</p>
                 </div>
               </div>
             </div>
+            <p className={styles.scheduleNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
           </section>
         </FadeUp>
 
@@ -226,7 +217,7 @@ export default function ApplyPage() {
                 type="text"
                 name="name"
                 className={`${styles.input} ${errors.name ? styles.inputError : ""}`}
-                placeholder="성함을 기입해주세요"
+                placeholder="성함을 기입해주세요."
                 onChange={() => clearError("name")}
               />
             </FormField>
@@ -270,7 +261,7 @@ export default function ApplyPage() {
                 name="age"
                 inputMode="numeric"
                 className={`${styles.input} ${errors.age ? styles.inputError : ""}`}
-                placeholder="만 나이를 입력해주세요"
+                placeholder="만 나이를 입력해주세요."
                 min={1}
                 onChange={() => clearError("age")}
               />
@@ -285,7 +276,7 @@ export default function ApplyPage() {
                 name="phone"
                 inputMode="numeric"
                 className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
-                placeholder="010-0000-0000"
+                placeholder="휴대전화 번호를 입력해주세요."
                 onChange={(e) => {
                   e.target.value = formatPhone(e.target.value)
                   clearError("phone")
@@ -301,7 +292,7 @@ export default function ApplyPage() {
                 type="text"
                 name="job"
                 className={`${styles.input} ${errors.job ? styles.inputError : ""}`}
-                placeholder="직업 또는 하고 있는 일을 간단히"
+                placeholder="직업 또는 하고 있는 일을 간단히 알려주세요"
                 onChange={() => clearError("job")}
               />
             </FormField>
@@ -326,7 +317,7 @@ export default function ApplyPage() {
                 type="text"
                 name="referral"
                 className={styles.input}
-                placeholder="지인 성함 입력 시 10% 할인 적용"
+                placeholder="지인 성함 입력 시 10% 할인 적용해드려요."
               />
             </FormField>
           </FadeUp>
@@ -346,7 +337,7 @@ export default function ApplyPage() {
                 />
                 <span className={styles.consentText}>
                   마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
-                  <span className={styles.required}>*</span>
+                  <span className={styles.requiredTag}>(필수)</span>
                 </span>
               </label>
               <p className={styles.consentNote}>
@@ -366,7 +357,7 @@ export default function ApplyPage() {
 
           <FadeUp delay={0.55}>
             <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? "보내는 중..." : "신청 보내기"}
+              {loading ? "신청 중입니다..." : "신청 완료하기"}
             </button>
           </FadeUp>
         </form>

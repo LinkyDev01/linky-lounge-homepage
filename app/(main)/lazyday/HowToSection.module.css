@@ -7,11 +7,10 @@
 
 .titleRow {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   margin: 0 0 28px;
-
   padding-bottom: 20px;
   position: relative;
 }
@@ -26,13 +25,11 @@
   background-color: rgba(210, 105, 30, 0.6);
 }
 
-.titleGroup { flex: 1; }
-
 .sectionTitle {
   font-size: 32px;
   font-weight: 800;
   color: #1a1208;
-  margin: 0 0 6px;
+  margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
 }
@@ -42,6 +39,8 @@
   color: #6a5038;
   margin: 0;
   font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .accent {

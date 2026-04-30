@@ -1,14 +1,12 @@
 import styles from "./AboutSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
-import { AboutMark } from "@/components/illustrations/bauhaus"
 
 export function AboutSection() {
   return (
     <section id="about" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <AboutMark className={styles.mark} />
-          <h2 className={styles.sectionTitle}>레이지데이 북클럽</h2>
+<h2 className={styles.sectionTitle}>레이지데이 북클럽</h2>
         </div>
       </FadeUp>
       <div className={styles.leadBox}>

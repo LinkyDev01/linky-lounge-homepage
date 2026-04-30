@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import styles from "./FaqSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
-import { FaqMark } from "@/components/illustrations/bauhaus"
+
 
 type Faq = {
   id?: string
@@ -40,8 +40,7 @@ export function FaqSection() {
     <section id="faq" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <FaqMark className={styles.mark} />
-          <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+<h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
         </div>
       </FadeUp>
 

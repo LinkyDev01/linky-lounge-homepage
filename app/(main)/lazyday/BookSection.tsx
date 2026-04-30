@@ -5,7 +5,6 @@ import { BookSubNav } from "./BookSubNav"
 import { BookCoverStrip } from "./BookCoverStrip"
 import { PastSeasonStripWrapper } from "./PastSeasonStripWrapper"
 import { FadeUp } from "@/components/animation/FadeUp"
-import { BookMark } from "@/components/illustrations/bauhaus"
 import styles from "./BookSection.module.css"
 
 function BookItem({ book, withImage, seasonPrefix }: { book: Book; withImage: boolean; seasonPrefix: string }) {
@@ -84,8 +83,7 @@ export function BookSection() {
       <div className={styles.content}>
         <FadeUp>
           <div className={styles.titleRow}>
-            <BookMark className={styles.mark} />
-            <h2 className={styles.sectionTitle}>책 소개</h2>
+<h2 className={styles.sectionTitle}>책 소개</h2>
           </div>
         </FadeUp>
 

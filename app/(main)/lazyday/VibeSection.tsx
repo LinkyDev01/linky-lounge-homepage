@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import styles from './VibeSection.module.css'
 import { FadeUp } from "@/components/animation/FadeUp"
-import { VibeMark } from "@/components/illustrations/bauhaus"
+
 
 const items: {
   question: ReactNode
@@ -31,8 +31,7 @@ export function VibeSection() {
     <section id="vibe" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <VibeMark className={styles.mark} />
-          <h2 className={styles.sectionTitle}>레이지데이의 <span className={styles.accent}>결</span></h2>
+<h2 className={styles.sectionTitle}>레이지데이의 <span className={styles.accent}>결</span></h2>
         </div>
       </FadeUp>
       <div className={styles.list}>

@@ -4,7 +4,6 @@ import { useState, useEffect, type FormEvent, type ReactNode } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
-import { ClosingMark } from "@/components/illustrations/bauhaus"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import styles from "./page.module.css"
 
@@ -144,10 +143,7 @@ export default function ApplyPage() {
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
-          <FadeUp>
-            <ClosingMark className={styles.successMark} />
-          </FadeUp>
-          <FadeUp delay={0.1}>
+<FadeUp delay={0.1}>
             <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
           </FadeUp>
           <FadeUp delay={0.2}>

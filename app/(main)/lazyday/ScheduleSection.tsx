@@ -1,6 +1,6 @@
 import styles from "./ScheduleSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
-import { ScheduleMark } from "@/components/illustrations/bauhaus"
+
 
 const regularSessions = [
   { label: "1회차", thuDate: "5/21 (목)", sunDate: "5/24 (일)" },
@@ -17,8 +17,7 @@ export function ScheduleSection() {
     <section id="schedule" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <ScheduleMark className={styles.mark} />
-          <div className={styles.titleGroup}>
+<div className={styles.titleGroup}>
             <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
             <p className={styles.note}>*회차별 목·일 중 참여 요일 선택 가능</p>
           </div>

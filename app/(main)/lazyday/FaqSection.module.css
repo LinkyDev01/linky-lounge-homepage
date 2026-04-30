@@ -50,6 +50,10 @@
   scroll-margin-top: 80px;
 }
 
+.item:first-child {
+  border-top: none;
+}
+
 .item:last-child {
   border-bottom: 1px solid #c4a078;
 }

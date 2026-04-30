@@ -79,7 +79,7 @@
 }
 
 .row:first-child {
-  border-top: 1px solid #d4bfaa;
+  border-top: none;
 }
 
 .sessionLabel {

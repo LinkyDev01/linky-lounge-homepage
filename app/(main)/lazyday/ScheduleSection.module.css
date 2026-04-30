@@ -7,11 +7,10 @@
 
 .titleRow {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   margin: 0 0 28px;
-
   padding-bottom: 20px;
   position: relative;
 }
@@ -21,30 +20,16 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 36px;
+  width: 56px;
   height: 1.5px;
   background-color: rgba(210, 105, 30, 0.6);
-}
-
-.titleGroup { flex: 1; }
-
-.mark {
-  width: 96px;
-  height: 96px;
-  flex-shrink: 0;
-  margin-left: -13px;
-}
-
-@media (max-width: 480px) {
-  .titleRow { gap: 14px; margin-bottom: 28px; }
-  .mark { width: 76px; height: 76px; }
 }
 
 .sectionTitle {
   font-size: 32px;
   font-weight: 800;
   color: #1a1208;
-  margin: 0 0 6px;
+  margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
 }
@@ -56,23 +41,20 @@
   letter-spacing: 0;
 }
 
-.note {
-  font-size: 13px;
-  color: #8a6a50;
-  margin: 0;
-}
-
 @media (max-width: 480px) {
+  .titleRow { gap: 10px; margin-bottom: 28px; }
   .sectionTitle { font-size: 26px; }
   .titleSub { font-size: 14px; }
 }
 
 .note {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6a5038;
-  margin: 0 0 32px;
-  line-height: 1.6;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a6a50;
+  margin: 0;
+  line-height: 1.5;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 /* 일정 리스트 */

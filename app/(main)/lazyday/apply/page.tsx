@@ -127,8 +127,7 @@ export default function ApplyPage() {
       body: JSON.stringify(payload),
     }).catch(() => {})
 
-    trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
-    trackStandard("Lead", { content_name: "독서모임_신청완료" })
+    trackStandard("Lead", { content_name: "독서모임_신청완료", value: 200000, currency: "KRW" })
     trackEvent("apply_complete", { program: "book_club" })
     setSubmitted(true)
   }
@@ -182,7 +181,7 @@ export default function ApplyPage() {
   }
 
   return (
-    <main className={styles.applyPage}>
+    <main className={styles.applyPage} data-track-section="독서모임_신청페이지">
       <ApplySectionIndicator />
       <div className={styles.container}>
         <FadeUp>

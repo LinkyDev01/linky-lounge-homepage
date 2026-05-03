@@ -36,6 +36,14 @@
   pointer-events: auto;
 }
 
+@media (min-width: 768px) {
+  .sticky { top: 92px; } /* NavBar(52) + BookSubNav(40) */
+}
+
+@media (min-width: 1280px) {
+  .sticky { top: 96px; } /* NavBar(56) + BookSubNav(40) */
+}
+
 .coverBtn {
   position: relative;
   flex: 1;

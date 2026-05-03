@@ -123,3 +123,7 @@
 .contactLink:hover {
   opacity: 0.75;
 }
+
+@media (min-width: 768px) {
+  .section { padding: 28px 40px 0; }
+}

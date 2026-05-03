@@ -36,3 +36,11 @@
   color: #d2691e;
   border-bottom-color: #d2691e;
 }
+
+@media (min-width: 768px) {
+  .subNav { top: 52px; }
+}
+
+@media (min-width: 1280px) {
+  .subNav { top: 56px; }
+}

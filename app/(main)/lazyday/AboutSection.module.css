@@ -50,6 +50,10 @@
   .mark { width: 76px; height: 76px; }
 }
 
+@media (min-width: 768px) {
+  .section { padding: 28px 40px 36px; }
+}
+
 .leadBox {
   text-align: center;
   padding: 36px 16px;

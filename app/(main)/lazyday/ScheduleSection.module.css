@@ -132,3 +132,7 @@
   text-underline-offset: 3px;
   margin-bottom: 5px;
 }
+
+@media (min-width: 768px) {
+  .section { padding: 28px 40px; }
+}

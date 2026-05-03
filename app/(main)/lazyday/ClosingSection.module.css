@@ -78,6 +78,10 @@
   }
 }
 
+@media (min-width: 768px) {
+  .section { padding: 40px 40px 80px; }
+}
+
 .locationText {
   font-size: 13px;
   color: #c8b8a8;

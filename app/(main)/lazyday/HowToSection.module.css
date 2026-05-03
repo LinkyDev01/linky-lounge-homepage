@@ -126,3 +126,7 @@
   .stepLabel { font-size: 17px; }
   .stepDesc { font-size: 13px; }
 }
+
+@media (min-width: 768px) {
+  .section { padding: 28px 40px; }
+}

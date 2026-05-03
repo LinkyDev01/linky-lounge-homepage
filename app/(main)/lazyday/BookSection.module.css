@@ -262,3 +262,8 @@ details[open] .pastSeasonsContentInner {
   padding-top: 32px;
   padding-bottom: 48px;
 }
+
+@media (min-width: 768px) {
+  .content { padding-left: 40px; padding-right: 40px; padding-top: 28px; }
+  .pastSeasonsSummary { padding-left: 40px; padding-right: 40px; margin-left: -40px; margin-right: -40px; }
+}

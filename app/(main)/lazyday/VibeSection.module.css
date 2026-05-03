@@ -101,3 +101,7 @@
 @media (max-width: 480px) {
   .mark { width: 76px; height: 76px; }
 }
+
+@media (min-width: 768px) {
+  .section { padding: 28px 40px; }
+}

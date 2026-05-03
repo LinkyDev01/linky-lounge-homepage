@@ -225,7 +225,7 @@ export default function ApplyPage() {
                   </tr>
                 ))}
                 <tr>
-                  <td className={styles.schTdLabel}>파티</td>
+                  <td className={styles.schTdLabel}>뒷풀이</td>
                   <td colSpan={2} className={styles.schTdMidnight}>레이지선데이 미드나잇&nbsp;&nbsp;7/12 (일)&nbsp;&nbsp;17:30 –</td>
                 </tr>
               </tbody>

@@ -37,7 +37,21 @@
 }
 
 @media (min-width: 768px) {
-  .sticky { top: 92px; } /* NavBar(52) + BookSubNav(40) */
+  .sticky {
+    top: 92px; /* NavBar(52) + BookSubNav(40) */
+    margin-left: -56px;
+    margin-right: -56px;
+    padding-left: 56px;
+    padding-right: 56px;
+  }
+  .sticky .coverImg {
+    height: 60px !important;
+    width: auto !important;
+  }
+  .sticky .placeholder {
+    height: 60px;
+    aspect-ratio: unset;
+  }
 }
 
 @media (min-width: 1280px) {

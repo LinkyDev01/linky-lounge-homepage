@@ -79,7 +79,7 @@
 }
 
 @media (min-width: 768px) {
-  .section { padding: 40px 40px 80px; }
+  .section { padding: 40px 56px 80px; }
 }
 
 .locationText {

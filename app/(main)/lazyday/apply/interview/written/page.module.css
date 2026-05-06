@@ -1,38 +1,3 @@
-/* ========== Progress indicator (right-side dots) ========== */
-.progressIndicator {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
-}
-
-.progressDot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background-color: rgba(26, 18, 8, 0.22);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.progressDotFilled {
-  background-color: #d2691e;
-  transform: scale(1.4);
-}
-
-/* ========== Filled textarea state ========== */
-.textareaFilled {
-  border-color: #d2691e;
-  background: #fffaf7;
-}
-
 /* ========== Page wrapper ========== */
 .writtenPage {
   background-color: #f5ede4;
@@ -326,4 +291,40 @@
   font-weight: 500;
   color: #c8b8a8;
   margin: 0;
-  line-height: 1
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.successAccent {
+  color: #d2691e;
+  font-weight: 700;
+}
+
+.successCloser {
+  font-size: 18px;
+  font-weight: 700;
+  color: #d2691e;
+  margin: 0;
+}
+
+.successLink {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 100px;
+  text-decoration: none;
+  color: #ffffff;
+  background: #d2691e;
+  border: 1.5px solid #d2691e;
+  transition: background 0.15s ease;
+  margin-top: 8px;
+}
+
+.successLink:hover { background: #b8571a; border-color: #b8571a; }
+
+@media (max-width: 480px) {
+  .successTitle { font-size: 28px; }
+  .successBody { font-size: 15px; }
+  .successMark { width: 96px; height: 96px; }
+}

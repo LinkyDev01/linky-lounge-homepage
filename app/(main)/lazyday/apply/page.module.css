@@ -357,34 +357,6 @@
   line-height: 1.6;
 }
 
-/* ========== Interview type description ========== */
-.interviewTypeDesc {
-  background: rgba(210, 105, 30, 0.07);
-  border-left: 3px solid #d2691e;
-  border-radius: 0 8px 8px 0;
-  padding: 12px 14px;
-  margin-top: 2px;
-  animation: fadeSlideIn 0.2s ease;
-}
-
-.interviewTypeDesc p {
-  font-size: 13px;
-  color: #5a3a1a;
-  line-height: 1.65;
-  margin: 0;
-  word-break: keep-all;
-}
-
-.interviewTypeDesc strong {
-  font-weight: 700;
-  color: #d2691e;
-}
-
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 /* ========== Submit ========== */
 .submitButton {
   width: 100%;
@@ -499,4 +471,34 @@
   border-radius: 100px;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
-  text-a
+  text-align: center;
+  white-space: nowrap;
+}
+
+.successSecondaryLink {
+  color: #f0ebe5;
+  background: transparent;
+  border: 1.5px solid #d2691e;
+}
+
+.successSecondaryLink:hover {
+  background: rgba(210, 105, 30, 0.15);
+}
+
+.successPrimaryLink {
+  color: #ffffff;
+  background: #d2691e;
+  border: 1.5px solid #d2691e;
+}
+
+.successPrimaryLink:hover {
+  background: #b8571a;
+  border-color: #b8571a;
+}
+
+@media (max-width: 480px) {
+  .successTitle { font-size: 28px; }
+  .successBody { font-size: 15px; }
+  .successCloser { font-size: 16px; }
+  .successMark { width: 96px; height: 96px; }
+}

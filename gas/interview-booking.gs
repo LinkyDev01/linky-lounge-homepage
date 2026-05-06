@@ -6,18 +6,70 @@
 //   배포 → 새 배포 → 유형: 웹 앱
 //   실행 계정: 나 / 액세스 권한: 모든 사용자
 //   배포 후 URL을 Vercel 환경변수 INTERVIEW_GAS_URL 에 설정
+//
+// 스프레드시트:
+//   SHEET_ID를 비워두면 첫 제출 시 자동으로 생성됩니다.
+//   생성 후 관리자 이메일로 링크가 발송됩니다.
 // ================================================================
 
 // ── 설정값 (여기만 수정) ──────────────────────────────────────────
 var CALENDAR_ID        = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
 var ADMIN_EMAIL        = "linkylounge@gmail.com"; // 관리자 알림 수신 이메일
-var SHEET_ID           = "";          // TODO: 스프레드시트 ID
+var SHEET_ID           = "";          // 비워두면 첫 실행 시 자동 생성
 var SHEET_NAME         = "인터뷰 신청";
 var WRITTEN_SHEET_NAME = "서면 인터뷰";
 var SENDER_PHONE       = "";          // TODO: 솔라피 발신 번호
 var SOLAPI_KEY         = "";          // TODO: 솔라피 API Key
 var SOLAPI_SEC         = "";          // TODO: 솔라피 API Secret
 // ────────────────────────────────────────────────────────────────
+
+// ── 스프레드시트 가져오기 (없으면 자동 생성) ─────────────────────
+function getSheet(sheetName, headers) {
+  var props = PropertiesService.getScriptProperties();
+  var sheetId = SHEET_ID || props.getProperty("AUTO_SHEET_ID");
+
+  var ss;
+  if (sheetId) {
+    try {
+      ss = SpreadsheetApp.openById(sheetId);
+    } catch (e) {
+      sheetId = null;
+    }
+  }
+
+  if (!sheetId) {
+    // 스프레드시트 자동 생성
+    ss = SpreadsheetApp.create("레이지데이 북클럽 신청 데이터");
+    var newId = ss.getId();
+    props.setProperty("AUTO_SHEET_ID", newId);
+
+    // 관리자에게 생성 알림 발송
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: "[레이지데이] 스프레드시트 자동 생성됨",
+      body:
+        "신청 데이터를 저장할 스프레드시트가 자동으로 생성되었습니다.\n\n" +
+        "링크: https://docs.google.com/spreadsheets/d/" + newId + "/edit\n\n" +
+        "이 링크를 북마크해두세요. 이후 신청 데이터가 모두 이 시트에 저장됩니다."
+    });
+  }
+
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    // 헤더 행 추가
+    if (headers && headers.length > 0) {
+      sheet.appendRow(headers);
+      sheet.getRange(1, 1, 1, headers.length)
+        .setFontWeight("bold")
+        .setBackground("#f5ede4")
+        .setFontColor("#1a1208");
+      sheet.setFrozenRows(1);
+    }
+  }
+
+  return sheet;
+}
 
 // ── GET: 예약된 슬롯 목록 반환 ────────────────────────────────────
 function doGet(e) {
@@ -85,8 +137,9 @@ function handlePhoneInterviewBooking(data) {
   }
 
   // 2. 캘린더 이벤트 생성
-  var dateStr = Utilities.formatDate(start, "Asia/Seoul", "M/d");
-  var timeStr = Utilities.formatDate(start, "Asia/Seoul", "HH:mm");
+  var dateStr    = Utilities.formatDate(start, "Asia/Seoul", "M/d");
+  var timeStr    = Utilities.formatDate(start, "Asia/Seoul", "HH:mm");
+  var endTimeStr = Utilities.formatDate(end,   "Asia/Seoul", "HH:mm");
   cal.createEvent(
     "[인터뷰] " + name + "님",
     start,
@@ -99,21 +152,16 @@ function handlePhoneInterviewBooking(data) {
   );
 
   // 3. 스프레드시트 기록
-  if (SHEET_ID) {
-    var ss    = SpreadsheetApp.openById(SHEET_ID);
-    var sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow([
-      new Date(),
-      name,
-      phone,
-      Utilities.formatDate(start, "Asia/Seoul", "yyyy-MM-dd"),
-      Utilities.formatDate(start, "Asia/Seoul", "HH:mm")
-    ]);
-  }
+  var sheet = getSheet(SHEET_NAME, ["신청일시", "이름", "연락처", "인터뷰 날짜", "인터뷰 시간"]);
+  sheet.appendRow([
+    new Date(),
+    name,
+    phone,
+    Utilities.formatDate(start, "Asia/Seoul", "yyyy-MM-dd"),
+    timeStr
+  ]);
 
   // 4. 관리자 Gmail 알림
-  var endTimeStr = Utilities.formatDate(end, "Asia/Seoul", "HH:mm");
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
     subject: "[레이지데이 북클럽] 전화 인터뷰 신청 — " + name + "님 " + dateStr + " " + timeStr,
@@ -146,22 +194,26 @@ function handleWrittenInterview(data) {
   var answers = data.answers || {};
 
   // 1. 스프레드시트 기록
-  if (SHEET_ID) {
-    var ss    = SpreadsheetApp.openById(SHEET_ID);
-    var sheet = ss.getSheetByName(WRITTEN_SHEET_NAME);
-    if (!sheet) sheet = ss.insertSheet(WRITTEN_SHEET_NAME);
-    sheet.appendRow([
-      new Date(),
-      name,
-      phone,
-      answers.q1 || "",
-      answers.q2 || "",
-      answers.q3 || "",
-      answers.q4 || "",
-      answers.q5 || "",
-      answers.q6 || ""
-    ]);
-  }
+  var sheet = getSheet(WRITTEN_SHEET_NAME, [
+    "제출일시", "이름", "연락처",
+    "Q1. 레이지데이와 책",
+    "Q2. 서점 코너",
+    "Q3. 좋아하는 단어/문장",
+    "Q4. 책 읽을 때 필요한 것",
+    "Q5. 다른 가치관과 대화",
+    "Q6. 함께 읽고 싶은 책"
+  ]);
+  sheet.appendRow([
+    new Date(),
+    name,
+    phone,
+    answers.q1 || "",
+    answers.q2 || "",
+    answers.q3 || "",
+    answers.q4 || "",
+    answers.q5 || "",
+    answers.q6 || ""
+  ]);
 
   // 2. 관리자 Gmail 알림 (전체 답변 포함)
   MailApp.sendEmail({

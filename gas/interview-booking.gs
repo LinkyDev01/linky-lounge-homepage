@@ -74,7 +74,14 @@ function getSheet(sheetName, headers) {
 // ── GET: 예약된 슬롯 목록 반환 ────────────────────────────────────
 function doGet(e) {
   try {
-    var cal   = CalendarApp.getCalendarById(CALENDAR_ID);
+    var cal = CalendarApp.getCalendarById(CALENDAR_ID);
+    if (!cal) {
+      // 캘린더를 찾지 못한 경우: 빈 슬롯 목록 반환 (프론트엔드는 정상 동작)
+      Logger.log("캘린더를 찾을 수 없습니다. CALENDAR_ID를 확인하세요: " + CALENDAR_ID);
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: true, bookedSlots: [] }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     var now   = new Date();
     var limit = new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000); // 4주
     var events = cal.getEvents(now, limit);
@@ -131,34 +138,15 @@ function handlePhoneInterviewBooking(data) {
 
   // 1. 이미 예약된 시간인지 확인
   var cal = CalendarApp.getCalendarById(CALENDAR_ID);
-  var existing = cal.getEvents(start, end);
+  if (!cal) {
+    Logger.log("캘린더를 찾을 수 없습니다. CALENDAR_ID를 확인하세요: " + CALENDAR_ID);
+    // 캘린더 없어도 예약 자체는 시트+메일로 처리 (아래 계속)
+  }
+  var existing = cal ? cal.getEvents(start, end) : [];
   if (existing.length > 0) {
     return jsonResponse({ success: false, error: "이미 예약된 시간입니다. 다른 시간을 선택해주세요." });
   }
 
   // 2. 캘린더 이벤트 생성
   var dateStr    = Utilities.formatDate(start, "Asia/Seoul", "M/d");
-  var timeStr    = Utilities.formatDate(start, "Asia/Seoul", "HH:mm");
-  var endTimeStr = Utilities.formatDate(end,   "Asia/Seoul", "HH:mm");
-  cal.createEvent(
-    "[인터뷰] " + name + "님",
-    start,
-    end,
-    {
-      description:
-        "이름: " + name + "\n" +
-        "전화번호: " + phone + "\n"
-    }
-  );
-
-  // 3. 스프레드시트 기록
-  var sheet = getSheet(SHEET_NAME, ["신청일시", "이름", "연락처", "인터뷰 날짜", "인터뷰 시간"]);
-  sheet.appendRow([
-    new Date(),
-    name,
-    phone,
-    Utilities.formatDate(start, "Asia/Seoul", "yyyy-MM-dd"),
-    timeStr
-  ]);
-
-  // 
+  var timeStr   

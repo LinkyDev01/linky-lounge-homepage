@@ -39,6 +39,15 @@
   color: #d2691e;
 }
 
+.logoImg {
+  display: block;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin: 0 auto 32px;
+  opacity: 0.92;
+}
+
 .cta {
   display: inline-block;
   padding: 16px 40px;

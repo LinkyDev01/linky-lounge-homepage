@@ -371,73 +371,11 @@ export default function ApplyPage() {
                 </label>
               </div>
               {errors.interviewType && <p className={styles.errorText}>{errors.interviewType}</p>}
-            </div>
-          </FadeUp>
-
-          <FadeUp delay={0.42}>
-            <FormField label="인스타그램 아이디" name="instagram" optional sectionId="apply-optional">
-              <input
-                id="instagram"
-                type="text"
-                name="instagram"
-                className={styles.input}
-                placeholder="@your_instagram"
-              />
-            </FormField>
-          </FadeUp>
-
-          <FadeUp delay={0.46}>
-            <FormField label="추천인" name="referral" optional>
-              <input
-                id="referral"
-                type="text"
-                name="referral"
-                className={styles.input}
-                placeholder="지인 성함 입력 시 10% 할인 적용해드려요."
-              />
-            </FormField>
-          </FadeUp>
-
-          <FadeUp delay={0.5}>
-            <div className={styles.consentBox}>
-              <label htmlFor="marketingConsent" className={styles.consentLabel}>
-                <input
-                  id="marketingConsent"
-                  type="checkbox"
-                  checked={marketingConsent}
-                  onChange={(e) => {
-                    setMarketingConsent(e.target.checked)
-                    if (e.target.checked) clearError("marketingConsent")
-                  }}
-                  className={styles.checkbox}
-                />
-                <span className={styles.consentText}>
-                  마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
-                  <span className={styles.requiredTag}>(필수)</span>
-                </span>
-              </label>
-              <p className={styles.consentNote}>
-                수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.
-              </p>
-              {errors.marketingConsent && (
-                <p className={styles.errorText}>{errors.marketingConsent}</p>
+              {interviewType === "전화 인터뷰" && (
+                <div className={styles.interviewTypeDesc}>
+                  <p>진행자와 나누는 <strong>약 20분</strong>의 전화 대화예요. 모임의 분위기와 결을 미리 느껴볼 수 있고, 궁금한 점도 바로 물어볼 수 있어요.</p>
+                </div>
               )}
-            </div>
-          </FadeUp>
-
-          {errors._form && (
-            <FadeUp>
-              <p className={styles.formError}>{errors._form}</p>
-            </FadeUp>
-          )}
-
-          <FadeUp delay={0.55}>
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? "신청 중입니다..." : "신청 완료하기"}
-            </button>
-          </FadeUp>
-        </form>
-      </div>
-    </main>
-  )
-}
+              {interviewType === "서면 인터뷰" && (
+                <div className={styles.interviewTypeDesc}>
+                  <p

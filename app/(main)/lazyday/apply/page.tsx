@@ -18,7 +18,7 @@ const sessions = [
 ]
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "interviewType" | "marketingConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "job" | "interviewType" | "marketingConsent" | "_form",
   string
 >>
 
@@ -85,6 +85,7 @@ export default function ApplyPage() {
     const gender = (data.get("gender") as string) || ""
     const age = (data.get("age") as string)?.trim() || ""
     const phone = (data.get("phone") as string)?.trim() || ""
+    const job = (data.get("job") as string)?.trim() || ""
     const instagram = (data.get("instagram") as string)?.trim() || ""
     const referral = (data.get("referral") as string)?.trim() || ""
 
@@ -92,6 +93,7 @@ export default function ApplyPage() {
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+    if (!job) newErrors.job = "직업을 입력해주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
@@ -115,6 +117,7 @@ export default function ApplyPage() {
       gender,
       age,
       phone,
+      job,
       instagram,
       referral,
       interviewType,
@@ -328,6 +331,19 @@ export default function ApplyPage() {
             </FormField>
           </FadeUp>
 
+          <FadeUp delay={0.35}>
+            <FormField label="직업" name="job" required error={errors.job}>
+              <input
+                id="job"
+                type="text"
+                name="job"
+                className={`${styles.input} ${errors.job ? styles.inputError : ""}`}
+                placeholder="직업 또는 하고 있는 일을 간단히 알려주세요"
+                onChange={() => clearError("job")}
+              />
+            </FormField>
+          </FadeUp>
+
           <FadeUp delay={0.38}>
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
@@ -355,16 +371,6 @@ export default function ApplyPage() {
                 </label>
               </div>
               {errors.interviewType && <p className={styles.errorText}>{errors.interviewType}</p>}
-              {interviewType === "전화 인터뷰" && (
-                <div className={styles.interviewTypeDesc}>
-                  <p>진행자와 나누는 <strong>약 20분</strong>의 전화 대화예요. 모임의 분위기와 결을 미리 느껴볼 수 있고, 궁금한 점도 바로 물어볼 수 있어요.</p>
-                </div>
-              )}
-              {interviewType === "서면 인터뷰" && (
-                <div className={styles.interviewTypeDesc}>
-                  <p>시간에 구애받지 않고 <strong>6가지 질문</strong>에 자유롭게 답하는 방식이에요. 나만의 속도로 생각을 정리하며 작성할 수 있어요.</p>
-                </div>
-              )}
             </div>
           </FadeUp>
 

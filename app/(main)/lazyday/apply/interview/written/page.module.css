@@ -1,38 +1,3 @@
-/* ========== Progress indicator (right-side dots) ========== */
-.progressIndicator {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
-}
-
-.progressDot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background-color: rgba(26, 18, 8, 0.22);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.progressDotFilled {
-  background-color: #d2691e;
-  transform: scale(1.4);
-}
-
-/* ========== Filled textarea state ========== */
-.textareaFilled {
-  border-color: #d2691e;
-  background: #fffaf7;
-}
-
 /* ========== Page wrapper ========== */
 .writtenPage {
   background-color: #f5ede4;

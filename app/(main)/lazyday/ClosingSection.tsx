@@ -17,7 +17,7 @@ export function ClosingSection() {
         </FadeUp>
         <FadeUp delay={0.2}>
           <Link href="/lazyday/apply" className={styles.cta}>
-            지금 바로 신청하세요
+            2기 신청하기
           </Link>
         </FadeUp>
       </div>

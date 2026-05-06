@@ -127,7 +127,13 @@ export default function ApplyPage() {
       body: JSON.stringify(payload),
     }).catch(() => {})
 
-    trackStandard("Lead", { content_name: "bookclub_apply_complete", value: 200000, currency: "KRW" })
+    // 인터뷰 페이지에서 자동 입력을 위해 이름·전화번호 저장
+    try {
+      sessionStorage.setItem("lazyday_applicant", JSON.stringify({ name, phone }))
+    } catch {}
+
+    trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
+    trackStandard("Lead", { content_name: "독서모임_신청완료" })
     trackEvent("apply_complete", { program: "book_club" })
     setSubmitted(true)
   }
@@ -142,14 +148,22 @@ export default function ApplyPage() {
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
-<FadeUp delay={0.1}>
+          <FadeUp>
+            <img
+              src="/linky-lounge/book-club/lazyday_logo.png"
+              alt="레이지데이"
+              className={styles.successMark}
+            />
+          </FadeUp>
+          <FadeUp delay={0.1}>
             <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
           </FadeUp>
           <FadeUp delay={0.2}>
             <p className={styles.successBody}>
-              <span className={styles.successAccent}>인터뷰</span> 일정 조율을 위해
+              신청이 완료되었습니다.
               <br />
-              <span className={styles.successAccent}>링키라운지 카카오톡채널</span>을 통해 연락 드릴게요.
+              아래 버튼을 눌러{" "}
+              <span className={styles.successAccent}>인터뷰 일정</span>을 바로 선택해주세요.
             </p>
           </FadeUp>
           <FadeUp delay={0.3}>
@@ -166,9 +180,7 @@ export default function ApplyPage() {
                 돌아가기
               </a>
               <a
-                href="https://pf.kakao.com/_gixaAX"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/lazyday/apply/interview"
                 className={styles.successPrimaryLink}
               >
                 인터뷰 일정 잡기

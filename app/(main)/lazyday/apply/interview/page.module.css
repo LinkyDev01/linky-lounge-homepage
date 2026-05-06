@@ -1,0 +1,452 @@
+/* ================================================================
+   인터뷰 일정 선택 — 되는시간 스타일
+   왼쪽: 월 달력 / 오른쪽: 시간 슬롯 리스트
+   ================================================================ */
+
+.page {
+  background-color: #f5ede4;
+  min-height: 100vh;
+  padding: 32px 0 80px;
+  word-break: keep-all;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 헤더 */
+.header { display: flex; justify-content: center; }
+.headerImage { width: 200px; height: auto; display: block; }
+
+/* ── 메인 패널 (달력 + 시간 선택) ── */
+.panel {
+  background: #ffffff;
+  border: 1px solid #e8dccd;
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1px 280px;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+/* ── 달력 사이드 ── */
+.calSide {
+  padding: 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+/* 월 네비게이션 */
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.monthLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  letter-spacing: -0.01em;
+}
+
+.monthBtns {
+  display: flex;
+  gap: 4px;
+}
+
+.monthBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #8a6a50;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  line-height: 1;
+}
+
+.monthBtn:hover:not(:disabled) {
+  background: rgba(210, 105, 30, 0.1);
+  color: #d2691e;
+}
+
+.monthBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* 요일 헤더 */
+.dowRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.dowCell {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a6a50;
+  padding: 4px 0;
+}
+
+/* 날짜 그리드 */
+.dateGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.dateCell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #1a1208;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  font-family: inherit;
+}
+
+/* 선택 가능 날짜 (호버) */
+.dateCellAvail:hover {
+  background: rgba(210, 105, 30, 0.1);
+  color: #d2691e;
+}
+
+/* 오늘 */
+.dateCellToday {
+  font-weight: 800;
+}
+.dateCellToday::after {
+  content: "·";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  line-height: 1;
+  color: #d2691e;
+}
+
+/* 선택된 날짜 */
+.dateCellSelected {
+  background: #1a1208 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* 비활성 (과거 or 슬롯 없음) */
+.dateCellDisabled {
+  color: #c4b0a0;
+  cursor: not-allowed;
+}
+
+/* 가용 슬롯 있음 표시점 */
+.availDot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d2691e;
+}
+
+/* 달력 로딩 */
+.calLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 0;
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #d2691e;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40%            { opacity: 1;   transform: scale(1);   }
+}
+
+/* ── 구분선 ── */
+.divider {
+  width: 1px;
+  background: #e8dccd;
+  align-self: stretch;
+}
+
+/* ── 시간 사이드 ── */
+.timeSide {
+  padding: 28px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.timeTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.timeHint {
+  font-size: 13px;
+  color: #b0a090;
+  margin: 0;
+  line-height: 1.6;
+  padding-top: 8px;
+}
+
+.selectedDateLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d2691e;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* 슬롯 목록 */
+.slotList {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 380px;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+.slotList::-webkit-scrollbar { width: 4px; }
+.slotList::-webkit-scrollbar-track { background: transparent; }
+.slotList::-webkit-scrollbar-thumb { background: #e8dccd; border-radius: 2px; }
+
+.slotRow {
+  width: 100%;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #1a1208;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f0e8df;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+  letter-spacing: -0.01em;
+}
+
+.slotRow:first-child { border-top: 1px solid #f0e8df; }
+
+.slotRow:hover:not(:disabled):not(.slotSelected) {
+  background: rgba(210, 105, 30, 0.06);
+  color: #d2691e;
+}
+
+.slotSelected {
+  background: #1a1208 !important;
+  color: #ffffff !important;
+}
+
+.slotBooked {
+  color: #c4b0a0 !important;
+  cursor: not-allowed;
+  background: transparent !important;
+}
+
+.bookedTag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #c4b0a0;
+  background: #f0e8df;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.noSlots {
+  font-size: 13px;
+  color: #b0a090;
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+/* ── 예약 폼 카드 ── */
+.bookCard {
+  background: #ffffff;
+  border: 1px solid #e8dccd;
+  border-radius: 16px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.selectedBadge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(210, 105, 30, 0.07);
+  border: 1.5px solid rgba(210, 105, 30, 0.25);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.selectedLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #d2691e;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.selectedTime {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1208;
+  letter-spacing: -0.02em;
+}
+
+.form { display: flex; flex-direction: column; gap: 18px; }
+
+.formGroup { display: flex; flex-direction: column; gap: 8px; }
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1208;
+  letter-spacing: -0.01em;
+}
+
+.req { color: #d2691e; margin-left: 3px; }
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #1a1208;
+  background: #ffffff;
+  border: 1.5px solid #e8dccd;
+  border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+}
+.input::placeholder { color: #b0a090; }
+.input:focus { outline: none; border-color: #d2691e; box-shadow: 0 0 0 3px rgba(210,105,30,.12); }
+.inputErr { border-color: #c0392b; background: #fff8f7; }
+
+.errText { font-size: 13px; color: #c0392b; font-weight: 500; margin: 0; }
+.formErr {
+  font-size: 13px; color: #c0392b;
+  background: #fff8f7;
+  border: 1px solid rgba(192,57,43,.25);
+  border-radius: 8px;
+  padding: 12px 14px; margin: 0;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: #d2691e;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+}
+.submitBtn:hover:not(:disabled) { background: #b8571a; }
+.submitBtn:active:not(:disabled) { transform: scale(0.99); }
+.submitBtn:disabled { background: #b0a090; cursor: not-allowed; }
+
+/* ── 완료 화면 ── */
+.successPage {
+  background-color: #111009;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+}
+.successInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 420px;
+  gap: 24px;
+}
+.successMark { width: 120px; height: 120px; }
+.successTitle { font-size: 30px; font-weight: 800; color: #f0ebe5; margin: 0; letter-spacing: -0.02em; }
+.successSlot  { font-size: 18px; font-weight: 700; color: #d2691e; margin: 0; }
+.successBody  { font-size: 15px; font-weight: 500; color: #c8b8a8; margin: 0; line-height: 1.8; }
+.successAccent { color: #d2691e; font-weight: 700; }
+.successCloser { font-size: 16px; font-weight: 700; color: #d2691e; margin: 0; }
+
+/* ── 반응형 ── */
+@media (max-width: 600px) {
+  .page { padding: 20px 0 64px; }
+  .container { padding: 0 14px; }
+
+  .panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .divider {
+    width: auto;
+    height: 1px;
+    align-self: auto;
+  }
+
+  .calSide  { padding: 20px 16px 16px; }
+  .timeSide { padding: 16px 16px 20px; }
+
+  .calTitle  { font-size: 17px; }
+  .dateCell  { font-size: 13px; }
+  .slotList  { max-height: 260px; }
+  .successTitle { font-size: 26px; }
+  .successMark  { width: 96px; height: 96px; }
+}

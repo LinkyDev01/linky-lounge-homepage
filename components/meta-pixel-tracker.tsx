@@ -60,7 +60,7 @@ export function MetaPixelTracker() {
             fired.add(name)
             trackStandard("ViewContent", {
               content_name: name,
-              content_type: "섹션",
+              content_type: "section",
             })
           }
         }

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function StudyForeignPage() {
   return (
     <>
-      <main className={styles.container} data-track-section="외국어회화_홈">
+      <main className={styles.container} data-track-section="study_foreign_home">
         <Image
           src="/linky-lounge/study-foreign/linky-study.png"
           alt="Linky Study"

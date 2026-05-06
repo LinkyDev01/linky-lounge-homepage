@@ -13,7 +13,7 @@ export default function StudyForeignApplyPage() {
 
   function showStep(step: number) {
     setCurrentStep(step)
-    trackCustom("신청폼_단계이동", { 단계: step, 폼: "외국어회화_신청" })
+    trackCustom("form_step_change", { step: step, form: "study_foreign_apply" })
     setTimeout(() => {
       document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" })
     }, 50)
@@ -100,8 +100,8 @@ export default function StudyForeignApplyPage() {
           body: JSON.stringify(payload),
         }
       )
-      trackStandard("CompleteRegistration", { content_name: "외국어회화_신청완료" })
-      trackStandard("Lead", { content_name: "외국어회화_신청완료" })
+      trackStandard("CompleteRegistration", { content_name: "study_foreign_apply_complete" })
+      trackStandard("Lead", { content_name: "study_foreign_apply_complete" })
       trackEvent("apply_complete", { program: "study_foreign", language: payload.language ?? "" })
       alert("신청이 완료되었습니다!")
       window.location.replace("https://buy.tosspayments.com/products/SCBnFcyXiE?shopId=prreBmgHJwPY")

@@ -9,7 +9,7 @@ export function ApplyButton() {
     <Link
       href="/study-foreign/apply"
       className={styles.applyButton}
-      onClick={() => trackCustom("ClickCTA", { button: "외국어회화_신청하기" })}
+      onClick={() => trackCustom("ClickCTA", { button: "study_foreign_apply" })}
     >
       신청하기
     </Link>

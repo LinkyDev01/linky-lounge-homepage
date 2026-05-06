@@ -57,7 +57,7 @@ export function MeetupCalendarSection() {
     setCurrentMonth(prev)
     setSelectedDay(null)
     const monthStr = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`
-    trackCustom("캘린더_월이동", { 방향: "이전", 월: monthStr })
+    trackCustom("calendar_month_change", { direction: "prev", month: monthStr })
     trackEvent("calendar_month_nav", { direction: "prev", month: monthStr })
   }
 
@@ -66,7 +66,7 @@ export function MeetupCalendarSection() {
     setCurrentMonth(next)
     setSelectedDay(null)
     const monthStr = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`
-    trackCustom("캘린더_월이동", { 방향: "다음", 월: monthStr })
+    trackCustom("calendar_month_change", { direction: "next", month: monthStr })
     trackEvent("calendar_month_nav", { direction: "next", month: monthStr })
   }
 
@@ -75,7 +75,7 @@ export function MeetupCalendarSection() {
     if (dayMeetups.length > 0) {
       setSelectedDay(selectedDay === day ? null : day)
       const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-      trackCustom("캘린더_날짜클릭", { 날짜: day, 밋업수: dayMeetups.length })
+      trackCustom("calendar_date_click", { date: day, meetup_count: dayMeetups.length })
       trackEvent("calendar_date_click", { date: dateStr, meetup_count: dayMeetups.length })
     }
   }
@@ -574,7 +574,7 @@ interface MeetupSliderCardProps {
 function MeetupSliderCard({ meetup, currentMonth }: MeetupSliderCardProps) {
   const handleRegisterClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    trackCustom("밋업_신청클릭", { 밋업명: meetup.title, 카테고리: meetup.category })
+    trackCustom("meetup_apply_click", { meetup_name: meetup.title, category: meetup.category })
     trackEvent("meetup_apply_click", { meetup_title: meetup.title, category: meetup.category })
   }
 
@@ -657,7 +657,7 @@ function MeetupListItem({ meetup, currentMonth }: MeetupListItemProps) {
 
   const handleRegisterClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    trackCustom("밋업_신청클릭", { 밋업명: meetup.title, 카테고리: meetup.category })
+    trackCustom("meetup_apply_click", { meetup_name: meetup.title, category: meetup.category })
     trackEvent("meetup_apply_click", { meetup_title: meetup.title, category: meetup.category })
   }
 

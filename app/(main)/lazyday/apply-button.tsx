@@ -9,7 +9,7 @@ export function ApplyButton() {
     <Link
       href="/lazyday/apply"
       className={styles.applyButton}
-      onClick={() => trackCustom("ClickCTA", { button: "독서모임_신청하기" })}
+      onClick={() => trackCustom("ClickCTA", { button: "bookclub_apply" })}
     >
       신청하기
     </Link>

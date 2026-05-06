@@ -28,7 +28,7 @@ export default function StudyForeignPage() {
   return (
     <>
       <NavBar />
-      <main className={styles.container} data-track-section="독서모임_홈">
+      <main className={styles.container} data-track-section="bookclub_home">
         <HeroParallax />
         <AboutSection />
         <VibeSection />

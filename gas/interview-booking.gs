@@ -71,27 +71,29 @@ function getSheet(sheetName, headers) {
   return sheet;
 }
 
-// ── GET: 예약된 슬롯 목록 반환 ────────────────────────────────────
+// ── GET: 예약된 슬롯 목록 반환 (스프레드시트 기반) ───────────────
 function doGet(e) {
   try {
-    var cal = CalendarApp.getCalendarById(CALENDAR_ID);
-    if (!cal) {
-      // 캘린더를 찾지 못한 경우: 빈 슬롯 목록 반환 (프론트엔드는 정상 동작)
-      Logger.log("캘린더를 찾을 수 없습니다. CALENDAR_ID를 확인하세요: " + CALENDAR_ID);
-      return ContentService
-        .createTextOutput(JSON.stringify({ success: true, bookedSlots: [] }))
-        .setMimeType(ContentService.MimeType.JSON);
+    // 스프레드시트에서 예약된 슬롯 읽기 (CalendarApp 불필요)
+    var bookedSlots = [];
+    try {
+      var sheet = getSheet(SHEET_NAME, ["신청일시", "이름", "연락처", "인터뷰 날짜", "인터뷰 시간"]);
+      var rows = sheet.getDataRange().getValues();
+      for (var i = 1; i < rows.length; i++) {
+        var dateStr = rows[i][3]; // yyyy-MM-dd
+        var timeStr = rows[i][4]; // HH:mm
+        if (dateStr && timeStr) {
+          // KST 시간으로 ISO 문자열 구성
+          var startIso = dateStr + "T" + timeStr + ":00+09:00";
+          // 종료는 시작 + 30분
+          var startMs = new Date(startIso).getTime();
+          var endIso = new Date(startMs + 30 * 60 * 1000).toISOString();
+          bookedSlots.push({ start: startIso, end: endIso });
+        }
+      }
+    } catch (sheetErr) {
+      Logger.log("시트 읽기 오류: " + sheetErr.message);
     }
-    var now   = new Date();
-    var limit = new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000); // 4주
-    var events = cal.getEvents(now, limit);
-
-    var bookedSlots = events.map(function(ev) {
-      return {
-        start: ev.getStartTime().toISOString(),
-        end:   ev.getEndTime().toISOString()
-      };
-    });
 
     return ContentService
       .createTextOutput(JSON.stringify({ success: true, bookedSlots: bookedSlots }))
@@ -136,17 +138,18 @@ function handlePhoneInterviewBooking(data) {
   var start = new Date(slotStart);
   var end   = new Date(slotEnd);
 
-  // 1. 이미 예약된 시간인지 확인
-  var cal = CalendarApp.getCalendarById(CALENDAR_ID);
-  if (!cal) {
-    Logger.log("캘린더를 찾을 수 없습니다. CALENDAR_ID를 확인하세요: " + CALENDAR_ID);
-    // 캘린더 없어도 예약 자체는 시트+메일로 처리 (아래 계속)
-  }
-  var existing = cal ? cal.getEvents(start, end) : [];
-  if (existing.length > 0) {
-    return jsonResponse({ success: false, error: "이미 예약된 시간입니다. 다른 시간을 선택해주세요." });
-  }
-
-  // 2. 캘린더 이벤트 생성
   var dateStr    = Utilities.formatDate(start, "Asia/Seoul", "M/d");
-  var timeStr   
+  var timeStr    = Utilities.formatDate(start, "Asia/Seoul", "HH:mm");
+  var endTimeStr = Utilities.formatDate(end,   "Asia/Seoul", "HH:mm");
+
+  // 1. 스프레드시트 기록
+  var sheet = getSheet(SHEET_NAME, ["신청일시", "이름", "연락처", "인터뷰 날짜", "인터뷰 시간"]);
+  sheet.appendRow([
+    new Date(),
+    name,
+    phone,
+    Utilities.formatDate(start, "Asia/Seoul", "yyyy-MM-dd"),
+    timeStr
+  ]);
+
+  // 4. 관리자 Gmail 알림

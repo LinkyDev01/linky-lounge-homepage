@@ -5,13 +5,17 @@ import { FadeUp } from "@/components/animation/FadeUp"
 import styles from "./page.module.css"
 
 // ================================================================
-// 슬롯 설정
+// 슬롯 설정 — 요일별 시간대
 // ================================================================
-const AVAILABLE_DAYS  = [1, 2, 4, 5]  // 0=일 1=월 2=화 3=수 4=목 5=금 6=토
-const SLOT_START_HOUR = 13
-const SLOT_END_HOUR   = 20
-const SLOT_DURATION   = 30            // 분
-const MONTHS_AHEAD    = 2             // 몇 달 뒤까지 표시
+const SLOT_DURATION = 30  // 분
+const MONTHS_AHEAD  = 2
+
+/** 요일(0=일,1=월,...,6=토) → KST 슬롯 범위 */
+function getSlotConfig(dow: number): { startH: number; startM: number; endH: number; endM: number } | null {
+  if (dow >= 1 && dow <= 5) return { startH: 18, startM: 0, endH: 23, endM: 0 }  // 평일 18:00–23:00
+  if (dow === 0 || dow === 6) return { startH: 13, startM: 0, endH: 23, endM: 0 }  // 주말 13:00–23:00
+  return null
+}
 // ================================================================
 
 const DAY_KO   = ["일", "월", "화", "수", "목", "금", "토"]
@@ -19,29 +23,27 @@ const MONTH_KO = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
 
 type SlotItem = {
-  key: string       // "2026-05-07T14:00" KST
+  key: string       // "2026-05-07T19:30" KST
   startISO: string  // UTC ISO
   endISO: string
-  label: string     // "14:00"
+  label: string     // "19:30"
   booked: boolean
 }
 
 type FormErrors = Partial<Record<"name" | "phone" | "_form", string>>
 
-// ─── KST 유틸 ───────────────────────────────────────────────────
-function kstOf(ms: number) {
-  const d = new Date(ms + 9 * 3600_000)
-  return {
-    year: d.getUTCFullYear(), month: d.getUTCMonth(),
-    date: d.getUTCDate(),     dow:   d.getUTCDay(),
-    hour: d.getUTCHours(),    min:   d.getUTCMinutes(),
-  }
-}
+// ─── 유틸 ────────────────────────────────────────────────────────
 function pad(n: number) { return String(n).padStart(2, "0") }
+
+/** ISO 문자열 → KST "YYYY-MM-DDTHH:MM" 키 */
 function isoToKSTKey(iso: string) {
-  const c = kstOf(new Date(iso).getTime())
-  return `${c.year}-${pad(c.month + 1)}-${pad(c.date)}T${pad(c.hour)}:${pad(c.min)}`
+  // KST = UTC + 9h
+  const utcMs = new Date(iso).getTime()
+  const kstMs = utcMs + 9 * 3600_000
+  const d = new Date(kstMs)
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`
 }
+
 function formatPhone(v: string) {
   const n = v.replace(/\D/g, "")
   if (n.length <= 3)  return n
@@ -49,31 +51,41 @@ function formatPhone(v: string) {
   return `${n.slice(0,3)}-${n.slice(3,7)}-${n.slice(7,11)}`
 }
 
-// 특정 날짜(KST 자정 ms)의 슬롯 목록 생성
+/** 특정 날짜(year, month, date, dow)의 슬롯 목록 생성 */
 function slotsForDay(
-  dayMs: number,          // KST 자정 UTC ms
+  year: number,
+  month: number,  // 0-indexed
+  date: number,
   dow: number,
-  nowKSTMs: number,
+  nowUTCMs: number,
   bookedKeys: Set<string>
 ): SlotItem[] {
-  if (!AVAILABLE_DAYS.includes(dow)) return []
+  const cfg = getSlotConfig(dow)
+  if (!cfg) return []
+
   const slots: SlotItem[] = []
-  for (let h = SLOT_START_HOUR; h < SLOT_END_HOUR; h++) {
-    for (let m = 0; m < 60; m += SLOT_DURATION) {
-      const slotKSTMs = dayMs + (h * 60 + m) * 60_000
-      if (slotKSTMs <= nowKSTMs) continue
-      const startUTC = slotKSTMs - 9 * 3600_000
-      const endUTC   = startUTC + SLOT_DURATION * 60_000
-      const c        = kstOf(dayMs)
-      const key      = `${c.year}-${pad(c.month+1)}-${pad(c.date)}T${pad(h)}:${pad(m)}`
+  let h = cfg.startH
+  let m = cfg.startM
+
+  while (h < cfg.endH || (h === cfg.endH && m < cfg.endM)) {
+    // KST h:m → UTC ms (Date.UTC handles negative hours correctly)
+    const startUTCMs = Date.UTC(year, month, date, h - 9, m)
+    const endUTCMs   = startUTCMs + SLOT_DURATION * 60_000
+
+    // 현재 시각보다 미래인 슬롯만 포함
+    if (startUTCMs > nowUTCMs) {
+      const key = `${year}-${pad(month+1)}-${pad(date)}T${pad(h)}:${pad(m)}`
       slots.push({
         key,
-        startISO: new Date(startUTC).toISOString(),
-        endISO:   new Date(endUTC).toISOString(),
+        startISO: new Date(startUTCMs).toISOString(),
+        endISO:   new Date(endUTCMs).toISOString(),
         label:    `${pad(h)}:${pad(m)}`,
         booked:   bookedKeys.has(key),
       })
     }
+
+    m += SLOT_DURATION
+    if (m >= 60) { h += Math.floor(m / 60); m = m % 60 }
   }
   return slots
 }
@@ -81,9 +93,16 @@ function slotsForDay(
 export default function InterviewPage() {
   const [bookedISOs,   setBookedISOs]   = useState<string[]>([])
   const [slotsLoading, setSlotsLoading] = useState(true)
-  const [viewYear,     setViewYear]     = useState(() => kstOf(Date.now()).year)
-  const [viewMonth,    setViewMonth]    = useState(() => kstOf(Date.now()).month) // 0-indexed
-  const [selectedDate, setSelectedDate] = useState<number | null>(null) // KST 자정 UTC ms
+
+  const nowKST = useMemo(() => {
+    const kstMs = Date.now() + 9 * 3600_000
+    const d = new Date(kstMs)
+    return { year: d.getUTCFullYear(), month: d.getUTCMonth() }
+  }, [])
+
+  const [viewYear,     setViewYear]     = useState(() => nowKST.year)
+  const [viewMonth,    setViewMonth]    = useState(() => nowKST.month)
+  const [selectedDate, setSelectedDate] = useState<{ year: number; month: number; date: number; dow: number } | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<SlotItem | null>(null)
   const [errors,       setErrors]       = useState<FormErrors>({})
   const [submitting,   setSubmitting]   = useState(false)
@@ -92,7 +111,6 @@ export default function InterviewPage() {
   const [prefillName,  setPrefillName]  = useState("")
   const [prefillPhone, setPrefillPhone] = useState("")
 
-  // 앞 페이지(apply)에서 저장한 이름·전화번호 자동 입력
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("lazyday_applicant")
@@ -112,48 +130,42 @@ export default function InterviewPage() {
       .finally(() => setSlotsLoading(false))
   }, [])
 
-  const nowKSTMs = useMemo(() => Date.now() + 9 * 3600_000, [])
+  const nowUTCMs   = useMemo(() => Date.now(), [])
   const bookedKeys = useMemo(() => new Set(bookedISOs.map(isoToKSTKey)), [bookedISOs])
 
-  // 현재 보기 월의 달력 데이터
+  // 달력 셀 목록
   const calDays = useMemo(() => {
-    const firstDay = new Date(Date.UTC(viewYear, viewMonth, 1))
-    const startDow  = firstDay.getUTCDay()          // 1일이 무슨 요일
+    const firstDow    = new Date(Date.UTC(viewYear, viewMonth, 1)).getUTCDay()
     const daysInMonth = new Date(Date.UTC(viewYear, viewMonth + 1, 0)).getUTCDate()
-    const cells: Array<{ ms: number; date: number; dow: number } | null> = []
+    const cells: Array<{ year: number; month: number; date: number; dow: number } | null> = []
 
-    // 앞 빈칸
-    for (let i = 0; i < startDow; i++) cells.push(null)
-
+    for (let i = 0; i < firstDow; i++) cells.push(null)
     for (let d = 1; d <= daysInMonth; d++) {
-      const ms  = Date.UTC(viewYear, viewMonth, d)   // KST 자정 UTC ms
-      const dow = new Date(ms).getUTCDay()
-      cells.push({ ms, date: d, dow })
+      const dow = new Date(Date.UTC(viewYear, viewMonth, d)).getUTCDay()
+      cells.push({ year: viewYear, month: viewMonth, date: d, dow })
     }
     return cells
   }, [viewYear, viewMonth])
 
-  // 날짜별 가용 슬롯 수 (달력에서 점/활성 표시용)
+  // 날짜별 가용 슬롯 수
   const availableMap = useMemo(() => {
-    const map = new Map<number, number>()
+    const map = new Map<string, number>()
     for (const cell of calDays) {
       if (!cell) continue
-      const slots = slotsForDay(cell.ms, cell.dow, nowKSTMs, bookedKeys)
+      const slots = slotsForDay(cell.year, cell.month, cell.date, cell.dow, nowUTCMs, bookedKeys)
       const avail = slots.filter(s => !s.booked).length
-      if (avail > 0) map.set(cell.ms, avail)
+      if (avail > 0) map.set(`${cell.year}-${cell.month}-${cell.date}`, avail)
     }
     return map
-  }, [calDays, nowKSTMs, bookedKeys])
+  }, [calDays, nowUTCMs, bookedKeys])
 
   // 선택된 날의 슬롯
   const daySlots = useMemo(() => {
-    if (selectedDate === null) return []
-    const dow = new Date(selectedDate).getUTCDay()
-    return slotsForDay(selectedDate, dow, nowKSTMs, bookedKeys)
-  }, [selectedDate, nowKSTMs, bookedKeys])
+    if (!selectedDate) return []
+    return slotsForDay(selectedDate.year, selectedDate.month, selectedDate.date, selectedDate.dow, nowUTCMs, bookedKeys)
+  }, [selectedDate, nowUTCMs, bookedKeys])
 
   // 월 이동 제한
-  const nowKST = kstOf(Date.now())
   const minMonth = nowKST.year * 12 + nowKST.month
   const maxMonth = minMonth + MONTHS_AHEAD
   const curMonth = viewYear * 12 + viewMonth
@@ -173,11 +185,9 @@ export default function InterviewPage() {
     setSelectedDate(null); setSelectedSlot(null)
   }
 
-  // 선택된 날 레이블
   const selectedDateLabel = useMemo(() => {
-    if (selectedDate === null) return ""
-    const c = kstOf(selectedDate)
-    return `${c.month + 1}월 ${c.date}일 ${DAY_KO[c.dow]}요일`
+    if (!selectedDate) return ""
+    return `${selectedDate.month + 1}월 ${selectedDate.date}일 ${DAY_KO[selectedDate.dow]}요일`
   }, [selectedDate])
 
   // 예약 제출
@@ -215,17 +225,15 @@ export default function InterviewPage() {
 
   // ── 완료 화면 ──────────────────────────────────────────────────
   if (submitted && confirmed) {
-    const c = kstOf(new Date(confirmed.startISO).getTime())
-    const label = `${c.month + 1}월 ${c.date}일 (${DAY_KO[c.dow]}) ${confirmed.label}`
+    const kstMs = new Date(confirmed.startISO).getTime() + 9 * 3600_000
+    const d = new Date(kstMs)
+    const dow = d.getUTCDay()
+    const label = `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 (${DAY_KO[dow]}) ${confirmed.label}`
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
           <FadeUp>
-            <img
-              src="/linky-lounge/book-club/lazyday_logo.png"
-              alt="레이지데이"
-              className={styles.successMark}
-            />
+            <img src="/linky-lounge/book-club/lazyday_logo.png" alt="레이지데이" className={styles.successMark} />
           </FadeUp>
           <FadeUp delay={0.1}><h1 className={styles.successTitle}>인터뷰가 예약되었습니다.</h1></FadeUp>
           <FadeUp delay={0.2}><p className={styles.successSlot}>{label}</p></FadeUp>
@@ -285,17 +293,25 @@ export default function InterviewPage() {
                   {calDays.map((cell, i) => {
                     if (!cell) return <span key={`empty-${i}`} />
 
-                    const isToday    = cell.ms === Date.UTC(nowKST.year, nowKST.month, nowKST.date)
-                    const isPast     = cell.ms + 86_400_000 <= Date.now() + 9 * 3600_000
-                    const hasSlots   = availableMap.has(cell.ms)
-                    const isSelected = selectedDate === cell.ms
+                    const cellKey    = `${cell.year}-${cell.month}-${cell.date}`
+                    const todayKSTMs = Date.now() + 9 * 3600_000
+                    const todayD     = new Date(todayKSTMs)
+                    const isToday    = cell.year === todayD.getUTCFullYear() &&
+                                       cell.month === todayD.getUTCMonth() &&
+                                       cell.date  === todayD.getUTCDate()
+                    // 오늘 포함 이전 날짜는 비활성
+                    const isPast     = Date.UTC(cell.year, cell.month, cell.date) <= Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate())
+                    const hasSlots   = availableMap.has(cellKey)
+                    const isSelected = selectedDate?.year === cell.year &&
+                                       selectedDate?.month === cell.month &&
+                                       selectedDate?.date === cell.date
                     const isDisabled = isPast || !hasSlots
 
                     return (
                       <button
-                        key={cell.ms}
+                        key={cellKey}
                         disabled={isDisabled}
-                        onClick={() => { setSelectedDate(cell.ms); setSelectedSlot(null) }}
+                        onClick={() => { setSelectedDate(cell); setSelectedSlot(null) }}
                         className={[
                           styles.dateCell,
                           isToday    && styles.dateCellToday,
@@ -401,3 +417,4 @@ export default function InterviewPage() {
     </main>
   )
 }
+                                                         

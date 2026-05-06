@@ -26,9 +26,9 @@ export function MetaPixelTracker() {
       for (const threshold of [25, 50, 75, 100]) {
         if (percent >= threshold && !firedDepths.current.has(threshold)) {
           firedDepths.current.add(threshold)
-          trackCustom("스크롤_깊이", {
-            퍼센트: threshold,
-            페이지: window.location.pathname,
+          trackCustom("scroll_depth", {
+            percent: threshold,
+            page: window.location.pathname,
           })
         }
       }

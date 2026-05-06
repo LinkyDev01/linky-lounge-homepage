@@ -499,4 +499,34 @@
   border-radius: 100px;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
-  text-a
+  text-align: center;
+  white-space: nowrap;
+}
+
+.successSecondaryLink {
+  color: #f0ebe5;
+  background: transparent;
+  border: 1.5px solid #d2691e;
+}
+
+.successSecondaryLink:hover {
+  background: rgba(210, 105, 30, 0.15);
+}
+
+.successPrimaryLink {
+  color: #ffffff;
+  background: #d2691e;
+  border: 1.5px solid #d2691e;
+}
+
+.successPrimaryLink:hover {
+  background: #b8571a;
+  border-color: #b8571a;
+}
+
+@media (max-width: 480px) {
+  .successTitle { font-size: 28px; }
+  .successBody { font-size: 15px; }
+  .successCloser { font-size: 16px; }
+  .successMark { width: 96px; height: 96px; }
+}

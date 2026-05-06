@@ -10,31 +10,37 @@ const QUESTIONS = [
     id: "q1",
     label: "Q1",
     text: "당신에게 '레이지데이(=여유롭고 느긋한 하루)'는 어떤 모습인가요? → 그 자리에 책 한 권이 있다면 어떤 책일까요?",
+    placeholder: "나만의 레이지데이 장면을 구체적으로 묘사하고, 그 자리에 어울릴 책과 이유를 알려주세요.",
   },
   {
     id: "q2",
     label: "Q2",
     text: "서점에 가면 어떤 코너에 먼저 들르시나요?",
+    placeholder: "자주 찾는 코너를 알려주시고, 왜 그 코너인지 이유를 함께 적어주세요.",
   },
   {
     id: "q3",
     label: "Q3",
     text: "좋아하는 단어나 문장이 있으신가요?",
+    placeholder: "마음에 드는 단어나 문장을 적고, 왜 그게 좋은지 이유를 함께 알려주세요.",
   },
   {
     id: "q4",
     label: "Q4",
     text: "책 읽을 때 꼭 필요한 물건이나 환경이 있으신가요?",
+    placeholder: "물건이나 환경을 구체적으로 묘사하고, 왜 그게 꼭 필요한지 이유를 적어주세요.",
   },
   {
     id: "q5",
     label: "Q5",
     text: "가치관이나 생각이 전혀 다른 사람과 대화할 때 어떤 태도를 취하시는 편인가요?",
+    placeholder: "평소 어떻게 반응하는지 적고, 그 태도의 이유나 배경을 솔직하게 알려주세요.",
   },
   {
     id: "q6",
     label: "Q6",
     text: "아직 못 읽었지만 모임에서 함께 다뤄보고 싶은 책이 있으신가요?",
+    placeholder: "책 제목을 적고, 왜 이 책을 함께 읽고 싶은지 이유를 알려주세요.",
   },
 ]
 
@@ -61,6 +67,9 @@ export default function WrittenInterviewPage() {
   function handleAnswer(id: string, value: string) {
     setAnswers((prev) => ({ ...prev, [id]: value }))
   }
+
+  // 작성 완료된 질문 수 (공백만 있는 경우 미작성 처리)
+  const answeredCount = QUESTIONS.filter((q) => (answers[q.id] || "").trim().length > 0).length
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -134,13 +143,26 @@ export default function WrittenInterviewPage() {
 
   return (
     <main className={styles.writtenPage}>
+      {/* 우측 고정 진행 인디케이터 — 답변한 질문만 채워짐 */}
+      <nav className={styles.progressIndicator} aria-label="서면 인터뷰 진행 표시">
+        {QUESTIONS.map((q, i) => (
+          <button
+            key={q.id}
+            type="button"
+            className={`${styles.progressDot} ${answeredCount > i ? styles.progressDotFilled : ""}`}
+            onClick={() => document.getElementById(`question-${q.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}
+            aria-label={`${q.label} ${answeredCount > i ? "(작성 완료)" : "(미작성)"}`}
+          />
+        ))}
+      </nav>
+
       <div className={styles.container}>
         <FadeUp>
           <div className={styles.header}>
             <img
               src="/linky-lounge/book-club/lazyday_logo.png"
               alt="레이지데이"
-              className={styles.logo}
+              className={styles.successMark}
             />
             <h1 className={styles.headerTitle}>서면 인터뷰</h1>
             <p className={styles.headerSub}>
@@ -174,13 +196,13 @@ export default function WrittenInterviewPage() {
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           {QUESTIONS.map((q, i) => (
             <FadeUp key={q.id} delay={0.1 + i * 0.06}>
-              <div className={styles.questionGroup}>
+              <div id={`question-${q.id}`} className={styles.questionGroup}>
                 <span className={styles.questionLabel}>{q.label}</span>
                 <p className={styles.questionText}>{q.text}</p>
                 <textarea
                   name={q.id}
-                  className={styles.textarea}
-                  placeholder="이유와 함께 답변을 작성해주세요."
+                  className={`${styles.textarea} ${(answers[q.id] || "").trim() ? styles.textareaFilled : ""}`}
+                  placeholder={q.placeholder}
                   value={answers[q.id] || ""}
                   onChange={(e) => handleAnswer(q.id, e.target.value)}
                   rows={4}

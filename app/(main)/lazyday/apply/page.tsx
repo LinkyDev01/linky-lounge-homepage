@@ -371,6 +371,16 @@ export default function ApplyPage() {
                 </label>
               </div>
               {errors.interviewType && <p className={styles.errorText}>{errors.interviewType}</p>}
+              {interviewType === "전화 인터뷰" && (
+                <div className={styles.interviewTypeDesc}>
+                  <p>진행자와 나누는 <strong>약 20분</strong>의 전화 대화예요. 모임의 분위기와 결을 미리 느껴볼 수 있고, 궁금한 점도 바로 물어볼 수 있어요.</p>
+                </div>
+              )}
+              {interviewType === "서면 인터뷰" && (
+                <div className={styles.interviewTypeDesc}>
+                  <p>시간에 구애받지 않고 <strong>6가지 질문</strong>에 자유롭게 답하는 방식이에요. 나만의 속도로 생각을 정리하며 작성할 수 있어요.</p>
+                </div>
+              )}
             </div>
           </FadeUp>
 

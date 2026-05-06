@@ -18,7 +18,7 @@ const sessions = [
 ]
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "job" | "marketingConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "job" | "interviewType" | "marketingConsent" | "_form",
   string
 >>
 
@@ -64,6 +64,7 @@ export default function ApplyPage() {
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [marketingConsent, setMarketingConsent] = useState(false)
+  const [interviewType, setInterviewType] = useState("")
 
   function clearError(name: keyof Errors) {
     setErrors((prev) => {
@@ -93,6 +94,7 @@ export default function ApplyPage() {
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
     if (!job) newErrors.job = "직업을 입력해주세요."
+    if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
     if (Object.keys(newErrors).length > 0) {
@@ -101,6 +103,8 @@ export default function ApplyPage() {
       const target =
         firstKey === "marketingConsent"
           ? document.getElementById("marketingConsent")
+          : firstKey === "interviewType"
+          ? document.getElementById("interviewType-group")
           : document.querySelector(`[name="${firstKey}"]`)
       target?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
@@ -116,6 +120,7 @@ export default function ApplyPage() {
       job,
       instagram,
       referral,
+      interviewType,
       marketingConsent: marketingConsent ? "동의" : "미동의",
     }
 
@@ -127,9 +132,9 @@ export default function ApplyPage() {
       body: JSON.stringify(payload),
     }).catch(() => {})
 
-    // 인터뷰 페이지에서 자동 입력을 위해 이름·전화번호 저장
+    // 인터뷰 페이지에서 자동 입력을 위해 이름·전화번호·인터뷰방식 저장
     try {
-      sessionStorage.setItem("lazyday_applicant", JSON.stringify({ name, phone }))
+      sessionStorage.setItem("lazyday_applicant", JSON.stringify({ name, phone, interviewType }))
     } catch {}
 
     trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
@@ -145,6 +150,7 @@ export default function ApplyPage() {
   }, [submitted])
 
   if (submitted) {
+    const isPhone = interviewType === "전화 인터뷰"
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
@@ -163,7 +169,10 @@ export default function ApplyPage() {
               신청이 완료되었습니다.
               <br />
               아래 버튼을 눌러{" "}
-              <span className={styles.successAccent}>인터뷰 일정</span>을 바로 선택해주세요.
+              <span className={styles.successAccent}>
+                {isPhone ? "인터뷰 일정" : "서면 인터뷰"}
+              </span>
+              을 바로 진행해주세요.
             </p>
           </FadeUp>
           <FadeUp delay={0.3}>
@@ -180,10 +189,10 @@ export default function ApplyPage() {
                 돌아가기
               </a>
               <a
-                href="/lazyday/apply/interview"
+                href={isPhone ? "/lazyday/apply/interview" : "/lazyday/apply/interview/written"}
                 className={styles.successPrimaryLink}
               >
-                인터뷰 일정 잡기
+                {isPhone ? "전화 인터뷰 일정 잡기" : "서면 인터뷰 작성하기"}
               </a>
             </div>
           </FadeUp>
@@ -335,7 +344,37 @@ export default function ApplyPage() {
             </FormField>
           </FadeUp>
 
-          <FadeUp delay={0.4}>
+          <FadeUp delay={0.38}>
+            <div id="interviewType-group" className={styles.formGroup}>
+              <span className={styles.formLabel}>
+                인터뷰 방식
+                <span className={styles.required}>*</span>
+              </span>
+              <div className={styles.radioGroup}>
+                <label className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="interviewType"
+                    value="전화 인터뷰"
+                    onChange={() => { setInterviewType("전화 인터뷰"); clearError("interviewType") }}
+                  />
+                  <span className={styles.radioText}>전화 인터뷰</span>
+                </label>
+                <label className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="interviewType"
+                    value="서면 인터뷰"
+                    onChange={() => { setInterviewType("서면 인터뷰"); clearError("interviewType") }}
+                  />
+                  <span className={styles.radioText}>서면 인터뷰</span>
+                </label>
+              </div>
+              {errors.interviewType && <p className={styles.errorText}>{errors.interviewType}</p>}
+            </div>
+          </FadeUp>
+
+          <FadeUp delay={0.42}>
             <FormField label="인스타그램 아이디" name="instagram" optional sectionId="apply-optional">
               <input
                 id="instagram"
@@ -347,7 +386,7 @@ export default function ApplyPage() {
             </FormField>
           </FadeUp>
 
-          <FadeUp delay={0.45}>
+          <FadeUp delay={0.46}>
             <FormField label="추천인" name="referral" optional>
               <input
                 id="referral"

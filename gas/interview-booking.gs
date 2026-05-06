@@ -144,4 +144,49 @@ function handleWrittenInterview(data) {
       (answers.q3 || "(미작성)") + "\n\n" +
       "Q4. 책 읽을 때 꼭 필요한 물건이나 환경이 있으신가요?\n" +
       (answers.q4 || "(미작성)") + "\n\n" +
-      
+      "Q5. 가치관이 다른 사람과 대화할 때 어떤 태도를 취하시나요?\n" +
+      (answers.q5 || "(미작성)") + "\n\n" +
+      "Q6. 모임에서 함께 다뤄보고 싶은 책이 있으신가요?\n" +
+      (answers.q6 || "(미작성)")
+  });
+
+  return jsonResponse({ success: true });
+}
+
+// ── 헬퍼 ─────────────────────────────────────────────────────────
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function buildSolapiAuth() {
+  var timestamp = new Date().getTime().toString();
+  var salt      = Utilities.getUuid().replace(/-/g, "").substring(0, 20);
+  var raw       = Utilities.computeHmacSha256Signature(
+    timestamp + salt, SOLAPI_SEC
+  );
+  var signature = raw.map(function(b) {
+    return ("0" + (b & 0xff).toString(16)).slice(-2);
+  }).join("");
+  return [
+    "HMAC-SHA256 apiKey=" + SOLAPI_KEY,
+    "date=" + timestamp,
+    "salt=" + salt,
+    "signature=" + signature
+  ].join(", ");
+}
+
+function sendSMS(authHeader, to, text) {
+  UrlFetchApp.fetch("https://api.solapi.com/messages/v4/send", {
+    method: "post",
+    headers: {
+      "Authorization": authHeader,
+      "Content-Type":  "application/json"
+    },
+    payload: JSON.stringify({
+      message: { to: to, from: SENDER_PHONE, text: text }
+    }),
+    muteHttpExceptions: true
+  });
+}

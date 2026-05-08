@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       redirect: "follow",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, slotStart, slotEnd }),
+      body: JSON.stringify({ type: "phone_interview", name, phone, slotStart, slotEnd }),
     })
 
     if (!res.ok) {

@@ -254,7 +254,7 @@ export default function AdminPage() {
                   const blocked  = isSlotBlocked(blocks, dayStart, si)
                   const inDrag   = dragRange?.day === di && si >= dragRange.minSlot && si <= dragRange.maxSlot
                   const block    = blocked ? getBlockAtSlot(blocks, dayStart, si) : null
-                  const isInterview = block && !block.title.startsWith("[BLOCK]")
+                  const isInterview = block && !block.title?.startsWith("[BLOCK]")
 
                   return (
                     <div

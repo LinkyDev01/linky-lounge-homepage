@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import styles from "./login.module.css"
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError]       = useState("")
   const [loading, setLoading]   = useState(false)
@@ -31,22 +31,30 @@ export default function AdminLoginPage() {
   }
 
   return (
+    <form className={styles.card} onSubmit={handleSubmit}>
+      <h1 className={styles.title}>관리자 로그인</h1>
+      <input
+        type="password"
+        className={styles.input}
+        placeholder="비밀번호"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        autoFocus
+      />
+      {error && <p className={styles.error}>{error}</p>}
+      <button type="submit" className={styles.button} disabled={loading}>
+        {loading ? "확인 중..." : "로그인"}
+      </button>
+    </form>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
     <main className={styles.page}>
-      <form className={styles.card} onSubmit={handleSubmit}>
-        <h1 className={styles.title}>관리자 로그인</h1>
-        <input
-          type="password"
-          className={styles.input}
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoFocus
-        />
-        {error && <p className={styles.error}>{error}</p>}
-        <button type="submit" className={styles.button} disabled={loading}>
-          {loading ? "확인 중..." : "로그인"}
-        </button>
-      </form>
+      <Suspense fallback={<div className={styles.card} />}>
+        <LoginForm />
+      </Suspense>
     </main>
   )
 }

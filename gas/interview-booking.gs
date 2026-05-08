@@ -11,9 +11,46 @@
 // ── 설정값 (여기만 수정) ──────────────────────────────────────────
 var CALENDAR_ID  = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
 var ADMIN_EMAIL  = "linkylounge@gmail.com"; // 관리자 알림 수신 이메일
+var SHEET_ID     = "1yDy7VeJ_XkOYNfv_CXVqXy0S1UOAObgCiL4j22etfko";
 var SENDER_PHONE = "010-7444-5790";         // 솔라피 발신 번호
 var SOLAPI_KEY   = "NCSEQASUIXASGIJW";     // 솔라피 API Key
 var SOLAPI_SEC   = "4H6JALTBSXESIPG4IVTTT2FABGSFCKQN"; // 솔라피 API Secret
+// ────────────────────────────────────────────────────────────────
+
+// ── 스프레드시트 (없으면 자동 생성) ──────────────────────────────
+function getSheet(sheetName, headers) {
+  var props   = PropertiesService.getScriptProperties();
+  var sheetId = SHEET_ID || props.getProperty("AUTO_SHEET_ID");
+  var ss;
+
+  if (sheetId) {
+    try { ss = SpreadsheetApp.openById(sheetId); } catch (e) { sheetId = null; }
+  }
+  if (!sheetId) {
+    ss = SpreadsheetApp.create("레이지데이 북클럽 신청 데이터");
+    var newId = ss.getId();
+    props.setProperty("AUTO_SHEET_ID", newId);
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: "[레이지데이] 스프레드시트 자동 생성됨",
+      body: "스프레드시트가 생성되었습니다.\n링크: https://docs.google.com/spreadsheets/d/" + newId + "/edit"
+    });
+  }
+
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    if (headers && headers.length > 0) {
+      sheet.appendRow(headers);
+      sheet.getRange(1, 1, 1, headers.length)
+        .setFontWeight("bold")
+        .setBackground("#f5ede4")
+        .setFontColor("#1a1208");
+      sheet.setFrozenRows(1);
+    }
+  }
+  return sheet;
+}
 // ────────────────────────────────────────────────────────────────
 
 // ── GET: 예약된 슬롯 목록 반환 (캘린더 기반) ─────────────────────
@@ -127,7 +164,19 @@ function handleWrittenInterview(data) {
   var phone   = data.phone   || "";
   var answers = data.answers || {};
 
-  // 관리자 이메일 알림 (전체 답변 포함)
+  // 1. 스프레드시트 저장
+  var sheet = getSheet("서면 인터뷰", [
+    "제출일시", "이름", "연락처",
+    "Q1. 레이지데이와 책", "Q2. 서점 코너", "Q3. 좋아하는 단어/문장",
+    "Q4. 책 읽을 때 필요한 것", "Q5. 다른 가치관과 대화", "Q6. 함께 읽고 싶은 책"
+  ]);
+  sheet.appendRow([
+    new Date(), name, phone,
+    answers.q1 || "", answers.q2 || "", answers.q3 || "",
+    answers.q4 || "", answers.q5 || "", answers.q6 || ""
+  ]);
+
+  // 2. 관리자 이메일 알림 (전체 답변 포함)
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
     subject: "[레이지데이 북클럽] 서면 인터뷰 — " + name + "님",
@@ -161,7 +210,7 @@ function jsonResponse(obj) {
 }
 
 function buildSolapiAuth() {
-  var timestamp = new Date().getTime().toString();
+  var timestamp = new Date().toISOString();
   var salt      = Utilities.getUuid().replace(/-/g, "").substring(0, 20);
   var raw       = Utilities.computeHmacSha256Signature(
     timestamp + salt, SOLAPI_SEC

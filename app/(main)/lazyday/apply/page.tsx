@@ -7,8 +7,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import styles from "./page.module.css"
 
-const SUBMIT_URL =
-  "https://script.google.com/macros/s/AKfycbyjnX2RMK1_N2ZX31vqMmNhYORbTa_qcM3K07Ku1BkQls86uNyG3KfSA9oNgSEZCO0/exec"
+const SUBMIT_URL = "/api/lazyday/apply"
 
 const sessions = [
   { label: "1회차", thu: "5/21", sun: "5/24" },
@@ -123,10 +122,9 @@ export default function ApplyPage() {
       marketingConsent: marketingConsent ? "동의" : "미동의",
     }
 
-    // Fire-and-forget: no-cors POST는 응답을 읽을 수 없으므로 await 없이 백그라운드로 보냄
+    // Next.js API 라우트를 통해 GAS로 전달 (fire-and-forget)
     fetch(SUBMIT_URL, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }).catch(() => {})

@@ -1,3 +1,38 @@
+/* ========== Progress indicator (right-side dots) ========== */
+.progressIndicator {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+.progressDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: rgba(26, 18, 8, 0.22);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.progressDotFilled {
+  background-color: #d2691e;
+  transform: scale(1.4);
+}
+
+/* ========== Filled textarea state ========== */
+.textareaFilled {
+  border-color: #d2691e;
+  background: #fffaf7;
+}
+
 /* ========== Page wrapper ========== */
 .writtenPage {
   background-color: #f5ede4;
@@ -81,6 +116,27 @@
   font-weight: 600;
   color: #1a1208;
   letter-spacing: -0.01em;
+}
+
+.infoInput {
+  flex: 1;
+  height: 36px;
+  border: 1.5px solid #e8dccd;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1208;
+  background: #fdf8f3;
+  font-family: inherit;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.infoInput::placeholder { color: #b0a090; }
+.infoInput:focus { outline: none; border-color: #d2691e; box-shadow: 0 0 0 3px rgba(210,105,30,.12); }
+
+.req {
+  color: #d2691e;
+  margin-left: 2px;
 }
 
 .infoNote {

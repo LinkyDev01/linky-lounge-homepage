@@ -13,9 +13,9 @@ const SENDER_PHONE      = '01074445790';
 const KAKAO_PFID        = 'KA01PF260214104943015o3o4k9QEnYH';
 
 // 알림톡 템플릿 ID — 솔라피에서 각각 등록 후 교체
-const KAKAO_TEMPLATE_APPLY   = 'KA01TP260220005324263OZVbqCtPDRg'; // 신청 완료
-const KAKAO_TEMPLATE_PHONE   = '';  // 전화 인터뷰 예약 완료 (등록 후 채우기)
-const KAKAO_TEMPLATE_WRITTEN = '';  // 서면 인터뷰 제출 완료 (등록 후 채우기)
+const KAKAO_TEMPLATE_APPLY   = 'KA01TP260508044732078Nim5W0a9FgT'; // 신청 완료
+const KAKAO_TEMPLATE_PHONE   = 'KA01TP260508044527472ApL7vKEq4ZE';  // 전화 인터뷰 예약 완료 (등록 후 채우기)
+const KAKAO_TEMPLATE_WRITTEN = 'KA01TP260508044618959Levf57dcz2q';  // 서면 인터뷰 제출 완료 (등록 후 채우기)
 
 // 관리자 토큰 — Vercel ADMIN_SECRET 환경변수와 동일하게 설정
 const ADMIN_TOKEN = 'CHANGE_ME'; // ← Vercel ADMIN_SECRET 값으로 교체
@@ -132,12 +132,23 @@ function handlePhoneInterviewBooking(data) {
       { description: '전화 인터뷰\n이름: ' + name + '\n연락처: ' + phone });
   }
 
+  // 신청현황 시트에 기록
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName('신청현황');
+  if (sheet) {
+    sheet.appendRow([
+      new Date(), name, '', '', phone,
+      '전화 인터뷰', '', '', '', '',
+      dateStr + ' ' + timeStr + ' – ' + endStr  // 비고: 인터뷰 일시
+    ]);
+  }
+
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL,
     '[레이지데이 북클럽] 전화 인터뷰 신청 — ' + name + '님 ' + dateStr + ' ' + timeStr,
     '전화 인터뷰 예약이 접수되었습니다.\n\n이름: ' + name + '\n연락처: ' + phone +
     '\n일시: ' + dateStr + ' ' + timeStr + ' – ' + endStr +
-    '\n\n구글 캘린더에 자동으로 추가되었습니다.'
+    '\n인터뷰 방식: 전화 인터뷰\n\n구글 캘린더에 자동으로 추가되었습니다.'
   );
 
   // 신청자 알림톡 (실패 시 SMS fallback)

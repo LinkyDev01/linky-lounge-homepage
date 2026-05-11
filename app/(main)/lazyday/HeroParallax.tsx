@@ -8,27 +8,16 @@ import styles from "./page.module.css"
  */
 export function HeroParallax() {
   return (
-    <>
-      <div className={styles.heroWrapper}>
-        <Image
-          src="/linky-lounge/book-club/2nd-poster-typo.png"
-          alt="Lazy Day Book Club"
-          className={styles.mainImage}
-          width={1080}
-          height={1350}
-          priority
-        />
-        <div className={styles.heroFade} aria-hidden />
-      </div>
-      <div className={styles.heroWrapper}>
-        <Image
-          src="/linky-lounge/book-club/2nd-poster-typo-descriptiopn.png"
-          alt="Lazy Day Book Club 2기 소개"
-          className={styles.mainImage}
-          width={3240}
-          height={4050}
-        />
-      </div>
-    </>
+    <div className={styles.heroWrapper}>
+      <Image
+        src="/linky-lounge/book-club/2nd-poster-typo-full.png"
+        alt="Lazy Day Book Club 2기"
+        className={styles.mainImage}
+        width={3240}
+        height={8100}
+        priority
+      />
+      <div className={styles.heroFade} aria-hidden />
+    </div>
   )
 }

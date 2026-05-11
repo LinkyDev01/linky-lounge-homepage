@@ -76,8 +76,8 @@ export function FaqSection() {
           <Image
             src="/linky-lounge/book-club/ldbc-logo-text.png"
             alt="레이지데이 북클럽"
-            width={120}
-            height={120}
+            width={417}
+            height={240}
             style={{ objectFit: "contain", opacity: 0.85 }}
           />
         </div>

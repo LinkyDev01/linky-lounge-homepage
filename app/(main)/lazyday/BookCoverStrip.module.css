@@ -44,12 +44,16 @@
     padding-left: 56px;
     padding-right: 56px;
   }
+  .sticky .coverBtn {
+    flex: 0 0 auto;
+  }
   .sticky .coverImg {
     height: 60px !important;
     width: auto !important;
   }
   .sticky .placeholder {
     height: 60px;
+    width: 40px;
     aspect-ratio: unset;
   }
 }

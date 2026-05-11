@@ -151,6 +151,30 @@
   text-align: center;
 }
 
+/* ========== Price ========== */
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding: 14px 18px;
+  background: #fff8f3;
+  border-radius: 10px;
+}
+
+.priceLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5c3d1e;
+}
+
+.priceValue {
+  font-size: 18px;
+  font-weight: 800;
+  color: #e07040;
+  letter-spacing: -0.02em;
+}
+
 /* ========== Form ========== */
 .form {
   display: flex;

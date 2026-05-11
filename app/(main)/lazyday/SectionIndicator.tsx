@@ -9,7 +9,6 @@ const sections = [
   { id: "howto", label: "진행" },
   { id: "schedule", label: "일정" },
   { id: "faq", label: "FAQ" },
-  { id: "closing-section", label: "신청" },
 ]
 
 /**

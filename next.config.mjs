@@ -8,6 +8,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // /lazyday/apply/interview → /lazyday/apply/interview/schedule
+      {
+        source: '/lazyday/apply/interview',
+        destination: '/lazyday/apply/interview/schedule',
+        permanent: true,
+      },
       // linkylounge.com 루트 → /lazyday
       {
         source: '/',

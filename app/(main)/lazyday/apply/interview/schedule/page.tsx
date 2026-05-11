@@ -90,7 +90,7 @@ function slotsForDay(
   return slots
 }
 
-export default function InterviewPage() {
+export default function InterviewSchedulePage() {
   const [bookedEvents,  setBookedEvents]  = useState<{ start: string; end: string }[]>([])
   const [slotsLoading, setSlotsLoading] = useState(true)
 

@@ -186,7 +186,7 @@ export default function ApplyPage() {
                 돌아가기
               </a>
               <a
-                href={isPhone ? "/lazyday/apply/interview" : "/lazyday/apply/interview/written"}
+                href={isPhone ? "/lazyday/apply/interview/schedule" : "/lazyday/apply/interview/written"}
                 className={styles.successPrimaryLink}
               >
                 {isPhone ? "전화 인터뷰 일정 잡기" : "서면 인터뷰 작성하기"}

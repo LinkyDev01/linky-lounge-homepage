@@ -1,13 +1,13 @@
 .section {
   background-color: #f5ede4;
-  padding: 0 24px 48px;
+  padding: 0 24px 56px;
   word-break: keep-all;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
 }
 
 .block {
@@ -16,7 +16,7 @@
   gap: 10px;
 }
 
-.label {
+.question {
   font-size: 20px;
   font-weight: 700;
   color: #1a1208;
@@ -26,12 +26,16 @@
   word-break: keep-all;
 }
 
+.accent {
+  color: #d2691e;
+}
+
 .quote {
   border-left: 3px solid #d2691e;
   padding-left: 16px;
 }
 
-.desc {
+.paragraph {
   font-size: 15px;
   line-height: 1.8;
   color: #4a3020;
@@ -41,8 +45,8 @@
 }
 
 @media (max-width: 480px) {
-  .label { font-size: 18px; }
-  .desc { font-size: 14px; }
+  .question { font-size: 18px; }
+  .paragraph { font-size: 14px; }
 }
 
 @media (min-width: 768px) {

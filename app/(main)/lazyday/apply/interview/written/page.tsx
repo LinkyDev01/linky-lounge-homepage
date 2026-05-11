@@ -106,9 +106,10 @@ export default function WrittenInterviewPage() {
         <div className={styles.successInner}>
           <FadeUp>
             <img
-              src="/linky-lounge/book-club/lazyday_logo.png"
-              alt="레이지데이"
+              src="/linky-lounge/book-club/ldbc-logo-text.png"
+              alt="레이지데이 북클럽"
               className={styles.successMark}
+              style={{ width: 417, height: 240, objectFit: "contain" }}
             />
           </FadeUp>
           <FadeUp delay={0.1}>
@@ -160,9 +161,10 @@ export default function WrittenInterviewPage() {
         <FadeUp>
           <div className={styles.header}>
             <img
-              src="/linky-lounge/book-club/lazyday_logo.png"
-              alt="레이지데이"
+              src="/linky-lounge/book-club/ldbc-logo-text.png"
+              alt="레이지데이 북클럽"
               className={styles.successMark}
+              style={{ width: 417, height: 240, objectFit: "contain" }}
             />
             <h1 className={styles.headerTitle}>서면 인터뷰</h1>
             <p className={styles.headerSub}>

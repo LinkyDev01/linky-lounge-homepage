@@ -278,7 +278,12 @@ export default function InterviewPage() {
         {/* 헤더 */}
         <FadeUp>
           <div className={styles.header}>
-            <img src="/linky-lounge/book-club/lazy_typo_brown.png" alt="Lazy Day Book Club" className={styles.headerImage} />
+            <img
+              src="/linky-lounge/book-club/ldbc-logo-text.png"
+              alt="레이지데이 북클럽"
+              className={styles.headerImage}
+              style={{ width: 417, height: 240, objectFit: "contain" }}
+            />
           </div>
         </FadeUp>
 

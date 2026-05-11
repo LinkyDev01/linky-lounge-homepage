@@ -205,9 +205,10 @@ export default function ApplyPage() {
         <FadeUp>
           <div id="apply-info" className={styles.header}>
             <img
-              src="/linky-lounge/book-club/lazy_typo_brown.png"
-              alt="Lazy Day Book Club"
+              src="/linky-lounge/book-club/ldbc-logo-text.png"
+              alt="레이지데이 북클럽"
               className={styles.headerImage}
+              style={{ width: 417, height: 240, objectFit: "contain" }}
             />
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽

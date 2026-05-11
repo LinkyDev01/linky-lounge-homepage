@@ -8,7 +8,7 @@ import styles from "./page.module.css"
 // 슬롯 설정 — 요일별 시간대
 // ================================================================
 const SLOT_DURATION = 30  // 분
-const MONTHS_AHEAD  = 2
+const DAYS_AHEAD    = 7   // 당일 포함 예약 가능 기간
 
 /** 요일(0=일,1=월,...,6=토) → KST 슬롯 범위 */
 function getSlotConfig(dow: number): { startH: number; startM: number; endH: number; endM: number } | null {
@@ -133,6 +133,12 @@ export default function InterviewPage() {
   }, [])
 
   const nowUTCMs   = useMemo(() => Date.now(), [])
+  // KST 기준 당일 포함 DAYS_AHEAD일째의 자정 UTC (= 예약 마감 기준)
+  const maxBookingUTCMs = useMemo(() => {
+    const kstMs = Date.now() + 9 * 3600_000
+    const d = new Date(kstMs)
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + DAYS_AHEAD - 1)
+  }, [])
   // 각 이벤트의 start~end 범위를 SLOT_DURATION 단위로 쪼개 모든 겹치는 슬롯을 마감 처리
   const bookedKeys = useMemo(() => {
     const keys = new Set<string>()
@@ -179,12 +185,13 @@ export default function InterviewPage() {
     return slotsForDay(selectedDate.year, selectedDate.month, selectedDate.date, selectedDate.dow, nowUTCMs, bookedKeys)
   }, [selectedDate, nowUTCMs, bookedKeys])
 
-  // 월 이동 제한
-  const minMonth = nowKST.year * 12 + nowKST.month
-  const maxMonth = minMonth + MONTHS_AHEAD
-  const curMonth = viewYear * 12 + viewMonth
-  const canPrev  = curMonth > minMonth
-  const canNext  = curMonth < maxMonth
+  // 월 이동 제한 — 다음 달 첫날이 예약 가능 기간 내에 있을 때만 Next 허용
+  const minMonth  = nowKST.year * 12 + nowKST.month
+  const curMonth  = viewYear * 12 + viewMonth
+  const canPrev   = curMonth > minMonth
+  const nextYear  = viewMonth === 11 ? viewYear + 1 : viewYear
+  const nextMonthNum = viewMonth === 11 ? 0 : viewMonth + 1
+  const canNext   = Date.UTC(nextYear, nextMonthNum, 1) <= maxBookingUTCMs
 
   function prevMonth() {
     if (!canPrev) return
@@ -313,13 +320,14 @@ export default function InterviewPage() {
                     const isToday    = cell.year === todayD.getUTCFullYear() &&
                                        cell.month === todayD.getUTCMonth() &&
                                        cell.date  === todayD.getUTCDate()
-                    // 오늘 포함 이전 날짜는 비활성
+                    // 오늘 포함 이전 날짜 또는 예약 가능 기간 초과 날짜는 비활성
                     const isPast     = Date.UTC(cell.year, cell.month, cell.date) <= Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate())
+                    const isTooFar   = Date.UTC(cell.year, cell.month, cell.date) > maxBookingUTCMs
                     const hasSlots   = availableMap.has(cellKey)
                     const isSelected = selectedDate?.year === cell.year &&
                                        selectedDate?.month === cell.month &&
                                        selectedDate?.date === cell.date
-                    const isDisabled = isPast || !hasSlots
+                    const isDisabled = isPast || isTooFar || !hasSlots
 
                     return (
                       <button
@@ -335,7 +343,7 @@ export default function InterviewPage() {
                         ].filter(Boolean).join(" ")}
                       >
                         {cell.date}
-                        {hasSlots && !isSelected && <span className={styles.availDot} />}
+                        {hasSlots && !isDisabled && !isSelected && <span className={styles.availDot} />}
                       </button>
                     )
                   })}

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "레이지데이 북클럽 신청하기",
     description: "복잡함 속에서 찾는 단순함 — 레이지데이 북클럽",
-    images: ["/linky-lounge/book-club/bookclub-og-image.png"],
+    images: ["/linky-lounge/book-club/lazy%20is%20a.png"],
   },
 }
 

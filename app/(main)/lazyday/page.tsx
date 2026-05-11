@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import styles from "./page.module.css"
 import { Footer } from "@/components/footer"
 import { StickyApplyButton } from "./sticky-apply-button"
@@ -36,15 +35,6 @@ export default function StudyForeignPage() {
         <HowToSection />
         <ScheduleSection />
         <FaqSection />
-        <div style={{ display: "flex", justifyContent: "center", padding: "48px 0 64px" }}>
-          <Image
-            src="/linky-lounge/book-club/lazyday_logo.png"
-            alt="Lazy Day"
-            width={120}
-            height={120}
-            style={{ objectFit: "contain", opacity: 0.92 }}
-          />
-        </div>
       </main>
 
       <SectionIndicator />

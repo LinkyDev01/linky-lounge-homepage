@@ -124,6 +124,12 @@
   opacity: 0.75;
 }
 
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0 64px;
+}
+
 @media (min-width: 768px) {
   .section { padding: 28px 56px 0; }
 }

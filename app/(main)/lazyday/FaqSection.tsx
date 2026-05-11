@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import Image from "next/image"
 import styles from "./FaqSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
@@ -67,6 +68,18 @@ export function FaqSection() {
           >
             인스타그램 DM으로 편하게 물어보세요 →
           </a>
+        </div>
+      </FadeUp>
+
+      <FadeUp delay={0.5}>
+        <div className={styles.logoWrap}>
+          <Image
+            src="/linky-lounge/book-club/ldbc-logo-text.png"
+            alt="레이지데이 북클럽"
+            width={120}
+            height={120}
+            style={{ objectFit: "contain", opacity: 0.85 }}
+          />
         </div>
       </FadeUp>
     </section>

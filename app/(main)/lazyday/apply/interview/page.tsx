@@ -91,7 +91,7 @@ function slotsForDay(
 }
 
 export default function InterviewPage() {
-  const [bookedISOs,   setBookedISOs]   = useState<string[]>([])
+  const [bookedEvents,  setBookedEvents]  = useState<{ start: string; end: string }[]>([])
   const [slotsLoading, setSlotsLoading] = useState(true)
 
   const nowKST = useMemo(() => {
@@ -125,13 +125,27 @@ export default function InterviewPage() {
   useEffect(() => {
     fetch("/api/lazyday/interview/slots")
       .then(r => r.json())
-      .then(d => setBookedISOs((d.bookedSlots ?? []).map((s: { start: string }) => s.start)))
+      .then(d => setBookedEvents(
+        (d.bookedSlots ?? []).map((s: { start: string; end: string }) => ({ start: s.start, end: s.end }))
+      ))
       .catch(() => {})
       .finally(() => setSlotsLoading(false))
   }, [])
 
   const nowUTCMs   = useMemo(() => Date.now(), [])
-  const bookedKeys = useMemo(() => new Set(bookedISOs.map(isoToKSTKey)), [bookedISOs])
+  // 각 이벤트의 start~end 범위를 SLOT_DURATION 단위로 쪼개 모든 겹치는 슬롯을 마감 처리
+  const bookedKeys = useMemo(() => {
+    const keys = new Set<string>()
+    bookedEvents.forEach(({ start, end }) => {
+      let t = new Date(start).getTime()
+      const e = new Date(end).getTime()
+      while (t < e) {
+        keys.add(isoToKSTKey(new Date(t).toISOString()))
+        t += SLOT_DURATION * 60_000
+      }
+    })
+    return keys
+  }, [bookedEvents])
 
   // 달력 셀 목록
   const calDays = useMemo(() => {
@@ -359,7 +373,7 @@ export default function InterviewPage() {
                             ].filter(Boolean).join(" ")}
                           >
                             {slot.label}
-                            {slot.booked && <span className={styles.bookedTag}>예약됨</span>}
+                            {slot.booked && <span className={styles.bookedTag}>마감</span>}
                           </button>
                         )
                       })

@@ -7,42 +7,44 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 28px;
 }
 
-.box {
+.block {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
-  padding: 20px 20px;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .label {
-  flex: 0 0 80px;
-  font-size: 14px;
-  font-weight: 800;
-  color: #d2691e;
-  line-height: 1.45;
-  letter-spacing: -0.01em;
-  white-space: pre-line;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1208;
   margin: 0;
-  padding-top: 1px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+.quote {
+  border-left: 3px solid #d2691e;
+  padding-left: 16px;
 }
 
 .desc {
-  flex: 1;
-  font-size: 13.5px;
-  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.8;
   color: #4a3020;
-  line-height: 1.75;
   margin: 0;
   word-break: keep-all;
   text-wrap: pretty;
 }
 
-@media (max-width: 380px) {
-  .label { flex: 0 0 70px; font-size: 13px; }
-  .desc { font-size: 13px; }
+@media (max-width: 480px) {
+  .label { font-size: 18px; }
+  .desc { font-size: 14px; }
+}
+
+@media (min-width: 768px) {
+  .section { padding-left: 56px; padding-right: 56px; }
 }

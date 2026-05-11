@@ -251,7 +251,7 @@ export default function ApplyPage() {
             </table>
             <p className={styles.scheduleNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
             <div className={styles.priceRow}>
-              <span className={styles.priceLabel}>참가비</span>
+              <span className={styles.priceLabel}>2기 참가비</span>
               <span className={styles.priceValue}>200,000원</span>
             </div>
           </section>

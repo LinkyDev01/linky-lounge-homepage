@@ -9,11 +9,21 @@
 //   배포 후 URL을 Vercel 환경변수 REVIEW_GAS_URL 에 설정
 // ================================================================
 
-var SHEET_ID   = "1yDy7VeJ_XkOYNfv_CXVqXy0S1UOAObgCiL4j22etfko";
-var SHEET_NAME = "1기 후기";
+var SHEET_ID    = "1C_dx4uklaAAmvxu9owFshSZZoW6GyPyIXE4SCanU-qU";
+var SHEET_NAME  = "1기 후기";
 var ADMIN_EMAIL = "linkylounge@gmail.com";
 
-var HEADERS = ["제출시각", "이름", "Q1. 기억에 남는 순간", "Q2. 한 문장 표현", "Q3. 추천 대상", "Q4. 자유 후기"];
+var HEADERS = [
+  "제출시각",
+  "이름",
+  "Q1. 한 문장 표현",
+  "Q2. 추천 대상",
+  "Q3. 좋았던 점",
+  "Q4. 아쉬웠던 점",
+  "Q5. 기억에 남는 순간",
+  "Q6. 자유 후기",
+  "마케팅 동의"
+];
 
 function getSheet() {
   var ss = SpreadsheetApp.openById(SHEET_ID);
@@ -37,11 +47,14 @@ function doPost(e) {
 
     var row = [
       new Date(),
-      data.name || "익명",
-      data.q1   || "",
-      data.q2   || "",
-      data.q3   || "",
-      data.q4   || "",
+      data.name     || "익명",
+      data.q1       || "",
+      data.q2       || "",
+      data.q3_good  || "",
+      data.q3_bad   || "",
+      data.q4       || "",
+      data.q5       || "",
+      data.marketing || "미동의",
     ];
     sheet.appendRow(row);
 
@@ -51,17 +64,25 @@ function doPost(e) {
       body: [
         "이름: " + (data.name || "익명"),
         "",
-        "Q1. 기억에 남는 순간:",
+        "Q1. 한 문장 표현:",
         data.q1 || "(미작성)",
         "",
-        "Q2. 한 문장 표현:",
+        "Q2. 추천 대상:",
         data.q2 || "(미작성)",
         "",
-        "Q3. 추천 대상:",
-        data.q3 || "(미작성)",
+        "Q3. 좋았던 점:",
+        data.q3_good || "(미작성)",
         "",
-        "Q4. 자유 후기:",
+        "Q4. 아쉬웠던 점:",
+        data.q3_bad || "(미작성)",
+        "",
+        "Q5. 기억에 남는 순간:",
         data.q4 || "(미작성)",
+        "",
+        "Q6. 자유 후기:",
+        data.q5 || "(미작성)",
+        "",
+        "마케팅 동의: " + (data.marketing || "미동의"),
         "",
         "시트 확인: https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/edit"
       ].join("\n")
@@ -76,4 +97,24 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ success: false, error: err.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ── 로컬 테스트용 (GAS 에디터에서 직접 실행) ──────────────────────
+function testDoPost() {
+  var fakeEvent = {
+    postData: {
+      contents: JSON.stringify({
+        name:      "테스트",
+        q1:        "사유가 깊어지는 곳",
+        q2:        "혼자 읽기 좋아하는 사람",
+        q3_good:   "대화의 밀도가 좋았어요",
+        q3_bad:    "시간이 조금 짧았어요",
+        q4:        "어떤 문장 하나가 오래 남았어요",
+        q5:        "정말 좋았습니다",
+        marketing: "동의",
+      })
+    }
+  };
+  var result = doPost(fakeEvent);
+  Logger.log(result.getContent());
 }

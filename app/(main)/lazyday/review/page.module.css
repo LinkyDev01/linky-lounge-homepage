@@ -208,3 +208,30 @@
 .successButton:hover {
   background-color: #b8571a;
 }
+
+/* Consent checkbox */
+.consentLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #d2691e;
+  cursor: pointer;
+}
+
+.consentText {
+  font-size: 13px;
+  color: #6a5038;
+  line-height: 1.6;
+}
+
+.required {
+  color: #d2691e;
+}

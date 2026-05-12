@@ -10,11 +10,13 @@ const SUBMIT_URL = "/api/lazyday/review"
 function FormField({
   label,
   name,
+  required,
   optional,
   children,
 }: {
   label: string
   name: string
+  required?: boolean
   optional?: boolean
   children: ReactNode
 }) {
@@ -22,7 +24,8 @@ function FormField({
     <div className={styles.formGroup}>
       <label htmlFor={name} className={styles.formLabel}>
         {label}
-        {optional && <span className={styles.optional}>(익명 가능)</span>}
+        {required && <span className={styles.required}> *</span>}
+        {optional && <span className={styles.optional}>(선택)</span>}
       </label>
       {children}
     </div>
@@ -32,6 +35,7 @@ function FormField({
 export default function ReviewPage() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [marketing, setMarketing] = useState(false)
   const [error, setError] = useState("")
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -41,11 +45,14 @@ export default function ReviewPage() {
 
     const data = new FormData(e.currentTarget)
     const body = {
-      name:  data.get("name"),
-      q1:    data.get("q1"),
-      q2:    data.get("q2"),
-      q3:    data.get("q3"),
-      q4:    data.get("q4"),
+      name:      data.get("name"),
+      q1:        data.get("q1"),
+      q2:        data.get("q2"),
+      q3_good:   data.get("q3_good"),
+      q3_bad:    data.get("q3_bad"),
+      q4:        data.get("q4"),
+      q5:        data.get("q5"),
+      marketing: marketing ? "동의" : "미동의",
     }
 
     try {
@@ -105,59 +112,86 @@ export default function ReviewPage() {
         </FadeUp>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+
           <FadeUp delay={0.08}>
-            <FormField label="이름" name="name" optional>
+            <FormField label="이름" name="name">
               <input
                 id="name"
                 type="text"
                 name="name"
                 className={styles.input}
-                placeholder="이름 또는 닉네임 (익명 가능)"
+                placeholder="익명 가능"
               />
             </FormField>
           </FadeUp>
 
           <FadeUp delay={0.12}>
-            <FormField label="Q1. 모임에서 가장 기억에 남는 순간이나 대화 한 토막이 있었나요?" name="q1">
-              <textarea
+            <FormField label="Q1. 레이지데이 북클럽, 한 문장으로 표현한다면?" name="q1" required>
+              <input
                 id="q1"
+                type="text"
                 name="q1"
-                className={styles.textarea}
-                rows={4}
-                placeholder="짧게 한두 문장이면 충분해요."
+                required
+                className={styles.input}
+                placeholder="짧게 떠오르는 대로 적어주세요."
               />
             </FormField>
           </FadeUp>
 
           <FadeUp delay={0.16}>
-            <FormField label="Q2. 레이지데이 북클럽, 한 문장으로 표현한다면?" name="q2">
-              <textarea
+            <FormField label="Q2. 어떤 분께 권하고 싶으세요?" name="q2" optional>
+              <input
                 id="q2"
+                type="text"
                 name="q2"
-                className={styles.textarea}
-                rows={3}
-                placeholder="떠오르는 대로 자유롭게 적어주세요."
+                className={styles.input}
+                placeholder="어떤 사람에게 잘 맞을 것 같은지 편하게."
               />
             </FormField>
           </FadeUp>
 
           <FadeUp delay={0.20}>
-            <FormField label="Q3. 어떤 분께 권하고 싶으세요?" name="q3">
+            <FormField label="Q3. 모임에서 마음에 들었던 점이 있다면?" name="q3_good" optional>
               <textarea
-                id="q3"
-                name="q3"
+                id="q3_good"
+                name="q3_good"
                 className={styles.textarea}
                 rows={3}
-                placeholder="어떤 사람에게 잘 맞을 것 같은지 편하게 적어주세요."
+                placeholder="좋았던 점, 인상적이었던 점."
               />
             </FormField>
           </FadeUp>
 
-          <FadeUp delay={0.24}>
-            <FormField label="Q4. 레이지데이 북클럽 1기 후기를 자유롭게 남겨주세요" name="q4">
+          <FadeUp delay={0.23}>
+            <FormField label="Q4. 아쉬웠던 점이 있다면?" name="q3_bad" optional>
+              <textarea
+                id="q3_bad"
+                name="q3_bad"
+                className={styles.textarea}
+                rows={3}
+                placeholder="솔직하게 남겨주시면 다음 모임에 반영할게요."
+              />
+            </FormField>
+          </FadeUp>
+
+          <FadeUp delay={0.26}>
+            <FormField label="Q5. 모임에서 가장 기억에 남는 순간이나 생각의 발견이 있었다면 공유해주세요." name="q4" optional>
               <textarea
                 id="q4"
                 name="q4"
+                className={styles.textarea}
+                rows={4}
+                placeholder="어떤 대화, 문장, 순간이든 좋아요."
+              />
+            </FormField>
+          </FadeUp>
+
+          <FadeUp delay={0.29}>
+            <FormField label="Q6. 레이지데이 북클럽 1기 후기를 자유롭게 남겨주세요." name="q5" required>
+              <textarea
+                id="q5"
+                name="q5"
+                required
                 className={styles.textarea}
                 rows={5}
                 placeholder="길든 짧든 편하게 남겨주세요."
@@ -165,17 +199,28 @@ export default function ReviewPage() {
             </FormField>
           </FadeUp>
 
+          <FadeUp delay={0.32}>
+            <label className={styles.consentLabel}>
+              <input
+                type="checkbox"
+                checked={marketing}
+                onChange={(e) => setMarketing(e.target.checked)}
+                className={styles.checkbox}
+              />
+              <span className={styles.consentText}>
+                후기를 마케팅 목적으로 활용하는 것에 동의합니다.
+              </span>
+            </label>
+          </FadeUp>
+
           {error && <p className={styles.formError}>{error}</p>}
 
-          <FadeUp delay={0.28}>
-            <button
-              type="submit"
-              disabled={loading}
-              className={styles.submitButton}
-            >
+          <FadeUp delay={0.36}>
+            <button type="submit" disabled={loading} className={styles.submitButton}>
               {loading ? "제출 중..." : "후기 제출하기"}
             </button>
           </FadeUp>
+
         </form>
       </div>
     </div>

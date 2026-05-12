@@ -7,91 +7,48 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .card {
-  background-color: #fdf6ef;
-  border: 1px solid rgba(210, 105, 30, 0.2);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.cardHeader {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  align-items: flex-start;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
   padding: 18px 20px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  gap: 12px;
+  border: 1px solid rgba(210, 105, 30, 0.12);
 }
 
-.cardTitle {
-  font-size: 17px;
+.cardKey {
+  flex: 0 0 30%;
+  font-size: 15px;
   font-weight: 700;
-  color: #1a1208;
-  line-height: 1.4;
+  color: #d2691e;
+  line-height: 1.6;
   letter-spacing: -0.01em;
+  padding-top: 1px;
   word-break: keep-all;
 }
 
-.accent {
-  color: #d2691e;
-}
-
-.arrow {
-  font-size: 18px;
-  color: #d2691e;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
-.arrowOpen {
-  transform: rotate(180deg);
-}
-
-/* peek / accordion */
-.peekWrap {
-  position: relative;
-  max-height: 56px;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-}
-
-.peekOpen {
-  max-height: 400px;
-}
-
-.peekFade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to bottom, transparent, #fdf6ef);
-  pointer-events: none;
-}
-
-.desc {
+.cardDesc {
+  flex: 1;
   font-size: 14px;
   line-height: 1.85;
-  color: #5a3820;
+  color: #4a3020;
   margin: 0;
-  padding: 0 20px 18px;
   word-break: keep-all;
   text-wrap: pretty;
 }
 
 @media (max-width: 480px) {
-  .cardTitle { font-size: 16px; }
-  .desc { font-size: 13px; }
+  .card { gap: 14px; }
+  .cardKey { font-size: 14px; flex: 0 0 28%; }
+  .cardDesc { font-size: 13px; }
 }
 
 @media (min-width: 768px) {
   .section { padding-left: 56px; padding-right: 56px; }
+  .cardKey { font-size: 16px; }
+  .cardDesc { font-size: 15px; }
 }

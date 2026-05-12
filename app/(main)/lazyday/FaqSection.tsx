@@ -84,19 +84,26 @@ export function FaqSection() {
           return (
             <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
               <div id={faq.id} className={styles.item}>
-                <p className={styles.question}>{faq.q}</p>
-                <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
-                  <p className={styles.answer}>{faq.a}</p>
-                  {!isOpen && <div className={styles.peekFade} />}
-                </div>
                 <button
-                  className={styles.toggleBtn}
+                  className={styles.titleBox}
                   onClick={() => toggle(faq.q)}
                   aria-expanded={isOpen}
                 >
-                  {isOpen ? '접기 ↑' : '더 보기 →'}
+                  <span className={styles.question}>{faq.q}</span>
+                  <span className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ''}`}>▾</span>
                 </button>
-                {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
+                <div className={styles.quote}>
+                  <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
+                    <p className={styles.answer}>{faq.a}</p>
+                    {!isOpen && (
+                      <div className={styles.fadeWrap}>
+                        <div className={styles.fadeBg} />
+                        <span className={styles.moreHint}>...더보기</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {faq.sub && isOpen && <p className={styles.answerNote}>{faq.sub}</p>}
               </div>
             </FadeUp>
           )

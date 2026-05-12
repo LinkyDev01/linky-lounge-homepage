@@ -11,7 +11,6 @@
   justify-content: space-between;
   gap: 8px;
   margin: 0 0 28px;
-
   padding-bottom: 20px;
   position: relative;
 }
@@ -36,47 +35,80 @@
   letter-spacing: -0.025em;
 }
 
-.mark {
-  width: 96px;
-  height: 96px;
-  flex-shrink: 0;
-  margin-left: -13px;
-}
-
 @media (max-width: 480px) {
   .titleRow { gap: 14px; margin-bottom: 28px; }
   .sectionTitle { font-size: 26px; }
-  .mark { width: 76px; height: 76px; }
 }
 
 /* FAQ 목록 */
 .list {
   display: flex;
   flex-direction: column;
+  gap: 14px;
 }
 
 .item {
-  padding: 28px 0;
-  border-top: 1px solid #c4a078;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   scroll-margin-top: 80px;
 }
 
-.item:first-child {
-  border-top: none;
-}
-
-.item:last-child {
-  border-bottom: 1px solid #c4a078;
+/* 타이틀 박스 (버튼) */
+.titleBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 0.5px solid rgba(196, 160, 120, 0.5);
+  background: #ede0d0;
+  cursor: pointer;
+  text-align: left;
 }
 
 .question {
   font-size: 15px;
   font-weight: 700;
-  color: #d2691e;
-  margin: 0 0 12px;
-  line-height: 1.6;
+  color: #1a1208;
+  line-height: 1.4;
+  flex: 1;
   word-break: auto-phrase;
   text-wrap: pretty;
+}
+
+.arrow {
+  font-size: 14px;
+  color: #b08060;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+}
+
+/* 인용구 영역 */
+.quote {
+  border-left: 3px solid #d2691e;
+  padding-left: 14px;
+  margin-left: 2px;
+  border-radius: 0;
+}
+
+/* peek */
+.peekWrap {
+  position: relative;
+  max-height: 54px;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.peekOpen {
+  max-height: 600px;
 }
 
 .answer {
@@ -93,51 +125,34 @@
   font-weight: 700;
 }
 
-.answerNote {
-  font-size: 11px;
-  color: #8a6a50;
-  margin: 6px 0 0;
-  line-height: 1.6;
-}
-
-/* Accordion peek */
-.peekWrap {
-  position: relative;
-  max-height: 52px;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-}
-
-.peekOpen {
-  max-height: 500px;
-}
-
-.peekFade {
+/* 페이드 + ...더보기 */
+.fadeWrap {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 36px;
-  background: linear-gradient(to bottom, transparent, #ede0d0);
   pointer-events: none;
 }
 
-.toggleBtn {
-  display: inline-block;
-  margin-top: 10px;
+.fadeBg {
+  height: 36px;
+  background: linear-gradient(to bottom, transparent, #ede0d0);
+}
+
+.moreHint {
+  display: block;
   font-size: 12px;
   font-weight: 500;
   color: #9a8878;
-  background: none;
-  border: none;
+  background: #ede0d0;
   padding: 0;
-  cursor: pointer;
-  letter-spacing: -0.01em;
-  transition: opacity 0.15s ease;
 }
 
-.toggleBtn:hover {
-  opacity: 0.7;
+.answerNote {
+  font-size: 11px;
+  color: #8a6a50;
+  margin: 0;
+  line-height: 1.6;
 }
 
 /* 문의 */

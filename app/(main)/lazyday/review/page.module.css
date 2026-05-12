@@ -169,9 +169,11 @@
   gap: 16px;
 }
 
-.successEmoji {
-  font-size: 48px;
-  margin: 0;
+.successLogo {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.85;
 }
 
 .successTitle {
@@ -188,4 +190,21 @@
   color: #6a5038;
   margin: 0;
   line-height: 1.7;
+}
+
+.successButton {
+  display: inline-block;
+  padding: 14px 32px;
+  background-color: #d2691e;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+  margin-top: 8px;
+}
+
+.successButton:hover {
+  background-color: #b8571a;
 }

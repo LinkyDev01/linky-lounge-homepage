@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type FormEvent, type ReactNode } from "react"
+import Image from "next/image"
 import { FadeUp } from "@/components/animation/FadeUp"
 import styles from "./page.module.css"
 
@@ -65,9 +66,23 @@ export default function ReviewPage() {
     return (
       <div className={styles.successPage}>
         <div className={styles.successInner}>
-          <p className={styles.successEmoji}>🙏</p>
+          <Image
+            src="/linky-lounge/book-club/ldbc-logo-text.png"
+            alt="레이지데이 북클럽"
+            width={417}
+            height={240}
+            className={styles.successLogo}
+          />
           <h2 className={styles.successTitle}>후기를 남겨주셔서<br />감사해요</h2>
           <p className={styles.successDesc}>소중한 이야기가 다음 멤버들에게<br />닿을 수 있도록 잘 사용할게요.</p>
+          <a
+            href="https://www.instagram.com/linky_lounge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.successButton}
+          >
+            인스타그램 보러가기
+          </a>
         </div>
       </div>
     )

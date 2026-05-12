@@ -11,28 +11,27 @@
 }
 
 .card {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
   background: rgba(255, 255, 255, 0.85);
   border-radius: 14px;
   padding: 18px 20px;
-  border: 1px solid rgba(210, 105, 30, 0.12);
+  border: 1px solid rgba(210, 105, 30, 0.15);
 }
 
-.cardKey {
-  flex: 0 0 30%;
-  font-size: 15px;
+.cardTitle {
+  font-size: 17px;
   font-weight: 700;
-  color: #d2691e;
-  line-height: 1.6;
+  color: #1a1208;
+  line-height: 1.4;
   letter-spacing: -0.01em;
-  padding-top: 1px;
+  margin: 0 0 10px;
   word-break: keep-all;
 }
 
+.accent {
+  color: #d2691e;
+}
+
 .cardDesc {
-  flex: 1;
   font-size: 14px;
   line-height: 1.85;
   color: #4a3020;
@@ -42,13 +41,12 @@
 }
 
 @media (max-width: 480px) {
-  .card { gap: 14px; }
-  .cardKey { font-size: 14px; flex: 0 0 28%; }
+  .cardTitle { font-size: 16px; }
   .cardDesc { font-size: 13px; }
 }
 
 @media (min-width: 768px) {
   .section { padding-left: 56px; padding-right: 56px; }
-  .cardKey { font-size: 16px; }
+  .cardTitle { font-size: 18px; }
   .cardDesc { font-size: 15px; }
 }

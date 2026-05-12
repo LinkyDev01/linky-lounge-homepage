@@ -10,7 +10,7 @@ const items = [
     ],
   },
   {
-    label: <>사유의 <span className={styles.accent}>밀도</span>를 높일 질문을 던져요</>,
+    label: <><span className={styles.accent}>사유의 밀도</span>를 높일 질문을 던져요</>,
     paragraphs: [
       "레이지데이 북클럽의 모임장은 정답을 주는 사람이 아니에요. 사고의 확장을 돕는 질문을 던지며, 각자의 목소리가 자연스럽게 꺼내질 수 있도록 곁에서 조율합니다.",
     ],

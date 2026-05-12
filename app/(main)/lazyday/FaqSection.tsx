@@ -8,14 +8,16 @@ import { FadeUp } from "@/components/animation/FadeUp"
 
 type Faq = {
   id?: string
-  q: string
+  key: string
+  q: ReactNode
   a: ReactNode
   sub?: string
 }
 
 const faqs: Faq[] = [
   {
-    q: "인터뷰는 왜 하나요?",
+    key: "interview",
+    q: <><strong className={styles.questionStrong}>인터뷰</strong>는 왜 하나요?</>,
     a: (
       <>
         서로의 결을 가늠하는 자리예요. 두 가지 방식 중 편한 걸 선택할 수 있어요.
@@ -27,7 +29,8 @@ const faqs: Faq[] = [
     ),
   },
   {
-    q: "참가비에는 어떤 것들이 포함되어 있나요?",
+    key: "price",
+    q: <><strong className={styles.questionStrong}>참가비</strong>에는 어떤 것들이 포함되어 있나요?</>,
     a: (
       <>
         <strong className={styles.answerStrong}>공간 운영</strong>, <strong className={styles.answerStrong}>모임 기획과 진행</strong>, <strong className={styles.answerStrong}>다과</strong>, <strong className={styles.answerStrong}>커뮤니티 운영</strong>이 포함됩니다. 직접 관리하는 약 30평 규모의 공간에서 진행하고, 일관된 모임 경험을 위하여 인터뷰부터 모임 당일 진행까지 모든 과정을 레이지데이가 함께하고 있습니다.
@@ -35,6 +38,7 @@ const faqs: Faq[] = [
     ),
   },
   {
+    key: "book-select",
     q: "책은 어떤 기준으로 고르나요?",
     a: (
       <>
@@ -43,6 +47,7 @@ const faqs: Faq[] = [
     ),
   },
   {
+    key: "book-read",
     q: "책을 다 읽고 와야 하나요?",
     a: (
       <>
@@ -51,6 +56,7 @@ const faqs: Faq[] = [
     ),
   },
   {
+    key: "location",
     q: "모임은 어디에서 진행하나요?",
     a: (
       <>
@@ -61,7 +67,8 @@ const faqs: Faq[] = [
   },
   {
     id: "gathering",
-    q: "정기 독서모임 외 함께하는 시간이 있나요?",
+    key: "gathering",
+    q: <>정기 독서모임 외 <strong className={styles.questionStrong}>함께하는 시간</strong>이 있나요?</>,
     a: (
       <>
         <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 포틀럭 파티입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다.
@@ -73,11 +80,11 @@ const faqs: Faq[] = [
 export function FaqSection() {
   const [openSet, setOpenSet] = useState<Set<string>>(new Set())
 
-  const toggle = (q: string) => {
+  const toggle = (key: string) => {
     setOpenSet(prev => {
       const next = new Set(prev)
-      if (next.has(q)) next.delete(q)
-      else next.add(q)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
       return next
     })
   }
@@ -92,13 +99,13 @@ export function FaqSection() {
 
       <div className={styles.list}>
         {faqs.map((faq, i) => {
-          const isOpen = openSet.has(faq.q)
+          const isOpen = openSet.has(faq.key)
           return (
-            <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
+            <FadeUp key={faq.key} delay={0.1 + i * 0.06}>
               <div id={faq.id} className={styles.item}>
                 <button
                   className={styles.titleBox}
-                  onClick={() => toggle(faq.q)}
+                  onClick={() => toggle(faq.key)}
                   aria-expanded={isOpen}
                 >
                   <span className={styles.question}>{faq.q}</span>

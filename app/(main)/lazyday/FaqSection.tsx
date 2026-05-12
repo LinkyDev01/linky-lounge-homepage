@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import type { ReactNode } from "react"
-import Image from "next/image"
 import styles from "./FaqSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
@@ -74,9 +73,10 @@ const faqs: Faq[] = [
     noPeek: true,
     a: (
       <>
-        <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 포틀럭 파티입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다.
+        <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 뒷풀이입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다.
       </>
     ),
+    sub: "*소정의 참가비(1만원)가 있습니다",
   },
 ]
 
@@ -145,7 +145,7 @@ export function FaqSection() {
         })}
       </div>
 
-      <FadeUp delay={0.4}>
+      <FadeUp delay={0.5}>
         <div className={styles.contact}>
           <p className={styles.contactText}>다른 질문이 있어요</p>
           <a
@@ -156,18 +156,6 @@ export function FaqSection() {
           >
             인스타그램 DM으로 편하게 물어보세요 →
           </a>
-        </div>
-      </FadeUp>
-
-      <FadeUp delay={0.5}>
-        <div className={styles.logoWrap}>
-          <Image
-            src="/linky-lounge/book-club/ldbc-logo-text.png"
-            alt="레이지데이 북클럽"
-            width={417}
-            height={240}
-            style={{ objectFit: "contain", opacity: 0.85 }}
-          />
         </div>
       </FadeUp>
     </section>

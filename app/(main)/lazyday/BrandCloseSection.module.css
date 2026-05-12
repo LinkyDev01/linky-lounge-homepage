@@ -1,0 +1,14 @@
+.section {
+  background-color: #f5ede4;
+  padding: 56px 24px 80px;
+  word-break: keep-all;
+}
+
+.logoWrap {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 64px 56px 96px; }
+}

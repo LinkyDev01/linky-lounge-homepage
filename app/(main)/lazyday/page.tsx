@@ -11,6 +11,7 @@ import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
 import { FaqSection } from "./FaqSection"
 import { FeatureBoxSection } from "./FeatureBoxSection"
+import { BrandCloseSection } from "./BrandCloseSection"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
@@ -35,6 +36,7 @@ export default function StudyForeignPage() {
         <HowToSection />
         <ScheduleSection />
         <FaqSection />
+        <BrandCloseSection />
       </main>
 
       <SectionIndicator />

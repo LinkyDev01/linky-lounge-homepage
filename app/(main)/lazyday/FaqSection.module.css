@@ -1,6 +1,6 @@
 .section {
-  background-color: #ede0d0;
-  padding: 48px 24px 0;
+  background-color: #ddd2c8;
+  padding: 48px 24px 56px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
@@ -141,7 +141,7 @@
 
 .fadeBg {
   height: 36px;
-  background: linear-gradient(to bottom, transparent, #ede0d0);
+  background: linear-gradient(to bottom, transparent, #ddd2c8);
 }
 
 .moreHint {
@@ -149,14 +149,14 @@
   font-size: 12px;
   font-weight: 500;
   color: #9a8878;
-  background: #ede0d0;
+  background: #ddd2c8;
   padding: 0;
 }
 
 .answerNote {
   font-size: 11px;
-  color: #8a6a50;
-  margin: 0;
+  color: #9a9590;
+  margin: 4px 0 0;
   line-height: 1.6;
 }
 

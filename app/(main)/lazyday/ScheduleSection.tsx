@@ -17,7 +17,7 @@ export function ScheduleSection() {
     <section id="schedule" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>모임 일정 <span className={styles.titleSub}>(격주)</span></h2>
+          <h2 className={styles.sectionTitle}>일정·장소</h2>
           <p className={styles.note}>*회차별 목·일 중<br />참여 요일 선택 가능</p>
         </div>
       </FadeUp>
@@ -50,6 +50,16 @@ export function ScheduleSection() {
                 <span className={styles.dateText}>7/12 (일)</span>
                 <span className={styles.timeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
               </div>
+            </div>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.48}>
+          <div className={styles.locationRow}>
+            <span className={styles.locationLabel}>장소</span>
+            <div className={styles.locationInfo}>
+              <span className={styles.locationName}>링키라운지</span>
+              <span className={styles.locationSub}>사당역 10번 출구 도보 3분</span>
             </div>
           </div>
         </FadeUp>

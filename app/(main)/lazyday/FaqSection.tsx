@@ -1,6 +1,3 @@
-"use client"
-
-import { useState } from "react"
 import type { ReactNode } from "react"
 import Image from "next/image"
 import styles from "./FaqSection.module.css"
@@ -12,13 +9,11 @@ type Faq = {
   q: string
   a: ReactNode
   sub?: string
-  accordion?: boolean
 }
 
 const faqs: Faq[] = [
   {
     q: "인터뷰는 왜 하나요?",
-    accordion: true,
     a: (
       <>
         서로의 결을 가늠하는 자리예요. 두 가지 방식 중 편한 걸 선택할 수 있어요.
@@ -50,54 +45,24 @@ const faqs: Faq[] = [
 ]
 
 export function FaqSection() {
-  const [openSet, setOpenSet] = useState<Set<string>>(new Set())
-
-  const toggle = (q: string) => {
-    setOpenSet(prev => {
-      const next = new Set(prev)
-      if (next.has(q)) next.delete(q)
-      else next.add(q)
-      return next
-    })
-  }
-
   return (
     <section id="faq" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+<h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
         </div>
       </FadeUp>
 
       <div className={styles.list}>
-        {faqs.map((faq, i) => {
-          const isOpen = openSet.has(faq.q)
-          return (
-            <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
-              <div id={faq.id} className={styles.item}>
-                <p className={styles.question}>{faq.q}</p>
-                {faq.accordion ? (
-                  <>
-                    <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
-                      <p className={styles.answer}>{faq.a}</p>
-                      {!isOpen && <div className={styles.peekFade} />}
-                    </div>
-                    <button
-                      className={styles.toggleBtn}
-                      onClick={() => toggle(faq.q)}
-                      aria-expanded={isOpen}
-                    >
-                      {isOpen ? '접기 ↑' : '더 보기 ↓'}
-                    </button>
-                  </>
-                ) : (
-                  <p className={styles.answer}>{faq.a}</p>
-                )}
-                {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
-              </div>
-            </FadeUp>
-          )
-        })}
+        {faqs.map((faq, i) => (
+          <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
+            <div id={faq.id} className={styles.item}>
+              <p className={styles.question}>{faq.q}</p>
+              <p className={styles.answer}>{faq.a}</p>
+              {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
+            </div>
+          </FadeUp>
+        ))}
       </div>
 
       <FadeUp delay={0.4}>

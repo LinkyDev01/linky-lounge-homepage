@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import type { ReactNode } from "react"
 import styles from './VibeSection.module.css'
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -7,6 +10,7 @@ const items: {
   question: ReactNode
   key: string
   paragraphs: string[]
+  accordion?: boolean
 }[] = [
   {
     key: '어떤 대화',
@@ -16,6 +20,7 @@ const items: {
       '하지만, 레이지데이에서는 열린 질문을 통해 서로의 이야기를 꺼내며 각자의 시각이 넓어집니다.',
       '함께하는 모임장은 정답을 주는 사람이 아니라, 여러분의 생각과 목소리가 꺼내질 수 있도록 곁에서 돕기 때문이에요.',
     ],
+    accordion: true,
   },
   {
     key: '어떤 사람',
@@ -27,6 +32,17 @@ const items: {
 ]
 
 export function VibeSection() {
+  const [openKeys, setOpenKeys] = useState<Set<string>>(new Set())
+
+  const toggle = (key: string) => {
+    setOpenKeys(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
   return (
     <section id="vibe" className={styles.section}>
       <FadeUp>
@@ -35,17 +51,7 @@ export function VibeSection() {
         </div>
       </FadeUp>
       <div className={styles.list}>
-        {items.map(({ key, question, paragraphs }, i) => (
-          <FadeUp key={key} delay={0.1 + i * 0.1} className={styles.block}>
-            <p className={styles.question}>{question}</p>
-            <div className={styles.quote}>
-              {paragraphs.map((p, j) => (
-                <p key={j} className={styles.paragraph}>{p}</p>
-              ))}
-            </div>
-          </FadeUp>
-        ))}
-      </div>
-    </section>
-  )
-}
+        {items.map(({ key, question, paragraphs, accordion }, i) => {
+          const isOpen = openKeys.has(key)
+          return (
+            <F

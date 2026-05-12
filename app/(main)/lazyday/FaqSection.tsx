@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import type { ReactNode } from "react"
 import Image from "next/image"
 import styles from "./FaqSection.module.css"
@@ -9,11 +12,13 @@ type Faq = {
   q: string
   a: ReactNode
   sub?: string
+  accordion?: boolean
 }
 
 const faqs: Faq[] = [
   {
     q: "인터뷰는 왜 하나요?",
+    accordion: true,
     a: (
       <>
         서로의 결을 가늠하는 자리예요. 두 가지 방식 중 편한 걸 선택할 수 있어요.
@@ -45,6 +50,17 @@ const faqs: Faq[] = [
 ]
 
 export function FaqSection() {
+  const [openSet, setOpenSet] = useState<Set<string>>(new Set())
+
+  const toggle = (q: string) => {
+    setOpenSet(prev => {
+      const next = new Set(prev)
+      if (next.has(q)) next.delete(q)
+      else next.add(q)
+      return next
+    })
+  }
+
   return (
     <section id="faq" className={styles.section}>
       <FadeUp>
@@ -54,42 +70,5 @@ export function FaqSection() {
       </FadeUp>
 
       <div className={styles.list}>
-        {faqs.map((faq, i) => (
-          <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
-            <div id={faq.id} className={styles.item}>
-              <p className={styles.question}>{faq.q}</p>
-              <p className={styles.answer}>{faq.a}</p>
-              {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
-            </div>
-          </FadeUp>
-        ))}
-      </div>
-
-      <FadeUp delay={0.4}>
-        <div className={styles.contact}>
-          <p className={styles.contactText}>다른 질문이 있어요</p>
-          <a
-            href="https://www.instagram.com/linky_lounge"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.contactLink}
-          >
-            인스타그램 DM으로 편하게 물어보세요 →
-          </a>
-        </div>
-      </FadeUp>
-
-      <FadeUp delay={0.5}>
-        <div className={styles.logoWrap}>
-          <Image
-            src="/linky-lounge/book-club/ldbc-logo-text.png"
-            alt="레이지데이 북클럽"
-            width={417}
-            height={240}
-            style={{ objectFit: "contain", opacity: 0.85 }}
-          />
-        </div>
-      </FadeUp>
-    </section>
-  )
-}
+        {faqs.map((faq, i) => {
+          

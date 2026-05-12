@@ -91,17 +91,18 @@
   margin-bottom: 0;
 }
 
-.mark {
-  width: 96px;
-  height: 96px;
-  flex-shrink: 0;
-  margin-left: -9px;
+/* Accordion peek */
+.peekWrap {
+  position: relative;
+  max-height: 54px;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
 }
 
-@media (max-width: 480px) {
-  .mark { width: 76px; height: 76px; }
+.peekOpen {
+  max-height: 400px;
 }
 
-@media (min-width: 768px) {
-  .section { padding: 28px 56px; }
-}
+.peekFade {
+  position: absolute;
+  bottom: 0

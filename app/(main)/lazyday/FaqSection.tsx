@@ -11,13 +11,11 @@ type Faq = {
   q: string
   a: ReactNode
   sub?: string
-  accordion?: boolean
 }
 
 const faqs: Faq[] = [
   {
     q: "인터뷰는 왜 하나요?",
-    accordion: true,
     a: (
       <>
         서로의 결을 가늠하는 자리예요. 두 가지 방식 중 편한 걸 선택할 수 있어요.
@@ -87,23 +85,17 @@ export function FaqSection() {
             <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
               <div id={faq.id} className={styles.item}>
                 <p className={styles.question}>{faq.q}</p>
-                {faq.accordion ? (
-                  <>
-                    <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
-                      <p className={styles.answer}>{faq.a}</p>
-                      {!isOpen && <div className={styles.peekFade} />}
-                    </div>
-                    <button
-                      className={styles.toggleBtn}
-                      onClick={() => toggle(faq.q)}
-                      aria-expanded={isOpen}
-                    >
-                      {isOpen ? '접기 ↑' : '더 보기 ↓'}
-                    </button>
-                  </>
-                ) : (
+                <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
                   <p className={styles.answer}>{faq.a}</p>
-                )}
+                  {!isOpen && <div className={styles.peekFade} />}
+                </div>
+                <button
+                  className={styles.toggleBtn}
+                  onClick={() => toggle(faq.q)}
+                  aria-expanded={isOpen}
+                >
+                  {isOpen ? '접기 ↑' : '더 보기 →'}
+                </button>
                 {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
               </div>
             </FadeUp>

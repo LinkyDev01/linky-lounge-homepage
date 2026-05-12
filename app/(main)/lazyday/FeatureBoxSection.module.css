@@ -4,26 +4,35 @@
   word-break: keep-all;
 }
 
-.list {
+.box {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(210, 105, 30, 0.18);
+  background: #f5ede4;
+}
+
+.item {
+  border-bottom: 0.5px solid rgba(210, 105, 30, 0.18);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
   gap: 10px;
 }
 
-.card {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
-  padding: 18px 20px;
-  border: 1px solid rgba(210, 105, 30, 0.15);
-}
-
-.cardTitle {
-  font-size: 17px;
+.label {
+  font-size: 16px;
   font-weight: 700;
   color: #1a1208;
-  line-height: 1.4;
+  line-height: 1.35;
   letter-spacing: -0.01em;
-  margin: 0 0 10px;
   word-break: keep-all;
 }
 
@@ -31,9 +40,25 @@
   color: #d2691e;
 }
 
-.cardDesc {
+.chevron {
   font-size: 14px;
-  line-height: 1.85;
+  color: #b08060;
+  flex-shrink: 0;
+}
+
+.body {
+  padding: 0 20px 16px;
+}
+
+.quote {
+  border-left: 3px solid #d2691e;
+  padding-left: 14px;
+  border-radius: 0;
+}
+
+.desc {
+  font-size: 13px;
+  line-height: 1.78;
   color: #4a3020;
   margin: 0;
   word-break: keep-all;
@@ -41,12 +66,12 @@
 }
 
 @media (max-width: 480px) {
-  .cardTitle { font-size: 16px; }
-  .cardDesc { font-size: 13px; }
+  .label { font-size: 15px; }
+  .desc { font-size: 13px; }
 }
 
 @media (min-width: 768px) {
   .section { padding-left: 56px; padding-right: 56px; }
-  .cardTitle { font-size: 18px; }
-  .cardDesc { font-size: 15px; }
+  .label { font-size: 17px; }
+  .desc { font-size: 14px; }
 }

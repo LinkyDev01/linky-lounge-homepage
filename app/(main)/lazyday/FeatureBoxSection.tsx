@@ -23,12 +23,17 @@ const items = [
 export function FeatureBoxSection() {
   return (
     <section className={styles.section}>
-      <div className={styles.list}>
+      <div className={styles.box}>
         {items.map((item, i) => (
-          <FadeUp key={i} delay={0.07 * i}>
-            <div className={styles.card}>
-              <p className={styles.cardTitle}>{item.label}</p>
-              <p className={styles.cardDesc}>{item.desc}</p>
+          <FadeUp key={i} delay={0.07 * i} className={styles.item}>
+            <div className={styles.header}>
+              <span className={styles.label}>{item.label}</span>
+              <span className={styles.chevron}>▾</span>
+            </div>
+            <div className={styles.body}>
+              <div className={styles.quote}>
+                <p className={styles.desc}>{item.desc}</p>
+              </div>
             </div>
           </FadeUp>
         ))}

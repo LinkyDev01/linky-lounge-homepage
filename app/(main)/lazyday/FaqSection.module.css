@@ -63,7 +63,7 @@
   width: 100%;
   padding: 12px 16px;
   border-radius: 10px;
-  border: 1px solid #c4a078;
+  border: 1px solid rgba(0, 0, 0, 0.18);
   background: #ede0d0;
   cursor: pointer;
   text-align: left;

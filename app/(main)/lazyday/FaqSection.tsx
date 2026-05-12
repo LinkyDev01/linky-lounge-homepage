@@ -12,6 +12,7 @@ type Faq = {
   q: ReactNode
   a: ReactNode
   sub?: string
+  noPeek?: boolean
 }
 
 const faqs: Faq[] = [
@@ -58,6 +59,7 @@ const faqs: Faq[] = [
   {
     key: "location",
     q: "모임은 어디에서 진행하나요?",
+    noPeek: true,
     a: (
       <>
         모든 모임은 <strong className={styles.answerStrong}>링키라운지</strong>(사당역 10번 출구 4분 거리)에서 진행합니다.
@@ -69,6 +71,7 @@ const faqs: Faq[] = [
     id: "gathering",
     key: "gathering",
     q: <>정기 독서모임 외 <strong className={styles.questionStrong}>함께하는 시간</strong>이 있나요?</>,
+    noPeek: true,
     a: (
       <>
         <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 포틀럭 파티입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다.
@@ -109,20 +112,33 @@ export function FaqSection() {
                   aria-expanded={isOpen}
                 >
                   <span className={styles.question}>{faq.q}</span>
-                  <span className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ''}`}>▾</span>
+                  {!faq.noPeek && (
+                    <span className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ''}`}>▾</span>
+                  )}
                 </button>
-                <div className={styles.quote}>
-                  <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
+                {faq.noPeek ? (
+                  <div className={styles.quote}>
                     <p className={styles.answer}>{faq.a}</p>
-                    {!isOpen && (
-                      <div className={styles.fadeWrap}>
-                        <div className={styles.fadeBg} />
-                        <span className={styles.moreHint}>...더보기</span>
-                      </div>
-                    )}
+                    {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
                   </div>
-                </div>
-                {faq.sub && isOpen && <p className={styles.answerNote}>{faq.sub}</p>}
+                ) : (
+                  <div
+                    className={styles.quote}
+                    onClick={() => toggle(faq.key)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
+                      <p className={styles.answer}>{faq.a}</p>
+                      {!isOpen && (
+                        <div className={styles.fadeWrap}>
+                          <div className={styles.fadeBg} />
+                          <span className={styles.moreHint}>...더보기</span>
+                        </div>
+                      )}
+                    </div>
+                    {faq.sub && isOpen && <p className={styles.answerNote}>{faq.sub}</p>}
+                  </div>
+                )}
               </div>
             </FadeUp>
           )

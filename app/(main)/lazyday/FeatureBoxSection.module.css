@@ -7,20 +7,33 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 12px;
 }
 
-.block {
+.card {
+  background-color: #fdf6ef;
+  border: 1px solid rgba(210, 105, 30, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cardHeader {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 12px;
 }
 
-.question {
-  font-size: 20px;
+.cardTitle {
+  font-size: 17px;
   font-weight: 700;
   color: #1a1208;
-  margin: 0;
   line-height: 1.4;
   letter-spacing: -0.01em;
   word-break: keep-all;
@@ -30,23 +43,53 @@
   color: #d2691e;
 }
 
-.quote {
-  border-left: 3px solid #d2691e;
-  padding-left: 16px;
+.arrow {
+  font-size: 18px;
+  color: #d2691e;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  display: inline-block;
 }
 
-.paragraph {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #4a3020;
+.arrowOpen {
+  transform: rotate(180deg);
+}
+
+/* peek / accordion */
+.peekWrap {
+  position: relative;
+  max-height: 56px;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.peekOpen {
+  max-height: 400px;
+}
+
+.peekFade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #fdf6ef);
+  pointer-events: none;
+}
+
+.desc {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #5a3820;
   margin: 0;
+  padding: 0 20px 18px;
   word-break: keep-all;
   text-wrap: pretty;
 }
 
 @media (max-width: 480px) {
-  .question { font-size: 18px; }
-  .paragraph { font-size: 14px; }
+  .cardTitle { font-size: 16px; }
+  .desc { font-size: 13px; }
 }
 
 @media (min-width: 768px) {

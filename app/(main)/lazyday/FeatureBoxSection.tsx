@@ -3,7 +3,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
 
 const items = [
   {
-    label: <><span className={styles.accent}>어떤 사람들</span>과 함께하나요?</>,
+    label: <><span className={styles.accent}>이런 분들</span>과 함께해요</>,
     paragraphs: [
       "자기개발도 좋지만, 문학·철학·예술을 통해 평소에 닿기 어려운 시각을 경험해보고 싶은 분들이 오세요.",
     ],

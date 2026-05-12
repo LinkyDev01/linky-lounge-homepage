@@ -47,11 +47,42 @@ export function VibeSection() {
     <section id="vibe" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-<h2 className={styles.sectionTitle}>레이지데이의 <span className={styles.accent}>결</span></h2>
+          <h2 className={styles.sectionTitle}>레이지데이의 <span className={styles.accent}>결</span></h2>
         </div>
       </FadeUp>
       <div className={styles.list}>
         {items.map(({ key, question, paragraphs, accordion }, i) => {
           const isOpen = openKeys.has(key)
           return (
-            <F
+            <FadeUp key={key} delay={0.1 + i * 0.1} className={styles.block}>
+              <p className={styles.question}>{question}</p>
+              <div className={styles.quote}>
+                {accordion ? (
+                  <>
+                    <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
+                      {paragraphs.map((p, j) => (
+                        <p key={j} className={styles.paragraph}>{p}</p>
+                      ))}
+                      {!isOpen && <div className={styles.peekFade} />}
+                    </div>
+                    <button
+                      className={styles.toggleBtn}
+                      onClick={() => toggle(key)}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? '접기 ↑' : '더 보기 ↓'}
+                    </button>
+                  </>
+                ) : (
+                  paragraphs.map((p, j) => (
+                    <p key={j} className={styles.paragraph}>{p}</p>
+                  ))
+                )}
+              </div>
+            </FadeUp>
+          )
+        })}
+      </div>
+    </section>
+  )
+}

@@ -100,27 +100,36 @@
   line-height: 1.6;
 }
 
-/* Accordion peek */
-.peekWrap {
-  position: relative;
-  max-height: 52px;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
+/* 문의 */
+.contact {
+  padding: 40px 0;
 }
 
-.peekOpen {
-  max-height: 500px;
+.contactText {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1208;
+  margin: 0 0 10px;
 }
 
-.peekFade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 36px;
-  background: linear-gradient(to bottom, transparent, #ede0d0);
-  pointer-events: none;
+.contactLink {
+  font-size: 14px;
+  color: #d2691e;
+  text-decoration: none;
+  line-height: 1.6;
+  transition: opacity 0.15s ease;
 }
 
-.toggleBtn {
-  display: inline-block;
+.contactLink:hover {
+  opacity: 0.75;
+}
+
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0 64px;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 28px 56px 0; }
+}

@@ -65,10 +65,66 @@ export function FaqSection() {
     <section id="faq" className={styles.section}>
       <FadeUp>
         <div className={styles.titleRow}>
-<h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
+          <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
         </div>
       </FadeUp>
 
       <div className={styles.list}>
         {faqs.map((faq, i) => {
-          
+          const isOpen = openSet.has(faq.q)
+          return (
+            <FadeUp key={faq.q} delay={0.1 + i * 0.06}>
+              <div id={faq.id} className={styles.item}>
+                <p className={styles.question}>{faq.q}</p>
+                {faq.accordion ? (
+                  <>
+                    <div className={isOpen ? `${styles.peekWrap} ${styles.peekOpen}` : styles.peekWrap}>
+                      <p className={styles.answer}>{faq.a}</p>
+                      {!isOpen && <div className={styles.peekFade} />}
+                    </div>
+                    <button
+                      className={styles.toggleBtn}
+                      onClick={() => toggle(faq.q)}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? '접기 ↑' : '더 보기 ↓'}
+                    </button>
+                  </>
+                ) : (
+                  <p className={styles.answer}>{faq.a}</p>
+                )}
+                {faq.sub && <p className={styles.answerNote}>{faq.sub}</p>}
+              </div>
+            </FadeUp>
+          )
+        })}
+      </div>
+
+      <FadeUp delay={0.4}>
+        <div className={styles.contact}>
+          <p className={styles.contactText}>다른 질문이 있어요</p>
+          <a
+            href="https://www.instagram.com/linky_lounge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.contactLink}
+          >
+            인스타그램 DM으로 편하게 물어보세요 →
+          </a>
+        </div>
+      </FadeUp>
+
+      <FadeUp delay={0.5}>
+        <div className={styles.logoWrap}>
+          <Image
+            src="/linky-lounge/book-club/ldbc-logo-text.png"
+            alt="레이지데이 북클럽"
+            width={417}
+            height={240}
+            style={{ objectFit: "contain", opacity: 0.85 }}
+          />
+        </div>
+      </FadeUp>
+    </section>
+  )
+}

@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { MetaPixelTracker } from "@/components/meta-pixel-tracker"
 import "./globals.css"
 
-const META_PIXEL_ID = "1350610706836537"
+const META_PIXEL_ID = "1691559202269440"
 const GA_MEASUREMENT_ID = "G-3B2E7FK9MJ"
 
 const _geist = Geist({ subsets: ["latin"] })

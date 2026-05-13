@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { FadeUp } from "@/components/animation/FadeUp"
 import styles from "./page.module.css"
 
@@ -117,6 +117,7 @@ export default function InterviewSchedulePage() {
   const [prefillPhone, setPrefillPhone] = useState("")
   const [ref1Open,     setRef1Open]     = useState(false)
   const [ref2Open,     setRef2Open]     = useState(false)
+  const hasAutoSelected = useRef(false)
 
   useEffect(() => {
     try {
@@ -128,6 +129,30 @@ export default function InterviewSchedulePage() {
       }
     } catch {}
   }, [])
+
+  // 슬롯 로딩 완료 후 — 오늘 날짜 + 가장 빠른 슬롯 자동 선택 (최초 1회)
+  useEffect(() => {
+    if (slotsLoading || hasAutoSelected.current) return
+    hasAutoSelected.current = true
+
+    const kstMs = Date.now() + 9 * 3600_000
+    const d = new Date(kstMs)
+    const todayCell = {
+      year: d.getUTCFullYear(),
+      month: d.getUTCMonth(),
+      date: d.getUTCDate(),
+      dow:  d.getUTCDay(),
+    }
+    const todaySlots = slotsForDay(
+      todayCell.year, todayCell.month, todayCell.date, todayCell.dow,
+      nowUTCMs, bookedKeys
+    )
+    const firstAvail = todaySlots.find(s => !s.booked)
+    if (firstAvail) {
+      setSelectedDate(todayCell)
+      setSelectedSlot(firstAvail)
+    }
+  }, [slotsLoading, bookedKeys, nowUTCMs])
 
   useEffect(() => {
     fetch("/api/lazyday/interview/slots")

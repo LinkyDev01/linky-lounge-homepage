@@ -236,12 +236,12 @@ export default function WrittenInterviewPage() {
                 >
                   <div className={styles.refQuote}>
                     <p className={styles.refAnswer}>저희가 정의 내린 결은, 사람마다 살아온 환경·경험으로 몸에 밴, 무의식적인 판단·반응의 패턴이에요. 한 줄로 정리하면 <strong className={styles.refStrong}>결 = 한 사람의 아비투스</strong>입니다.</p>
-                    <p className={styles.refAnswer}>아비투스는 그 사람이 쌓아온 것들이 담기는 그릇이지만, 그것들이 작동하는 방식까지 포함합니다. 책·공간·말투 같은 쌓인 자산만이 아니라, 그 사람의 기질·리듬·감도까지 함께 품는 더 큰 개념이에요.</p>
-                    <p className={styles.refAnswer}>결국 "결이 맞다"는 두 사람의 아비투스가 어긋나지 않고 맞물려 움직이는 상태예요. 단순히 취향이 비슷하다는 게 아니에요.</p>
-                    <p className={styles.refAnswer}>같은 책을 읽었는데 누구는 주인공의 마지막 대사를 곱씹고 누구는 배경 묘사 한 줄에 멈춰 있는 것. 무거운 얘기가 나왔을 때 농담으로 풀어주는 사람이 있고 같이 침묵해주는 사람이 있는 것. 이런 미세한 차이가 결의 신호예요.</p>
-                    <p className={styles.refAnswer}>친밀함이나 익숙함과는 좀 달라요. 처음 본 사이여도 결이 맞으면 통하고, 친한 사이여도 결이 다르면 어색하거든요. 굳이 설명하지 않아도 문장 사이의 맥락이 읽히는, 그런 종류의 편안함입니다.</p>
-                    <p className={styles.refAnswer}>정리하면, 결이 맞는 사람이란 <strong className={styles.refStrong}>"같은 자리에서, 같은 호흡으로, 같이 머물 수 있는 사람"</strong>이에요.</p>
                     <p className={styles.refFootnote}>* 아비투스(Habitus) : 부르디외라는 사회학자가 쓴 개념. 의식하지 않고 저절로 작동하는 감각·반응·선택의 패턴. "왜 이게 좋지? 왜 저건 거슬리지?"의 답이 이미 몸 안에 있는 상태.</p>
+                    <p className={styles.refAnswer}>아비투스는 그 사람이 쌓아온 것들이 담기는 그릇이지만, 그것들이 작동하는 방식까지 포함합니다. 즉 책·경험·말투 같은 쌓인 문화자본만이 아니라, 그 사람의 기질·리듬·감도까지 함께 품는 더 큰 개념이에요.</p>
+                    <p className={styles.refAnswer}>결국 "결이 맞다"는 두 사람의 아비투스가 어긋나지 않고 맞물려 움직이는 상태예요. 단순히 취향이 비슷하다는 게 아니에요.</p>
+                    <p className={styles.refAnswer}>한 사람이 어떤 문장 앞에서 한참 멈춰 있을 때 다른 사람이 그 멈춤을 같이 견디는 것. 한 사람이 풀어내려 한 생각을 다른 사람이 자기 언어로 이어받는 것. 같은 자리에서 누가 말하고 누가 침묵할지가 자연스럽게 정해지는 것. 이게 두 사람의 결이 맞물려 움직이는 모습이에요.</p>
+                    <p className={styles.refAnswer}>결이 맞으면 자연스럽게 따라오는 게 있어요. 굳이 설명하지 않아도 맥락이 읽히는 편안함. 친밀함이나 익숙함과는 좀 다른 편안함이에요. 처음 본 사이여도 결이 맞으면 그 편안함이 생기고, 오래 본 사이여도 결이 다르면 안 생기거든요.</p>
+                    <p className={styles.refAnswer}>정리하면, 결이 맞는다는 건 두 사람의 아비투스가 공명한다는 뜻이에요.</p>
                   </div>
                   {!ref1Open && (
                     <div className={styles.refFadeWrap}>

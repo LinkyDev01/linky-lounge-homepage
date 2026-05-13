@@ -226,13 +226,17 @@ function handlePhoneInterviewBooking(data) {
 function handleWrittenInterview(data) {
   const name = data.name || '', phone = data.phone || '', answers = data.answers || {};
 
-  // 스프레드시트 저장 — "서면 인터뷰" 시트 (없으면 자동 생성)
+  // 스프레드시트 저장 — "서면 인터뷰 0513" 시트로 분리 (기존 데이터 보존)
   const ss = SpreadsheetApp.openById(SHEET_ID);
-  let sheet = ss.getSheetByName('서면 인터뷰');
+  let sheet = ss.getSheetByName('서면 인터뷰 0513');
   if (!sheet) {
-    sheet = ss.insertSheet('서면 인터뷰');
-    sheet.appendRow(['제출일시','이름','연락처','Q1','Q2','Q3','Q4','Q5','Q6']);
-    sheet.getRange(1,1,1,9).setFontWeight('bold').setBackground('#f5ede4');
+    sheet = ss.insertSheet('서면 인터뷰 0513');
+    sheet.appendRow([
+      '제출일시', '이름', '연락처',
+      'Q1. 레이지데이와 책', 'Q2. 오래 붙들어본 주제', 'Q3. 흔든 작품',
+      'Q4. 다르게 본 개념·통념', 'Q5. 매력·이성 마찰', 'Q6. 모임에 던지는 질문'
+    ]);
+    sheet.getRange(1,1,1,9).setFontWeight('bold').setBackground('#f5ede4').setFontColor('#1a1208');
     sheet.setFrozenRows(1);
   }
   sheet.appendRow([new Date(), name, phone,
@@ -254,12 +258,19 @@ function handleWrittenInterview(data) {
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL, '[레이지데이 북클럽] 서면 인터뷰 — ' + name + '님',
     '서면 인터뷰 답변이 접수되었습니다.\n\n이름: ' + name + '\n연락처: ' + phone + '\n\n' +
-    'Q1. ' + (answers.q1||'(미작성)') + '\n\n' +
-    'Q2. ' + (answers.q2||'(미작성)') + '\n\n' +
-    'Q3. ' + (answers.q3||'(미작성)') + '\n\n' +
-    'Q4. ' + (answers.q4||'(미작성)') + '\n\n' +
-    'Q5. ' + (answers.q5||'(미작성)') + '\n\n' +
-    'Q6. ' + (answers.q6||'(미작성)')
+    '─────────────────────────────\n\n' +
+    'Q1. 당신에게 \'레이지데이(=여유롭고 느긋한 하루)\'는 어떤 모습인가요? 그 자리에 책 한 권이 같이 있다면 어떤 책일까요?\n' +
+    (answers.q1||'(미작성)') + '\n\n' +
+    'Q2. 한 가지 주제를 오래 붙들어본 적이 있나요? (\'개념에 대한 정의\'·\'일\'·\'나 자신\' 등)\n' +
+    (answers.q2||'(미작성)') + '\n\n' +
+    'Q3. 최근 본인을 가장 오래 흔들었던 작품이 있나요? (책·영화·음악·전시·콘텐츠 등)\n' +
+    (answers.q3||'(미작성)') + '\n\n' +
+    'Q4. "다들 이렇게 받아들이는데 나는 좀 다르게 본다" 싶은 개념이나 통념이 있나요?\n' +
+    (answers.q4||'(미작성)') + '\n\n' +
+    'Q5. 본인의 기준·가치관과 어긋났지만 매력적이었던 메시지나 사람이 있었나요? (또는 반대로 마음이 안 따라준 경험)\n' +
+    (answers.q5||'(미작성)') + '\n\n' +
+    'Q6. 행복·사랑·관계·성장·예술·철학 중 하나로 모임에 던지고 싶은 질문과 그 이유는?\n' +
+    (answers.q6||'(미작성)')
   );
 
   // 신청자 알림톡 (실패 시 SMS fallback)

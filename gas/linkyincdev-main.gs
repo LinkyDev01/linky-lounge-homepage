@@ -243,17 +243,21 @@ function handleWrittenInterview(data) {
     answers.q1||'', answers.q2||'', answers.q3||'',
     answers.q4||'', answers.q5||'', answers.q6||'']);
 
-  // Supabase DB 저장
-  insertSupabase('written_interviews', {
-    name:  name,
-    phone: phone,
-    q1:    answers.q1 || '',
-    q2:    answers.q2 || '',
-    q3:    answers.q3 || '',
-    q4:    answers.q4 || '',
-    q5:    answers.q5 || '',
-    q6:    answers.q6 || ''
-  });
+  // Supabase DB 저장 (실패해도 이메일/시트 전송에 영향 없도록)
+  try {
+    insertSupabase('written_interviews', {
+      name:  name,
+      phone: phone,
+      q1:    answers.q1 || '',
+      q2:    answers.q2 || '',
+      q3:    answers.q3 || '',
+      q4:    answers.q4 || '',
+      q5:    answers.q5 || '',
+      q6:    answers.q6 || ''
+    });
+  } catch (supaErr) {
+    console.log('Supabase 저장 실패 (무시): ' + supaErr.message);
+  }
 
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL, '[레이지데이 북클럽] 서면 인터뷰 — ' + name + '님',

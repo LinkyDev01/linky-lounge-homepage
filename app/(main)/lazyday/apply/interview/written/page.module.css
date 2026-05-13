@@ -27,12 +27,6 @@
   transform: scale(1.4);
 }
 
-/* ========== Filled textarea state ========== */
-.textareaFilled {
-  border-color: #d2691e;
-  background: #fffaf7;
-}
-
 /* ========== Page wrapper ========== */
 .writtenPage {
   background-color: #f5ede4;
@@ -62,12 +56,6 @@
   text-align: center;
 }
 
-.logo {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-}
-
 .headerTitle {
   font-size: 22px;
   font-weight: 800;
@@ -78,13 +66,40 @@
 }
 
 .headerSub {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   font-size: 14px;
   color: #8a6a50;
-  margin: 0;
-  line-height: 1.6;
+  line-height: 1.65;
+  text-align: left;
+  width: 100%;
 }
 
-/* ========== Info card (name/phone auto-fill notice) ========== */
+.headerSub p { margin: 0; }
+
+.headerSubNote {
+  font-size: 13px;
+  color: #b09078;
+  margin-top: 4px !important;
+}
+
+.refLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: #d2691e;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-family: inherit;
+}
+
+.refLink:hover { opacity: 0.75; }
+
+/* ========== Info card ========== */
 .infoCard {
   background: #ffffff;
   border-radius: 12px;
@@ -111,13 +126,6 @@
   letter-spacing: -0.01em;
 }
 
-.infoValue {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1208;
-  letter-spacing: -0.01em;
-}
-
 .infoInput {
   flex: 1;
   height: 36px;
@@ -127,17 +135,17 @@
   font-size: 14px;
   font-weight: 500;
   color: #1a1208;
-  background: #fdf8f3;
+  background: #ffffff;
   font-family: inherit;
   transition: border-color 0.12s, box-shadow 0.12s;
+  -webkit-appearance: none;
+  appearance: none;
 }
+
 .infoInput::placeholder { color: #b0a090; }
 .infoInput:focus { outline: none; border-color: #d2691e; box-shadow: 0 0 0 3px rgba(210,105,30,.12); }
 
-.req {
-  color: #d2691e;
-  margin-left: 2px;
-}
+.req { color: #d2691e; margin-left: 2px; }
 
 .infoNote {
   font-size: 11px;
@@ -164,7 +172,6 @@
   font-weight: 700;
   color: #d2691e;
   letter-spacing: -0.01em;
-  line-height: 1.2;
 }
 
 .questionText {
@@ -173,19 +180,28 @@
   color: #1a1208;
   line-height: 1.6;
   letter-spacing: -0.02em;
+  margin: 0;
 }
 
+.questionSub {
+  font-size: 13px;
+  color: #9a8070;
+  line-height: 1.6;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* textarea — apply 페이지와 동일 */
 .textarea {
   width: 100%;
   padding: 14px 16px;
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   color: #1a1208;
   background: #ffffff;
   border: 1.5px solid #e8dccd;
   border-radius: 8px;
   resize: vertical;
-  min-height: 108px;
   line-height: 1.65;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   -webkit-appearance: none;
@@ -193,9 +209,7 @@
   box-sizing: border-box;
 }
 
-.textarea::placeholder {
-  color: #c8b4a0;
-}
+.textarea::placeholder { color: #b0a090; }
 
 .textarea:focus {
   outline: none;
@@ -203,10 +217,80 @@
   box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.12);
 }
 
+.textareaFilled {
+  border-color: #d2691e;
+  background: #fffaf7;
+}
+
 .divider {
   height: 1px;
   background: #e8dccd;
   margin: 0;
+}
+
+/* ========== (참고) FAQ 서식 ========== */
+.referenceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-margin-top: 80px;
+}
+
+.refItem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.refTitleBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(210, 105, 30, 0.45);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.refQuestion {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.refArrow {
+  font-size: 14px;
+  color: #b08060;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.refArrowOpen { transform: rotate(180deg); }
+
+.refQuote {
+  border-left: 3px solid #d2691e;
+  padding-left: 14px;
+  margin-left: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.refAnswer {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #4a3020;
+  margin: 0;
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }
 
 /* ========== Consent ========== */
@@ -243,10 +327,7 @@
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.checkbox:checked {
-  border-color: #d2691e;
-  background: #d2691e;
-}
+.checkbox:checked { border-color: #d2691e; background: #d2691e; }
 
 .checkbox:checked::after {
   content: "";
@@ -328,10 +409,7 @@
   gap: 24px;
 }
 
-.successMark {
-  width: 120px;
-  height: 120px;
-}
+.successMark { width: 120px; height: 120px; }
 
 .successTitle {
   font-size: 32px;
@@ -348,20 +426,10 @@
   color: #c8b8a8;
   margin: 0;
   line-height: 1.7;
-  word-break: keep-all;
 }
 
-.successAccent {
-  color: #d2691e;
-  font-weight: 700;
-}
-
-.successCloser {
-  font-size: 18px;
-  font-weight: 700;
-  color: #d2691e;
-  margin: 0;
-}
+.successAccent { color: #d2691e; font-weight: 700; }
+.successCloser { font-size: 18px; font-weight: 700; color: #d2691e; margin: 0; }
 
 .successLink {
   display: inline-block;
@@ -372,106 +440,13 @@
   text-decoration: none;
   color: #ffffff;
   background: #d2691e;
-  border: 1.5px solid #d2691e;
   transition: background 0.15s ease;
   margin-top: 8px;
 }
 
-.successLink:hover { background: #b8571a; border-color: #b8571a; }
+.successLink:hover { background: #b8571a; }
 
 @media (max-width: 480px) {
   .successTitle { font-size: 28px; }
   .successBody { font-size: 15px; }
-  .successMark { width: 96px; height: 96px; }
-}
-
-/* ========== Header subtitle (multi-paragraph) ========== */
-.headerSub {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 14px;
-  color: #8a6a50;
-  line-height: 1.65;
-  text-align: left;
-  width: 100%;
-}
-
-.headerSub p {
-  margin: 0;
-}
-
-.headerSubNote {
-  font-size: 13px;
-  color: #b09078;
-  margin-top: 4px !important;
-}
-
-/* ========== Question sub-text (부연) ========== */
-.questionSub {
-  font-size: 13px;
-  color: #9a8070;
-  line-height: 1.6;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-/* ========== (참고) collapsible sections ========== */
-.referenceSection {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.referenceDetails {
-  background: #ffffff;
-  border: 1px solid #e8dccd;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.referenceSummary {
-  font-size: 13px;
-  font-weight: 600;
-  color: #8a6a50;
-  padding: 14px 16px;
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  user-select: none;
-  letter-spacing: -0.01em;
-}
-
-.referenceSummary::-webkit-details-marker {
-  display: none;
-}
-
-.referenceSummary::after {
-  content: "+";
-  font-size: 18px;
-  font-weight: 300;
-  color: #b0a090;
-  line-height: 1;
-  transition: transform 0.2s ease;
-}
-
-details[open] .referenceSummary::after {
-  content: "−";
-}
-
-.referenceBody {
-  padding: 0 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.referenceBody p {
-  font-size: 13px;
-  color: #6a5038;
-  line-height: 1.75;
-  margin: 0;
 }

@@ -6,12 +6,6 @@ const SHEET_ID    = '1yDy7VeJ_XkOYNfv_CXVqXy0S1UOAObgCiL4j22etfko';
 const NOTIFY_EMAIL = 'linkylounge@gmail.com';
 const CALENDAR_ID  = '8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com';
 
-// ===== Supabase 설정 =====
-// Supabase 대시보드 → Settings → API 에서 복사
-// ⚠️  service_role key 를 사용해야 RLS를 우회하고 INSERT 가능
-const SUPABASE_URL      = 'https://your-project-id.supabase.co'; // 교체 필요
-const SUPABASE_SERVICE_KEY = 'your-service-role-key-here';       // 교체 필요
-
 // ===== Solapi 설정 =====
 const SOLAPI_API_KEY    = 'NCSEQASUIXASGIJW';
 const SOLAPI_API_SECRET = '4H6JALTBSXESIPG4IVTTT2FABGSFCKQN';
@@ -26,33 +20,6 @@ const KAKAO_TEMPLATE_WRITTEN = 'KA01TP260508044618959Levf57dcz2q';  // 서면 �
 // 관리자 토큰 — Vercel ADMIN_SECRET 환경변수와 동일하게 설정
 const ADMIN_TOKEN = 'lazyday-admin-secret-2025'; // Vercel ADMIN_SECRET 환경변수와 동일
 
-// ================================================================
-// Supabase REST INSERT 헬퍼
-// ================================================================
-function insertSupabase(table, payload) {
-  try {
-    const url = SUPABASE_URL + '/rest/v1/' + table;
-    const response = UrlFetchApp.fetch(url, {
-      method: 'post',
-      headers: {
-        'apikey': SUPABASE_SERVICE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    });
-    const status = response.getResponseCode();
-    if (status !== 201) {
-      console.log('Supabase INSERT 실패 [' + table + '] status=' + status + ' body=' + response.getContentText());
-    }
-    return status === 201;
-  } catch (err) {
-    console.log('Supabase INSERT 오류 [' + table + ']: ' + err.message);
-    return false;
-  }
-}
 
 // ================================================================
 // GET: 캘린더 슬롯 반환 (admin 토큰 시 이벤트 ID 포함)
@@ -122,18 +89,6 @@ function handleApply(data) {
     data.job || '', data.instagram || '', data.referral || '', data.marketingConsent || '',
   ]);
 
-  // Supabase DB 저장
-  insertSupabase('applications', {
-    name:              data.name             || '',
-    gender:            data.gender           || '',
-    age:               data.age              || '',
-    phone:             data.phone            || '',
-    job:               data.job              || '',
-    instagram:         data.instagram        || '',
-    referral:          data.referral         || '',
-    marketing_consent: data.marketingConsent || ''
-  });
-
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL, '📩 [독서모임] 새로운 신청이 등록되었습니다', `
 새로운 독서모임 신청이 접수되었습니다.
@@ -189,13 +144,6 @@ function handlePhoneInterviewBooking(data) {
     ]);
   }
 
-  // Supabase DB 저장
-  insertSupabase('phone_interviews', {
-    name:         name,
-    phone:        phone,
-    interview_at: dateStr + ' ' + timeStr + ' – ' + endStr
-  });
-
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL,
     '[레이지데이 북클럽] 전화 인터뷰 신청 — ' + name + '님 ' + dateStr + ' ' + timeStr,
@@ -242,22 +190,6 @@ function handleWrittenInterview(data) {
   sheet.appendRow([new Date(), name, phone,
     answers.q1||'', answers.q2||'', answers.q3||'',
     answers.q4||'', answers.q5||'', answers.q6||'']);
-
-  // Supabase DB 저장 (실패해도 이메일/시트 전송에 영향 없도록)
-  try {
-    insertSupabase('written_interviews', {
-      name:  name,
-      phone: phone,
-      q1:    answers.q1 || '',
-      q2:    answers.q2 || '',
-      q3:    answers.q3 || '',
-      q4:    answers.q4 || '',
-      q5:    answers.q5 || '',
-      q6:    answers.q6 || ''
-    });
-  } catch (supaErr) {
-    console.log('Supabase 저장 실패 (무시): ' + supaErr.message);
-  }
 
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL, '[레이지데이 북클럽] 서면 인터뷰 — ' + name + '님',

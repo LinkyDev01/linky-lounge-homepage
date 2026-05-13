@@ -134,7 +134,6 @@ export default function ApplyPage() {
       sessionStorage.setItem("lazyday_applicant", JSON.stringify({ name, phone, interviewType }))
     } catch {}
 
-    trackStandard("CompleteRegistration", { content_name: "독서모임_신청완료" })
     trackStandard("Lead", { content_name: "독서모임_신청완료" })
     trackEvent("apply_complete", { program: "book_club" })
     setSubmitted(true)

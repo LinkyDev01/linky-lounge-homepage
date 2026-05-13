@@ -100,7 +100,6 @@ export default function StudyForeignApplyPage() {
           body: JSON.stringify(payload),
         }
       )
-      trackStandard("CompleteRegistration", { content_name: "study_foreign_apply_complete" })
       trackStandard("Lead", { content_name: "study_foreign_apply_complete" })
       trackEvent("apply_complete", { program: "study_foreign", language: payload.language ?? "" })
       alert("신청이 완료되었습니다!")

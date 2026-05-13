@@ -7,8 +7,9 @@ import styles from "./page.module.css"
 // ================================================================
 // 슬롯 설정 — 요일별 시간대
 // ================================================================
-const SLOT_DURATION = 30  // 분
-const DAYS_AHEAD    = 7   // 당일 포함 예약 가능 기간
+const SLOT_DURATION = 30           // 분
+const DAYS_AHEAD    = 7            // 당일 포함 예약 가능 기간
+const MIN_NOTICE_MS = 2 * 3600_000 // 현재 시각으로부터 최소 2시간 초과 슬롯만 예약 가능
 
 /** 요일(0=일,1=월,...,6=토) → KST 슬롯 범위 */
 function getSlotConfig(dow: number): { startH: number; startM: number; endH: number; endM: number } | null {
@@ -72,8 +73,8 @@ function slotsForDay(
     const startUTCMs = Date.UTC(year, month, date, h - 9, m)
     const endUTCMs   = startUTCMs + SLOT_DURATION * 60_000
 
-    // 현재 시각보다 미래인 슬롯만 포함
-    if (startUTCMs > nowUTCMs) {
+    // 현재 시각으로부터 2시간 초과인 슬롯만 포함 (당일 예약 허용)
+    if (startUTCMs > nowUTCMs + MIN_NOTICE_MS) {
       const key = `${year}-${pad(month+1)}-${pad(date)}T${pad(h)}:${pad(m)}`
       slots.push({
         key,
@@ -325,8 +326,8 @@ export default function InterviewSchedulePage() {
                     const isToday    = cell.year === todayD.getUTCFullYear() &&
                                        cell.month === todayD.getUTCMonth() &&
                                        cell.date  === todayD.getUTCDate()
-                    // 오늘 포함 이전 날짜 또는 예약 가능 기간 초과 날짜는 비활성
-                    const isPast     = Date.UTC(cell.year, cell.month, cell.date) <= Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate())
+                    // 오늘 이전 날짜 비활성 (오늘은 2시간 초과 슬롯이 있으면 활성)
+                    const isPast     = Date.UTC(cell.year, cell.month, cell.date) < Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate())
                     const isTooFar   = Date.UTC(cell.year, cell.month, cell.date) > maxBookingUTCMs
                     const hasSlots   = availableMap.has(cellKey)
                     const isSelected = selectedDate?.year === cell.year &&

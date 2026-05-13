@@ -226,22 +226,22 @@ export default function WrittenInterviewPage() {
                   <span className={styles.refQuestion}>(참고) 레이지데이가 보는 '결'</span>
                   <span className={`${styles.refArrow} ${ref1Open ? styles.refArrowOpen : ""}`}>▾</span>
                 </button>
-                <div className={`${styles.refPeekWrap} ${ref1Open ? styles.refPeekOpen : ""}`}>
+                <div
+                  className={`${styles.refPeekWrap} ${ref1Open ? styles.refPeekOpen : ""}`}
+                  onClick={() => setRef1Open(v => !v)}
+                  role="button"
+                  aria-expanded={ref1Open}
+                  tabIndex={0}
+                  onKeyDown={e => e.key === "Enter" && setRef1Open(v => !v)}
+                >
                   <div className={styles.refQuote}>
                     <p className={styles.refAnswer}>저희가 정의 내린 결은, 사람마다 살아온 환경·경험으로 몸에 밴, 무의식적인 판단·반응의 패턴이에요. 한 줄로 정리하면 <strong className={styles.refStrong}>결 = 한 사람의 아비투스</strong>입니다.</p>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>아비투스(Habitus)</strong> : 부르디외라는 사회학자가 쓴 개념. 의식하지 않고 저절로 작동하는 감각·반응·선택의 패턴. "왜 이게 좋지? 왜 저건 거슬리지?"의 답이 이미 몸 안에 있는 상태.</p>
-                    <p className={styles.refAnswer}>아비투스는 그 사람이 쌓아온 것들이 담기는 그릇이지만, 그것들이 작동하는 방식까지 포함합니다. 즉 책·공간·말투 같은 쌓인 자산만이 아니라, 그 사람의 기질·리듬·감도까지 함께 품는 더 큰 개념이에요.</p>
-                    <p className={styles.refAnswer}>결국 "결이 맞다"는 두 사람의 아비투스가 어긋나지 않고 맞물려 움직이는 상태예요. 단순히 취향이 비슷하다는 게 아니에요. 좀 더 구체적으로, 다섯 가지 자리에서 결이 맞물립니다.</p>
-                    <ul className={styles.refList}>
-                      <li>같은 책의 같은 문장에 밑줄 긋는 것 <span className={styles.refTag}>(문화자본)</span></li>
-                      <li>말의 속도·호흡이 맞는 것 <span className={styles.refTag}>(리듬)</span></li>
-                      <li>같은 것에 거리를 두고 같은 것에 가까이 가는 것 <span className={styles.refTag}>(판단)</span></li>
-                      <li>침묵을 비슷하게 견디는 것 <span className={styles.refTag}>(감도)</span></li>
-                      <li>무엇에 반응하고 무엇을 지나치는지의 패턴이 닮은 것 <span className={styles.refTag}>(반응)</span></li>
-                    </ul>
+                    <p className={styles.refAnswer}>아비투스는 그 사람이 쌓아온 것들이 담기는 그릇이지만, 그것들이 작동하는 방식까지 포함합니다. 책·공간·말투 같은 쌓인 자산만이 아니라, 그 사람의 기질·리듬·감도까지 함께 품는 더 큰 개념이에요.</p>
+                    <p className={styles.refAnswer}>결국 "결이 맞다"는 두 사람의 아비투스가 어긋나지 않고 맞물려 움직이는 상태예요. 단순히 취향이 비슷하다는 게 아니에요.</p>
                     <p className={styles.refAnswer}>같은 책을 읽었는데 누구는 주인공의 마지막 대사를 곱씹고 누구는 배경 묘사 한 줄에 멈춰 있는 것. 무거운 얘기가 나왔을 때 농담으로 풀어주는 사람이 있고 같이 침묵해주는 사람이 있는 것. 이런 미세한 차이가 결의 신호예요.</p>
                     <p className={styles.refAnswer}>친밀함이나 익숙함과는 좀 달라요. 처음 본 사이여도 결이 맞으면 통하고, 친한 사이여도 결이 다르면 어색하거든요. 굳이 설명하지 않아도 문장 사이의 맥락이 읽히는, 그런 종류의 편안함입니다.</p>
                     <p className={styles.refAnswer}>정리하면, 결이 맞는 사람이란 <strong className={styles.refStrong}>"같은 자리에서, 같은 호흡으로, 같이 머물 수 있는 사람"</strong>이에요.</p>
+                    <p className={styles.refFootnote}>* 아비투스(Habitus) : 부르디외라는 사회학자가 쓴 개념. 의식하지 않고 저절로 작동하는 감각·반응·선택의 패턴. "왜 이게 좋지? 왜 저건 거슬리지?"의 답이 이미 몸 안에 있는 상태.</p>
                   </div>
                   {!ref1Open && (
                     <div className={styles.refFadeWrap}>
@@ -258,7 +258,14 @@ export default function WrittenInterviewPage() {
                   <span className={styles.refQuestion}>(참고) 불균형의 균형 (Dissonance in Harmony)</span>
                   <span className={`${styles.refArrow} ${ref2Open ? styles.refArrowOpen : ""}`}>▾</span>
                 </button>
-                <div className={`${styles.refPeekWrap} ${ref2Open ? styles.refPeekOpen : ""}`}>
+                <div
+                  className={`${styles.refPeekWrap} ${ref2Open ? styles.refPeekOpen : ""}`}
+                  onClick={() => setRef2Open(v => !v)}
+                  role="button"
+                  aria-expanded={ref2Open}
+                  tabIndex={0}
+                  onKeyDown={e => e.key === "Enter" && setRef2Open(v => !v)}
+                >
                   <div className={styles.refQuote}>
                     <p className={styles.refAnswer}>비슷한 결을 가진 사람들이 모였다고 해서 같은 결론에 도달할 필요는 없거든요. 같은 곳에서 멈추는 사람들이라도 거기서 자라난 사유의 궤적은 각자 다르니까요.</p>
                     <p className={styles.refAnswer}>바우하우스의 정갈한 비대칭처럼, 각기 다른 궤적을 그려온 사람들의 단련된 사유가 거칠게 부딪힐 때 그 불협화음이 오히려 고전의 본질을 꿰뚫는 하나의 선율이 되는 순간이 있어요.</p>

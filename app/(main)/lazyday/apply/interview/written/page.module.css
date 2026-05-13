@@ -285,10 +285,12 @@
   max-height: 54px;
   overflow: hidden;
   transition: max-height 0.4s ease;
+  cursor: pointer;
 }
 
 .refPeekOpen {
   max-height: 2000px;
+  cursor: default;
 }
 
 .refFadeWrap {
@@ -296,7 +298,6 @@
   bottom: 0;
   left: 0;
   right: 0;
-  pointer-events: none;
 }
 
 .refFadeBg {
@@ -355,6 +356,13 @@
   font-size: 12px;
   color: #9a8070;
   margin-left: 4px;
+}
+
+.refFootnote {
+  font-size: 11px;
+  color: #b0a090;
+  line-height: 1.7;
+  margin: 4px 0 0;
 }
 
 /* ========== Consent ========== */

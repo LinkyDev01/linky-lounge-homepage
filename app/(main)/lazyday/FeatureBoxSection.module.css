@@ -118,7 +118,7 @@
 }
 
 .fadeBg {
-  height: 20px;
+  height: 36px;
   background: linear-gradient(to bottom, transparent, #ede0d0);
 }
 
@@ -133,7 +133,7 @@
 
 .desc {
   font-size: 13px;
-  line-height: 1.78;
+  line-height: 1.85;
   color: #4a3020;
   margin: 0;
   word-break: keep-all;

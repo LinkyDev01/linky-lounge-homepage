@@ -98,7 +98,7 @@
 /* peek / fade */
 .peekWrap {
   position: relative;
-  max-height: 26px;
+  max-height: 54px;
   overflow: hidden;
   transition: max-height 0.4s ease;
   display: flex;

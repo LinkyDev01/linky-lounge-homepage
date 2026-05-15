@@ -82,10 +82,10 @@ export function FeatureBoxSection() {
                     {!isOpen && (
                       <div className={styles.fadeWrap}>
                         <div className={styles.fadeBg} />
-                        <span className={styles.moreHint}>...더보기</span>
                       </div>
                     )}
                   </div>
+                  {!isOpen && <span className={styles.moreHint}>...더보기</span>}
                 </div>
               </FadeUp>
             )

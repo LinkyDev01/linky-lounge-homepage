@@ -132,10 +132,10 @@ export function FaqSection() {
                       {!isOpen && (
                         <div className={styles.fadeWrap}>
                           <div className={styles.fadeBg} />
-                          <span className={styles.moreHint}>...더보기</span>
                         </div>
                       )}
                     </div>
+                    {!isOpen && <span className={styles.moreHint}>...더보기</span>}
                     {faq.sub && isOpen && <p className={styles.answerNote}>{faq.sub}</p>}
                   </div>
                 )}

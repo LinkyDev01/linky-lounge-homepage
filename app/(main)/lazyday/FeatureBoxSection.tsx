@@ -26,7 +26,7 @@ const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
     ],
   },
   {
-    label: <>온전한 레이지데이를 위한 <span className={styles.accent}>30평 모임 공간</span></>,
+    label: <>느긋한 모임을 위해 <span className={styles.accent}>30평 라운지</span>에서 모여요</>,
     paragraphs: [
       <>외부 대관 없이 레이지데이가 직접 관리하는 약 30평 규모의 공간에서 진행해요.</>,
       <><span className={styles.accent}>대화에 온전히 집중할 수 있는 환경</span>입니다.</>,

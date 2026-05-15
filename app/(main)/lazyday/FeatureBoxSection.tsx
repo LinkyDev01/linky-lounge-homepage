@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import type { ReactNode } from "react"
 import styles from "./FeatureBoxSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -32,6 +35,17 @@ const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
 ]
 
 export function FeatureBoxSection() {
+  const [openSet, setOpenSet] = useState<Set<number>>(new Set())
+
+  const toggle = (i: number) => {
+    setOpenSet(prev => {
+      const next = new Set(prev)
+      if (next.has(i)) next.delete(i)
+      else next.add(i)
+      return next
+    })
+  }
+
   return (
     <section id="feature" className={styles.section}>
       <div className={styles.inner}>
@@ -39,18 +53,43 @@ export function FeatureBoxSection() {
           <h2 className={styles.sectionTitle}>모임 소개</h2>
         </div>
         <div className={styles.list}>
-          {items.map((item, i) => (
-            <FadeUp key={i} delay={0.07 * i} className={styles.item}>
-              <div className={styles.titleBox}>
-                <span className={styles.label}>{item.label}</span>
-              </div>
-              <div className={styles.quote}>
-                {item.paragraphs.map((p, j) => (
-                  <p key={j} className={styles.desc}>{p}</p>
-                ))}
-              </div>
-            </FadeUp>
-          ))}
+          {items.map((item, i) => {
+            const isOpen = openSet.has(i)
+            return (
+              <FadeUp key={i} delay={0.07 * i} className={styles.item}>
+                <button
+                  type="button"
+                  className={styles.titleBox}
+                  onClick={() => toggle(i)}
+                  aria-expanded={isOpen}
+                >
+                  <span className={styles.label}>{item.label}</span>
+                  <span className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ""}`}>▾</span>
+                </button>
+                <div
+                  className={styles.quote}
+                  onClick={() => toggle(i)}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  onKeyDown={e => e.key === "Enter" && toggle(i)}
+                  style={{ cursor: isOpen ? "default" : "pointer" }}
+                >
+                  <div className={`${styles.peekWrap} ${isOpen ? styles.peekOpen : ""}`}>
+                    {item.paragraphs.map((p, j) => (
+                      <p key={j} className={styles.desc}>{p}</p>
+                    ))}
+                    {!isOpen && (
+                      <div className={styles.fadeWrap}>
+                        <div className={styles.fadeBg} />
+                        <span className={styles.moreHint}>...더보기</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </FadeUp>
+            )
+          })}
         </div>
       </div>
     </section>

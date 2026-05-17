@@ -9,27 +9,31 @@ const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
   {
     label: <><span className={styles.accent}>이런 분들</span>과 함께해요</>,
     paragraphs: [
-      <>쉽게 공감되는 대화보다 <span className={styles.accent}>문학·철학·예술</span> 안에서 낯선 시각과 부딪히는 순간이 더 좋은 분. 그 <span className={styles.accent}>불협화음</span> 속에서 내 이야기가 더 또렷해진다고 느낀 적 있다면, 잘 맞을 거예요.</>,
+      <>쉽게 공감되는 대화보다 <span className={styles.accent}>문학·철학·예술</span> 안에서 낯선 시각과 부딪히는 순간이 더 좋은 분과 함께해요. 다 같이 고개 끄덕이는 자리가 아니라, 각자의 결이 다른 곳에서 부딪히는 자리예요.</>,
+      <>비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없거든요. 같은 문장 앞에서 멈춰도, 거기서 이어지는 생각은 각자 다르거든요. 그 <span className={styles.accent}>불협화음</span> 속에서 내 이야기가 더 또렷해져요.</>,
+      <><span className={styles.accent}>인터뷰</span>는 그 결을 미리 가늠하는 자리예요. 잘 맞을 거라는 느낌이 든다면, 잘 맞을 거예요.</>,
     ],
   },
   {
     label: <><span className={styles.accent}>철학과 고전</span>을 함께 읽어요</>,
     paragraphs: [
-      <>철학자들의 시선으로 <span className={styles.accent}>생각의 도구</span>를 먼저 갖추고, 고전 소설에서 <span className={styles.accent}>저자의 의도</span>를 함께 읽어가는 구조예요.</>,
-      <>같은 부분을 읽더라도 더 <span className={styles.accent}>밀도 있는 대화</span>를 나눌 수 있는 이유입니다.</>,
+      <>기수별 책 구성은 철학서와 고전 소설을 함께 읽는 구조로 진행해요. 철학자들의 시선으로 <span className={styles.accent}>생각의 도구</span>를 먼저 갖추고, 그 도구를 들고 고전 소설 속 <span className={styles.accent}>저자의 의도</span>를 들여다봐요.</>,
+      <>단순한 감상이 아니에요. <span className={styles.accent}>문학·철학·예술</span>을 함께 두고 읽으면, 똑같은 문장이 전혀 다른 무게로 다가오거든요. 같은 부분을 읽더라도 더 <span className={styles.accent}>밀도 있는 대화</span>가 가능한 이유입니다.</>,
+      <>완독보다는 책 속의 문장이 나의 생각을 얼마나 건드리는가에 집중해요.</>,
     ],
   },
   {
     label: <><span className={styles.accent}>사유의 밀도</span>를 높일 질문을 던져요</>,
     paragraphs: [
-      <><span className={styles.accent}>저자의 의도</span>를 통해 나의 이야기와 시선이 깊어질 수 있도록, 레이지데이가 질문을 준비하고, <span className={styles.accent}>전문 호스트</span>가 대화의 흐름 속 <span className={styles.accent}>사유의 밀도</span>를 높이는 방향으로 진행됩니다.</>,
+      <>단순히 독후감을 나누는 자리가 아니에요. 레이지데이가 사전에 준비한 질문으로 대화가 시작되고, <span className={styles.accent}>전문 호스트</span>가 그 흐름 속에서{" "}<span className={styles.accent}>사유의 밀도</span>를 높이는 방향으로 이끌어요.</>,
+      <>'이 부분에서 <span className={styles.accent}>저자의 의도</span>는 뭘까'에서 출발해, '그게 각자의 어떤 이야기와 닿아 있는가'로 이어지는 구조예요. 질문은 답을 위한 게 아니라, 각자의 결이 묻어 나올 수 있도록 돕는 역할을 합니다.</>,
     ],
   },
   {
     label: <>느긋한 모임을 위해 <span className={styles.accent}>30평 라운지</span>에서 모여요</>,
     paragraphs: [
-      <>외부 대관 없이 레이지데이가 직접 관리하는 약 30평 규모의 공간에서 진행해요.</>,
-      <><span className={styles.accent}>대화에 온전히 집중할 수 있는 환경</span>입니다.</>,
+      <>외부 대관 없이 레이지데이가 직접 운영하는 약 30평 규모의 링키라운지에서 진행해요. <span className={styles.accent}>사당역 10번 출구</span>에서 4분 거리예요.</>,
+      <>낯선 공간의 어색함 없이{" "}<span className={styles.accent}>대화에 온전히 집중할 수 있는 환경</span>이에요. 다과도 함께 준비되고, 느긋하게 생각이 무르익을 수 있는 공간에서 진행합니다.</>,
     ],
   },
 ]

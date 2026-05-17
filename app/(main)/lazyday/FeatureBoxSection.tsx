@@ -66,4 +66,35 @@ export function FeatureBoxSection() {
                   onClick={() => toggle(i)}
                   aria-expanded={isOpen}
                 >
-                  <
+                  <span className={styles.label}>{item.label}</span>
+                  <span className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ""}`}>▾</span>
+                </button>
+                <div
+                  className={styles.quote}
+                  onClick={() => toggle(i)}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  onKeyDown={e => e.key === "Enter" && toggle(i)}
+                  style={{ cursor: isOpen ? "default" : "pointer" }}
+                >
+                  <div className={`${styles.peekWrap} ${isOpen ? styles.peekOpen : ""}`}>
+                    {item.paragraphs.map((p, j) => (
+                      <p key={j} className={styles.desc}>{p}</p>
+                    ))}
+                    {!isOpen && (
+                      <div className={styles.fadeWrap}>
+                        <div className={styles.fadeBg} />
+                      </div>
+                    )}
+                  </div>
+                  {!isOpen && <span className={styles.moreHint}>...더보기</span>}
+                </div>
+              </FadeUp>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}

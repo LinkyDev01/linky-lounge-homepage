@@ -11,7 +11,7 @@ const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
     paragraphs: [
       <>쉽게 공감되는 대화보다 <span className={styles.accent}>문학·철학·예술</span> 안에서 낯선 시각과 부딪히는 순간이 더 좋은 멤버들과 함께해요. 무색무취한 이야기에 고개만 끄덕이는 자리가 아니라, 각자의 결이 다른 곳에서 부딪히는 자리예요.</>,
       <>비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없거든요. 같은 문장 앞에서 멈춰도, 거기서 이어지는 생각은 각자 다르잖아요? 그 <span className={styles.accent}>불협화음</span> 속에서 내 이야기가 더 또렷해져요.</>,
-      <><span className={styles.accent}>인터뷰</span>는 그 결을 미리 가늠하는 자리예요. 잘 맞을 거라는 느낌이 든다면, 잘 맞을 거예요.</>,
+      <>그래서 모든 멤버가 참가 전, <span className={styles.accent}>인터뷰</span>를 통해 서로의 결을 확인하고 있어요. 모임이 궁금하다면, 인터뷰를 통해 대화의 결이 맞는지 확인해보세요.</>,
     ],
   },
   {

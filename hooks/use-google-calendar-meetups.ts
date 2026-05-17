@@ -28,8 +28,8 @@ export function useGoogleCalendarMeetups(
   options: UseGoogleCalendarMeetupsOptions = {}
 ): UseGoogleCalendarMeetupsResult {
   const {
-    calendarId = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID || 'e7aa933e2731ec29bab190a7779bef50a475643004f48724bb538f5a8bc9bf44@group.calendar.google.com',
-    apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || 'AIzaSyBAZ_CiH2CAcXZqt63RqX4_lRwL4xeHcKw',
+    calendarId = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID || '',
+    apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || '',
     enabled = true,
   } = options
 

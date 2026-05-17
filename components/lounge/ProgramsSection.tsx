@@ -373,4 +373,4 @@ function ProgramCard({ program, isActive }: ProgramCardProps) {
       </div>
     </div>
   )
-}
+}

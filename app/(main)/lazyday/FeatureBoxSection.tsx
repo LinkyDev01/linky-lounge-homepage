@@ -9,17 +9,16 @@ const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
   {
     label: <><span className={styles.accent}>이런 분들</span>과 함께해요</>,
     paragraphs: [
-      <>쉽게 공감되는 대화보다 <span className={styles.accent}>문학·철학·예술</span> 안에서 낯선 시각과 부딪히는 순간이 더 좋은 분과 함께해요. 다 같이 고개 끄덕이는 자리가 아니라, 각자의 결이 다른 곳에서 부딪히는 자리예요.</>,
-      <>비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없거든요. 같은 문장 앞에서 멈춰도, 거기서 이어지는 생각은 각자 다르거든요. 그 <span className={styles.accent}>불협화음</span> 속에서 내 이야기가 더 또렷해져요.</>,
+      <>쉽게 공감되는 대화보다 <span className={styles.accent}>문학·철학·예술</span> 안에서 낯선 시각과 부딪히는 순간이 더 좋은 멤버들과 함께해요. 무색무취한 이야기에 고개만 끄덕이는 자리가 아니라, 각자의 결이 다른 곳에서 부딪히는 자리예요.</>,
+      <>비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없거든요. 같은 문장 앞에서 멈춰도, 거기서 이어지는 생각은 각자 다르잖아요? 그 <span className={styles.accent}>불협화음</span> 속에서 내 이야기가 더 또렷해져요.</>,
       <><span className={styles.accent}>인터뷰</span>는 그 결을 미리 가늠하는 자리예요. 잘 맞을 거라는 느낌이 든다면, 잘 맞을 거예요.</>,
     ],
   },
   {
     label: <><span className={styles.accent}>철학과 고전</span>을 함께 읽어요</>,
     paragraphs: [
-      <>기수별 책 구성은 철학서와 고전 소설을 함께 읽는 구조로 진행해요. 철학자들의 시선으로 <span className={styles.accent}>생각의 도구</span>를 먼저 갖추고, 그 도구를 들고 고전 소설 속 <span className={styles.accent}>저자의 의도</span>를 들여다봐요.</>,
-      <>단순한 감상이 아니에요. <span className={styles.accent}>문학·철학·예술</span>을 함께 두고 읽으면, 똑같은 문장이 전혀 다른 무게로 다가오거든요. 같은 부분을 읽더라도 더 <span className={styles.accent}>밀도 있는 대화</span>가 가능한 이유입니다.</>,
-      <>완독보다는 책 속의 문장이 나의 생각을 얼마나 건드리는가에 집중해요.</>,
+      <>기수별 책 구성은 철학서와 고전 소설을 함께 읽는 구조로 진행해요. 철학자들의 시선으로 내 생각을 꺼내줄 '<span className={styles.accent}>생각의 도구</span>' 갖추며, 확장된 시선 속에서 고전 속 <span className={styles.accent}>저자의 의도</span>를 들여다봐요.</>,
+      <>도구를 갖추고 다시 들여다 보면, 똑같은 문장이 때론 전혀 다른 무게로 다가옵니다. 같은 고전을 읽더라도 더 <span className={styles.accent}>밀도 있는 대화</span>가 가능한 이유입니다.</>,
     ],
   },
   {
@@ -67,35 +66,4 @@ export function FeatureBoxSection() {
                   onClick={() => toggle(i)}
                   aria-expanded={isOpen}
                 >
-                  <span className={styles.label}>{item.label}</span>
-                  <span className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ""}`}>▾</span>
-                </button>
-                <div
-                  className={styles.quote}
-                  onClick={() => toggle(i)}
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={isOpen}
-                  onKeyDown={e => e.key === "Enter" && toggle(i)}
-                  style={{ cursor: isOpen ? "default" : "pointer" }}
-                >
-                  <div className={`${styles.peekWrap} ${isOpen ? styles.peekOpen : ""}`}>
-                    {item.paragraphs.map((p, j) => (
-                      <p key={j} className={styles.desc}>{p}</p>
-                    ))}
-                    {!isOpen && (
-                      <div className={styles.fadeWrap}>
-                        <div className={styles.fadeBg} />
-                      </div>
-                    )}
-                  </div>
-                  {!isOpen && <span className={styles.moreHint}>...더보기</span>}
-                </div>
-              </FadeUp>
-            )
-          })}
-        </div>
-      </div>
-    </section>
-  )
-}
+                  <

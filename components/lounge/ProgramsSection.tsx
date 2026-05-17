@@ -42,7 +42,7 @@ const PROGRAMS = [
   {
     id: 5,
     title: "레이지데이 북클럽",
-    image: "/linky-lounge/book-club.png",
+    image: "/linky-lounge/book-club.webp",
     schedule: "격주 3시간 진행",
     description: "책과 함께 시작하는 만남",
     link: "/lazyday",

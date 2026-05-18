@@ -162,7 +162,11 @@ export default function LazyDayLoungeInfoPage() {
           className={styles.sectionTabsInner}
           style={{ "--active-tab": activeTab } as React.CSSProperties}
         >
-          <div className={styles.tabIndicator} aria-hidden="true" />
+          <div
+            className={styles.tabIndicator}
+            style={{ width: "33.333%", left: `calc(var(--active-tab, 0) * 33.333%)` }}
+            aria-hidden="true"
+          />
           {(["찾아오는 길", "건물 입구", "주차안내"] as const).map((label, i) => (
             <a
               key={label}

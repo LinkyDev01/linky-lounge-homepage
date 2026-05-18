@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState, useCallback } from "react"
 import styles from "../../lounge-info/page.module.css"
-import { Footer } from "@/components/footer"
+
 
 /* ── SVG Icon Components ── */
 const IconPin = () => (
@@ -411,8 +411,6 @@ export default function LazyDayLoungeInfoPage() {
         </div>
       </div>
 
-      {/* ── Footer ── */}
-      <Footer />
     </div>
   )
 }

@@ -140,6 +140,13 @@
   text-wrap: pretty;
 }
 
+.note {
+  font-size: 11px;
+  color: #9a9590;
+  margin: 4px 0 0;
+  line-height: 1.6;
+}
+
 @media (max-width: 480px) {
   .label { font-size: 15px; }
   .desc { font-size: 13px; }

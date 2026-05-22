@@ -5,7 +5,7 @@ import type { ReactNode } from "react"
 import styles from "./FeatureBoxSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
-const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
+const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
   {
     label: <><span className={styles.accent}>이런 분들</span>과 함께해요</>,
     paragraphs: [
@@ -29,11 +29,12 @@ const items: { label: ReactNode; paragraphs: ReactNode[] }[] = [
     ],
   },
   {
-    label: <>느긋한 모임을 위해 <span className={styles.accent}>30평 라운지</span>에서 모여요</>,
+    label: <><span className={styles.accent}>30평 공간</span>에서 모여요</>,
     paragraphs: [
       <>외부 대관 없이 레이지데이가 직접 운영하는 약 30평 규모의 링키라운지에서 진행해요. <span className={styles.accent}>사당역 10번 출구</span>에서 4분 거리예요.</>,
       <>낯선 공간의 어색함 없이{" "}<span className={styles.accent}>대화에 온전히 집중할 수 있는 환경</span>이에요. 다과도 함께 준비되고, 느긋하게 생각이 무르익을 수 있는 공간에서 진행합니다.</>,
     ],
+    note: "*상황에 따라 장소가 변경될 수 있습니다",
   },
 ]
 
@@ -89,6 +90,7 @@ export function FeatureBoxSection() {
                     )}
                   </div>
                   {!isOpen && <span className={styles.moreHint}>...더보기</span>}
+                  {isOpen && item.note && <p className={styles.note}>{item.note}</p>}
                 </div>
               </FadeUp>
             )

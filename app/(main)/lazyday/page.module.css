@@ -72,6 +72,26 @@
     background-color: #A04D16;
 }
 
+/* 모집 마감 상태 버튼 */
+.applyButtonClosed {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    background-color: #8C8580;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 18px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: default;
+    text-align: center;
+    text-decoration: none;
+    pointer-events: none;
+    user-select: none;
+}
+
 @media (min-width: 768px) {
     .fixedButtonContainer {
         padding: 20px 80px;
@@ -90,6 +110,11 @@
     }
 
     .applyButton {
+        border-radius: 8px;
+        padding: 16px 24px;
+    }
+
+    .applyButtonClosed {
         border-radius: 8px;
         padding: 16px 24px;
     }

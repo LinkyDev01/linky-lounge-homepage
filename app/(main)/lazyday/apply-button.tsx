@@ -1,17 +1,11 @@
 "use client"
 
-import Link from "next/link"
-import { trackCustom } from "@/lib/meta-pixel"
 import styles from "./page.module.css"
 
 export function ApplyButton() {
   return (
-    <Link
-      href="/lazyday/apply"
-      className={styles.applyButton}
-      onClick={() => trackCustom("ClickCTA", { button: "bookclub_apply" })}
-    >
-      신청하기
-    </Link>
+    <span className={styles.applyButtonClosed} aria-disabled="true">
+      2기 모집 마감
+    </span>
   )
 }

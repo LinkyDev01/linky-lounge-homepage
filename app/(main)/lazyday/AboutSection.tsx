@@ -24,7 +24,7 @@ export function AboutSection() {
         </FadeUp>
         <FadeUp delay={0.28}>
           <p className={styles.leadFinale}>
-            결국 독서모임에서<br />
+            결국 독서모임에서 남는 건<br />
             당신의 이야기, 그리고 당신만의 방향입니다.
           </p>
         </FadeUp>

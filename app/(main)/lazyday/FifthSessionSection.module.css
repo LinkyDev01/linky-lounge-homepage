@@ -64,7 +64,10 @@
 
 /* 1부 / 2부 블록 */
 .sessionBlock {
-  margin-bottom: 20px;
+  background-color: #edddd0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
 }
 
 .sessionBlock:last-child {

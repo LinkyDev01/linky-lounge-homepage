@@ -40,7 +40,7 @@ export function FifthSessionSection() {
               <span className={styles.sessionTime}>17:00–</span>
             </div>
             <p className={styles.sessionDesc}>
-              다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모입니다. 책에서 꺼내지 못했던 이야기, 각자가 멤버들에게 묻고 싶었던 이야기를 자유롭게 나누는 자리입니다.
+              다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모입니다. 네 권의 책에서 꺼내지 못했던 이야기, 각자가 멤버들에게 묻고 싶었던 이야기를 자유롭게 나누는 자리입니다.
             </p>
           </div>
         </FadeUp>

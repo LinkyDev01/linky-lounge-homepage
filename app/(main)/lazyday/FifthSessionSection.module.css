@@ -43,6 +43,13 @@
   letter-spacing: 0.02em;
 }
 
+.sectionSubOptional {
+  font-size: 12px;
+  font-weight: 500;
+  color: #a89080;
+  margin-right: 2px;
+}
+
 @media (max-width: 480px) {
   .sectionTitle { font-size: 26px; }
 }

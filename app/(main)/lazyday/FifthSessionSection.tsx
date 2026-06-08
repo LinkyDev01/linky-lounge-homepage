@@ -8,7 +8,7 @@ export function FifthSessionSection() {
         <FadeUp>
           <div className={styles.titleRow}>
             <h2 className={styles.sectionTitle}>5회차</h2>
-            <span className={styles.sectionSub}>자유독서모임</span>
+            <span className={styles.sectionSub}><span className={styles.sectionSubOptional}>(선택)</span> 자유독서모임</span>
           </div>
         </FadeUp>
 

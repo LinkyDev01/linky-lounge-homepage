@@ -19,6 +19,10 @@ export function FifthSessionSection() {
           </p>
         </FadeUp>
 
+        <FadeUp delay={0.11}>
+          <p className={styles.footnote}>*5회차는 정기 독서모임 4회 이후 추가로 진행되는 모임입니다.</p>
+        </FadeUp>
+
         <FadeUp delay={0.14}>
           <div className={styles.sessionBlocks}>
             <div className={styles.sessionBlock}>

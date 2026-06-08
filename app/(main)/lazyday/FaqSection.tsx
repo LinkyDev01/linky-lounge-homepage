@@ -73,7 +73,9 @@ const faqs: Faq[] = [
     noPeek: true,
     a: (
       <>
-        <strong className={styles.answerStrong}>레이지선데이 미드나잇</strong>은 레이지데이 멤버들만 참여하는 뒷풀이입니다. 다른 시간대에 만나지 못한 멤버들과 새로운 인연을 쌓을 수 있습니다.
+        <strong className={styles.answerStrong}>5회차 모임</strong>은 1부 영화 감상, 2부 자유대화모임으로 구성됩니다.<br /><br />
+        다른 시간대에 만나지 못한 멤버들과 함께 영화를 시청하고, 각자가 멤버들에게 묻고 싶었던 자유로운 이야기를 나누는 자리입니다.<br /><br />
+        <strong className={styles.answerStrong}>1부</strong> 14:30–17:00&nbsp;&nbsp;·&nbsp;&nbsp;<strong className={styles.answerStrong}>2부</strong> 17:00–
       </>
     ),
     sub: "*소정의 참가비(1만원)가 있습니다",

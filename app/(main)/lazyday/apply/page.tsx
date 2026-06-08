@@ -10,10 +10,10 @@ import styles from "./page.module.css"
 const SUBMIT_URL = "/api/lazyday/apply"
 
 const sessions = [
-  { label: "1회차", thu: "5/21", sun: "5/24" },
-  { label: "2회차", thu: "6/4", sun: "6/7" },
-  { label: "3회차", thu: "6/18", sun: "6/21" },
-  { label: "4회차", thu: "7/2", sun: "7/5" },
+  { label: "1회차", wed: "7/22", thu: "7/23", sun: "7/26" },
+  { label: "2회차", wed: "8/5",  thu: "8/6",  sun: "8/9"  },
+  { label: "3회차", wed: "8/19", thu: "8/20", sun: "8/23" },
+  { label: "4회차", wed: "9/2",  thu: "9/3",  sun: "9/6"  },
 ]
 
 type Errors = Partial<Record<
@@ -212,18 +212,22 @@ export default function ApplyPage() {
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽
               <br />
-              <span className={styles.headerSeason}>2기</span> 신청하기
+              <span className={styles.headerSeason}>3기</span> 신청하기
             </h1>
           </div>
         </FadeUp>
 
         <FadeUp delay={0.1}>
           <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>2기 일정</h2>
+            <h2 className={styles.scheduleHeader}>3기 일정</h2>
             <table className={styles.scheduleTable}>
               <thead>
                 <tr>
                   <th className={styles.schThEmpty} />
+                  <th className={styles.schThDay}>
+                    수요일<br />
+                    <span className={styles.schThTime}>19:30–22:30</span>
+                  </th>
                   <th className={styles.schThDay}>
                     목요일<br />
                     <span className={styles.schThTime}>19:30–22:30</span>
@@ -238,17 +242,18 @@ export default function ApplyPage() {
                 {sessions.map((s) => (
                   <tr key={s.label}>
                     <td className={styles.schTdLabel}>{s.label}</td>
+                    <td className={styles.schTdDate}>{s.wed}</td>
                     <td className={styles.schTdDate}>{s.thu}</td>
                     <td className={styles.schTdDate}>{s.sun}</td>
                   </tr>
                 ))}
                 <tr>
-                  <td className={styles.schTdLabel}>뒷풀이</td>
-                  <td colSpan={2} className={styles.schTdMidnight}>레이지선데이 미드나잇&nbsp;&nbsp;7/12 (일)&nbsp;&nbsp;17:30 –</td>
+                  <td className={styles.schTdLabel}>5회차</td>
+                  <td colSpan={3} className={styles.schTdMidnight}>9/13 (일)&nbsp;&nbsp;1부 14:30–17:00 · 2부 17:00–</td>
                 </tr>
               </tbody>
             </table>
-            <p className={styles.scheduleNote}>*회차별 목·일 중 참여 요일 선택 가능</p>
+            <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
           </section>
         </FadeUp>
 

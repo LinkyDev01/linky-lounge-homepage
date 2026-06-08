@@ -1,9 +1,10 @@
 import Image from "next/image"
-import { season1Config, season2Config } from "./book-config"
+import { season3Config } from "./book-config"
 import type { Book } from "./book-config"
 import { BookSubNav } from "./BookSubNav"
 import { BookCoverStrip } from "./BookCoverStrip"
 import { PastSeasonStripWrapper } from "./PastSeasonStripWrapper"
+import { PastSeasonsSection } from "./PastSeasonsSection"
 import { FadeUp } from "@/components/animation/FadeUp"
 import styles from "./BookSection.module.css"
 
@@ -83,31 +84,32 @@ export function BookSection() {
       <div className={styles.content}>
         <FadeUp>
           <div className={styles.titleRow}>
-<h2 className={styles.sectionTitle}>책 소개</h2>
+            <h2 className={styles.sectionTitle}>책 소개</h2>
           </div>
         </FadeUp>
 
-        {/* 2기 */}
+        {/* 3기 — 현재 기수 */}
         <div className={styles.currentSeason}>
           <FadeUp delay={0.1}>
             <p className={styles.seasonLabel}>
-              2기 <span className={styles.dateRange}>{season2Config.dateRange}</span>
+              3기
+              {season3Config.dateRange && (
+                <span className={styles.dateRange}>{season3Config.dateRange}</span>
+              )}
             </p>
           </FadeUp>
-          <BookCoverStrip books={season2Config.books} seasonPrefix="s2" isSticky />
+          <BookCoverStrip books={season3Config.books} seasonPrefix="s3" isSticky />
           <div className={styles.bookList}>
-            {season2Config.books.map((book, i) => (
+            {season3Config.books.map((book, i) => (
               <FadeUp key={book.week} delay={i * 0.08}>
-                <BookItem book={book} withImage={true} seasonPrefix="s2" />
+                <BookItem book={book} withImage={true} seasonPrefix="s3" />
               </FadeUp>
             ))}
           </div>
         </div>
 
-        {/* 1기 strip: <details> 완전 밖에서 sticky 보장, details open 시만 노출 */}
-        <PastSeasonStripWrapper>
-          <BookCoverStrip books={season1Config.books} seasonPrefix="s1" isSticky />
-        </PastSeasonStripWrapper>
+        {/* 지난 기수 커버 스트립 (details open 시에만 노출, 선택된 기수에 따라 분기) */}
+        <PastSeasonStripWrapper />
 
         {/* 지난 기수 */}
         <details id="past-seasons" className={styles.pastSeasons}>
@@ -117,19 +119,7 @@ export function BookSection() {
           </summary>
           <div id="past-seasons-content" className={styles.pastSeasonsContent}>
             <div className={styles.pastSeasonsContentInner}>
-              <p className={styles.seasonLabel}>
-                {season1Config.label}
-                {season1Config.dateRange && (
-                  <span className={styles.dateRange}>{season1Config.dateRange}</span>
-                )}
-              </p>
-              <div className={styles.bookList}>
-                {season1Config.books.map((book, i) => (
-                  <FadeUp key={book.week} delay={i * 0.06}>
-                    <BookItem book={book} withImage={true} seasonPrefix="s1" />
-                  </FadeUp>
-                ))}
-              </div>
+              <PastSeasonsSection />
             </div>
           </div>
         </details>

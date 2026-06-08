@@ -70,7 +70,6 @@ const faqs: Faq[] = [
     id: "gathering",
     key: "gathering",
     q: <>정기 독서모임 외 <strong className={styles.questionStrong}>함께하는 시간</strong>이 있나요?</>,
-    noPeek: true,
     a: (
       <>
         <strong className={styles.answerStrong}>5회차 모임</strong>은 1부 영화 감상, 2부 자유대화모임으로 구성됩니다.<br /><br />

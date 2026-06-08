@@ -128,7 +128,7 @@ export default function WrittenInterviewPage() {
           </FadeUp>
           <FadeUp delay={0.3}><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
           <FadeUp delay={0.4}>
-            <a href="https://www.instagram.com/linky_lounge" target="_blank" rel="noopener noreferrer" className={styles.successLink}>
+            <a href="https://www.instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" className={styles.successLink}>
               인스타그램 보러가기
             </a>
           </FadeUp>

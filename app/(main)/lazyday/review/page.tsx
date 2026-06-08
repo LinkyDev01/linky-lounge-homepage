@@ -83,7 +83,7 @@ export default function ReviewPage() {
           <h2 className={styles.successTitle}>후기를 남겨주셔서<br />감사해요</h2>
           <p className={styles.successDesc}>소중한 이야기가 다음 멤버들에게<br />닿을 수 있도록 잘 사용할게요.</p>
           <a
-            href="https://www.instagram.com/linky_lounge"
+            href="https://www.instagram.com/lazyday_bookclub"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.successButton}

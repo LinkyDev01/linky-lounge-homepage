@@ -9,6 +9,7 @@ import { AboutSection } from "./AboutSection"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
+import { FifthSessionSection } from "./FifthSessionSection"
 import { FaqSection } from "./FaqSection"
 import { FeatureBoxSection } from "./FeatureBoxSection"
 import { BrandCloseSection } from "./BrandCloseSection"
@@ -34,6 +35,7 @@ export default function StudyForeignPage() {
         <FeatureBoxSection />
         <BookSection />
         <HowToSection />
+        <FifthSessionSection />
         <ScheduleSection />
         <FaqSection />
         <BrandCloseSection />

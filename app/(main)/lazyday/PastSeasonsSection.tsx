@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Image from "next/image"
 import { season1Config, season2Config } from "./book-config"
 import type { Book } from "./book-config"
@@ -57,49 +56,35 @@ function PastBookItem({ book, seasonPrefix }: { book: Book; seasonPrefix: string
   )
 }
 
-type PastSeason = "s2" | "s1"
-
 export function PastSeasonsSection() {
-  const [active, setActive] = useState<PastSeason>("s2")
-
-  useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent("pastSeasonChange", { detail: { season: active } })
-    )
-  }, [active])
-
-  const config = active === "s1" ? season1Config : season2Config
-
   return (
     <div>
-      <div className={styles.pastSeasonsTabs}>
-        <button
-          type="button"
-          className={`${styles.pastSeasonTab} ${active === "s2" ? styles.pastSeasonTabActive : ""}`}
-          onClick={() => setActive("s2")}
-        >
-          2기
-        </button>
-        <button
-          type="button"
-          className={`${styles.pastSeasonTab} ${active === "s1" ? styles.pastSeasonTabActive : ""}`}
-          onClick={() => setActive("s1")}
-        >
-          1기
-        </button>
-      </div>
-
+      {/* 2기 */}
       <p className={styles.seasonLabel}>
-        {config.label}
-        {config.dateRange && (
-          <span className={styles.dateRange}>{config.dateRange}</span>
+        {season2Config.label}
+        {season2Config.dateRange && (
+          <span className={styles.dateRange}>{season2Config.dateRange}</span>
         )}
       </p>
-
       <div className={styles.bookList}>
-        {config.books.map((book, i) => (
-          <FadeUp key={`${active}-${book.week}`} delay={i * 0.06}>
-            <PastBookItem book={book} seasonPrefix={active} />
+        {season2Config.books.map((book, i) => (
+          <FadeUp key={`s2-${book.week}`} delay={i * 0.06}>
+            <PastBookItem book={book} seasonPrefix="s2" />
+          </FadeUp>
+        ))}
+      </div>
+
+      {/* 1기 */}
+      <p className={`${styles.seasonLabel} ${styles.seasonLabelDivider}`}>
+        {season1Config.label}
+        {season1Config.dateRange && (
+          <span className={styles.dateRange}>{season1Config.dateRange}</span>
+        )}
+      </p>
+      <div className={styles.bookList}>
+        {season1Config.books.map((book, i) => (
+          <FadeUp key={`s1-${book.week}`} delay={i * 0.06}>
+            <PastBookItem book={book} seasonPrefix="s1" />
           </FadeUp>
         ))}
       </div>

@@ -177,7 +177,7 @@ export default function ApplyPage() {
           <FadeUp delay={0.4}>
             <div className={styles.successActions}>
               <a
-                href="https://www.instagram.com/linky_lounge"
+                href="https://www.instagram.com/lazyday_bookclub"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.successSecondaryLink}

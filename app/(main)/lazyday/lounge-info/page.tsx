@@ -401,10 +401,10 @@ export default function LazyDayLoungeInfoPage() {
                 <p className={styles.contactChipLabel}>이메일</p>
                 <p className={styles.contactChipValue}>linkylounge@gmail.com</p>
               </a>
-              <a href="https://instagram.com/linky_lounge" target="_blank" rel="noopener noreferrer" className={styles.contactChip}>
+              <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" className={styles.contactChip}>
                 <span className={styles.contactChipIcon}><IconInstagram /></span>
                 <p className={styles.contactChipLabel}>인스타그램</p>
-                <p className={styles.contactChipValue}>@linky_lounge</p>
+                <p className={styles.contactChipValue}>@lazyday_bookclub</p>
               </a>
             </div>
           </div>

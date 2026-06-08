@@ -1,14 +1,14 @@
 import styles from "./ScheduleSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
-
 const regularSessions = [
-  { label: "1회차", thuDate: "5/21 (목)", sunDate: "5/24 (일)" },
-  { label: "2회차", thuDate: "6/4 (목)",  sunDate: "6/7 (일)" },
-  { label: "3회차", thuDate: "6/18 (목)", sunDate: "6/21 (일)" },
-  { label: "4회차", thuDate: "7/2 (목)",  sunDate: "7/5 (일)" },
+  { label: "1회차", wedDate: "7/22 (수)", thuDate: "7/23 (목)", sunDate: "7/26 (일)" },
+  { label: "2회차", wedDate: "8/5 (수)",  thuDate: "8/6 (목)",  sunDate: "8/9 (일)" },
+  { label: "3회차", wedDate: "8/19 (수)", thuDate: "8/20 (목)", sunDate: "8/23 (일)" },
+  { label: "4회차", wedDate: "9/2 (수)",  thuDate: "9/3 (목)",  sunDate: "9/6 (일)" },
 ]
 
+const WED_TIME = "19:30–22:30"
 const THU_TIME = "19:30–22:30"
 const SUN_TIME = "14:30–17:30"
 
@@ -18,7 +18,7 @@ export function ScheduleSection() {
       <FadeUp>
         <div className={styles.titleRow}>
           <h2 className={styles.sectionTitle}>일정·장소</h2>
-          <p className={styles.note}>*회차별 목·일 중<br />참여 요일 선택 가능</p>
+          <p className={styles.note}>*회차별 수·목·일 중<br />참여 요일 선택 가능</p>
         </div>
       </FadeUp>
 
@@ -28,6 +28,10 @@ export function ScheduleSection() {
             <div className={styles.row}>
               <span className={styles.sessionLabel}>{s.label}</span>
               <div className={styles.dates}>
+                <div className={styles.dateRow}>
+                  <span className={styles.dateText}>{s.wedDate}</span>
+                  <span className={styles.timeText}>{WED_TIME}</span>
+                </div>
                 <div className={styles.dateRow}>
                   <span className={styles.dateText}>{s.thuDate}</span>
                   <span className={styles.timeText}>{THU_TIME}</span>
@@ -43,12 +47,10 @@ export function ScheduleSection() {
 
         <FadeUp delay={0.4}>
           <div className={styles.row}>
-            <span className={styles.sessionLabel}>뒷풀이</span>
+            <span className={styles.sessionLabel}>5회차</span>
             <div className={styles.dates}>
-              <a href="#gathering" className={styles.specialName}>레이지선데이 미드나잇</a>
               <div className={styles.dateRow}>
-                <span className={styles.dateText}>7/12 (일)</span>
-                <span className={styles.timeText}>1부 17:30–20:30 · 2부 20:30–22:30</span>
+                <span className={styles.dateText}>9/13 (일)</span>
               </div>
             </div>
           </div>

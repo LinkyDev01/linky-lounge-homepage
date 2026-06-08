@@ -74,11 +74,10 @@ const faqs: Faq[] = [
       <>
         <strong className={styles.answerStrong}>1부</strong>&nbsp;영화 감상&nbsp;&nbsp;14:30–17:00<br />
         시각과 청각의 언어로 펼쳐지는 한 편의 영화를 함께 감상합니다. 철학과 예술이 맞닿아 있는 작품을 고르고, 4회차의 사유를 영상의 언어로 더 깊이 확장해가는 시간입니다.<br /><br />
-        <strong className={styles.answerStrong}>2부</strong>&nbsp;자유대화모임&nbsp;&nbsp;17:00–<br />
-        다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모여, 각자가 나누고 싶었던 이야기를 자유롭게 나눕니다.
+        <strong className={styles.answerStrong}>2부</strong>&nbsp;자유독서모임&nbsp;&nbsp;17:00–<br />
+        다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모여, 책에서 꺼내지 못했던 이야기를 자유롭게 나눕니다.
       </>
     ),
-    sub: "*소정의 참가비(1만원)가 있습니다",
   },
 ]
 

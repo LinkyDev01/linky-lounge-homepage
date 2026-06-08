@@ -36,11 +36,11 @@ export function FifthSessionSection() {
           <div className={styles.sessionBlock}>
             <div className={styles.sessionHeader}>
               <span className={styles.sessionPart}>2부</span>
-              <span className={styles.sessionName}>자유대화모임</span>
+              <span className={styles.sessionName}>자유독서모임</span>
               <span className={styles.sessionTime}>17:00–</span>
             </div>
             <p className={styles.sessionDesc}>
-              다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모입니다. 각자가 멤버들에게 묻고 싶었던 자유로운 이야기를 나누는 자리입니다.
+              다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모입니다. 책에서 꺼내지 못했던 이야기, 각자가 멤버들에게 묻고 싶었던 이야기를 자유롭게 나누는 자리입니다.
             </p>
           </div>
         </FadeUp>

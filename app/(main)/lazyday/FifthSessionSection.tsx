@@ -10,7 +10,7 @@ export function FifthSessionSection() {
             <h2 className={styles.sectionTitle}>5회차</h2>
             <span className={styles.sectionSub}>자유독서모임</span>
           </div>
-          <p className={styles.footnote}>*5회차는 정기 독서모임 4회 이후 추가로 진행되는 모임입니다.</p>
+          <p className={styles.footnote}>*5회차는 정규 독서모임 4회 이후 추가로 진행되는 모임입니다.</p>
         </FadeUp>
 
         <FadeUp delay={0.08}>

@@ -1,16 +1,12 @@
 import styles from "./ScheduleSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
-const regularSessions = [
-  { label: "1회차", wedDate: "7/22 (수)", thuDate: "7/23 (목)", sunDate: "7/26 (일)" },
-  { label: "2회차", wedDate: "8/5 (수)",  thuDate: "8/6 (목)",  sunDate: "8/9 (일)" },
-  { label: "3회차", wedDate: "8/19 (수)", thuDate: "8/20 (목)", sunDate: "8/23 (일)" },
-  { label: "4회차", wedDate: "9/2 (수)",  thuDate: "9/3 (목)",  sunDate: "9/6 (일)" },
+const sessions = [
+  { label: "1회차", wed: "7/22", thu: "7/23", sun: "7/26" },
+  { label: "2회차", wed: "8/5",  thu: "8/6",  sun: "8/9"  },
+  { label: "3회차", wed: "8/19", thu: "8/20", sun: "8/23" },
+  { label: "4회차", wed: "9/2",  thu: "9/3",  sun: "9/6"  },
 ]
-
-const WED_TIME = "19:30–22:30"
-const THU_TIME = "19:30–22:30"
-const SUN_TIME = "14:30–17:30"
 
 export function ScheduleSection() {
   return (
@@ -22,50 +18,58 @@ export function ScheduleSection() {
         </div>
       </FadeUp>
 
-      <div className={styles.list}>
-        {regularSessions.map((s, i) => (
-          <FadeUp key={s.label} delay={0.15 + i * 0.06}>
-            <div className={styles.row}>
-              <span className={styles.sessionLabel}>{s.label}</span>
-              <div className={styles.dates}>
-                <div className={styles.dateRow}>
-                  <span className={styles.dateText}>{s.wedDate}</span>
-                  <span className={styles.timeText}>{WED_TIME}</span>
-                </div>
-                <div className={styles.dateRow}>
-                  <span className={styles.dateText}>{s.thuDate}</span>
-                  <span className={styles.timeText}>{THU_TIME}</span>
-                </div>
-                <div className={styles.dateRow}>
-                  <span className={styles.dateText}>{s.sunDate}</span>
-                  <span className={styles.timeText}>{SUN_TIME}</span>
-                </div>
-              </div>
-            </div>
-          </FadeUp>
-        ))}
+      <FadeUp delay={0.1}>
+        <div className={styles.scheduleBox}>
+          <p className={styles.scheduleBoxHeader}>3기 일정</p>
+          <table className={styles.scheduleTable}>
+            <thead>
+              <tr>
+                <th className={styles.schThEmpty} />
+                <th className={styles.schThDay}>
+                  수요일<br />
+                  <span className={styles.schThTime}>19:30–22:30</span>
+                </th>
+                <th className={styles.schThDay}>
+                  목요일<br />
+                  <span className={styles.schThTime}>19:30–22:30</span>
+                </th>
+                <th className={styles.schThDay}>
+                  일요일<br />
+                  <span className={styles.schThTime}>14:30–17:30</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions.map((s) => (
+                <tr key={s.label}>
+                  <td className={styles.schTdLabel}>{s.label}</td>
+                  <td className={styles.schTdDate}>{s.wed}</td>
+                  <td className={styles.schTdDate}>{s.thu}</td>
+                  <td className={styles.schTdDate}>{s.sun}</td>
+                </tr>
+              ))}
+              <tr>
+                <td className={styles.schTdLabel}>5회차</td>
+                <td colSpan={3} className={styles.schTdFifth}>
+                  9/13 (일)<br />
+                  <span className={styles.schThTime}>1부 14:30–17:00 · 2부 17:00–</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
+        </div>
+      </FadeUp>
 
-        <FadeUp delay={0.4}>
-          <div className={styles.row}>
-            <span className={styles.sessionLabel}>5회차</span>
-            <div className={styles.dates}>
-              <div className={styles.dateRow}>
-                <span className={styles.dateText}>9/13 (일)</span>
-              </div>
-            </div>
+      <FadeUp delay={0.2}>
+        <div className={styles.locationRow}>
+          <span className={styles.locationLabel}>장소</span>
+          <div className={styles.locationInfo}>
+            <span className={styles.locationName}>링키라운지</span>
+            <span className={styles.locationSub}>사당역 10번 출구 도보 3분</span>
           </div>
-        </FadeUp>
-
-        <FadeUp delay={0.48}>
-          <div className={styles.locationRow}>
-            <span className={styles.locationLabel}>장소</span>
-            <div className={styles.locationInfo}>
-              <span className={styles.locationName}>링키라운지</span>
-              <span className={styles.locationSub}>사당역 10번 출구 도보 3분</span>
-            </div>
-          </div>
-        </FadeUp>
-      </div>
+        </div>
+      </FadeUp>
     </section>
   )
 }

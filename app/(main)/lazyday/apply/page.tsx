@@ -249,7 +249,10 @@ export default function ApplyPage() {
                 ))}
                 <tr>
                   <td className={styles.schTdLabel}>5회차</td>
-                  <td colSpan={3} className={styles.schTdMidnight}>9/13 (일)&nbsp;&nbsp;1부 14:30–17:00 · 2부 17:00–</td>
+                  <td colSpan={3} className={styles.schTdMidnight}>
+                    9/13 (일)<br />
+                    <span className={styles.schThTime}>1부 14:30–17:00 · 2부 17:00–</span>
+                  </td>
                 </tr>
               </tbody>
             </table>

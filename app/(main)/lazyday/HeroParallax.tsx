@@ -10,8 +10,8 @@ export function HeroParallax() {
   return (
     <div className={styles.heroWrapper}>
       <Image
-        src="/linky-lounge/book-club/2nd-poster-typo.webp"
-        alt="Lazy Day Book Club 2기"
+        src="/linky-lounge/book-club/3rd-poster-typo.png"
+        alt="Lazy Day Book Club 3기"
         className={styles.mainImage}
         width={1440}
         height={1800}

@@ -2,10 +2,10 @@ import styles from "./ScheduleSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 const sessions = [
-  { label: "1회차", wed: "7/22", thu: "7/23", sun: "7/26" },
-  { label: "2회차", wed: "8/5",  thu: "8/6",  sun: "8/9"  },
-  { label: "3회차", wed: "8/19", thu: "8/20", sun: "8/23" },
-  { label: "4회차", wed: "9/2",  thu: "9/3",  sun: "9/6"  },
+  { label: "1회차", wed: "7/15", thu: "7/16", sun: "7/19" },
+  { label: "2회차", wed: "7/29", thu: "7/30", sun: "8/2"  },
+  { label: "3회차", wed: "8/12", thu: "8/13", sun: "8/16" },
+  { label: "4회차", wed: "8/26", thu: "8/27", sun: "8/30" },
 ]
 
 export function ScheduleSection() {
@@ -51,7 +51,7 @@ export function ScheduleSection() {
               <tr>
                 <td className={styles.schTdLabel}>5회차</td>
                 <td colSpan={3} className={styles.schTdFifth}>
-                  9/13 (일)<br />
+                  9/6 (일)<br />
                   <span className={styles.schThTime}>1부 14:30–17:00 · 2부 17:00–</span>
                 </td>
               </tr>

@@ -63,15 +63,16 @@
 }
 
 /* 1부 / 2부 블록 */
+.sessionBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .sessionBlock {
   background-color: #edddd0;
   border-radius: 8px;
   padding: 14px 16px;
-  margin-bottom: 24px;
-}
-
-.sessionBlock:last-child {
-  margin-bottom: 0;
 }
 
 .sessionMeta {

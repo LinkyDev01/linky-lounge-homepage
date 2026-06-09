@@ -115,7 +115,6 @@ export default function InterviewSchedulePage() {
   const [confirmed,    setConfirmed]    = useState<SlotItem | null>(null)
   const [prefillName,  setPrefillName]  = useState("")
   const [prefillPhone, setPrefillPhone] = useState("")
-  const [ref0Open,     setRef0Open]     = useState(false)
   const [ref1Open,     setRef1Open]     = useState(false)
   const [ref2Open,     setRef2Open]     = useState(false)
   const hasAutoSelected = useRef(false)
@@ -331,33 +330,19 @@ export default function InterviewSchedulePage() {
           </div>
         </FadeUp>
 
-        {/* 3기 구성 및 참가비 안내 — 헤더 바로 아래, 캘린더 위 */}
+        {/* 3기 구성 및 참가비 */}
         <FadeUp delay={0.08}>
-          <div id="ref0-section-phone" className={styles.refBeigeWrap}>
-            <button type="button" className={styles.refTitleBoxBeige} onClick={() => setRef0Open(v => !v)} aria-expanded={ref0Open}>
-              <span className={styles.refQuestion}>3기 구성 및 참가비 안내</span>
-              <span className={`${styles.refArrow} ${ref0Open ? styles.refArrowOpen : ""}`}>▾</span>
-            </button>
-            <div
-              className={`${styles.refPeekWrap} ${styles.refPeekWrapBeige} ${ref0Open ? styles.refPeekOpen : ""}`}
-              onClick={() => setRef0Open(v => !v)}
-              role="button"
-              aria-expanded={ref0Open}
-              tabIndex={0}
-              onKeyDown={e => e.key === "Enter" && setRef0Open(v => !v)}
-            >
-              <div className={styles.refQuote}>
-                <p className={styles.refAnswer}><strong className={styles.refStrong}>정규 독서모임 (1–4회차)</strong><br />7월 15일부터 격주로 4회 진행됩니다. 회차별 수·목·일 중 원하는 요일을 선택해 참여하실 수 있어요.</p>
-                <p className={styles.refAnswer}><strong className={styles.refStrong}>자유 독서모임 (5회차)</strong><br />정규 4회 이후 추가로 진행되는 모임입니다. 1부 영화 감상(14:30–17:00), 2부 자유 독서모임(17:00–)으로 구성됩니다.</p>
-                <p className={styles.refAnswer}><strong className={styles.refStrong}>장소</strong><br />사당역 부근에서 진행됩니다.</p>
-                <p className={styles.refAnswer}><strong className={styles.refStrong}>참가비</strong><br /><strong className={styles.refStrong}>150,000원</strong><br />인터뷰 통과 후 개별 안내드립니다.<br />참가비에는 공간 운영, 모임 기획과 진행, 다과, 커뮤니티 운영이 포함됩니다.</p>
-              </div>
-              {!ref0Open && (
-                <div className={styles.refFadeWrap}>
-                  <div className={styles.refFadeBgBeige} />
-                  <span className={`${styles.refMoreHint} ${styles.refMoreHintBeige}`}>...더보기</span>
-                </div>
-              )}
+          <div className={styles.refBeigeWrap}>
+            <p className={styles.ref0Title}>3기 구성 및 참가비</p>
+            <div className={styles.ref0Grid}>
+              <span className={styles.ref0Key}>정규모임</span>
+              <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
+              <span className={styles.ref0Key}>자유모임</span>
+              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 추가</span>
+              <span className={styles.ref0Key}>장소</span>
+              <span className={styles.ref0Val}>사당역 부근</span>
+              <span className={styles.ref0Key}>참가비</span>
+              <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 통과 후 결제 안내)</span>
             </div>
           </div>
         </FadeUp>

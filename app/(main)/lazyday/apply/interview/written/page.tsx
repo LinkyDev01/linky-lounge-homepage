@@ -178,13 +178,13 @@ export default function WrittenInterviewPage() {
 
         {/* 3기 구성 및 참가비 안내 — 헤더 바로 아래, Q1 위 */}
         <FadeUp delay={0.04}>
-          <div id="ref0-section" className={styles.refItem}>
-            <button type="button" className={styles.refTitleBox} onClick={() => setRef0Open(v => !v)} aria-expanded={ref0Open}>
+          <div id="ref0-section" className={styles.refBeigeWrap}>
+            <button type="button" className={styles.refTitleBoxBeige} onClick={() => setRef0Open(v => !v)} aria-expanded={ref0Open}>
               <span className={styles.refQuestion}>3기 구성 및 참가비 안내</span>
               <span className={`${styles.refArrow} ${ref0Open ? styles.refArrowOpen : ""}`}>▾</span>
             </button>
             <div
-              className={`${styles.refPeekWrap} ${ref0Open ? styles.refPeekOpen : ""}`}
+              className={`${styles.refPeekWrap} ${styles.refPeekWrapBeige} ${ref0Open ? styles.refPeekOpen : ""}`}
               onClick={() => setRef0Open(v => !v)}
               role="button"
               aria-expanded={ref0Open}
@@ -199,8 +199,8 @@ export default function WrittenInterviewPage() {
               </div>
               {!ref0Open && (
                 <div className={styles.refFadeWrap}>
-                  <div className={styles.refFadeBg} />
-                  <span className={styles.refMoreHint}>...더보기</span>
+                  <div className={styles.refFadeBgBeige} />
+                  <span className={`${styles.refMoreHint} ${styles.refMoreHintBeige}`}>...더보기</span>
                 </div>
               )}
             </div>

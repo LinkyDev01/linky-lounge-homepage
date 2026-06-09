@@ -243,9 +243,9 @@ export default function WrittenInterviewPage() {
                   onKeyDown={e => e.key === "Enter" && setRef0Open(v => !v)}
                 >
                   <div className={styles.refQuote}>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>1–4회차 · 정기 독서모임</strong><br />7월 15일부터 격주로 4회 진행됩니다. 회차별 수·목·일 중 원하는 요일을 선택해 참여하실 수 있어요.</p>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>5회차 · 자유독서모임</strong><br />정기 4회 이후 추가로 진행되는 모임입니다. 1부 영화 감상(14:30–17:00), 2부 자유독서모임(17:00–)으로 구성됩니다.</p>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>장소</strong><br />사당역 도보 3분, 링키라운지에서 진행됩니다.</p>
+                    <p className={styles.refAnswer}><strong className={styles.refStrong}>1–4회차 (정기 독서모임)</strong><br />7월 15일부터 격주로 4회 진행됩니다. 회차별 수·목·일 중 원하는 요일을 선택해 참여하실 수 있어요.</p>
+                    <p className={styles.refAnswer}><strong className={styles.refStrong}>5회차 (자유 독서모임)</strong><br />정기 4회 이후 추가로 진행되는 모임입니다. 1부 영화 감상(14:30–17:00), 2부 자유 독서모임(17:00–)으로 구성됩니다.</p>
+                    <p className={styles.refAnswer}><strong className={styles.refStrong}>장소</strong><br />사당역 부근에서 진행됩니다.</p>
                     <p className={styles.refAnswer}><strong className={styles.refStrong}>참가비</strong><br />150,000원 · 인터뷰 통과 후 개별 안내드립니다.<br />참가비에는 공간 운영, 모임 기획과 진행, 다과, 커뮤니티 운영이 포함됩니다.</p>
                   </div>
                   {!ref0Open && (

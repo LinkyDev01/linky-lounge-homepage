@@ -166,19 +166,43 @@ export default function WrittenInterviewPage() {
             <div className={styles.headerSub}>
               <p><span className={styles.accent}>결</span>이 맞는 사람과의 대화를 위한 레이지데이 북클럽의 서면 인터뷰 세션입니다. 떠오르는 대로, 작성하고 싶은 만큼 이야기를 들려주세요.</p>
               <p className={styles.headerSubNote}>
-                ✱ 3기 일정 및 참가비가 궁금하시면{" "}
-                <button type="button" onClick={() => { setRef0Open(true); document.getElementById("ref0-section")?.scrollIntoView({ behavior: "smooth", block: "start" }) }} className={styles.refLink}>
-                  모집 안내
-                </button>
-                를 확인해보세요.
-              </p>
-              <p className={styles.headerSubNote}>
                 ✱ 레이지데이가 보는 '결'이 궁금하시면{" "}
                 <button type="button" onClick={scrollToRef} className={styles.refLink}>
                   페이지 하단 (참고) 섹션
                 </button>
                 을 잠깐 훑어보셔도 좋아요.
               </p>
+            </div>
+          </div>
+        </FadeUp>
+
+        {/* 3기 구성 및 참가비 안내 — 헤더 바로 아래, Q1 위 */}
+        <FadeUp delay={0.04}>
+          <div id="ref0-section" className={styles.refItem}>
+            <button type="button" className={styles.refTitleBox} onClick={() => setRef0Open(v => !v)} aria-expanded={ref0Open}>
+              <span className={styles.refQuestion}>3기 구성 및 참가비 안내</span>
+              <span className={`${styles.refArrow} ${ref0Open ? styles.refArrowOpen : ""}`}>▾</span>
+            </button>
+            <div
+              className={`${styles.refPeekWrap} ${ref0Open ? styles.refPeekOpen : ""}`}
+              onClick={() => setRef0Open(v => !v)}
+              role="button"
+              aria-expanded={ref0Open}
+              tabIndex={0}
+              onKeyDown={e => e.key === "Enter" && setRef0Open(v => !v)}
+            >
+              <div className={styles.refQuote}>
+                <p className={styles.refAnswer}><strong className={styles.refStrong}>정규 독서모임 (1–4회차)</strong><br />7월 15일부터 격주로 4회 진행됩니다. 회차별 수·목·일 중 원하는 요일을 선택해 참여하실 수 있어요.</p>
+                <p className={styles.refAnswer}><strong className={styles.refStrong}>자유 독서모임 (5회차)</strong><br />정규 4회 이후 추가로 진행되는 모임입니다. 1부 영화 감상(14:30–17:00), 2부 자유 독서모임(17:00–)으로 구성됩니다.</p>
+                <p className={styles.refAnswer}><strong className={styles.refStrong}>장소</strong><br />사당역 부근에서 진행됩니다.</p>
+                <p className={styles.refAnswer}><strong className={styles.refStrong}>참가비</strong><br /><strong className={styles.refStrong}>150,000원</strong><br />인터뷰 통과 후 개별 안내드립니다.<br />참가비에는 공간 운영, 모임 기획과 진행, 다과, 커뮤니티 운영이 포함됩니다.</p>
+              </div>
+              {!ref0Open && (
+                <div className={styles.refFadeWrap}>
+                  <div className={styles.refFadeBg} />
+                  <span className={styles.refMoreHint}>...더보기</span>
+                </div>
+              )}
             </div>
           </div>
         </FadeUp>
@@ -227,35 +251,6 @@ export default function WrittenInterviewPage() {
           {/* (참고) 섹션 — FAQ 서식 동일 */}
           <FadeUp delay={0.5}>
             <div id="reference-section" className={styles.referenceSection}>
-
-              {/* 모집 안내: 일정 및 참가비 */}
-              <div id="ref0-section" className={styles.refItem}>
-                <button type="button" className={styles.refTitleBox} onClick={() => setRef0Open(v => !v)} aria-expanded={ref0Open}>
-                  <span className={styles.refQuestion}>3기 일정 및 참가비</span>
-                  <span className={`${styles.refArrow} ${ref0Open ? styles.refArrowOpen : ""}`}>▾</span>
-                </button>
-                <div
-                  className={`${styles.refPeekWrap} ${ref0Open ? styles.refPeekOpen : ""}`}
-                  onClick={() => setRef0Open(v => !v)}
-                  role="button"
-                  aria-expanded={ref0Open}
-                  tabIndex={0}
-                  onKeyDown={e => e.key === "Enter" && setRef0Open(v => !v)}
-                >
-                  <div className={styles.refQuote}>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>1–4회차 (정기 독서모임)</strong><br />7월 15일부터 격주로 4회 진행됩니다. 회차별 수·목·일 중 원하는 요일을 선택해 참여하실 수 있어요.</p>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>5회차 (자유 독서모임)</strong><br />정기 4회 이후 추가로 진행되는 모임입니다. 1부 영화 감상(14:30–17:00), 2부 자유 독서모임(17:00–)으로 구성됩니다.</p>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>장소</strong><br />사당역 부근에서 진행됩니다.</p>
-                    <p className={styles.refAnswer}><strong className={styles.refStrong}>참가비</strong><br />150,000원 · 인터뷰 통과 후 개별 안내드립니다.<br />참가비에는 공간 운영, 모임 기획과 진행, 다과, 커뮤니티 운영이 포함됩니다.</p>
-                  </div>
-                  {!ref0Open && (
-                    <div className={styles.refFadeWrap}>
-                      <div className={styles.refFadeBg} />
-                      <span className={styles.refMoreHint}>...더보기</span>
-                    </div>
-                  )}
-                </div>
-              </div>
 
               {/* 참고 1: 결 */}
               <div className={styles.refItem}>

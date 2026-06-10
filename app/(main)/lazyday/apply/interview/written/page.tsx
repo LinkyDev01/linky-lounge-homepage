@@ -187,7 +187,7 @@ export default function WrittenInterviewPage() {
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>사당역 부근</span>
               <span className={styles.ref0Key}>참가비</span>
-              <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 통과 후 결제 안내)</span>
+              <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
             </div>
           </div>
         </FadeUp>

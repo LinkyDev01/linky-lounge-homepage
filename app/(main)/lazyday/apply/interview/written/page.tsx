@@ -286,7 +286,7 @@ export default function WrittenInterviewPage() {
                   <div className={styles.refQuote}>
                     <p className={styles.refAnswer}>비슷한 결을 가진 사람들이 모였다고 해서 같은 결론에 도달할 필요는 없거든요. 같은 곳에서 멈추는 사람들이라도 거기서 자라난 사유의 궤적은 각자 다르니까요.</p>
                     <p className={styles.refAnswer}>바우하우스의 정갈한 비대칭처럼, 각기 다른 궤적을 그려온 사람들의 단련된 사유가 거칠게 부딪힐 때 그 불협화음이 오히려 고전의 본질을 꿰뚫는 하나의 선율이 되는 순간이 있어요.</p>
-                    <p className={styles.refAnswer}>다 같이 고개 끄덕이는 무색무취한 공감 말고, 각자의 뚜렷한 철학을 바탕으로 사유의 밀도를 높일 수 있는 자리, 그 부조화 속에서 이전에 없던 지적 조화를 발견하는 자리. 그게 레이지데이가 만들고 싶은 결이에요.</p>
+                    <p className={styles.refAnswer}>다 같이 고개 끄덕이는 무색무취한 공감 말고, 각자의 뚜렷한 철학을 바탕으로 사유의 밀도를 높일 수 있는 자리, 그 부조화 속에서 이전에 없던 지적 조화를 발견하는 자리. 그게 레이지데이가 만들고 싶은 자리예요.</p>
                   </div>
                   {!ref2Open && (
                     <div className={styles.refFadeWrap}>

@@ -33,8 +33,10 @@
 
 .headerImage {
   width: 100%;
+  max-width: 417px;
   height: auto;
   display: block;
+  object-fit: contain;
 }
 
 .headerTitle {

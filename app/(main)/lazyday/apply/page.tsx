@@ -122,12 +122,22 @@ export default function ApplyPage() {
       marketingConsent: marketingConsent ? "동의" : "미동의",
     }
 
-    // Next.js API 라우트를 통해 GAS로 전달 (fire-and-forget)
-    fetch(SUBMIT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }).catch(() => {})
+    // 서버 접수가 확인된 경우에만 완료 화면을 보여준다 (신청 유실 방지)
+    try {
+      const res = await fetch(SUBMIT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const result = await res.json().catch(() => null)
+      if (!res.ok || !result?.success) throw new Error("submit failed")
+    } catch {
+      setLoading(false)
+      setErrors({
+        _form: "일시적인 오류로 신청이 접수되지 않았어요. 잠시 후 '신청 완료하기'를 다시 눌러주세요.",
+      })
+      return
+    }
 
     // 인터뷰 페이지에서 자동 입력을 위해 이름·전화번호·인터뷰방식 저장
     try {
@@ -207,7 +217,6 @@ export default function ApplyPage() {
               src="/linky-lounge/book-club/ldbc-logo-text.png"
               alt="레이지데이 북클럽"
               className={styles.headerImage}
-              style={{ width: 417, height: 240, objectFit: "contain" }}
             />
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽

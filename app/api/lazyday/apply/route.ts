@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error("[lazyday/apply] GAS 호출 실패:", err)
-    // UX 우선 — 사용자에게 오류 노출 방지
-    return NextResponse.json({ success: true })
+    // 저장이 안 됐는데 성공으로 응답하면 신청이 유실됨 — 실패를 그대로 알린다
+    return NextResponse.json(
+      { success: false, error: "신청 접수에 실패했습니다." },
+      { status: 502 }
+    )
   }
 }

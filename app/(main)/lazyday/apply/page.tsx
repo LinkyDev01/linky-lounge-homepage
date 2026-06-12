@@ -317,13 +317,17 @@ export default function ApplyPage() {
             <FormField label="나이" name="age" required error={errors.age}>
               <input
                 id="age"
-                type="number"
+                type="text"
                 name="age"
                 inputMode="numeric"
+                autoComplete="off"
+                maxLength={3}
                 className={`${styles.input} ${errors.age ? styles.inputError : ""}`}
                 placeholder="만 나이를 입력해주세요."
-                min={1}
-                onChange={() => clearError("age")}
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/[^0-9]/g, "")
+                  clearError("age")
+                }}
               />
             </FormField>
           </FadeUp>

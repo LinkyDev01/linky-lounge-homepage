@@ -18,7 +18,7 @@ export function ScheduleSection() {
         </div>
       </FadeUp>
 
-      <FadeUp delay={0.1}>
+      <FadeUp>
         <div className={styles.scheduleBox}>
           <p className={styles.scheduleBoxHeader}>3기 일정</p>
           <table className={styles.scheduleTable}>
@@ -61,12 +61,13 @@ export function ScheduleSection() {
         </div>
       </FadeUp>
 
-      <FadeUp delay={0.2}>
+      <FadeUp>
         <div className={styles.locationRow}>
           <span className={styles.locationLabel}>장소</span>
           <div className={styles.locationInfo}>
             <span className={styles.locationName}>링키라운지</span>
             <span className={styles.locationSub}>사당역 10번 출구 도보 3분</span>
+            <span className={styles.locationNote}>*상황에 따라 장소가 변경될 수 있습니다.</span>
           </div>
         </div>
       </FadeUp>

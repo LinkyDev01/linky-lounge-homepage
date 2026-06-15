@@ -70,12 +70,12 @@ const faqs: Faq[] = [
   {
     id: "gathering",
     key: "gathering",
-    q: <><strong className={styles.questionStrong}>자유독서모임</strong>에선 어떤 시간이 마련되나요?</>,
+    q: <><strong className={styles.questionStrong}>자유 독서모임</strong>에선 어떤 시간이 마련되나요?</>,
     a: (
       <>
         <strong className={styles.answerStrong}>1부</strong>&nbsp;영화 감상&nbsp;&nbsp;14:30–17:00<br />
         시각과 청각의 언어로 펼쳐지는 한 편의 영화를 함께 감상합니다. 철학과 예술이 맞닿아 있는 작품을 고르고, 4회차의 사유를 영상의 언어로 더 깊이 확장해가는 시간입니다.<br /><br />
-        <strong className={styles.answerStrong}>2부</strong>&nbsp;자유독서모임&nbsp;&nbsp;17:00–<br />
+        <strong className={styles.answerStrong}>2부</strong>&nbsp;자유 독서모임&nbsp;&nbsp;17:00–<br />
         다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모여, 네 권의 책에서는 꺼내지 못했던 이야기를 자유롭게 나눕니다.
       </>
     ),
@@ -103,11 +103,10 @@ export function FaqSection() {
       </FadeUp>
 
       <div className={styles.list}>
-        {faqs.map((faq, i) => {
+        {faqs.map((faq) => {
           const isOpen = openSet.has(faq.key)
           return (
-            <FadeUp key={faq.key} delay={0.1 + i * 0.06}>
-              <div id={faq.id} className={styles.item}>
+            <div key={faq.key} id={faq.id} className={styles.item}>
                 <button
                   className={styles.titleBox}
                   onClick={() => toggle(faq.key)}
@@ -142,12 +141,11 @@ export function FaqSection() {
                   </div>
                 )}
               </div>
-            </FadeUp>
           )
         })}
       </div>
 
-      <FadeUp delay={0.5}>
+      <FadeUp>
         <div className={styles.contact}>
           <p className={styles.contactText}>다른 질문이 있어요</p>
           <a

@@ -8,7 +8,22 @@
 
 .heroWrapper {
     position: relative;
-    background: #ffffff;
+    background: #f5ede4;
+}
+
+.heroCard {
+    position: relative;
+    overflow: hidden;
+    transform-origin: center top;
+    will-change: transform;
+    line-height: 0;
+}
+
+.heroDarken {
+    position: absolute;
+    inset: 0;
+    background: #1a1208;
+    pointer-events: none;
 }
 
 .mainImage {

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import type { ReactNode } from "react"
 import styles from "./FeatureBoxSection.module.css"
-import { FadeUp } from "@/components/animation/FadeUp"
 
 const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
   {
@@ -60,7 +59,7 @@ export function FeatureBoxSection() {
           {items.map((item, i) => {
             const isOpen = openSet.has(i)
             return (
-              <FadeUp key={i} delay={0.07 * i} className={styles.item}>
+              <div key={i} className={styles.item}>
                 <button
                   type="button"
                   className={styles.titleBox}
@@ -92,7 +91,7 @@ export function FeatureBoxSection() {
                   {!isOpen && <span className={styles.moreHint}>...더보기</span>}
                   {isOpen && item.note && <p className={styles.note}>{item.note}</p>}
                 </div>
-              </FadeUp>
+              </div>
             )
           })}
         </div>

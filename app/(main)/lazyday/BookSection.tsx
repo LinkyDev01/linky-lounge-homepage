@@ -90,7 +90,7 @@ export function BookSection() {
 
         {/* 3기 — 현재 기수 */}
         <div className={styles.currentSeason}>
-          <FadeUp delay={0.1}>
+          <FadeUp>
             <p className={styles.seasonLabel}>
               3기
               {season3Config.dateRange && (
@@ -100,10 +100,8 @@ export function BookSection() {
           </FadeUp>
           <BookCoverStrip books={season3Config.books} seasonPrefix="s3" isSticky />
           <div className={styles.bookList}>
-            {season3Config.books.map((book, i) => (
-              <FadeUp key={book.week} delay={i * 0.08}>
-                <BookItem book={book} withImage={true} seasonPrefix="s3" />
-              </FadeUp>
+            {season3Config.books.map((book) => (
+              <BookItem key={book.week} book={book} withImage={true} seasonPrefix="s3" />
             ))}
           </div>
         </div>

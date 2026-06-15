@@ -10,7 +10,7 @@ export function HeroParallax() {
   return (
     <div className={styles.heroWrapper}>
       <Image
-        src="/linky-lounge/book-club/lazyday_poster_v2.png"
+        src="/linky-lounge/book-club/lazyday_poster_v2.webp"
         alt="Lazy Day Book Club"
         className={styles.mainImage}
         width={1080}

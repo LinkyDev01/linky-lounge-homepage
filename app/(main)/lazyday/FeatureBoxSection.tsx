@@ -3,6 +3,7 @@
 import { useState } from "react"
 import type { ReactNode } from "react"
 import styles from "./FeatureBoxSection.module.css"
+import { FadeUp } from "@/components/animation/FadeUp"
 
 const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
   {
@@ -53,9 +54,11 @@ export function FeatureBoxSection() {
   return (
     <section id="feature" className={styles.section}>
       <div className={styles.inner}>
-        <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>모임 소개</h2>
-        </div>
+        <FadeUp>
+          <div className={styles.titleRow}>
+            <h2 className={styles.sectionTitle}>모임 소개</h2>
+          </div>
+        </FadeUp>
         <div className={styles.list}>
           {items.map((item, i) => {
             const isOpen = openSet.has(i)

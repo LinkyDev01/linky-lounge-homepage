@@ -8,7 +8,7 @@ export function FifthSessionSection() {
         <FadeUp>
           <div className={styles.titleRow}>
             <h2 className={styles.sectionTitle}>5회차</h2>
-            <span className={styles.sectionSub}>자유독서모임</span>
+            <span className={styles.sectionSub}>자유 독서모임</span>
           </div>
           <p className={styles.footnote}>*5회차는 정규 독서모임 4회 이후 추가로 진행되는 모임입니다.</p>
         </FadeUp>
@@ -35,7 +35,7 @@ export function FifthSessionSection() {
             <div className={styles.sessionBlock}>
               <p className={styles.sessionMeta}>
                 <span className={styles.sessionPart}>2부</span>
-                <span className={styles.sessionName}>자유독서모임</span>
+                <span className={styles.sessionName}>자유 독서모임</span>
                 <span className={styles.sessionTime}>17:00–</span>
               </p>
               <p className={styles.sessionDesc}>

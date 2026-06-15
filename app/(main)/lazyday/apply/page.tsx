@@ -227,7 +227,6 @@ export default function ApplyPage() {
           </div>
         </FadeUp>
 
-        <FadeUp>
           <section className={styles.scheduleNotice}>
             <h2 className={styles.scheduleHeader}>3기 일정</h2>
             <table className={styles.scheduleTable}>
@@ -268,10 +267,8 @@ export default function ApplyPage() {
             </table>
             <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
           </section>
-        </FadeUp>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <FadeUp>
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
                 id="name"
@@ -282,9 +279,7 @@ export default function ApplyPage() {
                 onChange={() => clearError("name")}
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp>
             <div className={styles.formGroup}>
               <span className={styles.formLabel}>
                 성별
@@ -312,9 +307,7 @@ export default function ApplyPage() {
               </div>
               {errors.gender && <p className={styles.errorText}>{errors.gender}</p>}
             </div>
-          </FadeUp>
 
-          <FadeUp>
             <FormField label="나이" name="age" required error={errors.age}>
               <input
                 id="age"
@@ -331,9 +324,7 @@ export default function ApplyPage() {
                 }}
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp>
             <FormField label="전화번호" name="phone" required error={errors.phone}>
               <input
                 id="phone"
@@ -348,9 +339,7 @@ export default function ApplyPage() {
                 }}
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp>
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -388,9 +377,7 @@ export default function ApplyPage() {
                 </div>
               )}
             </div>
-          </FadeUp>
 
-          <FadeUp>
             <FormField label="한 줄 인사" name="greeting" optional sectionId="apply-optional">
               <input
                 id="greeting"
@@ -400,9 +387,7 @@ export default function ApplyPage() {
                 placeholder="짧은 인삿말도, 간단한 소개도 모두 좋습니다."
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp>
             <FormField label="인스타그램 아이디" name="instagram" optional>
               <input
                 id="instagram"
@@ -412,9 +397,7 @@ export default function ApplyPage() {
                 placeholder="@your_instagram"
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp>
             <FormField label="추천인" name="referral" optional>
               <input
                 id="referral"
@@ -424,9 +407,7 @@ export default function ApplyPage() {
                 placeholder="지인 성함 입력 시 10% 할인 적용해드려요."
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp>
             <div className={styles.consentBox}>
               <label htmlFor="marketingConsent" className={styles.consentLabel}>
                 <input
@@ -451,19 +432,14 @@ export default function ApplyPage() {
                 <p className={styles.errorText}>{errors.marketingConsent}</p>
               )}
             </div>
-          </FadeUp>
 
           {errors._form && (
-            <FadeUp>
               <p className={styles.formError}>{errors._form}</p>
-            </FadeUp>
           )}
 
-          <FadeUp>
             <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? "신청 중입니다..." : "신청 완료하기"}
             </button>
-          </FadeUp>
         </form>
       </div>
     </main>

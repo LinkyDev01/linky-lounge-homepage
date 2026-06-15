@@ -332,7 +332,6 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         {/* 3기 구성 및 참가비 */}
-        <FadeUp>
           <div className={styles.refBeigeWrap}>
             <p className={styles.ref0Title}>3기 구성 및 참가비</p>
             <div className={styles.ref0Grid}>
@@ -346,10 +345,8 @@ export default function InterviewSchedulePage() {
               <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
             </div>
           </div>
-        </FadeUp>
 
         {/* 메인 패널 */}
-        <FadeUp>
           <div className={styles.panel}>
 
             {/* ── 왼쪽: 월 달력 ── */}
@@ -457,11 +454,9 @@ export default function InterviewSchedulePage() {
               )}
             </div>
           </div>
-        </FadeUp>
 
         {/* 예약 폼 */}
         {selectedSlot && (
-          <FadeUp>
             <div className={styles.bookCard}>
               <div className={styles.selectedBadge}>
                 <span className={styles.selectedLabel}>선택한 일정</span>
@@ -498,11 +493,9 @@ export default function InterviewSchedulePage() {
                 </button>
               </form>
             </div>
-          </FadeUp>
         )}
 
         {/* (참고) 섹션 */}
-        <FadeUp>
           <div id="ref-section-phone" className={styles.referenceSection}>
 
             {/* 참고 1: 결 */}
@@ -566,7 +559,6 @@ export default function InterviewSchedulePage() {
             </div>
 
           </div>
-        </FadeUp>
 
       </div>
     </main>

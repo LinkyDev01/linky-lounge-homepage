@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, type FormEvent } from "react"
+import { useState, useEffect, Fragment, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
@@ -177,7 +177,6 @@ export default function WrittenInterviewPage() {
         </FadeUp>
 
         {/* 3기 구성 및 참가비 */}
-        <FadeUp>
           <div className={styles.refBeigeWrap}>
             <p className={styles.ref0Title}>3기 구성 및 참가비</p>
             <div className={styles.ref0Grid}>
@@ -191,9 +190,7 @@ export default function WrittenInterviewPage() {
               <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
             </div>
           </div>
-        </FadeUp>
 
-        <FadeUp>
           <div className={styles.infoCard}>
             <div className={styles.infoRow}>
               <label htmlFor="written-name" className={styles.infoLabel}>이름 <span className={styles.req}>*</span></label>
@@ -212,11 +209,10 @@ export default function WrittenInterviewPage() {
             </div>
             {(name || phone) && <p className={styles.infoNote}>신청 시 입력하신 정보로 자동 입력되었습니다. 수정 가능합니다.</p>}
           </div>
-        </FadeUp>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           {QUESTIONS.map((q, i) => (
-            <FadeUp key={q.id}>
+            <Fragment key={q.id}>
               <div id={`question-${q.id}`} className={styles.questionGroup}>
                 <span className={styles.questionLabel}>{q.label}</span>
                 <p className={styles.questionText}>{q.text}</p>
@@ -231,11 +227,10 @@ export default function WrittenInterviewPage() {
                 />
               </div>
               {i < QUESTIONS.length - 1 && <div className={styles.divider} />}
-            </FadeUp>
+            </Fragment>
           ))}
 
           {/* (참고) 섹션 — FAQ 서식 동일 */}
-          <FadeUp>
             <div id="reference-section" className={styles.referenceSection}>
 
               {/* 참고 1: 결 */}
@@ -299,9 +294,7 @@ export default function WrittenInterviewPage() {
               </div>
 
             </div>
-          </FadeUp>
 
-          <FadeUp>
             <div id="written-consent" className={styles.consentBox}>
               <label htmlFor="writtenConsent" className={styles.consentLabel}>
                 <input
@@ -317,13 +310,10 @@ export default function WrittenInterviewPage() {
               <p className={styles.consentNote}>수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.</p>
               {consentError && <p className={styles.errorText}>{consentError}</p>}
             </div>
-          </FadeUp>
 
-          <FadeUp>
             <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? "제출 중..." : "서면 인터뷰 제출하기"}
             </button>
-          </FadeUp>
         </form>
       </div>
     </main>

@@ -318,7 +318,7 @@ export default function InterviewSchedulePage() {
             />
             <h1 className={styles.headerTitle}>전화 인터뷰</h1>
             <div className={styles.headerSub}>
-              <p><span className={styles.accent}>결</span>이 맞는 사람과의 대화를 위한 레이지데이 북클럽의 전화 인터뷰 세션입니다. 떠오르는 대로, 작성하고 싶은 만큼 이야기를 들려주세요.</p>
+              <p><span className={styles.accent}>결</span>이 맞는 사람과의 대화를 위한 레이지데이 북클럽의 전화 인터뷰 세션입니다. 떠오르는 대로, 자유롭게 이야기를 들려주세요.</p>
               <p className={styles.headerSubNote}>
                 ✱ 레이지데이가 보는 '결'이 궁금하시면{" "}
                 <button type="button" onClick={scrollToPhoneRef} className={styles.refLink}>

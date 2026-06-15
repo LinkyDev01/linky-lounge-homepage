@@ -5,7 +5,7 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 export function BrandCloseSection() {
   return (
     <section className={styles.section}>
-      <BlurReveal duration={1.6} blur={14} fromScale={1.04} finalOpacity={0.8}>
+      <BlurReveal duration={1.28} blur={14} fromScale={1.04} finalOpacity={0.8}>
         <div className={styles.logoWrap}>
           <Image
             src="/linky-lounge/book-club/ldbc-logo-text.png"

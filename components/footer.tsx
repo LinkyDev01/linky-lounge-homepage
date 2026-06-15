@@ -1,7 +1,16 @@
 import Link from "next/link"
 import { Instagram } from "lucide-react"
 
-export function Footer() {
+type FooterProps = {
+  /** 기본값은 링키라운지 채널. 레이지데이 등 별도 브랜드 페이지에서 덮어쓴다. */
+  instagramUrl?: string
+  kakaoUrl?: string
+}
+
+export function Footer({
+  instagramUrl = "https://www.instagram.com/linky_lounge",
+  kakaoUrl = "http://pf.kakao.com/_cuWDn",
+}: FooterProps = {}) {
   return (
     <footer className="bg-foreground text-background py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +40,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://www.instagram.com/linky_lounge"
+                  href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/70 hover:text-background transition-colors inline-flex items-center gap-1"
@@ -42,7 +51,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="http://pf.kakao.com/_cuWDn"
+                  href={kakaoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/70 hover:text-background transition-colors inline-flex items-center gap-1"

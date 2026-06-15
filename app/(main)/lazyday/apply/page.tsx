@@ -227,6 +227,7 @@ export default function ApplyPage() {
           </div>
         </FadeUp>
 
+        <FadeUp>
           <section className={styles.scheduleNotice}>
             <h2 className={styles.scheduleHeader}>3기 일정</h2>
             <table className={styles.scheduleTable}>
@@ -441,6 +442,7 @@ export default function ApplyPage() {
               {loading ? "신청 중입니다..." : "신청 완료하기"}
             </button>
         </form>
+        </FadeUp>
       </div>
     </main>
   )

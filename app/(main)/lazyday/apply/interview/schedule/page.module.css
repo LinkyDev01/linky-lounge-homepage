@@ -19,6 +19,13 @@
   gap: 20px;
 }
 
+/* 폼 본문 1회 페이드 래퍼 — container의 flex gap을 그대로 유지 */
+.bodyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* 헤더 */
 .header {
   display: flex;

@@ -331,6 +331,7 @@ export default function InterviewSchedulePage() {
           </div>
         </FadeUp>
 
+        <FadeUp className={styles.bodyGroup}>
         {/* 3기 구성 및 참가비 */}
           <div className={styles.refBeigeWrap}>
             <p className={styles.ref0Title}>3기 구성 및 참가비</p>
@@ -559,6 +560,7 @@ export default function InterviewSchedulePage() {
             </div>
 
           </div>
+        </FadeUp>
 
       </div>
     </main>

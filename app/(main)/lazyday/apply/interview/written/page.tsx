@@ -176,6 +176,7 @@ export default function WrittenInterviewPage() {
           </div>
         </FadeUp>
 
+        <FadeUp>
         {/* 3기 구성 및 참가비 */}
           <div className={styles.refBeigeWrap}>
             <p className={styles.ref0Title}>3기 구성 및 참가비</p>
@@ -315,6 +316,7 @@ export default function WrittenInterviewPage() {
               {loading ? "제출 중..." : "서면 인터뷰 제출하기"}
             </button>
         </form>
+        </FadeUp>
       </div>
     </main>
   )

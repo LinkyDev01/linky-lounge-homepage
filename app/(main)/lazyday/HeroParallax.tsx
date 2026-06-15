@@ -30,7 +30,7 @@ export function HeroParallax() {
       <div className={styles.heroWrapper}>
         <div className={styles.heroCard}>
           <Image
-            src="/linky-lounge/book-club/3rd-poster-typo.png"
+            src="/linky-lounge/book-club/3rd-poster-typo.webp"
             alt="Lazy Day Book Club 3기"
             className={styles.mainImage}
             width={1440}
@@ -50,7 +50,7 @@ export function HeroParallax() {
         style={{ scale, y, borderRadius: radius }}
       >
         <Image
-          src="/linky-lounge/book-club/3rd-poster-typo.png"
+          src="/linky-lounge/book-club/3rd-poster-typo.webp"
           alt="Lazy Day Book Club 3기"
           className={styles.mainImage}
           width={1440}

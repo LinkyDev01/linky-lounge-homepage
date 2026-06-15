@@ -38,7 +38,8 @@ const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
 ]
 
 export function FeatureBoxSection() {
-  const [openSet, setOpenSet] = useState<Set<number>>(new Set())
+  // 첫 카드는 기본 펼침 — 스크롤만 하는 사용자도 핵심 가치를 바로 읽도록
+  const [openSet, setOpenSet] = useState<Set<number>>(new Set([0]))
 
   const toggle = (i: number) => {
     setOpenSet(prev => {

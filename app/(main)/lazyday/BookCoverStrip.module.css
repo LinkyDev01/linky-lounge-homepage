@@ -24,15 +24,16 @@
   margin-right: -24px;
   padding: 10px 24px 14px;
   margin-bottom: 20px;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
-  pointer-events: none;
+  /* 항상 노출 — 이전엔 opacity:0 기본이라 보이지 않는 상태에서도
+     157px 높이를 차지해 "3기" 아래 빈 띠(빈 공백)가 생겼음.
+     sticky 따라오기 동작은 유지하면서 빈 공백만 제거. */
+  opacity: 1;
+  pointer-events: auto;
+  transition: box-shadow 0.28s ease;
 }
 
 .stripVisible {
   opacity: 1;
-  transform: translateY(0);
   pointer-events: auto;
 }
 

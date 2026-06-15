@@ -18,7 +18,7 @@ export function ScheduleSection() {
         </div>
       </FadeUp>
 
-      <FadeUp delay={0.1}>
+      <FadeUp>
         <div className={styles.scheduleBox}>
           <p className={styles.scheduleBoxHeader}>3기 일정</p>
           <table className={styles.scheduleTable}>
@@ -61,7 +61,7 @@ export function ScheduleSection() {
         </div>
       </FadeUp>
 
-      <FadeUp delay={0.2}>
+      <FadeUp>
         <div className={styles.locationRow}>
           <span className={styles.locationLabel}>장소</span>
           <div className={styles.locationInfo}>

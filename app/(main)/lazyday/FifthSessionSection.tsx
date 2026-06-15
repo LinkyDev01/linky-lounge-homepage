@@ -13,14 +13,14 @@ export function FifthSessionSection() {
           <p className={styles.footnote}>*5회차는 정규 독서모임 4회 이후 추가로 진행되는 모임입니다.</p>
         </FadeUp>
 
-        <FadeUp delay={0.08}>
+        <FadeUp>
           <p className={styles.intro}>
             4회에 걸쳐 나눈 대화의 마무리이자,<br />
             모든 멤버가 처음으로 한자리에 모이는 날입니다.
           </p>
         </FadeUp>
 
-        <FadeUp delay={0.14}>
+        <FadeUp>
           <div className={styles.sessionBlocks}>
             <div className={styles.sessionBlock}>
               <p className={styles.sessionMeta}>

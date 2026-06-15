@@ -103,11 +103,10 @@ export function FaqSection() {
       </FadeUp>
 
       <div className={styles.list}>
-        {faqs.map((faq, i) => {
+        {faqs.map((faq) => {
           const isOpen = openSet.has(faq.key)
           return (
-            <FadeUp key={faq.key} delay={0.1 + i * 0.06}>
-              <div id={faq.id} className={styles.item}>
+            <div key={faq.key} id={faq.id} className={styles.item}>
                 <button
                   className={styles.titleBox}
                   onClick={() => toggle(faq.key)}
@@ -142,12 +141,11 @@ export function FaqSection() {
                   </div>
                 )}
               </div>
-            </FadeUp>
           )
         })}
       </div>
 
-      <FadeUp delay={0.5}>
+      <FadeUp>
         <div className={styles.contact}>
           <p className={styles.contactText}>다른 질문이 있어요</p>
           <a

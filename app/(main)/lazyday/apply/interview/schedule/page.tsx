@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { BlurReveal } from "@/components/animation/BlurReveal"
 import styles from "./page.module.css"
 
 // ================================================================
@@ -285,18 +286,18 @@ export default function InterviewSchedulePage() {
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
-          <FadeUp>
+          <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img src="/linky-lounge/book-club/lazyday_logo.png" alt="레이지데이" className={styles.successMark} />
-          </FadeUp>
-          <FadeUp delay={0.1}><h1 className={styles.successTitle}>인터뷰가 예약되었습니다.</h1></FadeUp>
-          <FadeUp delay={0.2}><p className={styles.successSlot}>{label}</p></FadeUp>
-          <FadeUp delay={0.3}>
+          </BlurReveal>
+          <FadeUp><h1 className={styles.successTitle}>인터뷰가 예약되었습니다.</h1></FadeUp>
+          <FadeUp><p className={styles.successSlot}>{label}</p></FadeUp>
+          <FadeUp>
             <p className={styles.successBody}>
               인터뷰는 <span className={styles.successAccent}>전화로 약 20분간</span> 진행됩니다.<br />
               선택하신 시간에 맞추어 연락드리겠습니다.
             </p>
           </FadeUp>
-          <FadeUp delay={0.4}><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
+          <FadeUp><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
         </div>
       </main>
     )
@@ -331,7 +332,7 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         {/* 3기 구성 및 참가비 */}
-        <FadeUp delay={0.08}>
+        <FadeUp>
           <div className={styles.refBeigeWrap}>
             <p className={styles.ref0Title}>3기 구성 및 참가비</p>
             <div className={styles.ref0Grid}>
@@ -348,7 +349,7 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         {/* 메인 패널 */}
-        <FadeUp delay={0.1}>
+        <FadeUp>
           <div className={styles.panel}>
 
             {/* ── 왼쪽: 월 달력 ── */}
@@ -501,7 +502,7 @@ export default function InterviewSchedulePage() {
         )}
 
         {/* (참고) 섹션 */}
-        <FadeUp delay={0.2}>
+        <FadeUp>
           <div id="ref-section-phone" className={styles.referenceSection}>
 
             {/* 참고 1: 결 */}

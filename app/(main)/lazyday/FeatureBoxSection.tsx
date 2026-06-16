@@ -39,7 +39,8 @@ const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
 ]
 
 export function FeatureBoxSection() {
-  const [openSet, setOpenSet] = useState<Set<number>>(new Set())
+  // 첫 카드는 기본 펼침 — 스크롤만 하는 사용자도 핵심 가치를 바로 읽도록
+  const [openSet, setOpenSet] = useState<Set<number>>(new Set([0]))
 
   const toggle = (i: number) => {
     setOpenSet(prev => {
@@ -53,14 +54,16 @@ export function FeatureBoxSection() {
   return (
     <section id="feature" className={styles.section}>
       <div className={styles.inner}>
-        <div className={styles.titleRow}>
-          <h2 className={styles.sectionTitle}>모임 소개</h2>
-        </div>
+        <FadeUp>
+          <div className={styles.titleRow}>
+            <h2 className={styles.sectionTitle}>모임 소개</h2>
+          </div>
+        </FadeUp>
         <div className={styles.list}>
           {items.map((item, i) => {
             const isOpen = openSet.has(i)
             return (
-              <FadeUp key={i} delay={0.07 * i} className={styles.item}>
+              <div key={i} className={styles.item}>
                 <button
                   type="button"
                   className={styles.titleBox}
@@ -92,7 +95,7 @@ export function FeatureBoxSection() {
                   {!isOpen && <span className={styles.moreHint}>...더보기</span>}
                   {isOpen && item.note && <p className={styles.note}>{item.note}</p>}
                 </div>
-              </FadeUp>
+              </div>
             )
           })}
         </div>

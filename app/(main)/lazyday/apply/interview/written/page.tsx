@@ -3,6 +3,7 @@
 import { useState, useEffect, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { BlurReveal } from "@/components/animation/BlurReveal"
 import styles from "./page.module.css"
 
 const QUESTIONS = [
@@ -111,23 +112,23 @@ export default function WrittenInterviewPage() {
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
-          <FadeUp>
+          <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img
               src="/linky-lounge/book-club/ldbc-logo-text.png"
               alt="레이지데이 북클럽"
               className={styles.successMark}
               style={{ width: 417, height: 240, objectFit: "contain" }}
             />
-          </FadeUp>
-          <FadeUp delay={0.1}><h1 className={styles.successTitle}>답변 감사합니다.</h1></FadeUp>
-          <FadeUp delay={0.2}>
+          </BlurReveal>
+          <FadeUp><h1 className={styles.successTitle}>답변 감사합니다.</h1></FadeUp>
+          <FadeUp>
             <p className={styles.successBody}>
               서면 인터뷰가 완료되었습니다.<br />
               검토 후 <span className={styles.successAccent}>개별 연락</span> 드리겠습니다.
             </p>
           </FadeUp>
-          <FadeUp delay={0.3}><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
-          <FadeUp delay={0.4}>
+          <FadeUp><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
+          <FadeUp>
             <a href="https://www.instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" className={styles.successLink}>
               인스타그램 보러가기
             </a>
@@ -175,10 +176,10 @@ export default function WrittenInterviewPage() {
           </div>
         </FadeUp>
 
+        <FadeUp>
         {/* 3기 구성 및 참가비 */}
-        <FadeUp delay={0.04}>
           <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 구성 및 참가비</p>
+            <p className={styles.ref0Title}>3기 구성</p>{/* 가격 복원 시 '3기 구성 및 참가비' */}
             <div className={styles.ref0Grid}>
               <span className={styles.ref0Key}>정규모임</span>
               <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
@@ -186,13 +187,13 @@ export default function WrittenInterviewPage() {
               <span className={styles.ref0Val}>5회차 · 정규 4회 이후 추가</span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>사당역 부근</span>
+              {/* 가격정보 임시 숨김 — 추후 복원 예정 (이 주석만 제거하면 복원)
               <span className={styles.ref0Key}>참가비</span>
               <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
+              */}
             </div>
           </div>
-        </FadeUp>
 
-        <FadeUp delay={0.05}>
           <div className={styles.infoCard}>
             <div className={styles.infoRow}>
               <label htmlFor="written-name" className={styles.infoLabel}>이름 <span className={styles.req}>*</span></label>
@@ -215,7 +216,7 @@ export default function WrittenInterviewPage() {
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           {QUESTIONS.map((q, i) => (
-            <FadeUp key={q.id} delay={0.1 + i * 0.06}>
+            <FadeUp key={q.id}>
               <div id={`question-${q.id}`} className={styles.questionGroup}>
                 <span className={styles.questionLabel}>{q.label}</span>
                 <p className={styles.questionText}>{q.text}</p>
@@ -234,7 +235,7 @@ export default function WrittenInterviewPage() {
           ))}
 
           {/* (참고) 섹션 — FAQ 서식 동일 */}
-          <FadeUp delay={0.5}>
+          <FadeUp>
             <div id="reference-section" className={styles.referenceSection}>
 
               {/* 참고 1: 결 */}
@@ -300,7 +301,7 @@ export default function WrittenInterviewPage() {
             </div>
           </FadeUp>
 
-          <FadeUp delay={0.55}>
+          <FadeUp>
             <div id="written-consent" className={styles.consentBox}>
               <label htmlFor="writtenConsent" className={styles.consentLabel}>
                 <input
@@ -316,9 +317,7 @@ export default function WrittenInterviewPage() {
               <p className={styles.consentNote}>수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.</p>
               {consentError && <p className={styles.errorText}>{consentError}</p>}
             </div>
-          </FadeUp>
 
-          <FadeUp delay={0.6}>
             <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? "제출 중..." : "서면 인터뷰 제출하기"}
             </button>

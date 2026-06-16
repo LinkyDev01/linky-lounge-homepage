@@ -4,6 +4,7 @@ import { useState, useEffect, type FormEvent, type ReactNode } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { BlurReveal } from "@/components/animation/BlurReveal"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import styles from "./page.module.css"
 
@@ -160,17 +161,17 @@ export default function ApplyPage() {
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
-          <FadeUp>
+          <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img
               src="/linky-lounge/book-club/lazyday_logo.png"
               alt="레이지데이"
               className={styles.successMark}
             />
-          </FadeUp>
-          <FadeUp delay={0.1}>
+          </BlurReveal>
+          <FadeUp>
             <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
           </FadeUp>
-          <FadeUp delay={0.2}>
+          <FadeUp>
             <p className={styles.successBody}>
               신청이 완료되었습니다.
               <br />
@@ -181,10 +182,10 @@ export default function ApplyPage() {
               을 바로 진행해주세요.
             </p>
           </FadeUp>
-          <FadeUp delay={0.3}>
+          <FadeUp>
             <p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p>
           </FadeUp>
-          <FadeUp delay={0.4}>
+          <FadeUp>
             <div className={styles.successActions}>
               <a
                 href="https://www.instagram.com/lazyday_bookclub"
@@ -226,7 +227,7 @@ export default function ApplyPage() {
           </div>
         </FadeUp>
 
-        <FadeUp delay={0.1}>
+        <FadeUp>
           <section className={styles.scheduleNotice}>
             <h2 className={styles.scheduleHeader}>3기 일정</h2>
             <table className={styles.scheduleTable}>
@@ -269,8 +270,8 @@ export default function ApplyPage() {
           </section>
         </FadeUp>
 
+        <FadeUp>
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <FadeUp delay={0.15}>
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
                 id="name"
@@ -281,9 +282,7 @@ export default function ApplyPage() {
                 onChange={() => clearError("name")}
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp delay={0.2}>
             <div className={styles.formGroup}>
               <span className={styles.formLabel}>
                 성별
@@ -311,9 +310,7 @@ export default function ApplyPage() {
               </div>
               {errors.gender && <p className={styles.errorText}>{errors.gender}</p>}
             </div>
-          </FadeUp>
 
-          <FadeUp delay={0.25}>
             <FormField label="나이" name="age" required error={errors.age}>
               <input
                 id="age"
@@ -330,9 +327,7 @@ export default function ApplyPage() {
                 }}
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp delay={0.3}>
             <FormField label="전화번호" name="phone" required error={errors.phone}>
               <input
                 id="phone"
@@ -347,9 +342,7 @@ export default function ApplyPage() {
                 }}
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp delay={0.38}>
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -387,9 +380,7 @@ export default function ApplyPage() {
                 </div>
               )}
             </div>
-          </FadeUp>
 
-          <FadeUp delay={0.42}>
             <FormField label="한 줄 인사" name="greeting" optional sectionId="apply-optional">
               <input
                 id="greeting"
@@ -399,9 +390,7 @@ export default function ApplyPage() {
                 placeholder="짧은 인삿말도, 간단한 소개도 모두 좋습니다."
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp delay={0.44}>
             <FormField label="인스타그램 아이디" name="instagram" optional>
               <input
                 id="instagram"
@@ -411,9 +400,7 @@ export default function ApplyPage() {
                 placeholder="@your_instagram"
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp delay={0.46}>
             <FormField label="추천인" name="referral" optional>
               <input
                 id="referral"
@@ -423,9 +410,7 @@ export default function ApplyPage() {
                 placeholder="지인 성함 입력 시 10% 할인 적용해드려요."
               />
             </FormField>
-          </FadeUp>
 
-          <FadeUp delay={0.5}>
             <div className={styles.consentBox}>
               <label htmlFor="marketingConsent" className={styles.consentLabel}>
                 <input
@@ -450,20 +435,16 @@ export default function ApplyPage() {
                 <p className={styles.errorText}>{errors.marketingConsent}</p>
               )}
             </div>
-          </FadeUp>
 
           {errors._form && (
-            <FadeUp>
               <p className={styles.formError}>{errors._form}</p>
-            </FadeUp>
           )}
 
-          <FadeUp delay={0.55}>
             <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? "신청 중입니다..." : "신청 완료하기"}
             </button>
-          </FadeUp>
         </form>
+        </FadeUp>
       </div>
     </main>
   )

@@ -43,7 +43,10 @@ export default function StudyForeignPage() {
 
       <SectionIndicator />
       <StickyApplyButton />
-      <Footer />
+      <Footer
+        instagramUrl="https://instagram.com/lazyday_bookclub"
+        kakaoUrl="https://pf.kakao.com/_gixaAX"
+      />
     </>
   )
 }

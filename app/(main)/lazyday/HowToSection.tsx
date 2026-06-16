@@ -35,13 +35,13 @@ export function HowToSection() {
 
       <div className={styles.timeline}>
         {steps.map(({ label, description }, i) => (
-          <FadeUp key={label} delay={0.1 + i * 0.1} className={styles.step}>
+          <div key={label} className={styles.step}>
             <span className={styles.stepNumber}>{String(i + 1).padStart(2, "0")}</span>
             <div className={styles.stepContent}>
               <h3 className={styles.stepLabel}>{label}</h3>
               <p className={styles.stepDesc}>{description}</p>
             </div>
-          </FadeUp>
+          </div>
         ))}
       </div>
     </section>

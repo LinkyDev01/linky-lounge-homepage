@@ -13,7 +13,7 @@ export function LoungeFooter() {
               <li>주식회사 링키</li>
               <li>대표 : 안동민 | 개인정보관리책임자 : 안동민</li>
               <li>사업자등록번호 : 557-81-03588 | 통신판매업신고번호: 2026-별내-0077</li>
-              <li>이메일 : linkylounge@gmail.com | 대표번호 : 010-7444-5790</li>
+              <li>이메일 : contact@linkylounge.com | 대표번호 : 010-7444-5790</li>
               <li>주소: 경기도 남양주시 별내3로 322, 404호</li>
             </ul>
           </div>

@@ -187,8 +187,10 @@ export default function WrittenInterviewPage() {
               <span className={styles.ref0Val}>5회차 · 정규 4회 이후 추가</span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>사당역 부근</span>
+              {/* 가격정보 임시 숨김 — 추후 복원 예정 (이 주석만 제거하면 복원)
               <span className={styles.ref0Key}>참가비</span>
               <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
+              */}
             </div>
           </div>
 

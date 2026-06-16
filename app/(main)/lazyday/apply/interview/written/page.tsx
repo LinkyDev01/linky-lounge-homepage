@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Fragment, type FormEvent } from "react"
+import { useState, useEffect, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
@@ -210,10 +210,11 @@ export default function WrittenInterviewPage() {
             </div>
             {(name || phone) && <p className={styles.infoNote}>신청 시 입력하신 정보로 자동 입력되었습니다. 수정 가능합니다.</p>}
           </div>
+        </FadeUp>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           {QUESTIONS.map((q, i) => (
-            <Fragment key={q.id}>
+            <FadeUp key={q.id}>
               <div id={`question-${q.id}`} className={styles.questionGroup}>
                 <span className={styles.questionLabel}>{q.label}</span>
                 <p className={styles.questionText}>{q.text}</p>
@@ -228,10 +229,11 @@ export default function WrittenInterviewPage() {
                 />
               </div>
               {i < QUESTIONS.length - 1 && <div className={styles.divider} />}
-            </Fragment>
+            </FadeUp>
           ))}
 
           {/* (참고) 섹션 — FAQ 서식 동일 */}
+          <FadeUp>
             <div id="reference-section" className={styles.referenceSection}>
 
               {/* 참고 1: 결 */}
@@ -295,7 +297,9 @@ export default function WrittenInterviewPage() {
               </div>
 
             </div>
+          </FadeUp>
 
+          <FadeUp>
             <div id="written-consent" className={styles.consentBox}>
               <label htmlFor="writtenConsent" className={styles.consentLabel}>
                 <input
@@ -315,8 +319,8 @@ export default function WrittenInterviewPage() {
             <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? "제출 중..." : "서면 인터뷰 제출하기"}
             </button>
+          </FadeUp>
         </form>
-        </FadeUp>
       </div>
     </main>
   )

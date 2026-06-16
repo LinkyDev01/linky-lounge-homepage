@@ -495,7 +495,9 @@ export default function InterviewSchedulePage() {
               </form>
             </div>
         )}
+        </FadeUp>
 
+        <FadeUp>
         {/* (참고) 섹션 */}
           <div id="ref-section-phone" className={styles.referenceSection}>
 

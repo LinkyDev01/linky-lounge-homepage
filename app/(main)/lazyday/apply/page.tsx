@@ -268,7 +268,9 @@ export default function ApplyPage() {
             </table>
             <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
           </section>
+        </FadeUp>
 
+        <FadeUp>
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input

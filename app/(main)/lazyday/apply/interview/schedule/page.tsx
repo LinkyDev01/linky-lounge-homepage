@@ -334,7 +334,7 @@ export default function InterviewSchedulePage() {
         <FadeUp className={styles.bodyGroup}>
         {/* 3기 구성 및 참가비 */}
           <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 구성 및 참가비</p>
+            <p className={styles.ref0Title}>3기 구성</p>{/* 가격 복원 시 '3기 구성 및 참가비' */}
             <div className={styles.ref0Grid}>
               <span className={styles.ref0Key}>정규모임</span>
               <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>

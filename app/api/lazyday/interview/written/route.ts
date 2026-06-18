@@ -29,10 +29,11 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { name, phone, answers } = body as {
+  const { name, phone, answers, questions } = body as {
     name: string
     phone: string
     answers: Record<string, string>
+    questions?: Array<{ id: string; label: string; text: string; sub?: string }>
   }
 
   try {
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       redirect: "follow",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "written", name, phone, answers }),
+      body: JSON.stringify({ type: "written", name, phone, answers, questions }),
     })
 
     if (!res.ok) {

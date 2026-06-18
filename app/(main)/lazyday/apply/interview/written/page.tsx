@@ -98,7 +98,13 @@ export default function WrittenInterviewPage() {
       const res = await fetch("/api/lazyday/interview/written", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, answers }),
+        body: JSON.stringify({
+          name,
+          phone,
+          answers,
+          // 질문 원문도 함께 전송 → 관리자 메일에서 질문+답변 매핑 (페이지 수정 시 메일 자동 반영)
+          questions: QUESTIONS.map((q) => ({ id: q.id, label: q.label, text: q.text, sub: q.sub })),
+        }),
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.error || "오류")

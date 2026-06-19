@@ -1,0 +1,22 @@
+.row {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.dot {
+  width: var(--ld-size);
+  height: var(--ld-size);
+  border-radius: 50%;
+  display: block;
+  animation: ld-wave var(--ld-speed) ease-in-out infinite;
+}
+
+@keyframes ld-wave {
+  0%, 100% { transform: translateY(var(--ld-down)) scale(0.86, 1.06); }
+  40%      { transform: translateY(calc(-1 * var(--ld-up))) scale(1.06, 0.92); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot { animation-duration: 3s; }
+}

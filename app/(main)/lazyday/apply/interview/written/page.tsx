@@ -4,6 +4,7 @@ import { useState, useEffect, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
+import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "./page.module.css"
 
 const QUESTIONS = [
@@ -146,6 +147,7 @@ export default function WrittenInterviewPage() {
 
   return (
     <main className={styles.writtenPage}>
+      {loading && <SubmitOverlay label="제출 중..." />}
       {/* 우측 진행 인디케이터 — 질문별 개별 매핑 */}
       <nav className={styles.progressIndicator} aria-label="서면 인터뷰 진행 표시">
         {QUESTIONS.map((q) => (

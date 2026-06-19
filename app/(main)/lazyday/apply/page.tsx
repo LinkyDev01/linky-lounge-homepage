@@ -5,6 +5,7 @@ import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
+import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import styles from "./page.module.css"
 
@@ -210,6 +211,7 @@ export default function ApplyPage() {
 
   return (
     <main className={styles.applyPage} data-track-section="bookclub_apply_page">
+      {loading && <SubmitOverlay label="신청 접수 중..." />}
       <ApplySectionIndicator />
       <div className={styles.container}>
         <FadeUp>

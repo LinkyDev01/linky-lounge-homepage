@@ -284,6 +284,13 @@ export default function InterviewSchedulePage() {
     const d = new Date(kstMs)
     const dow = d.getUTCDay()
     const label = `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 (${DAY_KO[dow]}) ${confirmed.label}`
+    // 신청자가 본인 구글 캘린더에 추가할 수 있는 링크 (TEMPLATE)
+    const toCal = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "")
+    const calUrl =
+      "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+      "&text=" + encodeURIComponent("레이지데이 북클럽 전화 인터뷰") +
+      "&dates=" + toCal(confirmed.startISO) + "/" + toCal(confirmed.endISO) +
+      "&details=" + encodeURIComponent("레이지데이 북클럽 전화 인터뷰입니다. 선택하신 시간에 담당자가 전화드릴게요.")
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
@@ -299,6 +306,11 @@ export default function InterviewSchedulePage() {
             </p>
           </FadeUp>
           <FadeUp><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
+          <FadeUp>
+            <a href={calUrl} target="_blank" rel="noopener noreferrer" className={styles.calendarBtn}>
+              📅 내 캘린더에 추가
+            </a>
+          </FadeUp>
         </div>
       </main>
     )

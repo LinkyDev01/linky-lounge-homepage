@@ -438,6 +438,23 @@
 .successAccent { color: #d2691e; font-weight: 700; }
 .successCloser { font-size: 16px; font-weight: 700; color: #d2691e; margin: 0; }
 
+/* 내 캘린더에 추가 버튼 (다크 성공 화면용) */
+.calendarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 13px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #d2691e;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.calendarBtn:hover { background: #b8571a; }
+
 /* ── 헤더 타이틀 & 서브텍스트 ── */
 .headerTitle {
   font-size: 22px;

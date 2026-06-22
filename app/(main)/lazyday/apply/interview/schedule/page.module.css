@@ -654,15 +654,10 @@
   color: #4a3020;
 }
 
-/* 3기 한정 할인 표기 */
-.priceWas { color: #b0a090; text-decoration: line-through; font-weight: 500; margin-right: 4px; }
-.priceNow { font-weight: 800; color: #d2691e; }
-.priceTag {
-  display: inline-block; margin-left: 5px; padding: 1px 6px;
-  font-size: 10px; font-weight: 700; color: #d2691e;
-  background: rgba(210, 105, 30, 0.12); border-radius: 100px; vertical-align: middle;
-}
-.priceNote { color: #8a6a50; margin-left: 4px; }
+/* 3기 한정 할인 표기 (미니멀) */
+.priceWas { color: #b3a795; text-decoration: line-through; font-weight: 400; margin-right: 7px; }
+.priceNow { font-weight: 700; color: #c2410c; letter-spacing: -0.01em; }
+.priceLabel { margin-left: 9px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.07em; color: #a8927e; }
 
 /* ── 반응형 ── */
 @media (max-width: 600px) {

@@ -657,7 +657,8 @@
 /* 3기 한정 할인 표기 (미니멀) */
 .priceWas { color: #b3a795; text-decoration: line-through; font-weight: 400; margin-right: 7px; }
 .priceNow { font-weight: 700; color: #c2410c; letter-spacing: -0.01em; }
-.priceLabel { margin-left: 9px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.07em; color: #a8927e; }
+.priceLabel { margin-left: 8px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.01em; color: #d2691e; }
+.priceLabel::before { content: "·"; margin-right: 8px; color: #cbb8a4; font-weight: 400; }
 
 /* ── 반응형 ── */
 @media (max-width: 600px) {

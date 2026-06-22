@@ -654,6 +654,14 @@
   color: #4a3020;
 }
 
+/* 3기 한정 할인 표기 (미니멀) */
+.priceWas { color: #b3a795; text-decoration: line-through; font-weight: 400; margin-right: 7px; }
+.priceNow { font-weight: 600; color: #4a3020; letter-spacing: -0.01em; }
+.priceLabel { margin-left: 7px; font-size: 10px; font-weight: 600; color: #c98a4b; }
+
+/* 장소 변경 안내 주석 (lazyday locationNote와 동일 형식) */
+.ref0Note { font-size: 10.5px; font-weight: 500; color: #8a6a50; line-height: 1.5; margin: 9px 0 0; }
+
 /* ── 반응형 ── */
 @media (max-width: 600px) {
   .page { padding: 20px 0 64px; }

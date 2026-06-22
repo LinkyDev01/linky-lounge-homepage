@@ -348,7 +348,7 @@ export default function InterviewSchedulePage() {
         <FadeUp className={styles.bodyGroup}>
         {/* 3기 구성 및 참가비 */}
           <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 구성</p>{/* 가격 복원 시 '3기 구성 및 참가비' */}
+            <p className={styles.ref0Title}>3기 구성 및 참가비</p>
             <div className={styles.ref0Grid}>
               <span className={styles.ref0Key}>정규모임</span>
               <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
@@ -356,10 +356,8 @@ export default function InterviewSchedulePage() {
               <span className={styles.ref0Val}>5회차 · 정규 4회 이후 추가</span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>사당역 부근</span>
-              {/* 가격정보 임시 숨김 — 추후 복원 예정 (이 주석만 제거하면 복원)
               <span className={styles.ref0Key}>참가비</span>
               <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
-              */}
             </div>
           </div>
 

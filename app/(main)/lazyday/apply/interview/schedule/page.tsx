@@ -357,7 +357,12 @@ export default function InterviewSchedulePage() {
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>사당역 부근</span>
               <span className={styles.ref0Key}>참가비</span>
-              <span className={styles.ref0Val}><strong>150,000원</strong> (인터뷰 후 결제 안내)</span>
+              <span className={styles.ref0Val}>
+                <s className={styles.priceWas}>200,000원</s>
+                <strong className={styles.priceNow}>150,000원</strong>
+                <span className={styles.priceTag}>3기 한정</span>
+                <span className={styles.priceNote}>(인터뷰 후 결제 안내)</span>
+              </span>
             </div>
           </div>
 

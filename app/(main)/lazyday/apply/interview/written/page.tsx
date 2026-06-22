@@ -192,16 +192,17 @@ export default function WrittenInterviewPage() {
               <span className={styles.ref0Key}>정규모임</span>
               <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
               <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 추가</span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>사당역 부근</span>
+              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
               <span className={styles.ref0Key}>참가비</span>
               <span className={styles.ref0Val}>
                 <s className={styles.priceWas}>200,000원</s>
                 <strong className={styles.priceNow}>150,000원</strong>
                 <span className={styles.priceLabel}>3기 한정</span>
               </span>
+              <span className={styles.ref0Key}>장소</span>
+              <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
             </div>
+            <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
           </div>
 
           <div className={styles.infoCard}>

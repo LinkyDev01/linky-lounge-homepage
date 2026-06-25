@@ -154,11 +154,11 @@
 
 .infoInput {
   flex: 1;
-  height: 36px;
+  height: 40px;
   border: 1.5px solid #e8dccd;
   border-radius: 8px;
   padding: 0 10px;
-  font-size: 14px;
+  font-size: 16px; /* iOS 포커스 자동 확대 방지 (16px 미만이면 확대됨) */
   font-weight: 500;
   color: #1a1208;
   background: #ffffff;
@@ -222,7 +222,7 @@
 .textarea {
   width: 100%;
   padding: 14px 16px;
-  font-size: 14px;
+  font-size: 16px; /* iOS 포커스 자동 확대 방지 (16px 미만이면 확대됨) */
   font-family: inherit;
   color: #1a1208;
   background: #ffffff;

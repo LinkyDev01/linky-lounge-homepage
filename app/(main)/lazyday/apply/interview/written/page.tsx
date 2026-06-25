@@ -60,6 +60,7 @@ const INTRO_2 =
 
 // 페이지별 문항 (1페이지 = 안내/참가비/이름·연락처)
 const PAGES: Record<number, string[]> = { 2: ["q1", "q2"], 3: ["q3", "q4"], 4: ["q5", "q6"] }
+const PAGE_LABELS: Record<number, string> = { 1: "정보 입력", 2: "질문 1 · 2", 3: "질문 3 · 4", 4: "질문 5 · 6" }
 const LAST_PAGE = 4
 
 // GA4 + Meta Pixel 동시 전송
@@ -278,6 +279,10 @@ export default function WrittenInterviewPage() {
               </Fragment>
             ))}
           </div>
+          <p className={styles.progressCaption}>
+            <span className={styles.progressCaptionStep}>{currentPage} / 4</span>
+            {PAGE_LABELS[currentPage]}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

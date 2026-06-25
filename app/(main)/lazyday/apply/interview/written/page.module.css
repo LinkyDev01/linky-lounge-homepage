@@ -3,22 +3,19 @@
   position: sticky;
   top: 0;
   z-index: 20;
+  margin: 0 -24px 18px;   /* 컨테이너 좌우 패딩을 상쇄해 폭 전체를 불투명하게 커버 */
+  padding: 13px 24px;
+  background: #f5ede4;
+  border-bottom: 1px solid #e8dccd;
+  box-shadow: 0 4px 10px -8px rgba(60, 40, 20, 0.15);
+}
+
+.formProgressRow {
   display: flex;
   align-items: center;
   justify-content: center;
   max-width: 300px;
-  margin: 0 auto 18px;
-  padding: 14px 0 14px;
-  background: #f5ede4;
-}
-
-/* 고정된 진행바 좌우로 콘텐츠가 비치지 않도록 배경을 컨테이너 폭만큼 확장 */
-.formProgress::before {
-  content: "";
-  position: absolute;
-  inset: 0 -24px;
-  background: #f5ede4;
-  z-index: -1;
+  margin: 0 auto;
 }
 
 .progressNumber {
@@ -88,7 +85,7 @@
 @media (max-width: 480px) {
   .writtenPage { padding: 24px 0 64px; }
   .container { padding: 0 20px; }
-  .formProgress::before { inset: 0 -20px; }
+  .formProgress { margin: 0 -20px 18px; padding: 13px 20px; }
 }
 
 /* ========== Header ========== */

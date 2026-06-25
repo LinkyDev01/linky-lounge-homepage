@@ -8,7 +8,7 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "./page.module.css"
 
-const PH = "이곳에 편안하게 답변을 적어주세요."
+const PH = "답변을 작성해주세요."
 
 const QUESTIONS = [
   {
@@ -263,21 +263,23 @@ export default function WrittenInterviewPage() {
       {loading && <SubmitOverlay label="제출 중..." />}
 
       <div className={styles.container}>
-        {/* 진행 단계 (4단계, 상단 고정) */}
+        {/* 진행 단계 (4단계, 상단 고정 — 컨테이너 폭 풀커버) */}
         <div className={styles.formProgress} aria-label="서면 인터뷰 진행 단계">
-          {[1, 2, 3, 4].map((step, idx) => (
-            <Fragment key={step}>
-              <div
-                className={`${styles.progressNumber} ${currentPage >= step ? styles.progressNumberOn : ""}`}
-                aria-current={currentPage === step ? "step" : undefined}
-              >
-                {currentPage > step ? "✓" : step}
-              </div>
-              {idx < 3 && (
-                <div className={`${styles.progressConnector} ${currentPage > step ? styles.progressConnectorOn : ""}`} />
-              )}
-            </Fragment>
-          ))}
+          <div className={styles.formProgressRow}>
+            {[1, 2, 3, 4].map((step, idx) => (
+              <Fragment key={step}>
+                <div
+                  className={`${styles.progressNumber} ${currentPage >= step ? styles.progressNumberOn : ""}`}
+                  aria-current={currentPage === step ? "step" : undefined}
+                >
+                  {currentPage > step ? "✓" : step}
+                </div>
+                {idx < 3 && (
+                  <div className={`${styles.progressConnector} ${currentPage > step ? styles.progressConnectorOn : ""}`} />
+                )}
+              </Fragment>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

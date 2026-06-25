@@ -1,30 +1,59 @@
-/* ========== Progress indicator (right-side dots) ========== */
-.progressIndicator {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+/* ========== Step progress (top, 4 steps) ========== */
+.formProgress {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  max-width: 300px;
+  margin: 2px auto 26px;
 }
 
-.progressDot {
-  width: 9px;
-  height: 9px;
+.progressNumber {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background-color: rgba(26, 18, 8, 0.22);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  border: 1.5px solid #e0d3c2;
+  background: #ffffff;
+  color: #b0a090;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.progressDotFilled {
-  background-color: #d2691e;
-  transform: scale(1.4);
+.progressNumberOn {
+  background: #d2691e;
+  border-color: #d2691e;
+  color: #ffffff;
+}
+
+.progressConnector {
+  flex: 1;
+  height: 2px;
+  background: #e0d3c2;
+  margin: 0 6px;
+  transition: background 0.2s ease;
+}
+
+.progressConnectorOn { background: #d2691e; }
+
+/* ========== Stepped pages ========== */
+.formPage { display: none; }
+
+.formPageActive {
+  display: block;
+  animation: slideIn 0.35s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formPageActive { animation: none; }
 }
 
 /* ========== Page wrapper ========== */
@@ -82,27 +111,6 @@
   color: #d2691e;
   font-weight: 700;
 }
-
-.headerSubNote {
-  font-size: 13px;
-  color: #b09078;
-  margin-top: 4px !important;
-}
-
-.refLink {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 13px;
-  color: #d2691e;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  font-family: inherit;
-}
-
-.refLink:hover { opacity: 0.75; }
 
 /* ========== Info card ========== */
 .infoCard {
@@ -188,10 +196,11 @@
   margin: 0;
 }
 
-.questionSub {
-  font-size: 14px;
-  color: #6a5038;
-  line-height: 1.65;
+/* 작성 힌트 (질문 아래 작고 옅은 글씨) */
+.questionHint {
+  font-size: 12.5px;
+  color: #a89072;
+  line-height: 1.6;
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -233,139 +242,7 @@
   margin: 0;
 }
 
-/* ========== (참고) FAQ 서식 ========== */
-.referenceSection {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  scroll-margin-top: 80px;
-}
-
-.refItem {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.refTitleBox {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(210, 105, 30, 0.45);
-  background: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-}
-
-.refQuestion {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1208;
-  line-height: 1.4;
-  flex: 1;
-}
-
-.refArrow {
-  font-size: 14px;
-  color: #b08060;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
-.refArrowOpen { transform: rotate(180deg); }
-
-.refPeekWrap {
-  position: relative;
-  max-height: 54px;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-  cursor: pointer;
-}
-
-.refPeekOpen {
-  max-height: 2000px;
-  cursor: default;
-}
-
-.refFadeWrap {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.refFadeBg {
-  height: 36px;
-  background: linear-gradient(to bottom, transparent, #f5ede4);
-}
-
-.refMoreHint {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: #9a8878;
-  background: #f5ede4;
-  padding: 0;
-}
-
-.refQuote {
-  border-left: 3px solid #d2691e;
-  padding-left: 14px;
-  margin-left: 2px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-bottom: 4px;
-}
-
-.refAnswer {
-  font-size: 14px;
-  line-height: 1.85;
-  color: #4a3020;
-  margin: 0;
-  word-break: auto-phrase;
-  text-wrap: pretty;
-}
-
-.refStrong {
-  color: #d2691e;
-  font-weight: 700;
-}
-
-.refList {
-  margin: 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.refList li {
-  font-size: 14px;
-  line-height: 1.75;
-  color: #4a3020;
-}
-
-.refTag {
-  font-size: 12px;
-  color: #9a8070;
-  margin-left: 4px;
-}
-
-.refFootnote {
-  font-size: 11px;
-  color: #b0a090;
-  line-height: 1.7;
-  margin: 4px 0 0;
-}
-
-/* ── ref0 베이지 인라인 카드 ── */
+/* ── ref0 베이지 인라인 카드 (참가비) ── */
 .refBeigeWrap {
   background: #edddd0;
   border-radius: 8px;
@@ -505,6 +382,57 @@
 .submitButton:hover:not(:disabled) { background: #b8571a; }
 .submitButton:active:not(:disabled) { transform: scale(0.99); }
 .submitButton:disabled { background: #b0a090; cursor: not-allowed; }
+
+/* ========== Step navigation ========== */
+.navRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.navPrev {
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #8a6a50;
+  background: transparent;
+  border: 1.5px solid #e0d3c2;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.navPrev:hover { border-color: #c9b8a3; color: #6a5038; }
+
+.navNext {
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: #d2691e;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.navNext:hover { background: #b8571a; }
+.navNext:active { transform: scale(0.99); }
+.navNextFull { width: 100%; margin-top: 24px; }
+
+/* navRow 안의 제출 버튼은 셀에 맞춰 정렬 (자체 margin-top 제거) */
+.navRow .submitButton { margin-top: 0; }
+
+.pageError {
+  font-size: 13px;
+  color: #c0392b;
+  font-weight: 500;
+  margin: 14px 0 0;
+  line-height: 1.5;
+}
 
 /* ========== Success screen ========== */
 .successPage {

@@ -1,60 +1,67 @@
 "use client"
 
-import { useState, useEffect, type FormEvent } from "react"
+import { useState, useEffect, Fragment, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "./page.module.css"
 
+const PH = "이곳에 편안하게 답변을 적어주세요."
+
 const QUESTIONS = [
   {
     id: "q1",
     label: "Q1",
-    text: "당신에게 '레이지데이(= 여유롭고 느긋한 하루)'는 어떤 모습인가요?",
-    sub: "그 자리에 책 한 권이 같이 있다면, 어떤 책일까요?",
-    placeholder: "어울리는 책과 함께 나만의 레이지데이를 묘사해주세요. 레이지데이가 당신에게 선사하는 것이 있다면 함께 들려주세요.",
+    text: "내가 가장 나다워지는 느긋한 '레이지데이'의 풍경은 무엇인가요?",
+    sub: "예시: 이른 아침 창가에서 마시는 커피 한 잔, 아무에게도 방해받지 않는 심야의 독서 등 거창하지 않은 일상의 한 장면이어도 좋습니다.",
+    placeholder: PH,
   },
   {
     id: "q2",
     label: "Q2",
-    text: "한 가지 주제를 오래 붙들어본 적이 있나요?",
-    sub: "'추상적 개념', '일', '나 자신' 등 무엇이든 좋아요.",
-    placeholder: "어떤 주제였는지, 그 주제를 오래 붙들고 있던 이유와 함께, 그것에 의해 바뀐 태도나 행동이 있는 부분이 있다면 공유해주세요.",
+    text: "내 가치관을 바꾸었거나 인생의 기준이 되어준 책이나 문장이 있다면 무엇인가요?",
+    sub: "예시: 삶의 방향을 바꾸어 준 책의 한 구절이나, 힘들 때마다 중심을 잡아주는 문장과 그에 얽힌 짧은 생각을 편하게 들려주세요.",
+    placeholder: PH,
   },
   {
     id: "q3",
     label: "Q3",
-    text: "본인을 가장 오래 흔들었던 작품이 있나요?",
-    sub: "책·영화·음악·전시·콘텐츠 등에 대해 어떤 부분에서 오래 남았는지, 그게 본인의 어떤 부분과 닿았는지 말씀해주세요.",
-    placeholder: "어떤 장면이나 메시지가 오래 남았는지, 본인의 어떤 면과 닿았는지 적어주세요.",
+    text: "보통 혼자 책을 깊게 읽다 보면 내 생각에 갇히기 쉽습니다. 혹시 최근 책이나 타인을 통해 '내가 미처 생각지 못했던 맹점'을 깨달았거나, 사유가 넓어지는 흥미로운 경험을 하신 적이 있으신가요?",
+    sub: "예시: 내 기존 생각과 전혀 다른 의견을 접하고 신선한 자극을 받았던 순간이나, 책을 읽으며 '내가 틀렸을 수도 있겠구나' 느꼈던 경험을 편하게 적어주시면 됩니다.",
+    placeholder: PH,
   },
   {
     id: "q4",
     label: "Q4",
-    text: "'다들 이렇게 받아들이는데 나는 좀 다르게 본다' 싶은 개념이나 통념이 있나요?",
-    sub: "'타인에게 기대한다는 것', '카르마', '노력은 배신하지 않는다'는 통념 등 주제를 자유롭게 꺼내고 이유를 들려주세요.",
-    placeholder: "어떤 개념·통념인지, 왜 다르게 보게 됐는지 자유롭게 풀어주세요.",
+    text: "타인과 대화할 때 가장 중요하게 생각하는 나만의 태도나 원칙은 무엇인가요?",
+    sub: "예시: 상대방의 이야기를 편견 없이 끝까지 듣는 것, 혹은 적당한 맞장구보다 솔직한 의견을 주고받는 것 등 평소 대화 스타일을 적어주시면 됩니다.",
+    placeholder: PH,
   },
   {
     id: "q5",
     label: "Q5",
-    text: "본인의 기준·가치관과 어긋났지만 매력적이었던 메시지나 사람이 있었나요?",
-    sub: "또는 반대로 마음이 안 따라준 경험도 좋습니다. 그 무의식적 끌림·거부감이 이성과 마찰을 일으킨 이유는 무엇이었나요?",
-    placeholder: "어떤 메시지나 사람이었는지, 그 끌림이나 거부감의 이유를 적어주세요.",
+    text: "나와 정반대의 성향이나 가치관을 가진 타인을 마주할 때, 평소 어떤 감정이나 시선을 가지시나요?",
+    sub: "예시: 나와 다른 세계를 들여다보는 것 같아 흥미로움을 느끼거나, 혹은 나와 맞지 않아 조심스러워지는 마음 등 솔직한 태도를 적어주시면 모임 구성에 큰 도움이 됩니다.",
+    placeholder: PH,
   },
   {
     id: "q6",
     label: "Q6",
-    text: "행복 · 사랑 · 관계 · 성장 · 예술 · 철학",
-    sub: "이 여섯 가지 주제 중 하나를 골라, 모임에 던지고 싶은 질문 하나와 그 이유를 적어주세요.",
-    placeholder: "적어주신 질문은 레이지데이의 시선으로 함께 고민해볼게요. 추후 안내 시 저희의 답변도 함께 전해드릴게요.",
+    text: "이번 시즌 레이지데이 북클럽을 마무리할 때, 도달하고 싶은 나의 삶의 모습이나 던지고 싶은 화두는 무엇인가요?",
+    sub: "예시: 마음 맞는 사람들과 깊은 대화를 나누며 일상의 생기를 얻은 모습, 혹은 평소 풀지 못했던 나만의 고민에 대한 실마리를 찾은 모습 등 기대하시는 바를 편하게 적어주세요.",
+    placeholder: PH,
   },
 ]
 
-function scrollToRef() {
-  document.getElementById("reference-section")?.scrollIntoView({ behavior: "smooth", block: "start" })
-}
+const INTRO_1 =
+  "레이지데이 북클럽은 한 권의 책을 매개로 저마다의 깊이 있는 시선과 일상의 화두를 공유하는 독서모임입니다."
+const INTRO_2 =
+  "아래의 6가지 질문은 다가오는 시즌 동안 함께 머물 대화의 공간을 조금 더 밀도 있게 준비하기 위한 과정입니다. 정답은 없으니, 평소 일상과 서재에서 하던 생각들을 편안하게 들려주세요."
+
+// 페이지별 문항 (1페이지 = 안내/참가비/이름·연락처)
+const PAGES: Record<number, string[]> = { 2: ["q1", "q2"], 3: ["q3", "q4"], 4: ["q5", "q6"] }
+const LAST_PAGE = 4
 
 export default function WrittenInterviewPage() {
   const [name, setName] = useState("")
@@ -64,8 +71,9 @@ export default function WrittenInterviewPage() {
   const [consentError, setConsentError] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [ref1Open, setRef1Open] = useState(false)
-  const [ref2Open, setRef2Open] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageError, setPageError] = useState("")
+  const [warnedPage, setWarnedPage] = useState(0) // 이 페이지에서 미작성 경고를 이미 1회 보여줬으면 다음 클릭에 진행
 
   useEffect(() => {
     try {
@@ -86,14 +94,61 @@ export default function WrittenInterviewPage() {
     return (answers[id] || "").trim().length > 0
   }
 
+  function missingLabels(pageNum: number) {
+    return (PAGES[pageNum] || [])
+      .filter((id) => !(answers[id] || "").trim())
+      .map((id) => QUESTIONS.find((q) => q.id === id)!.label)
+  }
+
+  function goToPage(next: number) {
+    setPageError("")
+    setWarnedPage(0)
+    setCurrentPage(next)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  function goNext() {
+    // 1페이지: 이름·연락처는 필수
+    if (currentPage === 1) {
+      if (!name.trim() || !phone.trim()) {
+        setPageError("이름과 연락처를 입력해주세요.")
+        return
+      }
+      goToPage(2)
+      return
+    }
+    // 2~4페이지: 미작성은 경고만(비차단) — 경고 1회 후 다시 누르면 진행
+    const missing = missingLabels(currentPage)
+    if (missing.length && warnedPage !== currentPage) {
+      setPageError(`${missing.join(", ")} 답변이 아직 비어 있어요. 비워둔 채 넘어가려면 '다음'을 한 번 더 눌러주세요.`)
+      setWarnedPage(currentPage)
+      return
+    }
+    goToPage(Math.min(LAST_PAGE, currentPage + 1))
+  }
+
+  function goPrev() {
+    goToPage(Math.max(1, currentPage - 1))
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (currentPage !== LAST_PAGE) return // Enter 등으로 다른 페이지에서 제출되는 것 방지
+
+    // 마지막 페이지 문항도 미작성 경고만 (비차단)
+    const missing = missingLabels(LAST_PAGE)
+    if (missing.length && warnedPage !== LAST_PAGE) {
+      setPageError(`${missing.join(", ")} 답변이 아직 비어 있어요. 비워둔 채 제출하려면 '제출하기'를 한 번 더 눌러주세요.`)
+      setWarnedPage(LAST_PAGE)
+      return
+    }
     if (!consent) {
       setConsentError("개인정보 수집 및 활용 동의가 필요합니다.")
       document.getElementById("written-consent")?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
     }
     setConsentError("")
+    setPageError("")
     setLoading(true)
     try {
       const res = await fetch("/api/lazyday/interview/written", {
@@ -113,6 +168,31 @@ export default function WrittenInterviewPage() {
     trackEvent("written_interview_complete", { program: "book_club" })
     setSubmitted(true)
     window.scrollTo(0, 0)
+  }
+
+  function renderQuestions(pageNum: number) {
+    const ids = PAGES[pageNum] || []
+    return ids.map((id, i) => {
+      const q = QUESTIONS.find((qq) => qq.id === id)!
+      return (
+        <div key={id}>
+          <div id={`question-${q.id}`} className={styles.questionGroup}>
+            <span className={styles.questionLabel}>{q.label}</span>
+            <p className={styles.questionText}>{q.text}</p>
+            {q.sub && <p className={styles.questionHint}>{q.sub}</p>}
+            <textarea
+              name={q.id}
+              className={`${styles.textarea} ${isFilled(q.id) ? styles.textareaFilled : ""}`}
+              placeholder={q.placeholder}
+              value={answers[q.id] || ""}
+              onChange={(e) => handleAnswer(q.id, e.target.value)}
+              rows={6}
+            />
+          </div>
+          {i < ids.length - 1 && <div className={styles.divider} />}
+        </div>
+      )
+    })
   }
 
   if (submitted) {
@@ -148,171 +228,111 @@ export default function WrittenInterviewPage() {
   return (
     <main className={styles.writtenPage}>
       {loading && <SubmitOverlay label="제출 중..." />}
-      {/* 우측 진행 인디케이터 — 질문별 개별 매핑 */}
-      <nav className={styles.progressIndicator} aria-label="서면 인터뷰 진행 표시">
-        {QUESTIONS.map((q) => (
-          <button
-            key={q.id}
-            type="button"
-            className={`${styles.progressDot} ${isFilled(q.id) ? styles.progressDotFilled : ""}`}
-            onClick={() => document.getElementById(`question-${q.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}
-            aria-label={`${q.label} ${isFilled(q.id) ? "(작성 완료)" : "(미작성)"}`}
-          />
-        ))}
-      </nav>
 
       <div className={styles.container}>
-        <FadeUp>
-          <div className={styles.header}>
-            <img
-              src="/linky-lounge/book-club/ldbc-logo-text.png"
-              alt="레이지데이 북클럽"
-              className={styles.successMark}
-              style={{ width: 417, height: 240, objectFit: "contain" }}
-            />
-            <h1 className={styles.headerTitle}>서면 인터뷰</h1>
-            <div className={styles.headerSub}>
-              <p><span className={styles.accent}>결</span>이 맞는 사람과의 대화를 위한 레이지데이 북클럽의 서면 인터뷰 세션입니다. 떠오르는 대로, 작성하고 싶은 만큼 이야기를 들려주세요.</p>
-              <p className={styles.headerSubNote}>
-                ✱ 레이지데이가 보는 '결'이 궁금하시면{" "}
-                <button type="button" onClick={scrollToRef} className={styles.refLink}>
-                  페이지 하단 (참고) 섹션
-                </button>
-                을 잠깐 훑어보셔도 좋아요.
-              </p>
-            </div>
-          </div>
-        </FadeUp>
-
-        <FadeUp>
-        {/* 3기 구성 및 참가비 */}
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 구성 및 참가비</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
-              <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
-              <span className={styles.ref0Key}>참가비</span>
-              <span className={styles.ref0Val}>
-                <s className={styles.priceWas}>200,000원</s>
-                <strong className={styles.priceNow}>150,000원</strong>
-                <span className={styles.priceLabel}>3기 한정</span>
-              </span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
-            </div>
-            <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
-          </div>
-
-          <div className={styles.infoCard}>
-            <div className={styles.infoRow}>
-              <label htmlFor="written-name" className={styles.infoLabel}>이름 <span className={styles.req}>*</span></label>
-              <input id="written-name" type="text" className={styles.infoInput} placeholder="성함을 입력해주세요." value={name} onChange={e => setName(e.target.value)} />
-            </div>
-            <div className={styles.infoRow}>
-              <label htmlFor="written-phone" className={styles.infoLabel}>연락처 <span className={styles.req}>*</span></label>
-              <input
-                id="written-phone" type="tel" inputMode="numeric" className={styles.infoInput} placeholder="010-0000-0000" value={phone}
-                onChange={e => {
-                  const v = e.target.value.replace(/[^\d]/g, "")
-                  const fmt = v.length <= 7 ? v.replace(/(\d{3})(\d{1,4})/, "$1-$2") : v.replace(/(\d{3})(\d{4})(\d{1,4})/, "$1-$2-$3")
-                  setPhone(fmt)
-                }}
-              />
-            </div>
-            {(name || phone) && <p className={styles.infoNote}>신청 시 입력하신 정보로 자동 입력되었습니다. 수정 가능합니다.</p>}
-          </div>
-        </FadeUp>
+        {/* 진행 단계 (4단계) */}
+        <div className={styles.formProgress} aria-label="서면 인터뷰 진행 단계">
+          {[1, 2, 3, 4].map((step, idx) => (
+            <Fragment key={step}>
+              <div
+                className={`${styles.progressNumber} ${currentPage >= step ? styles.progressNumberOn : ""}`}
+                aria-current={currentPage === step ? "step" : undefined}
+              >
+                {currentPage > step ? "✓" : step}
+              </div>
+              {idx < 3 && (
+                <div className={`${styles.progressConnector} ${currentPage > step ? styles.progressConnectorOn : ""}`} />
+              )}
+            </Fragment>
+          ))}
+        </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          {QUESTIONS.map((q, i) => (
-            <FadeUp key={q.id}>
-              <div id={`question-${q.id}`} className={styles.questionGroup}>
-                <span className={styles.questionLabel}>{q.label}</span>
-                <p className={styles.questionText}>{q.text}</p>
-                {q.sub && <p className={styles.questionSub}>{q.sub}</p>}
-                <textarea
-                  name={q.id}
-                  className={`${styles.textarea} ${isFilled(q.id) ? styles.textareaFilled : ""}`}
-                  placeholder={q.placeholder}
-                  value={answers[q.id] || ""}
-                  onChange={(e) => handleAnswer(q.id, e.target.value)}
-                  rows={6}
+          {/* PAGE 1 — 안내 + 참가비 + 이름/연락처 */}
+          <div className={`${styles.formPage} ${currentPage === 1 ? styles.formPageActive : ""}`}>
+            <div className={styles.header}>
+              <img
+                src="/linky-lounge/book-club/ldbc-logo-text.png"
+                alt="레이지데이 북클럽"
+                className={styles.successMark}
+                style={{ width: 417, height: 240, objectFit: "contain" }}
+              />
+              <h1 className={styles.headerTitle}>서면 인터뷰</h1>
+              <div className={styles.headerSub}>
+                <p>{INTRO_1}</p>
+                <p>{INTRO_2}</p>
+              </div>
+            </div>
+
+            {/* 3기 구성 및 참가비 */}
+            <div className={styles.refBeigeWrap}>
+              <p className={styles.ref0Title}>3기 구성 및 참가비</p>
+              <div className={styles.ref0Grid}>
+                <span className={styles.ref0Key}>정규모임</span>
+                <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
+                <span className={styles.ref0Key}>자유모임</span>
+                <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
+                <span className={styles.ref0Key}>참가비</span>
+                <span className={styles.ref0Val}>
+                  <s className={styles.priceWas}>200,000원</s>
+                  <strong className={styles.priceNow}>150,000원</strong>
+                  <span className={styles.priceLabel}>3기 한정</span>
+                </span>
+                <span className={styles.ref0Key}>장소</span>
+                <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
+              </div>
+              <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
+            </div>
+
+            <div className={styles.infoCard}>
+              <div className={styles.infoRow}>
+                <label htmlFor="written-name" className={styles.infoLabel}>이름 <span className={styles.req}>*</span></label>
+                <input id="written-name" type="text" className={styles.infoInput} placeholder="성함을 입력해주세요." value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div className={styles.infoRow}>
+                <label htmlFor="written-phone" className={styles.infoLabel}>연락처 <span className={styles.req}>*</span></label>
+                <input
+                  id="written-phone" type="tel" inputMode="numeric" className={styles.infoInput} placeholder="010-0000-0000" value={phone}
+                  onChange={e => {
+                    const v = e.target.value.replace(/[^\d]/g, "")
+                    const fmt = v.length <= 7 ? v.replace(/(\d{3})(\d{1,4})/, "$1-$2") : v.replace(/(\d{3})(\d{4})(\d{1,4})/, "$1-$2-$3")
+                    setPhone(fmt)
+                  }}
                 />
               </div>
-              {i < QUESTIONS.length - 1 && <div className={styles.divider} />}
-            </FadeUp>
-          ))}
-
-          {/* (참고) 섹션 — FAQ 서식 동일 */}
-          <FadeUp>
-            <div id="reference-section" className={styles.referenceSection}>
-
-              {/* 참고 1: 결 */}
-              <div className={styles.refItem}>
-                <button type="button" className={styles.refTitleBox} onClick={() => setRef1Open(v => !v)} aria-expanded={ref1Open}>
-                  <span className={styles.refQuestion}>(참고) 레이지데이가 보는 '결'</span>
-                  <span className={`${styles.refArrow} ${ref1Open ? styles.refArrowOpen : ""}`}>▾</span>
-                </button>
-                <div
-                  className={`${styles.refPeekWrap} ${ref1Open ? styles.refPeekOpen : ""}`}
-                  onClick={() => setRef1Open(v => !v)}
-                  role="button"
-                  aria-expanded={ref1Open}
-                  tabIndex={0}
-                  onKeyDown={e => e.key === "Enter" && setRef1Open(v => !v)}
-                >
-                  <div className={styles.refQuote}>
-                    <p className={styles.refAnswer}>저희가 정의 내린 결은, 사람마다 살아온 환경·경험으로 몸에 밴, 무의식적인 판단·반응의 패턴이에요. 한 줄로 정리하면 <strong className={styles.refStrong}>결 = 한 사람의 아비투스</strong>입니다.</p>
-                    <p className={styles.refFootnote}>* 아비투스(Habitus) : 부르디외라는 사회학자가 쓴 개념. 의식하지 않고 저절로 작동하는 감각·반응·선택의 패턴. "왜 이게 좋지? 왜 저건 거슬리지?"의 답이 이미 몸 안에 있는 상태.</p>
-                    <p className={styles.refAnswer}>아비투스는 그 사람이 쌓아온 것들이 담기는 그릇이지만, 그것들이 작동하는 방식까지 포함합니다. 즉 책·경험·말투 같은 쌓인 문화자본만이 아니라, 그 사람의 기질·리듬·감도까지 함께 품는 더 큰 개념이에요.</p>
-                    <p className={styles.refAnswer}>결국 "결이 맞다"는 두 사람의 아비투스가 어긋나지 않고 맞물려 움직이는 상태예요. 단순히 취향이 비슷하다는 게 아니에요.</p>
-                    <p className={styles.refAnswer}>한 사람이 어떤 문장 앞에서 한참 멈춰 있을 때 다른 사람이 그 멈춤을 같이 견디는 것. 한 사람이 풀어내려 한 생각을 다른 사람이 자기 언어로 이어받는 것. 같은 자리에서 누가 말하고 누가 침묵할지가 자연스럽게 정해지는 것. 이게 두 사람의 결이 맞물려 움직이는 모습이에요.</p>
-                    <p className={styles.refAnswer}>결이 맞으면 자연스럽게 따라오는 게 있어요. 굳이 설명하지 않아도 맥락이 읽히는 편안함. 친밀함이나 익숙함과는 좀 다른 편안함이에요. 처음 본 사이여도 결이 맞으면 그 편안함이 생기고, 오래 본 사이여도 결이 다르면 안 생기거든요.</p>
-                    <p className={styles.refAnswer}>정리하면, 결이 맞는다는 건 두 사람의 아비투스가 공명한다는 뜻이에요.</p>
-                  </div>
-                  {!ref1Open && (
-                    <div className={styles.refFadeWrap}>
-                      <div className={styles.refFadeBg} />
-                      <span className={styles.refMoreHint}>...더보기</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* 참고 2: 불균형의 균형 */}
-              <div className={styles.refItem}>
-                <button type="button" className={styles.refTitleBox} onClick={() => setRef2Open(v => !v)} aria-expanded={ref2Open}>
-                  <span className={styles.refQuestion}>(참고) 불균형의 균형 (Dissonance in Harmony)</span>
-                  <span className={`${styles.refArrow} ${ref2Open ? styles.refArrowOpen : ""}`}>▾</span>
-                </button>
-                <div
-                  className={`${styles.refPeekWrap} ${ref2Open ? styles.refPeekOpen : ""}`}
-                  onClick={() => setRef2Open(v => !v)}
-                  role="button"
-                  aria-expanded={ref2Open}
-                  tabIndex={0}
-                  onKeyDown={e => e.key === "Enter" && setRef2Open(v => !v)}
-                >
-                  <div className={styles.refQuote}>
-                    <p className={styles.refAnswer}>비슷한 결을 가진 사람들이 모였다고 해서 같은 결론에 도달할 필요는 없거든요. 같은 곳에서 멈추는 사람들이라도 거기서 자라난 사유의 궤적은 각자 다르니까요.</p>
-                    <p className={styles.refAnswer}>바우하우스의 정갈한 비대칭처럼, 각기 다른 궤적을 그려온 사람들의 단련된 사유가 거칠게 부딪힐 때 그 불협화음이 오히려 고전의 본질을 꿰뚫는 하나의 선율이 되는 순간이 있어요.</p>
-                    <p className={styles.refAnswer}>다 같이 고개 끄덕이는 무색무취한 공감 말고, 각자의 뚜렷한 철학을 바탕으로 사유의 밀도를 높일 수 있는 자리, 그 부조화 속에서 이전에 없던 지적 조화를 발견하는 자리. 그게 레이지데이가 만들고 싶은 자리예요.</p>
-                  </div>
-                  {!ref2Open && (
-                    <div className={styles.refFadeWrap}>
-                      <div className={styles.refFadeBg} />
-                      <span className={styles.refMoreHint}>...더보기</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
+              {(name || phone) && <p className={styles.infoNote}>신청 시 입력하신 정보로 자동 입력되었습니다. 수정 가능합니다.</p>}
             </div>
-          </FadeUp>
 
-          <FadeUp>
+            {currentPage === 1 && pageError && <p className={styles.pageError}>{pageError}</p>}
+            <button type="button" className={`${styles.navNext} ${styles.navNextFull}`} onClick={goNext}>다음</button>
+          </div>
+
+          {/* PAGE 2 — Q1, Q2 */}
+          <div className={`${styles.formPage} ${currentPage === 2 ? styles.formPageActive : ""}`}>
+            {renderQuestions(2)}
+            {currentPage === 2 && pageError && <p className={styles.pageError}>{pageError}</p>}
+            <div className={styles.navRow}>
+              <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
+              <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
+            </div>
+          </div>
+
+          {/* PAGE 3 — Q3, Q4 */}
+          <div className={`${styles.formPage} ${currentPage === 3 ? styles.formPageActive : ""}`}>
+            {renderQuestions(3)}
+            {currentPage === 3 && pageError && <p className={styles.pageError}>{pageError}</p>}
+            <div className={styles.navRow}>
+              <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
+              <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
+            </div>
+          </div>
+
+          {/* PAGE 4 — Q5, Q6 + 동의 + 제출 */}
+          <div className={`${styles.formPage} ${currentPage === 4 ? styles.formPageActive : ""}`}>
+            {renderQuestions(4)}
+
+            <div className={styles.divider} />
+
             <div id="written-consent" className={styles.consentBox}>
               <label htmlFor="writtenConsent" className={styles.consentLabel}>
                 <input
@@ -329,10 +349,14 @@ export default function WrittenInterviewPage() {
               {consentError && <p className={styles.errorText}>{consentError}</p>}
             </div>
 
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? "제출 중..." : "서면 인터뷰 제출하기"}
-            </button>
-          </FadeUp>
+            {currentPage === 4 && pageError && <p className={styles.pageError}>{pageError}</p>}
+            <div className={styles.navRow}>
+              <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
+              <button type="submit" className={styles.submitButton} disabled={loading}>
+                {loading ? "제출 중..." : "제출하기"}
+              </button>
+            </div>
+          </div>
         </form>
       </div>
     </main>

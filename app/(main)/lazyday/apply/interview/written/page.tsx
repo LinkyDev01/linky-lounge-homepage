@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Fragment, type FormEvent } from "react"
+import { useState, useEffect, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -58,10 +58,11 @@ const INTRO_1 =
 const INTRO_2 =
   "아래의 6가지 질문은 다가오는 시즌 동안 함께 머물 대화의 공간을 조금 더 밀도 있게 준비하기 위한 과정입니다. 정답은 없으니, 평소 일상과 서재에서 하던 생각들을 편안하게 들려주세요."
 
-// 페이지별 문항 (1페이지 = 안내/참가비/이름·연락처)
-const PAGES: Record<number, string[]> = { 2: ["q1", "q2"], 3: ["q3", "q4"], 4: ["q5", "q6"] }
-const PAGE_LABELS: Record<number, string> = { 1: "정보 입력", 2: "질문 1 · 2", 3: "질문 3 · 4", 4: "질문 5 · 6" }
-const LAST_PAGE = 4
+// 페이지별 문항 (1페이지 = 안내/참가비/이름·연락처, 이후 한 페이지당 질문 1개)
+const PAGES: Record<number, string[]> = { 2: ["q1"], 3: ["q2"], 4: ["q3"], 5: ["q4"], 6: ["q5"], 7: ["q6"] }
+const LAST_PAGE = 7
+const TOTAL_Q = 6
+const QUESTION_PAGES = [2, 3, 4, 5, 6, 7]
 
 // GA4 + Meta Pixel 동시 전송
 function track(event: string, params: Record<string, string | number>) {
@@ -277,24 +278,18 @@ export default function WrittenInterviewPage() {
       {loading && <SubmitOverlay label="제출 중..." />}
 
       <div className={styles.container}>
-        {/* 진행 단계 (4단계, 상단 고정 — 컨테이너 폭 풀커버) */}
-        <div className={styles.formProgress} aria-label="서면 인터뷰 진행 단계">
-          <div className={styles.formProgressRow}>
-            {[1, 2, 3, 4].map((step, idx) => (
-              <Fragment key={step}>
-                <div
-                  className={`${styles.progressNumber} ${currentPage >= step ? styles.progressNumberOn : ""}`}
-                  aria-current={currentPage === step ? "step" : undefined}
-                >
-                  {currentPage > step ? "✓" : step}
-                </div>
-                {idx < 3 && (
-                  <div aria-hidden="true" className={`${styles.progressConnector} ${currentPage > step ? styles.progressConnectorOn : ""}`} />
-                )}
-              </Fragment>
-            ))}
+        {/* 진행 표시 (슬림 채움 막대, 상단 고정 — 컨테이너 폭 풀커버) */}
+        <div className={styles.formProgress} aria-label="서면 인터뷰 진행 상황">
+          <div className={styles.progressBarTrack}>
+            <div
+              className={styles.progressBarFill}
+              style={{ width: `${(currentPage / LAST_PAGE) * 100}%` }}
+              aria-hidden="true"
+            />
           </div>
-          <p className={styles.progressCaption}>{PAGE_LABELS[currentPage]}</p>
+          <p className={styles.progressCaption}>
+            {currentPage === 1 ? "정보 입력" : `질문 ${currentPage - 1} / ${TOTAL_Q}`}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -356,64 +351,59 @@ export default function WrittenInterviewPage() {
             <button type="button" className={`${styles.navNext} ${styles.navNextFull}`} onClick={goNext}>다음</button>
           </div>
 
-          {/* PAGE 2 — Q1, Q2 */}
-          <div className={`${styles.formPage} ${currentPage === 2 ? styles.formPageActive : ""}`}>
-            {renderQuestions(2)}
-            <div className={styles.navRow}>
-              <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
-              <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
-            </div>
-          </div>
+          {/* PAGE 2~7 — 질문 한 개씩, 마지막 페이지에 동의·제출 */}
+          {QUESTION_PAGES.map((pageNum) => {
+            const isLast = pageNum === LAST_PAGE
+            return (
+              <div key={pageNum} className={`${styles.formPage} ${currentPage === pageNum ? styles.formPageActive : ""}`}>
+                {renderQuestions(pageNum)}
 
-          {/* PAGE 3 — Q3, Q4 */}
-          <div className={`${styles.formPage} ${currentPage === 3 ? styles.formPageActive : ""}`}>
-            {renderQuestions(3)}
-            <div className={styles.navRow}>
-              <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
-              <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
-            </div>
-          </div>
+                {isLast && (
+                  <>
+                    <div className={styles.divider} />
 
-          {/* PAGE 4 — Q5, Q6 + 동의 + 제출 */}
-          <div className={`${styles.formPage} ${currentPage === 4 ? styles.formPageActive : ""}`}>
-            {renderQuestions(4)}
+                    <div id="written-consent" className={styles.consentBox}>
+                      <label htmlFor="writtenConsent" className={styles.consentLabel}>
+                        <input
+                          id="writtenConsent" type="checkbox" checked={consent}
+                          onChange={(e) => { setConsent(e.target.checked); if (e.target.checked) setConsentError("") }}
+                          className={styles.checkbox}
+                        />
+                        <span className={styles.consentText}>
+                          마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
+                          <span className={styles.requiredTag}>(필수)</span>
+                        </span>
+                      </label>
+                      <p className={styles.consentNote}>수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.</p>
+                      {consentError && <p className={styles.errorText}>{consentError}</p>}
+                    </div>
 
-            <div className={styles.divider} />
+                    {confirmOpen && (
+                      <div className={styles.confirmBox} role="alert">
+                        <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>
+                        <p className={styles.confirmText}>비워두고 제출하셔도 괜찮지만, 더 깊은 대화를 위해 가능하면 채워주시면 좋아요.</p>
+                        <div className={styles.confirmActions}>
+                          <button type="button" className={styles.confirmBack} onClick={goToFirstMissing}>돌아가서 작성</button>
+                          <button type="button" className={styles.confirmGo} onClick={doSubmit}>이대로 제출</button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
 
-            <div id="written-consent" className={styles.consentBox}>
-              <label htmlFor="writtenConsent" className={styles.consentLabel}>
-                <input
-                  id="writtenConsent" type="checkbox" checked={consent}
-                  onChange={(e) => { setConsent(e.target.checked); if (e.target.checked) setConsentError("") }}
-                  className={styles.checkbox}
-                />
-                <span className={styles.consentText}>
-                  마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
-                  <span className={styles.requiredTag}>(필수)</span>
-                </span>
-              </label>
-              <p className={styles.consentNote}>수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.</p>
-              {consentError && <p className={styles.errorText}>{consentError}</p>}
-            </div>
-
-            {confirmOpen && (
-              <div className={styles.confirmBox} role="alert">
-                <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>
-                <p className={styles.confirmText}>비워두고 제출하셔도 괜찮지만, 더 깊은 대화를 위해 가능하면 채워주시면 좋아요.</p>
-                <div className={styles.confirmActions}>
-                  <button type="button" className={styles.confirmBack} onClick={goToFirstMissing}>돌아가서 작성</button>
-                  <button type="button" className={styles.confirmGo} onClick={doSubmit}>이대로 제출</button>
+                <div className={styles.navRow}>
+                  <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
+                  {isLast ? (
+                    <button type="submit" className={styles.submitButton} disabled={loading}>
+                      {loading ? "제출 중..." : "제출하기"}
+                    </button>
+                  ) : (
+                    <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
+                  )}
                 </div>
               </div>
-            )}
-
-            <div className={styles.navRow}>
-              <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
-              <button type="submit" className={styles.submitButton} disabled={loading}>
-                {loading ? "제출 중..." : "제출하기"}
-              </button>
-            </div>
-          </div>
+            )
+          })}
         </form>
       </div>
     </main>

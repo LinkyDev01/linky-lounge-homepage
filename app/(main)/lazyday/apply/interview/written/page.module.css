@@ -1,61 +1,33 @@
-/* ========== Step progress (top, sticky, 4 steps) ========== */
+/* ========== Slim progress bar (top, sticky) ========== */
 .formProgress {
   position: sticky;
   top: 0;
   z-index: 20;
-  margin: 0 -24px 20px;   /* 컨테이너 좌우 패딩을 상쇄해 폭 전체를 불투명하게 커버 */
-  padding: 13px 24px 12px;
+  margin: 0 -24px 18px;   /* 컨테이너 좌우 패딩을 상쇄해 폭 전체를 불투명하게 커버 */
+  padding: 10px 24px 9px; /* 슬림하게 — 키보드 떴을 때 공간 확보 */
   background: #f5ede4;
   border-bottom: 1px solid #dcc8b0;
   box-shadow: 0 6px 14px -8px rgba(60, 40, 20, 0.22);
 }
 
-.formProgressRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 300px;
-  margin: 0 auto;
+.progressBarTrack {
+  height: 6px;
+  border-radius: 4px;
+  background: #e3d4c0;
+  overflow: hidden;
 }
 
-.progressNumber {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1.5px solid #d8c4a8;
-  background: #ece0d2;       /* 미진행 단계도 또렷하게 (흰색 → 베이지 채움) */
-  color: #8a7257;
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.progressNumberOn {
+.progressBarFill {
+  height: 100%;
+  border-radius: 4px;
   background: #d2691e;
-  border-color: #d2691e;
-  color: #ffffff;
-  box-shadow: 0 2px 7px -2px rgba(210, 105, 30, 0.55);
+  transition: width 0.3s ease;
 }
-
-.progressConnector {
-  flex: 1;
-  height: 3px;
-  border-radius: 2px;
-  background: #ddcab2;
-  margin: 0 6px;
-  transition: background 0.2s ease;
-}
-
-.progressConnectorOn { background: #d2691e; }
 
 .progressCaption {
   text-align: center;
-  margin: 9px 0 0;
-  font-size: 12.5px;
+  margin: 7px 0 0;
+  font-size: 12px;
   font-weight: 600;
   color: #8a7257;
   letter-spacing: -0.01em;
@@ -96,7 +68,7 @@
 @media (max-width: 480px) {
   .writtenPage { padding: 24px 0 64px; }
   .container { padding: 0 20px; }
-  .formProgress { margin: 0 -20px 18px; padding: 13px 20px; }
+  .formProgress { margin: 0 -20px 18px; padding: 10px 20px 9px; }
 }
 
 /* ========== Header ========== */

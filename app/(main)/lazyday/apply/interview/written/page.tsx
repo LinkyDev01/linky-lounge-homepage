@@ -91,7 +91,20 @@ export default function WrittenInterviewPage() {
         if (parsed.phone) setPhone(parsed.phone)
       }
     } catch {}
+    // 작성 중이던 답변 복구 (이탈 후 재방문 시 이어쓰기)
+    try {
+      const a = localStorage.getItem("lazyday_written_answers")
+      if (a) {
+        const parsed = JSON.parse(a)
+        if (parsed && typeof parsed === "object") setAnswers(parsed)
+      }
+    } catch {}
   }, [])
+
+  // 답변이 바뀔 때마다 localStorage에 임시 저장 (이탈 복구용)
+  useEffect(() => {
+    try { localStorage.setItem("lazyday_written_answers", JSON.stringify(answers)) } catch {}
+  }, [answers])
 
   function handleAnswer(id: string, value: string) {
     setAnswers((prev) => ({ ...prev, [id]: value }))
@@ -176,6 +189,7 @@ export default function WrittenInterviewPage() {
       if (!data.success) throw new Error(data.error || "오류")
     } catch {}
     track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
+    try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
     setSubmitted(true)
     window.scrollTo(0, 0)
   }
@@ -214,6 +228,7 @@ export default function WrittenInterviewPage() {
             {q.sub && <p className={styles.questionHint}>{q.sub}</p>}
             <textarea
               name={q.id}
+              aria-label={q.text}
               className={`${styles.textarea} ${isFilled(q.id) ? styles.textareaFilled : ""}`}
               placeholder={q.placeholder}
               value={answers[q.id] || ""}
@@ -274,15 +289,12 @@ export default function WrittenInterviewPage() {
                   {currentPage > step ? "✓" : step}
                 </div>
                 {idx < 3 && (
-                  <div className={`${styles.progressConnector} ${currentPage > step ? styles.progressConnectorOn : ""}`} />
+                  <div aria-hidden="true" className={`${styles.progressConnector} ${currentPage > step ? styles.progressConnectorOn : ""}`} />
                 )}
               </Fragment>
             ))}
           </div>
-          <p className={styles.progressCaption}>
-            <span className={styles.progressCaptionStep}>{currentPage} / 4</span>
-            {PAGE_LABELS[currentPage]}
-          </p>
+          <p className={styles.progressCaption}>{PAGE_LABELS[currentPage]}</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -292,8 +304,7 @@ export default function WrittenInterviewPage() {
               <img
                 src="/linky-lounge/book-club/ldbc-logo-text.png"
                 alt="레이지데이 북클럽"
-                className={styles.successMark}
-                style={{ width: 417, height: 240, objectFit: "contain" }}
+                style={{ width: 132, height: 76, objectFit: "contain" }}
               />
               <h1 className={styles.headerTitle}>서면 인터뷰</h1>
               <div className={styles.headerSub}>

@@ -129,8 +129,8 @@
   width: 100%;
 }
 
-/* 안내문은 줄을 꽉 채우게 (keep-all로 어절이 통째로 내려가 줄이 일찍 끊기는 것 방지) */
-.headerSub p { margin: 0; word-break: normal; }
+/* 안내문: 단어 단위 줄바꿈(깊/이 같은 음절 분리 방지) + 줄 길이 균형으로 일찍 끊겨 보이는 것 완화 */
+.headerSub p { margin: 0; word-break: keep-all; text-wrap: balance; }
 
 .accent {
   color: #d2691e;

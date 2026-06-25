@@ -25,7 +25,7 @@ const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
     label: <><span className={styles.accent}>사유의 밀도</span>를 높일 질문을 던져요</>,
     paragraphs: [
       <>단순히 독후감을 나누는 자리가 아니에요. 레이지데이가 사전에 준비한 질문으로 대화가 시작되고, <span className={styles.accent}>전문 호스트</span>가 그 흐름 속에서{" "}<span className={styles.accent}>사유의 밀도</span>를 높이는 방향으로 이끌어요.</>,
-      <>'이 부분에서 <span className={styles.accent}>저자의 의도</span>는 뭘까'에서 출발해, '그게 각자의 어떤 이야기와 닿아 있는가'로 이어지는 구조예요. 질문은 답을 위한 게 아니라, 각자의 사유가 묻어 나올 수 있도록 돕는 역할을 합니다.</>,
+      <>'이 부분에서 <span className={styles.accent}>저자의 의도</span>는 뭘까'에서 출발해, '그게 각자의 어떤 이야기와 닿아 있는가'로 이어지는 구조예요. 질문은 답을 위한 게 아니라, <span className={styles.accent}>각자의 사유</span>가 묻어 나올 수 있도록 돕는 역할을 합니다.</>,
     ],
   },
   {

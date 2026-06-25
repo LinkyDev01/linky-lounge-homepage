@@ -17,7 +17,7 @@ const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
   {
     label: <><span className={styles.accent}>철학과 고전</span>을 함께 읽어요</>,
     paragraphs: [
-      <>기수별 책 구성은 철학서와 고전 소설을 함께 읽는 구조로 진행해요. 철학자들의 시선으로 내 생각을 꺼내줄 '<span className={styles.accent}>생각의 도구</span>' 갖추며, 확장된 시선 속에서 고전 속 <span className={styles.accent}>저자의 의도</span>를 들여다봐요.</>,
+      <>기수별 책 구성은 철학서와 고전 소설을 함께 읽는 구조로 진행해요. 철학자들의 시선으로 내 생각을 꺼내줄 <span className={styles.accent}>생각의 도구</span>를 갖추며, 확장된 시선 속에서 고전 속 <span className={styles.accent}>저자의 의도</span>를 들여다봐요.</>,
       <>도구를 갖추고 다시 들여다 보면, 똑같은 문장이 때론 전혀 다른 무게로 다가옵니다. 같은 고전을 읽더라도 더 <span className={styles.accent}>밀도 있는 대화</span>가 가능한 이유입니다.</>,
     ],
   },
@@ -25,7 +25,7 @@ const items: { label: ReactNode; paragraphs: ReactNode[]; note?: string }[] = [
     label: <><span className={styles.accent}>사유의 밀도</span>를 높일 질문을 던져요</>,
     paragraphs: [
       <>단순히 독후감을 나누는 자리가 아니에요. 레이지데이가 사전에 준비한 질문으로 대화가 시작되고, <span className={styles.accent}>전문 호스트</span>가 그 흐름 속에서{" "}<span className={styles.accent}>사유의 밀도</span>를 높이는 방향으로 이끌어요.</>,
-      <>'이 부분에서 <span className={styles.accent}>저자의 의도</span>는 뭘까'에서 출발해, '그게 각자의 어떤 이야기와 닿아 있는가'로 이어지는 구조예요. 질문은 답을 위한 게 아니라, 각자의 결이 묻어 나올 수 있도록 돕는 역할을 합니다.</>,
+      <>'이 부분에서 <span className={styles.accent}>저자의 의도</span>는 뭘까'에서 출발해, '그게 각자의 어떤 이야기와 닿아 있는가'로 이어지는 구조예요. 질문은 답을 위한 게 아니라, 각자의 사유가 묻어 나올 수 있도록 돕는 역할을 합니다.</>,
     ],
   },
   {

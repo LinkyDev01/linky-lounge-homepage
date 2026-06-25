@@ -1,10 +1,24 @@
-/* ========== Step progress (top, 4 steps) ========== */
+/* ========== Step progress (top, sticky, 4 steps) ========== */
 .formProgress {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
   max-width: 300px;
-  margin: 2px auto 26px;
+  margin: 0 auto 18px;
+  padding: 14px 0 14px;
+  background: #f5ede4;
+}
+
+/* 고정된 진행바 좌우로 콘텐츠가 비치지 않도록 배경을 컨테이너 폭만큼 확장 */
+.formProgress::before {
+  content: "";
+  position: absolute;
+  inset: 0 -24px;
+  background: #f5ede4;
+  z-index: -1;
 }
 
 .progressNumber {
@@ -73,6 +87,8 @@
 
 @media (max-width: 480px) {
   .writtenPage { padding: 24px 0 64px; }
+  .container { padding: 0 20px; }
+  .formProgress::before { inset: 0 -20px; }
 }
 
 /* ========== Header ========== */
@@ -433,6 +449,64 @@
   margin: 14px 0 0;
   line-height: 1.5;
 }
+
+/* 최종 제출 시 미작성 확인 패널 */
+.confirmBox {
+  background: #fff7ef;
+  border: 1.5px solid #e6b894;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 18px;
+}
+
+.confirmTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #9a3412;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.confirmText {
+  font-size: 13px;
+  color: #6a5038;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.confirmActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.confirmBack {
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #8a6a50;
+  background: #ffffff;
+  border: 1.5px solid #e0d3c2;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirmBack:hover { border-color: #c9b8a3; }
+
+.confirmGo {
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: #d2691e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirmGo:hover { background: #b8571a; }
 
 /* ========== Success screen ========== */
 .successPage {

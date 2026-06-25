@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Fragment, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
+import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -63,6 +64,12 @@ const INTRO_2 =
 const PAGES: Record<number, string[]> = { 2: ["q1", "q2"], 3: ["q3", "q4"], 4: ["q5", "q6"] }
 const LAST_PAGE = 4
 
+// GA4 + Meta Pixel 동시 전송
+function track(event: string, params: Record<string, string | number>) {
+  trackEvent(event, params)
+  trackCustom(event, params)
+}
+
 export default function WrittenInterviewPage() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
@@ -72,8 +79,9 @@ export default function WrittenInterviewPage() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageError, setPageError] = useState("")
-  const [warnedPage, setWarnedPage] = useState(0) // 이 페이지에서 미작성 경고를 이미 1회 보여줬으면 다음 클릭에 진행
+  const [page1Error, setPage1Error] = useState("")
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [missingList, setMissingList] = useState<string[]>([])
 
   useEffect(() => {
     try {
@@ -94,61 +102,64 @@ export default function WrittenInterviewPage() {
     return (answers[id] || "").trim().length > 0
   }
 
-  function missingLabels(pageNum: number) {
-    return (PAGES[pageNum] || [])
-      .filter((id) => !(answers[id] || "").trim())
-      .map((id) => QUESTIONS.find((q) => q.id === id)!.label)
+  // 페이지 문항 작성 상태 (분석용): 둘 다 작성 complete / 하나 partial / 없음 empty / 1페이지 info
+  function pageFillStatus(n: number): "complete" | "partial" | "empty" | "info" {
+    const ids = PAGES[n]
+    if (!ids) return "info"
+    const filled = ids.filter(isFilled).length
+    return filled === ids.length ? "complete" : filled === 0 ? "empty" : "partial"
+  }
+
+  function allMissingLabels() {
+    return QUESTIONS.filter((q) => !isFilled(q.id)).map((q) => q.label)
   }
 
   function goToPage(next: number) {
-    setPageError("")
-    setWarnedPage(0)
+    setPage1Error("")
+    setConfirmOpen(false)
     setCurrentPage(next)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   function goNext() {
-    // 1페이지: 이름·연락처는 필수
     if (currentPage === 1) {
       if (!name.trim() || !phone.trim()) {
-        setPageError("이름과 연락처를 입력해주세요.")
+        setPage1Error("이름과 연락처를 입력해주세요.")
         return
       }
+      track("written_interview_step", { step: 2, answered: "info" })
       goToPage(2)
       return
     }
-    // 2~4페이지: 미작성은 경고만(비차단) — 경고 1회 후 다시 누르면 진행
-    const missing = missingLabels(currentPage)
-    if (missing.length && warnedPage !== currentPage) {
-      setPageError(`${missing.join(", ")} 답변이 아직 비어 있어요. 비워둔 채 넘어가려면 '다음'을 한 번 더 눌러주세요.`)
-      setWarnedPage(currentPage)
-      return
-    }
+    // 2~4: 미작성이어도 자유롭게 이동 (분석 이벤트만 기록)
+    track("written_interview_step", { step: currentPage + 1, answered: pageFillStatus(currentPage) })
     goToPage(Math.min(LAST_PAGE, currentPage + 1))
   }
 
   function goPrev() {
+    track("written_interview_step_back", { from: currentPage })
     goToPage(Math.max(1, currentPage - 1))
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (currentPage !== LAST_PAGE) return // Enter 등으로 다른 페이지에서 제출되는 것 방지
+  // 미작성 질문이 있는 첫 페이지로 이동
+  function goToFirstMissing() {
+    const firstMissing = QUESTIONS.find((q) => !isFilled(q.id))
+    setConfirmOpen(false)
+    if (!firstMissing) return
+    const pageNum = Number(Object.keys(PAGES).find((k) => PAGES[Number(k)].includes(firstMissing.id))) || 2
+    setCurrentPage(pageNum)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
-    // 마지막 페이지 문항도 미작성 경고만 (비차단)
-    const missing = missingLabels(LAST_PAGE)
-    if (missing.length && warnedPage !== LAST_PAGE) {
-      setPageError(`${missing.join(", ")} 답변이 아직 비어 있어요. 비워둔 채 제출하려면 '제출하기'를 한 번 더 눌러주세요.`)
-      setWarnedPage(LAST_PAGE)
-      return
-    }
+  async function doSubmit() {
     if (!consent) {
+      setConfirmOpen(false)
       setConsentError("개인정보 수집 및 활용 동의가 필요합니다.")
       document.getElementById("written-consent")?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
     }
+    setConfirmOpen(false)
     setConsentError("")
-    setPageError("")
     setLoading(true)
     try {
       const res = await fetch("/api/lazyday/interview/written", {
@@ -165,9 +176,31 @@ export default function WrittenInterviewPage() {
       const data = await res.json()
       if (!data.success) throw new Error(data.error || "오류")
     } catch {}
-    trackEvent("written_interview_complete", { program: "book_club" })
+    track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
     setSubmitted(true)
     window.scrollTo(0, 0)
+  }
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (currentPage !== LAST_PAGE) return // Enter 등으로 다른 페이지에서 제출되는 것 방지
+    track("written_interview_step", { step: "submit", answered: pageFillStatus(LAST_PAGE) })
+
+    if (!consent) {
+      setConsentError("개인정보 수집 및 활용 동의가 필요합니다.")
+      document.getElementById("written-consent")?.scrollIntoView({ behavior: "smooth", block: "center" })
+      return
+    }
+    setConsentError("")
+
+    const missing = allMissingLabels()
+    if (missing.length) {
+      setMissingList(missing)
+      setConfirmOpen(true)
+      track("written_interview_submit_confirm", { missing_count: missing.length })
+      return
+    }
+    doSubmit()
   }
 
   function renderQuestions(pageNum: number) {
@@ -230,7 +263,7 @@ export default function WrittenInterviewPage() {
       {loading && <SubmitOverlay label="제출 중..." />}
 
       <div className={styles.container}>
-        {/* 진행 단계 (4단계) */}
+        {/* 진행 단계 (4단계, 상단 고정) */}
         <div className={styles.formProgress} aria-label="서면 인터뷰 진행 단계">
           {[1, 2, 3, 4].map((step, idx) => (
             <Fragment key={step}>
@@ -303,14 +336,13 @@ export default function WrittenInterviewPage() {
               {(name || phone) && <p className={styles.infoNote}>신청 시 입력하신 정보로 자동 입력되었습니다. 수정 가능합니다.</p>}
             </div>
 
-            {currentPage === 1 && pageError && <p className={styles.pageError}>{pageError}</p>}
+            {page1Error && <p className={styles.pageError}>{page1Error}</p>}
             <button type="button" className={`${styles.navNext} ${styles.navNextFull}`} onClick={goNext}>다음</button>
           </div>
 
           {/* PAGE 2 — Q1, Q2 */}
           <div className={`${styles.formPage} ${currentPage === 2 ? styles.formPageActive : ""}`}>
             {renderQuestions(2)}
-            {currentPage === 2 && pageError && <p className={styles.pageError}>{pageError}</p>}
             <div className={styles.navRow}>
               <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
               <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
@@ -320,7 +352,6 @@ export default function WrittenInterviewPage() {
           {/* PAGE 3 — Q3, Q4 */}
           <div className={`${styles.formPage} ${currentPage === 3 ? styles.formPageActive : ""}`}>
             {renderQuestions(3)}
-            {currentPage === 3 && pageError && <p className={styles.pageError}>{pageError}</p>}
             <div className={styles.navRow}>
               <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
               <button type="button" className={styles.navNext} onClick={goNext}>다음</button>
@@ -349,7 +380,17 @@ export default function WrittenInterviewPage() {
               {consentError && <p className={styles.errorText}>{consentError}</p>}
             </div>
 
-            {currentPage === 4 && pageError && <p className={styles.pageError}>{pageError}</p>}
+            {confirmOpen && (
+              <div className={styles.confirmBox} role="alert">
+                <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>
+                <p className={styles.confirmText}>비워두고 제출하셔도 괜찮지만, 더 깊은 대화를 위해 가능하면 채워주시면 좋아요.</p>
+                <div className={styles.confirmActions}>
+                  <button type="button" className={styles.confirmBack} onClick={goToFirstMissing}>돌아가서 작성</button>
+                  <button type="button" className={styles.confirmGo} onClick={doSubmit}>이대로 제출</button>
+                </div>
+              </div>
+            )}
+
             <div className={styles.navRow}>
               <button type="button" className={styles.navPrev} onClick={goPrev}>이전</button>
               <button type="submit" className={styles.submitButton} disabled={loading}>

@@ -10,18 +10,27 @@
   box-shadow: 0 6px 14px -8px rgba(60, 40, 20, 0.22);
 }
 
-.progressBarTrack {
-  height: 6px;
-  border-radius: 4px;
-  background: #e3d4c0;
-  overflow: hidden;
+.progressDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
 }
 
-.progressBarFill {
-  height: 100%;
-  border-radius: 4px;
+.progressDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ddcab2;        /* 예정 */
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.progressDotDone { background: #d2691e; }  /* 완료 */
+
+.progressDotActive {           /* 현재 — 길쭉한 알약형으로 강조 */
+  width: 22px;
+  border-radius: 5px;
   background: #d2691e;
-  transition: width 0.3s ease;
 }
 
 .progressCaption {
@@ -213,7 +222,9 @@
   background: #ffffff;
   border: 1.5px solid #e8dccd;
   border-radius: 8px;
-  resize: vertical;
+  resize: none;            /* 자동 확장이 높이를 관리 */
+  max-height: 50vh;        /* 너무 길어지면 내부 스크롤 */
+  overflow-y: auto;
   line-height: 1.65;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   -webkit-appearance: none;

@@ -61,7 +61,6 @@ const INTRO_2 =
 // 페이지별 문항 (1페이지 = 안내/참가비/이름·연락처, 이후 한 페이지당 질문 1개)
 const PAGES: Record<number, string[]> = { 2: ["q1"], 3: ["q2"], 4: ["q3"], 5: ["q4"], 6: ["q5"], 7: ["q6"] }
 const LAST_PAGE = 7
-const TOTAL_Q = 6
 const QUESTION_PAGES = [2, 3, 4, 5, 6, 7]
 
 // GA4 + Meta Pixel 동시 전송
@@ -233,8 +232,12 @@ export default function WrittenInterviewPage() {
               className={`${styles.textarea} ${isFilled(q.id) ? styles.textareaFilled : ""}`}
               placeholder={q.placeholder}
               value={answers[q.id] || ""}
-              onChange={(e) => handleAnswer(q.id, e.target.value)}
-              rows={6}
+              onChange={(e) => {
+                handleAnswer(q.id, e.target.value)
+                e.target.style.height = "auto" // 내용에 맞춰 자동 확장 (키보드 떴을 때 초기 화면 짧게)
+                e.target.style.height = `${e.target.scrollHeight}px`
+              }}
+              rows={4}
             />
           </div>
           {i < ids.length - 1 && <div className={styles.divider} />}
@@ -278,18 +281,18 @@ export default function WrittenInterviewPage() {
       {loading && <SubmitOverlay label="제출 중..." />}
 
       <div className={styles.container}>
-        {/* 진행 표시 (슬림 채움 막대, 상단 고정 — 컨테이너 폭 풀커버) */}
+        {/* 진행 표시 (점 6개 = 질문 6개, 상단 고정 — 컨테이너 폭 풀커버) */}
         <div className={styles.formProgress} aria-label="서면 인터뷰 진행 상황">
-          <div className={styles.progressBarTrack}>
-            <div
-              className={styles.progressBarFill}
-              style={{ width: `${(currentPage / LAST_PAGE) * 100}%` }}
-              aria-hidden="true"
-            />
+          <div className={styles.progressDots}>
+            {QUESTIONS.map((_, i) => (
+              <span
+                key={i}
+                aria-current={currentPage - 2 === i ? "step" : undefined}
+                className={`${styles.progressDot} ${i < currentPage - 2 ? styles.progressDotDone : ""} ${i === currentPage - 2 ? styles.progressDotActive : ""}`}
+              />
+            ))}
           </div>
-          <p className={styles.progressCaption}>
-            {currentPage === 1 ? "정보 입력" : `질문 ${currentPage - 1} / ${TOTAL_Q}`}
-          </p>
+          {currentPage === 1 && <p className={styles.progressCaption}>정보 입력</p>}
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

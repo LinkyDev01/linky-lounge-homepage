@@ -6,6 +6,7 @@ import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
+import { KeyboardDoneBar } from "@/components/common"
 import styles from "./page.module.css"
 
 const QUESTIONS = [
@@ -279,6 +280,7 @@ export default function WrittenInterviewPage() {
   return (
     <main className={styles.writtenPage}>
       {loading && <SubmitOverlay label="제출 중..." />}
+      <KeyboardDoneBar />
 
       <div className={styles.container}>
         {/* 진행 표시 (점 6개 = 질문 6개, 상단 고정 — 컨테이너 폭 풀커버) */}
@@ -292,7 +294,7 @@ export default function WrittenInterviewPage() {
               />
             ))}
           </div>
-          {currentPage === 1 && <p className={styles.progressCaption}>정보 입력</p>}
+          <p className={styles.progressCaption}>{currentPage === 1 ? "정보 입력" : `질문 ${currentPage - 1} / 6`}</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

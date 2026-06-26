@@ -4,9 +4,9 @@
   top: 0;
   z-index: 20;
   margin: 0 -24px 18px;   /* 컨테이너 좌우 패딩을 상쇄해 폭 전체를 불투명하게 커버 */
-  padding: 10px 24px 9px; /* 슬림하게 — 키보드 떴을 때 공간 확보 */
-  background: #f5ede4;
-  border-bottom: 1px solid #dcc8b0;
+  padding: 11px 24px 10px; /* 슬림하게 — 키보드 떴을 때 공간 확보 */
+  background: #fbf6ee;     /* 페이지(#f5ede4)보다 살짝 밝게 → 헤더 톤 위계 */
+  border-bottom: 1px solid #e2d3bf;
   box-shadow: 0 6px 14px -8px rgba(60, 40, 20, 0.22);
 }
 
@@ -72,6 +72,12 @@
   max-width: 440px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+/* 태블릿/PC: 모바일 폭에 갇히지 않게 가로를 조금 더 넓게 */
+@media (min-width: 768px) {
+  .container { max-width: 600px; padding: 0 32px; }
+  .formProgress { margin: 0 -32px 18px; padding: 12px 32px 11px; }
 }
 
 @media (max-width: 480px) {

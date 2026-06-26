@@ -2,7 +2,7 @@
 
 import React from "react"
 import Image from "next/image"
-import Link from "next/link"
+import { LazydayLink } from "@/components/common/LazydayLink"
 import { useEffect, useState, useCallback } from "react"
 import styles from "../../lounge-info/page.module.css"
 
@@ -150,9 +150,9 @@ export default function LazyDayLoungeInfoPage() {
       {/* ── Top Nav ── */}
       <nav className={styles.topnav}>
         <div className={styles.topnavInner}>
-          <Link href="/lazyday" className={styles.topnavLogo}>
+          <LazydayLink href="/" className={styles.topnavLogo}>
             <Image src="/logos/logoandtext.png" alt="링키라운지" width={160} height={30} className={styles.logoCombined} />
-          </Link>
+          </LazydayLink>
         </div>
       </nav>
 

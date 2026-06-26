@@ -1,30 +1,62 @@
-/* ========== Progress indicator (right-side dots) ========== */
-.progressIndicator {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+/* ========== Slim progress bar (top, sticky) ========== */
+.formProgress {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0 -24px 18px;   /* 컨테이너 좌우 패딩을 상쇄해 폭 전체를 불투명하게 커버 */
+  padding: 11px 24px 10px; /* 슬림하게 — 키보드 떴을 때 공간 확보 */
+  background: #fbf6ee;     /* 페이지(#f5ede4)보다 살짝 밝게 → 헤더 톤 위계 */
+  border-bottom: 1px solid #e2d3bf;
+  box-shadow: 0 6px 14px -8px rgba(60, 40, 20, 0.22);
+}
+
+.progressDots {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
 }
 
 .progressDot {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background-color: rgba(26, 18, 8, 0.22);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  flex-shrink: 0;
+  background: #ddcab2;        /* 예정 */
+  transition: width 0.25s ease, background 0.25s ease;
 }
 
-.progressDotFilled {
-  background-color: #d2691e;
-  transform: scale(1.4);
+.progressDotDone { background: #d2691e; }  /* 완료 */
+
+.progressDotActive {           /* 현재 — 길쭉한 알약형으로 강조 */
+  width: 22px;
+  border-radius: 5px;
+  background: #d2691e;
+}
+
+.progressCaption {
+  text-align: center;
+  margin: 7px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a7257;
+  letter-spacing: -0.01em;
+}
+
+/* ========== Stepped pages ========== */
+.formPage { display: none; }
+
+.formPageActive {
+  display: block;
+  animation: slideIn 0.35s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formPageActive { animation: none; }
 }
 
 /* ========== Page wrapper ========== */
@@ -42,8 +74,16 @@
   padding: 0 24px;
 }
 
+/* 태블릿/PC: 모바일 폭에 갇히지 않게 가로를 조금 더 넓게 */
+@media (min-width: 768px) {
+  .container { max-width: 600px; padding: 0 32px; }
+  .formProgress { margin: 0 -32px 18px; padding: 12px 32px 11px; }
+}
+
 @media (max-width: 480px) {
   .writtenPage { padding: 24px 0 64px; }
+  .container { padding: 0 20px; }
+  .formProgress { margin: 0 -20px 18px; padding: 10px 20px 9px; }
 }
 
 /* ========== Header ========== */
@@ -68,41 +108,21 @@
 .headerSub {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 15px;
+  gap: 7px;
+  font-size: 14px;
   color: #4a3020;
-  line-height: 1.7;
+  line-height: 1.65;
   text-align: left;
   width: 100%;
 }
 
-.headerSub p { margin: 0; }
+/* 안내문: 단어 단위 줄바꿈(깊/이 같은 음절 분리 방지) + 줄 길이 균형으로 일찍 끊겨 보이는 것 완화 */
+.headerSub p { margin: 0; word-break: keep-all; text-wrap: balance; }
 
 .accent {
   color: #d2691e;
   font-weight: 700;
 }
-
-.headerSubNote {
-  font-size: 13px;
-  color: #b09078;
-  margin-top: 4px !important;
-}
-
-.refLink {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 13px;
-  color: #d2691e;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  font-family: inherit;
-}
-
-.refLink:hover { opacity: 0.75; }
 
 /* ========== Info card ========== */
 .infoCard {
@@ -133,11 +153,12 @@
 
 .infoInput {
   flex: 1;
-  height: 36px;
+  min-width: 0;   /* flex 아이템이 input 기본 최소너비 이하로 줄게 → 좁은 화면 우측 오버플로우 방지 */
+  height: 40px;
   border: 1.5px solid #e8dccd;
   border-radius: 8px;
   padding: 0 10px;
-  font-size: 14px;
+  font-size: 16px; /* iOS 포커스 자동 확대 방지 (16px 미만이면 확대됨) */
   font-weight: 500;
   color: #1a1208;
   background: #ffffff;
@@ -188,10 +209,11 @@
   margin: 0;
 }
 
-.questionSub {
-  font-size: 14px;
-  color: #6a5038;
-  line-height: 1.65;
+/* 작성 힌트 (질문 아래 작고 옅은 글씨) */
+.questionHint {
+  font-size: 12.5px;
+  color: #a89072;
+  line-height: 1.6;
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -200,13 +222,15 @@
 .textarea {
   width: 100%;
   padding: 14px 16px;
-  font-size: 14px;
+  font-size: 16px; /* iOS 포커스 자동 확대 방지 (16px 미만이면 확대됨) */
   font-family: inherit;
   color: #1a1208;
   background: #ffffff;
   border: 1.5px solid #e8dccd;
   border-radius: 8px;
-  resize: vertical;
+  resize: none;            /* 자동 확장이 높이를 관리 */
+  max-height: 50vh;        /* 너무 길어지면 내부 스크롤 */
+  overflow-y: auto;
   line-height: 1.65;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   -webkit-appearance: none;
@@ -230,142 +254,10 @@
 .divider {
   height: 1px;
   background: #e8dccd;
-  margin: 0;
+  margin: 28px 0;
 }
 
-/* ========== (참고) FAQ 서식 ========== */
-.referenceSection {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  scroll-margin-top: 80px;
-}
-
-.refItem {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.refTitleBox {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(210, 105, 30, 0.45);
-  background: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-}
-
-.refQuestion {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1208;
-  line-height: 1.4;
-  flex: 1;
-}
-
-.refArrow {
-  font-size: 14px;
-  color: #b08060;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
-.refArrowOpen { transform: rotate(180deg); }
-
-.refPeekWrap {
-  position: relative;
-  max-height: 54px;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-  cursor: pointer;
-}
-
-.refPeekOpen {
-  max-height: 2000px;
-  cursor: default;
-}
-
-.refFadeWrap {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.refFadeBg {
-  height: 36px;
-  background: linear-gradient(to bottom, transparent, #f5ede4);
-}
-
-.refMoreHint {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: #9a8878;
-  background: #f5ede4;
-  padding: 0;
-}
-
-.refQuote {
-  border-left: 3px solid #d2691e;
-  padding-left: 14px;
-  margin-left: 2px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-bottom: 4px;
-}
-
-.refAnswer {
-  font-size: 14px;
-  line-height: 1.85;
-  color: #4a3020;
-  margin: 0;
-  word-break: auto-phrase;
-  text-wrap: pretty;
-}
-
-.refStrong {
-  color: #d2691e;
-  font-weight: 700;
-}
-
-.refList {
-  margin: 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.refList li {
-  font-size: 14px;
-  line-height: 1.75;
-  color: #4a3020;
-}
-
-.refTag {
-  font-size: 12px;
-  color: #9a8070;
-  margin-left: 4px;
-}
-
-.refFootnote {
-  font-size: 11px;
-  color: #b0a090;
-  line-height: 1.7;
-  margin: 4px 0 0;
-}
-
-/* ── ref0 베이지 인라인 카드 ── */
+/* ── ref0 베이지 인라인 카드 (참가비) ── */
 .refBeigeWrap {
   background: #edddd0;
   border-radius: 8px;
@@ -505,6 +397,115 @@
 .submitButton:hover:not(:disabled) { background: #b8571a; }
 .submitButton:active:not(:disabled) { transform: scale(0.99); }
 .submitButton:disabled { background: #b0a090; cursor: not-allowed; }
+
+/* ========== Step navigation ========== */
+.navRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.navPrev {
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #8a6a50;
+  background: transparent;
+  border: 1.5px solid #e0d3c2;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.navPrev:hover { border-color: #c9b8a3; color: #6a5038; }
+
+.navNext {
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: #d2691e;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.navNext:hover { background: #b8571a; }
+.navNext:active { transform: scale(0.99); }
+.navNextFull { width: 100%; margin-top: 24px; }
+
+/* navRow 안의 제출 버튼은 셀에 맞춰 정렬 (자체 margin-top 제거) */
+.navRow .submitButton { margin-top: 0; }
+
+.pageError {
+  font-size: 13px;
+  color: #c0392b;
+  font-weight: 500;
+  margin: 14px 0 0;
+  line-height: 1.5;
+}
+
+/* 최종 제출 시 미작성 확인 패널 */
+.confirmBox {
+  background: #fff7ef;
+  border: 1.5px solid #e6b894;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 18px;
+}
+
+.confirmTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #9a3412;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.confirmText {
+  font-size: 13px;
+  color: #6a5038;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.confirmActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.confirmBack {
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #8a6a50;
+  background: #ffffff;
+  border: 1.5px solid #e0d3c2;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirmBack:hover { border-color: #c9b8a3; }
+
+.confirmGo {
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: #d2691e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirmGo:hover { background: #b8571a; }
 
 /* ========== Success screen ========== */
 .successPage {

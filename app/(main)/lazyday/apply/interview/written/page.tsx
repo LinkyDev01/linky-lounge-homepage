@@ -6,7 +6,6 @@ import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import { KeyboardDoneBar } from "@/components/common"
 import styles from "./page.module.css"
 
 const QUESTIONS = [
@@ -74,8 +73,6 @@ export default function WrittenInterviewPage() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [consent, setConsent] = useState(false)
-  const [consentError, setConsentError] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -165,14 +162,7 @@ export default function WrittenInterviewPage() {
   }
 
   async function doSubmit() {
-    if (!consent) {
-      setConfirmOpen(false)
-      setConsentError("개인정보 수집 및 활용 동의가 필요합니다.")
-      document.getElementById("written-consent")?.scrollIntoView({ behavior: "smooth", block: "center" })
-      return
-    }
     setConfirmOpen(false)
-    setConsentError("")
     setLoading(true)
     try {
       const res = await fetch("/api/lazyday/interview/written", {
@@ -199,13 +189,6 @@ export default function WrittenInterviewPage() {
     e.preventDefault()
     if (currentPage !== LAST_PAGE) return // Enter 등으로 다른 페이지에서 제출되는 것 방지
     track("written_interview_step", { step: "submit", answered: pageFillStatus(LAST_PAGE) })
-
-    if (!consent) {
-      setConsentError("개인정보 수집 및 활용 동의가 필요합니다.")
-      document.getElementById("written-consent")?.scrollIntoView({ behavior: "smooth", block: "center" })
-      return
-    }
-    setConsentError("")
 
     const missing = allMissingLabels()
     if (missing.length) {
@@ -280,7 +263,6 @@ export default function WrittenInterviewPage() {
   return (
     <main className={styles.writtenPage}>
       {loading && <SubmitOverlay label="제출 중..." />}
-      <KeyboardDoneBar />
 
       <div className={styles.container}>
         {/* 진행 표시 (점 6개 = 질문 6개, 상단 고정 — 컨테이너 폭 풀커버) */}
@@ -365,24 +347,6 @@ export default function WrittenInterviewPage() {
 
                 {isLast && (
                   <>
-                    <div className={styles.divider} />
-
-                    <div id="written-consent" className={styles.consentBox}>
-                      <label htmlFor="writtenConsent" className={styles.consentLabel}>
-                        <input
-                          id="writtenConsent" type="checkbox" checked={consent}
-                          onChange={(e) => { setConsent(e.target.checked); if (e.target.checked) setConsentError("") }}
-                          className={styles.checkbox}
-                        />
-                        <span className={styles.consentText}>
-                          마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
-                          <span className={styles.requiredTag}>(필수)</span>
-                        </span>
-                      </label>
-                      <p className={styles.consentNote}>수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.</p>
-                      {consentError && <p className={styles.errorText}>{consentError}</p>}
-                    </div>
-
                     {confirmOpen && (
                       <div className={styles.confirmBox} role="alert">
                         <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>

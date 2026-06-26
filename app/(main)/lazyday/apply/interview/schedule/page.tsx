@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import { KeyboardDoneBar } from "@/components/common"
 import styles from "./page.module.css"
 
 // ================================================================
@@ -321,7 +320,6 @@ export default function InterviewSchedulePage() {
   return (
     <main className={styles.page}>
       {submitting && <SubmitOverlay label="예약 중..." />}
-      <KeyboardDoneBar />
       <div className={styles.container}>
 
         {/* 헤더 */}

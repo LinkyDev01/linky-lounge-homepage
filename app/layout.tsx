@@ -25,7 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
     ? "bhia7nsomik64va3kxe3q4npohn7xi" // lazyday-bookclub.com
     : "d4x4wq5k1cywer0jeh6fhhclbydhm3" // linkylounge.com
   return {
-    metadataBase: new URL("https://linkylounge.com"),
+    // 책클럽 도메인에선 OG/canonical이 새 도메인을 가리키게 (이관 후 정본)
+    metadataBase: new URL(isBookclub ? "https://www.lazyday-bookclub.com" : "https://linkylounge.com"),
     title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
     description: "덴마크 휘게를 담은 사당의 아늑한 공간",
     openGraph: {

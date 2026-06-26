@@ -14,13 +14,7 @@ const nextConfig = {
         destination: '/lazyday/apply/interview/schedule',
         permanent: true,
       },
-      // linkylounge.com 루트 → /lazyday
-      {
-        source: '/',
-        destination: '/lazyday',
-        permanent: true,
-        has: [{ type: 'host', value: 'linkylounge.com' }],
-      },
+      // (컷오버) linkylounge.com 루트 → /lazyday 리다이렉트 제거 — 이제 루트는 링키라운지 홈을 직접 서빙
       // linkykorea.com 전체 → linkylounge.com/lazyday
       {
         source: '/:path*',

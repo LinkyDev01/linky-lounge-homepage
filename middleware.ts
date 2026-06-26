@@ -8,10 +8,24 @@ const BOOKCLUB_HOSTS = new Set([
   "www.lazyday-bookclub.com",
 ])
 
+// 컷오버: 기존 linkylounge.com/lazyday/* 를 새 책클럽 도메인으로 영구 이전(301)
+const LINKYLOUNGE_HOSTS = new Set([
+  "linkylounge.com",
+  "www.linkylounge.com",
+])
+const BOOKCLUB_ORIGIN = "https://www.lazyday-bookclub.com" // 책클럽 정본(현 Vercel primary)
+
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]
-  const isBookclub = BOOKCLUB_HOSTS.has(host)
   const { pathname } = req.nextUrl
+
+  // 컷오버: linkylounge.com/lazyday/* → 새 도메인으로 301 (책클럽만 이관, /lazyday 밖은 그대로)
+  if (LINKYLOUNGE_HOSTS.has(host) && (pathname === "/lazyday" || pathname.startsWith("/lazyday/"))) {
+    const clean = pathname === "/lazyday" ? "/" : pathname.slice("/lazyday".length)
+    return NextResponse.redirect(new URL(clean + req.nextUrl.search, BOOKCLUB_ORIGIN), 301)
+  }
+
+  const isBookclub = BOOKCLUB_HOSTS.has(host)
 
   // 1) 북클럽 도메인: 깔끔한 경로 → 내부 /lazyday/* 로 rewrite
   //    - /api/* 와 이미 /lazyday 로 들어온 요청은 그대로 둔다(자산은 matcher에서 제외).

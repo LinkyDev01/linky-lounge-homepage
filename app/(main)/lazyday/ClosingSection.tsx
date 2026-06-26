@@ -1,7 +1,7 @@
 import Image from "next/image"
-import Link from "next/link"
 import styles from "./ClosingSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { LazydayLink } from "@/components/common/LazydayLink"
 
 
 export function ClosingSection() {
@@ -26,9 +26,9 @@ export function ClosingSection() {
           />
         </FadeUp>
         <FadeUp delay={0.22}>
-          <Link href="/lazyday/apply" className={styles.cta}>
+          <LazydayLink href="/apply" className={styles.cta}>
             2기 신청하기
-          </Link>
+          </LazydayLink>
         </FadeUp>
       </div>
     </section>

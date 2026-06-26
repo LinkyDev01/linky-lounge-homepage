@@ -3,6 +3,7 @@
 import { useState, useEffect, type FormEvent, type ReactNode } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
+import { useBasePath } from "@/hooks/use-base-path"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -61,6 +62,7 @@ function formatPhone(value: string) {
 }
 
 export default function ApplyPage() {
+  const base = useBasePath()
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
@@ -197,7 +199,7 @@ export default function ApplyPage() {
                 돌아가기
               </a>
               <a
-                href={isPhone ? "/lazyday/apply/interview/schedule" : "/lazyday/apply/interview/written"}
+                href={isPhone ? `${base}/apply/interview/schedule` : `${base}/apply/interview/written`}
                 className={styles.successPrimaryLink}
               >
                 {isPhone ? "전화 인터뷰 일정 잡기" : "서면 인터뷰 작성하기"}

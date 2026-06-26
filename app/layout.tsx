@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import Script from "next/script"
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
@@ -16,22 +17,26 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 })
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://linkylounge.com"),
-  title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
-  description: "덴마크 휘게를 담은 사당의 아늑한 공간",
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const host = ((await headers()).get("host") || "").toLowerCase()
+  const isBookclub = host.includes("lazyday-bookclub.com")
+  // 호스트별로 정확한 메타 도메인 인증 코드 하나만 노출 → 다중 태그로 인한 스크래퍼 모호함 제거
+  const fbVerification = isBookclub
+    ? "bhia7nsomik64va3kxe3q4npohn7xi" // lazyday-bookclub.com
+    : "d4x4wq5k1cywer0jeh6fhhclbydhm3" // linkylounge.com
+  return {
+    metadataBase: new URL("https://linkylounge.com"),
     title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
     description: "덴마크 휘게를 담은 사당의 아늑한 공간",
-    images: ["/linky-lounge/gallary/e.jpg"],
-  },
-  other: {
-    // 도메인별 메타 도메인 인증 코드 (Next.js metadata가 배열을 다중 <meta>로 렌더 → 서버사이드 <head>에 박힘)
-    "facebook-domain-verification": [
-      "d4x4wq5k1cywer0jeh6fhhclbydhm3", // linkylounge.com
-      "bhia7nsomik64va3kxe3q4npohn7xi", // lazyday-bookclub.com
-    ],
-  },
+    openGraph: {
+      title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
+      description: "덴마크 휘게를 담은 사당의 아늑한 공간",
+      images: ["/linky-lounge/gallary/e.jpg"],
+    },
+    other: {
+      "facebook-domain-verification": fbVerification,
+    },
+  }
 }
 
 export default function RootLayout({

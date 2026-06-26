@@ -26,7 +26,11 @@ export const metadata: Metadata = {
     images: ["/linky-lounge/gallary/e.jpg"],
   },
   other: {
-    "facebook-domain-verification": "d4x4wq5k1cywer0jeh6fhhclbydhm3",
+    // 도메인별 메타 도메인 인증 코드 (Next.js metadata가 배열을 다중 <meta>로 렌더 → 서버사이드 <head>에 박힘)
+    "facebook-domain-verification": [
+      "d4x4wq5k1cywer0jeh6fhhclbydhm3", // linkylounge.com
+      "bhia7nsomik64va3kxe3q4npohn7xi", // lazyday-bookclub.com
+    ],
   },
 }
 

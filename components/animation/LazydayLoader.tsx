@@ -14,6 +14,9 @@ type Props = {
 }
 
 /**
+ * @deprecated 구버전 웨이브 로더(위아래). 흐르는 점 로더 DotsLoader로 대체됨(SubmitOverlay).
+ *   필요 시 참고용으로 남겨둔 올드 코드 — 신규 사용은 DotsLoader 권장.
+ *
  * Lazyday Wave Loader — 업로드된 vanilla 웹 컴포넌트를 React로 이식.
  * 3색 점이 파도치듯 위아래로 움직인다. prefers-reduced-motion 시 느리게.
  */

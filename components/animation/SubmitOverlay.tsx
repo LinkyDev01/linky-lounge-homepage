@@ -1,4 +1,4 @@
-import { LazydayLoader } from "./LazydayLoader"
+import { DotsLoader } from "./DotsLoader"
 import styles from "./SubmitOverlay.module.css"
 
 /**
@@ -8,7 +8,7 @@ import styles from "./SubmitOverlay.module.css"
 export function SubmitOverlay({ label = "제출 중..." }: { label?: string }) {
   return (
     <div className={styles.overlay} role="status" aria-live="polite">
-      <LazydayLoader size={20} />
+      <DotsLoader size={20} />
       <p className={styles.label}>{label}</p>
     </div>
   )

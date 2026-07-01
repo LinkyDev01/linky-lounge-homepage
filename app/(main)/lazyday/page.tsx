@@ -3,6 +3,7 @@ import styles from "./page.module.css"
 import { Footer } from "@/components/footer"
 import { StickyApplyButton } from "./sticky-apply-button"
 import { NavBar } from "./NavBar"
+import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
 import { SectionIndicator } from "./SectionIndicator"
 import { AboutSection } from "./AboutSection"
@@ -28,6 +29,7 @@ export const metadata: Metadata = {
 export default function StudyForeignPage() {
   return (
     <>
+      <HashScrollOnLoad />
       <NavBar />
       <main className={styles.container} data-track-section="bookclub_home">
         <HeroParallax />

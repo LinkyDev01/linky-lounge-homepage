@@ -80,14 +80,44 @@ function doPost(e) {
 
 // ================================================================
 // 1) 신청 폼 처리
+// ----------------------------------------------------------------
+// 시트 기록은 1행 헤더 이름 기준으로 매핑한다 — 열 순서가 바뀌어도 안전하고,
+// '개인정보 동의'·'동의 시각' 헤더가 없으면 맨 뒤에 자동 생성한다.
+// (신청현황 실제 헤더: 신청일자·이름·성별·나이·전화번호·인스타그램·한 줄 인사·
+//  추천인·마케팅 동의·인터뷰 일시·반배정·비고·인터뷰 방식·인터뷰 상태·진행 상태)
 // ================================================================
 function handleApply(data) {
-  // 스프레드시트 저장
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('신청현황');
-  sheet.appendRow([
-    new Date(), data.name, data.gender, data.age, data.phone,
-    data.job || '', data.instagram || '', data.referral || '', data.marketingConsent || '',
-  ]);
+
+  // 1행 헤더 읽기 + 누락 컬럼 자동 추가
+  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1))
+    .getValues()[0].map(function(h) { return String(h).trim(); });
+  function ensureColumn(title) {
+    if (headers.indexOf(title) === -1) {
+      headers.push(title);
+      sheet.getRange(1, headers.length).setValue(title).setFontWeight('bold');
+    }
+  }
+  ensureColumn('개인정보 동의');
+  ensureColumn('동의 시각');
+
+  const values = {
+    '신청일자':     new Date(),
+    '이름':         data.name || '',
+    '성별':         data.gender || '',
+    '나이':         data.age || '',
+    '전화번호':     data.phone || '',
+    '인스타그램':   data.instagram || '',
+    '한 줄 인사':   data.greeting || '',
+    '추천인':       data.referral || '',
+    '마케팅 동의':  data.marketingConsent || '',
+    '인터뷰 방식':  data.interviewType || '',
+    '개인정보 동의': data.privacyConsent || '',
+    '동의 시각':    data.consentAt ? new Date(data.consentAt) : '',
+  };
+  sheet.appendRow(headers.map(function(h) {
+    return values.hasOwnProperty(h) ? values[h] : '';
+  }));
 
   // 관리자 이메일
   MailApp.sendEmail(NOTIFY_EMAIL, '📩 [독서모임] 새로운 신청이 등록되었습니다', `
@@ -98,7 +128,9 @@ function handleApply(data) {
 나이: ${data.age || '-'}
 연락처: ${data.phone || '-'}
 인스타그램: ${data.instagram || '-'}
+한 줄 인사: ${data.greeting || '-'}
 인터뷰 방식: ${data.interviewType || '-'}
+개인정보 동의: ${data.privacyConsent || '-'} / 마케팅 동의: ${data.marketingConsent || '-'}
 
 📄 스프레드시트:
 https://docs.google.com/spreadsheets/d/${SHEET_ID}
@@ -339,7 +371,13 @@ function sendSMSWrittenInterview(phone, name) {
 // 테스트
 // ================================================================
 function testApply() {
-  const testData = { name: '안동민', gender: '남성', age: '31', phone: '010-7444-5790', job: '컨설턴트', instagram: 'im_dm____', interviewType: '전화 인터뷰' };
+  const testData = {
+    name: '안동민', gender: '남성', age: '31', phone: '010-7444-5790',
+    greeting: '테스트 한 줄 인사', instagram: 'im_dm____', referral: '',
+    interviewType: '전화 인터뷰',
+    privacyConsent: '동의', marketingConsent: '미동의',
+    consentAt: new Date().toISOString(),
+  };
   doPost({ postData: { contents: JSON.stringify(testData) } });
 }
 

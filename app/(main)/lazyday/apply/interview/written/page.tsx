@@ -314,10 +314,12 @@ export default function WrittenInterviewPage() {
                 <span className={styles.ref0Val}>{SEASON.regularNote}</span>
                 <span className={styles.ref0Key}>자유모임</span>
                 <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-                {/* 취소선 정가는 실제 200,000원 판매 이력이 확인될 때만 표기 가능 (표시광고법 — 종전거래가격) */}
+                {/* 취소선 정가 = 2기 실판매가 200,000원 (표시광고법 근거 확인됨) */}
                 <span className={styles.ref0Key}>참가비</span>
                 <span className={styles.ref0Val}>
+                  <s className={styles.priceWas}>{SEASON.priceWas}</s>
                   <strong className={styles.priceNow}>{SEASON.price}</strong>
+                  <span className={styles.priceLabel}>{SEASON.name} 한정</span>
                 </span>
                 <span className={styles.ref0Key}>장소</span>
                 <span className={styles.ref0Val}>{SEASON.location.short}</span>
@@ -362,22 +364,16 @@ export default function WrittenInterviewPage() {
                         <p className={styles.failTitle}>일시적인 오류로 제출되지 않았어요</p>
                         <p className={styles.failText}>
                           작성하신 답변은 이 기기에 안전하게 저장되어 있어요. 잠시 후 다시 제출해주세요.
-                          계속 실패한다면 인스타그램 DM으로 알려주세요 — 답변은 사라지지 않아요.
                         </p>
-                        <div className={styles.confirmActions}>
-                          <a
-                            href="https://www.instagram.com/lazyday_bookclub"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.confirmBack}
-                            style={{ textAlign: "center", textDecoration: "none" }}
-                          >
-                            DM으로 알리기
-                          </a>
-                          <button type="button" className={styles.confirmGo} onClick={doSubmit} disabled={loading}>
-                            다시 제출하기
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          className={styles.confirmGo}
+                          style={{ width: "100%" }}
+                          onClick={doSubmit}
+                          disabled={loading}
+                        >
+                          다시 제출하기
+                        </button>
                       </div>
                     )}
                     {confirmOpen && (

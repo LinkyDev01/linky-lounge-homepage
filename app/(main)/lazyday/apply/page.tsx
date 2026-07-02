@@ -13,6 +13,10 @@ import styles from "./page.module.css"
 
 const SUBMIT_URL = "/api/lazyday/apply"
 
+// '주로 참여할 요일' 문항 — 보류 중 (2026-07-02 운영자 결정). true로 바꾸면 다시 노출.
+// GAS handleApply는 이 필드가 있을 때만 '희망 요일' 컬럼을 만들므로 켜고 끄기만 하면 됨.
+const SHOW_PREFERRED_DAYS = false
+
 type Errors = Partial<Record<
   "name" | "gender" | "age" | "phone" | "preferredDays" | "interviewType" | "marketingConsent" | "_form",
   string
@@ -100,7 +104,7 @@ export default function ApplyPage() {
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
-    if (preferredDays.length === 0) newErrors.preferredDays = "주로 참여할 요일을 한 개 이상 선택해주세요."
+    if (SHOW_PREFERRED_DAYS && preferredDays.length === 0) newErrors.preferredDays = "주로 참여할 요일을 한 개 이상 선택해주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
@@ -129,7 +133,7 @@ export default function ApplyPage() {
       greeting,
       instagram,
       referral,
-      preferredDays: preferredDays.join(", "),
+      preferredDays: SHOW_PREFERRED_DAYS ? preferredDays.join(", ") : "",
       interviewType,
       marketingConsent: marketingConsent ? "동의" : "미동의",
       consentAt: new Date().toISOString(), // 동의 시각 기록 (법적 증빙)
@@ -350,6 +354,7 @@ export default function ApplyPage() {
               />
             </FormField>
 
+            {SHOW_PREFERRED_DAYS && (
             <div id="preferredDays-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 주로 참여할 요일
@@ -370,6 +375,7 @@ export default function ApplyPage() {
               <p className={styles.dayHint}>복수 선택 가능 · 회차마다 다른 요일로 참여할 수도 있어요.</p>
               {errors.preferredDays && <p className={styles.errorText}>{errors.preferredDays}</p>}
             </div>
+            )}
 
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>

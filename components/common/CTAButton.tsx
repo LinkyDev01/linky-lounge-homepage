@@ -1,8 +1,10 @@
-import { forwardRef } from "react"
-import { Button, type ButtonProps } from "@/components/ui/button"
+import { forwardRef, type ComponentPropsWithoutRef } from "react"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type CTAVariant = "sage" | "mint" | "outline-sage" | "outline-mint"
+
+type ButtonProps = ComponentPropsWithoutRef<typeof Button>
 
 interface CTAButtonProps extends Omit<ButtonProps, "variant"> {
   ctaVariant?: CTAVariant

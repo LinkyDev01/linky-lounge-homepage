@@ -5,7 +5,7 @@ const GAS_URL = process.env.INTERVIEW_GAS_URL
 export async function GET() {
   if (!GAS_URL) {
     // 개발 목업: 특정 슬롯을 예약됨으로 표시해서 UI 확인 가능
-    const mockBooked = [
+    const mockBooked: { start: string; end: string }[] = [
       // 오늘 기준으로 가까운 날짜의 슬롯 하나를 예약됨 처리
       // 실제 배포 시엔 GAS_URL 설정으로 자동 전환됨
     ]

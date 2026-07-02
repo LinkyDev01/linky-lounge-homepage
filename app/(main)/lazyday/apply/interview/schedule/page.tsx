@@ -354,11 +354,10 @@ export default function InterviewSchedulePage() {
               <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
               <span className={styles.ref0Key}>자유모임</span>
               <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
+              {/* 취소선 정가는 실제 200,000원 판매 이력이 확인될 때만 표기 가능 (표시광고법 — 종전거래가격) */}
               <span className={styles.ref0Key}>참가비</span>
               <span className={styles.ref0Val}>
-                <s className={styles.priceWas}>200,000원</s>
                 <strong className={styles.priceNow}>150,000원</strong>
-                <span className={styles.priceLabel}>3기 한정</span>
               </span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>

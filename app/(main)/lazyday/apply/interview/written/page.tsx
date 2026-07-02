@@ -79,6 +79,7 @@ export default function WrittenInterviewPage() {
   const [page1Error, setPage1Error] = useState("")
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [missingList, setMissingList] = useState<string[]>([])
+  const [submitError, setSubmitError] = useState(false)
 
   useEffect(() => {
     try {
@@ -161,8 +162,11 @@ export default function WrittenInterviewPage() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
+  // 서버 접수가 확인된 경우에만 완료 처리한다 (답변 유실 방지).
+  // 실패 시 답변은 localStorage에 그대로 남고, 재시도 배너를 보여준다.
   async function doSubmit() {
     setConfirmOpen(false)
+    setSubmitError(false)
     setLoading(true)
     try {
       const res = await fetch("/api/lazyday/interview/written", {
@@ -176,9 +180,15 @@ export default function WrittenInterviewPage() {
           questions: QUESTIONS.map((q) => ({ id: q.id, label: q.label, text: q.text, sub: q.sub })),
         }),
       })
-      const data = await res.json()
-      if (!data.success) throw new Error(data.error || "오류")
-    } catch {}
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.success) throw new Error(data?.error || "submit failed")
+    } catch {
+      setLoading(false)
+      setSubmitError(true)
+      track("written_interview_submit_error", { program: "book_club" })
+      return
+    }
+    setLoading(false)
     track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
     try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
     setSubmitted(true)
@@ -303,11 +313,10 @@ export default function WrittenInterviewPage() {
                 <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
                 <span className={styles.ref0Key}>자유모임</span>
                 <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
+                {/* 취소선 정가는 실제 200,000원 판매 이력이 확인될 때만 표기 가능 (표시광고법 — 종전거래가격) */}
                 <span className={styles.ref0Key}>참가비</span>
                 <span className={styles.ref0Val}>
-                  <s className={styles.priceWas}>200,000원</s>
                   <strong className={styles.priceNow}>150,000원</strong>
-                  <span className={styles.priceLabel}>3기 한정</span>
                 </span>
                 <span className={styles.ref0Key}>장소</span>
                 <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
@@ -347,6 +356,29 @@ export default function WrittenInterviewPage() {
 
                 {isLast && (
                   <>
+                    {submitError && (
+                      <div className={styles.failBanner} role="alert">
+                        <p className={styles.failTitle}>일시적인 오류로 제출되지 않았어요</p>
+                        <p className={styles.failText}>
+                          작성하신 답변은 이 기기에 안전하게 저장되어 있어요. 잠시 후 다시 제출해주세요.
+                          계속 실패한다면 인스타그램 DM으로 알려주세요 — 답변은 사라지지 않아요.
+                        </p>
+                        <div className={styles.confirmActions}>
+                          <a
+                            href="https://www.instagram.com/lazyday_bookclub"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.confirmBack}
+                            style={{ textAlign: "center", textDecoration: "none" }}
+                          >
+                            DM으로 알리기
+                          </a>
+                          <button type="button" className={styles.confirmGo} onClick={doSubmit} disabled={loading}>
+                            다시 제출하기
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     {confirmOpen && (
                       <div className={styles.confirmBox} role="alert">
                         <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>

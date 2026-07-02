@@ -567,3 +567,28 @@
   .successTitle { font-size: 28px; }
   .successBody { font-size: 15px; }
 }
+
+/* ========== 제출 실패 배너 (답변 보존 + 재시도) ========== */
+.failBanner {
+  background: #fdf0e7;
+  border: 1.5px solid #d2691e;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 18px;
+}
+
+.failTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #9a3412;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.failText {
+  font-size: 13.5px;
+  color: #4a3a2a;
+  line-height: 1.7;
+  margin: 0 0 12px;
+  word-break: keep-all;
+}

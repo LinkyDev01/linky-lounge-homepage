@@ -14,7 +14,7 @@ import styles from "./page.module.css"
 const SUBMIT_URL = "/api/lazyday/apply"
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "interviewType" | "privacyConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "preferredDays" | "interviewType" | "marketingConsent" | "_form",
   string
 >>
 
@@ -60,12 +60,18 @@ export default function ApplyPage() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
-  // 동의 분리: 개인정보 수집·이용(필수) / 마케팅 수신(선택)
-  // 인터뷰·운영 연락은 필수 동의(계약 체결 과정의 조치, 개인정보보호법 §15①4)로 커버되므로
-  // 마케팅 동의 없이도 전화·문자 연락이 가능하다.
-  const [privacyConsent, setPrivacyConsent] = useState(false)
+  // 동의는 기존 통합 문구(마케팅 활용 및 개인정보 수집, 필수) 유지 — 분리안은 추후 재논의
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [interviewType, setInterviewType] = useState("")
+  // 주로 참여할 요일 (복수 선택) — 요일별 정원 관리·인터뷰 시 조율 시간 절약용
+  const [preferredDays, setPreferredDays] = useState<string[]>([])
+
+  function toggleDay(day: string) {
+    setPreferredDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    )
+    clearError("preferredDays")
+  }
 
   function clearError(name: keyof Errors) {
     setErrors((prev) => {
@@ -94,17 +100,20 @@ export default function ApplyPage() {
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+    if (preferredDays.length === 0) newErrors.preferredDays = "주로 참여할 요일을 한 개 이상 선택해주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
-    if (!privacyConsent) newErrors.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
+    if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       const firstKey = Object.keys(newErrors)[0]
       const target =
-        firstKey === "privacyConsent"
-          ? document.getElementById("privacyConsent")
+        firstKey === "marketingConsent"
+          ? document.getElementById("marketingConsent")
           : firstKey === "interviewType"
           ? document.getElementById("interviewType-group")
+          : firstKey === "preferredDays"
+          ? document.getElementById("preferredDays-group")
           : document.querySelector(`[name="${firstKey}"]`)
       target?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
@@ -120,8 +129,8 @@ export default function ApplyPage() {
       greeting,
       instagram,
       referral,
+      preferredDays: preferredDays.join(", "),
       interviewType,
-      privacyConsent: privacyConsent ? "동의" : "미동의",
       marketingConsent: marketingConsent ? "동의" : "미동의",
       consentAt: new Date().toISOString(), // 동의 시각 기록 (법적 증빙)
     }
@@ -341,6 +350,27 @@ export default function ApplyPage() {
               />
             </FormField>
 
+            <div id="preferredDays-group" className={styles.formGroup}>
+              <span className={styles.formLabel}>
+                주로 참여할 요일
+                <span className={styles.required}>*</span>
+              </span>
+              <div className={styles.radioGroup}>
+                {SEASON.days.map((d) => (
+                  <label key={d.label} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={preferredDays.includes(d.label)}
+                      onChange={() => toggleDay(d.label)}
+                    />
+                    <span className={styles.radioText}>{d.label}</span>
+                  </label>
+                ))}
+              </div>
+              <p className={styles.dayHint}>복수 선택 가능 · 회차마다 다른 요일로 참여할 수도 있어요.</p>
+              {errors.preferredDays && <p className={styles.errorText}>{errors.preferredDays}</p>}
+            </div>
+
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -410,54 +440,29 @@ export default function ApplyPage() {
               />
             </FormField>
 
-            {/* 개인정보 수집·이용 (필수) — 인터뷰·운영 연락은 이 동의로 커버됨 */}
-            <div className={styles.consentBox}>
-              <label htmlFor="privacyConsent" className={styles.consentLabel}>
-                <input
-                  id="privacyConsent"
-                  type="checkbox"
-                  checked={privacyConsent}
-                  onChange={(e) => {
-                    setPrivacyConsent(e.target.checked)
-                    if (e.target.checked) clearError("privacyConsent")
-                  }}
-                  className={styles.checkbox}
-                />
-                <span className={styles.consentText}>
-                  개인정보 수집·이용에 동의합니다.{" "}
-                  <span className={styles.requiredTag}>(필수)</span>
-                </span>
-              </label>
-              <p className={styles.consentNote}>
-                수집 항목: 이름, 성별, 나이, 휴대전화 번호, 인터뷰 방식·답변 내용, (기재 시) 한 줄 인사·인스타그램 아이디·추천인 성함
-                {" / "}이용 목적: 인터뷰 진행 및 모임 운영을 위한 연락, 모임 구성
-                {" / "}보유 기간: 미합류 시 확정 안내 후 지체 없이 파기, 합류 시 해당 기수 종료 후 파기.
-                동의를 거부할 수 있으나, 거부 시 신청 접수가 어렵습니다.
-              </p>
-              {errors.privacyConsent && (
-                <p className={styles.errorText}>{errors.privacyConsent}</p>
-              )}
-            </div>
-
-            {/* 마케팅 수신 (선택) — 광고성 정보는 별도 사전 동의 필요 (정보통신망법 §50) */}
             <div className={styles.consentBox}>
               <label htmlFor="marketingConsent" className={styles.consentLabel}>
                 <input
                   id="marketingConsent"
                   type="checkbox"
                   checked={marketingConsent}
-                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  onChange={(e) => {
+                    setMarketingConsent(e.target.checked)
+                    if (e.target.checked) clearError("marketingConsent")
+                  }}
                   className={styles.checkbox}
                 />
                 <span className={styles.consentText}>
-                  다음 시즌·모임 소식 알림 수신에 동의합니다.{" "}
-                  <span className={styles.optional}>(선택)</span>
+                  마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
+                  <span className={styles.requiredTag}>(필수)</span>
                 </span>
               </label>
               <p className={styles.consentNote}>
-                수집 항목: 휴대전화 번호 / 이용 목적: 다음 시즌·모임 소식(광고성 정보) 발송 / 보유 기간: 동의 철회 시까지.
-                언제든 철회할 수 있고, 동의하지 않아도 신청과 인터뷰 진행에는 아무런 제한이 없어요.
+                수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.
               </p>
+              {errors.marketingConsent && (
+                <p className={styles.errorText}>{errors.marketingConsent}</p>
+              )}
             </div>
 
           {errors._form && (

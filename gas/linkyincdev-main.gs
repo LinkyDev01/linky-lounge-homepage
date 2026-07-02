@@ -98,6 +98,7 @@ function handleApply(data) {
       sheet.getRange(1, headers.length).setValue(title).setFontWeight('bold');
     }
   }
+  ensureColumn('희망 요일');
   ensureColumn('개인정보 동의');
   ensureColumn('동의 시각');
 
@@ -112,6 +113,7 @@ function handleApply(data) {
     '추천인':       data.referral || '',
     '마케팅 동의':  data.marketingConsent || '',
     '인터뷰 방식':  data.interviewType || '',
+    '희망 요일':    data.preferredDays || '',
     '개인정보 동의': data.privacyConsent || '',
     '동의 시각':    data.consentAt ? new Date(data.consentAt) : '',
   };
@@ -129,6 +131,7 @@ function handleApply(data) {
 연락처: ${data.phone || '-'}
 인스타그램: ${data.instagram || '-'}
 한 줄 인사: ${data.greeting || '-'}
+희망 요일: ${data.preferredDays || '-'}
 인터뷰 방식: ${data.interviewType || '-'}
 개인정보 동의: ${data.privacyConsent || '-'} / 마케팅 동의: ${data.marketingConsent || '-'}
 
@@ -374,7 +377,7 @@ function testApply() {
   const testData = {
     name: '안동민', gender: '남성', age: '31', phone: '010-7444-5790',
     greeting: '테스트 한 줄 인사', instagram: 'im_dm____', referral: '',
-    interviewType: '전화 인터뷰',
+    preferredDays: '수요일, 일요일', interviewType: '전화 인터뷰',
     privacyConsent: '동의', marketingConsent: '미동의',
     consentAt: new Date().toISOString(),
   };

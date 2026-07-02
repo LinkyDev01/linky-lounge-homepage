@@ -1,14 +1,18 @@
 // ─────────────────────────────────────────────────────────────
-// 프리뷰 전용 예시 데이터 — 실제 반영 시 이 값만 바꾸면 됩니다.
+// 프리뷰 전용 예시 데이터 — 기수명·일정·가격은 season-config에서 파생.
+// 마감일·잔여석 등 프리뷰에서 실험 중인 값만 여기서 관리합니다.
 // ─────────────────────────────────────────────────────────────
 
+import { SEASON } from "../season-config"
+
 export const PREVIEW = {
-  season: "3기",
-  nextSeason: "4기",
+  season: SEASON.name,
+  nextSeason: SEASON.next,
   /** 신청 마감일 (KST, 이 날짜 23:59까지 신청 가능) */
   deadline: "2026-07-13",
-  periodLabel: "7/15 – 9/6",
-  priceNow: "150,000원",
+  periodLabel: SEASON.periodLabel,
+  priceNow: SEASON.price,
+  /** 취소선 정가 — 실판매 이력 확인 전까지 프리뷰 초안 전용, 정식 반영 금지 */
   priceWas: "200,000원",
   /** 요일별 정원/잔여석 — 예시값 */
   capacity: [

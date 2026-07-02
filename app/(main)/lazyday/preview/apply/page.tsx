@@ -350,16 +350,8 @@ export default function PreviewApplyPage() {
                 인터뷰 방식
                 <span className={styles.required}>*</span>
               </span>
+              {/* 서면을 첫 옵션으로 — 운영 부하(전화 20분/인) 조절을 위해 서면 우선 유도 */}
               <div className={styles.radioGroup}>
-                <label className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="interviewType"
-                    value="전화 인터뷰"
-                    onChange={() => { setInterviewType("전화 인터뷰"); clearError("interviewType") }}
-                  />
-                  <span className={styles.radioText}>전화 인터뷰</span>
-                </label>
                 <label className={styles.radioLabel}>
                   <input
                     type="radio"
@@ -368,6 +360,15 @@ export default function PreviewApplyPage() {
                     onChange={() => { setInterviewType("서면 인터뷰"); clearError("interviewType") }}
                   />
                   <span className={styles.radioText}>서면 인터뷰</span>
+                </label>
+                <label className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="interviewType"
+                    value="전화 인터뷰"
+                    onChange={() => { setInterviewType("전화 인터뷰"); clearError("interviewType") }}
+                  />
+                  <span className={styles.radioText}>전화 인터뷰</span>
                 </label>
               </div>
               {errors.interviewType && <p className={styles.errorText}>{errors.interviewType}</p>}

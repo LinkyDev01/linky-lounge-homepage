@@ -6,6 +6,7 @@ import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
+import { SEASON } from "../../../season-config"
 import styles from "./page.module.css"
 
 const QUESTIONS = [
@@ -307,21 +308,21 @@ export default function WrittenInterviewPage() {
 
             {/* 3기 구성 및 참가비 */}
             <div className={styles.refBeigeWrap}>
-              <p className={styles.ref0Title}>3기 구성 및 참가비</p>
+              <p className={styles.ref0Title}>{SEASON.name} 구성 및 참가비</p>
               <div className={styles.ref0Grid}>
                 <span className={styles.ref0Key}>정규모임</span>
-                <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
+                <span className={styles.ref0Val}>{SEASON.regularNote}</span>
                 <span className={styles.ref0Key}>자유모임</span>
-                <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
+                <span className={styles.ref0Val}>{SEASON.freeNote}</span>
                 {/* 취소선 정가는 실제 200,000원 판매 이력이 확인될 때만 표기 가능 (표시광고법 — 종전거래가격) */}
                 <span className={styles.ref0Key}>참가비</span>
                 <span className={styles.ref0Val}>
-                  <strong className={styles.priceNow}>150,000원</strong>
+                  <strong className={styles.priceNow}>{SEASON.price}</strong>
                 </span>
                 <span className={styles.ref0Key}>장소</span>
-                <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
+                <span className={styles.ref0Val}>{SEASON.location.short}</span>
               </div>
-              <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
+              <p className={styles.ref0Note}>{SEASON.location.note}</p>
             </div>
 
             <div className={styles.infoCard}>

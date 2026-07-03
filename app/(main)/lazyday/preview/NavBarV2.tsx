@@ -1,22 +1,24 @@
 "use client"
 import { useEffect, useState } from "react"
 import styles from "../NavBar.module.css"
+import pstyles from "./preview.module.css"
 
 /**
- * 개선안: '모임소개' 탭이 실제 모임 소개 섹션(#feature)으로 연결되고,
- * 후기 섹션이 탭에 추가됨. (5회차/자유모임은 기수별 구성이 달라 탭에서 제외)
+ * 개선안: 탭이 실제 섹션 순서(선정도서 → 후기 → 모임소개 → …)를 따르고,
+ * '책소개'는 '선정도서'로 표기. 내비 색은 브라운 그레이 + 반투명(프리뷰 전용).
+ * (우리가 믿는 것/5회차/자유모임은 기수별 구성이 달라 탭에서 제외)
  */
 const navItems = [
-  { id: "feature",  label: "모임소개" },
+  { id: "book",     label: "선정도서" },
   { id: "reviews",  label: "후기" },
-  { id: "book",     label: "책소개" },
+  { id: "feature",  label: "모임소개" },
   { id: "howto",    label: "진행방식" },
   { id: "schedule", label: "모임일정" },
   { id: "faq",      label: "FAQ" },
 ]
 
 export function NavBarV2() {
-  const [activeId, setActiveId] = useState("feature")
+  const [activeId, setActiveId] = useState("book")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,12 +41,14 @@ export function NavBarV2() {
   }
 
   return (
-    <nav className={styles.nav} style={{ top: 34 }}>
+    <nav className={`${styles.nav} ${pstyles.navPreview}`} style={{ top: 34 }}>
       <ul className={styles.list}>
         {navItems.map((item) => (
           <li key={item.id}>
             <button
-              className={`${styles.item} ${activeId === item.id ? styles.active : ""}`}
+              className={`${styles.item} ${pstyles.navItemPreview} ${
+                activeId === item.id ? `${styles.active} ${pstyles.navItemActivePreview}` : ""
+              }`}
               onClick={() => scrollTo(item.id)}
             >
               {item.label}

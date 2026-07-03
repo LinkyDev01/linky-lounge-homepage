@@ -17,12 +17,12 @@ export function StickyApplyButtonV2() {
 
   const label =
     d === null
-      ? `${PREVIEW.season} 신청하기`
+      ? `${PREVIEW.season} 신청`
       : d < 0
       ? `${PREVIEW.season} 모집 마감`
       : d === 0
-      ? `${PREVIEW.season} 신청하기 (오늘 마감)`
-      : `${PREVIEW.season} 신청하기 (D-${d})`
+      ? `${PREVIEW.season} 신청 (오늘 마감)`
+      : `${PREVIEW.season} 신청 (마감일까지 D-${d})`
 
   return (
     <div className={styles.fixedButtonContainer}>

@@ -44,9 +44,27 @@
 }
 .previewBarSpacer { height: 34px; }
 
-/* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ── */
+/* ── 상단 내비 (프리뷰 전용) — 브라운 베이스 그레이 + 반투명 ──────
+   공용 NavBar.module.css를 덮어씀. 실사이트 내비는 그대로 두고 프리뷰만 짙게. */
+.navPreview {
+  background-color: rgba(110, 100, 90, 0.85) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.14) !important;
+}
+.navItemPreview {
+  color: #ece1d2 !important;
+}
+.navItemPreview:hover {
+  color: #fffdf8 !important;
+}
+.navItemActivePreview {
+  color: #ffc590 !important;
+  border-bottom-color: #eb8b3f !important;
+}
+
+/* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ──
+   섹션 색 교차(포스터 아래 밴드는 짙은 베이지)로 아래 선정도서(#f5ede4)와 대비 */
 .heroSummary {
-  background: #f5ede4;
+  background: #ede0d0;
   padding: 28px 24px 10px;
   text-align: center;
 }

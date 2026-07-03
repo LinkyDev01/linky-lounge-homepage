@@ -1,5 +1,5 @@
 .section {
-  background-color: #f5ede4;
+  background-color: #ede0d0;
   padding: 0;
   word-break: keep-all;
   scroll-margin-top: 52px;
@@ -117,7 +117,7 @@
 
 .fadeBg {
   height: 36px;
-  background: linear-gradient(to bottom, transparent, #f5ede4);
+  background: linear-gradient(to bottom, transparent, #ede0d0);
 }
 
 .moreHint {
@@ -126,7 +126,7 @@
   font-size: 12px;
   font-weight: 600;
   color: #6a4f38;
-  background: #f5ede4;
+  background: #ede0d0;
   padding: 0;
 }
 

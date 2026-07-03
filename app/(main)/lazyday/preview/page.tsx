@@ -2,7 +2,6 @@ import styles from "../page.module.css"
 import pstyles from "./preview.module.css"
 import { Footer } from "@/components/footer"
 import { HeroParallax } from "../HeroParallax"
-import { AboutSection } from "../AboutSection"
 import { FifthSessionSection } from "../FifthSessionSection"
 import { HowToSection } from "../HowToSection"
 import { ScheduleSection } from "../ScheduleSection"
@@ -36,11 +35,10 @@ export default function PreviewLandingPage() {
       <main className={styles.container} data-track-section="bookclub_home_preview">
         <HeroParallax />
         <HeroSummary />
-        <AboutSection />
-        <FeatureBoxSectionV2 />
+        <BookSectionV2 />
         <PhilosophySectionV2 />
         <ReviewsSection />
-        <BookSectionV2 />
+        <FeatureBoxSectionV2 />
         <FifthSessionSection />
         <HowToSection />
         <ScheduleSection />

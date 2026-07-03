@@ -1,13 +1,12 @@
 .section {
   background-color: #f5ede4;
   padding: 0;
-  margin-bottom: 20px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
 
 .content {
-  padding: 48px 24px 0;
+  padding: 48px 24px 44px;
 }
 
 .titleRow {
@@ -96,7 +95,7 @@
   z-index: 1;
   border: none;
   background: transparent;
-  padding: 8px 22px;
+  padding: 8px 30px;
   border-radius: 999px;
   font-size: 13px;
   letter-spacing: 0.01em;

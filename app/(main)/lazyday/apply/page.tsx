@@ -9,6 +9,7 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import { SEASON } from "../season-config"
+import { JourneyStepper } from "../JourneyStepper"
 import styles from "./page.module.css"
 
 const SUBMIT_URL = "/api/lazyday/apply"
@@ -188,6 +189,9 @@ export default function ApplyPage() {
             <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
           </FadeUp>
           <FadeUp>
+            <JourneyStepper current={2} caption="다음은 인터뷰예요. 바로 이어서 진행할 수 있어요." />
+          </FadeUp>
+          <FadeUp>
             <p className={styles.successBody}>
               신청이 완료되었습니다.
               <br />
@@ -241,6 +245,7 @@ export default function ApplyPage() {
               <br />
               <span className={styles.headerSeason}>{SEASON.name}</span> 신청하기
             </h1>
+            <JourneyStepper current={1} />
           </div>
         </FadeUp>
 

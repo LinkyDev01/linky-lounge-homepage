@@ -1,0 +1,64 @@
+/* 신청 여정 스텝퍼 — 컨테이너 폭 전체에 양쪽 정렬 */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0;
+  width: 100%;
+  max-width: 560px;
+  margin: 26px auto 8px;
+}
+
+.stepItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+}
+
+.stepItem:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: calc(50% + 16px);
+  right: calc(-50% + 16px);
+  height: 1.5px;
+  background: #d8c9b4;
+}
+
+.stepDotNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #ece0cf;
+  color: #a08b70;
+  z-index: 1;
+}
+
+.stepActive .stepDotNum { background: #d2691e; color: #fff; }
+.stepDone .stepDotNum { background: #4a3a2a; color: #f5ede4; }
+
+.stepLabel {
+  margin-top: 7px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #8a7660;
+  white-space: nowrap;
+}
+
+.stepActive .stepLabel { color: #b8571a; font-weight: 700; }
+
+.stepCaption {
+  text-align: center;
+  font-size: 12.5px;
+  color: #8a7660;
+  margin: 10px 0 0;
+  word-break: keep-all;
+}

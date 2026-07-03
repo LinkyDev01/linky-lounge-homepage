@@ -5,7 +5,7 @@ import { PreviewBar } from "./PreviewBar"
 
 // 책 소개 본문용 명조 (semibold) — 운영자 지정 폰트
 const notoSerif = Noto_Serif_KR({
-  weight: ["600", "700"],
+  weight: ["500", "600"],
   subsets: ["latin"],
   display: "swap",
   variable: "--font-noto-serif",

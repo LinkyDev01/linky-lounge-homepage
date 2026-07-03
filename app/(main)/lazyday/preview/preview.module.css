@@ -472,24 +472,26 @@
 .bookTrack {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
   margin-top: 6px;
-  padding: 14px 20px 10px;
+  padding: 14px 20px 10px 16px;
+  scroll-padding-left: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 .bookTrack::-webkit-scrollbar { display: none; }
-/* 텍스트 영역 최대 확보: 카드 폭 = 화면 - 52px (양옆 ~16px씩만 다음 카드가 걸침) */
+/* 텍스트 영역 최대 확보: 왼쪽 정렬 스냅 + 오른쪽에만 다음 카드가 ~16px 걸침
+   (양옆 분할 peek보다 텍스트 폭이 넓고, '오른쪽에 다음이 있다'는 신호는 더 명확) */
 .bookCard {
-  flex: 0 0 calc(100% - 52px);
+  flex: 0 0 calc(100% - 40px);
   max-width: 560px;
-  scroll-snap-align: center;
+  scroll-snap-align: start;
   background: #fffdf8;
   border: 1px solid #eee2d0;
   border-radius: 16px;
-  padding: 24px 18px 22px;
+  padding: 22px 16px 20px;
   opacity: 0.45;
   transform: scale(0.94);
   filter: blur(1px);
@@ -623,7 +625,7 @@
   padding-left: 14px;
   border-left: 2px solid #d2691e;
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 13.5px;
   line-height: 1.9;
   color: #4a3020;
@@ -633,7 +635,7 @@
 .bookParagraph {
   margin: 14px 0 0;
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 13px;
   line-height: 1.85;
   color: #4a3020;
@@ -651,7 +653,7 @@
 .bookCuratorNote {
   margin: 0;
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 13px;
   line-height: 1.85;
   color: #4a3020;

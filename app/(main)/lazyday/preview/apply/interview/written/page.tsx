@@ -302,7 +302,7 @@ export default function PreviewWrittenInterviewPage() {
                 style={{ width: 132, height: 76, objectFit: "contain" }}
               />
               <h1 className={styles.headerTitle}>서면 인터뷰</h1>
-              <JourneyStepper current={2} />
+              <JourneyStepper current={2} interview="서면" />
               <div className={styles.headerSub}>
                 <p>{INTRO_1}</p>
                 <p>{INTRO_2}</p>

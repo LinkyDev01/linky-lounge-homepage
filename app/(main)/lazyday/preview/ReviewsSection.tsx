@@ -1,10 +1,14 @@
+"use client"
+
+import { useEffect, useRef, useState } from "react"
 import styles from "../FaqSection.module.css"
 import pstyles from "./preview.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
- * 후기 섹션 — 손글씨 후기 '사진'을 폴라로이드 스트립으로.
- * 개수가 적어도 성립하는 구성: 사진 2~3장 + 대표 인용 1개.
+ * 후기 섹션 — 손글씨 후기 '사진' 폴라로이드 카드.
+ * 슬라이딩 방식은 책 소개와 동일(가운데 스냅 + 양옆 축소·흐림 + 화살표·점),
+ * 박스 레이아웃(폴라로이드 프레임 + 캡션)은 기존 그대로 유지.
  * 사진 자리는 실물 촬영본으로 교체하면 됨.
  */
 const photoCards = [
@@ -14,6 +18,44 @@ const photoCards = [
 ]
 
 export function ReviewsSection() {
+  const [idx, setIdx] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
+
+  // 스크롤 위치 → 활성 카드 동기화 (책 소개와 동일 로직)
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    let raf = 0
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const cards = Array.from(track.children) as HTMLElement[]
+        if (!cards.length) return
+        const center = track.scrollLeft + track.clientWidth / 2
+        let best = 0
+        let bestDist = Infinity
+        cards.forEach((c, i) => {
+          const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - center)
+          if (d < bestDist) { bestDist = d; best = i }
+        })
+        setIdx(best)
+      })
+    }
+    track.addEventListener("scroll", onScroll, { passive: true })
+    return () => { track.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf) }
+  }, [])
+
+  function scrollToCard(i: number) {
+    const track = trackRef.current
+    if (!track) return
+    const card = track.children[i] as HTMLElement | undefined
+    if (!card) return
+    track.scrollTo({
+      left: card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2,
+      behavior: "smooth",
+    })
+  }
+
   return (
     <section id="reviews" className={pstyles.reviewsSection}>
       <div className={pstyles.reviewsInner}>
@@ -26,19 +68,57 @@ export function ReviewsSection() {
           </p>
         </FadeUp>
 
-        <FadeUp>
-          <div className={pstyles.reviewStrip}>
-            {photoCards.map((c) => (
-              <figure key={c.caption} className={pstyles.reviewCard} style={{ margin: 0 }}>
-                <div className={pstyles.reviewPhoto}>
-                  <span>📷</span>
-                  <span>손글씨 후기 사진 자리<br />(실물 촬영본으로 교체)</span>
-                </div>
-                <figcaption className={pstyles.reviewCaption}>{c.caption}</figcaption>
-              </figure>
+        <div className={pstyles.bookCarousel}>
+          <button
+            type="button"
+            className={`${pstyles.bookChevron} ${pstyles.bookChevronLeft}`}
+            style={{ top: "44%" }}
+            onClick={() => scrollToCard(idx - 1)}
+            disabled={idx === 0}
+            aria-label="이전 후기"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className={`${pstyles.bookChevron} ${pstyles.bookChevronRight}`}
+            style={{ top: "44%" }}
+            onClick={() => scrollToCard(idx + 1)}
+            disabled={idx === photoCards.length - 1}
+            aria-label="다음 후기"
+          >
+            ›
+          </button>
+
+          <div className={pstyles.reviewTrack} ref={trackRef}>
+            {photoCards.map((c, i) => (
+              <div
+                key={c.caption}
+                className={`${pstyles.reviewSlide} ${i === idx ? pstyles.reviewSlideActive : ""}`}
+                onClick={() => i !== idx && scrollToCard(i)}
+              >
+                <figure className={pstyles.reviewCard} style={{ margin: 0 }}>
+                  <div className={pstyles.reviewPhoto}>
+                    <span>📷</span>
+                    <span>손글씨 후기 사진 자리<br />(실물 촬영본으로 교체)</span>
+                  </div>
+                  <figcaption className={pstyles.reviewCaption}>{c.caption}</figcaption>
+                </figure>
+              </div>
             ))}
           </div>
-        </FadeUp>
+
+          <div className={pstyles.bookDots}>
+            {photoCards.map((c, i) => (
+              <button
+                key={`dot-${c.caption}`}
+                className={`${pstyles.bookDot} ${i === idx ? pstyles.bookDotActive : ""}`}
+                onClick={() => scrollToCard(i)}
+                aria-label={`${i + 1}번째 후기로 이동`}
+              />
+            ))}
+          </div>
+        </div>
 
         <FadeUp>
           <blockquote className={pstyles.reviewQuote}>

@@ -126,24 +126,43 @@
   margin: 8px 0 28px;
   word-break: keep-all;
 }
-.reviewStrip {
+/* 후기 트랙 — 책 소개와 동일한 슬라이딩 (가운데 스냅 + 양옆 축소·흐림) */
+.reviewTrack {
   display: flex;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 12px;
   overflow-x: auto;
-  padding: 8px 4px 20px;
+  padding: 8px 18% 6px;
   scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.reviewTrack::-webkit-scrollbar { display: none; }
+.reviewSlide {
+  flex: 0 0 64%;
+  max-width: 300px;
+  scroll-snap-align: center;
+  opacity: 0.45;
+  transform: scale(0.94);
+  filter: blur(1px);
+  transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+  cursor: pointer;
+}
+.reviewSlideActive {
+  opacity: 1;
+  transform: scale(1);
+  filter: none;
+  cursor: default;
 }
 .reviewCard {
-  flex: 0 0 240px;
-  scroll-snap-align: start;
   background: #fffdf8;
   border: 1px solid #e5d9c8;
   border-radius: 4px;
   padding: 14px 14px 18px;
   box-shadow: 0 4px 14px rgba(74, 58, 42, 0.08);
 }
-.reviewCard:nth-child(odd)  { transform: rotate(-1.2deg); }
-.reviewCard:nth-child(even) { transform: rotate(1deg); }
+.reviewSlide:nth-child(odd) .reviewCard  { transform: rotate(-1.2deg); }
+.reviewSlide:nth-child(even) .reviewCard { transform: rotate(1deg); }
 .reviewPhoto {
   aspect-ratio: 4 / 5;
   border: 1.5px dashed #c9b8a0;

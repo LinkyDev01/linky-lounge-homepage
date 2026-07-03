@@ -145,8 +145,8 @@ export function BookSectionV2() {
                 <Image
                   src={b.imagePath}
                   alt={b.title}
-                  width={58}
-                  height={87}
+                  width={66}
+                  height={99}
                   className={styles.coverThumb}
                 />
                 <span className={styles.coverWeek}>{b.weekLabel}</span>

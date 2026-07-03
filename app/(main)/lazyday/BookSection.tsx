@@ -135,8 +135,8 @@ export function BookSection() {
                 <Image
                   src={b.imagePath}
                   alt={b.title}
-                  width={58}
-                  height={87}
+                  width={66}
+                  height={99}
                   className={styles.coverThumb}
                 />
                 <span className={styles.coverWeek}>{b.weekLabel}</span>
@@ -186,10 +186,10 @@ export function BookSection() {
                   </div>
 
                   {b.quotes.map((q, j) => (
-                    <p key={`q-${j}`} className={styles.bookQuote}>{q}</p>
+                    <blockquote key={j} className={styles.bookQuote}>{q}</blockquote>
                   ))}
                   {b.paragraphs.map((p, j) => (
-                    <p key={`p-${j}`} className={styles.bookParagraph}>{p}</p>
+                    <p key={j} className={styles.bookParagraph}>{p}</p>
                   ))}
                   {b.curatorNote && (
                     <>

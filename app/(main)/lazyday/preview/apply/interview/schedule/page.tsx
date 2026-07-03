@@ -7,6 +7,7 @@ import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../../../apply/interview/schedule/page.module.css"
 import pstyles from "../../../preview.module.css"
 import { PREVIEW } from "../../../preview-config"
+import { JourneyStepper } from "../../../JourneyStepper"
 
 // ================================================================
 // 슬롯 설정 — 원본과 동일. 단, 프리뷰는 예약 API 미연동(전 슬롯 예약 가능).
@@ -269,6 +270,7 @@ export default function PreviewInterviewSchedulePage() {
               style={{ width: 417, height: 240, objectFit: "contain" }}
             />
             <h1 className={styles.headerTitle}>전화 인터뷰</h1>
+            <JourneyStepper current={2} />
             <div className={styles.headerSub}>
               <p><span className={styles.accent}>결</span>이 맞는 사람과의 대화를 위한 레이지데이 북클럽의 전화 인터뷰 세션입니다. 떠오르는 대로, 자유롭게 이야기를 들려주세요.</p>
               <p className={styles.headerSubNote}>

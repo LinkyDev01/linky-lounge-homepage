@@ -209,10 +209,7 @@ export default function PreviewApplyPage() {
               <span className={styles.headerSeason}>3기</span> 신청하기
             </h1>
             {/* 개선: 신청 여정 스텝퍼 */}
-            <JourneyStepper
-              current={1}
-              caption="지금은 결제 단계가 아니에요 — 인터뷰 후 합류가 확정되면 결제를 안내드려요."
-            />
+            <JourneyStepper current={1} />
           </div>
         </FadeUp>
 

@@ -21,8 +21,8 @@ export function StickyApplyButtonV2() {
       : d < 0
       ? `${PREVIEW.season} 모집 마감`
       : d === 0
-      ? `${PREVIEW.season} 신청하기 · 오늘 마감`
-      : `${PREVIEW.season} 신청하기 · D-${d}`
+      ? `${PREVIEW.season} 신청하기 (오늘 마감)`
+      : `${PREVIEW.season} 신청하기 (D-${d})`
 
   return (
     <div className={styles.fixedButtonContainer}>

@@ -84,17 +84,17 @@ export function BookSectionV2() {
             )}
             {season.dateRange && <span className={styles.bookLeadRange}> · {season.dateRange}</span>}
           </p>
-          {/* 기수 전환 — 또렷한 필 버튼 */}
-          <div className={styles.seasonPills} role="tablist" aria-label="기수 선택">
+          {/* 기수 전환 — 세그먼트 컨트롤 */}
+          <div className={styles.seasonSeg} role="tablist" aria-label="기수 선택">
             {SEASONS.map((s, i) => (
               <button
                 key={s.label}
                 role="tab"
                 aria-selected={i === seasonIdx}
-                className={`${styles.seasonPill} ${i === seasonIdx ? styles.seasonPillActive : ""}`}
+                className={`${styles.seasonSegBtn} ${i === seasonIdx ? styles.seasonSegBtnActive : ""}`}
                 onClick={() => selectSeason(i)}
               >
-                {i === 0 ? `${s.label} · 이번 기수` : s.label}
+                {i === 0 ? `${s.label} (이번 기수)` : s.label}
               </button>
             ))}
           </div>

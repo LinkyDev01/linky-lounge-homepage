@@ -1,10 +1,10 @@
 import styles from "./preview.module.css"
 
 const STEPS = [
-  { n: 1, label: "신청서 작성" },
+  { n: 1, label: "인터뷰 신청" },
   { n: 2, label: "인터뷰" },
-  { n: 3, label: "합류 확정" },
-  { n: 4, label: "참가비 결제" },
+  { n: 3, label: "결과 통보" },
+  { n: 4, label: "결제·확정" },
 ]
 
 /**

@@ -7,6 +7,7 @@ import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../../../apply/interview/written/page.module.css"
 import pstyles from "../../../preview.module.css"
 import { PREVIEW } from "../../../preview-config"
+import { JourneyStepper } from "../../../JourneyStepper"
 
 const QUESTIONS = [
   {
@@ -301,6 +302,7 @@ export default function PreviewWrittenInterviewPage() {
                 style={{ width: 132, height: 76, objectFit: "contain" }}
               />
               <h1 className={styles.headerTitle}>서면 인터뷰</h1>
+              <JourneyStepper current={2} />
               <div className={styles.headerSub}>
                 <p>{INTRO_1}</p>
                 <p>{INTRO_2}</p>

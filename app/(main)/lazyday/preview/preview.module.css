@@ -444,27 +444,32 @@
 }
 .bookLead strong { color: #b8571a; font-weight: 700; }
 .bookLeadRange { color: #a08b70; font-size: 13px; }
-.seasonPills {
-  display: flex;
-  gap: 8px;
+/* 기수 선택 — 세그먼트 컨트롤 (활성 세그먼트가 크림 카드로 떠오르는 형태) */
+.seasonSeg {
+  display: inline-flex;
+  gap: 2px;
   margin-top: 14px;
-  flex-wrap: wrap;
-}
-.seasonPill {
-  padding: 7px 15px;
+  padding: 3px;
+  background: #eadfcd;
   border-radius: 999px;
-  border: 1px solid #d8c9b4;
-  background: #fffdf8;
-  font-size: 13px;
-  color: #6b5a48;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-.seasonPillActive {
-  background: #1a1208;
-  border-color: #1a1208;
-  color: #f5ede4;
+.seasonSegBtn {
+  border: none;
+  background: transparent;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: #8a7660;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.seasonSegBtnActive {
+  background: #fffdf8;
+  color: #1a1208;
   font-weight: 700;
+  box-shadow: 0 1px 5px rgba(74, 58, 42, 0.18);
 }
 /* Programs We Offer 구도: 가운데 큰 활성 카드 + 양옆 축소·흐림 카드
    (이미지 비중은 낮추고 텍스트 영역 확보, 스와이프는 네이티브 스크롤 스냅) */
@@ -474,20 +479,18 @@
   align-items: flex-start;
   gap: 8px;
   margin-top: 6px;
-  padding: 14px 20px 10px 16px;
-  scroll-padding-left: 16px;
+  padding: 14px 18px 10px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 .bookTrack::-webkit-scrollbar { display: none; }
-/* 텍스트 영역 최대 확보: 왼쪽 정렬 스냅 + 오른쪽에만 다음 카드가 ~16px 걸침
-   (양옆 분할 peek보다 텍스트 폭이 넓고, '오른쪽에 다음이 있다'는 신호는 더 명확) */
+/* 가운데 스냅 + 양끝에 이전/다음 카드가 ~10px 슬리버로 '존재만' 보임 */
 .bookCard {
-  flex: 0 0 calc(100% - 40px);
+  flex: 0 0 calc(100% - 36px);
   max-width: 560px;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   background: #fffdf8;
   border: 1px solid #eee2d0;
   border-radius: 16px;
@@ -619,15 +622,14 @@
   color: #8a7660;
   margin: 4px 0 0;
 }
-/* 본문: Noto Serif KR semibold, 크기·행간은 모임소개 본문(13px/1.85)과 동일 */
+/* 본문: Noto Serif KR medium, 크기·행간은 모임소개 본문(13px/1.85)과 동일.
+   3기부터 인용문이 없어 인용구 세로선 서식 제거 — 첫 문단도 일반 텍스트로 */
 .bookQuote {
-  margin: 20px 0 0;
-  padding-left: 14px;
-  border-left: 2px solid #d2691e;
+  margin: 18px 0 0;
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 500;
-  font-size: 13.5px;
-  line-height: 1.9;
+  font-size: 13px;
+  line-height: 1.85;
   color: #4a3020;
   word-break: keep-all;
   text-wrap: pretty;

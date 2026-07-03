@@ -472,26 +472,27 @@
 .bookTrack {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
   margin-top: 6px;
-  padding: 14px 12% 10px;
+  padding: 14px 20px 10px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 .bookTrack::-webkit-scrollbar { display: none; }
+/* 텍스트 영역 최대 확보: 카드 폭 = 화면 - 52px (양옆 ~16px씩만 다음 카드가 걸침) */
 .bookCard {
-  flex: 0 0 78%;
-  max-width: 420px;
+  flex: 0 0 calc(100% - 52px);
+  max-width: 560px;
   scroll-snap-align: center;
   background: #fffdf8;
   border: 1px solid #eee2d0;
   border-radius: 16px;
-  padding: 24px 20px 22px;
+  padding: 24px 18px 22px;
   opacity: 0.45;
-  transform: scale(0.84);
-  filter: blur(1.5px);
+  transform: scale(0.94);
+  filter: blur(1px);
   transform-origin: center top;
   transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease, box-shadow 0.35s ease;
   cursor: pointer;
@@ -600,9 +601,12 @@
   font-weight: 700;
   margin: 0 0 6px;
 }
+/* 책 제목: Pretendard Bold Italic (운영자 지정) */
 .bookDetailTitle {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
   font-size: 19px;
   font-weight: 700;
+  font-style: italic;
   color: #1a1208;
   margin: 0;
   line-height: 1.4;
@@ -613,22 +617,28 @@
   color: #8a7660;
   margin: 4px 0 0;
 }
+/* 본문: Noto Serif KR semibold, 크기·행간은 모임소개 본문(13px/1.85)과 동일 */
 .bookQuote {
   margin: 20px 0 0;
   padding-left: 14px;
   border-left: 2px solid #d2691e;
-  font-size: 14.5px;
-  line-height: 1.8;
-  color: #4a3a2a;
-  font-style: italic;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: #4a3020;
   word-break: keep-all;
+  text-wrap: pretty;
 }
 .bookParagraph {
   margin: 14px 0 0;
-  font-size: 14px;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 13px;
   line-height: 1.85;
-  color: #4a3a2a;
+  color: #4a3020;
   word-break: keep-all;
+  text-wrap: pretty;
 }
 .bookCuratorLabel {
   display: block;
@@ -640,9 +650,12 @@
 }
 .bookCuratorNote {
   margin: 0;
-  font-size: 14px;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 13px;
   line-height: 1.85;
-  color: #4a3a2a;
+  color: #4a3020;
   word-break: keep-all;
+  text-wrap: pretty;
 }
 .bookDetailCover { width: 84px; height: 126px; }

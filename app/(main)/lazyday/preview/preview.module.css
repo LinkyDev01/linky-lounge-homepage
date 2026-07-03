@@ -44,9 +44,10 @@
 }
 .previewBarSpacer { height: 34px; }
 
-/* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ── */
+/* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ──
+   섹션 색 교차(포스터 아래 밴드는 짙은 베이지)로 아래 선정도서(#f5ede4)와 대비 */
 .heroSummary {
-  background: #f5ede4;
+  background: #ede0d0;
   padding: 28px 24px 10px;
   text-align: center;
 }

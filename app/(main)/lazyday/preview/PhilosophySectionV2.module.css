@@ -1,0 +1,153 @@
+.section {
+  background-color: #ede0d0;
+  padding: 0;
+  word-break: keep-all;
+  scroll-margin-top: 52px;
+}
+
+.inner {
+  padding: 48px 24px 56px;
+}
+
+.titleRow {
+  margin: 0 0 12px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.titleRow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.sectionLead {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #7a6450;
+  margin: 0 0 28px;
+  word-break: keep-all;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.titleBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(210, 105, 30, 0.45);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.arrow {
+  font-size: 14px;
+  color: #b08060;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.arrowOpen { transform: rotate(180deg); }
+
+.label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+.quote {
+  border-left: 3px solid #d2691e;
+  padding-left: 14px;
+  margin-left: 16px;
+}
+
+.peekWrap {
+  position: relative;
+  max-height: 54px;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.peekOpen {
+  max-height: 2000px;
+}
+
+.fadeWrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.fadeBg {
+  height: 36px;
+  background: linear-gradient(to bottom, transparent, #ede0d0);
+}
+
+.moreHint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6a4f38;
+  background: #ede0d0;
+  padding: 0;
+}
+
+.desc {
+  font-size: 13px;
+  line-height: 1.85;
+  color: #4a3020;
+  margin: 0;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.desc strong { color: #d2691e; font-weight: 700; }
+
+@media (max-width: 480px) {
+  .sectionTitle { font-size: 26px; }
+  .label { font-size: 15px; }
+  .desc { font-size: 13px; }
+}
+
+@media (min-width: 768px) {
+  .inner { padding-left: 56px; padding-right: 56px; }
+  .label { font-size: 17px; }
+  .desc { font-size: 14px; }
+}

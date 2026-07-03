@@ -3,15 +3,15 @@ import { useEffect, useState } from 'react'
 import styles from './NavBar.module.css'
 
 const navItems = [
-  { id: 'about',    label: '모임소개' },
-  { id: 'book',     label: '책소개' },
+  { id: 'book',     label: '선정도서' },
+  { id: 'feature',  label: '모임소개' },
   { id: 'howto',    label: '진행방식' },
   { id: 'schedule', label: '모임일정' },
   { id: 'faq',      label: 'FAQ' },
 ]
 
 export function NavBar() {
-  const [activeId, setActiveId] = useState('about')
+  const [activeId, setActiveId] = useState('book')
 
   useEffect(() => {
     const handleScroll = () => {

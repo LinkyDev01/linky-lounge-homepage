@@ -2,10 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background-color: rgba(245, 237, 228, 0.92);
+  /* 브라운 베이스 그레이 + 살짝 반투명 (운영자 결정 2026-07-03) */
+  background-color: rgba(110, 100, 90, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(212, 191, 170, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .list {
@@ -27,7 +28,7 @@
   padding: 0;
   font-size: 13px;
   font-weight: 500;
-  color: #8a6a50;
+  color: #ece1d2;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -40,13 +41,13 @@
 }
 
 .item:hover:not(.active) {
-  color: #4a3020;
+  color: #fffdf8;
 }
 
 .item.active {
   font-weight: 700;
-  color: #d2691e;
-  border-bottom-color: #d2691e;
+  color: #ffc590;
+  border-bottom-color: #eb8b3f;
 }
 
 /* PC — 더 여유있고 정제된 룩 */

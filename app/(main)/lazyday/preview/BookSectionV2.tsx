@@ -91,7 +91,7 @@ export function BookSectionV2() {
       <div className={bstyles.content}>
         <FadeUp>
           <div className={bstyles.titleRow}>
-            <h2 className={bstyles.sectionTitle}>책 소개</h2>
+            <h2 className={bstyles.sectionTitle}>선정도서</h2>
           </div>
           {/* 현재 기수 강조 리드 */}
           <p className={styles.bookLead}>
@@ -121,7 +121,7 @@ export function BookSectionV2() {
                 }`}
                 onClick={() => selectSeason(i)}
               >
-                {i === 0 ? `${s.label} (이번 기수)` : s.label}
+                {s.label}
               </button>
             ))}
           </div>

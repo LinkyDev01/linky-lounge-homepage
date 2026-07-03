@@ -13,7 +13,7 @@ const STEPS = [
  */
 export function JourneyStepper({ current, caption }: { current: number; caption?: string }) {
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <div className={styles.stepper} aria-label="신청 진행 단계">
         {STEPS.map((s) => (
           <div

@@ -275,14 +275,15 @@
 }
 .nextSeasonDone { font-size: 13.5px; color: #b8571a; margin: 8px 0 0; }
 
-/* ── 신청 여정 스텝퍼 ────────────────────────────────────── */
+/* ── 신청 여정 스텝퍼 — 컨테이너 폭 전체에 양쪽 정렬 ────── */
 .stepper {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: space-between;
   gap: 0;
+  width: 100%;
+  max-width: 560px;
   margin: 26px auto 8px;
-  max-width: 480px;
 }
 .stepItem {
   flex: 1;
@@ -321,7 +322,7 @@
   font-size: 11.5px;
   line-height: 1.4;
   color: #8a7660;
-  word-break: keep-all;
+  white-space: nowrap;
 }
 .stepActive .stepLabel { color: #b8571a; font-weight: 700; }
 .stepCaption {
@@ -444,8 +445,9 @@
 }
 .bookLead strong { color: #b8571a; font-weight: 700; }
 .bookLeadRange { color: #a08b70; font-size: 13px; }
-/* 기수 선택 — 세그먼트 컨트롤 (활성 세그먼트가 크림 카드로 떠오르는 형태) */
+/* 기수 선택 — 세그먼트 컨트롤: 주황 썸이 활성 기수로 미끄러져 이동 */
 .seasonSeg {
+  position: relative;
   display: inline-flex;
   gap: 2px;
   margin-top: 14px;
@@ -453,7 +455,19 @@
   background: #eadfcd;
   border-radius: 999px;
 }
+.segThumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  border-radius: 999px;
+  background: #d2691e;
+  box-shadow: 0 2px 7px rgba(210, 105, 30, 0.4);
+  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.36, 1), width 0.3s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
 .seasonSegBtn {
+  position: relative;
+  z-index: 1;
   border: none;
   background: transparent;
   padding: 7px 14px;
@@ -463,14 +477,30 @@
   color: #8a7660;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  transition: color 0.25s ease;
 }
 .seasonSegBtnActive {
-  background: #fffdf8;
-  color: #1a1208;
+  color: #fffdf8;
   font-weight: 700;
-  box-shadow: 0 1px 5px rgba(74, 58, 42, 0.18);
 }
+/* 썸 측정 전(첫 페인트) 폴백 — 활성 버튼 자체를 주황으로 */
+.seasonSegBtnActiveFallback {
+  background: #d2691e;
+  color: #fffdf8;
+  font-weight: 700;
+}
+
+/* 기수 전환 방향성 슬라이드 */
+@keyframes seasonInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes seasonInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.seasonSlideRight { animation: seasonInRight 0.4s cubic-bezier(0.22, 0.8, 0.36, 1); }
+.seasonSlideLeft  { animation: seasonInLeft  0.4s cubic-bezier(0.22, 0.8, 0.36, 1); }
 /* Programs We Offer 구도: 가운데 큰 활성 카드 + 양옆 축소·흐림 카드
    (이미지 비중은 낮추고 텍스트 영역 확보, 스와이프는 네이티브 스크롤 스냅) */
 .bookCarousel { position: relative; }

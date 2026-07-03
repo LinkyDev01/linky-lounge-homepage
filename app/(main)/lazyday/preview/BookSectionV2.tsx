@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { season1Config, season2Config, season3Config } from "../book-config"
 import type { SeasonConfig } from "../book-config"
@@ -21,11 +21,27 @@ const SEASONS: SeasonConfig[] = [season3Config, season2Config, season1Config]
 export function BookSectionV2() {
   const [seasonIdx, setSeasonIdx] = useState(0)
   const [bookIdx, setBookIdx] = useState(0)
+  // 기수 전환 방향 (애니메이션 방향 결정: 과거 기수로 = 오른쪽에서 들어옴)
+  const [slideDir, setSlideDir] = useState<"left" | "right">("right")
   const trackRef = useRef<HTMLDivElement>(null)
+  const segRef = useRef<HTMLDivElement>(null)
+  // 세그먼트 슬라이딩 썸(주황) 위치
+  const [thumb, setThumb] = useState<{ left: number; width: number } | null>(null)
 
   const season = SEASONS[seasonIdx]
   const books = season.books
   const isCurrent = seasonIdx === 0
+
+  // 활성 세그먼트 위치 측정 → 주황 썸이 미끄러져 이동
+  useLayoutEffect(() => {
+    const measure = () => {
+      const btn = segRef.current?.querySelectorAll("button")[seasonIdx] as HTMLElement | undefined
+      if (btn) setThumb({ left: btn.offsetLeft, width: btn.offsetWidth })
+    }
+    measure()
+    window.addEventListener("resize", measure)
+    return () => window.removeEventListener("resize", measure)
+  }, [seasonIdx])
 
   // 스크롤 위치 → 활성 카드 동기화 (커버 레일·카드 강조용)
   useEffect(() => {
@@ -63,6 +79,8 @@ export function BookSectionV2() {
   }
 
   function selectSeason(i: number) {
+    if (i === seasonIdx) return
+    setSlideDir(i > seasonIdx ? "right" : "left") // 과거 기수로 = 오른쪽에서, 최신 기수로 = 왼쪽에서
     setSeasonIdx(i)
     setBookIdx(0)
     requestAnimationFrame(() => trackRef.current?.scrollTo({ left: 0 }))
@@ -84,14 +102,23 @@ export function BookSectionV2() {
             )}
             {season.dateRange && <span className={styles.bookLeadRange}> · {season.dateRange}</span>}
           </p>
-          {/* 기수 전환 — 세그먼트 컨트롤 */}
-          <div className={styles.seasonSeg} role="tablist" aria-label="기수 선택">
+          {/* 기수 전환 — 세그먼트 컨트롤 (주황 썸이 미끄러지는 형태) */}
+          <div className={styles.seasonSeg} role="tablist" aria-label="기수 선택" ref={segRef}>
+            {thumb && (
+              <span
+                className={styles.segThumb}
+                style={{ transform: `translateX(${thumb.left}px)`, width: thumb.width }}
+                aria-hidden
+              />
+            )}
             {SEASONS.map((s, i) => (
               <button
                 key={s.label}
                 role="tab"
                 aria-selected={i === seasonIdx}
-                className={`${styles.seasonSegBtn} ${i === seasonIdx ? styles.seasonSegBtnActive : ""}`}
+                className={`${styles.seasonSegBtn} ${
+                  i === seasonIdx ? (thumb ? styles.seasonSegBtnActive : styles.seasonSegBtnActiveFallback) : ""
+                }`}
                 onClick={() => selectSeason(i)}
               >
                 {i === 0 ? `${s.label} (이번 기수)` : s.label}
@@ -100,8 +127,12 @@ export function BookSectionV2() {
           </div>
         </FadeUp>
 
+        {/* 기수 전환 시 방향성 슬라이드 애니메이션 (과거로 = 오른쪽에서 들어옴) */}
+        <div
+          key={season.label}
+          className={slideDir === "right" ? styles.seasonSlideRight : styles.seasonSlideLeft}
+        >
         {/* 커버 레일 — 네 권 한눈에 + 탭하면 해당 카드로 */}
-        <FadeUp>
           <div className={styles.coverRail}>
             {books.map((b, i) => (
               <button
@@ -122,7 +153,6 @@ export function BookSectionV2() {
               </button>
             ))}
           </div>
-        </FadeUp>
 
         {/* 카드 캐러셀 — 가운데 큰 활성 카드 + 양옆 축소 카드 (Programs We Offer 구도) */}
         <div className={styles.bookCarousel}>
@@ -192,6 +222,8 @@ export function BookSectionV2() {
             />
           ))}
         </div>
+        </div>
+        {/* ↑ bookCarousel 끝 / ↓ 기수 슬라이드 래퍼 끝 */}
         </div>
       </div>
     </section>

@@ -24,6 +24,8 @@ export const SEASON = {
   next: "4기",
   /** 시즌 기간 표기 */
   periodLabel: "7/15 – 9/6",
+  /** 신청 마감일 (KST, 이 날짜 23:59까지 신청 가능) — 스티키 CTA D-day가 여기서 계산됨 */
+  deadline: "2026-07-16",
   /** 참가비 표기 */
   price: "150,000원",
   /** 정가(취소선) — 2기 실판매가 200,000원 확인됨 (운영자 확인 2026-07-02) → 종전거래가격 표기 근거 있음 */
@@ -57,4 +59,10 @@ export const SEASON = {
     short: "링키라운지 (사당역 도보 3분)",
     note: "*상황에 따라 장소가 변경될 수 있습니다.",
   },
+}
+
+/** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수) */
+export function daysUntilDeadline(): number {
+  const end = new Date(`${SEASON.deadline}T23:59:59+09:00`).getTime()
+  return Math.floor((end - Date.now()) / 86_400_000)
 }

@@ -6,7 +6,6 @@ import { NavBar } from "./NavBar"
 import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
 import { SectionIndicator } from "./SectionIndicator"
-import { AboutSection } from "./AboutSection"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
@@ -32,10 +31,10 @@ export default function StudyForeignPage() {
       <HashScrollOnLoad />
       <NavBar />
       <main className={styles.container} data-track-section="bookclub_home">
+        {/* '복잡함 속에서 찾는 단순함'(AboutSection)은 보류 — 컴포넌트는 보존 (운영자 결정 2026-07-03) */}
         <HeroParallax />
-        <AboutSection />
-        <FeatureBoxSection />
         <BookSection />
+        <FeatureBoxSection />
         <FifthSessionSection />
         <HowToSection />
         <ScheduleSection />

@@ -193,10 +193,9 @@ function doPost(e) {
 function handleApply(d) {
   var sheet = ss().getSheetByName(MAIN_SHEET);
 
-  // 새 컬럼은 payload에 실제 값이 있을 때만 생성 (프론트에서 문항을 꺼두면 빈 컬럼도 안 생김)
-  // ※ row 배열 길이에 새 컬럼이 포함되도록 colIndexMap보다 먼저 실행해야 함
-  if (d.preferredDays) ensureColumn(sheet, "희망 요일");
-  if (d.consentAt)     ensureColumn(sheet, "동의 시각");
+  // 새 컬럼 보장 후 인덱스 계산 (row 배열 길이에 새 컬럼이 포함되도록 순서 중요)
+  ensureColumn(sheet, "희망 요일");
+  ensureColumn(sheet, "동의 시각");
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
 
@@ -210,8 +209,8 @@ function handleApply(d) {
   row[col["인스타그램"]]  = d.instagram || "";
   row[col["추천인"]]      = d.referral || "";
   row[col["마케팅 동의"]] = d.marketingConsent || "";
-  if (col["희망 요일"] != null) row[col["희망 요일"]] = d.preferredDays || "";
-  if (col["동의 시각"] != null) row[col["동의 시각"]] = d.consentAt ? new Date(d.consentAt) : "";
+  row[col["희망 요일"]]   = d.preferredDays || "";
+  row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
   prependRow(sheet, row);
   if (d.consentAt && col["동의 시각"] != null) {
     sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
@@ -225,7 +224,7 @@ function handleApply(d) {
           "성별: " + (d.gender || "-") + "\n" +
           "나이: " + (d.age || "-") + "\n" +
           "연락처: " + (d.phone || "-") + "\n" +
-          (d.preferredDays ? "희망 요일: " + d.preferredDays + "\n" : "") +
+          "희망 요일: " + (d.preferredDays || "-") + "\n" +
           "인터뷰 방식: " + (d.interviewType || "-") + "\n" +
           "한 줄 인사: " + (d.greeting || "-") + "\n" +
           "인스타그램: " + (d.instagram || "-") + "\n" +

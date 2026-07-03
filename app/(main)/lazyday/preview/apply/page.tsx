@@ -238,16 +238,6 @@ export default function PreviewApplyPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className={styles.schTdLabel}>잔여석</td>
-                  {PREVIEW.capacity.map((c) => (
-                    <td key={c.day} className={styles.schTdDate}>
-                      <span className={`${pstyles.seatChip} ${c.left <= 2 ? pstyles.seatChipLow : ""}`}>
-                        {c.left}석
-                      </span>
-                    </td>
-                  ))}
-                </tr>
                 {sessions.map((s) => (
                   <tr key={s.label}>
                     <td className={styles.schTdLabel}>{s.label}</td>
@@ -462,16 +452,7 @@ export default function PreviewApplyPage() {
               </p>
             </div>
 
-            {/* 개선: 제출 직전 참가비·결제 시점 요약 */}
-            <div className={pstyles.priceCard}>
-              <p className={pstyles.priceCardMain}>
-                참가비 <s>{PREVIEW.priceWas}</s> <strong>{PREVIEW.priceNow}</strong>
-                <span className={pstyles.priceCardTag}>3기 한정</span>
-              </p>
-              <p className={pstyles.priceCardNote}>
-                지금은 결제하지 않아요. 인터뷰 후 합류가 확정되면 결제를 안내드리고, 확정 전 취소는 부담 없이 가능해요.
-              </p>
-            </div>
+            {/* 참가비 상세는 기존처럼 인터뷰 페이지에서만 노출 (운영자 결정 2026-07-03) */}
 
           <div id="form-error-anchor">
           {errors._form && (

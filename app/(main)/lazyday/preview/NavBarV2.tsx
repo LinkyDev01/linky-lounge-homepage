@@ -11,7 +11,7 @@ const navItems = [
   { id: "reviews",  label: "후기" },
   { id: "book",     label: "책소개" },
   { id: "howto",    label: "진행방식" },
-  { id: "schedule", label: "일정·참가" },
+  { id: "schedule", label: "모임일정" },
   { id: "faq",      label: "FAQ" },
 ]
 

@@ -8,8 +8,8 @@ import { SEASON } from "../season-config"
 export const PREVIEW = {
   season: SEASON.name,
   nextSeason: SEASON.next,
-  /** 신청 마감일 (KST, 이 날짜 23:59까지 신청 가능) */
-  deadline: "2026-07-13",
+  /** 신청 마감일 (KST, 이 날짜 23:59까지 신청 가능) — D-day는 여기서 자동 계산됨 */
+  deadline: "2026-07-16",
   periodLabel: SEASON.periodLabel,
   priceNow: SEASON.price,
   /** 취소선 정가 — 실판매 이력 확인 전까지 프리뷰 초안 전용, 정식 반영 금지 */

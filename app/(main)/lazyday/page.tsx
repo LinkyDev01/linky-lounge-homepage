@@ -34,8 +34,8 @@ export default function StudyForeignPage() {
         {/* '복잡함 속에서 찾는 단순함'(AboutSection)은 보류 — 컴포넌트는 보존 (운영자 결정 2026-07-03) */}
         <HeroParallax />
         <BookSection />
-        <FeatureBoxSection />
         <FifthSessionSection />
+        <FeatureBoxSection />
         <HowToSection />
         <ScheduleSection />
         <FaqSection />

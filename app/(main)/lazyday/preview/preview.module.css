@@ -126,21 +126,21 @@
   margin: 8px 0 28px;
   word-break: keep-all;
 }
-/* 후기 트랙 — 책 소개와 동일한 슬라이딩 (가운데 스냅 + 양옆 축소·흐림) */
+/* 후기 트랙 — 책 소개와 동일한 지오메트리 (카드 = 화면-36px, 양옆은 살짝만) */
 .reviewTrack {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
   overflow-x: auto;
-  padding: 8px 18% 6px;
+  padding: 14px 18px 10px;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 .reviewTrack::-webkit-scrollbar { display: none; }
 .reviewSlide {
-  flex: 0 0 64%;
-  max-width: 300px;
+  flex: 0 0 calc(100% - 36px);
+  max-width: 560px;
   scroll-snap-align: center;
   opacity: 0.45;
   transform: scale(0.94);
@@ -202,6 +202,12 @@
   font-style: normal;
   color: #a08b70;
 }
+/* 슬라이드 전환 시 인용문 페이드 인 */
+@keyframes quoteIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.quoteFade { animation: quoteIn 0.35s ease; }
 
 /* ── 일정 섹션: 잔여석 + 참가 안내 ───────────────────────── */
 .seatRow { font-size: 12px; }

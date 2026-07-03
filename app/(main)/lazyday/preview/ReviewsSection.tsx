@@ -7,14 +7,30 @@ import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
  * 후기 섹션 — 손글씨 후기 '사진' 폴라로이드 카드.
- * 슬라이딩 방식은 책 소개와 동일(가운데 스냅 + 양옆 축소·흐림 + 화살표·점),
- * 박스 레이아웃(폴라로이드 프레임 + 캡션)은 기존 그대로 유지.
- * 사진 자리는 실물 촬영본으로 교체하면 됨.
+ * 카드 크기·슬라이딩은 책 소개와 동일(카드 폭 = 화면-36px, 양옆은 살짝만),
+ * 살짝 회전한 직사각형(폴라로이드) 구도는 유지.
+ * 하단 인용문은 활성 슬라이드에 맞춰 페이드 전환.
+ * 사진·인용문은 실물 촬영본/실제 후기로 교체하면 됨.
  */
 const photoCards = [
-  { caption: "1기 멤버 J님의 노트" },
-  { caption: "2기 멤버 H님의 노트" },
-  { caption: "2기 마지막 모임에서" },
+  {
+    caption: "1기 멤버 J님의 노트",
+    quote:
+      "\"혼자 읽었다면 밑줄만 긋고 지나쳤을 문장 앞에서, 처음 보는 사람들과 한 시간을 머물렀어요. 그 한 시간이 이번 계절에서 제일 느리고 제일 남는 시간이었습니다.\"",
+    by: "— 1기 멤버 J님의 노트에서 (예시 문구, 실제 후기로 교체)",
+  },
+  {
+    caption: "2기 멤버 H님의 노트",
+    quote:
+      "\"말할 차례가 돌아오는 게 부담스러울 줄 알았는데, 여기선 내 생각이 하나의 자리로 존중받는다는 느낌이었어요.\"",
+    by: "— 2기 멤버 H님의 노트에서 (예시 문구, 실제 후기로 교체)",
+  },
+  {
+    caption: "2기 마지막 모임에서",
+    quote:
+      "\"네 권을 함께 통과한 사람들과 마지막 날 나눈 대화는, 책 밖에서도 오래 남을 것 같아요.\"",
+    by: "— 2기 마지막 모임에서 (예시 문구, 실제 후기로 교체)",
+  },
 ]
 
 export function ReviewsSection() {
@@ -56,6 +72,8 @@ export function ReviewsSection() {
     })
   }
 
+  const active = photoCards[Math.min(idx, photoCards.length - 1)]
+
   return (
     <section id="reviews" className={pstyles.reviewsSection}>
       <div className={pstyles.reviewsInner}>
@@ -72,7 +90,7 @@ export function ReviewsSection() {
           <button
             type="button"
             className={`${pstyles.bookChevron} ${pstyles.bookChevronLeft}`}
-            style={{ top: "44%" }}
+            style={{ top: "42%" }}
             onClick={() => scrollToCard(idx - 1)}
             disabled={idx === 0}
             aria-label="이전 후기"
@@ -82,7 +100,7 @@ export function ReviewsSection() {
           <button
             type="button"
             className={`${pstyles.bookChevron} ${pstyles.bookChevronRight}`}
-            style={{ top: "44%" }}
+            style={{ top: "42%" }}
             onClick={() => scrollToCard(idx + 1)}
             disabled={idx === photoCards.length - 1}
             aria-label="다음 후기"
@@ -120,14 +138,11 @@ export function ReviewsSection() {
           </div>
         </div>
 
-        <FadeUp>
-          <blockquote className={pstyles.reviewQuote}>
-            "혼자 읽었다면 밑줄만 긋고 지나쳤을 문장 앞에서,
-            처음 보는 사람들과 한 시간을 머물렀어요.
-            그 한 시간이 이번 계절에서 제일 느리고 제일 남는 시간이었습니다."
-            <span className={pstyles.reviewQuoteBy}>— 1기 멤버 후기 중 (예시 문구, 실제 후기로 교체)</span>
-          </blockquote>
-        </FadeUp>
+        {/* 활성 슬라이드에 맞춰 페이드 전환되는 인용문 */}
+        <blockquote key={idx} className={`${pstyles.reviewQuote} ${pstyles.quoteFade}`}>
+          {active.quote}
+          <span className={pstyles.reviewQuoteBy}>{active.by}</span>
+        </blockquote>
       </div>
     </section>
   )

@@ -1,0 +1,720 @@
+/* ═══════════════════════════════════════════════════════════
+   프리뷰 전용 스타일 — 기존 모듈에 없는 신규 요소만 정의
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 프리뷰 안내 바 (임시 이동 버튼) ─────────────────────── */
+.previewBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #2b2119;
+  color: #f5ede4;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.previewBadge {
+  background: #d2691e;
+  color: #fff;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.previewLink {
+  color: #e8dccb;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.previewLink:hover { background: rgba(255, 255, 255, 0.1); }
+.previewLinkActive {
+  background: rgba(210, 105, 30, 0.35);
+  color: #fff;
+  font-weight: 600;
+}
+.previewBarSpacer { height: 34px; }
+
+/* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ── */
+.heroSummary {
+  background: #f5ede4;
+  padding: 28px 24px 10px;
+  text-align: center;
+}
+.heroKicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 0 18px;
+}
+.kickerText {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: #8a7660;
+  white-space: nowrap;
+}
+.kickerRule {
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: #cdbca6;
+}
+.heroSummaryLine {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+  color: #1a1208;
+  margin: 0 auto;
+  max-width: 480px;
+  word-break: keep-all;
+}
+.heroSummarySub {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: #6b5a48;
+}
+.heroSummaryMeta {
+  margin: 16px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: #a08b70;
+  word-break: keep-all;
+}
+
+/* ── 아코디언 요약(항상 노출) ────────────────────────────── */
+.cardSummary {
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: #4a3a2a;
+  margin: 10px 0 0;
+  word-break: keep-all;
+}
+.cardDetailToggle {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #b8571a;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── 후기 섹션 ───────────────────────────────────────────── */
+.reviewsSection {
+  padding: 72px 24px;
+  background: #f5ede4;
+}
+.reviewsInner { max-width: 560px; margin: 0 auto; }
+.reviewsLead {
+  font-size: 14px;
+  color: #6b5a48;
+  margin: 8px 0 28px;
+  word-break: keep-all;
+}
+/* 후기 트랙 — 책 소개와 동일한 지오메트리 (카드 = 화면-36px, 양옆은 살짝만) */
+.reviewTrack {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 14px 18px 10px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.reviewTrack::-webkit-scrollbar { display: none; }
+.reviewSlide {
+  flex: 0 0 calc(100% - 36px);
+  max-width: 560px;
+  scroll-snap-align: center;
+  opacity: 0.45;
+  transform: scale(0.94);
+  filter: blur(1px);
+  transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+  cursor: pointer;
+}
+.reviewSlideActive {
+  opacity: 1;
+  transform: scale(1);
+  filter: none;
+  cursor: default;
+}
+.reviewCard {
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 4px;
+  padding: 14px 14px 18px;
+  box-shadow: 0 4px 14px rgba(74, 58, 42, 0.08);
+}
+.reviewSlide:nth-child(odd) .reviewCard  { transform: rotate(-1.2deg); }
+.reviewSlide:nth-child(even) .reviewCard { transform: rotate(1deg); }
+.reviewPhoto {
+  aspect-ratio: 4 / 5;
+  border: 1.5px dashed #c9b8a0;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #a08b70;
+  font-size: 12px;
+  text-align: center;
+  padding: 12px;
+  background: repeating-linear-gradient(#fffdf8, #fffdf8 26px, #f3ead9 27px);
+}
+.reviewCaption {
+  margin: 10px 2px 0;
+  font-size: 12.5px;
+  color: #6b5a48;
+}
+.reviewQuote {
+  margin: 20px 0 0;
+  padding: 18px 20px;
+  border-left: 3px solid #d2691e;
+  background: #faf4ea;
+  border-radius: 0 8px 8px 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #4a3a2a;
+  font-style: italic;
+  word-break: keep-all;
+}
+.reviewQuoteBy {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-style: normal;
+  color: #a08b70;
+}
+/* 슬라이드 전환 시 인용문 페이드 인 */
+@keyframes quoteIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.quoteFade { animation: quoteIn 0.35s ease; }
+
+/* ── 일정 섹션: 잔여석 + 참가 안내 ───────────────────────── */
+.seatRow { font-size: 12px; }
+.seatChip {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3e3d3;
+  color: #b8571a;
+}
+.seatChipLow { background: #d2691e; color: #fff; }
+.joinInfoBox {
+  margin-top: 28px;
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 14px;
+  padding: 22px 22px 18px;
+}
+.joinInfoTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #4a3a2a;
+  margin: 0 0 14px;
+}
+.joinInfoGrid {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.joinInfoKey { color: #b8571a; font-weight: 600; }
+.joinInfoVal { color: #4a3a2a; word-break: keep-all; }
+.joinInfoVal s { color: #a09484; margin-right: 6px; font-size: 13px; }
+.joinInfoVal strong { font-weight: 700; }
+.joinInfoNote {
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  color: #8a7660;
+  line-height: 1.6;
+}
+
+/* ── 클로징 CTA 블록 ─────────────────────────────────────── */
+.closingCta {
+  padding: 64px 24px 8px;
+  text-align: center;
+  background: #f5ede4;
+}
+.closingCtaTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4a3a2a;
+  margin: 0 0 6px;
+  word-break: keep-all;
+}
+.closingCtaSub {
+  font-size: 14px;
+  color: #6b5a48;
+  margin: 0 0 20px;
+}
+.nextSeasonBox {
+  max-width: 400px;
+  margin: 28px auto 0;
+  padding: 18px;
+  border: 1px dashed #c9b8a0;
+  border-radius: 12px;
+}
+.nextSeasonText { font-size: 13.5px; color: #6b5a48; margin: 0 0 10px; }
+.nextSeasonRow { display: flex; gap: 8px; }
+.nextSeasonInput {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d8c9b4;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fffdf8;
+}
+.nextSeasonBtn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #4a3a2a;
+  color: #fff;
+  font-size: 13.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.nextSeasonDone { font-size: 13.5px; color: #b8571a; margin: 8px 0 0; }
+
+/* ── 신청 여정 스텝퍼 — 컨테이너 폭 전체에 양쪽 정렬 ────── */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0;
+  width: 100%;
+  max-width: 560px;
+  margin: 26px auto 8px;
+}
+.stepItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+}
+.stepItem:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: calc(50% + 16px);
+  right: calc(-50% + 16px);
+  height: 1.5px;
+  background: #d8c9b4;
+}
+.stepDotNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #ece0cf;
+  color: #a08b70;
+  z-index: 1;
+}
+.stepActive .stepDotNum { background: #d2691e; color: #fff; }
+.stepDone .stepDotNum { background: #4a3a2a; color: #f5ede4; }
+.stepLabel {
+  margin-top: 7px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #8a7660;
+  white-space: nowrap;
+}
+.stepActive .stepLabel { color: #b8571a; font-weight: 700; }
+.stepCaption {
+  text-align: center;
+  font-size: 12.5px;
+  color: #8a7660;
+  margin: 10px 0 0;
+  word-break: keep-all;
+}
+
+/* ── 참가비 요약 카드 (신청 폼) ──────────────────────────── */
+.priceCard {
+  background: #faf4ea;
+  border: 1px solid #e5d9c8;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 4px 0 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4a3a2a;
+}
+.priceCardMain { margin: 0; }
+.priceCardMain s { color: #a09484; font-size: 13px; margin-right: 6px; }
+.priceCardMain strong { font-size: 16px; font-weight: 800; color: #b8571a; }
+.priceCardTag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #d2691e;
+  border: 1px solid #d2691e;
+  padding: 1px 7px;
+  border-radius: 999px;
+  vertical-align: 2px;
+}
+.priceCardNote { margin: 6px 0 0; font-size: 12.5px; color: #8a7660; }
+
+/* ── 마이크로카피 / 작은 안내 ────────────────────────────── */
+.microcopy {
+  font-size: 12.5px;
+  color: #8a7660;
+  margin: 6px 0 0;
+}
+
+/* ── 제출 실패 배너 + 시뮬레이션 토글 ────────────────────── */
+.failBanner {
+  background: #fdf0e7;
+  border: 1.5px solid #d2691e;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 0 0 16px;
+}
+.failBannerTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #b8571a;
+  margin: 0 0 6px;
+}
+.failBannerText {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #4a3a2a;
+  margin: 0 0 12px;
+  word-break: keep-all;
+}
+.failBannerActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.failRetryBtn {
+  padding: 10px 18px;
+  background: #d2691e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.failAltLink {
+  padding: 10px 14px;
+  background: none;
+  border: 1px solid #c9b8a0;
+  border-radius: 8px;
+  color: #6b5a48;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+.simToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 24px auto 0;
+  padding: 10px 14px;
+  max-width: fit-content;
+  background: #2b2119;
+  color: #e8dccb;
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.simToggle input { accent-color: #d2691e; }
+
+/* ── 전화 인터뷰: 7일 제한 소형 안내 ─────────────────────── */
+.rangeNote {
+  font-size: 12px;
+  color: #a08b70;
+  margin: 4px 0 0;
+}
+
+/* ── 데스크톱 여백 세로 타이포 장식: 제거됨 (운영자 결정 2026-07-03) ── */
+.desktopFrame { position: relative; }
+
+/* 내비 클릭 시 섹션 제목이 프리뷰 바 + 내비에 가리지 않도록 */
+.desktopFrame :global(section[id]) { scroll-margin-top: 96px; }
+
+/* ── 책 소개 V3: 옆이 보이는 스와이프 캐러셀 + 기수 필 ────── */
+.bookLead {
+  margin: 14px 0 0;
+  font-size: 15.5px;
+  color: #4a3a2a;
+  word-break: keep-all;
+}
+.bookLead strong { color: #b8571a; font-weight: 700; }
+.bookLeadRange { color: #a08b70; font-size: 13px; }
+/* 기수 선택 — 세그먼트 컨트롤: 주황 썸이 활성 기수로 미끄러져 이동 */
+.seasonSeg {
+  position: relative;
+  display: inline-flex;
+  gap: 2px;
+  margin-top: 14px;
+  padding: 3px;
+  background: #eadfcd;
+  border-radius: 999px;
+}
+.segThumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  border-radius: 999px;
+  background: #d2691e;
+  box-shadow: 0 2px 7px rgba(210, 105, 30, 0.4);
+  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.36, 1), width 0.3s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.seasonSegBtn {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: #8a7660;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.25s ease;
+}
+.seasonSegBtnActive {
+  color: #fffdf8;
+  font-weight: 700;
+}
+/* 썸 측정 전(첫 페인트) 폴백 — 활성 버튼 자체를 주황으로 */
+.seasonSegBtnActiveFallback {
+  background: #d2691e;
+  color: #fffdf8;
+  font-weight: 700;
+}
+
+/* 기수 전환 방향성 슬라이드 */
+@keyframes seasonInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes seasonInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.seasonSlideRight { animation: seasonInRight 0.4s cubic-bezier(0.22, 0.8, 0.36, 1); }
+.seasonSlideLeft  { animation: seasonInLeft  0.4s cubic-bezier(0.22, 0.8, 0.36, 1); }
+/* Programs We Offer 구도: 가운데 큰 활성 카드 + 양옆 축소·흐림 카드
+   (이미지 비중은 낮추고 텍스트 영역 확보, 스와이프는 네이티브 스크롤 스냅) */
+.bookCarousel { position: relative; }
+.bookTrack {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 14px 18px 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.bookTrack::-webkit-scrollbar { display: none; }
+/* 가운데 스냅 + 양끝에 이전/다음 카드가 ~10px 슬리버로 '존재만' 보임 */
+.bookCard {
+  flex: 0 0 calc(100% - 36px);
+  max-width: 560px;
+  scroll-snap-align: center;
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  border-radius: 16px;
+  padding: 22px 16px 20px;
+  opacity: 0.45;
+  transform: scale(0.94);
+  filter: blur(1px);
+  transform-origin: center top;
+  transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease, box-shadow 0.35s ease;
+  cursor: pointer;
+}
+.bookCardActive {
+  opacity: 1;
+  transform: scale(1);
+  filter: none;
+  box-shadow: 0 14px 34px rgba(74, 58, 42, 0.16);
+  cursor: default;
+}
+.bookChevron {
+  position: absolute;
+  top: 200px;
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid #e5d9c8;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #6b5a48;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(74, 58, 42, 0.12);
+}
+.bookChevron:disabled { opacity: 0.25; cursor: default; }
+.bookChevronLeft  { left: 6px; }
+.bookChevronRight { right: 6px; }
+.bookDots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+}
+.bookDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: #d8c9b4;
+  cursor: pointer;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.bookDotActive { width: 22px; background: #d2691e; }
+.coverRail {
+  display: flex;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 6px 2px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.coverRail::-webkit-scrollbar { display: none; }
+.coverCell {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+}
+.coverThumb {
+  width: 66px;
+  height: 99px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  opacity: 0.55;
+  box-shadow: 0 2px 8px rgba(74, 58, 42, 0.12);
+  transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.coverCellActive .coverThumb {
+  opacity: 1;
+  transform: translateY(-3px);
+  border-color: #d2691e;
+}
+.coverWeek {
+  display: block;
+  margin-top: 7px;
+  font-size: 11.5px;
+  color: #a08b70;
+}
+.coverCellActive .coverWeek { color: #b8571a; font-weight: 700; }
+
+.bookDetailHead {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+}
+.bookDetailCover {
+  width: 96px;
+  height: 144px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(74, 58, 42, 0.18);
+  flex-shrink: 0;
+}
+.bookDetailWeek {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #b8571a;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+/* 책 제목: Pretendard Bold Italic (운영자 지정) */
+.bookDetailTitle {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  font-style: italic;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.bookDetailAuthor {
+  font-size: 13.5px;
+  color: #8a7660;
+  margin: 4px 0 0;
+}
+/* 본문: Noto Serif KR medium, 크기·행간은 모임소개 본문(13px/1.85)과 동일.
+   3기부터 인용문이 없어 인용구 세로선 서식 제거 — 첫 문단도 일반 텍스트로 */
+.bookQuote {
+  margin: 18px 0 0;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.bookParagraph {
+  margin: 14px 0 0;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.bookCuratorLabel {
+  display: block;
+  margin: 20px 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: #b8571a;
+}
+.bookCuratorNote {
+  margin: 0;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.bookDetailCover { width: 84px; height: 126px; }

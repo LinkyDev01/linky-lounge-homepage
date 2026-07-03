@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Script from "next/script"
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
+import { Geist, Geist_Mono, Playfair_Display, Noto_Serif_KR } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { MetaPixelTracker } from "@/components/meta-pixel-tracker"
 import "./globals.css"
@@ -15,6 +15,13 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
+})
+// 책 소개 카드 본문용 명조 (레이지데이 북클럽 책소개 섹션 전용)
+const notoSerif = Noto_Serif_KR({
+  weight: ["500", "600"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-noto-serif",
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -50,6 +57,11 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+        {/* 책 소개 카드 제목용 Pretendard (레이지데이 북클럽 전용) */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"
@@ -93,7 +105,7 @@ export default function RootLayout({
           />
         </noscript>
       </head>
-      <body className={`font-sans antialiased ${playfair.variable}`}>
+      <body className={`font-sans antialiased ${playfair.variable} ${notoSerif.variable}`}>
         {children}
         <MetaPixelTracker />
         <Analytics />

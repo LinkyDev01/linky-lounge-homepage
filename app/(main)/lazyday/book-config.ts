@@ -67,7 +67,7 @@ export const season1Config: SeasonConfig = {
 export const season3Config: SeasonConfig = {
   season: 3,
   label: "3기",
-  dateRange: "",
+  dateRange: "7.15 – 9.6",
   books: [
     {
       week: 1,
@@ -127,7 +127,7 @@ export const season3Config: SeasonConfig = {
 export const season2Config: SeasonConfig = {
   season: 2,
   label: "2기",
-  dateRange: "5.21 – 7.5",
+  dateRange: "5.21 – 7.12",
   books: [
     {
       week: 1,

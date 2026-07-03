@@ -1,14 +1,13 @@
 "use client"
 
 import { useState, useEffect, type FormEvent } from "react"
-import { trackEvent } from "@/lib/gtag"
-import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import { SEASON } from "../../../season-config"
+import styles from "../../../../apply/interview/written/page.module.css"
+import pstyles from "../../../preview.module.css"
+import { PREVIEW } from "../../../preview-config"
 import { JourneyStepper } from "../../../JourneyStepper"
-import styles from "./page.module.css"
 
 const QUESTIONS = [
   {
@@ -59,19 +58,18 @@ const INTRO_1 =
   "레이지데이 북클럽은 한 권의 책을 매개로 저마다의 깊이 있는 시선과 일상의 화두를 공유하는 독서모임입니다."
 const INTRO_2 =
   "아래의 6가지 질문은 다가오는 시즌 동안 함께 머물 대화의 공간을 조금 더 밀도 있게 준비하기 위한 과정입니다. 정답은 없으니, 평소 일상과 서재에서 하던 생각들을 편안하게 들려주세요."
+// 개선: 부담 완화 장치를 시작 전에 명시
+const INTRO_3 =
+  "작성에는 보통 10–15분 정도 걸려요. 모든 질문에 답하지 않아도 괜찮으니, 답하고 싶은 질문부터 편하게 적어주세요. 작성 중인 답변은 이 기기에 자동 저장돼요."
 
-// 페이지별 문항 (1페이지 = 안내/참가비/이름·연락처, 이후 한 페이지당 질문 1개)
 const PAGES: Record<number, string[]> = { 2: ["q1"], 3: ["q2"], 4: ["q3"], 5: ["q4"], 6: ["q5"], 7: ["q6"] }
 const LAST_PAGE = 7
 const QUESTION_PAGES = [2, 3, 4, 5, 6, 7]
+const TOTAL_DOTS = 7 // 개선: 정보 입력 포함 7개 (기존: 6개 도트에 7페이지)
 
-// GA4 + Meta Pixel 동시 전송
-function track(event: string, params: Record<string, string | number>) {
-  trackEvent(event, params)
-  trackCustom(event, params)
-}
+const STORAGE_KEY = "lazyday_preview_written_answers"
 
-export default function WrittenInterviewPage() {
+export default function PreviewWrittenInterviewPage() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [answers, setAnswers] = useState<Record<string, string>>({})
@@ -82,19 +80,19 @@ export default function WrittenInterviewPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [missingList, setMissingList] = useState<string[]>([])
   const [submitError, setSubmitError] = useState(false)
+  const [simulateFail, setSimulateFail] = useState(false)
 
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem("lazyday_applicant")
+      const saved = sessionStorage.getItem("lazyday_preview_applicant")
       if (saved) {
         const parsed = JSON.parse(saved)
         if (parsed.name) setName(parsed.name)
         if (parsed.phone) setPhone(parsed.phone)
       }
     } catch {}
-    // 작성 중이던 답변 복구 (이탈 후 재방문 시 이어쓰기)
     try {
-      const a = localStorage.getItem("lazyday_written_answers")
+      const a = localStorage.getItem(STORAGE_KEY)
       if (a) {
         const parsed = JSON.parse(a)
         if (parsed && typeof parsed === "object") setAnswers(parsed)
@@ -102,9 +100,8 @@ export default function WrittenInterviewPage() {
     } catch {}
   }, [])
 
-  // 답변이 바뀔 때마다 localStorage에 임시 저장 (이탈 복구용)
   useEffect(() => {
-    try { localStorage.setItem("lazyday_written_answers", JSON.stringify(answers)) } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(answers)) } catch {}
   }, [answers])
 
   function handleAnswer(id: string, value: string) {
@@ -113,14 +110,6 @@ export default function WrittenInterviewPage() {
 
   function isFilled(id: string) {
     return (answers[id] || "").trim().length > 0
-  }
-
-  // 페이지 문항 작성 상태 (분석용): 둘 다 작성 complete / 하나 partial / 없음 empty / 1페이지 info
-  function pageFillStatus(n: number): "complete" | "partial" | "empty" | "info" {
-    const ids = PAGES[n]
-    if (!ids) return "info"
-    const filled = ids.filter(isFilled).length
-    return filled === ids.length ? "complete" : filled === 0 ? "empty" : "partial"
   }
 
   function allMissingLabels() {
@@ -140,21 +129,16 @@ export default function WrittenInterviewPage() {
         setPage1Error("이름과 연락처를 입력해주세요.")
         return
       }
-      track("written_interview_step", { step: 2, answered: "info" })
       goToPage(2)
       return
     }
-    // 2~4: 미작성이어도 자유롭게 이동 (분석 이벤트만 기록)
-    track("written_interview_step", { step: currentPage + 1, answered: pageFillStatus(currentPage) })
     goToPage(Math.min(LAST_PAGE, currentPage + 1))
   }
 
   function goPrev() {
-    track("written_interview_step_back", { from: currentPage })
     goToPage(Math.max(1, currentPage - 1))
   }
 
-  // 미작성 질문이 있는 첫 페이지로 이동
   function goToFirstMissing() {
     const firstMissing = QUESTIONS.find((q) => !isFilled(q.id))
     setConfirmOpen(false)
@@ -164,49 +148,42 @@ export default function WrittenInterviewPage() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  // 서버 접수가 확인된 경우에만 완료 처리한다 (답변 유실 방지).
-  // 실패 시 답변은 localStorage에 그대로 남고, 재시도 배너를 보여준다.
+  /**
+   * ── 개선된 제출 처리 ──
+   * 기존: 실패해도 catch로 삼키고 무조건 완료 화면 → 답변 유실 위험.
+   * 개선: 서버 접수가 확인된 경우에만 완료 처리.
+   *  - 실패 시: 답변은 localStorage에 그대로 보존 + 재시도 배너 노출
+   *  - 성공 시에만 임시저장 삭제
+   */
   async function doSubmit() {
     setConfirmOpen(false)
     setSubmitError(false)
     setLoading(true)
-    try {
-      const res = await fetch("/api/lazyday/interview/written", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          phone,
-          answers,
-          // 질문 원문도 함께 전송 → 관리자 메일에서 질문+답변 매핑 (페이지 수정 시 메일 자동 반영)
-          questions: QUESTIONS.map((q) => ({ id: q.id, label: q.label, text: q.text, sub: q.sub })),
-        }),
-      })
-      const data = await res.json().catch(() => null)
-      if (!res.ok || !data?.success) throw new Error(data?.error || "submit failed")
-    } catch {
+
+    // ── 목업 제출: 실제 API 호출 없음 ──
+    await new Promise((r) => setTimeout(r, 900))
+
+    if (simulateFail) {
       setLoading(false)
       setSubmitError(true)
-      track("written_interview_submit_error", { program: "book_club" })
+      window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
+
+    try { localStorage.removeItem(STORAGE_KEY) } catch {} // 성공 시에만 임시저장 정리
     setLoading(false)
-    track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
-    try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
     setSubmitted(true)
     window.scrollTo(0, 0)
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (currentPage !== LAST_PAGE) return // Enter 등으로 다른 페이지에서 제출되는 것 방지
-    track("written_interview_step", { step: "submit", answered: pageFillStatus(LAST_PAGE) })
+    if (currentPage !== LAST_PAGE) return
 
     const missing = allMissingLabels()
     if (missing.length) {
       setMissingList(missing)
       setConfirmOpen(true)
-      track("written_interview_submit_confirm", { missing_count: missing.length })
       return
     }
     doSubmit()
@@ -230,7 +207,7 @@ export default function WrittenInterviewPage() {
               value={answers[q.id] || ""}
               onChange={(e) => {
                 handleAnswer(q.id, e.target.value)
-                e.target.style.height = "auto" // 내용에 맞춰 자동 확장 (키보드 떴을 때 초기 화면 짧게)
+                e.target.style.height = "auto"
                 e.target.style.height = `${e.target.scrollHeight}px`
               }}
               rows={4}
@@ -277,19 +254,43 @@ export default function WrittenInterviewPage() {
       {loading && <SubmitOverlay label="제출 중..." />}
 
       <div className={styles.container}>
-        {/* 진행 표시 (점 6개 = 질문 6개, 상단 고정 — 컨테이너 폭 풀커버) */}
+        {/* 개선: 도트 7개 = 정보 입력 + 질문 6개 (기존: 6개 도트에 7페이지라 불일치) */}
         <div className={styles.formProgress} aria-label="서면 인터뷰 진행 상황">
           <div className={styles.progressDots}>
-            {QUESTIONS.map((_, i) => (
+            {Array.from({ length: TOTAL_DOTS }, (_, i) => (
               <span
                 key={i}
-                aria-current={currentPage - 2 === i ? "step" : undefined}
-                className={`${styles.progressDot} ${i < currentPage - 2 ? styles.progressDotDone : ""} ${i === currentPage - 2 ? styles.progressDotActive : ""}`}
+                aria-current={currentPage - 1 === i ? "step" : undefined}
+                className={`${styles.progressDot} ${i < currentPage - 1 ? styles.progressDotDone : ""} ${i === currentPage - 1 ? styles.progressDotActive : ""}`}
               />
             ))}
           </div>
           <p className={styles.progressCaption}>{currentPage === 1 ? "정보 입력" : `질문 ${currentPage - 1} / 6`}</p>
         </div>
+
+        {/* 개선: 제출 실패 시 답변 보존 + 재시도 배너 */}
+        {submitError && (
+          <div className={pstyles.failBanner} role="alert">
+            <p className={pstyles.failBannerTitle}>일시적인 오류로 제출되지 않았어요</p>
+            <p className={pstyles.failBannerText}>
+              작성하신 답변은 이 기기에 <strong>안전하게 저장되어 있어요.</strong> 잠시 후 아래 버튼으로 다시 제출해주세요.
+              계속 실패한다면 인스타그램 DM으로 알려주세요 — 답변은 사라지지 않아요.
+            </p>
+            <div className={pstyles.failBannerActions}>
+              <button type="button" className={pstyles.failRetryBtn} onClick={doSubmit}>
+                다시 제출하기
+              </button>
+              <a
+                href="https://www.instagram.com/lazyday_bookclub"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={pstyles.failAltLink}
+              >
+                인스타그램 DM으로 알리기
+              </a>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           {/* PAGE 1 — 안내 + 참가비 + 이름/연락처 */}
@@ -305,28 +306,27 @@ export default function WrittenInterviewPage() {
               <div className={styles.headerSub}>
                 <p>{INTRO_1}</p>
                 <p>{INTRO_2}</p>
+                <p><strong>{INTRO_3}</strong></p>
               </div>
             </div>
 
-            {/* 3기 구성 및 참가비 */}
             <div className={styles.refBeigeWrap}>
-              <p className={styles.ref0Title}>{SEASON.name} 구성 및 참가비</p>
+              <p className={styles.ref0Title}>3기 구성 및 참가비</p>
               <div className={styles.ref0Grid}>
                 <span className={styles.ref0Key}>정규모임</span>
-                <span className={styles.ref0Val}>{SEASON.regularNote}</span>
+                <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
                 <span className={styles.ref0Key}>자유모임</span>
-                <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-                {/* 취소선 정가 = 2기 실판매가 200,000원 (표시광고법 근거 확인됨) */}
+                <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
                 <span className={styles.ref0Key}>참가비</span>
                 <span className={styles.ref0Val}>
-                  <s className={styles.priceWas}>{SEASON.priceWas}</s>
-                  <strong className={styles.priceNow}>{SEASON.price}</strong>
-                  <span className={styles.priceLabel}>{SEASON.name} 한정</span>
+                  <s className={styles.priceWas}>{PREVIEW.priceWas}</s>
+                  <strong className={styles.priceNow}>{PREVIEW.priceNow}</strong>
+                  <span className={styles.priceLabel}>3기 한정</span>
                 </span>
                 <span className={styles.ref0Key}>장소</span>
-                <span className={styles.ref0Val}>{SEASON.location.short}</span>
+                <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
               </div>
-              <p className={styles.ref0Note}>{SEASON.location.note}</p>
+              <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
             </div>
 
             <div className={styles.infoCard}>
@@ -352,43 +352,22 @@ export default function WrittenInterviewPage() {
             <button type="button" className={`${styles.navNext} ${styles.navNextFull}`} onClick={goNext}>다음</button>
           </div>
 
-          {/* PAGE 2~7 — 질문 한 개씩, 마지막 페이지에 동의·제출 */}
+          {/* PAGE 2~7 — 질문 한 개씩, 마지막 페이지에 제출 */}
           {QUESTION_PAGES.map((pageNum) => {
             const isLast = pageNum === LAST_PAGE
             return (
               <div key={pageNum} className={`${styles.formPage} ${currentPage === pageNum ? styles.formPageActive : ""}`}>
                 {renderQuestions(pageNum)}
 
-                {isLast && (
-                  <>
-                    {submitError && (
-                      <div className={styles.failBanner} role="alert">
-                        <p className={styles.failTitle}>일시적인 오류로 제출되지 않았어요</p>
-                        <p className={styles.failText}>
-                          작성하신 답변은 이 기기에 안전하게 저장되어 있어요. 잠시 후 다시 제출해주세요.
-                        </p>
-                        <button
-                          type="button"
-                          className={styles.confirmGo}
-                          style={{ width: "100%" }}
-                          onClick={doSubmit}
-                          disabled={loading}
-                        >
-                          다시 제출하기
-                        </button>
-                      </div>
-                    )}
-                    {confirmOpen && (
-                      <div className={styles.confirmBox} role="alert">
-                        <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>
-                        <p className={styles.confirmText}>비워두고 제출하셔도 괜찮지만, 더 깊은 대화를 위해 가능하면 채워주시면 좋아요.</p>
-                        <div className={styles.confirmActions}>
-                          <button type="button" className={styles.confirmBack} onClick={goToFirstMissing}>돌아가서 작성</button>
-                          <button type="button" className={styles.confirmGo} onClick={doSubmit}>이대로 제출</button>
-                        </div>
-                      </div>
-                    )}
-                  </>
+                {isLast && confirmOpen && (
+                  <div className={styles.confirmBox} role="alert">
+                    <p className={styles.confirmTitle}>아직 작성하지 않은 질문이 있어요 ({missingList.join(", ")})</p>
+                    <p className={styles.confirmText}>비워두고 제출하셔도 괜찮지만, 더 깊은 대화를 위해 가능하면 채워주시면 좋아요.</p>
+                    <div className={styles.confirmActions}>
+                      <button type="button" className={styles.confirmBack} onClick={goToFirstMissing}>돌아가서 작성</button>
+                      <button type="button" className={styles.confirmGo} onClick={doSubmit}>이대로 제출</button>
+                    </div>
+                  </div>
                 )}
 
                 <div className={styles.navRow}>
@@ -405,6 +384,16 @@ export default function WrittenInterviewPage() {
             )
           })}
         </form>
+
+        {/* 프리뷰 전용: 실패 시뮬레이션 토글 */}
+        <label className={pstyles.simToggle}>
+          <input
+            type="checkbox"
+            checked={simulateFail}
+            onChange={(e) => setSimulateFail(e.target.checked)}
+          />
+          제출 실패 시뮬레이션 (프리뷰 전용)
+        </label>
       </div>
     </main>
   )

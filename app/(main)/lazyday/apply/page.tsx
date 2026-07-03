@@ -8,19 +8,18 @@ import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
+import { SEASON } from "../season-config"
+import { JourneyStepper } from "../JourneyStepper"
 import styles from "./page.module.css"
 
 const SUBMIT_URL = "/api/lazyday/apply"
 
-const sessions = [
-  { label: "1회차", wed: "7/15", thu: "7/16", sun: "7/19" },
-  { label: "2회차", wed: "7/29", thu: "7/30", sun: "8/2"  },
-  { label: "3회차", wed: "8/12", thu: "8/13", sun: "8/16" },
-  { label: "4회차", wed: "8/26", thu: "8/27", sun: "8/30" },
-]
+// '주로 참여할 요일' 문항 — 보류 중 (2026-07-02 운영자 결정). true로 바꾸면 다시 노출.
+// GAS handleApply는 이 필드가 있을 때만 '희망 요일' 컬럼을 만들므로 켜고 끄기만 하면 됨.
+const SHOW_PREFERRED_DAYS = false
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "interviewType" | "marketingConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "preferredDays" | "interviewType" | "marketingConsent" | "_form",
   string
 >>
 
@@ -66,8 +65,18 @@ export default function ApplyPage() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
+  // 동의는 기존 통합 문구(마케팅 활용 및 개인정보 수집, 필수) 유지 — 분리안은 추후 재논의
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [interviewType, setInterviewType] = useState("")
+  // 주로 참여할 요일 (복수 선택) — 요일별 정원 관리·인터뷰 시 조율 시간 절약용
+  const [preferredDays, setPreferredDays] = useState<string[]>([])
+
+  function toggleDay(day: string) {
+    setPreferredDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    )
+    clearError("preferredDays")
+  }
 
   function clearError(name: keyof Errors) {
     setErrors((prev) => {
@@ -96,6 +105,7 @@ export default function ApplyPage() {
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+    if (SHOW_PREFERRED_DAYS && preferredDays.length === 0) newErrors.preferredDays = "주로 참여할 요일을 한 개 이상 선택해주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
@@ -107,6 +117,8 @@ export default function ApplyPage() {
           ? document.getElementById("marketingConsent")
           : firstKey === "interviewType"
           ? document.getElementById("interviewType-group")
+          : firstKey === "preferredDays"
+          ? document.getElementById("preferredDays-group")
           : document.querySelector(`[name="${firstKey}"]`)
       target?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
@@ -122,8 +134,10 @@ export default function ApplyPage() {
       greeting,
       instagram,
       referral,
+      preferredDays: SHOW_PREFERRED_DAYS ? preferredDays.join(", ") : "",
       interviewType,
       marketingConsent: marketingConsent ? "동의" : "미동의",
+      consentAt: new Date().toISOString(), // 동의 시각 기록 (법적 증빙)
     }
 
     // 서버 접수가 확인된 경우에만 완료 화면을 보여준다 (신청 유실 방지)
@@ -173,6 +187,9 @@ export default function ApplyPage() {
           </BlurReveal>
           <FadeUp>
             <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
+          </FadeUp>
+          <FadeUp>
+            <JourneyStepper current={2} caption="다음은 인터뷰예요. 바로 이어서 진행할 수 있어요." />
           </FadeUp>
           <FadeUp>
             <p className={styles.successBody}>
@@ -226,46 +243,41 @@ export default function ApplyPage() {
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽
               <br />
-              <span className={styles.headerSeason}>3기</span> 신청하기
+              <span className={styles.headerSeason}>{SEASON.name}</span> 신청하기
             </h1>
+            <JourneyStepper current={1} />
           </div>
         </FadeUp>
 
         <FadeUp>
           <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>3기 일정</h2>
+            <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
             <table className={styles.scheduleTable}>
               <thead>
                 <tr>
                   <th className={styles.schThEmpty} />
-                  <th className={styles.schThDay}>
-                    수요일<br />
-                    <span className={styles.schThTime}>19:30–22:30</span>
-                  </th>
-                  <th className={styles.schThDay}>
-                    목요일<br />
-                    <span className={styles.schThTime}>19:30–22:30</span>
-                  </th>
-                  <th className={styles.schThDay}>
-                    일요일<br />
-                    <span className={styles.schThTime}>14:30–17:30</span>
-                  </th>
+                  {SEASON.days.map((d) => (
+                    <th key={d.label} className={styles.schThDay}>
+                      {d.label}<br />
+                      <span className={styles.schThTime}>{d.time}</span>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {sessions.map((s) => (
+                {SEASON.sessions.map((s) => (
                   <tr key={s.label}>
                     <td className={styles.schTdLabel}>{s.label}</td>
-                    <td className={styles.schTdDate}>{s.wed}</td>
-                    <td className={styles.schTdDate}>{s.thu}</td>
-                    <td className={styles.schTdDate}>{s.sun}</td>
+                    {s.dates.map((date, i) => (
+                      <td key={i} className={styles.schTdDate}>{date}</td>
+                    ))}
                   </tr>
                 ))}
                 <tr>
-                  <td className={styles.schTdLabel}>5회차</td>
-                  <td colSpan={3} className={styles.schTdMidnight}>
-                    9/6 (일)<br />
-                    <span className={styles.schThTime}>1부 14:30–17:00 · 2부 17:00–</span>
+                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
+                  <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
+                    {SEASON.fifth.date}<br />
+                    <span className={styles.schThTime}>{SEASON.fifth.timeLabel}</span>
                   </td>
                 </tr>
               </tbody>
@@ -347,21 +359,36 @@ export default function ApplyPage() {
               />
             </FormField>
 
+            {SHOW_PREFERRED_DAYS && (
+            <div id="preferredDays-group" className={styles.formGroup}>
+              <span className={styles.formLabel}>
+                주로 참여할 요일
+                <span className={styles.required}>*</span>
+              </span>
+              <div className={styles.radioGroup}>
+                {SEASON.days.map((d) => (
+                  <label key={d.label} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={preferredDays.includes(d.label)}
+                      onChange={() => toggleDay(d.label)}
+                    />
+                    <span className={styles.radioText}>{d.label}</span>
+                  </label>
+                ))}
+              </div>
+              <p className={styles.dayHint}>복수 선택 가능 · 회차마다 다른 요일로 참여할 수도 있어요.</p>
+              {errors.preferredDays && <p className={styles.errorText}>{errors.preferredDays}</p>}
+            </div>
+            )}
+
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
                 <span className={styles.required}>*</span>
               </span>
+              {/* 서면을 첫 옵션으로 — 운영 부하(전화 20분/인) 조절을 위해 서면 우선 유도 */}
               <div className={styles.radioGroup}>
-                <label className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="interviewType"
-                    value="전화 인터뷰"
-                    onChange={() => { setInterviewType("전화 인터뷰"); clearError("interviewType") }}
-                  />
-                  <span className={styles.radioText}>전화 인터뷰</span>
-                </label>
                 <label className={styles.radioLabel}>
                   <input
                     type="radio"
@@ -370,6 +397,15 @@ export default function ApplyPage() {
                     onChange={() => { setInterviewType("서면 인터뷰"); clearError("interviewType") }}
                   />
                   <span className={styles.radioText}>서면 인터뷰</span>
+                </label>
+                <label className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="interviewType"
+                    value="전화 인터뷰"
+                    onChange={() => { setInterviewType("전화 인터뷰"); clearError("interviewType") }}
+                  />
+                  <span className={styles.radioText}>전화 인터뷰</span>
                 </label>
               </div>
               {errors.interviewType && <p className={styles.errorText}>{errors.interviewType}</p>}

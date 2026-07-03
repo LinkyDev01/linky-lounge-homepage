@@ -4,34 +4,33 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import { SEASON } from "../../../season-config"
+import styles from "../../../../apply/interview/schedule/page.module.css"
+import pstyles from "../../../preview.module.css"
+import { PREVIEW } from "../../../preview-config"
 import { JourneyStepper } from "../../../JourneyStepper"
-import styles from "./page.module.css"
 
 // ================================================================
-// 슬롯 설정 — 요일별 시간대
+// 슬롯 설정 — 원본과 동일. 단, 프리뷰는 예약 API 미연동(전 슬롯 예약 가능).
 // ================================================================
-const SLOT_DURATION = 30           // 분
-const DAYS_AHEAD    = 7            // 당일 포함 예약 가능 기간
-const MIN_NOTICE_MS = 2 * 3600_000 // 현재 시각으로부터 최소 2시간 초과 슬롯만 예약 가능
+const SLOT_DURATION = 30
+const DAYS_AHEAD    = 7
+const MIN_NOTICE_MS = 2 * 3600_000
 
-/** 요일(0=일,1=월,...,6=토) → KST 슬롯 범위 */
 function getSlotConfig(dow: number): { startH: number; startM: number; endH: number; endM: number } | null {
-  if (dow >= 1 && dow <= 5) return { startH: 18, startM: 0, endH: 23, endM: 0 }  // 평일 18:00–23:00
-  if (dow === 0 || dow === 6) return { startH: 13, startM: 0, endH: 23, endM: 0 }  // 주말 13:00–23:00
+  if (dow >= 1 && dow <= 5) return { startH: 18, startM: 0, endH: 23, endM: 0 }
+  if (dow === 0 || dow === 6) return { startH: 13, startM: 0, endH: 23, endM: 0 }
   return null
 }
-// ================================================================
 
 const DAY_KO   = ["일", "월", "화", "수", "목", "금", "토"]
 const MONTH_KO = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
 
 type SlotItem = {
-  key: string       // "2026-05-07T19:30" KST
-  startISO: string  // UTC ISO
+  key: string
+  startISO: string
   endISO: string
-  label: string     // "19:30"
+  label: string
   booked: boolean
 }
 
@@ -41,17 +40,7 @@ function scrollToPhoneRef() {
   document.getElementById("ref-section-phone")?.scrollIntoView({ behavior: "smooth", block: "start" })
 }
 
-// ─── 유틸 ────────────────────────────────────────────────────────
 function pad(n: number) { return String(n).padStart(2, "0") }
-
-/** ISO 문자열 → KST "YYYY-MM-DDTHH:MM" 키 */
-function isoToKSTKey(iso: string) {
-  // KST = UTC + 9h
-  const utcMs = new Date(iso).getTime()
-  const kstMs = utcMs + 9 * 3600_000
-  const d = new Date(kstMs)
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`
-}
 
 function formatPhone(v: string) {
   const n = v.replace(/\D/g, "")
@@ -60,14 +49,12 @@ function formatPhone(v: string) {
   return `${n.slice(0,3)}-${n.slice(3,7)}-${n.slice(7,11)}`
 }
 
-/** 특정 날짜(year, month, date, dow)의 슬롯 목록 생성 */
 function slotsForDay(
   year: number,
-  month: number,  // 0-indexed
+  month: number,
   date: number,
   dow: number,
   nowUTCMs: number,
-  bookedKeys: Set<string>
 ): SlotItem[] {
   const cfg = getSlotConfig(dow)
   if (!cfg) return []
@@ -77,11 +64,9 @@ function slotsForDay(
   let m = cfg.startM
 
   while (h < cfg.endH || (h === cfg.endH && m < cfg.endM)) {
-    // KST h:m → UTC ms (Date.UTC handles negative hours correctly)
     const startUTCMs = Date.UTC(year, month, date, h - 9, m)
     const endUTCMs   = startUTCMs + SLOT_DURATION * 60_000
 
-    // 현재 시각으로부터 2시간 초과인 슬롯만 포함 (당일 예약 허용)
     if (startUTCMs > nowUTCMs + MIN_NOTICE_MS) {
       const key = `${year}-${pad(month+1)}-${pad(date)}T${pad(h)}:${pad(m)}`
       slots.push({
@@ -89,7 +74,7 @@ function slotsForDay(
         startISO: new Date(startUTCMs).toISOString(),
         endISO:   new Date(endUTCMs).toISOString(),
         label:    `${pad(h)}:${pad(m)}`,
-        booked:   bookedKeys.has(key),
+        booked:   false, // 프리뷰: 예약 현황 미연동
       })
     }
 
@@ -99,10 +84,7 @@ function slotsForDay(
   return slots
 }
 
-export default function InterviewSchedulePage() {
-  const [bookedEvents,  setBookedEvents]  = useState<{ start: string; end: string }[]>([])
-  const [slotsLoading, setSlotsLoading] = useState(true)
-
+export default function PreviewInterviewSchedulePage() {
   const nowKST = useMemo(() => {
     const kstMs = Date.now() + 9 * 3600_000
     const d = new Date(kstMs)
@@ -125,7 +107,7 @@ export default function InterviewSchedulePage() {
 
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("lazyday_applicant")
+      const raw = sessionStorage.getItem("lazyday_preview_applicant")
       if (raw) {
         const { name, phone } = JSON.parse(raw) as { name?: string; phone?: string }
         if (name)  setPrefillName(name)
@@ -134,40 +116,16 @@ export default function InterviewSchedulePage() {
     } catch {}
   }, [])
 
-  useEffect(() => {
-    fetch("/api/lazyday/interview/slots")
-      .then(r => r.json())
-      .then(d => setBookedEvents(
-        (d.bookedSlots ?? []).map((s: { start: string; end: string }) => ({ start: s.start, end: s.end }))
-      ))
-      .catch(() => {})
-      .finally(() => setSlotsLoading(false))
-  }, [])
-
-  const nowUTCMs   = useMemo(() => Date.now(), [])
-  // KST 기준 당일 포함 DAYS_AHEAD일째의 자정 UTC (= 예약 마감 기준)
+  const nowUTCMs = useMemo(() => Date.now(), [])
   const maxBookingUTCMs = useMemo(() => {
     const kstMs = Date.now() + 9 * 3600_000
     const d = new Date(kstMs)
     return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + DAYS_AHEAD - 1)
   }, [])
-  // 각 이벤트의 start~end 범위를 SLOT_DURATION 단위로 쪼개 모든 겹치는 슬롯을 마감 처리
-  const bookedKeys = useMemo(() => {
-    const keys = new Set<string>()
-    bookedEvents.forEach(({ start, end }) => {
-      let t = new Date(start).getTime()
-      const e = new Date(end).getTime()
-      while (t < e) {
-        keys.add(isoToKSTKey(new Date(t).toISOString()))
-        t += SLOT_DURATION * 60_000
-      }
-    })
-    return keys
-  }, [bookedEvents])
 
-  // 슬롯 로딩 완료 후 — 오늘 날짜 + 가장 빠른 슬롯 자동 선택 (최초 1회)
+  // 오늘 날짜 + 가장 빠른 슬롯 자동 선택 (최초 1회)
   useEffect(() => {
-    if (slotsLoading || hasAutoSelected.current) return
+    if (hasAutoSelected.current) return
     hasAutoSelected.current = true
 
     const kstMs = Date.now() + 9 * 3600_000
@@ -178,18 +136,14 @@ export default function InterviewSchedulePage() {
       date: d.getUTCDate(),
       dow:  d.getUTCDay(),
     }
-    const todaySlots = slotsForDay(
-      todayCell.year, todayCell.month, todayCell.date, todayCell.dow,
-      nowUTCMs, bookedKeys
-    )
+    const todaySlots = slotsForDay(todayCell.year, todayCell.month, todayCell.date, todayCell.dow, nowUTCMs)
     const firstAvail = todaySlots.find(s => !s.booked)
     if (firstAvail) {
       setSelectedDate(todayCell)
       setSelectedSlot(firstAvail)
     }
-  }, [slotsLoading, bookedKeys, nowUTCMs])
+  }, [nowUTCMs])
 
-  // 달력 셀 목록
   const calDays = useMemo(() => {
     const firstDow    = new Date(Date.UTC(viewYear, viewMonth, 1)).getUTCDay()
     const daysInMonth = new Date(Date.UTC(viewYear, viewMonth + 1, 0)).getUTCDate()
@@ -203,25 +157,22 @@ export default function InterviewSchedulePage() {
     return cells
   }, [viewYear, viewMonth])
 
-  // 날짜별 가용 슬롯 수
   const availableMap = useMemo(() => {
     const map = new Map<string, number>()
     for (const cell of calDays) {
       if (!cell) continue
-      const slots = slotsForDay(cell.year, cell.month, cell.date, cell.dow, nowUTCMs, bookedKeys)
+      const slots = slotsForDay(cell.year, cell.month, cell.date, cell.dow, nowUTCMs)
       const avail = slots.filter(s => !s.booked).length
       if (avail > 0) map.set(`${cell.year}-${cell.month}-${cell.date}`, avail)
     }
     return map
-  }, [calDays, nowUTCMs, bookedKeys])
+  }, [calDays, nowUTCMs])
 
-  // 선택된 날의 슬롯
   const daySlots = useMemo(() => {
     if (!selectedDate) return []
-    return slotsForDay(selectedDate.year, selectedDate.month, selectedDate.date, selectedDate.dow, nowUTCMs, bookedKeys)
-  }, [selectedDate, nowUTCMs, bookedKeys])
+    return slotsForDay(selectedDate.year, selectedDate.month, selectedDate.date, selectedDate.dow, nowUTCMs)
+  }, [selectedDate, nowUTCMs])
 
-  // 월 이동 제한 — 다음 달 첫날이 예약 가능 기간 내에 있을 때만 Next 허용
   const minMonth  = nowKST.year * 12 + nowKST.month
   const curMonth  = viewYear * 12 + viewMonth
   const canPrev   = curMonth > minMonth
@@ -247,7 +198,7 @@ export default function InterviewSchedulePage() {
     return `${selectedDate.month + 1}월 ${selectedDate.date}일 ${DAY_KO[selectedDate.dow]}요일`
   }, [selectedDate])
 
-  // 예약 제출
+  // ── 목업 예약: 실제 API 호출 없음 ──
   async function handleBook(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!selectedSlot) return
@@ -260,24 +211,11 @@ export default function InterviewSchedulePage() {
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setSubmitting(true)
-    try {
-      const res = await fetch("/api/lazyday/interview/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, slotStart: selectedSlot.startISO, slotEnd: selectedSlot.endISO }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setConfirmed(selectedSlot)
-        setSubmitted(true)
-        window.scrollTo(0, 0)
-      } else {
-        setErrors({ _form: data.error ?? "예약 중 오류가 발생했습니다." })
-      }
-    } catch {
-      setErrors({ _form: "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요." })
-    }
+    await new Promise((r) => setTimeout(r, 800))
+    setConfirmed(selectedSlot)
+    setSubmitted(true)
     setSubmitting(false)
+    window.scrollTo(0, 0)
   }
 
   // ── 완료 화면 ──────────────────────────────────────────────────
@@ -286,7 +224,6 @@ export default function InterviewSchedulePage() {
     const d = new Date(kstMs)
     const dow = d.getUTCDay()
     const label = `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 (${DAY_KO[dow]}) ${confirmed.label}`
-    // 신청자가 본인 구글 캘린더에 추가할 수 있는 링크 (TEMPLATE)
     const toCal = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "")
     const calUrl =
       "https://calendar.google.com/calendar/render?action=TEMPLATE" +
@@ -324,7 +261,6 @@ export default function InterviewSchedulePage() {
       {submitting && <SubmitOverlay label="예약 중..." />}
       <div className={styles.container}>
 
-        {/* 헤더 */}
         <FadeUp>
           <div className={styles.header}>
             <img
@@ -349,35 +285,31 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-        {/* 3기 구성 및 참가비 */}
           <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>{SEASON.name} 구성 및 참가비</p>
+            <p className={styles.ref0Title}>3기 구성 및 참가비</p>
             <div className={styles.ref0Grid}>
               <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>{SEASON.regularNote}</span>
+              <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
               <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-              {/* 취소선 정가 = 2기 실판매가 200,000원 (표시광고법 근거 확인됨) */}
+              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
               <span className={styles.ref0Key}>참가비</span>
               <span className={styles.ref0Val}>
-                <s className={styles.priceWas}>{SEASON.priceWas}</s>
-                <strong className={styles.priceNow}>{SEASON.price}</strong>
-                <span className={styles.priceLabel}>{SEASON.name} 한정</span>
+                <s className={styles.priceWas}>{PREVIEW.priceWas}</s>
+                <strong className={styles.priceNow}>{PREVIEW.priceNow}</strong>
+                <span className={styles.priceLabel}>3기 한정</span>
               </span>
               <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>{SEASON.location.short}</span>
+              <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
             </div>
-            <p className={styles.ref0Note}>{SEASON.location.note}</p>
+            <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
           </div>
 
-        {/* 메인 패널 */}
           <div className={styles.panel}>
-
-            {/* ── 왼쪽: 월 달력 ── */}
             <div className={styles.calSide}>
               <h2 className={styles.calTitle}>날짜를 선택해 주세요.</h2>
+              {/* 개선: 예약 가능 기간 소형 안내 */}
+              <p className={pstyles.rangeNote}>*예약은 오늘부터 7일 이내만 열려 있어요.</p>
 
-              {/* 월 네비게이션 */}
               <div className={styles.monthNav}>
                 <span className={styles.monthLabel}>{viewYear}년 {MONTH_KO[viewMonth]}</span>
                 <div className={styles.monthBtns}>
@@ -386,62 +318,51 @@ export default function InterviewSchedulePage() {
                 </div>
               </div>
 
-              {/* 요일 헤더 */}
               <div className={styles.dowRow}>
                 {DAY_KO.map(d => <span key={d} className={styles.dowCell}>{d}</span>)}
               </div>
 
-              {/* 날짜 그리드 */}
-              {slotsLoading ? (
-                <div className={styles.calLoading}>
-                  <span className={styles.dot} /><span className={styles.dot} /><span className={styles.dot} />
-                </div>
-              ) : (
-                <div className={styles.dateGrid}>
-                  {calDays.map((cell, i) => {
-                    if (!cell) return <span key={`empty-${i}`} />
+              <div className={styles.dateGrid}>
+                {calDays.map((cell, i) => {
+                  if (!cell) return <span key={`empty-${i}`} />
 
-                    const cellKey    = `${cell.year}-${cell.month}-${cell.date}`
-                    const todayKSTMs = Date.now() + 9 * 3600_000
-                    const todayD     = new Date(todayKSTMs)
-                    const isToday    = cell.year === todayD.getUTCFullYear() &&
-                                       cell.month === todayD.getUTCMonth() &&
-                                       cell.date  === todayD.getUTCDate()
-                    // 오늘 이전 날짜 비활성 (오늘은 2시간 초과 슬롯이 있으면 활성)
-                    const isPast     = Date.UTC(cell.year, cell.month, cell.date) < Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate())
-                    const isTooFar   = Date.UTC(cell.year, cell.month, cell.date) > maxBookingUTCMs
-                    const hasSlots   = availableMap.has(cellKey)
-                    const isSelected = selectedDate?.year === cell.year &&
-                                       selectedDate?.month === cell.month &&
-                                       selectedDate?.date === cell.date
-                    const isDisabled = isPast || isTooFar || !hasSlots
+                  const cellKey    = `${cell.year}-${cell.month}-${cell.date}`
+                  const todayKSTMs = Date.now() + 9 * 3600_000
+                  const todayD     = new Date(todayKSTMs)
+                  const isToday    = cell.year === todayD.getUTCFullYear() &&
+                                     cell.month === todayD.getUTCMonth() &&
+                                     cell.date  === todayD.getUTCDate()
+                  const isPast     = Date.UTC(cell.year, cell.month, cell.date) < Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate())
+                  const isTooFar   = Date.UTC(cell.year, cell.month, cell.date) > maxBookingUTCMs
+                  const hasSlots   = availableMap.has(cellKey)
+                  const isSelected = selectedDate?.year === cell.year &&
+                                     selectedDate?.month === cell.month &&
+                                     selectedDate?.date === cell.date
+                  const isDisabled = isPast || isTooFar || !hasSlots
 
-                    return (
-                      <button
-                        key={cellKey}
-                        disabled={isDisabled}
-                        onClick={() => { setSelectedDate(cell); setSelectedSlot(null) }}
-                        className={[
-                          styles.dateCell,
-                          isToday    && styles.dateCellToday,
-                          isSelected && styles.dateCellSelected,
-                          isDisabled && styles.dateCellDisabled,
-                          !isDisabled && !isSelected && styles.dateCellAvail,
-                        ].filter(Boolean).join(" ")}
-                      >
-                        {cell.date}
-                        {hasSlots && !isDisabled && !isSelected && <span className={styles.availDot} />}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
+                  return (
+                    <button
+                      key={cellKey}
+                      disabled={isDisabled}
+                      onClick={() => { setSelectedDate(cell); setSelectedSlot(null) }}
+                      className={[
+                        styles.dateCell,
+                        isToday    && styles.dateCellToday,
+                        isSelected && styles.dateCellSelected,
+                        isDisabled && styles.dateCellDisabled,
+                        !isDisabled && !isSelected && styles.dateCellAvail,
+                      ].filter(Boolean).join(" ")}
+                    >
+                      {cell.date}
+                      {hasSlots && !isDisabled && !isSelected && <span className={styles.availDot} />}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
-            {/* ── 구분선 ── */}
             <div className={styles.divider} />
 
-            {/* ── 오른쪽: 시간 선택 ── */}
             <div className={styles.timeSide}>
               <h2 className={styles.timeTitle}>시간 선택</h2>
 
@@ -479,7 +400,6 @@ export default function InterviewSchedulePage() {
             </div>
           </div>
 
-        {/* 예약 폼 */}
         {selectedSlot && (
             <div className={styles.bookCard}>
               <div className={styles.selectedBadge}>
@@ -521,10 +441,7 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp>
-        {/* (참고) 섹션 */}
           <div id="ref-section-phone" className={styles.referenceSection}>
-
-            {/* 참고 1: 결 */}
             <div className={styles.refItem}>
               <button type="button" className={styles.refTitleBox} onClick={() => setRef1Open(v => !v)} aria-expanded={ref1Open}>
                 <span className={styles.refQuestion}>(참고) 레이지데이가 보는 '결'</span>
@@ -556,7 +473,6 @@ export default function InterviewSchedulePage() {
               </div>
             </div>
 
-            {/* 참고 2: 불균형의 균형 */}
             <div className={styles.refItem}>
               <button type="button" className={styles.refTitleBox} onClick={() => setRef2Open(v => !v)} aria-expanded={ref2Open}>
                 <span className={styles.refQuestion}>(참고) 불균형의 균형 (Dissonance in Harmony)</span>
@@ -583,7 +499,6 @@ export default function InterviewSchedulePage() {
                 )}
               </div>
             </div>
-
           </div>
         </FadeUp>
 

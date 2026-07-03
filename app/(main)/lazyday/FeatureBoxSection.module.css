@@ -1,6 +1,7 @@
 .section {
-  background-color: #ede0d0;
+  background-color: #f5ede4;
   padding: 0;
+  margin-bottom: 20px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
@@ -119,7 +120,7 @@
 
 .fadeBg {
   height: 36px;
-  background: linear-gradient(to bottom, transparent, #ede0d0);
+  background: linear-gradient(to bottom, transparent, #f5ede4);
 }
 
 .moreHint {
@@ -127,7 +128,7 @@
   font-size: 12px;
   font-weight: 600;
   color: #6a4f38;
-  background: #ede0d0;
+  background: #f5ede4;
   padding: 0;
 }
 

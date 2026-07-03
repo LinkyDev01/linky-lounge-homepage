@@ -606,7 +606,8 @@
   text-wrap: pretty;
 }
 
-.refStrong {
+.refStrong,
+.refQuote strong {
   color: #d2691e;
   font-weight: 700;
 }

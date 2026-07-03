@@ -8,6 +8,12 @@ import styles from "../../../../apply/interview/schedule/page.module.css"
 import pstyles from "../../../preview.module.css"
 import { PREVIEW } from "../../../preview-config"
 import { JourneyStepper } from "../../../JourneyStepper"
+import {
+  GYEOL_TITLE,
+  GYEOL_PARAGRAPHS,
+  DISSONANCE_TITLE,
+  DISSONANCE_PARAGRAPHS,
+} from "../../../../philosophy-content"
 
 // ================================================================
 // 슬롯 설정 — 원본과 동일. 단, 프리뷰는 예약 API 미연동(전 슬롯 예약 가능).
@@ -444,7 +450,7 @@ export default function PreviewInterviewSchedulePage() {
           <div id="ref-section-phone" className={styles.referenceSection}>
             <div className={styles.refItem}>
               <button type="button" className={styles.refTitleBox} onClick={() => setRef1Open(v => !v)} aria-expanded={ref1Open}>
-                <span className={styles.refQuestion}>(참고) 레이지데이가 보는 '결'</span>
+                <span className={styles.refQuestion}>(참고) {GYEOL_TITLE}</span>
                 <span className={`${styles.refArrow} ${ref1Open ? styles.refArrowOpen : ""}`}>▾</span>
               </button>
               <div
@@ -456,13 +462,9 @@ export default function PreviewInterviewSchedulePage() {
                 onKeyDown={e => e.key === "Enter" && setRef1Open(v => !v)}
               >
                 <div className={styles.refQuote}>
-                  <p className={styles.refAnswer}>저희가 정의 내린 결은, 사람마다 살아온 환경·경험으로 몸에 밴, 무의식적인 판단·반응의 패턴이에요. 한 줄로 정리하면 <strong className={styles.refStrong}>결 = 한 사람의 아비투스</strong>입니다.</p>
-                  <p className={styles.refFootnote}>* 아비투스(Habitus) : 부르디외라는 사회학자가 쓴 개념. 의식하지 않고 저절로 작동하는 감각·반응·선택의 패턴. "왜 이게 좋지? 왜 저건 거슬리지?"의 답이 이미 몸 안에 있는 상태.</p>
-                  <p className={styles.refAnswer}>아비투스는 그 사람이 쌓아온 것들이 담기는 그릇이지만, 그것들이 작동하는 방식까지 포함합니다. 즉 책·경험·말투 같은 쌓인 문화자본만이 아니라, 그 사람의 기질·리듬·감도까지 함께 품는 더 큰 개념이에요.</p>
-                  <p className={styles.refAnswer}>결국 "결이 맞다"는 두 사람의 아비투스가 어긋나지 않고 맞물려 움직이는 상태예요. 단순히 취향이 비슷하다는 게 아니에요.</p>
-                  <p className={styles.refAnswer}>한 사람이 어떤 문장 앞에서 한참 멈춰 있을 때 다른 사람이 그 멈춤을 같이 견디는 것. 한 사람이 풀어내려 한 생각을 다른 사람이 자기 언어로 이어받는 것. 같은 자리에서 누가 말하고 누가 침묵할지가 자연스럽게 정해지는 것. 이게 두 사람의 결이 맞물려 움직이는 모습이에요.</p>
-                  <p className={styles.refAnswer}>결이 맞으면 자연스럽게 따라오는 게 있어요. 굳이 설명하지 않아도 맥락이 읽히는 편안함. 친밀함이나 익숙함과는 좀 다른 편안함이에요. 처음 본 사이여도 결이 맞으면 그 편안함이 생기고, 오래 본 사이여도 결이 다르면 안 생기거든요.</p>
-                  <p className={styles.refAnswer}>정리하면, 결이 맞는다는 건 두 사람의 아비투스가 공명한다는 뜻이에요.</p>
+                  {GYEOL_PARAGRAPHS.map((p, j) => (
+                    <p key={j} className={styles.refAnswer}>{p}</p>
+                  ))}
                 </div>
                 {!ref1Open && (
                   <div className={styles.refFadeWrap}>
@@ -475,7 +477,7 @@ export default function PreviewInterviewSchedulePage() {
 
             <div className={styles.refItem}>
               <button type="button" className={styles.refTitleBox} onClick={() => setRef2Open(v => !v)} aria-expanded={ref2Open}>
-                <span className={styles.refQuestion}>(참고) 불균형의 균형 (Dissonance in Harmony)</span>
+                <span className={styles.refQuestion}>(참고) {DISSONANCE_TITLE}</span>
                 <span className={`${styles.refArrow} ${ref2Open ? styles.refArrowOpen : ""}`}>▾</span>
               </button>
               <div
@@ -487,9 +489,9 @@ export default function PreviewInterviewSchedulePage() {
                 onKeyDown={e => e.key === "Enter" && setRef2Open(v => !v)}
               >
                 <div className={styles.refQuote}>
-                  <p className={styles.refAnswer}>비슷한 결을 가진 사람들이 모였다고 해서 같은 결론에 도달할 필요는 없거든요. 같은 곳에서 멈추는 사람들이라도 거기서 자라난 사유의 궤적은 각자 다르니까요.</p>
-                  <p className={styles.refAnswer}>바우하우스의 정갈한 비대칭처럼, 각기 다른 궤적을 그려온 사람들의 단련된 사유가 거칠게 부딪힐 때 그 불협화음이 오히려 고전의 본질을 꿰뚫는 하나의 선율이 되는 순간이 있어요.</p>
-                  <p className={styles.refAnswer}>다 같이 고개 끄덕이는 무색무취한 공감 말고, 각자의 뚜렷한 철학을 바탕으로 사유의 밀도를 높일 수 있는 자리, 그 부조화 속에서 이전에 없던 지적 조화를 발견하는 자리. 그게 레이지데이가 만들고 싶은 자리예요.</p>
+                  {DISSONANCE_PARAGRAPHS.map((p, j) => (
+                    <p key={j} className={styles.refAnswer}>{p}</p>
+                  ))}
                 </div>
                 {!ref2Open && (
                   <div className={styles.refFadeWrap}>

@@ -10,6 +10,7 @@ import { FaqSection } from "../FaqSection"
 import { NavBarV2 } from "./NavBarV2"
 import { HeroSummary } from "./HeroSummary"
 import { FeatureBoxSectionV2 } from "./FeatureBoxSectionV2"
+import { PhilosophySectionV2 } from "./PhilosophySectionV2"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSectionV2 } from "./BookSectionV2"
 import { ClosingSectionV2 } from "./ClosingSectionV2"
@@ -37,6 +38,7 @@ export default function PreviewLandingPage() {
         <HeroSummary />
         <AboutSection />
         <FeatureBoxSectionV2 />
+        <PhilosophySectionV2 />
         <ReviewsSection />
         <BookSectionV2 />
         <FifthSessionSection />

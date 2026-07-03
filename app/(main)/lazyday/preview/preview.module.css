@@ -466,11 +466,15 @@
   color: #f5ede4;
   font-weight: 700;
 }
+/* Programs We Offer 구도: 가운데 큰 활성 카드 + 양옆 축소·흐림 카드
+   (이미지 비중은 낮추고 텍스트 영역 확보, 스와이프는 네이티브 스크롤 스냅) */
+.bookCarousel { position: relative; }
 .bookTrack {
   display: flex;
-  gap: 14px;
+  align-items: flex-start;
+  gap: 8px;
   margin-top: 6px;
-  padding: 12px 8% 28px;
+  padding: 14px 12% 10px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -478,24 +482,64 @@
 }
 .bookTrack::-webkit-scrollbar { display: none; }
 .bookCard {
-  flex: 0 0 84%;
-  max-width: 460px;
+  flex: 0 0 78%;
+  max-width: 420px;
   scroll-snap-align: center;
   background: #fffdf8;
   border: 1px solid #eee2d0;
   border-radius: 16px;
   padding: 24px 20px 22px;
   opacity: 0.45;
-  transform: scale(0.965);
-  transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transform: scale(0.84);
+  filter: blur(1.5px);
+  transform-origin: center top;
+  transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease, box-shadow 0.35s ease;
   cursor: pointer;
 }
 .bookCardActive {
   opacity: 1;
   transform: scale(1);
-  box-shadow: 0 10px 28px rgba(74, 58, 42, 0.12);
+  filter: none;
+  box-shadow: 0 14px 34px rgba(74, 58, 42, 0.16);
   cursor: default;
 }
+.bookChevron {
+  position: absolute;
+  top: 200px;
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid #e5d9c8;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #6b5a48;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(74, 58, 42, 0.12);
+}
+.bookChevron:disabled { opacity: 0.25; cursor: default; }
+.bookChevronLeft  { left: 6px; }
+.bookChevronRight { right: 6px; }
+.bookDots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+}
+.bookDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: #d8c9b4;
+  cursor: pointer;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.bookDotActive { width: 22px; background: #d2691e; }
 .coverRail {
   display: flex;
   gap: 14px;

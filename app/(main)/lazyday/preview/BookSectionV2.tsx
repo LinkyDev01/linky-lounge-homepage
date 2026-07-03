@@ -124,7 +124,26 @@ export function BookSectionV2() {
           </div>
         </FadeUp>
 
-        {/* 카드 캐러셀 — 옆 카드가 살짝 보이고, 스와이프로 자연스럽게 이동 */}
+        {/* 카드 캐러셀 — 가운데 큰 활성 카드 + 양옆 축소 카드 (Programs We Offer 구도) */}
+        <div className={styles.bookCarousel}>
+        <button
+          type="button"
+          className={`${styles.bookChevron} ${styles.bookChevronLeft}`}
+          onClick={() => scrollToBook(bookIdx - 1)}
+          disabled={bookIdx === 0}
+          aria-label="이전 책"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          className={`${styles.bookChevron} ${styles.bookChevronRight}`}
+          onClick={() => scrollToBook(bookIdx + 1)}
+          disabled={bookIdx === books.length - 1}
+          aria-label="다음 책"
+        >
+          ›
+        </button>
         <div className={styles.bookTrack} ref={trackRef} key={season.label}>
           {books.map((b, i) => (
             <article
@@ -161,6 +180,18 @@ export function BookSectionV2() {
               )}
             </article>
           ))}
+        </div>
+        {/* 점 인디케이터 */}
+        <div className={styles.bookDots}>
+          {books.map((b, i) => (
+            <button
+              key={`dot-${season.label}-${b.week}`}
+              className={`${styles.bookDot} ${i === bookIdx ? styles.bookDotActive : ""}`}
+              onClick={() => scrollToBook(i)}
+              aria-label={`${b.weekLabel}로 이동`}
+            />
+          ))}
+        </div>
         </div>
       </div>
     </section>

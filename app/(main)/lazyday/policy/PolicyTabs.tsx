@@ -256,18 +256,6 @@ export function PolicyTabs() {
         </div>
 
         {tab === "terms" ? <TermsContent /> : <RefundContent />}
-
-        <div className={styles.contact}>
-          <p className={styles.contactText}>문의</p>
-          <a
-            href="https://www.instagram.com/lazyday_bookclub"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.contactLink}
-          >
-            인스타그램(@lazyday_bookclub) 다이렉트 메시지로 접수한다.
-          </a>
-        </div>
       </div>
     </main>
   )

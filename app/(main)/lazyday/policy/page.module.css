@@ -78,27 +78,6 @@
   margin: 8px 0 0;
 }
 
-/* 문의 안내 (FAQ contact 블록과 동일 문법) */
-.contact {
-  margin-top: 56px;
-  padding-top: 32px;
-  border-top: 1px solid rgba(74, 58, 42, 0.18);
-}
-.contactText {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1208;
-  margin: 0 0 10px;
-}
-.contactLink {
-  font-size: 14px;
-  color: #d2691e;
-  text-decoration: none;
-  line-height: 1.6;
-  transition: opacity 0.15s ease;
-}
-.contactLink:hover { opacity: 0.75; }
-
 .backLink {
   display: inline-block;
   margin-bottom: 28px;

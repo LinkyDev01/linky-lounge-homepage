@@ -6,44 +6,18 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import styles from "./page.module.css"
 
 /**
- * 이용약관 및 환불 규정 — 탭 구성 (운영자 지시 2026-07-04).
- * 약관 원문은 운영자 확정 원고 그대로 게재. 원고 대비 반영 사항:
- *  · 제5조 ④~⑥ 신설 (운영자 추가 지시): 요일 모임 구조 정의, 2명 이하 요일 취소 가능
+ * 이용약관 및 환불 규정 — 탭 구성 (운영자 지시 2026-07-04, 개정 2026-07-04).
+ * 약관 원문은 운영자 확정 원고 기준. 원고 대비 반영 사항:
+ *  · 제5조 ④~⑥ 신설: 요일 모임 구조 정의, 2명 이하 요일 취소 가능
  *    + 마지막 요일 모임(일요일)은 인원 무관 진행, 적정 인원 초과 시 선착순 제한
- *  · 환불 기준은 '시작주'(월~일) 단위 — 회차가 수·목·일 복수 요일로 진행되는
- *    구조의 기산 모호성을 주 단위로 해소한 운영자 최종안
- * '환불 규정' 탭은 약관 제3장(제9조~제14조)의 발췌 + 요약 표 — 약관이 원본.
+ *  · 환불 기산은 '시작주'(주 단위)가 아니라 **회차 시작일/종료일**(날짜 단위) 기준으로
+ *    개정 — 제2조에 시작일·종료일 정의 신설, 제10·11조 표현 전체 교체
+ *  · 제11조 사전참여 고지 조항 삭제 — 결제 시 안내로 갈음 (운영자 판단)
+ * 요약·의역 없이 조문 원문만 게재 — 정식 문서 톤 유지, 페이드·아코디언 등 마케팅
+ * 문법 사용 금지. 두 탭 모두 약관 조문 표시, 환불 규정 탭은 제3장 발췌.
  */
 
 type Tab = "terms" | "refund"
-
-// ── 환불 요약 (약관 제9·10조에서 파생) ──────────────────────
-function RefundSummary() {
-  return (
-    <>
-      <div className={styles.refundBox}>
-        <div className={styles.refundGrid}>
-          <span className={styles.refundWhen}>결제일부터 7일 이내 (청약철회)</span>
-          <span className={styles.refundHow}>전액 환불*</span>
-          <span className={styles.refundWhen}>시작주(정규 1회차가 진행되는 주) 전</span>
-          <span className={styles.refundHow}>60% 환불</span>
-          <span className={styles.refundWhen}>1회차 주가 지난 후 ~ 2회차 주 전</span>
-          <span className={styles.refundHow}>40% 환불</span>
-          <span className={styles.refundWhen}>2회차 주가 지난 후 ~ 3회차 주 전</span>
-          <span className={styles.refundHow}>20% 환불</span>
-          <span className={styles.refundWhen}>3회차 주가 지난 후</span>
-          <span className={`${styles.refundHow} ${styles.refundHowMuted}`}>환불 불가</span>
-        </div>
-      </div>
-      <p className={styles.note}>
-        *청약철회 기간 중이라도 이미 참석한 회차가 있으면 해당 회차의 실비가 공제될 수 있어요.
-        &lsquo;주&rsquo;는 해당 회차가 진행되는 주의 월요일부터 일요일까지를 말해요.
-        직전 기수 자유모임에 미리 참석한 <strong>사전참여자</strong>는 그 주가 시작주가 되며(제11조),
-        환불률은 환불을 신청한 시점 기준으로 적용돼요.
-      </p>
-    </>
-  )
-}
 
 // ── 약관 조문 렌더 헬퍼 ─────────────────────────────────────
 function Article({ title, children }: { title: string; children: React.ReactNode }) {
@@ -72,10 +46,10 @@ function RefundArticles() {
           <li>
             제9조 제1항의 기간이 지난 이후의 환불은 다음 각 호에 따른다.
             <ol className={styles.itemList}>
-              <li>시작주가 도래하기 전까지 취소하는 경우, 참가비 총액의 60퍼센트를 환불한다.</li>
-              <li>정규 1회차가 진행되는 주가 지난 후부터 정규 2회차가 진행되는 주가 도래하기 전까지 취소하는 경우, 참가비 총액의 40퍼센트를 환불한다.</li>
-              <li>정규 2회차가 진행되는 주가 지난 후부터 정규 3회차가 진행되는 주가 도래하기 전까지 취소하는 경우, 참가비 총액의 20퍼센트를 환불한다.</li>
-              <li>정규 3회차가 진행되는 주가 지난 후부터는 정규 4회차 및 자유 독서모임을 포함하여 환불하지 않는다.</li>
+              <li>정규 1회차 시작일 전까지 취소하는 경우, 참가비 총액의 60퍼센트를 환불한다.</li>
+              <li>정규 1회차 종료일이 지난 후부터 정규 2회차 시작일 전까지 취소하는 경우, 참가비 총액의 40퍼센트를 환불한다.</li>
+              <li>정규 2회차 종료일이 지난 후부터 정규 3회차 시작일 전까지 취소하는 경우, 참가비 총액의 20퍼센트를 환불한다.</li>
+              <li>정규 3회차 종료일이 지난 후부터는 정규 4회차 및 자유 독서모임을 포함하여 환불하지 않는다.</li>
             </ol>
           </li>
           <li>환불률은 회원이 실제로 환불을 신청한 시점을 기준으로 적용한다. 별도 신청 없이 특정 회차에 불참한 경우는 환불 신청으로 보지 않는다.</li>
@@ -84,9 +58,8 @@ function RefundArticles() {
 
       <Article title="제11조 (사전참여자에 대한 특칙)">
         <ol className={styles.clauseList}>
-          <li>사전참여를 신청하여 직전 기수의 자유 독서모임에 참석한 회원은 그 자유 독서모임이 진행되는 주를 제2조 제7항의 시작주로 본다.</li>
-          <li>사전참여로 참석한 자유 독서모임이 진행되는 주가 지난 후부터 정규 1회차가 진행되는 주가 도래하기 전까지 취소하는 경우, 참가비 총액의 40퍼센트를 환불한다. 이후 정규 1회차가 진행되는 주가 지난 후부터는 제10조 제1항 제3호를, 정규 2회차가 진행되는 주가 지난 후부터는 같은 항 제4호를 순서대로 적용한다.</li>
-          <li>북클럽은 사전참여 신청을 접수하기 전에 회원에게 제1항 및 제2항의 내용을 고지한다.</li>
+          <li>사전참여를 신청하여 직전 기수의 자유 독서모임에 참석한 회원은 그 자유 독서모임의 시작일을 제2조 제9항의 기산일로 본다.</li>
+          <li>사전참여로 참석한 자유 독서모임의 종료일이 지난 후부터 정규 1회차 시작일 전까지 취소하는 경우, 참가비 총액의 40퍼센트를 환불한다. 이후 정규 1회차 종료일이 지난 후부터는 제10조 제1항 제3호를, 정규 2회차 종료일이 지난 후부터는 같은 항 제4호를 순서대로 적용한다.</li>
         </ol>
       </Article>
 
@@ -136,7 +109,9 @@ function TermsContent() {
           <li>&ldquo;정규 독서모임&rdquo;이란 기수의 1회차부터 4회차까지 진행되는 모임을 말한다.</li>
           <li>&ldquo;자유 독서모임&rdquo;이란 기수의 5회차에 해당하는 모임을 말한다.</li>
           <li>&ldquo;사전참여&rdquo;란 회원이 본인이 배정된 기수가 시작되기 전, 직전 기수의 자유 독서모임에 미리 참석하는 것을 말한다.</li>
-          <li>&ldquo;시작주&rdquo;란 제10조의 환불 기준을 적용하는 기산 시점을 말하며, 원칙적으로 회원이 배정된 기수의 정규 1회차가 진행되는 주(그 주의 월요일부터 일요일까지를 말한다)로 한다. 다만 제11조가 적용되는 경우에는 그에 따른다.</li>
+          <li>각 회차의 &ldquo;시작일&rdquo;이란 해당 회차가 진행되는 날 중 가장 이른 날을 말한다.</li>
+          <li>각 회차의 &ldquo;종료일&rdquo;이란 해당 회차가 진행되는 날 중 가장 늦은 날을 말한다.</li>
+          <li>제10조의 환불 기준을 적용하는 기산일은 정규 1회차의 시작일로 한다. 다만 제11조가 적용되는 경우에는 그에 따른다.</li>
         </ol>
       </Article>
 
@@ -229,25 +204,14 @@ function TermsContent() {
   )
 }
 
-// ── 환불 규정 탭 (요약 + 제3장 발췌) ────────────────────────
+// ── 환불 규정 탭 (약관 제3장 발췌) ──────────────────────────
 function RefundContent() {
   return (
-    <>
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>한눈에 <strong>보기</strong></h2>
-        <RefundSummary />
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>환불 <strong>조항</strong></h2>
-        <p className={styles.extractNote}>
-          아래는 이용약관 제3장(계약해지 및 환불) 전문이에요. 용어의 정의(기수·시작주 등)를 포함한
-          전체 내용은 <strong>이용약관 탭</strong>에서 확인할 수 있으며, 해석은 약관 전문을 기준으로 해요.
-        </p>
-        <RefundArticles />
-        <p className={styles.note}>이 약관은 2026년 6월 15일부터 시행합니다.</p>
-      </section>
-    </>
+    <section className={styles.section}>
+      <h2 className={styles.chapterTitle}>제3장 계약해지 및 환불</h2>
+      <RefundArticles />
+      <p className={styles.clause}>이 약관은 2026년 6월 15일부터 시행한다.</p>
+    </section>
   )
 }
 
@@ -271,9 +235,6 @@ export function PolicyTabs() {
         <div className={styles.titleRow}>
           <h1 className={styles.pageTitle}>이용약관 및 환불 규정</h1>
         </div>
-        <p className={styles.lead}>
-          레이지데이 북클럽의 이용조건과 청약철회·환불 기준을 안내드려요.
-        </p>
 
         <div className={styles.tabSeg} role="tablist" aria-label="문서 선택">
           <button
@@ -297,14 +258,14 @@ export function PolicyTabs() {
         {tab === "terms" ? <TermsContent /> : <RefundContent />}
 
         <div className={styles.contact}>
-          <p className={styles.contactText}>더 궁금한 점이 있어요</p>
+          <p className={styles.contactText}>문의</p>
           <a
             href="https://www.instagram.com/lazyday_bookclub"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.contactLink}
           >
-            인스타그램 DM으로 편하게 물어보세요 →
+            인스타그램(@lazyday_bookclub) 다이렉트 메시지로 접수한다.
           </a>
         </div>
       </div>

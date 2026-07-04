@@ -47,7 +47,7 @@ export default function StudyForeignPage() {
       <Footer
         instagramUrl="https://instagram.com/lazyday_bookclub"
         kakaoUrl="https://pf.kakao.com/_gixaAX"
-        policyLabel="이용약관 및 환불 규정"
+        policyLabel="이용약관"
       />
     </>
   )

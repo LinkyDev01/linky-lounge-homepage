@@ -1,0 +1,226 @@
+/* ═══════════════════════════════════════════════════════════
+   모임 소개 노출 방식 시안 쇼케이스 — ①에디토리얼 ②매니페스토 ③접힘
+   ═══════════════════════════════════════════════════════════ */
+
+.page {
+  min-height: 100vh;
+  background: #ede0d0;
+  padding: 58px 0 96px;
+  word-break: keep-all;
+}
+.frame {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.pageTitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 24px 0 6px;
+  letter-spacing: -0.02em;
+}
+.pageSub {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #7a6450;
+  margin: 0 0 20px;
+}
+
+/* 시안 전환 스위처 (faq-designs와 동일 문법) */
+.switcher {
+  position: sticky;
+  top: 34px;
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px 24px;
+  margin: 0 -24px 18px;
+  background: rgba(237, 224, 208, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(74, 58, 42, 0.12);
+}
+.switcher::-webkit-scrollbar { display: none; }
+.switchBtn {
+  flex-shrink: 0;
+  border: 1px solid #cdbca6;
+  background: #fffdf8;
+  color: #6b5a48;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.switchBtnActive {
+  background: #4a3a2a;
+  border-color: #4a3a2a;
+  color: #fffdf8;
+}
+.variantMeta {
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 0 0 26px;
+}
+.variantName { font-size: 15px; font-weight: 800; color: #1a1208; margin: 0 0 4px; }
+.variantRef  { font-size: 12px; color: #b8571a; font-weight: 700; margin: 0 0 6px; letter-spacing: 0.02em; }
+.variantDesc { font-size: 13px; line-height: 1.7; color: #6b5a48; margin: 0; }
+
+/* 시안 프레임 — 실사이트 모임소개 배경(#f5ede4)을 재현 */
+.demo {
+  background: #f5ede4;
+  margin: 0 -24px;
+  padding: 48px 24px 56px;
+}
+.demoTitleRow {
+  margin: 0 0 28px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.demoTitleRow::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 56px; height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+.demoTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+/* ═══ ① 풀 노출 에디토리얼 ══════════════════════════════════ */
+.edChapter {
+  padding: 30px 0 34px;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.16);
+}
+.edChapter:last-child { border-bottom: none; padding-bottom: 4px; }
+.edChapterHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.edNum {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b8571a;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.edChapterTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.4;
+}
+.edChapterTitle strong { color: #d2691e; font-weight: 800; }
+/* 핵심 문장 풀 쿼트 — 명조, 주황 괘선 */
+.edPull {
+  margin: 0 0 18px;
+  padding: 2px 0 2px 16px;
+  border-left: 3px solid #d2691e;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.75;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.edBody {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3a2a;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.edBody p { margin: 0 0 12px; }
+.edBody p:last-child { margin-bottom: 0; }
+.edBody strong { color: #d2691e; font-weight: 700; }
+.edNote { font-size: 11px; color: #9a9590; margin: 12px 0 0; }
+
+/* ═══ ② 매니페스토 요약 + 상세 ═════════════════════════════ */
+.mfBlock {
+  margin: 0 0 34px;
+  padding: 22px 20px;
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 14px;
+}
+.mfLine {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 11px 0;
+}
+.mfLine + .mfLine { border-top: 1px solid rgba(74, 58, 42, 0.1); }
+.mfNum {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-style: italic;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b8571a;
+  flex-shrink: 0;
+}
+.mfText {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #4a3020;
+  word-break: keep-all;
+}
+
+/* ② 하단 접힘 카드 (모임소개 현행 문법 차용) */
+.mfItem { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.mfTitleBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(210, 105, 30, 0.45);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.mfLabel { font-size: 15px; font-weight: 700; color: #1a1208; line-height: 1.35; }
+.mfLabel strong { color: #d2691e; }
+.mfArrow { font-size: 14px; color: #b08060; transition: transform 0.3s ease; }
+.mfArrowOpen { transform: rotate(180deg); }
+.mfBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.mfBodyOpen { grid-template-rows: 1fr; }
+.mfBodyInner { overflow: hidden; }
+.mfDesc {
+  border-left: 3px solid #d2691e;
+  padding-left: 14px;
+  margin: 0 0 0 16px;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+}
+.mfDesc p { margin: 0 0 10px; }
+.mfDesc p:last-child { margin-bottom: 8px; }
+.mfDesc strong { color: #d2691e; font-weight: 700; }

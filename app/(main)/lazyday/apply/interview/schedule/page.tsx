@@ -349,21 +349,14 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-        {/* 3기 구성 및 참가비 */}
+        {/* 3기 안내 */}
           <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>{SEASON.name} 구성 및 참가비</p>
+            <p className={styles.ref0Title}>{SEASON.name} 안내</p>
             <div className={styles.ref0Grid}>
               <span className={styles.ref0Key}>정규모임</span>
               <span className={styles.ref0Val}>{SEASON.regularNote}</span>
               <span className={styles.ref0Key}>자유모임</span>
               <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-              {/* 취소선 정가 = 2기 실판매가 200,000원 (표시광고법 근거 확인됨) */}
-              <span className={styles.ref0Key}>참가비</span>
-              <span className={styles.ref0Val}>
-                <s className={styles.priceWas}>{SEASON.priceWas}</s>
-                <strong className={styles.priceNow}>{SEASON.price}</strong>
-                <span className={styles.priceLabel}>{SEASON.name} 한정</span>
-              </span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>{SEASON.location.short}</span>
             </div>

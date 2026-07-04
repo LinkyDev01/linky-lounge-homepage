@@ -33,14 +33,6 @@
   line-height: 1.25;
   letter-spacing: -0.025em;
 }
-.lead {
-  font-size: 14px;
-  line-height: 1.85;
-  color: #6b5a48;
-  margin: 0 0 40px;
-  text-wrap: pretty;
-}
-
 .section { margin: 0 0 40px; }
 .sectionTitle {
   font-size: 18px;
@@ -78,34 +70,6 @@
   background: #d2691e;
 }
 .list strong { color: #b8571a; font-weight: 700; }
-
-/* 환불 기준 하이라이트 박스 — 인터뷰 페이지 '3기 안내' 박스와 동일 문법 */
-.refundBox {
-  background: #edddd0;
-  border-radius: 12px;
-  padding: 18px 18px 16px;
-  margin: 0 0 14px;
-}
-.refundGrid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px 16px;
-  align-items: baseline;
-}
-.refundWhen {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #4a3020;
-  font-weight: 600;
-}
-.refundHow {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #b8571a;
-  white-space: nowrap;
-  text-align: right;
-}
-.refundHowMuted { color: #8a7660; }
 
 .note {
   font-size: 11px;
@@ -149,33 +113,30 @@
   .pageTitle { font-size: 32px; }
 }
 
-/* ── 탭 (선정도서 세그먼트 문법 차용) ── */
+/* ── 탭 (감싸는 도형 없이, 배경과 동일 — 밑줄만으로 활성 표시) ── */
 .tabSeg {
-  display: inline-flex;
-  gap: 4px;
-  margin: 0 0 32px;
-  padding: 4px;
-  background: #eadfcd;
-  border-radius: 999px;
+  display: flex;
+  gap: 28px;
+  margin: 28px 0 36px;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.18);
 }
 .tabBtn {
   border: none;
-  background: transparent;
-  padding: 9px 26px;
-  border-radius: 999px;
-  font-size: 13.5px;
+  background: none;
+  padding: 0 0 12px;
+  margin-bottom: -1px;
+  font-size: 14px;
   font-weight: 600;
   color: #8a7660;
   cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.25s ease;
   font-family: inherit;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 .tabBtnActive {
-  background: #d2691e;
-  color: #fffdf8;
+  color: #1a1208;
   font-weight: 700;
-  box-shadow: 0 2px 7px rgba(210, 105, 30, 0.35);
+  border-bottom-color: #1a1208;
 }
 
 /* ── 약관 조문 ── */
@@ -235,6 +196,8 @@
 .clauseList > li:nth-child(5)::before { content: "⑤"; }
 .clauseList > li:nth-child(6)::before { content: "⑥"; }
 .clauseList > li:nth-child(7)::before { content: "⑦"; }
+.clauseList > li:nth-child(8)::before { content: "⑧"; }
+.clauseList > li:nth-child(9)::before { content: "⑨"; }
 .clauseList strong { color: #b8571a; font-weight: 700; }
 .itemList {
   list-style: none;
@@ -261,14 +224,3 @@
   font-weight: 700;
   font-size: 12.5px;
 }
-.extractNote {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #6b5a48;
-  background: #fffdf8;
-  border: 1px solid #e5d9c8;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin: 0 0 20px;
-}
-.extractNote strong { color: #b8571a; }

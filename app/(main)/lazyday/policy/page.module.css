@@ -33,50 +33,6 @@
   line-height: 1.25;
   letter-spacing: -0.025em;
 }
-.section { margin: 0 0 40px; }
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 800;
-  color: #1a1208;
-  margin: 0 0 16px;
-  letter-spacing: -0.01em;
-}
-.sectionTitle strong { color: #d2691e; font-weight: 800; }
-
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.list li {
-  position: relative;
-  padding-left: 16px;
-  font-size: 14px;
-  line-height: 1.85;
-  color: #4a3020;
-  text-wrap: pretty;
-}
-.list li::before {
-  content: '';
-  position: absolute;
-  left: 2px;
-  top: 11px;
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: #d2691e;
-}
-.list strong { color: #b8571a; font-weight: 700; }
-
-.note {
-  font-size: 11px;
-  color: #9a9590;
-  line-height: 1.7;
-  margin: 8px 0 0;
-}
 
 .backLink {
   display: inline-block;
@@ -90,32 +46,6 @@
 @media (min-width: 768px) {
   .container { padding: 0 32px; }
   .pageTitle { font-size: 32px; }
-}
-
-/* ── 탭 (감싸는 도형 없이, 배경과 동일 — 밑줄만으로 활성 표시) ── */
-.tabSeg {
-  display: flex;
-  gap: 28px;
-  margin: 28px 0 36px;
-  border-bottom: 1px solid rgba(74, 58, 42, 0.18);
-}
-.tabBtn {
-  border: none;
-  background: none;
-  padding: 0 0 12px;
-  margin-bottom: -1px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #8a7660;
-  cursor: pointer;
-  font-family: inherit;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-.tabBtnActive {
-  color: #1a1208;
-  font-weight: 700;
-  border-bottom-color: #1a1208;
 }
 
 /* ── 약관 조문 ── */

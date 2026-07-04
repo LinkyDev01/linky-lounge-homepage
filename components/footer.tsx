@@ -5,11 +5,14 @@ type FooterProps = {
   /** 기본값은 링키라운지 채널. 레이지데이 등 별도 브랜드 페이지에서 덮어쓴다. */
   instagramUrl?: string
   kakaoUrl?: string
+  /** /policy 링크 라벨 — 레이지데이는 "이용약관 및 환불 규정"으로 덮어쓴다 */
+  policyLabel?: string
 }
 
 export function Footer({
   instagramUrl = "https://www.instagram.com/linky_lounge",
   kakaoUrl = "http://pf.kakao.com/_cuWDn",
+  policyLabel = "교환환불정책",
 }: FooterProps = {}) {
   return (
     <footer className="bg-foreground text-background py-12">
@@ -35,7 +38,7 @@ export function Footer({
                   href="/policy"
                   className="text-background/70 hover:text-background transition-colors"
                 >
-                  교환환불정책
+                  {policyLabel}
                 </Link>
               </li>
               <li>

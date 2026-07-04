@@ -8,7 +8,6 @@ import { ScheduleSection } from "../ScheduleSection"
 import { NavBarV2 } from "./NavBarV2"
 import { HeroSummary } from "./HeroSummary"
 import { FeatureBoxSectionV2 } from "./FeatureBoxSectionV2"
-import { PhilosophySectionV2 } from "./PhilosophySectionV2"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSectionV2 } from "./BookSectionV2"
 import { FaqSectionV2 } from "./FaqSectionV2"
@@ -38,7 +37,7 @@ export default function PreviewLandingPage() {
         <HeroParallax />
         <HeroSummary />
         <BookSectionV2 />
-        <PhilosophySectionV2 />
+        {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
         <ReviewsSection />
         <FifthSessionSection />
         <FeatureBoxSectionV2 />
@@ -52,6 +51,7 @@ export default function PreviewLandingPage() {
       <Footer
         instagramUrl="https://instagram.com/lazyday_bookclub"
         kakaoUrl="https://pf.kakao.com/_gixaAX"
+        policyLabel="이용약관 및 환불 규정"
       />
     </div>
   )

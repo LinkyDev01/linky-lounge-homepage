@@ -6,6 +6,12 @@ import pstyles from "./preview.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
+ * ⚠️ 보존 모듈 (운영자 결정 2026-07-04) — 삭제 금지.
+ * 지금은 실제 후기가 없어 대기 중이지만, 후기가 모이면 실사이트에 이식할 확정 디자인.
+ * 스타일 소재: preview.module.css의 reviews*·reviewSlide*·reviewCard·reviewPhoto·reviewQuote* 블록
+ *            + FaqSection.module.css의 titleRow·sectionTitle (공유분).
+ * 이식 시: lazyday-preview-migrate 스킬 — 신규 실사이트 모듈로 분리 복사 (preview import 금지).
+ *
  * 후기 섹션 — 손글씨 후기 '사진' 폴라로이드 카드.
  * 카드 크기·슬라이딩은 책 소개와 동일(카드 폭 = 화면-36px, 양옆은 살짝만),
  * 살짝 회전한 직사각형(폴라로이드) 구도는 유지.

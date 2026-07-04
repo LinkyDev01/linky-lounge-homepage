@@ -1,0 +1,274 @@
+.page {
+  min-height: 100vh;
+  background: #f5ede4;
+  padding: 56px 0 96px;
+  word-break: keep-all;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.titleRow {
+  margin: 0 0 12px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.titleRow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+.pageTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+.lead {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #6b5a48;
+  margin: 0 0 40px;
+  text-wrap: pretty;
+}
+
+.section { margin: 0 0 40px; }
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0 0 16px;
+  letter-spacing: -0.01em;
+}
+.sectionTitle strong { color: #d2691e; font-weight: 800; }
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.list li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 14px;
+  line-height: 1.85;
+  color: #4a3020;
+  text-wrap: pretty;
+}
+.list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 11px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #d2691e;
+}
+.list strong { color: #b8571a; font-weight: 700; }
+
+/* 환불 기준 하이라이트 박스 — 인터뷰 페이지 '3기 안내' 박스와 동일 문법 */
+.refundBox {
+  background: #edddd0;
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+  margin: 0 0 14px;
+}
+.refundGrid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px 16px;
+  align-items: baseline;
+}
+.refundWhen {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #4a3020;
+  font-weight: 600;
+}
+.refundHow {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #b8571a;
+  white-space: nowrap;
+  text-align: right;
+}
+.refundHowMuted { color: #8a7660; }
+
+.note {
+  font-size: 11px;
+  color: #9a9590;
+  line-height: 1.7;
+  margin: 8px 0 0;
+}
+
+/* 문의 안내 (FAQ contact 블록과 동일 문법) */
+.contact {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(74, 58, 42, 0.18);
+}
+.contactText {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1208;
+  margin: 0 0 10px;
+}
+.contactLink {
+  font-size: 14px;
+  color: #d2691e;
+  text-decoration: none;
+  line-height: 1.6;
+  transition: opacity 0.15s ease;
+}
+.contactLink:hover { opacity: 0.75; }
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 28px;
+  font-size: 13px;
+  color: #8a6a50;
+  text-decoration: none;
+}
+.backLink:hover { color: #4a3020; }
+
+@media (min-width: 768px) {
+  .container { padding: 0 32px; }
+  .pageTitle { font-size: 32px; }
+}
+
+/* ── 탭 (선정도서 세그먼트 문법 차용) ── */
+.tabSeg {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 0 32px;
+  padding: 4px;
+  background: #eadfcd;
+  border-radius: 999px;
+}
+.tabBtn {
+  border: none;
+  background: transparent;
+  padding: 9px 26px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #8a7660;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+.tabBtnActive {
+  background: #d2691e;
+  color: #fffdf8;
+  font-weight: 700;
+  box-shadow: 0 2px 7px rgba(210, 105, 30, 0.35);
+}
+
+/* ── 약관 조문 ── */
+.chapterTitle {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #b8571a;
+  margin: 44px 0 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.18);
+}
+.chapterTitle:first-of-type { margin-top: 8px; }
+.article { margin: 24px 0 0; }
+.articleTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 8px;
+}
+.clause {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  margin: 0;
+  text-wrap: pretty;
+}
+.clauseList {
+  list-style: none;
+  counter-reset: clause;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.clauseList > li {
+  counter-increment: clause;
+  position: relative;
+  padding-left: 24px;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  text-wrap: pretty;
+}
+.clauseList > li::before {
+  content: "①";
+  position: absolute;
+  left: 0;
+  color: #b8571a;
+  font-size: 13px;
+}
+.clauseList > li:nth-child(1)::before { content: "①"; }
+.clauseList > li:nth-child(2)::before { content: "②"; }
+.clauseList > li:nth-child(3)::before { content: "③"; }
+.clauseList > li:nth-child(4)::before { content: "④"; }
+.clauseList > li:nth-child(5)::before { content: "⑤"; }
+.clauseList > li:nth-child(6)::before { content: "⑥"; }
+.clauseList > li:nth-child(7)::before { content: "⑦"; }
+.clauseList strong { color: #b8571a; font-weight: 700; }
+.itemList {
+  list-style: none;
+  counter-reset: item;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.itemList > li {
+  counter-increment: item;
+  position: relative;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #6a5038;
+}
+.itemList > li::before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 2px;
+  color: #b8571a;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.extractNote {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #6b5a48;
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0 0 20px;
+}
+.extractNote strong { color: #b8571a; }

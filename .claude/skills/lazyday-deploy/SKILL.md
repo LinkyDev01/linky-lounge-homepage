@@ -11,8 +11,9 @@ description: 레이지데이 북클럽 변경분을 검증→커밋→푸시→(
 
 - **프리뷰/브랜치 배포**: 운영자 승인 불필요 — 자유롭게 푸시.
 - **main 병합(= 실서비스 lazyday-bookclub.com 반영)**: 운영자의 명시 승인이 있어야 한다.
-  승인 표현 예: "반영해", "배포해", "바로 배포해", "오케이 반영", "실제 본 페이지 포함".
-  승인 범위를 넘는 것(보류 항목)은 함께 병합되더라도 **프리뷰 트리 안에만** 있어야 한다.
+  승인 표현 예: "반영해", "배포해", "바로 배포해", "오케이 반영". ("○○도 실제 페이지에 포함" 같은 범위 지정 발화는 **그 항목에 한해** 승인.)
+- **'자잘한 변경 즉시 배포' 원칙(DECISIONS 상시 원칙)의 경계**: 운영자가 구체 값·대상을 지목한 단건 수정("15px로 키워줘", 오타·문구 수정)은 스크린샷 검증 후 병합까지 진행. 단 ① 신규 색/레이아웃/구조/카피 변경 ② **모호한 지시를 내 해석으로 구현한 경우**는 자잘한 변경이 아니다 — 스크린샷 확인 응답을 받은 뒤에만 병합.
+- 승인 범위를 넘는 것(보류 항목)은 함께 병합되더라도 **프리뷰 트리 안에만** 있어야 한다.
 
 ## 1. 로컬 검증 (증거 필수)
 
@@ -48,9 +49,10 @@ git push -u origin <작업 브랜치>
 
 ## 4. main 병합 (승인 시에만)
 
-- **병합된 PR은 재사용 불가** — 매번 새 PR 생성 (`mcp__github__create_pull_request`, base=main).
+- **병합된 PR은 재사용 불가** — 매번 새 PR 생성 (`mcp__github__create_pull_request`, owner=LinkyDev01, repo=linky-lounge-homepage, base=main).
 - PR 본문: 실사이트 변경 / 프리뷰 전용 포함분(실사이트 영향 없음 명시) / 검증 내역.
-- 체크(`get_status`)가 success면 `merge_pull_request` (method: merge).
+- 체크 확인은 `mcp__github__pull_request_read` (method: **get_status**) — success면 `mcp__github__merge_pull_request` (merge_method: merge).
+- ⚠️ payload 계약이 바뀐 변경(§CLAUDE.md §6)은 **GAS 재배포가 병합의 선행 조건** — 운영자의 '새 버전' 완료 회신을 받은 뒤 병합.
 
 ## 5. 프로덕션 검증 (병합 후 필수)
 
@@ -59,8 +61,13 @@ git push -u origin <작업 브랜치>
 # run_in_background 로:
 for i in $(seq 1 30); do curl -sL "https://www.lazyday-bookclub.com/" | grep -q "<새 마커>" && echo LIVE && exit 0; sleep 20; done
 ```
-- 삭제가 목적이면 "옛 마커가 0건"도 함께 확인.
+- 마커는 **서버 렌더 HTML에 실제 포함되는 문자열**로 — 커밋 전에 `curl localhost:3000/lazyday | grep 마커`로 유효성을 먼저 확인. 삭제가 목적이면 "옛 마커 0건"도 함께.
+- **CSS 값만 바뀐 배포는 HTML 마커가 없다** → ① `list_deployments`에서 해당 SHA가 production READY인지 확인하고 ② 필요하면 프로덕션 HTML에서 `<link href=...css>` 자산 URL을 추출해 그 .css를 curl 받아 새 값(예: `padding:8px 30px`)을 직접 grep.
 - 확인 결과를 운영자에게 명시적으로 보고 ("실배포 확인 완료 + 무엇이 서빙되는지").
+
+## 6. 결정 로그 갱신
+
+병합으로 확정·해제된 사항을 `docs/DECISIONS.md` 표 맨 위에 추가하고, 해소된 '대기 중' 불릿을 제거한다. 같은 PR 또는 직후 커밋에 포함.
 
 ## 함정 요약
 

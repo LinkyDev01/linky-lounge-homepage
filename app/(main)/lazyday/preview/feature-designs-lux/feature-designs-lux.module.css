@@ -1,0 +1,519 @@
+/* ═══════════════════════════════════════════════════════════
+   모임 소개 시안 쇼케이스 2차 — 하이엔드 브랜드 결 5종
+   ①하우스코드 ②콰이어트 ③초대장 ④룩북 ⑤크레도
+   팔레트는 기존 디자인 시스템 값만 사용 (신규 색 없음)
+   ═══════════════════════════════════════════════════════════ */
+
+.page {
+  min-height: 100vh;
+  background: #ede0d0;
+  padding: 58px 0 96px;
+  word-break: keep-all;
+}
+.frame {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.pageTitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 24px 0 6px;
+  letter-spacing: -0.02em;
+}
+.pageSub {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #7a6450;
+  margin: 0 0 20px;
+}
+
+/* 시안 전환 스위처 (faq-designs / feature-designs와 동일 문법) */
+.switcher {
+  position: sticky;
+  top: 34px;
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px 24px;
+  margin: 0 -24px 18px;
+  background: rgba(237, 224, 208, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(74, 58, 42, 0.12);
+}
+.switcher::-webkit-scrollbar { display: none; }
+.switchBtn {
+  flex-shrink: 0;
+  border: 1px solid #cdbca6;
+  background: #fffdf8;
+  color: #6b5a48;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.switchBtnActive {
+  background: #4a3a2a;
+  border-color: #4a3a2a;
+  color: #fffdf8;
+}
+.variantMeta {
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 0 0 26px;
+}
+.variantName { font-size: 15px; font-weight: 800; color: #1a1208; margin: 0 0 4px; }
+.variantRef  { font-size: 12px; color: #b8571a; font-weight: 700; margin: 0 0 6px; letter-spacing: 0.02em; }
+.variantDesc { font-size: 13px; line-height: 1.7; color: #6b5a48; margin: 0; }
+
+/* 시안 프레임 — 실사이트 모임소개 배경(#f5ede4)을 재현 */
+.demo {
+  background: #f5ede4;
+  margin: 0 -24px;
+  padding: 56px 24px 64px;
+}
+
+/* 공용 눈썹/타이틀 (①④⑤) */
+.mzEyebrow {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: #a08b70;
+  margin: 0 0 10px;
+  text-align: center;
+}
+.mzTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1208;
+  letter-spacing: -0.02em;
+  margin: 0 0 40px;
+  text-align: center;
+}
+.mzNote { font-size: 11px; color: #9a9590; margin: 12px 0 0; }
+
+/* ═══ ① 하우스 코드 ══════════════════════════════════════════
+   샤넬 하우스 코드 · 소호하우스 House Rules
+   로마숫자 + 얇은 괘선 + 선언 톤. 박스·배경 없음. */
+.mzList { border-top: 1px solid rgba(74, 58, 42, 0.22); }
+.mzCode { border-bottom: 1px solid rgba(74, 58, 42, 0.22); }
+.mzHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  padding: 24px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.mzNum {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #b8571a;
+  flex-shrink: 0;
+  line-height: 1.5;
+  min-width: 20px;
+}
+.mzHeadText { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.mzLabel {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.mzPull {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #8a6a50;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.mzPlus {
+  flex-shrink: 0;
+  font-size: 17px;
+  font-weight: 300;
+  color: #a08b70;
+  line-height: 1.3;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.mzPlusOpen { transform: rotate(45deg); color: #d2691e; }
+.mzBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.mzBodyOpen { grid-template-rows: 1fr; }
+.mzBodyInner { overflow: hidden; }
+.mzParas {
+  padding: 0 0 26px 36px;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.mzParas p { margin: 0 0 12px; }
+.mzParas p:last-child { margin-bottom: 0; }
+.mzParas strong { color: #d2691e; font-weight: 700; }
+
+/* ═══ ② 콰이어트 에디토리얼 ══════════════════════════════════
+   이솝 · 더 로우 — 좁은 단 + 중앙 정렬 + 명조 + 압도적 여백 */
+.qtDemo { padding: 72px 24px 80px; }
+.qtTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1208;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0 0 64px;
+}
+.qtChapter {
+  max-width: 320px;
+  margin: 0 auto;
+  text-align: center;
+}
+.qtEyebrow {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: #a08b70;
+  margin: 0 0 14px;
+}
+.qtLabel {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  letter-spacing: -0.01em;
+}
+.qtPull {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #4a3020;
+  margin: 0 0 26px;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.qtBody {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 2.0;
+  color: #6a5038;
+  text-align: left;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.qtBody p { margin: 0 0 14px; }
+.qtBody p:last-child { margin-bottom: 0; }
+.qtBody strong { color: #4a3020; font-weight: 700; }
+.qtNote { font-size: 11px; color: #9a9590; margin: 14px 0 0; }
+.qtDivider {
+  font-size: 15px;
+  color: #a08b70;
+  padding: 44px 0;
+}
+
+/* ═══ ③ 초대장 ═══════════════════════════════════════════════
+   프라이빗 멤버스 클럽 초대장 · 에르메스 어포인트먼트 */
+.ivFrame {
+  border: 1px solid #cdbca6;
+  padding: 5px;
+  background: #fffdf8;
+  margin: 0 0 40px;
+}
+.ivFrameInner {
+  border: 1px solid rgba(74, 58, 42, 0.28);
+  padding: 40px 24px 44px;
+  text-align: center;
+}
+.ivMonogram {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #1a1208;
+  margin: 0 0 10px;
+  line-height: 1;
+}
+.ivSeason {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  color: #a08b70;
+  margin: 0 0 34px;
+}
+.ivOpening {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.95;
+  color: #1a1208;
+  margin: 0 0 30px;
+}
+.ivPulls {
+  border-top: 1px solid rgba(74, 58, 42, 0.16);
+  border-bottom: 1px solid rgba(74, 58, 42, 0.16);
+  padding: 24px 0;
+  margin: 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.ivPullLine {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #4a3020;
+  margin: 0;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.ivPullNum {
+  display: block;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-style: italic;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b8571a;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.ivClosing {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #1a1208;
+  margin: 0 0 22px;
+}
+.ivRsvp {
+  display: inline-block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #d2691e;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #d2691e;
+}
+/* ③ 하단 상세 — 미니멀 라인 접힘 */
+.ivDetails { border-top: 1px solid rgba(74, 58, 42, 0.18); }
+.ivItem { border-bottom: 1px solid rgba(74, 58, 42, 0.18); }
+.ivItemHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 17px 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.ivItemLabel { font-size: 14px; font-weight: 700; color: #1a1208; line-height: 1.4; }
+.ivItemPlus {
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: 300;
+  color: #a08b70;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.ivItemPlusOpen { transform: rotate(45deg); color: #d2691e; }
+.ivItemBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.ivItemBodyOpen { grid-template-rows: 1fr; }
+.ivItemBodyInner { overflow: hidden; }
+.ivParas {
+  padding: 2px 2px 22px;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.ivParas p { margin: 0 0 12px; }
+.ivParas p:last-child { margin-bottom: 0; }
+.ivParas strong { color: #d2691e; font-weight: 700; }
+
+/* ═══ ④ 캠페인 룩북 ═════════════════════════════════════════
+   자크뮈스 · 캠페인 챕터 — 현행 캐러셀 문법(센터 스냅+슬리버) 준수 */
+.lbTrack {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin: 0 -24px;
+  padding: 0 18px 8px;
+}
+.lbTrack::-webkit-scrollbar { display: none; }
+.lbCard {
+  flex: 0 0 calc(100% - 36px);
+  scroll-snap-align: center;
+  position: relative;
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  border-radius: 16px;
+  padding: 88px 22px 30px;
+  min-height: 240px;
+  overflow: hidden;
+  opacity: 0.45;
+  transform: scale(0.94);
+  filter: blur(1px);
+  transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+}
+.lbCardActive { opacity: 1; transform: scale(1); filter: none; }
+.lbGhost {
+  position: absolute;
+  top: -18px;
+  right: 6px;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-style: italic;
+  font-size: 110px;
+  font-weight: 700;
+  color: rgba(210, 105, 30, 0.1);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  user-select: none;
+}
+.lbEyebrow {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  color: #a08b70;
+  margin: 0 0 10px;
+}
+.lbLabel {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1a1208;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+.lbPull {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #8a6a50;
+  margin: 0;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.lbDots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding: 14px 0 26px;
+}
+.lbDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(74, 58, 42, 0.22);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.lbDotActive { background: #d2691e; transform: scale(1.25); }
+.lbBody {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+  animation: lbFade 0.4s ease;
+}
+.lbBody p { margin: 0 0 12px; }
+.lbBody p:last-child { margin-bottom: 0; }
+.lbBody strong { color: #d2691e; font-weight: 700; }
+@keyframes lbFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ═══ ⑤ 크레도 ═══════════════════════════════════════════════
+   르 라보 매니페스토 — 신조 자체가 내비게이션 */
+.crManifesto { margin: 0 0 18px; }
+.crSentence {
+  display: inline;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 2.05;
+  color: #4a3020;
+  text-align: left;
+  word-break: keep-all;
+  text-wrap: pretty;
+  text-decoration: underline;
+  text-decoration-color: rgba(210, 105, 30, 0.35);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: color 0.25s ease, text-decoration-color 0.25s ease;
+}
+.crSentence::after { content: " "; }
+.crSentence:hover { text-decoration-color: rgba(210, 105, 30, 0.7); }
+.crSentenceActive {
+  color: #d2691e;
+  text-decoration-color: #d2691e;
+}
+.crHint {
+  font-size: 11px;
+  color: #a08b70;
+  margin: 0 0 30px;
+  letter-spacing: 0.04em;
+}
+.crDetail {
+  border-top: 1px solid rgba(74, 58, 42, 0.18);
+  padding-top: 24px;
+  animation: lbFade 0.4s ease;
+}
+.crDetailLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #b8571a;
+  margin: 0 0 12px;
+}
+.crDetailBody {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.crDetailBody p { margin: 0 0 12px; }
+.crDetailBody p:last-child { margin-bottom: 0; }
+.crDetailBody strong { color: #d2691e; font-weight: 700; }

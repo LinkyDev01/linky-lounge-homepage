@@ -16,10 +16,10 @@ import { BrandCloseSection } from "./BrandCloseSection"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
-  description: "당신의 이야기, 그리고 당신만의 방향이 남는 모임",
+  description: "사당역 오프라인 독서모임. 철학과 고전을 함께 읽고, 호스트의 발제로 사유의 밀도를 높이는 인터뷰 기반 소수정예 북클럽입니다.",
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "당신의 이야기, 그리고 당신만의 방향이 남는 모임",
+    description: "낯선 시각과 부딪히며, 나만의 생각이 또렷해지는 독서모임",
     images: ["/linky-lounge/book-club/lazy%20is%20a.png"],
     type: "website",
   },

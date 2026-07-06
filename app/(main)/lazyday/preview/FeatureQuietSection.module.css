@@ -6,8 +6,7 @@
 
 .section {
   background: #f5ede4;
-  /* 좌우 24→20px — 390px 기준 본문 350px 확보 */
-  padding: 64px 20px 72px;
+  padding: 64px 24px 72px;
   word-break: keep-all;
 }
 
@@ -20,8 +19,8 @@
   margin: 0 0 52px;
 }
 .qtChapter {
-  /* 모바일 가독 최적화 — 텍스트란 확대 320→360px (운영자 지시 2026-07-06) */
-  max-width: 360px;
+  /* 본문 폭 320px 복귀 (운영자 지시 2026-07-06) */
+  max-width: 320px;
   margin: 0 auto;
   text-align: center;
 }

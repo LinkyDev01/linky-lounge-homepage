@@ -17,14 +17,14 @@
     display: block;
 }
 
-/* hero 하단에 다음 섹션(About, #f5ede4) 색으로 자연스럽게 페이드 */
+/* hero 하단에 다음 섹션(선정도서, #ede0d0 — 2026-07-06 배경 반전) 색으로 자연스럽게 페이드 */
 .heroFade {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     height: 100px;
-    background: linear-gradient(to bottom, rgba(245, 237, 228, 0), #f5ede4);
+    background: linear-gradient(to bottom, rgba(237, 224, 208, 0), #ede0d0);
     pointer-events: none;
 }
 

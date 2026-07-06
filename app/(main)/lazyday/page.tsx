@@ -11,7 +11,7 @@ import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
 import { FifthSessionSection } from "./FifthSessionSection"
 import { FaqSection } from "./FaqSection"
-import { FeatureQuietSection } from "./FeatureQuietSection"
+import { FeatureBoxSection } from "./FeatureBoxSection"
 import { ClosingCtaSection } from "./ClosingCtaSection"
 import { BrandCloseSection } from "./BrandCloseSection"
 
@@ -36,8 +36,8 @@ export default function StudyForeignPage() {
         <HeroParallax />
         <BookSection />
         <FifthSessionSection />
-        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기'로 이식 (2026-07-06) — FeatureBoxSection은 고아 보존 */}
-        <FeatureQuietSection />
+        {/* 모임 소개: 콰이어트 개편은 텍스트 보완 후 이식 예정 — 그때까지 기존 FeatureBoxSection 유지 (프리뷰에는 FeatureQuietSection 반영됨, 2026-07-06) */}
+        <FeatureBoxSection />
         <HowToSection />
         <ScheduleSection />
         <FaqSection />

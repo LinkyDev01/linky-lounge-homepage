@@ -126,16 +126,19 @@
 }
 
 .schTdFifth {
-  text-align: left;
-  padding-left: 4px;
+  /* 병합 셀 안에서 '날짜+일시' 그룹 전체를 가운데 정렬 (운영자 지시 2026-07-06) */
+  text-align: center;
   border-top: 1px solid rgba(74, 58, 42, 0.1);
 }
 
-/* 5회차: 날짜를 1~4회차와 동일한 크기로, 옆에 1부/2부를 작은 2행으로 */
+/* 5회차: 날짜를 1~4회차와 동일한 크기로, 옆에 1부/2부를 작은 2행으로.
+   그룹은 inline-flex로 감싸 셀 중앙에 놓고, 그룹 내부는 좌측 정렬 유지 */
 .fifthRow {
-  display: flex;
-  align-items: baseline;
+  display: inline-flex;
+  /* 날짜(1행)를 시간(2행) 블록 대비 세로 중간정렬 (운영자 지시 2026-07-06) */
+  align-items: center;
   gap: 14px;
+  text-align: left;
 }
 
 .fifthDate {

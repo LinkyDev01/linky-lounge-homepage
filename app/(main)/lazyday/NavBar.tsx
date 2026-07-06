@@ -6,7 +6,7 @@ const navItems = [
   { id: 'book',     label: '선정도서' },
   { id: 'feature',  label: '모임소개' },
   { id: 'howto',    label: '진행방식' },
-  { id: 'schedule', label: '모임일정' },
+  { id: 'schedule', label: '일정·장소' },
   { id: 'faq',      label: 'FAQ' },
 ]
 

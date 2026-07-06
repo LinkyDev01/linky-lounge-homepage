@@ -81,8 +81,7 @@ export function FaqSection() {
   // 해시(#gathering 등)로 진입 시 해당 FAQ 항목을 자동으로 열고 스크롤 —
   // 일정 박스의 '자유 독서모임' 링크가 이 항목을 펼치기 위함 (운영자 지시 2026-07-06)
   useEffect(() => {
-    const openFromHash = () => {
-      const key = window.location.hash.slice(1)
+    const openByKey = (key: string) => {
       if (key && faqs.some(f => f.key === key)) {
         setOpenSet(prev => { const n = new Set(prev); n.add(key); return n })
         requestAnimationFrame(() =>
@@ -90,9 +89,16 @@ export function FaqSection() {
         )
       }
     }
+    const openFromHash = () => openByKey(window.location.hash.slice(1))
+    // 해시가 이미 같은 상태의 재클릭은 hashchange가 안 뜨므로, 링크가 쏘는 커스텀 이벤트로도 연다
+    const openFromEvent = (e: Event) => openByKey((e as CustomEvent<string>).detail)
     openFromHash()
     window.addEventListener("hashchange", openFromHash)
-    return () => window.removeEventListener("hashchange", openFromHash)
+    window.addEventListener("lazyday:open-faq", openFromEvent)
+    return () => {
+      window.removeEventListener("hashchange", openFromHash)
+      window.removeEventListener("lazyday:open-faq", openFromEvent)
+    }
   }, [])
 
   return (

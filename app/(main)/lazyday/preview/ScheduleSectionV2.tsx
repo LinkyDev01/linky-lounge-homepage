@@ -51,13 +51,11 @@ export function ScheduleSectionV2() {
                 ))}
               </tbody>
             </table>
-          </div>
-          {/* 7a 별지 — "정규 밖의 덤": 짙은 베이지 쪽지가 워시테이프(6c 어휘 재사용)로 살짝 겹쳐 붙음 */}
-          <div className={styles.fifthNote}>
-            <span className={styles.fifthNoteTape} aria-hidden />
-            <p className={styles.fifthNoteLabel}>{SEASON.fifth.label} · 자유 독서모임</p>
-            <p className={styles.fifthNoteDate}>{SEASON.fifth.date}</p>
-            <p className={styles.fifthNoteTime}>{SEASON.fifth.timeLabel}</p>
+            {/* 7b: 5회차 — 표 아래 점선 블록, 명조 전환이 '다른 결'의 핵심. 박스 밖으로 빼지 말 것 */}
+            <div className={styles.fifthBlock}>
+              <p className={styles.fifthTitle}>자유 독서모임</p>
+              <p className={styles.fifthMeta}>{SEASON.fifth.label} · {SEASON.fifth.date} · {SEASON.fifth.timeLabel}</p>
+            </div>
           </div>
           <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
         </div>

@@ -56,11 +56,13 @@ const faqs: Faq[] = [
   {
     id: "gathering",
     key: "gathering",
-    q: "자유 독서모임에선 어떤 시간이 마련되나요?",
+    q: "5회차 자유 독서모임은 어떤 시간인가요?",
     paragraphs: [
-      <><strong className={styles.answerStrong}>1부</strong>&nbsp;영화 감상&nbsp;&nbsp;14:30–17:00<br />시각과 청각의 언어로 펼쳐지는 한 편의 영화를 함께 감상합니다. 철학과 예술이 맞닿아 있는 작품을 고르고, 4회차의 사유를 영상의 언어로 더 깊이 확장해가는 시간입니다.</>,
-      <><strong className={styles.answerStrong}>2부</strong>&nbsp;자유 독서모임&nbsp;&nbsp;17:00–<br />다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모여, 네 권의 책에서는 꺼내지 못했던 이야기를 자유롭게 나눕니다.</>,
+      <>4회에 걸쳐 나눈 대화의 마무리이자, 모든 멤버가 처음으로 한자리에 모이는 날입니다.</>,
+      <><strong className={styles.answerStrong}>1부</strong>&nbsp;영화 감상&nbsp;&nbsp;14:30–17:00<br />시각과 청각의 언어로 펼쳐지는 한 편의 영화를 함께 감상합니다. 철학과 예술이 맞닿아 있는 작품을 고르고, 4회에 걸쳐 쌓아온 사유를 영상의 언어로 한층 더 확장해가는 시간입니다.</>,
+      <><strong className={styles.answerStrong}>2부</strong>&nbsp;자유 독서모임&nbsp;&nbsp;17:00–<br />다른 시간대에 만나지 못한 멤버들과 처음으로 한자리에 모입니다. 네 권의 책에서는 꺼내지 못했던 이야기, 각자가 멤버들에게 묻고 싶었던 이야기를 자유롭게 나누는 자리입니다.</>,
     ],
+    sub: "*5회차는 정규 독서모임 4회 이후 추가로 진행되는 모임입니다",
   },
 ]
 

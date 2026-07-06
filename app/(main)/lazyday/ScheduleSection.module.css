@@ -5,7 +5,8 @@
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  background-color: #f5ede4;
+  /* 배경 플립 (2026-07-06 교차 재배정) — 종이 낱장(#fffdf8)이 베이지 위에서 도드라짐 */
+  background-color: #ede0d0;
   padding: 56px 24px 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
@@ -39,7 +40,6 @@
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
 .paperBox {
   position: relative;
-  z-index: 1;
   background-color: #fffdf8;
   border: 1px solid #e0d2bd;
   border-radius: 0;
@@ -51,7 +51,8 @@
 /* 6b: 박스 최상단 이중 괘선 — 좌우 풀블리드 (조판 괘선) */
 .ruleThick {
   height: 3px;
-  background: #1a1208;
+  /* 팔레트 브라운 (본문 다크브라운) — 잉크 대신 (운영자 지시 2026-07-06) */
+  background: #4a3020;
   margin: 0 -16px;
 }
 .ruleThin {
@@ -142,55 +143,28 @@
   border-top: none;
 }
 
-/* 7a 별지 — 본지 하단에 -4px 살짝 겹쳐 붙은 짙은 베이지 쪽지 (확정 서식 2026-07-06).
-   보더·라운딩 없음(그림자만), 폭 76%로 위계, 쪽지만 -0.8° 기울임.
-   노이즈 텍스처는 본지에만 — 쪽지엔 중복 적용하지 않는다. */
-.fifthNote {
-  width: 76%;
-  margin: -4px auto 0;
-  position: relative;
-  background: #edddd0;
-  padding: 16px 14px 14px;
-  box-shadow: 0 2px 6px rgba(74, 58, 42, 0.14);
-  transform: rotate(-0.8deg);
+/* 7b: 5회차 — 박스 안 점선 블록. 점선은 표 실선과 경쟁하지 않게 옅게(.2),
+   "자유 독서모임"의 명조 전환이 '다른 결'의 핵심 */
+.fifthBlock {
+  border-top: 1px dashed rgba(74, 58, 42, 0.2);
+  margin: 14px 0 0;
+  padding: 14px 0 0;
   text-align: center;
 }
 
-/* 미니 테이프 — 본지 테이프(72×18)보다 작게(위계), 회전 없이 수평 */
-.fifthNoteTape {
-  position: absolute;
-  top: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 46px;
-  height: 13px;
-  background: rgba(74, 58, 42, 0.3);
-  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
-  z-index: 2;
-}
-
-.fifthNoteLabel {
-  font-size: 10.5px;
+.fifthTitle {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 600;
-  letter-spacing: 0.14em;
-  color: #8a6a50;
-  margin: 0 0 7px;
-}
-
-.fifthNoteDate {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1208;
-  font-feature-settings: "tnum";
+  font-size: 13.5px;
+  color: #4a3020;
   margin: 0 0 5px;
 }
 
-.fifthNoteTime {
-  font-size: 10.5px;
-  font-weight: 500;
+.fifthMeta {
+  font-size: 12px;
   color: #8a6a50;
-  font-feature-settings: "tnum";
   margin: 0;
+  font-feature-settings: "tnum";
 }
 
 /* 박스 아래 안내 한 줄 — 왼쪽 정렬 */

@@ -9,7 +9,6 @@ import { SectionIndicator } from "./SectionIndicator"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
-import { FifthSessionSection } from "./FifthSessionSection"
 import { FaqSection } from "./FaqSection"
 import { FeatureQuietSection } from "./FeatureQuietSection"
 import { ClosingCtaSection } from "./ClosingCtaSection"
@@ -35,7 +34,7 @@ export default function StudyForeignPage() {
         {/* '복잡함 속에서 찾는 단순함'(AboutSection)은 보류 — 컴포넌트는 보존 (운영자 결정 2026-07-03) */}
         <HeroParallax />
         <BookSection />
-        <FifthSessionSection />
+        {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ '5회차 자유 독서모임' 문항으로 이관, 컴포넌트는 고아 보존 (운영자 결정 2026-07-06) */}
         {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기' + 보완 원고 (2026-07-06 배포 승인) — FeatureBoxSection은 고아 보존 */}
         <FeatureQuietSection />
         <HowToSection />

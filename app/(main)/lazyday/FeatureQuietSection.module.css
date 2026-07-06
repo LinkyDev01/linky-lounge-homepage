@@ -2,11 +2,12 @@
    모임 소개 — 콰이어트 '①+ 페이드 이어 읽기' (확정 2026-07-06)
    원본: preview/FeatureQuietSection.module.css — 값 픽셀 동일 이식.
    프리뷰 쌍과 드리프트 금지: 한쪽을 고치면 다른 쪽도 같은 값으로.
-   배경 #f5ede4 = 기존 FeatureBoxSection 자리 그대로 (교차 유지).
+   배경 #ede0d0 — 5회차 섹션 삭제 후 교차 재배정 플립 (2026-07-06).
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  background: #f5ede4;
+  /* 배경 플립: 5회차 섹션 삭제 후 교차 재배정 (운영자 확정 2026-07-06) */
+  background: #ede0d0;
   padding: 64px 24px 72px;
   word-break: keep-all;
   /* 내비 #feature 앵커 오프셋 — 실사이트 이식본과 동기화 (비시각) */
@@ -97,7 +98,7 @@
   right: 0;
   bottom: 0;
   height: 40px;
-  background: linear-gradient(to bottom, rgba(245, 237, 228, 0), #f5ede4 92%);
+  background: linear-gradient(to bottom, rgba(237, 224, 208, 0), #ede0d0 92%);
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.3s ease;

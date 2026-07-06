@@ -7,7 +7,7 @@
 
 .section {
   /* 배경 플립 (2026-07-06 교차 재배정) — 종이 낱장(#fffdf8)이 베이지 위에서 도드라짐 */
-  background-color: #ede0d0;
+  background-color: #f5ede4;
   padding: 56px 24px 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
@@ -246,4 +246,17 @@
   color: #8a7660;
   line-height: 1.5;
   margin-top: 2px;
+}
+
+/* '자유 독서모임' → 하단 FAQ 해당 질문으로 딥링크 (운영자 지시 2026-07-06) */
+.fifthLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(74, 48, 32, 0.35);
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.fifthLink:hover {
+  color: #d2691e;
+  text-decoration-color: #d2691e;
 }

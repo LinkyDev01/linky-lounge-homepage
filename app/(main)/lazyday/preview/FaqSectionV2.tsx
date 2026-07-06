@@ -1,6 +1,6 @@
 "use client"
 
-import { useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { ReactNode } from "react"
 import styles from "../FaqSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -112,6 +112,23 @@ export function FaqSectionV2() {
       return next
     })
   }
+
+  // 해시(#gathering 등)로 진입 시 해당 FAQ 항목을 자동으로 열고 스크롤 —
+  // 일정 박스의 '자유 독서모임' 링크가 이 항목을 펼치기 위함 (운영자 지시 2026-07-06)
+  useEffect(() => {
+    const openFromHash = () => {
+      const key = window.location.hash.slice(1)
+      if (key && faqs.some(f => f.key === key)) {
+        setOpenSet(prev => { const n = new Set(prev); n.add(key); return n })
+        requestAnimationFrame(() =>
+          document.getElementById(key)?.scrollIntoView({ behavior: "smooth", block: "start" })
+        )
+      }
+    }
+    openFromHash()
+    window.addEventListener("hashchange", openFromHash)
+    return () => window.removeEventListener("hashchange", openFromHash)
+  }, [])
 
   return (
     <section id="faq" className={styles.section}>

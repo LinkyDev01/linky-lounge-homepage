@@ -58,7 +58,11 @@ export function ScheduleSectionV2() {
               <p className={styles.fifthTitle}><a
                 href="#gathering"
                 className={styles.fifthLink}
-                onClick={() => window.dispatchEvent(new CustomEvent("lazyday:open-faq", { detail: "gathering" }))}
+                onClick={(e) => {
+                  // URL에 #gathering을 남기지 않고(주소 유지) FAQ 열기+스크롤만 — 커스텀 이벤트가 처리
+                  e.preventDefault()
+                  window.dispatchEvent(new CustomEvent("lazyday:open-faq", { detail: "gathering" }))
+                }}
               >자유 독서모임</a></p>
               <p className={styles.fifthMeta}>{SEASON.fifth.label} · {SEASON.fifth.date} · {SEASON.fifth.timeLabel}</p>
             </div>

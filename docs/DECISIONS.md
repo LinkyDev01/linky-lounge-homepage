@@ -10,6 +10,7 @@
 
 | 날짜 | 상태 | 내용 | 근거 (운영자 발화 요지) |
 |---|---|---|---|
+| 2026-07-06 | 확정 | **일정 박스 배경 흰색 + '자유 독서모임' 클릭 시 URL 유지** — ① paperBox 배경 `#fffdf8`→`#ffffff`(오트 배경 위에서 흰 카드로 또렷하게, 노이즈 텍스처는 유지). ② 링크 클릭이 주소창에 `#gathering`을 남기던 것을 `e.preventDefault()`로 막고, 열림·스크롤은 기존 커스텀 이벤트(`lazyday:open-faq`)가 처리 — URL 불변 + FAQ 열림 검증. 실 ScheduleSection·프리뷰 ScheduleSectionV2 쌍 동시 | "일정 박스 안은 흰색으로" / "/#gathering 으로 하기보다 위치만 가고 링크 열리게 url 유지" |
 | 2026-07-06 | 확정 | **섹션 배경 오트 톤 전환 (저대비)** — 팔레트 시안 중 '오트(저대비 베이지)' 채택. 랜딩 교차 쌍을 B `#ede0d0`→`#f0e9e0`, A `#f5ede4`→`#f7f3ee`로(짙은 쪽 밝히고 채도 완화, ΔL 6→4%). 실사이트 8곳(BookSection·FeatureQuietSection·HowToSection·ScheduleSection·FaqSection·ClosingCtaSection·BrandCloseSection·page.module.css heroFade) + 프리뷰 쌍/공유(preview FeatureQuietSection·HowToSectionV2·ScheduleSectionV2·preview.module.css heroSummary/reviews/closingCta). 페이드 3종(heroFade·qtPeekFade·FAQ fade) 동기화. 교차 B/A/B/A/B/A 유지 검증(computed). ⚠ apply·policy·review·admin·고아 섹션은 구 크림 유지(랜딩 밖 — 미전환) | "톤은 오트로 갈게" |
 | 2026-07-06 | 채택완료 | **섹션 배경 팔레트 시안 쇼케이스** (`preview/palette-designs/`) — 저대비 후보 5종(오트·웜 그레이지·세이지·더스티 로즈·미스트 블루) 인터랙티브 비교로 제시 → **'오트' 채택**(위 행 참조). 쇼케이스는 프리뷰에 보존 | "섹션별 교차되는 컬러가 다소 진해" / "지금 팔레트도 대비가 심해서 별로야" |
 | 2026-07-06 | 확정 | **일정 박스 '자유 독서모임' 딥링크 재클릭 보강** — 해시가 이미 #gathering이면 hashchange가 안 떠 재클릭 시 FAQ가 안 열리던 문제. 링크 클릭 시 커스텀 이벤트(`lazyday:open-faq`)를 쏘고 FaqSection이 받아 여는 경로 추가 (ScheduleSection·FaqSection 실·프리뷰 4파일, Schedule은 use client 전환) | "자유 독서모임 클릭하면 faq 대응질문이 바로 열리게 되도록 해" |

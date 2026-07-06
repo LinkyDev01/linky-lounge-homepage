@@ -320,9 +320,9 @@
 }
 
 /* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06).
-   현재 프리뷰(BookSectionV2)에만 부착 — 실사이트(BookSection) 반영은
-   텍스트 보완 후로 보류 (docs/DECISIONS.md 참고). 반영 시 BookSection.tsx의
-   bookQuote/bookParagraph/bookCuratorNote 3곳에 이 클래스를 추가하면 됨. */
+   실사이트 BookSection.tsx의 bookQuote/bookParagraph/bookCuratorNote 3곳에
+   부착됨 (2026-07-06 이식). 프리뷰(BookSectionV2)는 preview.module.css의
+   자체 사본에 같은 조판이 직접 들어 있음. */
 .proseJustify {
   word-break: normal;
   overflow-wrap: break-word;

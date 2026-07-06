@@ -1,3 +1,10 @@
+/* ═══════════════════════════════════════════════════════════
+   일정·장소 — 콰이어트 리스트 (확정 2026-07-06)
+   원본: preview/ScheduleSectionV2.module.css — 값 픽셀 동일 이식.
+   프리뷰 쌍과 드리프트 금지: 한쪽을 고치면 다른 쪽도 같은 값으로.
+   흰 라운딩 박스 제거 → 섹션 배경 위에 테이블 직접, 강조색은 무채로.
+   ═══════════════════════════════════════════════════════════ */
+
 .section {
   background-color: #f5ede4;
   padding: 48px 24px;
@@ -34,17 +41,9 @@
   letter-spacing: -0.025em;
 }
 
-.titleSub {
-  font-size: 16px;
-  font-weight: 500;
-  color: #8a6a50;
-  letter-spacing: 0;
-}
-
 @media (max-width: 480px) {
   .titleRow { gap: 10px; margin-bottom: 28px; }
   .sectionTitle { font-size: 26px; }
-  .titleSub { font-size: 14px; }
 }
 
 .note {
@@ -57,16 +56,12 @@
   flex-shrink: 0;
 }
 
-/* 일정 테이블 박스 */
-.scheduleBox {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 18px 16px;
+/* 일정 테이블 — 박스 없이 섹션 배경 위에 직접 */
+.scheduleWrap {
   margin-bottom: 24px;
-  border: 1px solid #e8dccd;
 }
 
-.scheduleBoxHeader {
+.scheduleHeader {
   font-size: 16px;
   font-weight: 700;
   color: #1a1208;
@@ -94,7 +89,8 @@
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
-  border-bottom: 1.5px solid #d2691e;
+  /* 요일 헤더 밑줄: 주황 1.5px → 무채 헤어라인 1px (운영자 지시 2026-07-06) */
+  border-bottom: 1px solid rgba(74, 58, 42, 0.35);
   padding-bottom: 8px;
   letter-spacing: -0.01em;
   line-height: 1.4;
@@ -108,9 +104,10 @@
 }
 
 .schTdLabel {
+  /* 회차 라벨: 주황 → 무채 보조색 (운영자 지시 2026-07-06) */
   font-size: 13px;
-  font-weight: 700;
-  color: #d2691e;
+  font-weight: 600;
+  color: #8a6a50;
   text-align: left;
   padding-left: 4px;
   letter-spacing: -0.01em;
@@ -121,7 +118,7 @@
   font-weight: 600;
   color: #1a1208;
   font-feature-settings: "tnum";
-  border-top: 1px solid #f0e8df;
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
 }
 
 .scheduleTable thead + tbody tr:first-child .schTdDate,
@@ -132,11 +129,34 @@
 .schTdFifth {
   text-align: left;
   padding-left: 4px;
-  font-size: 12px;
-  font-weight: 700;
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
+}
+
+/* 5회차: 날짜를 1~4회차와 동일한 크기로, 옆에 1부/2부를 작은 2행으로 */
+.fifthRow {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.fifthDate {
+  font-size: 14px;
+  font-weight: 600;
   color: #1a1208;
-  border-top: 1px solid #f0e8df;
-  letter-spacing: -0.01em;
+  font-feature-settings: "tnum";
+  flex-shrink: 0;
+}
+
+.fifthParts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fifthPart {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #8a6a50;
   line-height: 1.4;
 }
 
@@ -161,13 +181,15 @@
 }
 
 .locationLabel {
-  font-size: 22px;
-  font-weight: 800;
-  color: #d2691e;
+  /* "장소" 라벨: 주황 22px → 무채 보조색 13px/700 (운영자 지시 2026-07-06) */
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a6a50;
+  letter-spacing: 0.08em;
   width: 64px;
   flex-shrink: 0;
-  line-height: 1.2;
-  padding-top: 1px;
+  line-height: 1.4;
+  padding-top: 2px;
 }
 
 .locationInfo {

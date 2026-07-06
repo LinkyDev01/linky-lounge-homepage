@@ -10,6 +10,7 @@
 
 | 날짜 | 상태 | 내용 | 근거 (운영자 발화 요지) |
 |---|---|---|---|
+| 2026-07-06 | 확정 | **콰이어트 개편 확정 세트를 실사이트로 이식** ("이식작업 계속해" — 종전 보류 해제): ①모임 소개 `FeatureQuietSection` 실사이트 신설(FeatureBoxSection은 고아 보존) ②진행 순서·일정/장소 원본(HowToSection·ScheduleSection)을 V2 콰이어트 리스트로 교체 ③BookSection 3곳에 종이책 조판(.proseJustify) 부착 ④클로징 CTA `ClosingCtaSection` 신설(FAQ와 BrandClose 사이, 네이버 지도 링크 포함). 프리뷰 대비 렌더 수치 전항목 동일 검증, 배경 교차 유지(A/B/A/B/A/B/A). 실·프리뷰는 별도 사본 쌍 — 드리프트 금지. **모임 소개 텍스트 보완 원고는 여전히 대기** — 원고 도착 시 실·프리뷰 쌍 동시 교체 | "이식작업 계속해" |
 | 2026-07-06 | 확정+보류 | **진행 순서(HowTo)·일정/장소(Schedule)를 '콰이어트 리스트'로 개편 — 프리뷰에만 반영**. HowToSectionV2 신설: 큰 주황 stepNumber(40px) 제거→11px/600 자간 0.22em #a08b70 라벨형 번호를 라벨 위로, 본문 종이책 조판(명조 13px/1.9 justify+음절줄바꿈), 스텝 구분선 rgba(74,58,42,.14) 헤어라인, 메타 "총 3시간 진행" 주황 강조 제거. ScheduleSectionV2 신설: 흰 박스(.scheduleBox) 제거하고 섹션 배경 위에 테이블 직접, 요일 헤더 밑줄 주황→rgba(74,58,42,.35) 1px, 회차 라벨 주황→#8a6a50/600, 행 구분 rgba(74,58,42,.1), 5회차 날짜를 1~4회차와 동일 크기(14px/600)로 키우고 1부/2부 시간을 옆에 10.5px 2행으로, "장소" 라벨 주황 22px→13px/700 #8a6a50. 데이터는 전부 season-config.ts 그대로 사용. 원본 HowToSection·ScheduleSection은 V2가 없어 프리뷰가 직접 import하던 구조라 원본 파일은 손대지 않고 preview 전용 V2를 신설해 교체(원본은 실사이트에 그대로 남음). **실사이트 이식·배포는 보류** | "진행 순서(HowTo)·일정·장소(Schedule) 섹션을 '콰이어트 리스트' 안으로 개편해 프리뷰에만 반영해줘" |
 | 2026-07-06 | 확정 | **모임 소개 본문 폭 350px→320px로 원복** — 텍스트란 확대(350px) 시도를 철회, 콰이어트 원안 폭으로 복귀 (`FeatureQuietSection`·쇼케이스 동기화) | "모바일 기준 본문 폭 320px 복귀해" |
 | 2026-07-06 | 확정 | **책 소개(프리뷰 BookSectionV2) 종이책 조판을 자체 완결형으로 강화** — `preview.module.css`의 bookQuote/bookParagraph/bookCuratorNote 3곳에 justify+음절줄바꿈을 직접 기입(기존엔 BookSection.module.css의 `.proseJustify`를 병기하는 방식이라, 두 CSS 모듈 간 로드 순서에 캐스케이드가 의존하는 취약점이 있었음). 실측 결과 값 자체는 이미 정상(justify/normal)이었으나 순서 의존성 제거로 견고화 | "책소개도 음절단위로 과감히 줄바꿈 끊고 양쪽 정렬해. 지금은 단어 단위로 양쪽 정렬이잖아" |
@@ -79,6 +80,6 @@
 
 ## 대기 중 (운영자 응답 필요)
 
-- 모임 소개: 확정안('①+ 페이드 이어 읽기')이 **프리뷰 랜딩에 고정됨**(`FeatureQuietSection`). 남은 일: ⑴ 운영자 텍스트 보완 원고 대기 ⑵ 원고 교체 후 실사이트 이식·배포 (종이책 조판·클로징 CTA 문구 변경과 함께)
-- 종이책 조판(음절+양쪽 정렬)의 **실사이트 반영 보류 중** — 텍스트 보완 후 배포 예정. 반영 방법: BookSection.tsx의 bookQuote/bookParagraph/bookCuratorNote 3곳에 `styles.proseJustify` 추가 (클래스는 BookSection.module.css에 준비돼 있음)
+- 콰이어트 개편 세트 **이식 완료, main 병합(배포) 승인 대기** — 승인 시 lazyday-deploy 절차로 PR→병합→프로덕션 확인
+- 모임 소개 **텍스트 보완 원고 대기** — 도착 시 실(`FeatureQuietSection`)·프리뷰 쌍 동시 교체
 - 7/16 마감 후 GAS 서버측 접수 차단 가드 — 마감 임박 시 추가 예정

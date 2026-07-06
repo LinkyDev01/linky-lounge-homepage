@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    모임 소개 — 콰이어트 '①+ 페이드 이어 읽기' (확정 2026-07-06)
-   원본: feature-designs-quiet 쇼케이스 개선판 — 값 픽셀 동일 이식.
+   원본: preview/FeatureQuietSection.module.css — 값 픽셀 동일 이식.
+   프리뷰 쌍과 드리프트 금지: 한쪽을 고치면 다른 쪽도 같은 값으로.
    배경 #f5ede4 = 기존 FeatureBoxSection 자리 그대로 (교차 유지).
    ═══════════════════════════════════════════════════════════ */
 
@@ -8,7 +9,7 @@
   background: #f5ede4;
   padding: 64px 24px 72px;
   word-break: keep-all;
-  /* 내비 #feature 앵커 오프셋 — 실사이트 이식본과 동기화 (비시각) */
+  /* 내비 #feature 앵커 오프셋 — 기존 FeatureBoxSection과 동일 (비시각) */
   scroll-margin-top: 52px;
 }
 

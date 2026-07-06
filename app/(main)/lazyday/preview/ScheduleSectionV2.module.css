@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════
-   일정·장소 — '종이 낱장 + 손그림' (운영자 확정 스펙 2026-07-06)
-   프리뷰 전용. 배경 #f5ede4, 패딩 56px 24px 72px.
-   일정표 = 테이프로 붙인 종이 낱장(0.4deg 기울임 + 노이즈 텍스처),
-   장소 = 손그림 화살표 + 펜 동그라미. 실사이트 이식은 별도 승인 대기.
+   일정·장소 — 6b+6c 조합 — 일정 박스는 조판 괘선(6b), 장소란은 손그림(6c) (운영자 확정 2026-07-06)
+   실사이트 쌍(ScheduleSection.module.css)과 드리프트 금지.
+   일정 박스 = 이중 괘선 + 명조 헤더 + 노이즈 텍스처,
+   장소 = 손그림 화살표 + 펜 동그라미 (6c 유지).
    ═══════════════════════════════════════════════════════════ */
 
 .section {
@@ -37,29 +37,27 @@
   letter-spacing: -0.025em;
 }
 
-/* ── 종이 낱장 박스 — 6c: 종이 두께 + 다크 테이프 (운영자 확정 2026-07-06) ── */
+/* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
 .paperBox {
   position: relative;
   background-color: #fffdf8;
   border: 1px solid #e0d2bd;
   border-radius: 0;
-  padding: 18px 16px 14px;
-  transform: rotate(0.2deg);
-  /* 아래 두 단색 레이어 = 겹쳐진 종이 두께, 나머지 = 접지·부유 그림자 */
-  box-shadow: 0 1px 0 #e6d9c4, 0 2px 0 #dcccb2, 0 3px 2px rgba(74, 58, 42, 0.18), 0 12px 22px rgba(74, 58, 42, 0.12);
+  padding: 0 16px 14px;
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.14), 0 6px 14px rgba(74, 58, 42, 0.1);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* 테이프 — 짙은 잉크 톤 워시테이프, 수평 부착 */
-.tape {
-  position: absolute;
-  top: -9px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 72px;
-  height: 18px;
-  background: rgba(74, 58, 42, 0.3);
-  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+/* 6b: 박스 최상단 이중 괘선 — 좌우 풀블리드 (조판 괘선) */
+.ruleThick {
+  height: 3px;
+  background: #1a1208;
+  margin: 0 -16px;
+}
+.ruleThin {
+  height: 1px;
+  background: rgba(26, 18, 8, 0.35);
+  margin: 2px -16px 16px;
 }
 
 /* 박스 머리 */
@@ -72,18 +70,12 @@
 }
 
 .paperTitle {
-  font-size: 15px;
-  font-weight: 700;
+  /* 6b: 명조 헤더 (SUIT 아님, 펜 밑줄 없음) */
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 15.5px;
   color: #1a1208;
   margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.penUnderline {
-  width: 58px;
-  height: 6px;
-  display: block;
-  margin-top: 3px;
 }
 
 .paperPeriod {
@@ -113,8 +105,8 @@
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
-  /* 요일 헤더 밑줄: 주황 1.5px → 무채 헤어라인 1px */
-  border-bottom: 1px solid rgba(74, 58, 42, 0.35);
+  /* 요일 헤더 밑줄 — 잉크 톤 강화 (6b) */
+  border-bottom: 1px solid rgba(26, 18, 8, 0.55);
   padding-bottom: 8px;
   letter-spacing: -0.01em;
   line-height: 1.4;

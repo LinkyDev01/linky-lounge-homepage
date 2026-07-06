@@ -3,12 +3,10 @@ import { SEASON } from "./season-config"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
- * 일정·장소 — '종이 낱장 + 손그림' (운영자 확정 2026-07-06, 6c 물성)
- * 원본: preview/ScheduleSectionV2.tsx (프리뷰 승인본을 픽셀 동일 이식).
- * 프리뷰 쌍과 드리프트 금지 — 한쪽 수정 시 함께.
- *  · 일정표 = 다크 워시테이프로 붙인 종이 낱장 (0.2deg 기울임 + 종이 두께 그림자)
- *  · 박스 머리: "3기 일정" + 펜 밑줄 / 우측 기간(periodLabel)
- *  · 장소: "장소" → 손그림 화살표 → 펜 동그라미 친 "링키라운지"
+ * 일정·장소 — 6b+6c 조합 (운영자 확정 2026-07-06)
+ * 프리뷰 쌍(ScheduleSectionV2)과 드리프트 금지 — 한쪽 수정 시 함께.
+ *  · 일정 박스 = 6b 조판 괘선 (이중 괘선 풀블리드 + 명조 헤더, 테이프·기울기 없음)
+ *  · 장소란 = 6c 손그림 유지 ("장소" → 곡선 화살표 → 펜 동그라미 "링키라운지")
  * 데이터는 전부 season-config 단일 출처.
  */
 export function ScheduleSection() {
@@ -25,14 +23,11 @@ export function ScheduleSection() {
       <FadeUp>
         <div>
           <div className={styles.paperBox}>
-            <span className={styles.tape} aria-hidden />
+            {/* 6b: 박스 최상단 이중 괘선 — 좌우 풀블리드 */}
+            <div className={styles.ruleThick} aria-hidden />
+            <div className={styles.ruleThin} aria-hidden />
             <div className={styles.paperHead}>
-              <div>
-                <p className={styles.paperTitle}>{SEASON.name} 일정</p>
-                <svg viewBox="0 0 60 6" aria-hidden className={styles.penUnderline}>
-                  <path d="M2 4 C 12 1.5, 22 5.5, 32 3.5 S 52 2.5, 58 3.8" fill="none" stroke="#d2691e" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-              </div>
+              <p className={styles.paperTitle}>{SEASON.name} 일정</p>
               <span className={styles.paperPeriod}>{SEASON.periodLabel}</span>
             </div>
             <table className={styles.scheduleTable}>

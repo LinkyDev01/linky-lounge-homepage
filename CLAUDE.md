@@ -27,7 +27,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 
 - **도메인**: `lazyday-bookclub.com` → middleware가 내부 `/lazyday/*`로 rewrite (`middleware.ts`). `/apply/interview`는 `/apply/interview/schedule`로 redirect. `linkylounge.com/lazyday/*`는 북클럽 도메인으로 301. `/lazyday/admin*`은 `lazyday_admin` 쿠키(=ADMIN_SECRET) 필요.
 - **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서(2026-07-03 확정): Hero → **선정도서(BookSection)** → 5회차(FifthSession) → 모임소개(FeatureBox) → 진행방식(HowTo) → 일정(Schedule) → FAQ → BrandClose. About/Closing/Rules/Vibe 섹션은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
-- **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·HowTo·Schedule·Footer는 실사이트 것을 그대로 import (V2 없음).
+- **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·Footer는 실사이트 것을 그대로 import (V2 없음). HowTo·Schedule은 2026-07-06부터 `HowToSectionV2`·`ScheduleSectionV2`(콰이어트 리스트 개편, 각자 전용 module.css, 실사이트 이식 보류 중) — 원본 HowToSection·ScheduleSection은 여전히 V2 없이 실사이트가 직접 쓰던 파일이므로 손대지 말 것.
 - **단일 출처 컨피그** (여기만 고치면 전체 반영):
   - `season-config.ts` — 기수명·기간·마감일(D-day 계산 `daysUntilDeadline`)·가격·요일·회차 일정·장소. **기수 전환 시 이 파일만 수정.**
   - `book-config.ts` — 기수별 책 4권 데이터 (소비자: BookSection, BookSectionV2)
@@ -75,7 +75,8 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 | `NavBar.module.css` | NavBar, preview/NavBarV2 | 실+프리뷰 내비 |
 | `BrandCloseSection.module.css` | BrandCloseSection, preview/ClosingSectionV2 | 실+프리뷰 클로징 |
 | `apply/page.module.css` · `apply/interview/written/page.module.css` · `apply/interview/schedule/page.module.css` | 실 apply 페이지 + preview/apply 대응 페이지 | 신청·서면·전화 실+프리뷰 (주의: `apply/interview/page.module.css`는 소비자 없는 고아 — 공유 아님) |
-| `ScheduleSection`·`HowToSection`·`FifthSessionSection`의 module.css | **V2 없음** — 프리뷰 랜딩이 실사이트 컴포넌트를 직접 import | 수정 = 실사이트 즉시 변경. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS를 새로 만들 것 |
+| `FifthSessionSection`의 module.css | **V2 없음** — 프리뷰 랜딩이 실사이트 컴포넌트를 직접 import | 수정 = 실사이트 즉시 변경. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS를 새로 만들 것 |
+| `HowToSection`·`ScheduleSection`의 module.css | 실사이트 전용(각 원본만) | 2026-07-06부터 프리뷰는 `HowToSectionV2`·`ScheduleSectionV2`(전용 module.css)로 분리됨 — 더 이상 원본을 공유하지 않음. 원본 수정 = 실사이트만 변경(프리뷰 무관) |
 | `lazyday/lounge-info/page.tsx` | **lazyday 밖** `(main)/lounge-info/page.module.css`를 import | 라운지 오시는길과 교차 |
 | `preview/preview.module.css` | 프리뷰 트리 전역 허브 (10개 파일) | 수정 전 import grep 필수 |
 

@@ -1,0 +1,220 @@
+/* ═══════════════════════════════════════════════════════════
+   일정·장소 — 콰이어트 리스트 (확정 2026-07-06)
+   배경·섹션 패딩·제목 괘선·좌정렬 구조는 원본(ScheduleSection) 그대로.
+   흰 라운딩 박스 제거 → 섹션 배경 위에 테이블 직접, 강조색은 무채로.
+   ═══════════════════════════════════════════════════════════ */
+
+.section {
+  background-color: #f5ede4;
+  padding: 48px 24px;
+  word-break: keep-all;
+  scroll-margin-top: 52px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.titleRow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+@media (max-width: 480px) {
+  .titleRow { gap: 10px; margin-bottom: 28px; }
+  .sectionTitle { font-size: 26px; }
+}
+
+.note {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a6a50;
+  margin: 0;
+  line-height: 1.5;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 일정 테이블 — 박스 없이 섹션 배경 위에 직접 */
+.scheduleWrap {
+  margin-bottom: 24px;
+}
+
+.scheduleHeader {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 14px;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
+
+.scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.scheduleTable th,
+.scheduleTable td {
+  padding: 8px 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.schThEmpty { width: 50px; }
+
+.schThDay {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1208;
+  /* 요일 헤더 밑줄: 주황 1.5px → 무채 헤어라인 1px (운영자 지시 2026-07-06) */
+  border-bottom: 1px solid rgba(74, 58, 42, 0.35);
+  padding-bottom: 8px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.schThTime {
+  font-size: 10px;
+  font-weight: 500;
+  color: #8a6a50;
+  letter-spacing: 0;
+}
+
+.schTdLabel {
+  /* 회차 라벨: 주황 → 무채 보조색 (운영자 지시 2026-07-06) */
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a6a50;
+  text-align: left;
+  padding-left: 4px;
+  letter-spacing: -0.01em;
+}
+
+.schTdDate {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1208;
+  font-feature-settings: "tnum";
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
+}
+
+.scheduleTable thead + tbody tr:first-child .schTdDate,
+.scheduleTable thead + tbody tr:first-child .schTdLabel {
+  border-top: none;
+}
+
+.schTdFifth {
+  text-align: left;
+  padding-left: 4px;
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
+}
+
+/* 5회차: 날짜를 1~4회차와 동일한 크기로, 옆에 1부/2부를 작은 2행으로 */
+.fifthRow {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.fifthDate {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1208;
+  font-feature-settings: "tnum";
+  flex-shrink: 0;
+}
+
+.fifthParts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fifthPart {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #8a6a50;
+  line-height: 1.4;
+}
+
+.scheduleNote {
+  font-size: 11px;
+  color: #8a6a50;
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 28px 56px; }
+}
+
+/* 장소 */
+.locationRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 20px 0 4px;
+  border-top: 1px solid #d4bfaa;
+}
+
+.locationLabel {
+  /* "장소" 라벨: 주황 22px → 무채 보조색 13px/700 (운영자 지시 2026-07-06) */
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a6a50;
+  letter-spacing: 0.08em;
+  width: 64px;
+  flex-shrink: 0;
+  line-height: 1.4;
+  padding-top: 2px;
+}
+
+.locationInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.locationName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.4;
+}
+
+.locationSub {
+  font-size: 13px;
+  color: #6a5038;
+  line-height: 1.5;
+}
+
+.locationNote {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8a6a50;
+  line-height: 1.5;
+  margin-top: 2px;
+}

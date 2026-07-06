@@ -1,0 +1,118 @@
+/* ═══════════════════════════════════════════════════════════
+   진행 순서 — 콰이어트 리스트 (확정 2026-07-06)
+   배경·섹션 패딩·제목 괘선·좌정렬 구조는 원본(HowToSection) 그대로.
+   ═══════════════════════════════════════════════════════════ */
+
+.section {
+  background-color: #ede0d0;
+  padding: 48px 24px;
+  word-break: keep-all;
+  scroll-margin-top: 52px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.titleRow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.meta {
+  /* 주황 강조 제거 — 평문 (운영자 지시 2026-07-06) */
+  font-size: 14px;
+  color: #6a5038;
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .titleRow { gap: 14px; margin-bottom: 28px; }
+  .sectionTitle { font-size: 26px; }
+}
+
+/* 타임라인 */
+.timeline {
+  position: relative;
+}
+
+.step {
+  position: relative;
+  padding-bottom: 32px;
+  /* 무채 헤어라인 (기존 주황 tint rgba(210,105,30,.15) 대체) */
+  border-bottom: 1px solid rgba(74, 58, 42, 0.14);
+  margin-bottom: 32px;
+}
+
+.step:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+/* 라벨형 번호 — 40px 강조 숫자 대체, 라벨 위에 배치 */
+.stepNum {
+  display: block;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #a08b70;
+  margin: 0 0 10px;
+}
+
+.stepLabel {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 10px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.stepDesc {
+  /* 종이책 조판 — 명조 + 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06) */
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #6a5038;
+  margin: 0;
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 480px) {
+  .step { padding-bottom: 28px; margin-bottom: 28px; }
+  .stepLabel { font-size: 17px; }
+  .stepDesc { font-size: 13px; }
+}
+
+@media (min-width: 768px) {
+  .section { padding: 28px 56px; }
+}

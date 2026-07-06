@@ -92,7 +92,8 @@
   margin: 0 0 52px;
 }
 .qtChapter {
-  max-width: 320px;
+  /* 모바일 가독 최적화 — 텍스트란 확대 320→360px (운영자 지시 2026-07-06, 랜딩 확정본과 동기화) */
+  max-width: 360px;
   margin: 0 auto;
   text-align: center;
 }

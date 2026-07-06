@@ -97,6 +97,12 @@ const VARIANTS = [
     ref: "레퍼런스: 현행 모임소개의 '첫 카드 펼침' 원칙 + 콰이어트 조판",
     desc: "첫 챕터(이런 분들)는 전문 노출, 나머지 셋은 핵심 문장까지만 + 이어 읽기. 스크롤만 하는 사람도 가장 중요한 '누구와'는 다 읽게 되는 절충안입니다.",
   },
+  {
+    id: "foldfade",
+    name: "①+ 페이드 이어 읽기 (개선판)",
+    ref: "개선: ①의 콰이어트 조판 + 현행 사이트의 페이드+더보기 의도(문장 중간 컷)를 결합",
+    desc: "①의 약점은 닫힌 상태에서 본문의 냄새가 전혀 없다는 것 — 핵심 문장이 결론형이라 '다 읽었다'는 완결감을 주고, 이어 읽을 동기가 생기지 않습니다. 개선판은 본문 첫 두 줄을 보여주다 문장 중간에서 페이드로 잘라, 기존 페이드+더보기가 노리던 궁금증을 콰이어트 조판 위에서 재현합니다. 닫힌 영역 전체가 탭 타깃입니다.",
+  },
 ] as const
 
 type VariantId = (typeof VARIANTS)[number]["id"]
@@ -248,8 +254,53 @@ function FirstOpenVariant() {
   )
 }
 
+/* ①+ 페이드 이어 읽기 — 본문 첫 두 줄을 문장 중간에서 페이드 컷 */
+function FadeChapter({ c, open, onToggle }: { c: Chapter; open: boolean; onToggle: () => void }) {
+  return (
+    <div className={styles.qtChapter}>
+      <p className={styles.qtEyebrow}>{c.eyebrow}</p>
+      <h3 className={styles.qtLabel}>{c.label}</h3>
+      <p className={styles.qtPull}>{c.pull}</p>
+      <div
+        className={`${styles.qtPeek} ${open ? styles.qtPeekOpen : ""}`}
+        onClick={() => { if (!open) onToggle() }}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        onKeyDown={e => { if (e.key === "Enter" && !open) onToggle() }}
+      >
+        <div className={styles.qtBody}>
+          {c.paragraphs.map((p, j) => <p key={j}>{p}</p>)}
+        </div>
+        {c.note && open && <p className={styles.qtNote}>{c.note}</p>}
+        {!open && <div className={styles.qtPeekFade} aria-hidden />}
+      </div>
+      <button className={styles.qtMore} onClick={onToggle} aria-expanded={open}>
+        {open ? "접기" : "이어 읽기"}
+      </button>
+    </div>
+  )
+}
+
+function FoldFadeVariant() {
+  const [open, setOpen] = useState<Set<string>>(new Set())
+  const toggle = (k: string) =>
+    setOpen(prev => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n })
+  return (
+    <div className={styles.demo} data-measure>
+      <h2 className={styles.qtTitle}>모임 소개</h2>
+      {CHAPTERS.map((c, i) => (
+        <div key={c.key}>
+          <FadeChapter c={c} open={open.has(c.key)} onToggle={() => toggle(c.key)} />
+          {i < CHAPTERS.length - 1 && <Divider />}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function FeatureDesignsQuietPage() {
-  const [variant, setVariant] = useState<VariantId>("fold")
+  const [variant, setVariant] = useState<VariantId>("foldfade")
   const meta = VARIANTS.find(v => v.id === variant)!
 
   return (
@@ -284,6 +335,7 @@ export default function FeatureDesignsQuietPage() {
         {variant === "index" && <IndexVariant />}
         {variant === "pager" && <PagerVariant />}
         {variant === "firstopen" && <FirstOpenVariant />}
+        {variant === "foldfade" && <FoldFadeVariant />}
       </div>
     </div>
   )

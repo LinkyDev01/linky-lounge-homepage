@@ -143,43 +143,47 @@
   border-top: none;
 }
 
-/* 7a 별지 — 일정표 아래 짙은 베이지 쪽지, 워시테이프로 살짝 겹쳐 붙음 */
+/* 7a 별지 — 본지 하단에 -4px 살짝 겹쳐 붙은 짙은 베이지 쪽지 (확정 서식 2026-07-06).
+   보더·라운딩 없음(그림자만), 폭 76%로 위계, 쪽지만 -0.8° 기울임.
+   노이즈 텍스처는 본지에만 — 쪽지엔 중복 적용하지 않는다. */
 .fifthNote {
+  width: 76%;
+  margin: -4px auto 0;
   position: relative;
-  margin: -8px 12px 0;
   background: #edddd0;
-  padding: 24px 16px 16px;
+  padding: 16px 14px 14px;
+  box-shadow: 0 2px 6px rgba(74, 58, 42, 0.14);
+  transform: rotate(-0.8deg);
   text-align: center;
-  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.12), 0 6px 14px rgba(74, 58, 42, 0.08);
 }
 
-/* 워시테이프 — 6c 확정 어휘 재사용, 쪽지가 일정표에 붙어 있는 물성 */
+/* 미니 테이프 — 본지 테이프(72×18)보다 작게(위계), 회전 없이 수평 */
 .fifthNoteTape {
   position: absolute;
-  top: -9px;
+  top: -7px;
   left: 50%;
   transform: translateX(-50%);
-  width: 72px;
-  height: 18px;
+  width: 46px;
+  height: 13px;
   background: rgba(74, 58, 42, 0.3);
   box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
   z-index: 2;
 }
 
 .fifthNoteLabel {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   color: #8a6a50;
-  margin: 0 0 6px;
+  margin: 0 0 7px;
 }
 
 .fifthNoteDate {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   color: #1a1208;
   font-feature-settings: "tnum";
-  margin: 0 0 6px;
+  margin: 0 0 5px;
 }
 
 .fifthNoteTime {
@@ -194,7 +198,7 @@
 .scheduleNote {
   font-size: 11px;
   color: #8a6a50;
-  margin: 14px 2px 0;
+  margin: 16px 2px 0;
   text-align: left;
 }
 

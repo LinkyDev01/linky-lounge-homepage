@@ -40,7 +40,7 @@
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
 .paperBox {
   position: relative;
-  background-color: #fffdf8;
+  background-color: #ffffff;
   border: 1px solid #e0d2bd;
   border-radius: 0;
   padding: 0 16px 14px;

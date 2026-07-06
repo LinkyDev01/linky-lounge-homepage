@@ -2,7 +2,6 @@ import styles from "../page.module.css"
 import pstyles from "./preview.module.css"
 import { Footer } from "@/components/footer"
 import { HeroParallax } from "../HeroParallax"
-import { FifthSessionSection } from "../FifthSessionSection"
 import { HowToSectionV2 } from "./HowToSectionV2"
 import { ScheduleSectionV2 } from "./ScheduleSectionV2"
 import { NavBarV2 } from "./NavBarV2"
@@ -39,7 +38,7 @@ export default function PreviewLandingPage() {
         <BookSectionV2 />
         {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
         <ReviewsSection />
-        <FifthSessionSection />
+        {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}
         {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기'로 교체 (2026-07-06 확정) — FeatureBoxSectionV2는 보존 */}
         <FeatureQuietSection />
         {/* 진행 순서·일정/장소: 콰이어트 리스트로 개편 (2026-07-06 확정, 프리뷰 전용) — 원본은 V2 없이 직접 import하던 구조라 신설 */}

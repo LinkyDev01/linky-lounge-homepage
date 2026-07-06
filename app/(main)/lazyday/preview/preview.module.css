@@ -257,7 +257,8 @@
 .closingCta {
   padding: 64px 24px 8px;
   text-align: center;
-  background: #f5ede4;
+  /* 배경 플립 (2026-07-06 교차 재배정) — 실 ClosingCtaSection과 동기화 */
+  background: #ede0d0;
 }
 .closingCtaTitle {
   font-size: 20px;

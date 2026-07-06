@@ -1,5 +1,6 @@
 .section {
-  background-color: #ede0d0;
+  /* 배경 플립 (2026-07-06 교차 재배정) — 실 FAQ·프리뷰 FaqSectionV2 공유 */
+  background-color: #f5ede4;
   padding: 48px 24px 56px;
   word-break: keep-all;
   scroll-margin-top: 52px;
@@ -141,7 +142,7 @@
 
 .fadeBg {
   height: 36px;
-  background: linear-gradient(to bottom, transparent, #ede0d0);
+  background: linear-gradient(to bottom, transparent, #f5ede4);
 }
 
 .moreHint {
@@ -149,7 +150,7 @@
   font-size: 12px;
   font-weight: 600;
   color: #6a4f38;
-  background: #ede0d0;
+  background: #f5ede4;
   padding: 0;
 }
 

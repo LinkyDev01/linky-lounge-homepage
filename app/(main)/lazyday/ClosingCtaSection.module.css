@@ -2,13 +2,14 @@
    클로징 CTA (확정 2026-07-06)
    원본: preview/preview.module.css의 closingCta 블록 — 값 픽셀 동일 이식.
    프리뷰 쌍과 드리프트 금지: 한쪽을 고치면 다른 쪽도 같은 값으로.
-   배경 #f5ede4 = BrandCloseSection과 동일 — 한 섹션처럼 이어짐.
+   배경 #ede0d0 = BrandCloseSection과 동일 — 한 섹션처럼 이어짐 (2026-07-06 플립).
    ═══════════════════════════════════════════════════════════ */
 
 .closingCta {
   padding: 64px 24px 8px;
   text-align: center;
-  background: #f5ede4;
+  /* 배경 플립 (2026-07-06 교차 재배정) */
+  background: #ede0d0;
 }
 .closingCtaTitle {
   font-size: 20px;

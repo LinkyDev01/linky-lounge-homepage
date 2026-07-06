@@ -5,7 +5,8 @@
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  background-color: #ede0d0;
+  /* 배경 플립 (2026-07-06 교차 재배정) */
+  background-color: #f5ede4;
   padding: 56px 24px 64px;
   word-break: keep-all;
   scroll-margin-top: 52px;

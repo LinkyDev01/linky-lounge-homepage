@@ -26,8 +26,8 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 ## 2. 프로젝트 지도
 
 - **도메인**: `lazyday-bookclub.com` → middleware가 내부 `/lazyday/*`로 rewrite (`middleware.ts`). `/apply/interview`는 `/apply/interview/schedule`로 redirect. `linkylounge.com/lazyday/*`는 북클럽 도메인으로 301. `/lazyday/admin*`은 `lazyday_admin` 쿠키(=ADMIN_SECRET) 필요.
-- **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서(2026-07-06 배포): Hero → **선정도서(BookSection, 종이책 조판)** → 5회차(FifthSession) → 모임소개(**FeatureQuietSection** — 콰이어트 페이드 이어 읽기, 보완 원고) → 진행방식(HowTo, 콰이어트 리스트) → 일정·장소(Schedule, **종이 낱장+손그림 6c**) → FAQ → **ClosingCta** → BrandClose. About/Closing/Rules/Vibe/**FeatureBoxSection** 섹션은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
-- **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·Footer는 실사이트 것을 그대로 import (V2 없음). HowTo·Schedule은 2026-07-06부터 `HowToSectionV2`·`ScheduleSectionV2`(콰이어트 리스트 개편, 각자 전용 module.css, 실사이트 이식 보류 중) — 원본 HowToSection·ScheduleSection은 여전히 V2 없이 실사이트가 직접 쓰던 파일이므로 손대지 말 것.
+- **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서·배경(2026-07-06 배포): Hero → **선정도서(A#f5ede4, 종이책 조판)** → 모임소개(B#ede0d0, **FeatureQuietSection** 콰이어트 페이드 이어 읽기) → 진행방식(A, 콰이어트 리스트) → 일정·장소(B, **6b 괘선 박스+7b 점선 5회차+6c 손그림 장소**) → FAQ(A) → **ClosingCta+BrandClose(B)**. 5회차 섹션은 삭제되고 내용은 FAQ 문항으로 이관. About/Closing/Rules/Vibe/**FeatureBoxSection·FifthSessionSection** 은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
+- **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·Footer는 실사이트 것을 그대로 import (V2 없음). HowTo·Schedule·모임소개·클로징CTA는 실↔프리뷰 **분리 사본 쌍** (§4 참조 — 한쪽 수정 시 쌍도 같은 값으로). FifthSession은 섹션 삭제로 실·프리뷰 모두 미렌더(고아 보존).
 - **단일 출처 컨피그** (여기만 고치면 전체 반영):
   - `season-config.ts` — 기수명·기간·마감일(D-day 계산 `daysUntilDeadline`)·가격·요일·회차 일정·장소. **기수 전환 시 이 파일만 수정.**
   - `book-config.ts` — 기수별 책 4권 데이터 (소비자: BookSection, BookSectionV2)

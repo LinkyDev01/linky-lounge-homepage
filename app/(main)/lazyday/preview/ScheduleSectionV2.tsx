@@ -10,8 +10,6 @@ import { FadeUp } from "@/components/animation/FadeUp"
  * 데이터는 전부 season-config 단일 출처.
  */
 export function ScheduleSectionV2() {
-  const fifthParts = SEASON.fifth.timeLabel.split(" · ")
-
   return (
     <section id="schedule" className={styles.section}>
       <FadeUp>
@@ -51,21 +49,15 @@ export function ScheduleSectionV2() {
                     ))}
                   </tr>
                 ))}
-                <tr>
-                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdFifth}>
-                    <div className={styles.fifthRow}>
-                      <span className={styles.fifthDate}>{SEASON.fifth.date}</span>
-                      <div className={styles.fifthParts}>
-                        {fifthParts.map((part, i) => (
-                          <span key={i} className={styles.fifthPart}>{part}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
+          </div>
+          {/* 7a 별지 — "정규 밖의 덤": 짙은 베이지 쪽지가 워시테이프(6c 어휘 재사용)로 살짝 겹쳐 붙음 */}
+          <div className={styles.fifthNote}>
+            <span className={styles.fifthNoteTape} aria-hidden />
+            <p className={styles.fifthNoteLabel}>{SEASON.fifth.label} · 자유 독서모임</p>
+            <p className={styles.fifthNoteDate}>{SEASON.fifth.date}</p>
+            <p className={styles.fifthNoteTime}>{SEASON.fifth.timeLabel}</p>
           </div>
           <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
         </div>

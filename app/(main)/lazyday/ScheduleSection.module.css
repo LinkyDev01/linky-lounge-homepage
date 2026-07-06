@@ -39,6 +39,7 @@
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
 .paperBox {
   position: relative;
+  z-index: 1;
   background-color: #fffdf8;
   border: 1px solid #e0d2bd;
   border-radius: 0;
@@ -141,40 +142,51 @@
   border-top: none;
 }
 
-.schTdFifth {
-  /* 병합 셀 안에서 '날짜+일시' 그룹 전체를 가운데 정렬 */
+/* 7a 별지 — 일정표 아래 짙은 베이지 쪽지, 워시테이프로 살짝 겹쳐 붙음 */
+.fifthNote {
+  position: relative;
+  margin: -8px 12px 0;
+  background: #edddd0;
+  padding: 24px 16px 16px;
   text-align: center;
-  border-top: 1px solid rgba(74, 58, 42, 0.1);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.12), 0 6px 14px rgba(74, 58, 42, 0.08);
 }
 
-/* 5회차: 날짜는 1~4회차와 동일 크기, 옆에 1부/2부 두 줄.
-   그룹은 inline-flex로 셀 중앙, 내부는 좌측 정렬 + 세로 가운데 */
-.fifthRow {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  text-align: left;
+/* 워시테이프 — 6c 확정 어휘 재사용, 쪽지가 일정표에 붙어 있는 물성 */
+.fifthNoteTape {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 18px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+  z-index: 2;
 }
 
-.fifthDate {
-  font-size: 14px;
+.fifthNoteLabel {
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #8a6a50;
+  margin: 0 0 6px;
+}
+
+.fifthNoteDate {
+  font-size: 16px;
+  font-weight: 700;
   color: #1a1208;
   font-feature-settings: "tnum";
-  flex-shrink: 0;
+  margin: 0 0 6px;
 }
 
-.fifthParts {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.fifthPart {
+.fifthNoteTime {
   font-size: 10.5px;
   font-weight: 500;
   color: #8a6a50;
-  line-height: 1.4;
+  font-feature-settings: "tnum";
+  margin: 0;
 }
 
 /* 박스 아래 안내 한 줄 — 왼쪽 정렬 */

@@ -79,15 +79,17 @@
 .qtPeek {
   position: relative;
   overflow: hidden;
-  /* 13px × line-height 2.0 = 26px/줄 — 두 줄 + 세 줄째 걸침 */
+  /* 13px × line-height 2.0 = 26px/줄 — 두 줄 + 세 줄째 걸침.
+     열림 높이는 JS가 실제 콘텐츠 높이로 인라인 지정 (정확한 거리 애니메이션) */
   max-height: 66px;
   cursor: pointer;
-  transition: max-height 0.5s cubic-bezier(0.22, 0.8, 0.36, 1);
+  /* 닫힘: 살짝 빠르게 (운영자 지적 — 닫을 때 느림) */
+  transition: max-height 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
 }
 .qtPeekOpen {
-  max-height: 1200px;
   cursor: default;
-  transition: max-height 0.6s cubic-bezier(0.22, 0.8, 0.36, 1);
+  /* 열림: 본문이 펼쳐지는 모션이 또렷이 보이도록 */
+  transition: max-height 0.5s cubic-bezier(0.22, 0.8, 0.36, 1);
 }
 .qtPeekFade {
   position: absolute;
@@ -97,6 +99,12 @@
   height: 40px;
   background: linear-gradient(to bottom, rgba(245, 237, 228, 0), #f5ede4 92%);
   pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+/* 열림 시 페이드 오버레이는 부드럽게 사라짐 (즉시 제거 대신) */
+.qtPeekFadeHidden {
+  opacity: 0;
 }
 .qtMore {
   display: inline-block;

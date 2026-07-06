@@ -1,22 +1,17 @@
 /* ═══════════════════════════════════════════════════════════
-   일정·장소 — 콰이어트 리스트 (확정 2026-07-06)
+   일정·장소 — '종이 낱장 + 손그림' (운영자 확정 2026-07-06, 6c 물성)
    원본: preview/ScheduleSectionV2.module.css — 값 픽셀 동일 이식.
    프리뷰 쌍과 드리프트 금지: 한쪽을 고치면 다른 쪽도 같은 값으로.
-   흰 라운딩 박스 제거 → 섹션 배경 위에 테이블 직접, 강조색은 무채로.
    ═══════════════════════════════════════════════════════════ */
 
 .section {
   background-color: #f5ede4;
-  padding: 48px 24px;
+  padding: 56px 24px 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
 
 .titleRow {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
   margin: 0 0 28px;
   padding-bottom: 20px;
   position: relative;
@@ -33,7 +28,7 @@
 }
 
 .sectionTitle {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
@@ -41,35 +36,63 @@
   letter-spacing: -0.025em;
 }
 
-@media (max-width: 480px) {
-  .titleRow { gap: 10px; margin-bottom: 28px; }
-  .sectionTitle { font-size: 26px; }
+/* ── 종이 낱장 박스 — 6c: 종이 두께 + 다크 테이프 (운영자 확정 2026-07-06) ── */
+.paperBox {
+  position: relative;
+  background-color: #fffdf8;
+  border: 1px solid #e0d2bd;
+  border-radius: 0;
+  padding: 18px 16px 14px;
+  transform: rotate(0.2deg);
+  /* 아래 두 단색 레이어 = 겹쳐진 종이 두께, 나머지 = 접지·부유 그림자 */
+  box-shadow: 0 1px 0 #e6d9c4, 0 2px 0 #dcccb2, 0 3px 2px rgba(74, 58, 42, 0.18), 0 12px 22px rgba(74, 58, 42, 0.12);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.note {
-  font-size: 12px;
-  font-weight: 500;
-  color: #8a6a50;
+/* 테이프 — 짙은 잉크 톤 워시테이프, 수평 부착 */
+.tape {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 18px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+}
+
+/* 박스 머리 */
+.paperHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.paperTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
   margin: 0;
-  line-height: 1.5;
-  text-align: right;
+  letter-spacing: -0.01em;
+}
+
+.penUnderline {
+  width: 58px;
+  height: 6px;
+  display: block;
+  margin-top: 3px;
+}
+
+.paperPeriod {
+  font-size: 12px;
+  color: #8a6a50;
+  font-feature-settings: "tnum";
   flex-shrink: 0;
 }
 
-/* 일정 테이블 — 박스 없이 섹션 배경 위에 직접 */
-.scheduleWrap {
-  margin-bottom: 24px;
-}
-
-.scheduleHeader {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1208;
-  margin: 0 0 14px;
-  letter-spacing: -0.01em;
-  text-align: left;
-}
-
+/* ── 표 ── */
 .scheduleTable {
   width: 100%;
   border-collapse: collapse;
@@ -89,7 +112,7 @@
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
-  /* 요일 헤더 밑줄: 주황 1.5px → 무채 헤어라인 1px (운영자 지시 2026-07-06) */
+  /* 요일 헤더 밑줄: 주황 1.5px → 무채 헤어라인 1px */
   border-bottom: 1px solid rgba(74, 58, 42, 0.35);
   padding-bottom: 8px;
   letter-spacing: -0.01em;
@@ -104,7 +127,7 @@
 }
 
 .schTdLabel {
-  /* 회차 라벨: 주황 → 무채 보조색 (운영자 지시 2026-07-06) */
+  /* 회차 라벨: 주황 → 무채 보조색 */
   font-size: 13px;
   font-weight: 600;
   color: #8a6a50;
@@ -127,16 +150,15 @@
 }
 
 .schTdFifth {
-  /* 병합 셀 안에서 '날짜+일시' 그룹 전체를 가운데 정렬 (운영자 지시 2026-07-06) */
+  /* 병합 셀 안에서 '날짜+일시' 그룹 전체를 가운데 정렬 */
   text-align: center;
   border-top: 1px solid rgba(74, 58, 42, 0.1);
 }
 
-/* 5회차: 날짜를 1~4회차와 동일한 크기로, 옆에 1부/2부를 작은 2행으로.
-   그룹은 inline-flex로 감싸 셀 중앙에 놓고, 그룹 내부는 좌측 정렬 유지 */
+/* 5회차: 날짜는 1~4회차와 동일 크기, 옆에 1부/2부 두 줄.
+   그룹은 inline-flex로 셀 중앙, 내부는 좌측 정렬 + 세로 가운데 */
 .fifthRow {
   display: inline-flex;
-  /* 날짜(1행)를 시간(2행) 블록 대비 세로 중간정렬 (운영자 지시 2026-07-06) */
   align-items: center;
   gap: 14px;
   text-align: left;
@@ -163,36 +185,39 @@
   line-height: 1.4;
 }
 
+/* 박스 아래 안내 한 줄 — 왼쪽 정렬 */
 .scheduleNote {
   font-size: 11px;
   color: #8a6a50;
-  margin: 12px 0 0;
-  text-align: center;
+  margin: 14px 2px 0;
+  text-align: left;
 }
 
-@media (min-width: 768px) {
-  .section { padding: 28px 56px; }
-}
-
-/* 장소 */
+/* ── 장소 ── */
 .locationRow {
   display: flex;
   align-items: flex-start;
-  gap: 24px;
-  padding: 20px 0 4px;
-  border-top: 1px solid #d4bfaa;
+  gap: 12px;
+  padding-top: 20px;
+  margin-top: 28px;
+  border-top: 1px solid rgba(74, 58, 42, 0.2);
 }
 
 .locationLabel {
-  /* "장소" 라벨: 주황 22px → 무채 보조색 13px/700 (운영자 지시 2026-07-06) */
   font-size: 13px;
   font-weight: 700;
   color: #8a6a50;
   letter-spacing: 0.08em;
-  width: 64px;
   flex-shrink: 0;
   line-height: 1.4;
   padding-top: 2px;
+}
+
+.handArrow {
+  width: 32px;
+  height: 17px;
+  margin-top: 4px;
+  flex-shrink: 0;
 }
 
 .locationInfo {
@@ -200,6 +225,13 @@
   flex-direction: column;
   gap: 4px;
   padding-top: 2px;
+  align-items: flex-start;
+}
+
+/* 펜 동그라미를 두르기 위한 relative 래퍼 — 좌측 정렬 유지 */
+.locationNameWrap {
+  position: relative;
+  display: inline-block;
 }
 
 .locationName {
@@ -207,6 +239,16 @@
   font-weight: 700;
   color: #1a1208;
   line-height: 1.4;
+}
+
+.penCircle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 94px;
+  height: 32px;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  pointer-events: none;
 }
 
 .locationSub {
@@ -218,7 +260,7 @@
 .locationNote {
   font-size: 11px;
   font-weight: 500;
-  color: #8a6a50;
+  color: #8a7660;
   line-height: 1.5;
   margin-top: 2px;
 }

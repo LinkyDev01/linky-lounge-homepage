@@ -37,28 +37,29 @@
   letter-spacing: -0.025em;
 }
 
-/* ── 종이 낱장 박스 ── */
+/* ── 종이 낱장 박스 — 6c: 종이 두께 + 다크 테이프 (운영자 확정 2026-07-06) ── */
 .paperBox {
   position: relative;
   background-color: #fffdf8;
-  border: 1px solid #e5d9c8;
+  border: 1px solid #e0d2bd;
   border-radius: 0;
   padding: 18px 16px 14px;
-  transform: rotate(0.4deg);
-  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.12), 0 10px 22px rgba(74, 58, 42, 0.12);
+  transform: rotate(0.2deg);
+  /* 아래 두 단색 레이어 = 겹쳐진 종이 두께, 나머지 = 접지·부유 그림자 */
+  box-shadow: 0 1px 0 #e6d9c4, 0 2px 0 #dcccb2, 0 3px 2px rgba(74, 58, 42, 0.18), 0 12px 22px rgba(74, 58, 42, 0.12);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* 테이프 */
+/* 테이프 — 짙은 잉크 톤 워시테이프, 수평 부착 */
 .tape {
   position: absolute;
   top: -9px;
   left: 50%;
-  transform: translateX(-50%) rotate(-2.5deg);
-  width: 66px;
-  height: 17px;
-  background: rgba(228, 214, 193, 0.75);
-  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.18);
+  transform: translateX(-50%);
+  width: 72px;
+  height: 18px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
 }
 
 /* 박스 머리 */

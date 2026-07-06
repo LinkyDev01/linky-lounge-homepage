@@ -1,13 +1,12 @@
 /* ═══════════════════════════════════════════════════════════
-   진행 순서 — 콰이어트 리스트 (확정 2026-07-06)
+   진행 순서 — 콰이어트 리스트 (운영자 확정 스펙 2026-07-06)
    원본: preview/HowToSectionV2.module.css — 값 픽셀 동일 이식.
    프리뷰 쌍과 드리프트 금지: 한쪽을 고치면 다른 쪽도 같은 값으로.
-   배경·섹션 패딩·제목 괘선·좌정렬 구조는 종전 그대로.
    ═══════════════════════════════════════════════════════════ */
 
 .section {
   background-color: #ede0d0;
-  padding: 48px 24px;
+  padding: 56px 24px 64px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
@@ -33,7 +32,7 @@
 }
 
 .sectionTitle {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
@@ -42,18 +41,13 @@
 }
 
 .meta {
-  /* 주황 강조 제거 — 평문 (운영자 지시 2026-07-06) */
-  font-size: 14px;
+  /* 주황 강조 없는 평문 (운영자 확정 스펙) */
+  font-size: 13px;
   color: #6a5038;
   margin: 0;
   font-weight: 500;
   text-align: right;
   flex-shrink: 0;
-}
-
-@media (max-width: 480px) {
-  .titleRow { gap: 14px; margin-bottom: 28px; }
-  .sectionTitle { font-size: 26px; }
 }
 
 /* 타임라인 */
@@ -63,10 +57,10 @@
 
 .step {
   position: relative;
-  padding-bottom: 32px;
-  /* 무채 헤어라인 (기존 주황 tint rgba(210,105,30,.15) 대체) */
+  padding-bottom: 28px;
+  /* 무채 헤어라인 */
   border-bottom: 1px solid rgba(74, 58, 42, 0.14);
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .step:last-child {
@@ -75,7 +69,7 @@
   border-bottom: none;
 }
 
-/* 라벨형 번호 — 40px 강조 숫자 대체, 라벨 위에 배치 */
+/* 라벨형 번호 — 큰 주황 숫자(40px) 대체, 라벨 위에 배치 */
 .stepNum {
   display: block;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
@@ -88,7 +82,7 @@
 
 .stepLabel {
   display: block;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: #1a1208;
   margin: 0 0 10px;
@@ -97,7 +91,7 @@
 }
 
 .stepDesc {
-  /* 종이책 조판 — 명조 + 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06) */
+  /* 종이책 조판 — 명조 + 음절 단위 줄바꿈 + 양쪽 정렬 */
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 500;
   font-size: 13px;
@@ -107,14 +101,4 @@
   text-align: justify;
   word-break: normal;
   overflow-wrap: break-word;
-}
-
-@media (max-width: 480px) {
-  .step { padding-bottom: 28px; margin-bottom: 28px; }
-  .stepLabel { font-size: 17px; }
-  .stepDesc { font-size: 13px; }
-}
-
-@media (min-width: 768px) {
-  .section { padding: 28px 56px; }
 }

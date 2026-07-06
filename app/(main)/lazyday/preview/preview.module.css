@@ -267,10 +267,19 @@
   word-break: keep-all;
 }
 .closingCtaSub {
-  font-size: 14px;
+  /* 두 줄 보조 서술 구조 (운영자 지시 2026-07-06) — 제목보다 작게 */
+  font-size: 12.5px;
+  line-height: 1.9;
   color: #6b5a48;
   margin: 0 0 20px;
 }
+.closingCtaLink {
+  color: #6b5a48;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(138, 106, 80, 0.5);
+}
+.closingCtaLink:hover { color: #d2691e; text-decoration-color: #d2691e; }
 .nextSeasonBox {
   max-width: 400px;
   margin: 28px auto 0;

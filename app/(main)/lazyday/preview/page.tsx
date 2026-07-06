@@ -7,7 +7,7 @@ import { HowToSection } from "../HowToSection"
 import { ScheduleSection } from "../ScheduleSection"
 import { NavBarV2 } from "./NavBarV2"
 import { HeroSummary } from "./HeroSummary"
-import { FeatureBoxSectionV2 } from "./FeatureBoxSectionV2"
+import { FeatureQuietSection } from "./FeatureQuietSection"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSectionV2 } from "./BookSectionV2"
 import { FaqSectionV2 } from "./FaqSectionV2"
@@ -40,7 +40,8 @@ export default function PreviewLandingPage() {
         {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
         <ReviewsSection />
         <FifthSessionSection />
-        <FeatureBoxSectionV2 />
+        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기'로 교체 (2026-07-06 확정) — FeatureBoxSectionV2는 보존 */}
+        <FeatureQuietSection />
         <HowToSection />
         <ScheduleSection />
         <FaqSectionV2 />

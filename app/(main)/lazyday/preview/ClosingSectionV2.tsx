@@ -21,15 +21,25 @@ export function ClosingSectionV2() {
       <div className={pstyles.closingCta}>
         <p className={pstyles.closingCtaTitle}>
           {d === null
-            ? `${PREVIEW.season} 모집 중이에요`
+            ? `${PREVIEW.season} 모집 중입니다.`
             : d < 0
-            ? `${PREVIEW.season} 모집이 마감되었어요`
+            ? `${PREVIEW.season} 모집이 마감되었습니다.`
             : d === 0
-            ? `${PREVIEW.season} 모집은 오늘 마감돼요`
-            : `${PREVIEW.season} 모집은 ${d}일 뒤 마감돼요`}
+            ? `${PREVIEW.season} 모집은 오늘 마감됩니다.`
+            : `${PREVIEW.season} 모집은 ${d}일 뒤 마감됩니다.`}
         </p>
         <p className={pstyles.closingCtaSub}>
-          {PREVIEW.periodLabel} · 정규 4회 + 자유모임 1회 · 사당 링키라운지
+          ({PREVIEW.periodLabel}) 정규 독서모임 4회 + 자유 독서모임 1회
+          <br />
+          서울 사당역 부근 ·{" "}
+          <a
+            href="https://naver.me/FLebi2a9"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={pstyles.closingCtaLink}
+          >
+            링키라운지
+          </a>
         </p>
       </div>
 

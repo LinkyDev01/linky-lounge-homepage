@@ -47,7 +47,7 @@
 /* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ──
    섹션 색 교차(포스터 아래 밴드는 짙은 베이지)로 아래 선정도서(#f5ede4)와 대비 */
 .heroSummary {
-  background: #ede0d0;
+  background: #f5ede4;
   padding: 28px 24px 10px;
   text-align: center;
 }
@@ -118,7 +118,7 @@
 /* ── 후기 섹션 ───────────────────────────────────────────── */
 .reviewsSection {
   padding: 72px 24px;
-  background: #f5ede4;
+  background: #ede0d0;
 }
 .reviewsInner { max-width: 560px; margin: 0 auto; }
 .reviewsLead {
@@ -257,8 +257,8 @@
 .closingCta {
   padding: 64px 24px 8px;
   text-align: center;
-  /* 배경 플립 (2026-07-06 교차 재배정) — 실 ClosingCtaSection과 동기화 */
-  background: #ede0d0;
+  /* 배경 플립 (2026-07-06 재반전 — 더 진한 베이지부터 교차) — 실 ClosingCtaSection과 동기화 */
+  background: #f5ede4;
 }
 .closingCtaTitle {
   font-size: 20px;

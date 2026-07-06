@@ -53,7 +53,7 @@ export function ScheduleSectionV2() {
             </table>
             {/* 7b: 5회차 — 표 아래 점선 블록, 명조 전환이 '다른 결'의 핵심. 박스 밖으로 빼지 말 것 */}
             <div className={styles.fifthBlock}>
-              <p className={styles.fifthTitle}>자유 독서모임</p>
+              <p className={styles.fifthTitle}><a href="#gathering" className={styles.fifthLink}>자유 독서모임</a></p>
               <p className={styles.fifthMeta}>{SEASON.fifth.label} · {SEASON.fifth.date} · {SEASON.fifth.timeLabel}</p>
             </div>
           </div>

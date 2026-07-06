@@ -26,8 +26,8 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 ## 2. 프로젝트 지도
 
 - **도메인**: `lazyday-bookclub.com` → middleware가 내부 `/lazyday/*`로 rewrite (`middleware.ts`). `/apply/interview`는 `/apply/interview/schedule`로 redirect. `linkylounge.com/lazyday/*`는 북클럽 도메인으로 301. `/lazyday/admin*`은 `lazyday_admin` 쿠키(=ADMIN_SECRET) 필요.
-- **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서(2026-07-03 확정): Hero → **선정도서(BookSection)** → 5회차(FifthSession) → 모임소개(FeatureBox) → 진행방식(HowTo) → 일정(Schedule) → FAQ → BrandClose. About/Closing/Rules/Vibe 섹션은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
-- **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·HowTo·Schedule·Footer는 실사이트 것을 그대로 import (V2 없음).
+- **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서(2026-07-06 배포): Hero → **선정도서(BookSection, 종이책 조판)** → 5회차(FifthSession) → 모임소개(**FeatureQuietSection** — 콰이어트 페이드 이어 읽기, 보완 원고) → 진행방식(HowTo, 콰이어트 리스트) → 일정·장소(Schedule, **종이 낱장+손그림 6c**) → FAQ → **ClosingCta** → BrandClose. About/Closing/Rules/Vibe/**FeatureBoxSection** 섹션은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
+- **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·Footer는 실사이트 것을 그대로 import (V2 없음). HowTo·Schedule은 2026-07-06부터 `HowToSectionV2`·`ScheduleSectionV2`(콰이어트 리스트 개편, 각자 전용 module.css, 실사이트 이식 보류 중) — 원본 HowToSection·ScheduleSection은 여전히 V2 없이 실사이트가 직접 쓰던 파일이므로 손대지 말 것.
 - **단일 출처 컨피그** (여기만 고치면 전체 반영):
   - `season-config.ts` — 기수명·기간·마감일(D-day 계산 `daysUntilDeadline`)·가격·요일·회차 일정·장소. **기수 전환 시 이 파일만 수정.**
   - `book-config.ts` — 기수별 책 4권 데이터 (소비자: BookSection, BookSectionV2)
@@ -70,12 +70,13 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 |---|---|---|
 | `page.module.css` (lazyday 루트) | page, HeroParallax, sticky-apply-button, apply-button, preview/page, StickyApplyButtonV2 **(6곳)** | 실+프리뷰 랜딩·히어로·CTA 동시 |
 | `FaqSection.module.css` | FaqSection, preview/FaqSectionV2, preview/ReviewsSection **(3곳)** | **클래스 파티션 주의**: `line*` = 실 FAQ A안 전용 / `.answer`·`.peek*`·`.fade*`·`.moreHint` = 프리뷰 FaqSectionV2 전용(구형, 삭제 금지) / `titleRow`·`sectionTitle` = 셋 다 공유 |
-| `BookSection.module.css` | BookSection, preview/BookSectionV2 | 실+프리뷰 선정도서 |
+| `BookSection.module.css` | BookSection, preview/BookSectionV2 | 실+프리뷰 선정도서. **주의**: V2는 이 파일(`bstyles`)과 `preview.module.css`(`styles`)를 둘 다 import — 명조 본문(bookQuote·bookParagraph·bookCuratorNote)은 preview.module.css의 **자체 사본**을 쓴다. 한쪽만 바꿀 땐 어느 모듈의 클래스인지 grep으로 먼저 확인 |
 | `FeatureBoxSection.module.css` | FeatureBoxSection, preview/FeatureBoxSectionV2 | 실+프리뷰 모임소개 |
 | `NavBar.module.css` | NavBar, preview/NavBarV2 | 실+프리뷰 내비 |
 | `BrandCloseSection.module.css` | BrandCloseSection, preview/ClosingSectionV2 | 실+프리뷰 클로징 |
 | `apply/page.module.css` · `apply/interview/written/page.module.css` · `apply/interview/schedule/page.module.css` | 실 apply 페이지 + preview/apply 대응 페이지 | 신청·서면·전화 실+프리뷰 (주의: `apply/interview/page.module.css`는 소비자 없는 고아 — 공유 아님) |
-| `ScheduleSection`·`HowToSection`·`FifthSessionSection`의 module.css | **V2 없음** — 프리뷰 랜딩이 실사이트 컴포넌트를 직접 import | 수정 = 실사이트 즉시 변경. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS를 새로 만들 것 |
+| `FifthSessionSection`의 module.css | **V2 없음** — 프리뷰 랜딩이 실사이트 컴포넌트를 직접 import | 수정 = 실사이트 즉시 변경. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS를 새로 만들 것 |
+| `HowToSection`·`ScheduleSection`·`FeatureQuietSection`·`ClosingCtaSection` (실) ↔ `HowToSectionV2`·`ScheduleSectionV2`·`preview/FeatureQuietSection`·`ClosingSectionV2` (프리뷰) | **분리된 파일 쌍** (2026-07-06 배포) | 실·프리뷰가 같은 디자인의 **별도 사본** — 한쪽 수정 시 반드시 쌍도 같은 값으로 (TSX 쌍 동기화 원칙). CSS import 공유 없음 |
 | `lazyday/lounge-info/page.tsx` | **lazyday 밖** `(main)/lounge-info/page.module.css`를 import | 라운지 오시는길과 교차 |
 | `preview/preview.module.css` | 프리뷰 트리 전역 허브 (10개 파일) | 수정 전 import grep 필수 |
 

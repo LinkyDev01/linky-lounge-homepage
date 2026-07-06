@@ -11,7 +11,8 @@ import { ScheduleSection } from "./ScheduleSection"
 import { BookSection } from "./BookSection"
 import { FifthSessionSection } from "./FifthSessionSection"
 import { FaqSection } from "./FaqSection"
-import { FeatureBoxSection } from "./FeatureBoxSection"
+import { FeatureQuietSection } from "./FeatureQuietSection"
+import { ClosingCtaSection } from "./ClosingCtaSection"
 import { BrandCloseSection } from "./BrandCloseSection"
 
 export const metadata: Metadata = {
@@ -35,10 +36,12 @@ export default function StudyForeignPage() {
         <HeroParallax />
         <BookSection />
         <FifthSessionSection />
-        <FeatureBoxSection />
+        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기' + 보완 원고 (2026-07-06 배포 승인) — FeatureBoxSection은 고아 보존 */}
+        <FeatureQuietSection />
         <HowToSection />
         <ScheduleSection />
         <FaqSection />
+        <ClosingCtaSection />
         <BrandCloseSection />
       </main>
 

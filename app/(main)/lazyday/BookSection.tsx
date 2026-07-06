@@ -185,16 +185,17 @@ export function BookSection() {
                     </div>
                   </div>
 
+                  {/* proseJustify: 종이책 조판(음절 줄바꿈+양쪽 정렬) — 운영자 확정 2026-07-06 이식 */}
                   {b.quotes.map((q, j) => (
-                    <blockquote key={j} className={styles.bookQuote}>{q}</blockquote>
+                    <blockquote key={j} className={`${styles.bookQuote} ${styles.proseJustify}`}>{q}</blockquote>
                   ))}
                   {b.paragraphs.map((p, j) => (
-                    <p key={j} className={styles.bookParagraph}>{p}</p>
+                    <p key={j} className={`${styles.bookParagraph} ${styles.proseJustify}`}>{p}</p>
                   ))}
                   {b.curatorNote && (
                     <>
                       <span className={styles.bookCuratorLabel}>이 책을 고른 이유</span>
-                      <p className={styles.bookCuratorNote}>{b.curatorNote}</p>
+                      <p className={`${styles.bookCuratorNote} ${styles.proseJustify}`}>{b.curatorNote}</p>
                     </>
                   )}
                 </article>

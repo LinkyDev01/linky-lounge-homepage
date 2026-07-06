@@ -1,0 +1,256 @@
+/* ═══════════════════════════════════════════════════════════
+   모임 소개 시안 쇼케이스 3차 — 콰이어트 에디토리얼 확장
+   ⓪원안(풀 노출) ①이어 읽기 ②인덱스 ③페이지 넘기기 ④첫 챕터 개방
+   조판은 2차 콰이어트(이솝/더 로우 결)를 그대로 계승, 길이 관리만 분기
+   ═══════════════════════════════════════════════════════════ */
+
+.page {
+  min-height: 100vh;
+  background: #ede0d0;
+  padding: 58px 0 96px;
+  word-break: keep-all;
+}
+.frame {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.pageTitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 24px 0 6px;
+  letter-spacing: -0.02em;
+}
+.pageSub {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #7a6450;
+  margin: 0 0 20px;
+}
+
+/* 시안 전환 스위처 (기존 쇼케이스와 동일 문법) */
+.switcher {
+  position: sticky;
+  top: 34px;
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px 24px;
+  margin: 0 -24px 18px;
+  background: rgba(237, 224, 208, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(74, 58, 42, 0.12);
+}
+.switcher::-webkit-scrollbar { display: none; }
+.switchBtn {
+  flex-shrink: 0;
+  border: 1px solid #cdbca6;
+  background: #fffdf8;
+  color: #6b5a48;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.switchBtnActive {
+  background: #4a3a2a;
+  border-color: #4a3a2a;
+  color: #fffdf8;
+}
+.variantMeta {
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 0 0 26px;
+}
+.variantName { font-size: 15px; font-weight: 800; color: #1a1208; margin: 0 0 4px; }
+.variantRef  { font-size: 12px; color: #b8571a; font-weight: 700; margin: 0 0 6px; letter-spacing: 0.02em; }
+.variantDesc { font-size: 13px; line-height: 1.7; color: #6b5a48; margin: 0; }
+
+/* 시안 프레임 — 실사이트 모임소개 배경(#f5ede4) 재현 */
+.demo {
+  background: #f5ede4;
+  margin: 0 -24px;
+  padding: 64px 24px 72px;
+}
+
+/* ═══ 콰이어트 공통 조판 (2차 쇼케이스 계승) ═══ */
+.qtTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1208;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0 0 52px;
+}
+.qtChapter {
+  /* 본문 폭 320px 복귀 (운영자 지시 2026-07-06, 랜딩 확정본과 동기화) */
+  max-width: 320px;
+  margin: 0 auto;
+  text-align: center;
+}
+.qtEyebrow {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: #a08b70;
+  margin: 0 0 14px;
+}
+.qtLabel {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  letter-spacing: -0.01em;
+}
+.qtPull {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #4a3020;
+  margin: 0 0 22px;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.qtBody {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 2.0;
+  color: #6a5038;
+  /* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06) */
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+.qtBody p { margin: 0 0 14px; }
+.qtBody p:last-child { margin-bottom: 0; }
+.qtBody strong { color: #4a3020; font-weight: 700; }
+.qtNote { font-size: 11px; color: #9a9590; margin: 14px 0 0; }
+.qtDivider {
+  font-size: 15px;
+  color: #a08b70;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ═══ ①④ 이어 읽기 — 본문 접힘 ═══ */
+.qtFold {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.qtFoldOpen { grid-template-rows: 1fr; }
+.qtFoldInner { overflow: hidden; }
+.qtFoldInner .qtBody { padding-bottom: 4px; }
+.qtMore {
+  display: inline-block;
+  margin-top: 14px;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  cursor: pointer;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #8a6a50;
+  border-bottom: 1px solid rgba(138, 106, 80, 0.45);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.qtMore:hover { color: #d2691e; border-color: #d2691e; }
+
+/* ═══ ①+ 페이드 이어 읽기 — 본문 두 줄 노출 후 문장 중간 페이드 컷 ═══ */
+.qtPeek {
+  position: relative;
+  overflow: hidden;
+  /* 13px × line-height 2.0 = 26px/줄 — 두 줄 + 세 줄째 걸침 */
+  max-height: 66px;
+  cursor: pointer;
+  transition: max-height 0.5s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.qtPeekOpen {
+  max-height: 1200px;
+  cursor: default;
+  transition: max-height 0.6s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.qtPeekFade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(245, 237, 228, 0), #f5ede4 92%);
+  pointer-events: none;
+}
+.qiIndex {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: -18px 0 44px;
+  flex-wrap: wrap;
+}
+.qiTab {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: #a08b70;
+  border-bottom: 1px solid transparent;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.qiTab:hover { color: #8a6a50; }
+.qiTabActive {
+  color: #1a1208;
+  border-bottom-color: #d2691e;
+}
+.qiPanel { animation: qFade 0.4s ease; }
+@keyframes qFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ═══ ③ 페이지 넘기기 ═══ */
+.qpNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 44px;
+}
+.qpArrow {
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-size: 22px;
+  line-height: 1;
+  color: #8a6a50;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+.qpArrow:hover:not(:disabled) { color: #d2691e; }
+.qpArrow:disabled { opacity: 0.25; cursor: default; }
+.qpCount {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: #8a6a50;
+}
+.qpCountSep { color: #cdbca6; margin: 0 2px; }

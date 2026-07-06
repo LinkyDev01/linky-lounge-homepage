@@ -1,17 +1,16 @@
-import styles from "./ScheduleSection.module.css"
-import { SEASON } from "./season-config"
+import styles from "./ScheduleSectionV2.module.css"
+import { SEASON } from "../season-config"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
- * 일정·장소 — '종이 낱장 + 손그림' (운영자 확정 2026-07-06, 6c 물성)
- * 원본: preview/ScheduleSectionV2.tsx (프리뷰 승인본을 픽셀 동일 이식).
- * 프리뷰 쌍과 드리프트 금지 — 한쪽 수정 시 함께.
- *  · 일정표 = 다크 워시테이프로 붙인 종이 낱장 (0.2deg 기울임 + 종이 두께 그림자)
+ * 일정·장소 — '종이 낱장 + 손그림' (운영자 확정 스펙 2026-07-06)
+ * 프리뷰 전용. 실사이트 이식은 별도 승인 대기 (DECISIONS.md).
+ *  · 일정표를 테이프로 붙인 종이 낱장(살짝 기울임 + 노이즈 텍스처)으로
  *  · 박스 머리: "3기 일정" + 펜 밑줄 / 우측 기간(periodLabel)
  *  · 장소: "장소" → 손그림 화살표 → 펜 동그라미 친 "링키라운지"
  * 데이터는 전부 season-config 단일 출처.
  */
-export function ScheduleSection() {
+export function ScheduleSectionV2() {
   const fifthParts = SEASON.fifth.timeLabel.split(" · ")
 
   return (

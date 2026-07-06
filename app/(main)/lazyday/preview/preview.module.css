@@ -267,10 +267,19 @@
   word-break: keep-all;
 }
 .closingCtaSub {
-  font-size: 14px;
+  /* 두 줄 보조 서술 구조 (운영자 지시 2026-07-06) — 제목보다 작게 */
+  font-size: 12.5px;
+  line-height: 1.9;
   color: #6b5a48;
   margin: 0 0 20px;
 }
+.closingCtaLink {
+  color: #6b5a48;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(138, 106, 80, 0.5);
+}
+.closingCtaLink:hover { color: #d2691e; text-decoration-color: #d2691e; }
 .nextSeasonBox {
   max-width: 400px;
   margin: 28px auto 0;
@@ -679,7 +688,11 @@
   margin: 4px 0 0;
 }
 /* 본문: Noto Serif KR medium, 크기·행간은 모임소개 본문(13px/1.85)과 동일.
-   3기부터 인용문이 없어 인용구 세로선 서식 제거 — 첫 문단도 일반 텍스트로 */
+   3기부터 인용문이 없어 인용구 세로선 서식 제거 — 첫 문단도 일반 텍스트로.
+   종이책 조판(음절 단위 줄바꿈 + 양쪽 정렬, 운영자 확정 2026-07-06) —
+   BookSectionV2에서 bstyles.proseJustify를 함께 붙이지만, 이 파일이
+   BookSection.module.css보다 나중에 로드되면 캐스케이드 순서상 여기
+   word-break가 이겨버리는 취약점이 있어 이 파일 자체에도 직접 반영. */
 .bookQuote {
   margin: 18px 0 0;
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
@@ -687,8 +700,9 @@
   font-size: 13px;
   line-height: 1.85;
   color: #4a3020;
-  word-break: keep-all;
-  text-wrap: pretty;
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 .bookParagraph {
   margin: 14px 0 0;
@@ -697,8 +711,9 @@
   font-size: 13px;
   line-height: 1.85;
   color: #4a3020;
-  word-break: keep-all;
-  text-wrap: pretty;
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 .bookCuratorLabel {
   display: block;
@@ -715,7 +730,8 @@
   font-size: 13px;
   line-height: 1.85;
   color: #4a3020;
-  word-break: keep-all;
-  text-wrap: pretty;
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 .bookDetailCover { width: 84px; height: 126px; }

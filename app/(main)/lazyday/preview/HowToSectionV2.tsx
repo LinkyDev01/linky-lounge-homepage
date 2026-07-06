@@ -1,11 +1,16 @@
-import styles from "./HowToSection.module.css"
+import styles from "./HowToSectionV2.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
- * 진행 순서 — 콰이어트 리스트 (운영자 확정 2026-07-06)
- * 원본: preview/HowToSectionV2.tsx (프리뷰 승인본을 픽셀 동일 이식).
- * 큰 주황 stepNumber 대신 라벨형 번호(11px, 자간 0.22em) + 본문 종이책 조판.
- * 프리뷰 쌍(HowToSectionV2)과 드리프트 금지 — 한쪽 수정 시 함께.
+ * 진행 순서 — 콰이어트 리스트 (운영자 지시 2026-07-06)
+ * 원본(HowToSection)의 좌정렬 스텝 구조는 유지, 다음만 개편:
+ *  · 큰 주황 stepNumber(40px) → 작은 라벨형 번호(11px, 자간 0.22em, #a08b70)를
+ *    라벨 위로 이동
+ *  · 본문을 종이책 조판(명조 13px/1.9, 양쪽 정렬 + 음절 단위 줄바꿈)으로
+ *  · 스텝 구분선을 주황 tint에서 무채 헤어라인으로
+ *  · 메타 "총 3시간 진행"의 주황 강조 제거
+ * 실사이트(HowToSection)는 V2 없이 프리뷰가 직접 import하는 구조라 원본
+ * 파일은 수정하지 않는다 — 이 파일이 프리뷰 전용 신설 컴포넌트.
  */
 
 const steps: {
@@ -29,7 +34,7 @@ const steps: {
   },
 ]
 
-export function HowToSection() {
+export function HowToSectionV2() {
   return (
     <section id="howto" className={styles.section}>
       <FadeUp>

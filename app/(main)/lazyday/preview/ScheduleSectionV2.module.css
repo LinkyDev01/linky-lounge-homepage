@@ -7,7 +7,7 @@
 
 .section {
   /* 배경 플립 (2026-07-06 교차 재배정) — 종이 낱장(#fffdf8)이 베이지 위에서 도드라짐 */
-  background-color: #f5ede4;
+  background-color: #f7f3ee;
   padding: 56px 24px 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;

@@ -128,9 +128,10 @@
   font-size: 13px;
   line-height: 2.0;
   color: #6a5038;
-  text-align: left;
-  word-break: keep-all;
-  text-wrap: pretty;
+  /* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06) */
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 .qtBody p { margin: 0 0 14px; }
 .qtBody p:last-child { margin-bottom: 0; }

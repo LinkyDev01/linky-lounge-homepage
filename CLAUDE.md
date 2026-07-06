@@ -70,7 +70,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 |---|---|---|
 | `page.module.css` (lazyday 루트) | page, HeroParallax, sticky-apply-button, apply-button, preview/page, StickyApplyButtonV2 **(6곳)** | 실+프리뷰 랜딩·히어로·CTA 동시 |
 | `FaqSection.module.css` | FaqSection, preview/FaqSectionV2, preview/ReviewsSection **(3곳)** | **클래스 파티션 주의**: `line*` = 실 FAQ A안 전용 / `.answer`·`.peek*`·`.fade*`·`.moreHint` = 프리뷰 FaqSectionV2 전용(구형, 삭제 금지) / `titleRow`·`sectionTitle` = 셋 다 공유 |
-| `BookSection.module.css` | BookSection, preview/BookSectionV2 | 실+프리뷰 선정도서 |
+| `BookSection.module.css` | BookSection, preview/BookSectionV2 | 실+프리뷰 선정도서. **주의**: V2는 이 파일(`bstyles`)과 `preview.module.css`(`styles`)를 둘 다 import — 명조 본문(bookQuote·bookParagraph·bookCuratorNote)은 preview.module.css의 **자체 사본**을 쓴다. 한쪽만 바꿀 땐 어느 모듈의 클래스인지 grep으로 먼저 확인 |
 | `FeatureBoxSection.module.css` | FeatureBoxSection, preview/FeatureBoxSectionV2 | 실+프리뷰 모임소개 |
 | `NavBar.module.css` | NavBar, preview/NavBarV2 | 실+프리뷰 내비 |
 | `BrandCloseSection.module.css` | BrandCloseSection, preview/ClosingSectionV2 | 실+프리뷰 클로징 |

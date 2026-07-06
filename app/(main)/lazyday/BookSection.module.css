@@ -318,3 +318,14 @@
   word-break: keep-all;
   text-wrap: pretty;
 }
+
+/* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06).
+   현재 프리뷰(BookSectionV2)에만 부착 — 실사이트(BookSection) 반영은
+   텍스트 보완 후로 보류 (docs/DECISIONS.md 참고). 반영 시 BookSection.tsx의
+   bookQuote/bookParagraph/bookCuratorNote 3곳에 이 클래스를 추가하면 됨. */
+.proseJustify {
+  word-break: normal;
+  overflow-wrap: break-word;
+  text-align: justify;
+  text-wrap: initial;
+}

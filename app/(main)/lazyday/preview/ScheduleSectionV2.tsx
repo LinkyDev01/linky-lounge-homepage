@@ -3,16 +3,13 @@ import { SEASON } from "../season-config"
 import { FadeUp } from "@/components/animation/FadeUp"
 
 /**
- * 일정·장소 — '종이 낱장 + 손그림' (운영자 확정 스펙 2026-07-06)
- * 프리뷰 전용. 실사이트 이식은 별도 승인 대기 (DECISIONS.md).
- *  · 일정표를 테이프로 붙인 종이 낱장(살짝 기울임 + 노이즈 텍스처)으로
- *  · 박스 머리: "3기 일정" + 펜 밑줄 / 우측 기간(periodLabel)
- *  · 장소: "장소" → 손그림 화살표 → 펜 동그라미 친 "링키라운지"
+ * 일정·장소 — 6b+6c 조합 (운영자 확정 2026-07-06)
+ * 실사이트 쌍(ScheduleSection)과 드리프트 금지 — 한쪽 수정 시 함께.
+ *  · 일정 박스 = 6b 조판 괘선 (이중 괘선 풀블리드 + 명조 헤더, 테이프·기울기 없음)
+ *  · 장소란 = 6c 손그림 유지 ("장소" → 곡선 화살표 → 펜 동그라미 "링키라운지")
  * 데이터는 전부 season-config 단일 출처.
  */
 export function ScheduleSectionV2() {
-  const fifthParts = SEASON.fifth.timeLabel.split(" · ")
-
   return (
     <section id="schedule" className={styles.section}>
       <FadeUp>
@@ -24,14 +21,11 @@ export function ScheduleSectionV2() {
       <FadeUp>
         <div>
           <div className={styles.paperBox}>
-            <span className={styles.tape} aria-hidden />
+            {/* 6b: 박스 최상단 이중 괘선 — 좌우 풀블리드 */}
+            <div className={styles.ruleThick} aria-hidden />
+            <div className={styles.ruleThin} aria-hidden />
             <div className={styles.paperHead}>
-              <div>
-                <p className={styles.paperTitle}>{SEASON.name} 일정</p>
-                <svg viewBox="0 0 60 6" aria-hidden className={styles.penUnderline}>
-                  <path d="M2 4 C 12 1.5, 22 5.5, 32 3.5 S 52 2.5, 58 3.8" fill="none" stroke="#d2691e" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-              </div>
+              <p className={styles.paperTitle}>{SEASON.name} 일정</p>
               <span className={styles.paperPeriod}>{SEASON.periodLabel}</span>
             </div>
             <table className={styles.scheduleTable}>
@@ -55,21 +49,15 @@ export function ScheduleSectionV2() {
                     ))}
                   </tr>
                 ))}
-                <tr>
-                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdFifth}>
-                    <div className={styles.fifthRow}>
-                      <span className={styles.fifthDate}>{SEASON.fifth.date}</span>
-                      <div className={styles.fifthParts}>
-                        {fifthParts.map((part, i) => (
-                          <span key={i} className={styles.fifthPart}>{part}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
+          </div>
+          {/* 7a 별지 — "정규 밖의 덤": 짙은 베이지 쪽지가 워시테이프(6c 어휘 재사용)로 살짝 겹쳐 붙음 */}
+          <div className={styles.fifthNote}>
+            <span className={styles.fifthNoteTape} aria-hidden />
+            <p className={styles.fifthNoteLabel}>{SEASON.fifth.label} · 자유 독서모임</p>
+            <p className={styles.fifthNoteDate}>{SEASON.fifth.date}</p>
+            <p className={styles.fifthNoteTime}>{SEASON.fifth.timeLabel}</p>
           </div>
           <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
         </div>

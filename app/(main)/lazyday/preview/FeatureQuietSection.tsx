@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import type { ReactNode } from "react"
 import styles from "./FeatureQuietSection.module.css"
 
@@ -69,13 +69,23 @@ const CHAPTERS: Chapter[] = [
 ]
 
 function FadeChapter({ c, open, onToggle }: { c: Chapter; open: boolean; onToggle: () => void }) {
+  // 실제 콘텐츠 높이를 측정해 정확한 값으로 애니메이션 — 고정 max-height(1200px)로는
+  // 열림이 순간처럼 보이고 닫힘은 보이지 않는 구간 때문에 지연돼 보인다 (운영자 지적 2026-07-06)
+  const peekRef = useRef<HTMLDivElement>(null)
+  const [maxH, setMaxH] = useState<number | undefined>(undefined)
+  useLayoutEffect(() => {
+    if (open && peekRef.current) setMaxH(peekRef.current.scrollHeight)
+    else setMaxH(undefined)
+  }, [open])
   return (
     <div className={styles.qtChapter}>
       <p className={styles.qtEyebrow}>{c.eyebrow}</p>
       <h3 className={styles.qtLabel}>{c.label}</h3>
       <p className={styles.qtPull}>{c.pull}</p>
       <div
+        ref={peekRef}
         className={`${styles.qtPeek} ${open ? styles.qtPeekOpen : ""}`}
+        style={maxH !== undefined ? { maxHeight: maxH } : undefined}
         onClick={() => { if (!open) onToggle() }}
         role="button"
         tabIndex={0}
@@ -85,8 +95,8 @@ function FadeChapter({ c, open, onToggle }: { c: Chapter; open: boolean; onToggl
         <div className={styles.qtBody}>
           {c.paragraphs.map((p, j) => <p key={j}>{p}</p>)}
         </div>
-        {c.note && open && <p className={styles.qtNote}>{c.note}</p>}
-        {!open && <div className={styles.qtPeekFade} aria-hidden />}
+        {c.note && <p className={styles.qtNote}>{c.note}</p>}
+        <div className={`${styles.qtPeekFade} ${open ? styles.qtPeekFadeHidden : ""}`} aria-hidden />
       </div>
       <button className={styles.qtMore} onClick={onToggle} aria-expanded={open}>
         {open ? "접기" : "이어 읽기"}

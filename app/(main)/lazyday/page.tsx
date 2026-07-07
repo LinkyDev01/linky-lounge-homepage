@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "레이지데이 북클럽",
     description: "사유의 불협화음이 본질을 관통하는 선율이 되는 순간을 믿습니다.",
-    images: ["/linky-lounge/book-club/og-lazyday-heart-v2.png"],
+    images: ["/linky-lounge/book-club/og-lazyday-heart-v3.png"],
     type: "website",
   },
 }

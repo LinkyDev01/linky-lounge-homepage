@@ -39,16 +39,17 @@ export default function PreviewLandingPage() {
         <HeroSummary />
         <BookSectionV2 />
         {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
-        <ReviewsSection />
         {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}
         {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기'로 교체 (2026-07-06 확정) — FeatureBoxSectionV2는 보존 */}
         <FeatureQuietSection />
         {/* 진행 순서·일정/장소: 콰이어트 리스트로 개편 (2026-07-06 확정, 프리뷰 전용) — 원본은 V2 없이 직접 import하던 구조라 신설 */}
         <HowToSectionV2 />
         <ScheduleSectionV2 />
-        <FaqSectionV2 />
+        {/* 후기 → 장면들 → FAQ 순서 (운영자 확정 2026-07-07) — 배경 교차 B/A/B/A 완성 */}
+        <ReviewsSection />
         {/* 장면들(SCENES): 사진 콜라주 (프리뷰 전용, 2026-07-07 신설) — scenes-config가 비면 미렌더. 실사이트 이식은 사진 확보+승인 대기 */}
         <ScenesSection />
+        <FaqSectionV2 />
         <ClosingSectionV2 />
       </main>
 

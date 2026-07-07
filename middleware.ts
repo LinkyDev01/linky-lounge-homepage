@@ -27,6 +27,18 @@ export function middleware(req: NextRequest) {
 
   const isBookclub = BOOKCLUB_HOSTS.has(host)
 
+  // 0) 프리뷰 트리는 프로덕션(책클럽 도메인)에 공개하지 않는다 — 내부 리뷰는
+  //    브랜치 프리뷰(vercel.app)에서만. /preview·/lazyday/preview 모두 홈으로 보낸다.
+  if (
+    isBookclub &&
+    (pathname === "/preview" ||
+      pathname.startsWith("/preview/") ||
+      pathname === "/lazyday/preview" ||
+      pathname.startsWith("/lazyday/preview/"))
+  ) {
+    return NextResponse.redirect(new URL("/", req.url), 307)
+  }
+
   // 1) 북클럽 도메인: 깔끔한 경로 → 내부 /lazyday/* 로 rewrite
   //    - /api/* 와 이미 /lazyday 로 들어온 요청은 그대로 둔다(자산은 matcher에서 제외).
   let rewriteUrl: URL | null = null

@@ -552,7 +552,7 @@ export default function InterviewSchedulePage() {
             {/* 참고 2: 불균형의 균형 */}
             <div className={styles.refItem}>
               <button type="button" className={styles.refTitleBox} onClick={() => setRef2Open(v => !v)} aria-expanded={ref2Open}>
-                <span className={styles.refQuestion}>(참고) 불균형의 균형 (Dissonance in Harmony)</span>
+                <span className={styles.refQuestion}>(참고) 불균형의 균형 (Dissonant Harmony)</span>
                 <span className={`${styles.refArrow} ${ref2Open ? styles.refArrowOpen : ""}`}>▾</span>
               </button>
               <div

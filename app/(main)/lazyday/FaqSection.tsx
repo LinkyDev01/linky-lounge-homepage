@@ -103,7 +103,7 @@ export function FaqSection() {
 
   return (
     <section id="faq" className={styles.section}>
-      <FadeUp>
+      <FadeUp y={12} duration={0.9}>
         <div className={styles.titleRow}>
           <h2 className={styles.sectionTitle}>자주 묻는 질문</h2>
         </div>
@@ -135,19 +135,17 @@ export function FaqSection() {
         })}
       </div>
 
-      <FadeUp>
-        <div className={styles.contact}>
-          <p className={styles.contactText}>다른 질문이 있어요</p>
-          <a
-            href="https://www.instagram.com/lazyday_bookclub"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.contactLink}
-          >
-            인스타그램 DM으로 편하게 물어보세요 →
-          </a>
-        </div>
-      </FadeUp>
+      <div className={styles.contact}>
+        <p className={styles.contactText}>다른 질문이 있어요</p>
+        <a
+          href="https://www.instagram.com/lazyday_bookclub"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.contactLink}
+        >
+          인스타그램 DM으로 편하게 물어보세요 →
+        </a>
+      </div>
     </section>
   )
 }

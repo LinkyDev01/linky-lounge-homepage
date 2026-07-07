@@ -83,7 +83,7 @@ export function BookSection() {
   return (
     <section id="book" className={styles.section}>
       <div className={styles.content}>
-        <FadeUp>
+        <FadeUp y={12} duration={0.9}>
           <div className={styles.titleRow}>
             <h2 className={styles.sectionTitle}>선정도서</h2>
           </div>

@@ -84,3 +84,16 @@
   text-align: left;
   word-break: keep-all;
 }
+
+/* 캡션 2층째: 발제 발췌 — 책 본문과 같은 명조 문법(세리프 확장 운영자 승인 2026-07-07) */
+.captionQuote {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-noto-serif), serif;
+  font-weight: 500;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}

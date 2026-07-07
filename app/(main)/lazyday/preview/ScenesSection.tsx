@@ -43,7 +43,12 @@ function SceneFigure({
             style={{ objectFit: "cover" }}
           />
         </div>
-        {scene.caption && <figcaption className={styles.caption}>{scene.caption}</figcaption>}
+        {(scene.caption || scene.quote) && (
+          <figcaption className={styles.caption}>
+            {scene.caption}
+            {scene.quote && <span className={styles.captionQuote}>{scene.quote}</span>}
+          </figcaption>
+        )}
       </figure>
     </FadeUp>
   )

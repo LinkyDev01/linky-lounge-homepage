@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "링키라운지 | 레이지데이 북클럽 이용안내",
     description: "레이지데이 북클럽 모임 장소 안내 — 찾아오는 길, 입구, 주차, Wi-Fi",
-    images: ["/linky-lounge/book-club/lazy is a.png"],
-    url: "https://linkylounge.com/lazyday/lounge-info",
+    images: ["/linky-lounge/book-club/lazy%20is%20a.png"],
+    url: "https://www.lazyday-bookclub.com/lounge-info",
   },
 }
 

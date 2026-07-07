@@ -60,9 +60,6 @@ export function ScenesSection() {
 
   return (
     <section className={styles.section}>
-      <FadeUp y={12} duration={0.9} className={styles.eyebrowWrap}>
-        <p className={styles.eyebrow}>SCENES</p>
-      </FadeUp>
       <div className={styles.collage}>
         <div className={styles.colLeft}>
           {SCENES_LEFT.map((scene, i) => (

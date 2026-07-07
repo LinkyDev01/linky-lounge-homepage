@@ -6,20 +6,6 @@
   padding: 56px 24px 64px;
 }
 
-.eyebrowWrap {
-  text-align: center;
-}
-
-.eyebrow {
-  font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.28em;
-  color: #a08b70;
-  text-align: center;
-  margin: 0 0 34px;
-}
-
 /* 콜라주: 좌열 55% / 우열 45%, 우열만 위로 엇갈림 */
 .collage {
   display: flex;

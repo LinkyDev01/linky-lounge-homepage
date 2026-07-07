@@ -13,6 +13,7 @@ import { FaqSectionV2 } from "./FaqSectionV2"
 import { ScenesSection } from "./ScenesSection"
 import { ClosingSectionV2 } from "./ClosingSectionV2"
 import { StickyApplyButtonV2 } from "./StickyApplyButtonV2"
+import { SectionIndicator } from "../SectionIndicator"
 
 /**
  * ── 개선안 프리뷰 랜딩 (2026-07-03 피드백 반영) ──
@@ -51,6 +52,8 @@ export default function PreviewLandingPage() {
         <ClosingSectionV2 />
       </main>
 
+      {/* 실사이트 현행화: 우측 도트 인디케이터 — 실 컴포넌트 직접 사용 (HeroParallax 패턴) */}
+      <SectionIndicator />
       <StickyApplyButtonV2 />
       <Footer
         instagramUrl="https://instagram.com/lazyday_bookclub"

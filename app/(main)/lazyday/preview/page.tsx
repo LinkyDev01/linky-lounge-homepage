@@ -10,6 +10,7 @@ import { FeatureQuietSection } from "./FeatureQuietSection"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSectionV2 } from "./BookSectionV2"
 import { FaqSectionV2 } from "./FaqSectionV2"
+import { ScenesSection } from "./ScenesSection"
 import { ClosingSectionV2 } from "./ClosingSectionV2"
 import { StickyApplyButtonV2 } from "./StickyApplyButtonV2"
 
@@ -45,6 +46,8 @@ export default function PreviewLandingPage() {
         <HowToSectionV2 />
         <ScheduleSectionV2 />
         <FaqSectionV2 />
+        {/* 장면들(SCENES): 사진 콜라주 (프리뷰 전용, 2026-07-07 신설) — scenes-config가 비면 미렌더. 실사이트 이식은 사진 확보+승인 대기 */}
+        <ScenesSection />
         <ClosingSectionV2 />
       </main>
 

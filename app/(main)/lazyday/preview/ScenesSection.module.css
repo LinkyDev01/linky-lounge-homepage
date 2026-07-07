@@ -55,7 +55,6 @@
   border: 1px solid #e5d9c8;
   padding: 6px 6px 14px;
   box-shadow: 0 3px 10px rgba(74, 58, 42, 0.12);
-  transform: rotate(var(--rot, 0deg));
   cursor: pointer;
   transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.36, 1),
     box-shadow 0.35s ease;
@@ -185,35 +184,4 @@
   .captionPage {
     transition: none;
   }
-}
-
-/* 호버 어포던스 — 커서 + 살짝 들림 (hover 기기만, 호버 전용 정보 금지) */
-@media (hover: hover) {
-  .figure:not(.figureLifted):hover {
-    transform: translateY(-3px) rotate(var(--rot, 0deg));
-    box-shadow: 0 8px 18px rgba(74, 58, 42, 0.18);
-  }
-}
-
-/* ── ⑤ 반응형: 데스크톱 3열 비대칭 콜라주 (별도 DOM, media 스위치) ── */
-.collageDesktop { display: none; }
-@media (min-width: 1024px) {
-  .collage { display: none; }
-  .collageDesktop {
-    display: flex;
-    flex-direction: row;
-    gap: 26px;
-    align-items: flex-start;
-    max-width: 880px;
-    margin: 0 auto;
-  }
-  .dcol {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    min-width: 0;
-  }
-  .dcol1 { flex: 0 0 36%; }
-  .dcol2 { flex: 0 0 30%; padding-top: 34px; }
-  .dcol3 { flex: 0 0 28%; padding-top: 18px; }
 }

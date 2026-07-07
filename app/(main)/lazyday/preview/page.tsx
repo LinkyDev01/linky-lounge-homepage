@@ -34,11 +34,8 @@ export default function PreviewLandingPage() {
     <div className={pstyles.desktopFrame}>
       <NavBarV2 />
       <main className={styles.container} data-track-section="bookclub_home_preview">
-        {/* ⑤ 반응형: ≥1024 포스터 좌 + 요약 우 2단 (프리뷰 전용 — 실사이트엔 요약 미이식) */}
-        <div className={pstyles.heroSplit}>
-          <HeroParallax />
-          <HeroSummary />
-        </div>
+        <HeroParallax />
+        <HeroSummary />
         <BookSectionV2 />
         {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
         {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}

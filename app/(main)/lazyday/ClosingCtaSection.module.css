@@ -35,18 +35,3 @@
   text-decoration-color: rgba(138, 106, 80, 0.5);
 }
 .closingCtaLink:hover { color: #d2691e; text-decoration-color: #d2691e; }
-
-
-/* ── ⑤ 반응형(여백 설계) — 배경 풀블리드 유지, 콘텐츠 칼럼만 고정 (2026-07-07) ── */
-@media (min-width: 680px) {
-  .closingCta {
-    padding-left: calc((100% - 560px) / 2);
-    padding-right: calc((100% - 560px) / 2);
-  }
-}
-@media (min-width: 1024px) {
-  .closingCta {
-    padding-left: calc((100% - 640px) / 2);
-    padding-right: calc((100% - 640px) / 2);
-  }
-}

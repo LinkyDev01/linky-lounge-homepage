@@ -116,8 +116,3 @@
   transition: color 0.25s ease, border-color 0.25s ease;
 }
 .qtMore:hover { color: #d2691e; border-color: #d2691e; }
-
-/* 호버 어포던스 — 이어 읽기 살짝 들림 (hover 기기만) */
-@media (hover: hover) {
-  .qtMore:hover { transform: translateY(-1px); }
-}

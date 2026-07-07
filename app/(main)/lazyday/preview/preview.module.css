@@ -804,32 +804,3 @@
   color: #8a7660;
   word-break: keep-all;
 }
-
-
-/* ── ⑤ 반응형(여백 설계) — 배경 풀블리드 유지, 콘텐츠 칼럼만 고정 (2026-07-07) ── */
-@media (min-width: 680px) {
-  .closingCta {
-    padding-left: calc((100% - 560px) / 2);
-    padding-right: calc((100% - 560px) / 2);
-  }
-}
-@media (min-width: 1024px) {
-  .closingCta {
-    padding-left: calc((100% - 640px) / 2);
-    padding-right: calc((100% - 640px) / 2);
-  }
-}
-
-
-/* ── ⑤ 반응형: 히어로 2단 (포스터 좌 + 요약 우, ≥1024) ── */
-@media (min-width: 1024px) {
-  .heroSplit {
-    display: grid;
-    grid-template-columns: minmax(0, 54%) minmax(0, 46%);
-    align-items: center;
-    /* 풀블리드 배경 + 내부 1100px 칼럼 (밴드 바깥 바디색 노출 방지) */
-    background: #f7f3ee;
-    padding-left: calc((100% - 1100px) / 2);
-    padding-right: calc((100% - 1100px) / 2);
-  }
-}

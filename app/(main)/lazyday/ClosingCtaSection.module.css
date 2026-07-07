@@ -12,9 +12,12 @@
   background: #f7f3ee;
 }
 .closingCtaTitle {
+  /* 수미상관 톤 통일 — 히어로 핵심 문장과 동일 스펙 (운영자 확정 2026-07-07) */
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-size: 20px;
-  font-weight: 700;
-  color: #4a3a2a;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #1a1208;
   margin: 0 0 6px;
   word-break: keep-all;
 }

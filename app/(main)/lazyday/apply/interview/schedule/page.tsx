@@ -299,16 +299,16 @@ export default function InterviewSchedulePage() {
           <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img src="/linky-lounge/book-club/lazyday_logo.png" alt="레이지데이" className={styles.successMark} />
           </BlurReveal>
-          <FadeUp><h1 className={styles.successTitle}>인터뷰가 예약되었습니다.</h1></FadeUp>
-          <FadeUp><p className={styles.successSlot}>{label}</p></FadeUp>
-          <FadeUp>
+          <FadeUp delay={0.15}><h1 className={styles.successTitle}>인터뷰가 예약되었습니다.</h1></FadeUp>
+          <FadeUp delay={0.3}><p className={styles.successSlot}>{label}</p></FadeUp>
+          <FadeUp delay={0.45}>
             <p className={styles.successBody}>
               인터뷰는 <span className={styles.successAccent}>전화로 약 20분간</span> 진행됩니다.<br />
               선택하신 시간에 맞추어 연락드리겠습니다.
             </p>
           </FadeUp>
-          <FadeUp><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
-          <FadeUp>
+          <FadeUp delay={0.45}><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
+          <FadeUp delay={0.6}>
             <a href={calUrl} target="_blank" rel="noopener noreferrer" className={styles.calendarBtn}>
               📅 내 캘린더에 추가
             </a>

@@ -254,15 +254,15 @@ export default function WrittenInterviewPage() {
               style={{ width: 417, height: 240, objectFit: "contain" }}
             />
           </BlurReveal>
-          <FadeUp><h1 className={styles.successTitle}>답변 감사합니다.</h1></FadeUp>
-          <FadeUp>
+          <FadeUp delay={0.15}><h1 className={styles.successTitle}>답변 감사합니다.</h1></FadeUp>
+          <FadeUp delay={0.3}>
             <p className={styles.successBody}>
               서면 인터뷰가 완료되었습니다.<br />
               검토 후 <span className={styles.successAccent}>개별 연락</span> 드리겠습니다.
             </p>
           </FadeUp>
-          <FadeUp><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
-          <FadeUp>
+          <FadeUp delay={0.45}><p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p></FadeUp>
+          <FadeUp delay={0.6}>
             <a href="https://www.instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" className={styles.successLink}>
               인스타그램 보러가기
             </a>

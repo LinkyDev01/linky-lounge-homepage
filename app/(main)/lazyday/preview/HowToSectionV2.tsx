@@ -37,7 +37,7 @@ const steps: {
 export function HowToSectionV2() {
   return (
     <section id="howto" className={styles.section}>
-      <FadeUp>
+      <FadeUp y={12} duration={0.9}>
         <div className={styles.titleRow}>
           <h2 className={styles.sectionTitle}>진행 순서</h2>
           <p className={styles.meta}>총 3시간 진행</p>

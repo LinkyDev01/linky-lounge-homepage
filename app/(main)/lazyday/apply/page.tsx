@@ -233,7 +233,7 @@ export default function ApplyPage() {
       {loading && <SubmitOverlay label="신청 접수 중..." />}
       <ApplySectionIndicator />
       <div className={styles.container}>
-        <FadeUp>
+        <FadeUp y={12} duration={0.9}>
           <div id="apply-info" className={styles.header}>
             <img
               src="/linky-lounge/book-club/ldbc-logo-text.png"
@@ -249,8 +249,7 @@ export default function ApplyPage() {
           </div>
         </FadeUp>
 
-        <FadeUp>
-          <section className={styles.scheduleNotice}>
+        <section className={styles.scheduleNotice}>
             <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
             <table className={styles.scheduleTable}>
               <thead>
@@ -284,9 +283,7 @@ export default function ApplyPage() {
             </table>
             <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
           </section>
-        </FadeUp>
 
-        <FadeUp>
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
@@ -484,7 +481,6 @@ export default function ApplyPage() {
               {loading ? "신청 중입니다..." : "신청 완료하기"}
             </button>
         </form>
-        </FadeUp>
       </div>
     </main>
   )

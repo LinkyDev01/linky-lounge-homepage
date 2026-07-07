@@ -193,7 +193,7 @@ export default function PreviewApplyPage() {
     <main className={styles.applyPage} data-track-section="bookclub_apply_preview">
       {loading && <SubmitOverlay label="신청 접수 중..." />}
       <div className={styles.container}>
-        <FadeUp>
+        <FadeUp y={12} duration={0.9}>
           <div id="apply-info" className={styles.header}>
             {/* 개선: 로고가 홈으로 돌아가는 링크 */}
             <LazydayLink href="/preview" aria-label="레이지데이 북클럽 홈으로">
@@ -213,8 +213,7 @@ export default function PreviewApplyPage() {
           </div>
         </FadeUp>
 
-        <FadeUp>
-          <section className={styles.scheduleNotice}>
+        <section className={styles.scheduleNotice}>
             <h2 className={styles.scheduleHeader}>3기 일정</h2>
             <table className={styles.scheduleTable}>
               <thead>
@@ -254,9 +253,7 @@ export default function PreviewApplyPage() {
             </table>
             <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
           </section>
-        </FadeUp>
 
-        <FadeUp>
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
@@ -464,7 +461,6 @@ export default function PreviewApplyPage() {
               {loading ? "신청 중입니다..." : "신청 완료하기"}
             </button>
         </form>
-        </FadeUp>
 
         {/* 프리뷰 전용: 실패 시뮬레이션 토글 */}
         <label className={pstyles.simToggle}>

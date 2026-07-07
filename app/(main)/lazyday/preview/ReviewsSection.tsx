@@ -83,7 +83,7 @@ export function ReviewsSection() {
   return (
     <section id="reviews" className={pstyles.reviewsSection}>
       <div className={pstyles.reviewsInner}>
-        <FadeUp>
+        <FadeUp y={12} duration={0.9}>
           <div className={styles.titleRow}>
             <h2 className={styles.sectionTitle}>멤버들이 남긴 문장</h2>
           </div>

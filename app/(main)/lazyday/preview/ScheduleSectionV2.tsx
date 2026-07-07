@@ -14,14 +14,13 @@ import { FadeUp } from "@/components/animation/FadeUp"
 export function ScheduleSectionV2() {
   return (
     <section id="schedule" className={styles.section}>
-      <FadeUp>
+      <FadeUp y={12} duration={0.9}>
         <div className={styles.titleRow}>
           <h2 className={styles.sectionTitle}>일정·장소</h2>
         </div>
       </FadeUp>
 
-      <FadeUp>
-        <div>
+      <div>
           <div className={styles.paperBox}>
             {/* 6b: 박스 최상단 이중 괘선 — 좌우 풀블리드 */}
             <div className={styles.ruleThick} aria-hidden />
@@ -69,10 +68,8 @@ export function ScheduleSectionV2() {
           </div>
           <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
         </div>
-      </FadeUp>
 
-      <FadeUp>
-        <div className={styles.locationRow}>
+      <div className={styles.locationRow}>
           <span className={styles.locationLabel}>장소</span>
           <svg viewBox="0 0 34 18" aria-hidden className={styles.handArrow}>
             <path d="M2 4 C 9 11, 17 12.5, 27 9.5" fill="none" stroke="#8a6a50" strokeWidth="1.4" strokeLinecap="round" />
@@ -89,7 +86,6 @@ export function ScheduleSectionV2() {
             <span className={styles.locationNote}>{SEASON.location.note}</span>
           </div>
         </div>
-      </FadeUp>
     </section>
   )
 }

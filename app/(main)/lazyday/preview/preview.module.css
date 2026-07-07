@@ -59,22 +59,25 @@
   margin: 0 0 18px;
 }
 .kickerText {
-  font-size: 12px;
+  /* 수미상관 톤 통일 (운영자 확정 2026-07-07) */
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.18em;
-  color: #8a7660;
+  letter-spacing: 0.22em;
+  color: #a08b70;
   white-space: nowrap;
 }
 .kickerRule {
   display: inline-block;
-  width: 28px;
+  width: 20px;
   height: 1px;
   background: #cdbca6;
 }
 .heroSummaryLine {
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.65;
+  /* 핵심 문장 명조 전환 — 세리프 확장 운영자 승인 (2026-07-07) */
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.7;
   letter-spacing: -0.01em;
   color: #1a1208;
   margin: 0 auto;
@@ -261,9 +264,12 @@
   background: #f7f3ee;
 }
 .closingCtaTitle {
+  /* 수미상관 톤 통일 — 히어로 핵심 문장과 동일 스펙 (운영자 확정 2026-07-07) */
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-size: 20px;
-  font-weight: 700;
-  color: #4a3a2a;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #1a1208;
   margin: 0 0 6px;
   word-break: keep-all;
 }
@@ -736,3 +742,65 @@
   overflow-wrap: break-word;
 }
 .bookDetailCover { width: 84px; height: 126px; }
+
+
+/* ── 상단 압축 요약 — 종이 낱장 카드 (운영자 확정 2026-07-07, 10b 시안) ── */
+.summaryCard {
+  position: relative;
+  max-width: 420px; /* 오브제 고정폭 — 종이는 화면 따라 커지지 않는다 */
+  margin: 30px auto 0;
+  background-color: #f9f2e6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  border: 1px solid #dccdb5;
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.16), 0 10px 22px rgba(74, 58, 42, 0.14);
+  padding: 22px 18px 16px;
+  transform: rotate(-0.6deg);
+  text-align: left;
+}
+.summaryTape {
+  position: absolute;
+  top: -10px;
+  left: 46%;
+  width: 78px;
+  height: 18px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+  transform: translateX(-50%) rotate(-3.5deg);
+}
+.summaryRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+}
+.summaryRow + .summaryRow {
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
+}
+.summaryLabel {
+  flex: 0 0 52px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #8a6a50;
+}
+.summaryValue {
+  font-size: 13.5px;
+  color: #1a1208;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  word-break: keep-all;
+}
+.summarySubNote {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a6a50;
+}
+.summaryFoot {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 11.5px;
+  color: #8a7660;
+  word-break: keep-all;
+}

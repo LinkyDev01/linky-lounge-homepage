@@ -82,12 +82,19 @@ export function FaqSectionV2() {
   // 일정 박스의 '자유 독서모임' 링크가 이 항목을 펼치기 위함 (운영자 지시 2026-07-06)
   useEffect(() => {
     const openByKey = (key: string) => {
-      if (key && faqs.some(f => f.key === key)) {
+      if (!(key && faqs.some(f => f.key === key))) return
+      // 시야가 확보된 뒤 펼침 모션이 보이도록: 먼저 스크롤로 데려간 다음 연다
+      // (운영자 지시 2026-07-07 — 이동 전에 열리면 도착했을 땐 이미 펼쳐져 모션을 못 본다)
+      document.getElementById(key)?.scrollIntoView({ behavior: "smooth", block: "start" })
+      let done = false
+      const open = () => {
+        if (done) return
+        done = true
         setOpenSet(prev => { const n = new Set(prev); n.add(key); return n })
-        requestAnimationFrame(() =>
-          document.getElementById(key)?.scrollIntoView({ behavior: "smooth", block: "start" })
-        )
       }
+      // 스크롤이 끝난 직후 펼침 — scrollend 미지원 브라우저/무스크롤 케이스는 타이머 폴백
+      window.addEventListener("scrollend", open, { once: true })
+      setTimeout(open, 700)
     }
     const openFromHash = () => openByKey(window.location.hash.slice(1))
     // 해시가 이미 같은 상태의 재클릭은 hashchange가 안 뜨므로, 링크가 쏘는 커스텀 이벤트로도 연다

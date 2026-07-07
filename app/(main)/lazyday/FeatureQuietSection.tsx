@@ -16,7 +16,6 @@ import styles from "./FeatureQuietSection.module.css"
 
 type Chapter = {
   key: string
-  eyebrow: string
   label: string
   pull: string
   paragraphs: ReactNode[]
@@ -26,7 +25,6 @@ type Chapter = {
 const CHAPTERS: Chapter[] = [
   {
     key: "people",
-    eyebrow: "PEOPLE",
     label: "이런 분들과 함께해요",
     pull: "불협화음 속에서 내 생각의 윤곽이 또렷해집니다.",
     paragraphs: [
@@ -37,7 +35,6 @@ const CHAPTERS: Chapter[] = [
   },
   {
     key: "books",
-    eyebrow: "TEXTS",
     label: "철학과 고전을 함께 읽어요",
     pull: "소설이 던진 모순에 철학이 이름을 붙입니다.",
     paragraphs: [
@@ -47,7 +44,6 @@ const CHAPTERS: Chapter[] = [
   },
   {
     key: "questions",
-    eyebrow: "QUESTIONS",
     label: "사유의 밀도를 높일 질문을 던져요",
     pull: "질문을 통해 각자가 가진 사유의 궤적을 엿봅니다.",
     paragraphs: [
@@ -57,7 +53,6 @@ const CHAPTERS: Chapter[] = [
   },
   {
     key: "space",
-    eyebrow: "SPACE",
     label: "생각이 무르익는 공간에서 모여요",
     pull: "텍스트와 대화에만 온전히 몰입하는 시간입니다.",
     paragraphs: [
@@ -79,7 +74,6 @@ function FadeChapter({ c, open, onToggle }: { c: Chapter; open: boolean; onToggl
   }, [open])
   return (
     <div className={styles.qtChapter}>
-      <p className={styles.qtEyebrow}>{c.eyebrow}</p>
       <h3 className={styles.qtLabel}>{c.label}</h3>
       <p className={styles.qtPull}>{c.pull}</p>
       <div

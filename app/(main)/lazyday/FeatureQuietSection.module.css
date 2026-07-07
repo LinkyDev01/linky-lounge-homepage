@@ -15,12 +15,29 @@
 }
 
 .qtTitle {
-  font-size: 22px;
+  /* 타이포 래더 1단 상향 (운영자 지시 2026-07-07): 22px 중앙 → 32px 좌측+괘선
+     — 랜딩 다른 섹션 제목(선정도서 등)과 동일 문법으로 통일 */
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
-  letter-spacing: -0.02em;
-  text-align: center;
-  margin: 0 0 52px;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-align: left;
+  position: relative;
+  padding-bottom: 20px;
+  margin: 0 0 44px;
+}
+.qtTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+@media (max-width: 480px) {
+  .qtTitle { font-size: 26px; }
 }
 .qtChapter {
   /* 본문 폭 320px 복귀 (운영자 지시 2026-07-06) */
@@ -28,16 +45,8 @@
   margin: 0 auto;
   text-align: center;
 }
-.qtEyebrow {
-  font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.28em;
-  color: #a08b70;
-  margin: 0 0 14px;
-}
 .qtLabel {
-  font-size: 16.5px;
+  font-size: 22px;
   font-weight: 700;
   color: #1a1208;
   line-height: 1.5;
@@ -47,8 +56,8 @@
 .qtPull {
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 600;
-  font-size: 14.5px;
-  line-height: 1.9;
+  font-size: 16.5px;
+  line-height: 1.8;
   color: #4a3020;
   margin: 0 0 22px;
   word-break: keep-all;
@@ -57,7 +66,7 @@
 .qtBody {
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: 2.0;
   color: #6a5038;
   /* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06) */
@@ -68,7 +77,7 @@
 .qtBody p { margin: 0 0 14px; }
 .qtBody p:last-child { margin-bottom: 0; }
 .qtBody strong { color: #4a3020; font-weight: 700; }
-.qtNote { font-size: 11px; color: #9a9590; margin: 14px 0 0; }
+.qtNote { font-size: 12px; color: #9a9590; margin: 14px 0 0; }
 .qtDivider {
   font-size: 15px;
   color: #a08b70;
@@ -80,9 +89,9 @@
 .qtPeek {
   position: relative;
   overflow: hidden;
-  /* 13px × line-height 2.0 = 26px/줄 — 두 줄 + 세 줄째 걸침.
+  /* 14.5px × line-height 2.0 = 29px/줄 — 두 줄 + 세 줄째 걸침.
      열림 높이는 JS가 실제 콘텐츠 높이로 인라인 지정 (정확한 거리 애니메이션) */
-  max-height: 66px;
+  max-height: 74px;
   cursor: pointer;
   /* 닫힘: 살짝 빠르게 (운영자 지적 — 닫을 때 느림) */
   transition: max-height 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
@@ -115,7 +124,7 @@
   padding: 2px 0;
   cursor: pointer;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.14em;
   color: #8a6a50;

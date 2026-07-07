@@ -1,0 +1,85 @@
+/* 장면들(SCENES) 종이 콜라주 — 프리뷰 전용 (2026-07-07 신설)
+   배경 A 톤(#f7f3ee): FAQ(#f0e9e0, B) ↔ 클로징 사이 교차 */
+
+.section {
+  background: #f7f3ee;
+  padding: 56px 24px 64px;
+}
+
+/* 콜라주: 좌열 55% / 우열 45%, 우열만 위로 엇갈림 */
+.collage {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: flex-start;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.colLeft,
+.colRight {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.colLeft {
+  flex: 0 0 55%;
+  min-width: 0;
+}
+
+.colRight {
+  flex: 0 0 45%;
+  min-width: 0;
+  padding-top: 34px;
+}
+
+/* 매트(figure) — 종이 액자. 회전은 인라인(위치별) */
+.figure {
+  position: relative;
+  margin: 0;
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  padding: 6px 6px 8px;
+  box-shadow: 0 3px 10px rgba(74, 58, 42, 0.12);
+}
+
+/* 워시테이프 — 매트 상단 중앙. translateX(-50%)+rotate는 인라인 */
+.tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 46px;
+  height: 13px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+  z-index: 2;
+}
+
+/* 이미지 박스 — next/image fill의 기준. height는 인라인(항목별) */
+.imgBox {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.caption {
+  margin: 7px 2px 0;
+  font-size: 10.5px;
+  color: #8a6a50;
+  text-align: left;
+  word-break: keep-all;
+}
+
+/* 캡션 2층째: 발제 발췌 — 책 본문과 같은 명조 문법(세리프 확장 운영자 승인 2026-07-07) */
+.captionQuote {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-noto-serif), serif;
+  font-weight: 500;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #4a3020;
+  word-break: keep-all;
+  text-wrap: pretty;
+}

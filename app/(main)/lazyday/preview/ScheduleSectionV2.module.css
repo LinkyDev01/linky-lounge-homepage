@@ -260,3 +260,10 @@
   color: #d2691e;
   text-decoration-color: #d2691e;
 }
+
+/* 링키라운지 → 네이버 지도 링크 — 시각은 기존 그대로(펜 동그라미가 링크 힌트) */
+.locationLink {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}

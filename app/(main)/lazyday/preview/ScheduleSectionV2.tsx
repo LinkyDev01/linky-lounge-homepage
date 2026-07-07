@@ -77,7 +77,15 @@ export function ScheduleSectionV2() {
           </svg>
           <div className={styles.locationInfo}>
             <span className={styles.locationNameWrap}>
-              <span className={styles.locationName}>{SEASON.location.name}</span>
+              {/* 네이버 지도 링크 (운영자 지시 2026-07-07) — 클로징 CTA와 동일 좌표 */}
+              <a
+                href="https://naver.me/FLebi2a9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.locationLink}
+              >
+                <span className={styles.locationName}>{SEASON.location.name}</span>
+              </a>
               <svg viewBox="0 0 92 32" aria-hidden className={styles.penCircle}>
                 <ellipse cx="46" cy="16" rx="43" ry="12" fill="none" stroke="#d2691e" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="172 14" />
               </svg>

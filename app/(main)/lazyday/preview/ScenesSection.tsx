@@ -93,8 +93,8 @@ function SceneFigure({
         className={`${styles.figure} ${lifted ? styles.figureLifted : ""}`}
         style={
           lifted
-            ? liftStyle
-            : { transform: `rotate(${scene.rotate}deg)` }
+            ? { ...liftStyle, ["--rot" as string]: `${scene.rotate}deg` }
+            : ({ ["--rot" as string]: `${scene.rotate}deg` } as React.CSSProperties)
         }
         role="button"
         tabIndex={0}
@@ -207,6 +207,23 @@ export function ScenesSection() {
       {liftedId && (
         <div className={styles.backdrop} onClick={() => setLiftedId(null)} aria-hidden />
       )}
+
+      {/* 데스크톱(≥1024) 3열 비대칭 — 상단 좌→우 ①②③, 하단 ④⑤⑥ (media 스위치 별도 DOM) */}
+      <div className={styles.collageDesktop}>
+        {[0, 1, 2].map((c) => (
+          <div key={c} className={`${styles.dcol} ${styles[`dcol${c + 1}`]}`}>
+            {[scenes[c], scenes[c + 3]].filter(Boolean).map((scene, r) => (
+              <SceneFigure
+                key={`d-${scene.id}`}
+                scene={scene}
+                lifted={liftedId === scene.id}
+                onToggle={() => toggle(scene.id)}
+                order={c + r * 3}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
 
       <div className={styles.collage}>
         <div className={styles.colLeft}>

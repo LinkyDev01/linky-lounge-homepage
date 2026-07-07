@@ -256,3 +256,18 @@
   color: #9a9590;
   margin: -12px 0 20px;
 }
+
+
+/* ── ⑤ 반응형(여백 설계) — 배경 풀블리드 유지, 콘텐츠 칼럼만 고정 (2026-07-07) ── */
+@media (min-width: 680px) {
+  .section {
+    padding-left: calc((100% - 560px) / 2);
+    padding-right: calc((100% - 560px) / 2);
+  }
+}
+@media (min-width: 1024px) {
+  .section {
+    padding-left: calc((100% - 640px) / 2);
+    padding-right: calc((100% - 640px) / 2);
+  }
+}

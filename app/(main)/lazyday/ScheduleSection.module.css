@@ -266,3 +266,25 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+
+/* ── ⑤ 반응형(여백 설계) — 배경 풀블리드 유지, 콘텐츠 칼럼만 고정 (2026-07-07) ── */
+@media (min-width: 680px) {
+  .section {
+    padding-left: calc((100% - 560px) / 2);
+    padding-right: calc((100% - 560px) / 2);
+  }
+}
+@media (min-width: 1024px) {
+  .section {
+    padding-left: calc((100% - 640px) / 2);
+    padding-right: calc((100% - 640px) / 2);
+  }
+}
+
+/* 오브제 고정폭 — 종이는 화면 따라 커지지 않는다 (⑤ 반응형 원칙) */
+@media (min-width: 680px) {
+  .paperBox { max-width: 420px; margin-left: auto; margin-right: auto; }
+  .scheduleNote { max-width: 420px; margin-left: auto; margin-right: auto; }
+  .locationRow { max-width: 420px; margin-left: auto; margin-right: auto; }
+}

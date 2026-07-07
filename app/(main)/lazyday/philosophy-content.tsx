@@ -9,7 +9,7 @@ import type { ReactNode } from "react"
  */
 
 export const GYEOL_TITLE = "레이지데이가 보는 '결'"
-export const DISSONANCE_TITLE = "불균형의 균형 (Dissonance in Harmony)"
+export const DISSONANCE_TITLE = "불균형의 균형 (Dissonant Harmony)"
 
 export const GYEOL_PARAGRAPHS: ReactNode[] = [
   <>우리가 정의하는 &lsquo;결&rsquo;은 한 사람이 살아온 환경과 경험을 통해 체화된 무의식적인 판단과 반응의 패턴, 즉 한 사람의 <strong>아비투스(Habitus)</strong>입니다.</>,

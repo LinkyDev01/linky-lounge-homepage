@@ -16,11 +16,11 @@ import { BrandCloseSection } from "./BrandCloseSection"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
-  description: "당신의 이야기, 그리고 당신만의 방향이 남는 모임",
+  description: "결이 맞는 사람들과 철학과 고전을 함께 읽습니다. 같은 문장 앞에 멈춰 서도 사유의 궤적은 저마다 다르고, 우리는 그 불협화음이 고전의 본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.",
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "당신의 이야기, 그리고 당신만의 방향이 남는 모임",
-    images: ["/linky-lounge/book-club/lazy%20is%20a.png"],
+    description: "불협화음이 화음이 되는 독서모임",
+    images: ["/linky-lounge/book-club/og-lazyday-heart.png"],
     type: "website",
   },
 }

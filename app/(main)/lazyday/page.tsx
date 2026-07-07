@@ -16,10 +16,10 @@ import { BrandCloseSection } from "./BrandCloseSection"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
-  description: "빠른 결론보다 깊은 사유를. 철학과 고전 사이에서 낯선 시각과 부딪히며, 나만의 생각을 벼려가는 독서모임 레이지데이 북클럽.",
+  description: "철학과 고전을 함께 읽는 독서모임, 레이지데이 북클럽. 같은 문장을 읽고도 서로 다른 생각이 부딪히는 자리에서, 내 생각의 윤곽이 또렷해집니다.",
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "느림은 게으름이 아니라, 사유의 자세입니다",
+    description: "불협화음이 화음이 되는 독서모임",
     images: ["/linky-lounge/book-club/og-lazyday-heart.png"],
     type: "website",
   },

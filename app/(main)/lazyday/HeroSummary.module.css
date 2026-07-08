@@ -1,0 +1,107 @@
+/* ═══════════════════════════════════════════════════════════
+   상단 압축 요약 — 종이 낱장 카드 (10b 정본 이식, 운영자 확정 2026-07-08)
+   프리뷰 preview.module.css의 summary* 블록을 값 그대로 복사한 실사이트 사본.
+   히어로 하단 페이드(#f0e9e0)·선정도서(B)와 이어지는 짙은 오트 밴드.
+   ⚠ 프리뷰 쌍: preview/HeroSummary.tsx + preview.module.css — 한쪽 수정 시 동기화.
+   ═══════════════════════════════════════════════════════════ */
+
+.heroSummary {
+  background: #f0e9e0;
+  padding: 30px 24px 44px;
+  text-align: center;
+}
+.heroKicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 18px;
+}
+.kickerText {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #a08b70;
+  white-space: nowrap;
+}
+.kickerRule {
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: #cdbca6;
+}
+
+/* 제목 — 명조 (세리프 확장 승인). 키커 아래·카드 위 중앙 헤딩 */
+.summaryTitle {
+  margin: 0;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  color: #1a1208;
+  word-break: keep-all;
+}
+
+/* 종이 낱장 카드 — 일정 박스의 노이즈 SVG·워시테이프 문법 재사용 */
+.summaryCard {
+  position: relative;
+  max-width: 420px; /* 오브제 고정폭 — 종이는 화면 따라 커지지 않는다 */
+  margin: 34px auto 0;
+  background-color: #fbfbfb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  border: 1px solid #fffdfa;
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.16), 0 10px 22px rgba(74, 58, 42, 0.14);
+  padding: 22px 18px 16px;
+  transform: rotate(-0.6deg);
+  text-align: left;
+}
+.summaryTape {
+  position: absolute;
+  top: -10px;
+  left: 46%;
+  width: 78px;
+  height: 18px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+  transform: translateX(-50%) rotate(-3.5deg);
+}
+.summaryRow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 9px 0;
+}
+.summaryRow + .summaryRow {
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
+}
+.summaryLabel {
+  flex: 0 0 52px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #8a6a50;
+}
+.summaryValue {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1a1208;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  word-break: keep-all;
+}
+.summarySubNote {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a6a50;
+}
+.summaryFoot {
+  margin: 12px 2px 0;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #8a7660;
+  word-break: keep-all;
+}

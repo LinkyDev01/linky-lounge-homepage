@@ -26,7 +26,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 ## 2. 프로젝트 지도
 
 - **도메인**: `lazyday-bookclub.com` → middleware가 내부 `/lazyday/*`로 rewrite (`middleware.ts`). `/apply/interview`는 `/apply/interview/schedule`로 redirect. `linkylounge.com/lazyday/*`는 북클럽 도메인으로 301. `/lazyday/admin*`은 `lazyday_admin` 쿠키(=ADMIN_SECRET) 필요.
-- **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서·배경(2026-07-06 배포, **오트 톤 저대비 교차 — 짙은 쪽부터**): Hero → **선정도서(B#f0e9e0, 종이책 조판)** → 모임소개(A#f7f3ee, **FeatureQuietSection** 콰이어트 페이드 이어 읽기) → 진행방식(B, 콰이어트 리스트) → 일정·장소(A, **6b 괘선 박스+7b 점선 5회차+6c 손그림 장소**, 7b '자유 독서모임'은 #gathering FAQ 딥링크) → FAQ(B) → **ClosingCta+BrandClose(A)**. 5회차 섹션은 삭제되고 내용은 FAQ 문항으로 이관. About/Closing/Rules/Vibe/**FeatureBoxSection·FifthSessionSection** 은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
+- **실사이트 랜딩** `app/(main)/lazyday/page.tsx` 섹션 순서·배경(2026-07-06 배포, **오트 톤 저대비 교차 — 짙은 쪽부터**): Hero → **압축 요약 카드(HeroSummary — 히어로 하단 페이드와 이어붙는 B#f0e9e0 밴드, 별도 교차 섹션 아님. 2026-07-08 배포)** → **선정도서(B#f0e9e0, 종이책 조판)** → 모임소개(A#f7f3ee, **FeatureQuietSection** 콰이어트 페이드 이어 읽기) → 진행방식(B, 콰이어트 리스트) → 일정·장소(A, **6b 괘선 박스+7b 점선 5회차+6c 손그림 장소**, 7b '자유 독서모임'은 #gathering FAQ 딥링크) → FAQ(B) → **ClosingCta+BrandClose(A)**. 5회차 섹션은 삭제되고 내용은 FAQ 문항으로 이관. About/Closing/Rules/Vibe/**FeatureBoxSection·FifthSessionSection** 은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
 - **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·Footer는 실사이트 것을 그대로 import (V2 없음). HowTo·Schedule·모임소개·클로징CTA는 실↔프리뷰 **분리 사본 쌍** (§4 참조 — 한쪽 수정 시 쌍도 같은 값으로). FifthSession은 섹션 삭제로 실·프리뷰 모두 미렌더(고아 보존).
 - **단일 출처 컨피그** (여기만 고치면 전체 반영):
   - `season-config.ts` — 기수명·기간·마감일(D-day 계산 `daysUntilDeadline`)·가격·요일·회차 일정·장소. **기수 전환 시 이 파일만 수정.**
@@ -79,6 +79,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 | `apply/page.module.css` · `apply/interview/written/page.module.css` · `apply/interview/schedule/page.module.css` | 실 apply 페이지 + preview/apply 대응 페이지 | 신청·서면·전화 실+프리뷰 (주의: `apply/interview/page.module.css`는 소비자 없는 고아 — 공유 아님) |
 | `FifthSessionSection`의 module.css | **V2 없음** — 프리뷰 랜딩이 실사이트 컴포넌트를 직접 import | 수정 = 실사이트 즉시 변경. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS를 새로 만들 것 |
 | `HowToSection`·`ScheduleSection`·`FeatureQuietSection`·`ClosingCtaSection` (실) ↔ `HowToSectionV2`·`ScheduleSectionV2`·`preview/FeatureQuietSection`·`ClosingSectionV2` (프리뷰) | **분리된 파일 쌍** (2026-07-06 배포) | 실·프리뷰가 같은 디자인의 **별도 사본** — 한쪽 수정 시 반드시 쌍도 같은 값으로 (TSX 쌍 동기화 원칙). CSS import 공유 없음 |
+| `HeroSummary.tsx`+`HeroSummary.module.css` (실) ↔ `preview/HeroSummary.tsx`+`preview.module.css`의 `heroSummary`·`summary*` 블록 (프리뷰) | **분리된 파일 쌍** (2026-07-08 배포, 10b 정본) | 실 사본이 `preview/`를 import 하지 않음(별도 module.css). 한쪽 수정 시 쌍도 같은 값으로. 실은 season-config·프리뷰는 preview-config 사용 |
 | `lazyday/lounge-info/page.tsx` | **lazyday 밖** `(main)/lounge-info/page.module.css`를 import | 라운지 오시는길과 교차 |
 | `preview/preview.module.css` | 프리뷰 트리 전역 허브 (10개 파일) | 수정 전 import grep 필수 |
 

@@ -47,15 +47,16 @@
 /* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ──
    섹션 색 교차(포스터 아래 밴드는 짙은 베이지)로 아래 선정도서(#f5ede4)와 대비 */
 .heroSummary {
-  background: #f7f3ee;
-  padding: 28px 24px 10px;
+  /* 압축 요약 섹션 배경 — 짙은 오트 톤 (10b 시안 지정, 운영자 확정 2026-07-08) */
+  background: #ede0d0;
+  padding: 30px 24px 44px;
   text-align: center;
 }
 .heroKicker {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   margin: 0 0 18px;
 }
 .kickerText {
@@ -748,14 +749,25 @@
 .summaryCard {
   position: relative;
   max-width: 420px; /* 오브제 고정폭 — 종이는 화면 따라 커지지 않는다 */
-  margin: 30px auto 0;
-  background-color: #f9f2e6;
+  margin: 34px auto 0;
+  background-color: #fbfbfb;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  border: 1px solid #dccdb5;
+  border: 1px solid #fffdfa;
   box-shadow: 0 1px 2px rgba(74, 58, 42, 0.16), 0 10px 22px rgba(74, 58, 42, 0.14);
   padding: 22px 18px 16px;
   transform: rotate(-0.6deg);
   text-align: left;
+}
+/* 제목 — 명조 (세리프 확장 승인). 키커 아래·카드 위 중앙 헤딩 (10b 시안) */
+.summaryTitle {
+  margin: 0;
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  color: #1a1208;
+  word-break: keep-all;
 }
 .summaryTape {
   position: absolute;
@@ -770,8 +782,8 @@
 .summaryRow {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  padding: 10px 0;
+  gap: 16px;
+  padding: 9px 0;
 }
 .summaryRow + .summaryRow {
   border-top: 1px solid rgba(74, 58, 42, 0.1);
@@ -785,6 +797,7 @@
 }
 .summaryValue {
   font-size: 13.5px;
+  font-weight: 500;
   color: #1a1208;
   line-height: 1.6;
   font-variant-numeric: tabular-nums;
@@ -798,9 +811,10 @@
   color: #8a6a50;
 }
 .summaryFoot {
-  margin: 18px 0 0;
+  margin: 12px 2px 0;
   text-align: center;
   font-size: 11.5px;
+  font-weight: 500;
   color: #8a7660;
   word-break: keep-all;
 }

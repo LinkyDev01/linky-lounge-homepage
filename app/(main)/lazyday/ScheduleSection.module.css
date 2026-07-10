@@ -37,6 +37,13 @@
   letter-spacing: -0.025em;
 }
 
+/* 카드·장소 폭 420 상한 — HeroSummary 종이 낱장(summaryCard 420px)과 시각 정렬 (운영자 지시 2026-07-10) */
+.boxWrap {
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
 .paperBox {
   position: relative;
@@ -181,7 +188,9 @@
   align-items: flex-start;
   gap: 12px;
   padding-top: 20px;
-  margin-top: 28px;
+  /* 폭 420 상한 — 일정 카드·HeroSummary 낱장과 동일 폭 정렬 (운영자 지시 2026-07-10) */
+  max-width: 420px;
+  margin: 28px auto 0;
   border-top: 1px solid rgba(74, 58, 42, 0.2);
 }
 

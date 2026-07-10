@@ -29,6 +29,13 @@ function dayScheduleLine() {
 // (낱장 카드용 압축 표기 — season-config location.short 단일 출처)
 const locationLine = SEASON.location.short.replace(" (", " · ").replace(")", "")
 
+// SEASON.deadline("2026-07-16") → "7/16 (목) 23:59까지" — 요일은 날짜에서 계산
+function deadlineLine() {
+  const [y, m, day] = SEASON.deadline.split("-").map(Number)
+  const week = ["일", "월", "화", "수", "목", "금", "토"][new Date(y, m - 1, day).getDay()]
+  return `${m}/${day} (${week}) 23:59까지`
+}
+
 export function HeroSummary() {
   const [d, setD] = useState<number | null>(null)
   useEffect(() => {
@@ -78,6 +85,18 @@ export function HeroSummary() {
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>장소</span>
           <span className={styles.summaryValue}>{locationLine}</span>
+        </div>
+        <div className={styles.summaryRow}>
+          <span className={styles.summaryLabel}>마감</span>
+          <span className={styles.summaryValue}>
+            {deadlineLine()}
+            {d !== null && (
+              <span className={styles.summaryDday}>
+                {" "}
+                {d < 0 ? "· 마감" : d === 0 ? "· D-DAY" : `· D-${d}`}
+              </span>
+            )}
+          </span>
         </div>
       </div>
 

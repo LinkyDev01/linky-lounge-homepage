@@ -155,7 +155,8 @@
 .fifthBlock {
   border-top: 1px dashed rgba(74, 58, 42, 0.2);
   margin: 14px 0 0;
-  padding: 14px 0 0;
+  /* 하단 18px = fifthMeta 한 줄 높이(12px/lh18) — 공백 텍스트 대신 패딩으로 (운영자 지시 2026-07-10) */
+  padding: 14px 0 18px;
   text-align: center;
 }
 

@@ -20,7 +20,7 @@ export function ScheduleSectionV2() {
         </div>
       </FadeUp>
 
-      <div>
+      <div className={styles.boxWrap}>
           <div className={styles.paperBox}>
             {/* 6b: 박스 최상단 이중 괘선 — 좌우 풀블리드 */}
             <div className={styles.ruleThick} aria-hidden />

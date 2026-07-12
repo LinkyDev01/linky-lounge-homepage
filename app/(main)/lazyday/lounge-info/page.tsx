@@ -340,7 +340,7 @@ export default function LazyDayLoungeInfoPage() {
               ))}
             </div>
             {/* 북클럽용 크롭본(우측 쓰레기 폐기장소 주석 제거) — 원본 parking.png는 라운지 페이지가 사용 */}
-            <Image src="/location/parking-v2.png" alt="주차장 입구 위치" width={600} height={384} className={styles.parkingPhoto} />
+            <Image src="/location/parking-v2.webp" alt="주차장 입구 위치" width={600} height={384} className={styles.parkingPhoto} />
           </div>
         </div>
       </div>

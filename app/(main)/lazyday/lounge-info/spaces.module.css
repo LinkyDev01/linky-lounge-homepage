@@ -1,0 +1,125 @@
+/* ── 공간 둘러보기 — linkylounge 홈 'Our Space' 갤러리 이식 (북클럽 전용 사본, 운영자 지시 2026-07-12) ──
+   lounge-info 공유 CSS(page.module.css)를 건드리지 않는 독립 모듈.
+   토큰은 그 파일의 :root 값을 리터럴로 동기 (accent #D2691E · ink #1A1208 · brown #4A3020 · border #E0D0C0) */
+
+.section {
+  background: #f5ede4; /* --s-cream — 문의(--s-page) 뒤 교차 */
+  padding: 48px 0;
+}
+
+.wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.sectionTag {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #d2691e;
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0 0 22px;
+  line-height: 1.35;
+}
+
+/* 그리드: 메인 1장 와이드 + 2×2 — 라운딩 12px(stepPhoto 문법) */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.cell {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  background: #e9ddcc;
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  display: block;
+  width: 100%;
+}
+.cellMain {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 10;
+}
+.cellImg {
+  object-fit: cover;
+}
+
+/* ── 라이트박스 — 클릭 시에만 대형본 로드 ── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(26, 18, 8, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px 48px;
+}
+.lightboxImgWrap {
+  position: relative;
+  width: min(92vw, 1100px);
+  height: min(78vh, 900px);
+}
+.lightboxImg {
+  object-fit: contain;
+}
+.lbClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  background: none;
+  border: none;
+  color: #f5ede4;
+  font-size: 30px;
+  line-height: 1;
+  padding: 8px;
+  cursor: pointer;
+  text-shadow: 0 1px 3px rgba(26, 18, 8, 0.6);
+}
+.lbNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: none;
+  border: none;
+  color: #f5ede4;
+  font-size: 34px;
+  line-height: 1;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-shadow: 0 1px 3px rgba(26, 18, 8, 0.6);
+}
+.lbNav:disabled { opacity: 0.35; cursor: default; }
+.lbPrev { left: 2px; }
+.lbNext { right: 2px; }
+.lbCounter {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #f5ede4;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(26, 18, 8, 0.6);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox { animation: lbIn 0.2s ease; }
+  @keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
+}

@@ -2,6 +2,7 @@
 
 import React from "react"
 import Image from "next/image"
+import { SpacesGallery } from "./SpacesGallery"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { useEffect, useState, useCallback } from "react"
 import styles from "../../lounge-info/page.module.css"
@@ -411,6 +412,9 @@ export default function LazyDayLoungeInfoPage() {
           </div>
         </div>
       </div>
+
+      {/* ── 공간 둘러보기 — linkylounge 홈 'Our Space' 이식 (경량 썸네일 + 클릭 시 라이트박스, 2026-07-12) ── */}
+      <SpacesGallery />
 
     </div>
   )

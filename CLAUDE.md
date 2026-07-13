@@ -104,7 +104,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 
 - `gas/linkyincdev-main.gs` = **실배포 미러(문서)**. 레포 수정 ≠ 실반영. 실반영은 운영자가 GAS 편집기에 붙여넣고 **"배포 관리 → 기존 배포 편집 → 새 버전"** (⚠️ '새 배포' 아님 — URL이 바뀌면 프론트가 끊긴다).
 - ⚠️ **실배포본이 레포 미러보다 최신일 수 있다** — 전체 교체를 안내하기 전에 운영자에게 배포본 원문을 받아 대조하거나, 바뀐 함수(예: handleApply)만 교체하도록 안내한다.
-- 비밀값(ADMIN_TOKEN, SOLAPI_KEY/SEC)은 코드가 아닌 **스크립트 속성** — 레포 사본에 절대 하드코딩하지 않는다. (`gas/interview-booking.gs`엔 구식 평문 키가 남아 있음 — 새 코드에서 이 패턴 금지)
+- 비밀값(ADMIN_TOKEN, SOLAPI_KEY/SEC)은 코드가 아닌 **스크립트 속성** — 레포 사본에 절대 하드코딩하지 않는다. (2026-07-13: `interview-booking.gs`의 구식 평문 키도 속성 방식으로 정리·솔라피 키 재발급 완료 — 새 코드에서 평문 패턴 금지)
 - 신청 payload 계약 (`handleApply`): name/gender/age/phone/interviewType/greeting/instagram/referral/marketingConsent/**consentAt**(항상)/**preferredDays**(현재 `SHOW_PREFERRED_DAYS=false`로 빈 값). 시트는 **헤더 이름 매핑** — 열 순서 무관, 새 필드는 `ensureColumn`으로 자동 생성. 헤더는 한국어 관례 ('희망 요일', '동의 시각' 패턴).
 - 프론트 화면 변경은 GAS와 무관. GAS를 "건드려야 하나?"는 payload 계약이 바뀌었는지로 판단.
 - **폼 필드 추가 표준 절차**: ① 실 `apply/page.tsx` ② `preview/apply/page.tsx` (TSX 쌍 동기화) ③ `gas/linkyincdev-main.gs` handleApply: `ensureColumn('한국어 헤더')` + row 기록 + 관리자 메일 본문 ④ 시트 수동 컬럼 추가 불필요함을 안내 ⑤ 운영자에게 handleApply 교체 + '배포 관리 → 새 버전' 안내. **⚠️ 순서: GAS 새 버전 완료 확인 후에 프론트 main 병합** — 뒤집히면 그 사이 제출분의 새 필드 값이 조용히 유실된다.

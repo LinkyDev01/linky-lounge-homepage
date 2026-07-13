@@ -13,8 +13,11 @@ var CALENDAR_ID  = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b
 var ADMIN_EMAIL  = "linkylounge@gmail.com"; // 관리자 알림 수신 이메일
 var SHEET_ID     = "1yDy7VeJ_XkOYNfv_CXVqXy0S1UOAObgCiL4j22etfko";
 var SENDER_PHONE = "010-7444-5790";         // 솔라피 발신 번호
-var SOLAPI_KEY   = "NCSEQASUIXASGIJW";     // 솔라피 API Key
-var SOLAPI_SEC   = "4H6JALTBSXESIPG4IVTTT2FABGSFCKQN"; // 솔라피 API Secret
+// ⚠ 비밀값은 코드에 절대 하드코딩하지 않는다 — 스크립트 속성(프로젝트 설정 → 스크립트 속성)에서 읽는다.
+//   (2026-07-13 보안 조치: 평문 키가 퍼블릭 레포에 노출 → 솔라피 키 재발급 + 속성 방식 전환)
+var _BOOKING_PROPS = PropertiesService.getScriptProperties();
+var SOLAPI_KEY   = _BOOKING_PROPS.getProperty("SOLAPI_KEY") || ""; // 솔라피 API Key
+var SOLAPI_SEC   = _BOOKING_PROPS.getProperty("SOLAPI_SEC") || ""; // 솔라피 API Secret
 // ────────────────────────────────────────────────────────────────
 
 // ── 스프레드시트 (없으면 자동 생성) ──────────────────────────────

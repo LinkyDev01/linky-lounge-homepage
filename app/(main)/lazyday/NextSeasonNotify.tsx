@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { SEASON } from "./season-config"
+import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "./NextSeasonNotify.module.css"
 
 /**
@@ -93,6 +94,8 @@ export function NextSeasonNotify() {
 
   return (
     <section className={styles.section}>
+      {/* 제출 중 전면 로더 — apply 폼과 동일 문법 (SubmitOverlay, 운영자 지시 2026-07-13) */}
+      {loading && <SubmitOverlay label="접수 중..." />}
       <div id="notify" ref={cardRef} className={styles.card}>
         <span className={styles.tape} aria-hidden />
         {submitted ? (

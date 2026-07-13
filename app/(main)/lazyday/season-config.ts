@@ -22,6 +22,12 @@ export const SEASON = {
   name: "3기",
   /** 다음 기수 고유명 */
   next: "4기",
+  /** 모집 상태 — "closedEarly"면 랜딩 전체가 조기마감+다음 기수 알림 모드 (운영자 지시 2026-07-13) */
+  status: "closedEarly" as "open" | "closedEarly",
+  /** 다음 기수 시작 시점 표기 (스티키 CTA 주석 줄) */
+  nextStartLabel: "9월 둘째 주",
+  /** 알림 완료 화면의 카카오 채널 */
+  notifyKakaoUrl: "https://pf.kakao.com/_gixaAX",
   /** 시즌 기간 표기 */
   periodLabel: "7/15 – 9/6",
   /** 신청 마감일 (KST, 이 날짜 23:59까지 신청 가능) — 스티키 CTA D-day가 여기서 계산됨 */

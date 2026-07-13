@@ -18,7 +18,9 @@ export function ClosingCtaSection() {
   return (
     <div className={styles.closingCta}>
       <p className={styles.closingCtaTitle}>
-        {d === null
+        {SEASON.status === "closedEarly"
+          ? `${SEASON.name} 모집이 조기 마감되었습니다.`
+          : d === null
           ? `${SEASON.name} 모집 중입니다.`
           : d < 0
           ? `${SEASON.name} 모집이 마감되었습니다.`

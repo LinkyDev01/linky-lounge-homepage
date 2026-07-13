@@ -44,14 +44,16 @@ export function HeroSummary() {
     return () => clearInterval(t)
   }, [])
 
-  const kicker =
-    d === null
-      ? `${SEASON.name} 모집 중`
-      : d < 0
-      ? `${SEASON.name} 모집이 마감되었어요`
-      : d === 0
-      ? `${SEASON.name} 모집 오늘 마감`
-      : `${SEASON.name} 모집 마감 D-${d}`
+  const closedEarly = SEASON.status === "closedEarly"
+  const kicker = closedEarly
+    ? `${SEASON.name} 모집 조기 마감`
+    : d === null
+    ? `${SEASON.name} 모집 중`
+    : d < 0
+    ? `${SEASON.name} 모집이 마감되었어요`
+    : d === 0
+    ? `${SEASON.name} 모집 오늘 마감`
+    : `${SEASON.name} 모집 마감 D-${d}`
 
   return (
     <div className={styles.heroSummary}>
@@ -90,17 +92,25 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>마감</span>
           <span className={styles.summaryValue}>
             {deadlineLine()}
-            {d !== null && (
-              <span className={styles.summaryDday}>
-                {" "}
-                {d < 0 ? "· 마감" : d === 0 ? "· D-DAY" : `· D-${d}`}
-              </span>
+            {closedEarly ? (
+              <span className={styles.summaryDday}> · 마감</span>
+            ) : (
+              d !== null && (
+                <span className={styles.summaryDday}>
+                  {" "}
+                  {d < 0 ? "· 마감" : d === 0 ? "· D-DAY" : `· D-${d}`}
+                </span>
+              )
             )}
           </span>
         </div>
       </div>
 
-      <p className={styles.summaryFoot}>인터뷰 및 결제 후 참여가 확정됩니다</p>
+      <p className={styles.summaryFoot}>
+        {closedEarly
+          ? `${SEASON.next} 오픈 알림은 아래에서 신청할 수 있어요`
+          : "인터뷰 및 결제 후 참여가 확정됩니다"}
+      </p>
     </div>
   )
 }

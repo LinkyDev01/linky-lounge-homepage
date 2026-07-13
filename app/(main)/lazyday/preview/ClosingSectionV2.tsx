@@ -5,6 +5,8 @@ import Image from "next/image"
 import styles from "../BrandCloseSection.module.css"
 import pstyles from "./preview.module.css"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
+import { SEASON } from "../season-config"
+import { NextSeasonNotify } from "../NextSeasonNotify"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 
 /**
@@ -20,7 +22,9 @@ export function ClosingSectionV2() {
     <>
       <div className={pstyles.closingCta}>
         <p className={pstyles.closingCtaTitle}>
-          {d === null
+          {SEASON.status === "closedEarly"
+            ? `${PREVIEW.season} 모집이 조기 마감되었습니다.`
+            : d === null
             ? `${PREVIEW.season} 모집 중입니다.`
             : d < 0
             ? `${PREVIEW.season} 모집이 마감되었습니다.`
@@ -42,6 +46,9 @@ export function ClosingSectionV2() {
           </a>
         </p>
       </div>
+
+      {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 (실 컴포넌트 직접 import, HeroParallax 패턴) */}
+      {SEASON.status === "closedEarly" && <NextSeasonNotify />}
 
       <section className={styles.section}>
         <BlurReveal duration={1.28} blur={14} fromScale={1.04} finalOpacity={0.8}>

@@ -26,6 +26,7 @@ var MAIN_SHEET  = "신청현황";
 var PHONE_SHEET = "전화 인터뷰";
 var WRITTEN_SHEET = "서면 인터뷰";
 var CLASS_SHEET = "반배정";
+var NOTIFY_SHEET = "4기 알림"; // 다음 기수 오픈 알림 신청 (2026-07-13)
 
 // 확인 완료: 운영 캘린더 "레이지데이북클럽 인터뷰" (라이브 일정과 대조 검증됨)
 var CALENDAR_ID = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
@@ -180,11 +181,55 @@ function doPost(e) {
     if (data.type === "phone_interview") return handlePhoneBooking(data);
     if (data.type === "admin_block")     return handleAdminBlock(data);
     if (data.type === "admin_delete")    return handleAdminDelete(data);
+    if (data.type === "notify")          return handleNotify(data);
 
     return handleApply(data); // type 없음 = 신청 폼
   } catch (err) {
     return jsonResponse({ success: false, error: err.message });
   }
+}
+
+// ── 다음 기수(4기) 오픈 알림 신청 → '4기 알림' 시트 ─────────────
+// 프론트 NextSeasonNotify 폼 (payload: type:"notify"/name/phone/marketingConsent/consentAt).
+// 시트가 없으면 자동 생성 + 헤더는 ensureColumn으로 보장 (수동 작업 불필요).
+function handleNotify(d) {
+  if (!d.name || !d.phone) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
+  var sheet = ss().getSheetByName(NOTIFY_SHEET);
+  if (!sheet) {
+    sheet = ss().insertSheet(NOTIFY_SHEET);
+    // 빈 시트는 getLastColumn()이 0이라 ensureColumn이 못 읽음 — 첫 헤더 셀 선시드
+    sheet.getRange(1, 1).setValue("신청일자")
+      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
+  }
+  ensureColumn(sheet, "이름");
+  ensureColumn(sheet, "전화번호");
+  ensureColumn(sheet, "마케팅 동의");
+  ensureColumn(sheet, "동의 시각");
+  var col = colIndexMap(sheet);
+  var row = new Array(sheet.getLastColumn()).fill("");
+  row[col["신청일자"]]    = new Date();
+  row[col["이름"]]        = d.name || "";
+  row[col["전화번호"]]    = d.phone || "";
+  row[col["마케팅 동의"]] = d.marketingConsent || "";
+  row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
+  prependRow(sheet, row);
+  if (d.consentAt && col["동의 시각"] != null) {
+    sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
+  }
+
+  MailApp.sendEmail({
+    to: ADMIN_EMAIL,
+    subject: "[레이지데이 북클럽] 4기 오픈 알림 신청 — " + (d.name || "?") + "님",
+    body: "4기 오픈 알림 신청이 접수되었습니다.\n\n" +
+          "이름: " + (d.name || "-") + "\n" +
+          "연락처: " + (d.phone || "-") + "\n" +
+          "마케팅 동의: " + (d.marketingConsent || "-") + "\n\n" +
+          "📄 스프레드시트('4기 알림' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
+  });
+
+  return jsonResponse({ success: true });
 }
 
 // ── 신청 폼 → 신청현황 ──────────────────────────────────────

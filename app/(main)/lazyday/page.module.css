@@ -49,8 +49,8 @@
 /* 조기마감 모드 — 버튼 안 둘째 줄 (흰색, 운영자 지시 2026-07-13 가독성) */
 .applyBtnSub {
     display: block;
-    margin-top: 4px;
-    font-size: 12px;
+    margin-top: 3px;
+    font-size: 11px;
     font-weight: 600;
     color: #ffffff;
     opacity: 0.92;
@@ -94,6 +94,13 @@
     background-color: #A04D16;
 }
 
+/* 2줄 구성일 때만 상하 패딩 축소 — 한 줄(open 모드) 버튼은 기존 18px 유지 */
+.applyButtonTwoLine {
+    padding-top: 11px;
+    padding-bottom: 11px;
+}
+
+
 /* 모집 마감 상태 버튼 */
 .applyButtonClosed {
     display: block;
@@ -134,6 +141,11 @@
     .applyButton {
         border-radius: 8px;
         padding: 16px 24px;
+    }
+
+    .applyButtonTwoLine {
+        padding-top: 11px;
+        padding-bottom: 11px;
     }
 
     .applyButtonClosed {

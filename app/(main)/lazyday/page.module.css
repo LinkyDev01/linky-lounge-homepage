@@ -46,7 +46,19 @@
     pointer-events: auto;
 }
 
-/* 조기마감 모드 — 스티키 버튼 아래 한 줄 주석 (운영자 확정 2026-07-13) */
+/* 조기마감 모드 — 버튼 안 둘째 줄 (흰색, 운영자 지시 2026-07-13 가독성) */
+.applyBtnSub {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    opacity: 0.92;
+    line-height: 1.4;
+    word-break: keep-all;
+}
+
+/* (미사용 보존 — 구 버튼 밖 주석 줄) */
 .applyNote {
     margin: 8px 0 0;
     font-size: 12px;

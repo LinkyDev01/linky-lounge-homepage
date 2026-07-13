@@ -35,10 +35,10 @@ export function StickyApplyButtonV2() {
           onClick={() => window.dispatchEvent(new CustomEvent("lazyday:notify-cta"))}
         >
           {SEASON.next} 오픈 알림 신청
+          <span className={styles.applyBtnSub}>
+            {SEASON.name} 모집 조기 마감 | {SEASON.next}는 {SEASON.nextStartLabel}에 시작돼요
+          </span>
         </button>
-        <p className={styles.applyNote}>
-          {SEASON.name} 모집 조기 마감 | {SEASON.next}는 {SEASON.nextStartLabel}에 시작돼요
-        </p>
       </div>
     )
   }

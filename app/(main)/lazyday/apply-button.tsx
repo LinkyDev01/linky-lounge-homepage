@@ -21,12 +21,12 @@ export function ApplyButton() {
     return (
       <button
         type="button"
-        className={styles.applyButton}
+        className={`${styles.applyButton} ${styles.applyButtonTwoLine}`}
         onClick={() => window.dispatchEvent(new CustomEvent("lazyday:notify-cta"))}
       >
         {SEASON.next} 오픈 알림 신청
         <span className={styles.applyBtnSub}>
-          {SEASON.name} 모집 조기 마감 | {SEASON.next}는 {SEASON.nextStartLabel}에 시작돼요
+          {SEASON.name} 모집 조기 마감 | {SEASON.next}는 {SEASON.nextStartLabel} 시작됩니다.
         </span>
       </button>
     )

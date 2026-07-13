@@ -46,6 +46,16 @@
     pointer-events: auto;
 }
 
+/* 조기마감 모드 — 스티키 버튼 아래 한 줄 주석 (운영자 확정 2026-07-13) */
+.applyNote {
+    margin: 8px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a3020;
+    text-align: center;
+    word-break: keep-all;
+}
+
 .applyButton {
     display: block;
     width: 100%;

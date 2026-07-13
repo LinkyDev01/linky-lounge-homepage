@@ -15,6 +15,20 @@ export function ApplyButton() {
     return () => clearInterval(t)
   }, [])
 
+  // 조기마감 모드: 살아있는 주황 버튼 그대로, 액션만 4기 알림으로 전환 (운영자 확정 2026-07-13)
+  // 클릭은 커스텀 이벤트 — NextSeasonNotify가 받아 '폼 유효하면 제출 / 아니면 #notify 스크롤' 판단
+  if (SEASON.status === "closedEarly") {
+    return (
+      <button
+        type="button"
+        className={styles.applyButton}
+        onClick={() => window.dispatchEvent(new CustomEvent("lazyday:notify-cta"))}
+      >
+        {SEASON.next} 오픈 알림 신청
+      </button>
+    )
+  }
+
   const label =
     d === null
       ? `${SEASON.name} 신청`

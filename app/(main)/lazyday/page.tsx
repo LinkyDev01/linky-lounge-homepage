@@ -13,7 +13,9 @@ import { BookSection } from "./BookSection"
 import { FaqSection } from "./FaqSection"
 import { FeatureQuietSection } from "./FeatureQuietSection"
 import { ClosingCtaSection } from "./ClosingCtaSection"
+import { NextSeasonNotify } from "./NextSeasonNotify"
 import { BrandCloseSection } from "./BrandCloseSection"
+import { SEASON } from "./season-config"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
@@ -44,6 +46,8 @@ export default function StudyForeignPage() {
         <ScheduleSection />
         <FaqSection />
         <ClosingCtaSection />
+        {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 B밴드 (A/B 교차 유지, 운영자 확정 2026-07-13) */}
+        {SEASON.status === "closedEarly" && <NextSeasonNotify />}
         <BrandCloseSection />
       </main>
 

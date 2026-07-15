@@ -27,6 +27,18 @@ export function Footer({
               <li>사업자등록번호 : 557-81-03588 | 통신판매업신고번호: 2026-별내-0077</li>
               <li>이메일 : contact@linkylounge.com | 대표번호 : 010-7444-5790</li>
               <li>주소: 경기도 남양주시 별내3로 322, 404호</li>
+              {/* 벤처기업확인 — 검증은 정부 공시 조회가 담당 (통신판매신고번호와 같은 문법, 운영자 확정 2026-07-15) */}
+              <li>
+                벤처기업확인 : 제20260303030009호 (혁신성장유형, 유효기간 2026.03.03 ~ 2029.03.02){" "}
+                <a
+                  href="https://www.smes.go.kr/venturein/pbntc/searchVntrCmp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-background transition-colors"
+                >
+                  확인
+                </a>
+              </li>
             </ul>
           </div>
 

@@ -19,7 +19,7 @@ import { SEASON } from "./season-config"
 
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
-  description: "결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 같은 문장 앞에 멈춰 서도 사유의 궤적은 저마다 다르고, 우리는 그 불협화음이 고전의 본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.",
+  description: "결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.",
   openGraph: {
     title: "레이지데이 북클럽",
     description: "사유의 불협화음이 본질을 관통하는 선율이 되는 순간을 믿습니다.",

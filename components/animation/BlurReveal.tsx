@@ -1,6 +1,7 @@
 "use client"
 import { motion, useReducedMotion } from "framer-motion"
-import type { ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
+import fb from "./reveal-fallback.module.css"
 
 type Props = {
   children: ReactNode
@@ -37,6 +38,9 @@ export function BlurReveal({
   once = true,
 }: Props) {
   const reduce = useReducedMotion()
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
+  const fallback = hydrated ? "" : ` ${fb.fallback}`
   if (reduce) {
     return (
       <div className={className} style={{ opacity: finalOpacity }}>
@@ -46,7 +50,7 @@ export function BlurReveal({
   }
   return (
     <motion.div
-      className={className}
+      className={(className || "") + fallback}
       initial={{ opacity: 0, filter: `blur(${blur}px)`, y, scale: fromScale }}
       whileInView={{ opacity: finalOpacity, filter: "blur(0px)", y: 0, scale: 1 }}
       viewport={{ once, amount: 0.4 }}

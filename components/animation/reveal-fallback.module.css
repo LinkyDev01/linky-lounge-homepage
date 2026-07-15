@@ -1,0 +1,19 @@
+/* ── 등장 리빌 fail-open 폴백 (운영자 승인 2026-07-14) ──
+   FadeUp/BlurReveal은 SSR부터 인라인 opacity:0으로 배달된다. JS가 죽으면
+   (배포 버전 스큐로 청크 404, 웹뷰 스크립트 실패 등 — 카카오 인앱 빈 화면
+   제보의 원인) 콘텐츠가 영원히 투명해진다. 이 폴백은 JS 없이도 2.5초 뒤
+   CSS 애니메이션만으로 콘텐츠를 강제 표시한다(CSS 애니메이션은 인라인
+   스타일보다 우선). 하이드레이션이 정상이면 컴포넌트가 마운트 즉시 이
+   클래스를 제거하므로 평소 스크롤 리빌 동작엔 영향 없다. */
+
+@keyframes revealFallback {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.fallback {
+  animation: revealFallback 0.9s ease 2.5s forwards;
+}

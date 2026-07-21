@@ -92,7 +92,7 @@
 }
 
 .stepDesc {
-  /* 종이책 조판 — 명조 + 음절 단위 줄바꿈 + 양쪽 정렬 */
+  /* 종이책 조판 — 명조 + 어절 단위 줄바꿈 + 양쪽 정렬 (2026-07-21 음절서 전환) */
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 500;
   font-size: 13px;
@@ -100,6 +100,6 @@
   color: #6a5038;
   margin: 0;
   text-align: justify;
-  word-break: normal;
+  word-break: keep-all;
   overflow-wrap: break-word;
 }

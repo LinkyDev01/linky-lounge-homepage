@@ -17,17 +17,44 @@ import { FadeUp } from "@/components/animation/FadeUp"
  * 사진 파일: /public/linky-lounge/book-club/reviews/review-01.webp ~ 04 (업로드 대기)
  */
 type ReviewCard = {
+  id: string
   caption: string
   photo?: string
   quote?: string
   by?: string
 }
 
+/* 발췌문(quote)은 실물 서면후기(LazyDay Archive)에서 원문 그대로 전사 —
+   운영자 검수 전까지 오독 가능성 있음. photo는 실물 촬영본 도착 시 채움. */
 const photoCards: ReviewCard[] = [
-  { caption: "서면 후기 01" },
-  { caption: "서면 후기 02" },
-  { caption: "서면 후기 03" },
-  { caption: "서면 후기 04" },
+  {
+    id: "r1",
+    caption: "2026. 7. 15의 기록",
+    quote:
+      "\"책을 읽고 나서 누군가와 대화하고 싶었습니다. 그 목마름을 해결해주는 것만으로도 마음이 굉장히 편안해졌던 것 같아요.\"",
+    by: "— 2026. 7. 15 서면 후기에서",
+  },
+  {
+    id: "r2",
+    caption: "2026. 7. 12의 기록",
+    quote:
+      "\"장소의 인테리어나 BGM이 독서모임의 분위기와 잘 맞고 마음을 편안하게 해주었던 것 같습니다.\"",
+    by: "— 2026. 7. 12 서면 후기에서",
+  },
+  {
+    id: "r3",
+    caption: "2026. 7. 12의 기록",
+    quote:
+      "\"같은 책을 읽고 다 각자의 생각을 이야기할 수 있는 것도 너무 흥미로웠습니다.\"",
+    by: "— 2026. 7. 12 서면 후기에서",
+  },
+  {
+    id: "r4",
+    caption: "2026. 7. 12의 기록",
+    quote:
+      "\"『사랑의 기술』을 읽고 평소 어려워했던 철학에 관심이 생겼습니다. 함께라면 더 잘 읽을 수 있을 것 같아요.\"",
+    by: "— 2026. 7. 12 서면 후기에서",
+  },
 ]
 
 export function ReviewsSection() {
@@ -123,7 +150,7 @@ export function ReviewsSection() {
           <div className={rstyles.reviewTrack} ref={trackRef}>
             {photoCards.map((c, i) => (
               <div
-                key={c.caption}
+                key={c.id}
                 className={`${rstyles.reviewSlide} ${i === idx ? rstyles.reviewSlideActive : ""}`}
                 onClick={() => i !== idx && scrollToCard(i)}
               >
@@ -158,7 +185,7 @@ export function ReviewsSection() {
           <div className={rstyles.bookDots}>
             {photoCards.map((c, i) => (
               <button
-                key={`dot-${c.caption}`}
+                key={`dot-${c.id}`}
                 className={`${rstyles.bookDot} ${i === idx ? rstyles.bookDotActive : ""}`}
                 onClick={() => scrollToCard(i)}
                 aria-label={`${i + 1}번째 후기로 이동`}

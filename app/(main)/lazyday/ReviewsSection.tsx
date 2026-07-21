@@ -29,6 +29,7 @@ type ReviewCard = {
 const photoCards: ReviewCard[] = [
   {
     id: "r1",
+    photo: "/linky-lounge/book-club/reviews/review-01.webp",
     caption: "2026. 7. 15의 기록",
     quote:
       "\"책을 읽고 나서 누군가와 대화하고 싶었습니다. 그 목마름을 해결해주는 것만으로도 마음이 굉장히 편안해졌던 것 같아요.\"",
@@ -36,6 +37,7 @@ const photoCards: ReviewCard[] = [
   },
   {
     id: "r2",
+    photo: "/linky-lounge/book-club/reviews/review-02.webp",
     caption: "2026. 7. 12의 기록",
     quote:
       "\"장소의 인테리어나 BGM이 독서모임의 분위기와 잘 맞고 마음을 편안하게 해주었던 것 같습니다.\"",
@@ -43,6 +45,7 @@ const photoCards: ReviewCard[] = [
   },
   {
     id: "r3",
+    photo: "/linky-lounge/book-club/reviews/review-03.webp",
     caption: "2026. 7. 12의 기록",
     quote:
       "\"같은 책을 읽고 다 각자의 생각을 이야기할 수 있는 것도 너무 흥미로웠습니다.\"",
@@ -50,6 +53,7 @@ const photoCards: ReviewCard[] = [
   },
   {
     id: "r4",
+    photo: "/linky-lounge/book-club/reviews/review-04.webp",
     caption: "2026. 7. 12의 기록",
     quote:
       "\"『사랑의 기술』을 읽고 평소 어려워했던 철학에 관심이 생겼습니다. 함께라면 더 잘 읽을 수 있을 것 같아요.\"",

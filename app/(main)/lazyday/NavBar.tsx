@@ -7,6 +7,7 @@ const navItems = [
   { id: 'feature',  label: '모임소개' },
   { id: 'howto',    label: '진행방식' },
   { id: 'schedule', label: '일정·장소' },
+  { id: 'reviews',  label: '후기' },
   { id: 'faq',      label: 'FAQ' },
 ]
 

@@ -9,6 +9,7 @@ import { HeroSummary } from "./HeroSummary"
 import { SectionIndicator } from "./SectionIndicator"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
+import { ReviewsSection } from "./ReviewsSection"
 import { BookSection } from "./BookSection"
 import { FaqSection } from "./FaqSection"
 import { FeatureQuietSection } from "./FeatureQuietSection"
@@ -48,6 +49,8 @@ export default function StudyForeignPage() {
         <FeatureQuietSection />
         <HowToSection />
         <ScheduleSection />
+        {/* 후기(멤버들이 남긴 문장) — 프리뷰 확정 디자인 이식, FAQ 바로 위 (운영자 지시 2026-07-21). 실물 사진 업로드 대기 */}
+        <ReviewsSection />
         <FaqSection />
         <ClosingCtaSection />
         {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 B밴드 (A/B 교차 유지, 운영자 확정 2026-07-13) */}

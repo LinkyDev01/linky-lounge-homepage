@@ -7,6 +7,7 @@ const sections = [
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행" },
   { id: "schedule", label: "일정" },
+  { id: "reviews", label: "후기" },
   { id: "faq", label: "FAQ" },
 ]
 

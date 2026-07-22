@@ -13,7 +13,71 @@ export type SeasonConfig = {
   season: number
   label: string
   dateRange: string
+  /** 아직 시작 전인 기수 — 리드 문구가 "다가오는 …가 함께 읽을"로 바뀐다 */
+  upcoming?: boolean
   books: Book[]
+}
+
+// 4기 — Season 4 Preview (운영자 제공 카드뉴스 원문, 2026-07-21). 소개 문단은 3기 체계(quotes 2문단).
+export const season4Config: SeasonConfig = {
+  season: 4,
+  label: "4기",
+  dateRange: "9월 둘째 주 시작",
+  upcoming: true,
+  books: [
+    {
+      week: 1,
+      weekLabel: "1회차",
+      title: "변신",
+      author: "프란츠 카프카",
+      quotes: [
+        "쓸모와 생산성으로만 인간의 가치가 결정되는 냉혹한 세상의 이면을 보여줍니다.",
+        "어느 날 아침 벌레로 변해버린 주인공을 통해, '가족'과 '사회'라는 이름 뒤에 숨겨진 서늘한 조건부 인정과 고립된 개인의 실존적 슬픔을 고찰하는 것으로 4기의 문을 엽니다.",
+      ],
+      paragraphs: [],
+      curatorNote: "",
+      imagePath: "/linky-lounge/book-club/books/4기-1-변신.webp",
+    },
+    {
+      week: 2,
+      weekLabel: "2회차",
+      title: "피로사회",
+      author: "한병철",
+      quotes: [
+        "\"너는 할 수 있다\"는 긍정의 과잉 속에서 현대인이 어떻게 스스로를 착취하게 되는지 해부합니다.",
+        "외부의 강요가 아닌 자발적인 채찍질 속에서 성과주체로 살아가는 우리가 왜 번아웃과 우울에 빠질 수밖에 없는지, 그 구조적 원인을 사회철학적 시선으로 파헤치는 시간입니다.",
+      ],
+      paragraphs: [],
+      curatorNote: "",
+      imagePath: "/linky-lounge/book-club/books/4기-2-피로사회.webp",
+    },
+    {
+      week: 3,
+      weekLabel: "3회차",
+      title: "인간실격",
+      author: "다자이 오사무",
+      quotes: [
+        "세상이 정한 가식적인 기준과 규율에 부딪혀 스스로를 실격시켜 가는 인간 내면의 적나라한 붕괴를 들여다봅니다.",
+        "타인의 시선이라는 지옥과 끊임없이 요구되는 사회적 페르소나 속에서, 소외되고 상처받은 한 인간의 고독을 다각도로 성찰합니다.",
+      ],
+      paragraphs: [],
+      curatorNote: "",
+      imagePath: "/linky-lounge/book-club/books/4기-3-인간실격.webp",
+    },
+    {
+      week: 4,
+      weekLabel: "4회차",
+      title: "사람, 장소, 환대",
+      author: "김현경",
+      quotes: [
+        "앞선 주차 동안 타인에게 상처받고, 스스로를 착취하며, 세상에 실격당한 이방인들을 위한 온전한 구원을 다룹니다.",
+        "배제와 피로가 가득한 세계 속에서 아무런 조건 없이 서로에게 온전한 자리를 내어주는 '절대적 환대'의 의미를 나누며, 다정한 연대의 가능성과 함께 마무리합니다.",
+      ],
+      paragraphs: [],
+      curatorNote: "",
+      imagePath: "/linky-lounge/book-club/books/4기-4-사람 장소 환대.webp",
+    },
+  ],
 }
 
 export const season1Config: SeasonConfig = {

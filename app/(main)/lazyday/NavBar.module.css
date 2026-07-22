@@ -14,7 +14,8 @@
   list-style: none;
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 24px;
+  /* 6탭이 붙어 보이지 않게 좌우 패딩 축소 → 탭 간 숨 확보 (운영자 지시 2026-07-21) */
+  padding: 0 14px;
 }
 
 .list > li {
@@ -26,7 +27,8 @@
   flex: 1;
   height: 48px;
   padding: 0;
-  font-size: 13px;
+  /* 글자가 이어져 보이지 않게 살짝 축소 + 자간 확대 (운영자 지시 2026-07-21) */
+  font-size: 12.5px;
   font-weight: 500;
   color: #ece1d2;
   background: none;
@@ -35,7 +37,7 @@
   cursor: pointer;
   transition: color 0.18s ease, border-color 0.18s ease;
   white-space: nowrap;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.035em;
   text-align: center;
   font-family: inherit;
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Image from "next/image"
-import { season1Config, season2Config, season3Config } from "./book-config"
+import { season1Config, season2Config, season3Config, season4Config } from "./book-config"
 import type { SeasonConfig } from "./book-config"
 import styles from "./BookSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -14,7 +14,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
  *    — 항상 보이되(세그먼트 상시 노출) 눌러야만 펼쳐짐(강요되지 않음)
  *  · 기수 전환 시 방향성 슬라이드 애니메이션 (과거로 = 오른쪽에서 들어옴)
  */
-const SEASONS: SeasonConfig[] = [season3Config, season2Config, season1Config]
+const SEASONS: SeasonConfig[] = [season4Config, season3Config, season2Config, season1Config]
 
 export function BookSection() {
   const [seasonIdx, setSeasonIdx] = useState(0)
@@ -89,7 +89,11 @@ export function BookSection() {
           </div>
           <p className={styles.bookLead}>
             {isCurrent ? (
-              <>이번 시즌, <strong>{season.label}</strong>가 함께 읽는 네 권</>
+              season.upcoming ? (
+                <>다가오는 <strong>{season.label}</strong>가 함께 읽을 네 권</>
+              ) : (
+                <>이번 시즌, <strong>{season.label}</strong>가 함께 읽는 네 권</>
+              )
             ) : (
               <>지난 <strong>{season.label}</strong>가 함께 읽은 책</>
             )}

@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Image from "next/image"
-import { season1Config, season2Config, season3Config } from "../book-config"
+import { season1Config, season2Config, season3Config, season4Config } from "../book-config"
 import type { SeasonConfig } from "../book-config"
 import bstyles from "../BookSection.module.css"
 import styles from "./preview.module.css"
@@ -16,7 +16,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
  *  · 현재 기수(3기)가 기본·강조 — 리드 문장으로 드러내고,
  *    지난 기수는 또렷한 필 버튼으로 열람 (보이되 강요되지 않게)
  */
-const SEASONS: SeasonConfig[] = [season3Config, season2Config, season1Config]
+const SEASONS: SeasonConfig[] = [season4Config, season3Config, season2Config, season1Config]
 
 export function BookSectionV2() {
   const [seasonIdx, setSeasonIdx] = useState(0)
@@ -96,7 +96,11 @@ export function BookSectionV2() {
           {/* 현재 기수 강조 리드 */}
           <p className={styles.bookLead}>
             {isCurrent ? (
-              <>이번 시즌, <strong>{season.label}</strong>가 함께 읽는 네 권</>
+              season.upcoming ? (
+                <>다가오는 <strong>{season.label}</strong>가 함께 읽을 네 권</>
+              ) : (
+                <>이번 시즌, <strong>{season.label}</strong>가 함께 읽는 네 권</>
+              )
             ) : (
               <>지난 <strong>{season.label}</strong>가 함께 읽은 책</>
             )}

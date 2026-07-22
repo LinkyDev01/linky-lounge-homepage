@@ -161,22 +161,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 20px 0;
   background: rgba(26, 18, 8, 0.82);
   animation: lbFade 0.25s ease;
   cursor: zoom-out;
+  /* 카드 폭 — 화면-36px(양옆 ~10px 슬리버, 책소개와 동일), 높이 한계에서도 비율 유지 */
+  --slide-w: min(calc(100vw - 36px), 520px, calc(78vh * (1005 / 1440)));
 }
 @keyframes lbFade {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-/* 프레임: 뷰포트와 같은 크기의 기준 상자 — ‹› 버튼은 뷰포트 밖 형제로 배치.
-   폭을 높이 한계(82vh)에서도 비율로 산정해 레터박스(흰 여백) 자체가 안 생기게 —
-   모달은 어두워진 페이지 위에 후기지 사진만 떠 있는 모습이어야 한다 (운영자 지시) */
+/* 프레임: 스테이지 기준 상자 — 활성 카드 + 양옆 슬리버(각 ~10px+갭 8px)만큼의 폭.
+   모달은 어두워진 페이지 위에 후기지 사진만 떠 있고, 책소개 카드처럼
+   이전/다음 장이 양옆에 살짝 보인다 (운영자 지시 2026-07-21) */
 .galleryFrame {
   position: relative;
-  width: min(92vw, 560px, calc(82vh * (1005 / 1440)));
-  aspect-ratio: 1005 / 1440; /* 실물 후기지 편집본 비율 */
+  width: min(100vw, calc(var(--slide-w) + 36px));
+  height: calc(var(--slide-w) * (1440 / 1005));
   cursor: default;
   animation: lbZoom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -184,21 +186,34 @@
   from { opacity: 0; transform: scale(0.86); }
   to   { opacity: 1; transform: scale(1); }
 }
-/* 뷰포트: 슬라이드·확대의 클리핑 영역 */
-.galleryViewport {
+/* 스테이지: 슬라이드들의 클리핑 영역 */
+.galleryStage {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 6px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-  cursor: zoom-in;
   touch-action: none; /* 가로 스와이프·팬을 갤러리가 소비 */
 }
-.galleryViewportZoomed { cursor: grab; }
-.gallerySlide {
+/* 모달 카드 — 책소개 카드 문법: 비활성은 흐리고 살짝 작게, 활성만 또렷 */
+.gallerySlideM {
   position: absolute;
-  inset: 0;
-  transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+  top: 0;
+  left: 50%;
+  width: var(--slide-w);
+  height: 100%;
+  overflow: hidden; /* 확대 팬 클리핑 */
+  border-radius: 6px;
+  opacity: 0.45;
+  filter: blur(1px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.36, 1),
+    opacity 0.35s ease, filter 0.35s ease;
+  will-change: transform;
+}
+.gallerySlideMActive {
+  opacity: 1;
+  filter: none;
+  cursor: zoom-in;
 }
 .galleryZoomLayer {
   position: absolute;
@@ -207,7 +222,6 @@
   transform-origin: center;
   will-change: transform;
 }
-/* 이미지 뒤 배경 없음 — 비율 오차의 헤어라인 슬리버는 백드롭이 그대로 비침 */
 /* 모달 내 슬라이드 넘김 버튼 — PC·모바일 공통, 끝에서 비활성 */
 .galleryNav {
   position: absolute;
@@ -270,7 +284,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gallerySlide,
+  .gallerySlideM,
   .galleryZoomLayer {
     transition: none;
   }

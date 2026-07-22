@@ -73,7 +73,7 @@ export function ReviewsSection() {
   const [zoomT, setZoomT] = useState<ZoomT | null>(null)
   const [panning, setPanning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
-  const viewportRef = useRef<HTMLDivElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null)
 
   // 스크롤 위치 → 활성 카드 동기화 (책 소개와 동일 로직)
@@ -150,10 +150,17 @@ export function ReviewsSection() {
     return Math.max(-lim, Math.min(lim, v))
   }
 
-  // ── 모달 갤러리 포인터 인터랙션 ──
-  // 축소 상태: 가로 45px 이상 드래그 = 슬라이드 넘김 / 살짝 탭 = 그 지점 2배 확대
+  // 활성 슬라이드 DOM (탭 좌표 → 확대 원점 계산, 팬 한계 산정)
+  function activeSlideRect() {
+    const el = stageRef.current?.querySelector(`[data-slide-idx="${modalIdx}"]`)
+    return el ? (el as HTMLElement).getBoundingClientRect() : null
+  }
+
+  // ── 모달 갤러리 포인터 인터랙션 (책소개 카드 문법의 캐러셀 스테이지) ──
+  // 축소 상태: 가로 45px 이상 드래그 = 슬라이드 넘김 / 활성 카드 탭 = 그 지점 2배 확대
+  //           / 양옆 살짝 보이는 이웃 카드 탭 = 그 카드로 이동
   // 확대 상태: 드래그 = 팬 / 살짝 탭 = 축소 복귀
-  function onViewportPointerDown(e: React.PointerEvent) {
+  function onStagePointerDown(e: React.PointerEvent) {
     dragRef.current = {
       x: e.clientX,
       y: e.clientY,
@@ -163,18 +170,18 @@ export function ReviewsSection() {
     }
     if (zoomT) setPanning(true)
   }
-  function onViewportPointerMove(e: React.PointerEvent) {
+  function onStagePointerMove(e: React.PointerEvent) {
     const d = dragRef.current
     if (!d) return
     const dx = e.clientX - d.x
     const dy = e.clientY - d.y
     if (Math.abs(dx) + Math.abs(dy) > TAP_SLOP_PX) d.moved = true
-    if (zoomT && viewportRef.current) {
-      const r = viewportRef.current.getBoundingClientRect()
-      setZoomT({ tx: clampPan(d.tx + dx, r.width), ty: clampPan(d.ty + dy, r.height) })
+    if (zoomT) {
+      const r = activeSlideRect()
+      if (r) setZoomT({ tx: clampPan(d.tx + dx, r.width), ty: clampPan(d.ty + dy, r.height) })
     }
   }
-  function onViewportPointerUp(e: React.PointerEvent) {
+  function onStagePointerUp(e: React.PointerEvent) {
     const d = dragRef.current
     dragRef.current = null
     setPanning(false)
@@ -189,9 +196,17 @@ export function ReviewsSection() {
       slideModal(dx < 0 ? 1 : -1)
       return
     }
-    if (!d.moved && viewportRef.current) {
-      // 탭한 지점이 화면 중앙으로 오도록 확대
-      const r = viewportRef.current.getBoundingClientRect()
+    if (d.moved) return
+    // 탭: 이웃 카드면 그 카드로, 활성 카드면 탭 지점 확대
+    const hit = (e.target as HTMLElement).closest("[data-slide-idx]") as HTMLElement | null
+    const hitIdx = hit ? Number(hit.dataset.slideIdx) : NaN
+    if (!Number.isNaN(hitIdx) && hitIdx !== modalIdx) {
+      setZoomT(null)
+      setModalIdx(hitIdx)
+      return
+    }
+    const r = activeSlideRect()
+    if (r) {
       const px = (e.clientX - r.left) / r.width - 0.5
       const py = (e.clientY - r.top) / r.height - 0.5
       setZoomT({
@@ -295,7 +310,7 @@ export function ReviewsSection() {
         )}
       </div>
 
-      {/* ── 모달 갤러리: 확대 상태에서도 좌우로 넘길 수 있는 단독 뷰 ── */}
+      {/* ── 모달 갤러리: 책소개 카드 문법 — 활성 카드 중앙 + 양옆 이웃 슬리버, 확대 상태에서도 넘김 ── */}
       {modal !== null && modalIdx !== null && (
         <div
           className={rstyles.lightbox}
@@ -308,46 +323,53 @@ export function ReviewsSection() {
 
           <div className={rstyles.galleryFrame} onClick={(e) => e.stopPropagation()}>
             <div
-              ref={viewportRef}
-              className={`${rstyles.galleryViewport} ${zoomT ? rstyles.galleryViewportZoomed : ""}`}
-              onPointerDown={onViewportPointerDown}
-              onPointerMove={onViewportPointerMove}
-              onPointerUp={onViewportPointerUp}
+              ref={stageRef}
+              className={rstyles.galleryStage}
+              onPointerDown={onStagePointerDown}
+              onPointerMove={onStagePointerMove}
+              onPointerUp={onStagePointerUp}
               onPointerCancel={() => { dragRef.current = null; setPanning(false) }}
             >
-              {photoCards.map((c, k) => (
-                <div
-                  key={`slide-${c.id}`}
-                  className={rstyles.gallerySlide}
-                  style={{ transform: `translateX(${(k - modalIdx) * 100}%)` }}
-                  aria-hidden={k !== modalIdx}
-                >
+              {photoCards.map((c, k) => {
+                const off = k - modalIdx
+                const isCur = k === modalIdx
+                return (
                   <div
-                    className={rstyles.galleryZoomLayer}
-                    style={
-                      k === modalIdx && zoomT
-                        ? {
-                            transform: `translate(${zoomT.tx}px, ${zoomT.ty}px) scale(${ZOOM_SCALE})`,
-                            transition: panning ? "none" : undefined,
-                          }
-                        : undefined
-                    }
+                    key={`slide-${c.id}`}
+                    data-slide-idx={k}
+                    className={`${rstyles.gallerySlideM} ${isCur ? rstyles.gallerySlideMActive : ""}`}
+                    style={{
+                      transform: `translateX(calc(-50% + ${off} * (var(--slide-w) + 8px)))${isCur ? "" : " scale(0.94)"}`,
+                    }}
+                    aria-hidden={!isCur}
                   >
-                    {c.photo && (
-                      <Image
-                        src={c.photo}
-                        alt={c.caption}
-                        fill
-                        sizes="92vw"
-                        quality={90}
-                        draggable={false}
-                        priority={k === modalIdx}
-                        style={{ objectFit: "contain" }}
-                      />
-                    )}
+                    <div
+                      className={rstyles.galleryZoomLayer}
+                      style={
+                        isCur && zoomT
+                          ? {
+                              transform: `translate(${zoomT.tx}px, ${zoomT.ty}px) scale(${ZOOM_SCALE})`,
+                              transition: panning ? "none" : undefined,
+                            }
+                          : undefined
+                      }
+                    >
+                      {c.photo && (
+                        <Image
+                          src={c.photo}
+                          alt={c.caption}
+                          fill
+                          sizes="92vw"
+                          quality={90}
+                          draggable={false}
+                          priority={isCur}
+                          style={{ objectFit: "cover" }}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             <button

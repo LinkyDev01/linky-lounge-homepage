@@ -44,11 +44,8 @@
   line-height: 1.8;
   color: #4a3020;
   margin: 0 0 22px;
-  /* 어절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-21) */
   word-break: keep-all;
-  overflow-wrap: break-word;
-  text-align: justify;
-  text-wrap: initial;
+  text-wrap: pretty;
 }
 .qtBody {
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
@@ -56,9 +53,9 @@
   font-size: 14px;
   line-height: 1.85;
   color: #6a5038;
-  /* 종이책 조판 — 어절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-21, 구 음절서 전환) */
+  /* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06) */
   text-align: justify;
-  word-break: keep-all;
+  word-break: normal;
   overflow-wrap: break-word;
 }
 .qtBody p { margin: 0 0 14px; }

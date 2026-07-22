@@ -14,15 +14,12 @@ import { FadeUp } from "@/components/animation/FadeUp"
  *  - 모달 이미지 탭(클릭) → 그 지점 기준 2배 추가 확대, 드래그로 팬(이동),
  *    재탭 → 축소 복귀. 축소 상태에서만 스와이프가 슬라이드 넘김으로 동작.
  *  - 모바일 기준 설계, PC는 ‹›버튼·방향키·클릭 확대·드래그 팬으로 동일 기능.
- * 카드 하단 흰색 여백은 날짜만 표기 ("--의 기록", 운영자 지시 2026-07-21).
- * 발췌문(quote)은 실물 서면후기에서 원문 그대로 전사 — 운영자 검수 전 오독 가능성 있음.
+ * 카드 하단 흰색 여백은 날짜만 표기 ("--의 기록") · 하단 발췌 인용 블록은 제거 (운영자 지시 2026-07-21 배포분).
  */
 type ReviewCard = {
   id: string
   caption: string
   photo?: string
-  quote?: string
-  by?: string
 }
 
 const photoCards: ReviewCard[] = [
@@ -30,33 +27,21 @@ const photoCards: ReviewCard[] = [
     id: "r1",
     photo: "/linky-lounge/book-club/reviews/review-01.webp",
     caption: "2026. 7. 15의 기록",
-    quote:
-      "\"책을 읽고 나서 누군가와 대화하고 싶었습니다. 그 목마름을 해결해주는 것만으로도 마음이 굉장히 편안해졌던 것 같아요.\"",
-    by: "— 2026. 7. 15 서면 후기에서",
   },
   {
     id: "r2",
     photo: "/linky-lounge/book-club/reviews/review-02.webp",
     caption: "2026. 7. 12의 기록",
-    quote:
-      "\"장소의 인테리어나 BGM이 독서모임의 분위기와 잘 맞고 마음을 편안하게 해주었던 것 같습니다.\"",
-    by: "— 2026. 7. 12 서면 후기에서",
   },
   {
     id: "r3",
     photo: "/linky-lounge/book-club/reviews/review-03.webp",
     caption: "2026. 7. 12의 기록",
-    quote:
-      "\"같은 책을 읽고 다 각자의 생각을 이야기할 수 있는 것도 너무 흥미로웠습니다.\"",
-    by: "— 2026. 7. 12 서면 후기에서",
   },
   {
     id: "r4",
     photo: "/linky-lounge/book-club/reviews/review-04.webp",
     caption: "2026. 7. 12의 기록",
-    quote:
-      "\"『사랑의 기술』을 읽고 평소 어려워했던 철학에 관심이 생겼습니다. 함께라면 더 잘 읽을 수 있을 것 같아요.\"",
-    by: "— 2026. 7. 12 서면 후기에서",
   },
 ]
 
@@ -216,7 +201,6 @@ export function ReviewsSection() {
     }
   }
 
-  const active = photoCards[Math.min(idx, photoCards.length - 1)]
   const modal = modalIdx !== null ? photoCards[modalIdx] : null
 
   return (
@@ -301,13 +285,6 @@ export function ReviewsSection() {
           </div>
         </div>
 
-        {/* 활성 슬라이드에 맞춰 페이드 전환되는 인용문 — 발췌문이 준비된 카드만 */}
-        {active.quote && (
-          <blockquote key={idx} className={`${rstyles.reviewQuote} ${rstyles.quoteFade}`}>
-            {active.quote}
-            {active.by && <span className={rstyles.reviewQuoteBy}>{active.by}</span>}
-          </blockquote>
-        )}
       </div>
 
       {/* ── 모달 갤러리: 책소개 카드 문법 — 활성 카드 중앙 + 양옆 이웃 슬리버, 확대 상태에서도 넘김 ── */}

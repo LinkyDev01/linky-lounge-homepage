@@ -65,10 +65,7 @@
   margin: 14px 0 0;
   font-size: 15.5px;
   color: #4a3a2a;
-  /* 어절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-21) */
   word-break: keep-all;
-  overflow-wrap: break-word;
-  text-align: justify;
 }
 .bookLead strong { color: #b8571a; font-weight: 700; }
 .bookLeadRange { color: #a08b70; font-size: 13px; }
@@ -322,13 +319,12 @@
   text-wrap: pretty;
 }
 
-/* 종이책 조판 — 어절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-21, 구 음절 단위서 전환).
-   과한 어절 유지로 구멍이 생기지 않게 overflow-wrap으로 긴 어절만 음절 낙하 허용.
+/* 종이책 조판 — 음절 단위 줄바꿈 + 양쪽 정렬 (운영자 확정 2026-07-06).
    실사이트 BookSection.tsx의 bookQuote/bookParagraph/bookCuratorNote 3곳에
    부착됨 (2026-07-06 이식). 프리뷰(BookSectionV2)는 preview.module.css의
    자체 사본에 같은 조판이 직접 들어 있음. */
 .proseJustify {
-  word-break: keep-all;
+  word-break: normal;
   overflow-wrap: break-word;
   text-align: justify;
   text-wrap: initial;

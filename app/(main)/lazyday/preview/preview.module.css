@@ -702,7 +702,7 @@
   line-height: 1.85;
   color: #4a3020;
   text-align: justify;
-  word-break: keep-all;
+  word-break: normal;
   overflow-wrap: break-word;
 }
 .bookParagraph {
@@ -713,7 +713,7 @@
   line-height: 1.85;
   color: #4a3020;
   text-align: justify;
-  word-break: keep-all;
+  word-break: normal;
   overflow-wrap: break-word;
 }
 .bookCuratorLabel {
@@ -732,7 +732,7 @@
   line-height: 1.85;
   color: #4a3020;
   text-align: justify;
-  word-break: keep-all;
+  word-break: normal;
   overflow-wrap: break-word;
 }
 .bookDetailCover { width: 84px; height: 126px; }

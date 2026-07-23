@@ -13,8 +13,10 @@ export type SeasonConfig = {
   season: number
   label: string
   dateRange: string
-  /** 아직 시작 전인 기수 — 리드 문구가 "다가오는 …가 함께 읽을"로 바뀐다 */
+  /** 아직 시작 전인 기수 — 리드 문구가 "다가오는 …에 함께 읽을"로 바뀐다 */
   upcoming?: boolean
+  /** 지금 진행 중인 기수 — 리드 문구가 "…에 읽고 있는 책"으로 바뀐다 */
+  ongoing?: boolean
   books: Book[]
 }
 
@@ -132,6 +134,7 @@ export const season3Config: SeasonConfig = {
   season: 3,
   label: "3기",
   dateRange: "7.15 – 9.6",
+  ongoing: true,
   books: [
     {
       week: 1,

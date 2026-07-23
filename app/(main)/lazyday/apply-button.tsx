@@ -32,11 +32,12 @@ export function ApplyButton() {
     )
   }
 
+  // showDeadline=false: D-day 표기는 숨기고 '신청'만 — 마감일이 지나면 '모집 마감' (자동 종료)
   const label =
-    d === null
-      ? `${SEASON.name} 신청`
-      : d < 0
+    d !== null && d < 0
       ? `${SEASON.name} 모집 마감`
+      : !SEASON.showDeadline || d === null
+      ? `${SEASON.name} 신청`
       : d === 0
       ? `${SEASON.name} 신청 (오늘 마감)`
       : `${SEASON.name} 신청 (마감일까지 D-${d})`

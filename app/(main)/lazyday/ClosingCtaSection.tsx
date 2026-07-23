@@ -18,12 +18,13 @@ export function ClosingCtaSection() {
   return (
     <div className={styles.closingCta}>
       <p className={styles.closingCtaTitle}>
+        {/* showDeadline=false: 카운트다운 숨김 — 마감일 경과 시 '마감' 표기 (자동 종료) */}
         {SEASON.status === "closedEarly"
           ? `${SEASON.name} 모집이 조기 마감되었습니다.`
-          : d === null
-          ? `${SEASON.name} 모집 중입니다.`
-          : d < 0
+          : d !== null && d < 0
           ? `${SEASON.name} 모집이 마감되었습니다.`
+          : !SEASON.showDeadline || d === null
+          ? `${SEASON.name} 모집 중입니다.`
           : d === 0
           ? `${SEASON.name} 모집은 오늘 마감됩니다.`
           : `${SEASON.name} 모집은 ${d}일 뒤 마감됩니다.`}

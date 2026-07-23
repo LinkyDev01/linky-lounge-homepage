@@ -11,10 +11,10 @@ import { JourneyStepper } from "../JourneyStepper"
 import { PREVIEW } from "../preview-config"
 
 const sessions = [
-  { label: "1회차", wed: "7/15", thu: "7/16", sun: "7/19" },
-  { label: "2회차", wed: "7/29", thu: "7/30", sun: "8/2"  },
-  { label: "3회차", wed: "8/12", thu: "8/13", sun: "8/16" },
-  { label: "4회차", wed: "8/26", thu: "8/27", sun: "8/30" },
+  { label: "1회차", wed: "9/9",   sun: "9/13",  tue: "9/15"  },
+  { label: "2회차", wed: "9/23",  sun: "9/27",  tue: "9/29"  },
+  { label: "3회차", wed: "10/7",  sun: "10/11", tue: "10/13" },
+  { label: "4회차", wed: "10/21", sun: "10/25", tue: "10/27" },
 ]
 
 type Errors = Partial<Record<
@@ -214,7 +214,7 @@ export default function PreviewApplyPage() {
         </FadeUp>
 
         <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>3기 일정</h2>
+            <h2 className={styles.scheduleHeader}>4기 일정</h2>
             <table className={styles.scheduleTable}>
               <thead>
                 <tr>
@@ -224,12 +224,13 @@ export default function PreviewApplyPage() {
                     <span className={styles.schThTime}>19:30–22:30</span>
                   </th>
                   <th className={styles.schThDay}>
-                    목요일<br />
-                    <span className={styles.schThTime}>19:30–22:30</span>
+                    일요일<br />
+                    <span className={styles.schThTime}>10:30–13:30</span>
+                    <span className={styles.schThTime}>14:30–17:30</span>
                   </th>
                   <th className={styles.schThDay}>
-                    일요일<br />
-                    <span className={styles.schThTime}>14:30–17:30</span>
+                    화요일<br />
+                    <span className={styles.schThTime}>19:30–22:30</span>
                   </th>
                 </tr>
               </thead>
@@ -238,20 +239,20 @@ export default function PreviewApplyPage() {
                   <tr key={s.label}>
                     <td className={styles.schTdLabel}>{s.label}</td>
                     <td className={styles.schTdDate}>{s.wed}</td>
-                    <td className={styles.schTdDate}>{s.thu}</td>
                     <td className={styles.schTdDate}>{s.sun}</td>
+                    <td className={styles.schTdDate}>{s.tue}</td>
                   </tr>
                 ))}
                 <tr>
                   <td className={styles.schTdLabel}>5회차</td>
                   <td colSpan={3} className={styles.schTdMidnight}>
-                    9/6 (일)<br />
+                    11/1 (일)<br />
                     <span className={styles.schThTime}>1부 14:30–17:00 · 2부 17:00–</span>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
+            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

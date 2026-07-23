@@ -258,7 +258,10 @@ export default function ApplyPage() {
                   {SEASON.days.map((d) => (
                     <th key={d.label} className={styles.schThDay}>
                       {d.label}<br />
-                      <span className={styles.schThTime}>{d.time}</span>
+                      {/* 시간대는 줄 단위(줄바꿈 없이) — 일요일 오전·오후 2슬롯 대응 */}
+                      {d.time.split(", ").map((t) => (
+                        <span key={t} className={styles.schThTime}>{t}</span>
+                      ))}
                     </th>
                   ))}
                 </tr>
@@ -281,7 +284,7 @@ export default function ApplyPage() {
                 </tr>
               </tbody>
             </table>
-            <p className={styles.scheduleNote}>*회차별 수·목·일 중 참여 요일 선택 가능</p>
+            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

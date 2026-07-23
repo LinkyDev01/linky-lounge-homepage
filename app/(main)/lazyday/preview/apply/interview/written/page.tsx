@@ -314,7 +314,7 @@ export default function PreviewWrittenInterviewPage() {
               <p className={styles.ref0Title}>3기 안내</p>
               <div className={styles.ref0Grid}>
                 <span className={styles.ref0Key}>정규모임</span>
-                <span className={styles.ref0Val}>1–4회차 · 7월 15일부터 격주, 수·목·일 선택</span>
+                <span className={styles.ref0Val}>1–4회차 · 9월 9일부터 격주, 수·일·화 선택</span>
                 <span className={styles.ref0Key}>자유모임</span>
                 <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
                 <span className={styles.ref0Key}>장소</span>

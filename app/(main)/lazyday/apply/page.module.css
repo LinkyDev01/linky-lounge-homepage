@@ -100,9 +100,14 @@
   padding-bottom: 8px;
   letter-spacing: -0.01em;
   line-height: 1.4;
+  /* 요일명 첫 줄 정렬 — 시간 슬롯 수가 달라도 행이 안 어긋나게 */
+  vertical-align: top;
 }
 
 .schThTime {
+  /* 시간대 한 줄 고정 + 슬롯별 줄 분리 (일요일 오전·오후) — 모바일 행 어긋남 방지 (운영자 지시 2026-07-23) */
+  display: block;
+  white-space: nowrap;
   font-size: 10px;
   font-weight: 500;
   color: #8a6a50;

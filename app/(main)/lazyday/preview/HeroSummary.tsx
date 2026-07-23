@@ -12,12 +12,13 @@ import styles from "./preview.module.css"
  * 데이터는 season-config 단일 출처. D-day는 마운트 후 계산(빌드 박제 방지).
  */
 
-// 요일을 시간대별로 묶어 "수·목 19:30–22:30 / 일 14:30–17:30" 형태로
+// 요일을 시간대별로 묶어 "수·화 19:30–22:30 / 일 10:30–13:30, 14:30–17:30" 형태로
+// (수·일·화처럼 같은 시간이 떨어져 있어도 묶는다 — 등장 순서 유지)
 function dayScheduleLine() {
   const groups: { labels: string[]; time: string }[] = []
   for (const d of SEASON.days) {
-    const last = groups[groups.length - 1]
-    if (last && last.time === d.time) last.labels.push(d.label)
+    const g = groups.find((x) => x.time === d.time)
+    if (g) g.labels.push(d.label)
     else groups.push({ labels: [d.label], time: d.time })
   }
   return groups
@@ -46,12 +47,13 @@ export function HeroSummary() {
   }, [])
 
   const closedEarly = SEASON.status === "closedEarly"
+  // showDeadline=false: D-day 카운트는 숨기고 '모집 중'만 — 마감일이 지나면 '마감'은 표기 (자동 종료)
   const kicker = closedEarly
     ? `${PREVIEW.season} 모집 조기 마감`
-    : d === null
-    ? `${PREVIEW.season} 모집 중`
-    : d < 0
+    : d !== null && d < 0
     ? `${PREVIEW.season} 모집이 마감되었어요`
+    : !SEASON.showDeadline || d === null
+    ? `${PREVIEW.season} 모집 중`
     : d === 0
     ? `${PREVIEW.season} 모집 오늘 마감`
     : `${PREVIEW.season} 모집 마감 D-${d}`
@@ -89,8 +91,8 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>장소</span>
           <span className={styles.summaryValue}>{locationLine}</span>
         </div>
-        {/* 마감 행 — deadline이 있을 때만. null이면 미표기 (운영자 지시 2026-07-23) */}
-        {SEASON.deadline && (
+        {/* 마감 행 — deadline이 있고 노출 허용일 때만 (showDeadline=false면 미표기, 운영자 지시 2026-07-23) */}
+        {SEASON.deadline && SEASON.showDeadline && (
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>마감</span>
             <span className={styles.summaryValue}>

@@ -95,14 +95,14 @@ export function BookSectionV2() {
           </div>
           {/* 현재 기수 강조 리드 */}
           <p className={styles.bookLead}>
-            {isCurrent ? (
-              season.upcoming ? (
-                <>다가오는 <strong>{season.label}</strong>가 함께 읽을 네 권</>
-              ) : (
-                <>이번 시즌, <strong>{season.label}</strong>가 함께 읽는 네 권</>
-              )
+            {season.upcoming ? (
+              <>다가오는 <strong>{season.label}</strong>에 함께 읽을 네 권</>
+            ) : season.ongoing ? (
+              <><strong>{season.label}</strong>에 읽고 있는 책</>
+            ) : isCurrent ? (
+              <>이번 시즌, <strong>{season.label}</strong>에 함께 읽는 네 권</>
             ) : (
-              <>지난 <strong>{season.label}</strong>가 함께 읽은 책</>
+              <>지난 <strong>{season.label}</strong>에 함께 읽은 책</>
             )}
             {season.dateRange && <span className={styles.bookLeadRange}> · {season.dateRange}</span>}
           </p>

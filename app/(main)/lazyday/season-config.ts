@@ -18,45 +18,45 @@ export type SeasonSession = {
 }
 
 export const SEASON = {
-  /** 기수 고유명 (예: "3기") */
-  name: "3기",
+  /** 기수 고유명 (예: "4기") */
+  name: "4기",
   /** 다음 기수 고유명 */
-  next: "4기",
+  next: "5기",
   /** 모집 상태 — "closedEarly"면 랜딩 전체가 조기마감+다음 기수 알림 모드 (운영자 지시 2026-07-13) */
-  status: "closedEarly" as "open" | "closedEarly",
+  status: "open" as "open" | "closedEarly",
   /** 다음 기수 시작 시점 표기 (스티키 CTA 주석 줄) */
-  nextStartLabel: "9월 둘째 주",
+  nextStartLabel: "추후 공지",
   /** 알림 완료 화면의 카카오 채널 */
   notifyKakaoUrl: "https://pf.kakao.com/_gixaAX",
   /** 시즌 기간 표기 */
-  periodLabel: "7/15 – 9/6",
-  /** 신청 마감일 (KST, 이 날짜 23:59까지 신청 가능) — 스티키 CTA D-day가 여기서 계산됨 */
-  deadline: "2026-07-16",
+  periodLabel: "9/7 – 11/1",
+  /** 신청 마감일 (KST, 23:59까지). null이면 마감일·D-day 미표기 (운영자 지시 2026-07-23 "일단 표기하지마") */
+  deadline: null as string | null,
   /** 참가비 표기 */
   price: "150,000원",
   /** 정가(취소선) — 2기 실판매가 200,000원 확인됨 (운영자 확인 2026-07-02) → 종전거래가격 표기 근거 있음 */
   priceWas: "200,000원",
-  /** 정규모임 요일·시간 */
+  /** 정규모임 요일·시간 — 일요일은 오전·오후 2슬롯 (운영자 지시 2026-07-23) */
   days: [
     { label: "수요일", time: "19:30–22:30" },
     { label: "목요일", time: "19:30–22:30" },
-    { label: "일요일", time: "14:30–17:30" },
+    { label: "일요일", time: "10:30–13:30, 14:30–17:30" },
   ] as SeasonDay[],
-  /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서 */
+  /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서. 3기 격주 수·목·일 패턴 (운영자 확인 2026-07-23) */
   sessions: [
-    { label: "1회차", dates: ["7/15", "7/16", "7/19"] },
-    { label: "2회차", dates: ["7/29", "7/30", "8/2"] },
-    { label: "3회차", dates: ["8/12", "8/13", "8/16"] },
-    { label: "4회차", dates: ["8/26", "8/27", "8/30"] },
+    { label: "1회차", dates: ["9/9", "9/10", "9/13"] },
+    { label: "2회차", dates: ["9/23", "9/24", "9/27"] },
+    { label: "3회차", dates: ["10/7", "10/8", "10/11"] },
+    { label: "4회차", dates: ["10/21", "10/22", "10/25"] },
   ] as SeasonSession[],
   /** 5회차 (자유모임) — 기수마다 구성이 달라질 수 있음 */
   fifth: {
     label: "5회차",
-    date: "9/6 (일)",
+    date: "11/1 (일)",
     timeLabel: "1부 14:30–17:00 · 2부 17:00–",
   },
   /** 안내 문구 */
-  regularNote: "1–4회차 · 7월 15일부터 격주, 수·목·일 선택",
+  regularNote: "1–4회차 · 9월 9일부터 격주, 수·목·일 선택",
   freeNote: "5회차 · 정규 4회 이후 진행",
   /** 장소 */
   location: {
@@ -67,8 +67,9 @@ export const SEASON = {
   },
 }
 
-/** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수) */
-export function daysUntilDeadline(): number {
+/** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수). deadline이 null이면 null (마감 미표기) */
+export function daysUntilDeadline(): number | null {
+  if (!SEASON.deadline) return null
   const end = new Date(`${SEASON.deadline}T23:59:59+09:00`).getTime()
   return Math.floor((end - Date.now()) / 86_400_000)
 }

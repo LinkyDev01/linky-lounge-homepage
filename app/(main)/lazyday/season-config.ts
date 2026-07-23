@@ -29,7 +29,7 @@ export const SEASON = {
   /** 알림 완료 화면의 카카오 채널 */
   notifyKakaoUrl: "https://pf.kakao.com/_gixaAX",
   /** 시즌 기간 표기 */
-  periodLabel: "9/7 – 11/1",
+  periodLabel: "9/9 – 11/1",
   /** 신청 마감일 (KST, 23:59까지). null이면 마감 개념 자체가 없음 */
   deadline: "2026-09-07" as string | null,
   /** 마감일·D-day 노출 여부 — false면 접수 마감(자동 종료)은 작동하되 화면에는 미표기
@@ -57,7 +57,7 @@ export const SEASON = {
   fifth: {
     label: "5회차",
     date: "11/1 (일)",
-    timeLabel: "1부 14:30–17:00 · 2부 17:00–",
+    timeLabel: "19:00–22:00",
   },
   /** 안내 문구 */
   regularNote: "1–4회차 · 9월 9일부터 격주, 수·일·화 선택",

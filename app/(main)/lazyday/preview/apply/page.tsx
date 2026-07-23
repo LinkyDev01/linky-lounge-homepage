@@ -247,7 +247,7 @@ export default function PreviewApplyPage() {
                   <td className={styles.schTdLabel}>5회차</td>
                   <td colSpan={3} className={styles.schTdMidnight}>
                     11/1 (일)<br />
-                    <span className={styles.schThTime}>1부 14:30–17:00 · 2부 17:00–</span>
+                    <span className={styles.schThTime}>19:00–22:00</span>
                   </td>
                 </tr>
               </tbody>

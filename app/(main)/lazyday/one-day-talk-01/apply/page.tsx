@@ -40,8 +40,8 @@ const ONEDAY = {
   monthEng: "AUG. 2026",
   // 회차별 책·시간 (운영자 지시 2026-07-24). day = 8월 날짜
   sessions: [
-    { day: 2, label: "1회차", book: "브람스를 좋아하세요...", time: "19:00–22:00" },
-    { day: 9, label: "2회차", book: "시지프 신화", time: "19:00–22:00" },
+    { day: 2, label: "1회차", book: "브람스를 좋아하세요...", author: "프랑수아즈 사강", time: "19:00–22:00" },
+    { day: 9, label: "2회차", book: "시지프 신화", author: "알베르 카뮈", time: "19:00–22:00" },
   ],
   rangeLabel: "8/2 · 8/9",
 }
@@ -290,27 +290,20 @@ export default function OnedayApplyPage() {
 
         <section className={styles.scheduleNotice}>
           <OnedayCalendar />
-          {/* 4기 일정 표 서식 유지 — 일요일만·1·2회차·19:00–22:00 + 장소 (운영자 지시 2026-07-24) */}
-          <table className={styles.scheduleTable}>
-            <thead>
-              <tr>
-                <th className={styles.schThEmpty} />
-                <th className={styles.schThDay}>
-                  일요일<br />
-                  <span className={styles.schThTime}>19:00–22:00</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {ONEDAY.sessions.map((s) => (
-                <tr key={s.day}>
-                  <td className={styles.schTdLabel}>{s.label}</td>
-                  <td className={styles.schTdDate}>{ONEDAY.month}/{s.day}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className={styles.scheduleNote}>장소 · 링키라운지 (사당역 도보 3분)</p>
+          {/* 행 형식 일정 — 표 폐기, 라벨(회차·장소)은 주황 서식 통일 (운영자 지시 2026-07-24) */}
+          <div className={cal.infoRows}>
+            {ONEDAY.sessions.map((s) => (
+              <div key={s.day} className={cal.infoRow}>
+                <span className={cal.infoLabel}>{s.label}</span>
+                <span className={cal.infoValue}>{sessionDateLabel(s.day)} {s.time}</span>
+              </div>
+            ))}
+            <div className={cal.infoRow}>
+              <span className={cal.infoLabel}>장소</span>
+              <span className={cal.infoValue}>링키라운지(사당역 도보 3분)</span>
+            </div>
+            <p className={cal.infoNote}>*장소는 변경될 수 있습니다.</p>
+          </div>
         </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -333,7 +326,7 @@ export default function OnedayApplyPage() {
                     />
                     <span className={cal.sessionInfo}>
                       <span className={cal.sessionDate}>{sessionDateLabel(s.day)}</span>
-                      <span className={cal.sessionBook}>{s.book}</span>
+                      <span className={cal.sessionBook}>『{s.book}』 <span className={cal.sessionAuthor}>{s.author}</span></span>
                       <span className={cal.sessionTime}>{s.time}</span>
                     </span>
                   </label>

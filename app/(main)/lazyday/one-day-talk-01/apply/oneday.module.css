@@ -174,3 +174,43 @@
   white-space: nowrap;
   pointer-events: none;
 }
+
+/* ── 행 형식 일정 (표 폐기, 운영자 지시 2026-07-24) — 라벨은 schTdLabel 주황 서식 통일 ── */
+.infoRows {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.infoRow {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.infoLabel {
+  flex: 0 0 44px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #d2691e;
+  letter-spacing: -0.01em;
+  padding-left: 4px;
+}
+.infoValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1208;
+  font-variant-numeric: tabular-nums;
+  word-break: keep-all;
+}
+.infoNote {
+  margin: 2px 0 0;
+  padding-left: 62px;
+  font-size: 11px;
+  color: #9a9590;
+}
+/* 체크옵션 저자명 — 제목보다 옅게 */
+.sessionAuthor {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8a7660;
+}

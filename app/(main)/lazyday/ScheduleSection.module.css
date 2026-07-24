@@ -281,3 +281,155 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+/* ═══ 월별 달력 석 장 (14a 시안, 운영자 확정 2026-07-24) ═══
+   구 6b 조판 괘선 박스(paperBox·scheduleTable 계열)는 고아 보존 — 삭제하지 말 것 */
+
+/* 공통 헤더 — 좌 "4기 일정" · 우 기간 */
+.calHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 20px;
+}
+.calHeaderTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0;
+}
+.calHeaderRange {
+  font-size: 12px;
+  color: #8a6a50;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 월 시트 — 노이즈 종이 (압축 요약 카드와 동일 노이즈) */
+.calSheet {
+  position: relative;
+  background: #FBFBFB;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  border: 1px solid #FFFDFA;
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.12), 0 10px 22px rgba(74, 58, 42, 0.12);
+  padding: 24px 14px 16px;
+  margin-bottom: 26px;
+}
+
+/* 다크 워시테이프 — 상단 중앙 (회전은 인라인, 장별 제각각) */
+.calTape {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 66px;
+  height: 17px;
+  background: rgba(74, 58, 42, 0.3);
+  box-shadow: 0 1px 2px rgba(74, 58, 42, 0.2);
+  z-index: 2;
+}
+
+/* 시트 헤더 — 좌 "9월" · 우 "SEP. 2026" */
+.calSheetHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 2px 10px;
+}
+.calMonthName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1208;
+}
+.calMonthEng {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: #a08b70;
+}
+
+/* 요일 행 — 일요일 시작 */
+.calDowRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.calDow {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #a08b70;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* 날짜 그리드 — 인쇄된 칸 (컨테이너 top/left + 셀 right/bottom) */
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-top: 1px solid rgba(74, 58, 42, 0.1);
+  border-left: 1px solid rgba(74, 58, 42, 0.1);
+}
+.calCell {
+  position: relative;
+  height: 34px;
+  border-right: 1px solid rgba(74, 58, 42, 0.1);
+  border-bottom: 1px solid rgba(74, 58, 42, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.calDayNum {
+  font-size: 11.5px;
+  color: #c9b8a0;
+  font-variant-numeric: tabular-nums;
+}
+.calDayNumMeet {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1208;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 모임일 손그림 타원 (회전·색은 인라인) */
+.calMarker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 33px;
+  height: 25px;
+  pointer-events: none;
+}
+/* 필기체 회차 첨자 — 셀 우상단 (색·회전 인라인) */
+.calRoundTag {
+  position: absolute;
+  top: -4px;
+  right: 1px;
+  font-size: 13.5px;
+  line-height: 1;
+  pointer-events: none;
+}
+/* 자유모임 첨자 */
+.calFreeTag {
+  position: absolute;
+  top: -4px;
+  right: 1px;
+  font-size: 11px;
+  color: #b8571a;
+  transform: rotate(-6deg);
+  white-space: nowrap;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* 시트 아래 — 시간 요약(중앙) + 각주(좌) */
+.calTimeFoot {
+  text-align: center;
+  font-size: 11px;
+  color: #8a6a50;
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0 0;
+}
+.calNote {
+  text-align: left;
+  font-size: 11px;
+  color: #8a6a50;
+  margin: 8px 0 0;
+}

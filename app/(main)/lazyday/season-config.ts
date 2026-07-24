@@ -77,3 +77,62 @@ export function daysUntilDeadline(): number | null {
   const end = new Date(`${SEASON.deadline}T23:59:59+09:00`).getTime()
   return Math.floor((end - Date.now()) / 86_400_000)
 }
+
+// ── 월별 달력(벽걸이 월력) 파생 데이터 — 일정 섹션 14a 시안용 (운영자 확정 2026-07-24) ──
+// 하드코딩 금지: 회차 날짜(sessions)·자유모임(fifth)에서 전부 계산한다.
+
+export type CalendarMeeting = {
+  /** "9/9" 형태 */
+  date: string
+  month: number
+  day: number
+  /** 1~4 회차 번호 */
+  round: number
+}
+export type CalendarMonth = {
+  /** "9월" */
+  name: string
+  /** "SEP. 2026" */
+  eng: string
+  year: number
+  month: number
+}
+export type CalendarData = {
+  months: CalendarMonth[]
+  meetings: CalendarMeeting[]
+  free: { date: string; month: number; day: number; label: string }
+}
+
+const MONTH_ENG = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+
+/** 시즌 연도 — deadline(YYYY-MM-DD)에서 파생 */
+export function seasonYear(): number {
+  return Number((SEASON.deadline ?? "2026-01-01").split("-")[0])
+}
+
+export function calendarData(): CalendarData {
+  const year = seasonYear()
+  const meetings: CalendarMeeting[] = SEASON.sessions.flatMap((s, i) =>
+    s.dates.map((d) => {
+      const [month, day] = d.split("/").map(Number)
+      return { date: d, month, day, round: i + 1 }
+    }),
+  )
+  // fifth.date "11/1 (일)" → 11/1
+  const freeDate = SEASON.fifth.date.split(" ")[0]
+  const [fm, fd] = freeDate.split("/").map(Number)
+  const free = { date: freeDate, month: fm, day: fd, label: "자유독서" }
+
+  const monthNums: number[] = []
+  for (const m of [...meetings.map((x) => x.month), fm]) {
+    if (!monthNums.includes(m)) monthNums.push(m)
+  }
+  monthNums.sort((a, b) => a - b)
+  const months: CalendarMonth[] = monthNums.map((m) => ({
+    name: `${m}월`,
+    eng: `${MONTH_ENG[m - 1]}. ${year}`,
+    year,
+    month: m,
+  }))
+  return { months, meetings, free }
+}

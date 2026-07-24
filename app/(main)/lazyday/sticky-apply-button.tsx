@@ -1,6 +1,7 @@
 "use client"
 
 import { ApplyButton } from "./apply-button"
+import { LazydayLink } from "@/components/common/LazydayLink"
 import styles from "./page.module.css"
 
 /**
@@ -12,7 +13,13 @@ import styles from "./page.module.css"
 export function StickyApplyButton() {
   return (
     <div className={styles.fixedButtonContainer}>
-      <ApplyButton />
+      {/* 가로 2버튼: 좌 원데이 토크 | 우 4기 — 2버튼일 땐 "신청"으로 축약 (운영자 지시 2026-07-24) */}
+      <div className={styles.ctaRow}>
+        <LazydayLink href="/one-day-talk-01/apply" className={`${styles.applyButton} ${styles.ctaHalf} ${styles.ctaOneday}`}>
+          원데이 토크 신청
+        </LazydayLink>
+        <ApplyButton className={styles.ctaHalf} short />
+      </div>
     </div>
   )
 }

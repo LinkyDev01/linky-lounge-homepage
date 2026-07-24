@@ -21,7 +21,7 @@ export function StickyApplyButtonV2() {
     d !== null && d < 0
       ? `${PREVIEW.season} 모집 마감`
       : !SEASON.showDeadline || d === null
-      ? `${PREVIEW.season} 신청`
+      ? `${PREVIEW.season} 신청하기`
       : d === 0
       ? `${PREVIEW.season} 신청 (오늘 마감)`
       : `${PREVIEW.season} 신청 (마감일까지 D-${d})`

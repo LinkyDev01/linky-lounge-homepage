@@ -37,7 +37,7 @@ export function ApplyButton() {
     d !== null && d < 0
       ? `${SEASON.name} 모집 마감`
       : !SEASON.showDeadline || d === null
-      ? `${SEASON.name} 신청`
+      ? `${SEASON.name} 신청하기`
       : d === 0
       ? `${SEASON.name} 신청 (오늘 마감)`
       : `${SEASON.name} 신청 (마감일까지 D-${d})`

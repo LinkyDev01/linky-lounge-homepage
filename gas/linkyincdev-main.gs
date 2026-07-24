@@ -27,6 +27,7 @@ var PHONE_SHEET = "전화 인터뷰";
 var WRITTEN_SHEET = "서면 인터뷰";
 var CLASS_SHEET = "반배정";
 var NOTIFY_SHEET = "4기 알림"; // 다음 기수 오픈 알림 신청 (2026-07-13)
+var ONEDAY_SHEET = "1회성 모임"; // 1회성 모임 신청 (2026-07-24) — 같은 문서 별도 탭
 
 // 확인 완료: 운영 캘린더 "레이지데이북클럽 인터뷰" (라이브 일정과 대조 검증됨)
 var CALENDAR_ID = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
@@ -182,6 +183,7 @@ function doPost(e) {
     if (data.type === "admin_block")     return handleAdminBlock(data);
     if (data.type === "admin_delete")    return handleAdminDelete(data);
     if (data.type === "notify")          return handleNotify(data);
+    if (data.type === "oneday")          return handleOnedayApply(data);
 
     return handleApply(data); // type 없음 = 신청 폼
   } catch (err) {
@@ -227,6 +229,65 @@ function handleNotify(d) {
           "연락처: " + (d.phone || "-") + "\n" +
           "마케팅 동의: " + (d.marketingConsent || "-") + "\n\n" +
           "📄 스프레드시트('4기 알림' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
+  });
+
+  return jsonResponse({ success: true });
+}
+
+// ── 1회성 모임 신청 → '1회성 모임' 시트 (2026-07-24) ─────────────
+// 프론트 /oneday 폼 (payload: type:"oneday"/name/gender/age/phone/greeting/
+// instagram/meetingDates/marketingConsent/consentAt).
+// 시트가 없으면 자동 생성 + 헤더는 ensureColumn으로 보장 (수동 작업 불필요).
+// 접수 후 프론트가 곧장 토스 결제로 이동하므로 알림톡은 보내지 않는다 (관리자 메일만).
+function handleOnedayApply(d) {
+  if (!d.name || !d.phone) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
+  var sheet = ss().getSheetByName(ONEDAY_SHEET);
+  if (!sheet) {
+    sheet = ss().insertSheet(ONEDAY_SHEET);
+    // 빈 시트는 getLastColumn()이 0이라 ensureColumn이 못 읽음 — 첫 헤더 셀 선시드
+    sheet.getRange(1, 1).setValue("신청일자")
+      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
+  }
+  ensureColumn(sheet, "이름");
+  ensureColumn(sheet, "성별");
+  ensureColumn(sheet, "나이");
+  ensureColumn(sheet, "전화번호");
+  ensureColumn(sheet, "모임 일자");
+  ensureColumn(sheet, "한 줄 인사");
+  ensureColumn(sheet, "인스타그램");
+  ensureColumn(sheet, "마케팅 동의");
+  ensureColumn(sheet, "동의 시각");
+  var col = colIndexMap(sheet);
+  var row = new Array(sheet.getLastColumn()).fill("");
+  row[col["신청일자"]]    = new Date();
+  row[col["이름"]]        = d.name || "";
+  row[col["성별"]]        = d.gender || "";
+  row[col["나이"]]        = d.age || "";
+  row[col["전화번호"]]    = d.phone || "";
+  row[col["모임 일자"]]   = d.meetingDates || "";
+  row[col["한 줄 인사"]]  = d.greeting || "";
+  row[col["인스타그램"]]  = d.instagram || "";
+  row[col["마케팅 동의"]] = d.marketingConsent || "";
+  row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
+  prependRow(sheet, row);
+  if (d.consentAt && col["동의 시각"] != null) {
+    sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
+  }
+
+  MailApp.sendEmail({
+    to: ADMIN_EMAIL,
+    subject: "[레이지데이 북클럽] 1회성 모임 신청 — " + (d.name || "?") + "님",
+    body: "1회성 모임 신청이 접수되었습니다. (신청 직후 토스 결제 페이지로 이동함 — 결제 완료 여부는 토스에서 확인)\n\n" +
+          "이름: " + (d.name || "-") + "\n" +
+          "성별: " + (d.gender || "-") + "\n" +
+          "나이: " + (d.age || "-") + "\n" +
+          "연락처: " + (d.phone || "-") + "\n" +
+          "모임 일자: " + (d.meetingDates || "-") + "\n" +
+          "한 줄 인사: " + (d.greeting || "-") + "\n" +
+          "인스타그램: " + (d.instagram || "-") + "\n\n" +
+          "📄 스프레드시트('1회성 모임' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
   });
 
   return jsonResponse({ success: true });

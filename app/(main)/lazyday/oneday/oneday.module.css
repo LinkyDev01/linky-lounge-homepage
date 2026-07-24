@@ -105,3 +105,60 @@
   height: 25px;
   pointer-events: none;
 }
+
+/* ── 신청 회차 선택 (캘린더 밑, 일시 명시 + 멀티체크) ── */
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sessionOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e5d9c8;
+  border-radius: 12px;
+  background: #fffdf8;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.sessionOptionOn {
+  border-color: #d2691e;
+  background: #fdf4ec;
+}
+.sessionCheck {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: #d2691e;
+  cursor: pointer;
+}
+.sessionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sessionDate {
+  font-size: 13px;
+  font-weight: 700;
+  color: #b8571a;
+  font-variant-numeric: tabular-nums;
+}
+.sessionBook {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1a1208;
+  word-break: keep-all;
+}
+.sessionTime {
+  font-size: 12.5px;
+  color: #8a6a50;
+  font-variant-numeric: tabular-nums;
+}
+.sessionHint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #8a7660;
+}

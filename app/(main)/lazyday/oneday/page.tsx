@@ -9,7 +9,7 @@ import styles from "../apply/page.module.css"
 import cal from "./oneday.module.css"
 
 /**
- * 1회성 모임 신청 (운영자 지시 2026-07-24) — /apply 복제 기반.
+ * One Day Talk 신청 (일회성 모임, 이름 확정 2026-07-24) — /apply 복제 기반.
  *  · 상단 프로세스(JourneyStepper)·섹션 인디케이터 없음
  *  · 일정 = 랜딩 14a 달력 문법의 8월 시트 1장 (8/2·8/9 손그림 타원 체크)
  *  · 인터뷰 방식·추천인 문항 제거
@@ -28,15 +28,26 @@ const ONEDAY = {
   month: 8,
   monthName: "8월",
   monthEng: "AUG. 2026",
-  days: [2, 9],
+  // 회차별 책·시간 (운영자 지시 2026-07-24). day = 8월 날짜
+  sessions: [
+    { day: 2, book: "브람스를 좋아하세요...", time: "19:00–22:00" },
+    { day: 9, book: "시지프 신화", time: "19:00–22:00" },
+  ],
   rangeLabel: "8/2 · 8/9",
 }
+const ONEDAY_MEET_DAYS = ONEDAY.sessions.map((s) => s.day)
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 // 손그림 타원 회전 — 날짜별 제각각 (랜딩 문법)
 const MARK_ROT = [-6, 4]
 
+// "2026-08-02 (일)" 요일 계산 → 캘린더 밑 일정표 라벨
+function sessionDateLabel(day: number) {
+  const wd = ["일", "월", "화", "수", "목", "금", "토"][new Date(ONEDAY.year, ONEDAY.month - 1, day).getDay()]
+  return `${ONEDAY.month}/${day} (${wd})`
+}
+
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "marketingConsent" | "_form",
+  "sessions" | "name" | "gender" | "age" | "phone" | "marketingConsent" | "_form",
   string
 >>
 
@@ -84,7 +95,7 @@ function OnedayCalendar() {
   return (
     <div>
       <div className={cal.calHeader}>
-        <p className={cal.calHeaderTitle}>모임 일정</p>
+        <p className={cal.calHeaderTitle}>One Day Talk 일정</p>
         <span className={cal.calHeaderRange}>{ONEDAY.rangeLabel}</span>
       </div>
       <FadeUp y={10} duration={0.6}>
@@ -103,7 +114,7 @@ function OnedayCalendar() {
             {Array.from({ length: totalCells }, (_, ci) => {
               const day = ci - firstDow + 1
               const inMonth = day >= 1 && day <= daysInMonth
-              const meetIdx = inMonth ? ONEDAY.days.indexOf(day) : -1
+              const meetIdx = inMonth ? ONEDAY_MEET_DAYS.indexOf(day) : -1
               return (
                 <div key={ci} className={cal.calCell}>
                   {inMonth && (
@@ -143,6 +154,15 @@ export default function OnedayApplyPage() {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [marketingConsent, setMarketingConsent] = useState(false)
+  // 신청 회차 멀티체크 — 8/2 브람스 / 8/9 시지프, 각각 복수 선택 가능 (운영자 지시 2026-07-24)
+  const [pickedDays, setPickedDays] = useState<number[]>([])
+
+  function toggleSession(day: number) {
+    setPickedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    )
+    clearError("sessions")
+  }
 
   function clearError(name: keyof Errors) {
     setErrors((prev) => {
@@ -166,6 +186,7 @@ export default function OnedayApplyPage() {
     const greeting = (data.get("greeting") as string)?.trim() || ""
     const instagram = (data.get("instagram") as string)?.trim() || ""
 
+    if (pickedDays.length === 0) newErrors.sessions = "신청할 모임을 한 개 이상 선택해주세요."
     if (!name) newErrors.name = "이름을 입력해주세요."
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
@@ -176,7 +197,9 @@ export default function OnedayApplyPage() {
       setErrors(newErrors)
       const firstKey = Object.keys(newErrors)[0]
       const target =
-        firstKey === "marketingConsent"
+        firstKey === "sessions"
+          ? document.getElementById("sessions-group")
+          : firstKey === "marketingConsent"
           ? document.getElementById("marketingConsent")
           : document.querySelector(`[name="${firstKey}"]`)
       target?.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -185,6 +208,11 @@ export default function OnedayApplyPage() {
 
     setErrors({})
     setLoading(true)
+    // 선택 회차 → 시트 '모임 일자' 컬럼 기록 문자열 (예: "8/2 브람스를 좋아하세요..., 8/9 시지프 신화")
+    const meetingDates = ONEDAY.sessions
+      .filter((s) => pickedDays.includes(s.day))
+      .map((s) => `${ONEDAY.month}/${s.day} ${s.book}`)
+      .join(", ")
     const payload = {
       type: "oneday",
       name,
@@ -193,7 +221,7 @@ export default function OnedayApplyPage() {
       phone,
       greeting,
       instagram,
-      meetingDates: ONEDAY.rangeLabel,
+      meetingDates,
       marketingConsent: marketingConsent ? "동의" : "미동의",
       consentAt: new Date().toISOString(), // 동의 시각 기록 (법적 증빙)
     }
@@ -215,7 +243,7 @@ export default function OnedayApplyPage() {
       return
     }
 
-    trackStandard("Lead", { content_name: "1회성모임_신청완료" })
+    trackStandard("Lead", { content_name: "OneDayTalk_신청완료" })
     trackEvent("oneday_apply_complete", { program: "book_club" })
 
     // 접수 완료 → 토스페이먼츠 결제 페이지로 즉시 이동 (오버레이 유지 상태로 전환)
@@ -236,7 +264,7 @@ export default function OnedayApplyPage() {
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽
               <br />
-              <span className={styles.headerSeason}>1회성 모임</span> 신청하기
+              <span className={styles.headerSeason}>One Day Talk</span> 신청하기
             </h1>
           </div>
         </FadeUp>
@@ -246,6 +274,36 @@ export default function OnedayApplyPage() {
         </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
+          {/* 신청 회차 선택 — 캘린더 밑, 일시(날짜·책·시간) 명시 + 복수 선택 (운영자 지시 2026-07-24) */}
+          <div id="sessions-group" className={styles.formGroup}>
+            <span className={styles.formLabel}>
+              신청할 모임
+              <span className={styles.required}>*</span>
+            </span>
+            <div className={cal.sessionList}>
+              {ONEDAY.sessions.map((s) => {
+                const on = pickedDays.includes(s.day)
+                return (
+                  <label key={s.day} className={`${cal.sessionOption} ${on ? cal.sessionOptionOn : ""}`}>
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={() => toggleSession(s.day)}
+                      className={cal.sessionCheck}
+                    />
+                    <span className={cal.sessionInfo}>
+                      <span className={cal.sessionDate}>{sessionDateLabel(s.day)}</span>
+                      <span className={cal.sessionBook}>{s.book}</span>
+                      <span className={cal.sessionTime}>{s.time}</span>
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+            <p className={cal.sessionHint}>복수 선택 가능 · 참여할 모임을 모두 선택해주세요.</p>
+            {errors.sessions && <p className={styles.errorText}>{errors.sessions}</p>}
+          </div>
+
           <FormField label="이름" name="name" required error={errors.name}>
             <input
               id="name"

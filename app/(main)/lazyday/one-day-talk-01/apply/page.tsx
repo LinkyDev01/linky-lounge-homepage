@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactNode } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
+import { Nanum_Pen_Script } from "next/font/google"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../apply/page.module.css"
@@ -21,6 +22,14 @@ import cal from "./oneday.module.css"
  */
 
 const SUBMIT_URL = "/api/lazyday/apply"
+
+// 손글씨 회차 첨자 — 랜딩 달력과 동일 문법 (Nanum Pen Script)
+const penScript = Nanum_Pen_Script({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+})
 const TOSS_URL = "https://buy.tosspayments.com/products/OBBn5YubQ0?shopId=prreBmgHJwPY"
 
 // 1회성 모임 일정 — 8월, 8/2·8/9 (운영자 지시 2026-07-24)
@@ -31,8 +40,8 @@ const ONEDAY = {
   monthEng: "AUG. 2026",
   // 회차별 책·시간 (운영자 지시 2026-07-24). day = 8월 날짜
   sessions: [
-    { day: 2, book: "브람스를 좋아하세요...", time: "19:00–22:00" },
-    { day: 9, book: "시지프 신화", time: "19:00–22:00" },
+    { day: 2, label: "1회차", book: "브람스를 좋아하세요...", time: "19:00–22:00" },
+    { day: 9, label: "2회차", book: "시지프 신화", time: "19:00–22:00" },
   ],
   rangeLabel: "8/2 · 8/9",
 }
@@ -122,24 +131,33 @@ function OnedayCalendar() {
                     <span className={meetIdx >= 0 ? cal.calDayNumMeet : cal.calDayNum}>{day}</span>
                   )}
                   {meetIdx >= 0 && (
-                    <svg
-                      viewBox="0 0 40 30"
-                      className={cal.calMarker}
-                      style={{ transform: `translate(-50%, -50%) rotate(${MARK_ROT[meetIdx]}deg)` }}
-                      aria-hidden
-                    >
-                      <ellipse
-                        cx="20"
-                        cy="15"
-                        rx="15"
-                        ry="10"
-                        fill="none"
-                        stroke="#d2691e"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeDasharray="72 9"
-                      />
-                    </svg>
+                    <>
+                      <svg
+                        viewBox="0 0 40 30"
+                        className={cal.calMarker}
+                        style={{ transform: `translate(-50%, -50%) rotate(${MARK_ROT[meetIdx]}deg)` }}
+                        aria-hidden
+                      >
+                        <ellipse
+                          cx="20"
+                          cy="15"
+                          rx="15"
+                          ry="10"
+                          fill="none"
+                          stroke="#d2691e"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeDasharray="72 9"
+                        />
+                      </svg>
+                      {/* 필기체 회차 첨자 — 랜딩 1st/2nd 문법의 한글판 (운영자 지시 2026-07-24) */}
+                      <span
+                        className={`${penScript.className} ${cal.calRoundTag}`}
+                        style={{ transform: `rotate(${meetIdx === 0 ? -5 : 4}deg)` }}
+                      >
+                        {ONEDAY.sessions[meetIdx].label}
+                      </span>
+                    </>
                   )}
                 </div>
               )
@@ -272,6 +290,27 @@ export default function OnedayApplyPage() {
 
         <section className={styles.scheduleNotice}>
           <OnedayCalendar />
+          {/* 4기 일정 표 서식 유지 — 일요일만·1·2회차·19:00–22:00 + 장소 (운영자 지시 2026-07-24) */}
+          <table className={styles.scheduleTable}>
+            <thead>
+              <tr>
+                <th className={styles.schThEmpty} />
+                <th className={styles.schThDay}>
+                  일요일<br />
+                  <span className={styles.schThTime}>19:00–22:00</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {ONEDAY.sessions.map((s) => (
+                <tr key={s.day}>
+                  <td className={styles.schTdLabel}>{s.label}</td>
+                  <td className={styles.schTdDate}>{ONEDAY.month}/{s.day}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className={styles.scheduleNote}>장소 · 링키라운지 (사당역 도보 3분)</p>
         </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>

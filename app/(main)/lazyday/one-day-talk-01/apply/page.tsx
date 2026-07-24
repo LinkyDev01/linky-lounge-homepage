@@ -5,11 +5,12 @@ import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import styles from "../apply/page.module.css"
+import styles from "../../apply/page.module.css"
 import cal from "./oneday.module.css"
 
 /**
- * One Day Talk 신청 (일회성 모임, 이름 확정 2026-07-24) — /apply 복제 기반.
+ * 원데이 토크 신청 (일회성 모임 — 표기는 한글 "원데이 토크", 운영자 확정 2026-07-24) — /apply 복제 기반.
+ * URL: /one-day-talk-01/apply (북클럽 도메인 기준).
  *  · 상단 프로세스(JourneyStepper)·섹션 인디케이터 없음
  *  · 일정 = 랜딩 14a 달력 문법의 8월 시트 1장 (8/2·8/9 손그림 타원 체크)
  *  · 인터뷰 방식·추천인 문항 제거
@@ -95,7 +96,7 @@ function OnedayCalendar() {
   return (
     <div>
       <div className={cal.calHeader}>
-        <p className={cal.calHeaderTitle}>One Day Talk 일정</p>
+        <p className={cal.calHeaderTitle}>원데이 토크 일정</p>
         <span className={cal.calHeaderRange}>{ONEDAY.rangeLabel}</span>
       </div>
       <FadeUp y={10} duration={0.6}>
@@ -264,7 +265,7 @@ export default function OnedayApplyPage() {
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽
               <br />
-              <span className={styles.headerSeason}>One Day Talk</span> 신청하기
+              <span className={styles.headerSeason}>원데이 토크</span> 신청하기
             </h1>
           </div>
         </FadeUp>

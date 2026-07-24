@@ -21,8 +21,16 @@ function dayScheduleLine() {
     if (g) g.labels.push(d.label)
     else groups.push({ labels: [d.label], time: d.time })
   }
+  const DOW = ["일", "월", "화", "수", "목", "금", "토"]
   return groups
-    .map((g) => `${g.labels.map((l) => l.replace("요일", "")).join("·")} ${g.time}`)
+    .map((g) => {
+      // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
+      const names = g.labels
+        .map((l) => l.replace("요일", ""))
+        .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
+        .join("·")
+      return `${names} ${g.time}`
+    })
     .join(" / ")
 }
 

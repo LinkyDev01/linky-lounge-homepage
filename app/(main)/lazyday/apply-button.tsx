@@ -6,8 +6,9 @@ import { SEASON, daysUntilDeadline } from "./season-config"
 import styles from "./page.module.css"
 
 /** 하단 고정 CTA — [4기 신청하기] 형식 (마감일은 season-config).
- *  className: 가로 2버튼 배열 시 flex 조정용 추가 클래스 (StickyApplyButton) */
-export function ApplyButton({ className = "" }: { className?: string }) {
+ *  className: 가로 2버튼 배열 시 flex 조정용 추가 클래스 (StickyApplyButton)
+ *  short: 2버튼 배열일 때 "신청하기" 대신 "신청"으로 축약 (운영자 지시 2026-07-24) */
+export function ApplyButton({ className = "", short = false }: { className?: string; short?: boolean }) {
   // 마운트 후 계산 — 정적 프리렌더에 빌드 시점 D-day가 박제되는 것 방지
   const [d, setD] = useState<number | null>(null)
   useEffect(() => {
@@ -38,7 +39,7 @@ export function ApplyButton({ className = "" }: { className?: string }) {
     d !== null && d < 0
       ? `${SEASON.name} 모집 마감`
       : !SEASON.showDeadline || d === null
-      ? `${SEASON.name} 신청하기`
+      ? `${SEASON.name} 신청${short ? "" : "하기"}`
       : d === 0
       ? `${SEASON.name} 신청 (오늘 마감)`
       : `${SEASON.name} 신청 (마감일까지 D-${d})`

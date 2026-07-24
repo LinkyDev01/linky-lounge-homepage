@@ -117,6 +117,14 @@
 }
 .ctaOneday:hover { background-color: #3a2518; }
 .ctaOneday:active { background-color: #2e1d12; }
+/* 좁은 화면(<360px): 두 버튼 텍스트가 안 넘치게 축소 (320px 검증 기준) */
+@media (max-width: 359px) {
+    .ctaHalf {
+        font-size: 13px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
 
 /* 2줄 구성일 때만 상하 패딩 축소 — 한 줄(open 모드) 버튼은 기존 18px 유지 */
 .applyButtonTwoLine {

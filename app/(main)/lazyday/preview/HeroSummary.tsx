@@ -90,9 +90,6 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>일정</span>
           <span className={styles.summaryValue}>
             {dayScheduleLine()}
-            <span className={styles.summarySubNote}>
-              *회차별 참여 요일 선택, 요일별 소수 정원
-            </span>
           </span>
         </div>
         <div className={styles.summaryRow}>

@@ -631,3 +631,60 @@
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
+
+/* 일정 표 아래 장소 라인 — 원데이 토크 서식 준용 (라벨 주황) */
+.schedulePlace {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1208;
+  text-align: center;
+  margin: 12px 0 0;
+}
+.schedulePlaceLabel {
+  color: #d2691e;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+/* 요일 문항 내 캘린더 드롭다운 — FAQ 미니멀 라인 문법 재사용
+   (grid-rows 0fr↔1fr 0.35s cubic-bezier(0.22,0.8,0.36,1) + '+' 45° 회전 0.3s) */
+.calToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 2px;
+  background: #ffffff;
+  border: 1.5px solid #e8dccd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.calToggleText {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #4a3020;
+}
+.calToggleIcon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8571a;
+  font-size: 18px;
+  font-weight: 300;
+  transition: transform 0.3s ease;
+}
+.calToggleIconOpen { transform: rotate(45deg); }
+.calBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.calBodyOpen { grid-template-rows: 1fr; }
+.calBodyInner { overflow: hidden; padding: 0 2px; }
+.calBodyOpen .calBodyInner { padding-top: 14px; }

@@ -32,9 +32,9 @@ const TAG_ROT = [-5, 4, 6, -4, 5, -6, 4, -5, 6, -4, -6, 5, 4]
 const ROUND_LABEL = ["1st", "2nd", "3rd", "4th"]
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 
-// 요일을 시간대별로 묶어 "화·수 19:30–22:30 · 일 오전 10:30–13:30 / 오후 14:30–17:30" 형태로.
+// 요일을 시간대별로 묶어 세 줄로: "화·수 저녁 19:30–22:30" / "일 오전 10:30–13:30" / "일 오후 14:30–17:30" (운영자 지시 2026-07-27)
 // 같은 시간대 요일은 주중 순서(일월화수목금토)로 정렬 — '화·수' (운영자 지시 2026-07-24).
-function timeFootLine() {
+function timeFootLines(): string[] {
   const dowIdx = (label: string) => DOW_LABELS.indexOf(label.replace("요일", ""))
   const groups: { labels: string[]; time: string }[] = []
   for (const d of SEASON.days) {
@@ -42,17 +42,21 @@ function timeFootLine() {
     if (g) g.labels.push(d.label)
     else groups.push({ labels: [d.label], time: d.time })
   }
-  return groups
-    .map((g) => {
-      const names = g.labels
-        .map((l) => l.replace("요일", ""))
-        .sort((a, b) => dowIdx(a) - dowIdx(b))
-        .join("·")
-      const slots = g.time.split(", ")
-      if (slots.length === 2) return `${names} 오전 ${slots[0]} / 오후 ${slots[1]}`
-      return `${names} ${g.time}`
-    })
-    .join(" · ")
+  const lines: string[] = []
+  for (const g of groups) {
+    const names = g.labels
+      .map((l) => l.replace("요일", ""))
+      .sort((a, b) => dowIdx(a) - dowIdx(b))
+      .join("·")
+    const slots = g.time.split(", ")
+    if (slots.length === 2) {
+      lines.push(`${names} 오전 ${slots[0]}`)
+      lines.push(`${names} 오후 ${slots[1]}`)
+    } else {
+      lines.push(`${names} 저녁 ${g.time}`)
+    }
+  }
+  return lines
 }
 
 export function ScheduleSection() {
@@ -199,8 +203,9 @@ export function ScheduleSection() {
           )
         })}
 
-        <p className={styles.calTimeFoot}>{timeFootLine()}</p>
-        <p className={styles.calNote}>*회차별 참여 요일 선택, 요일별 소수 정원</p>
+        {timeFootLines().map((line) => (
+          <p key={line} className={styles.calTimeFoot}>{line}</p>
+        ))}
         <p className={styles.calNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
       </div>
 

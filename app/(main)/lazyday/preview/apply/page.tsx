@@ -269,6 +269,8 @@ export default function PreviewApplyPage() {
 
         {/* 일정·장소 안내 — 표 형식 부활 + 장소 라인 (실 apply 쌍 동기화 — 운영자 지시 2026-07-27).
             상세 캘린더는 아래 요일 문항의 드롭다운으로 이동 */}
+        {/* 2단계에서는 숨김 — 요일 문항의 확장 캘린더 하나만 남긴다 (운영자 지시 2026-07-27) */}
+        {step === 1 && (
         <section className={styles.scheduleNotice}>
             <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
             <table className={styles.scheduleTable}>
@@ -308,6 +310,7 @@ export default function PreviewApplyPage() {
             </p>
             <p className={styles.scheduleNote}>*회차별 화·수·일 중 참여 요일 선택 가능</p>
           </section>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
             {/* ── 1단계: 요일 · 이름 · 성별 · 나이 · 전화번호 (실 apply 쌍 동기화) ── */}

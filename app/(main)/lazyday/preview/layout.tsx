@@ -1,16 +1,8 @@
 import type { Metadata } from "next"
 import type React from "react"
-import { Noto_Serif_KR } from "next/font/google"
 import { PreviewBar } from "./PreviewBar"
 
-// 책 소개 본문용 명조 (semibold) — 운영자 지정 폰트
-const notoSerif = Noto_Serif_KR({
-  weight: ["500", "600"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-noto-serif",
-  preload: false,
-})
+// 명조는 루트 레이아웃의 CDN 로드 + globals.css --font-noto-serif 정의를 그대로 사용 (2026-07-27 전환)
 
 export const metadata: Metadata = {
   title: "미리보기 · 레이지데이 북클럽",
@@ -19,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PreviewLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={notoSerif.variable}>
+    <div>
       {/* 책 제목용 Pretendard (사이트 전역엔 미로드 상태라 프리뷰에서만 로드) */}
       <link
         rel="stylesheet"

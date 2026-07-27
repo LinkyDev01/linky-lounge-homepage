@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Script from "next/script"
-import { Geist, Geist_Mono, Playfair_Display, Noto_Serif_KR } from "next/font/google"
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { MetaPixelTracker } from "@/components/meta-pixel-tracker"
 import "./globals.css"
@@ -16,13 +16,9 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
 })
-// 책 소개 카드 본문용 명조 (레이지데이 북클럽 책소개 섹션 전용)
-const notoSerif = Noto_Serif_KR({
-  weight: ["500", "600"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-noto-serif",
-})
+// 책 소개 카드 본문용 명조 Noto Serif KR — next/font/google 빌드 타임 다운로드가
+// Vercel에서 간헐 실패해 빌드를 깨므로(2026-07-27) CDN 런타임 로드로 전환.
+// --font-noto-serif 변수는 globals.css :root에서 정의.
 
 export async function generateMetadata(): Promise<Metadata> {
   const host = ((await headers()).get("host") || "").toLowerCase()
@@ -61,6 +57,12 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+        {/* 책 소개 본문용 명조 — 빌드 타임 의존 없이 Google Fonts CSS 직접 로드 */}
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&display=swap"
         />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
@@ -105,7 +107,7 @@ export default function RootLayout({
           />
         </noscript>
       </head>
-      <body className={`font-sans antialiased ${playfair.variable} ${notoSerif.variable}`}>
+      <body className={`font-sans antialiased ${playfair.variable}`}>
         {children}
         <MetaPixelTracker />
         <Analytics />

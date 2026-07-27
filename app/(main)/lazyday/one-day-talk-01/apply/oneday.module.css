@@ -203,7 +203,8 @@
   word-break: keep-all;
 }
 .infoNote {
-  margin: 2px 0 0;
+  /* 윗줄(장소)과의 간격 축소 — 부모 .infoRows의 gap 10px을 음수 마진으로 상쇄 (운영자 지시 2026-07-27) */
+  margin: -6px 0 0;
   padding-left: 62px;
   font-size: 11px;
   color: #9a9590;

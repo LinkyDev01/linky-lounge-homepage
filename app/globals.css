@@ -9,6 +9,8 @@ html {
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* 명조(책 본문) — CDN 로드 전환으로 next/font 변수 대신 여기서 정의 (2026-07-27) */
+  --font-noto-serif: "Noto Serif KR";
   /* Linky 브랜드 - 따뜻하고 연결을 강조하는 색상 */
   --background: oklch(0.98 0.005 80);
   --foreground: oklch(0.25 0.02 30);

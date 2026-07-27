@@ -489,7 +489,8 @@ export default function ApplyPage() {
                 참여 불가 요일
                 <span className={styles.optional}>(선택)</span>
               </span>
-              <p className={styles.dayHint}>참여가 불가능한 요일이 있는 경우에만 선택해주세요.</p>
+              <p className={styles.dayHint}>*반배정을 위하여 참여가 불가능한 요일이 있는 경우에만 선택해주세요.</p>
+              <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>
               <div className={styles.dayGrid}>
                 {SEASON.unavailableDaySlots.map((slot) => (
                   <label key={slot.label} className={styles.radioLabel}>
@@ -506,61 +507,69 @@ export default function ApplyPage() {
                 ))}
               </div>
               {/* 캘린더 드롭다운 — 열고 닫는 애니메이션은 FAQ 미니멀 라인 문법(grid-rows + '+' 45° 회전) */}
-              <button
-                type="button"
-                className={styles.calToggle}
-                onClick={() => setCalOpen((v) => !v)}
-                aria-expanded={calOpen}
-              >
-                <span className={styles.calToggleText}>{SEASON.name} 일정 캘린더 보기</span>
-                <span className={`${styles.calToggleIcon} ${calOpen ? styles.calToggleIconOpen : ""}`}>+</span>
-              </button>
-              <div className={`${styles.calBody} ${calOpen ? styles.calBodyOpen : ""}`}>
-                <div className={styles.calBodyInner}>
-                  <ApplyCalendar />
+              <div className={styles.faqList}>
+                <div className={styles.faqItem}>
+                  <button
+                    type="button"
+                    className={styles.faqQ}
+                    onClick={() => setCalOpen((v) => !v)}
+                    aria-expanded={calOpen}
+                  >
+                    <span className={styles.faqQText}>{SEASON.name} 일정 캘린더 보기</span>
+                    <span className={`${styles.faqIcon} ${calOpen ? styles.faqIconOpen : ""}`}>+</span>
+                  </button>
+                  <div className={`${styles.faqBody} ${calOpen ? styles.faqBodyOpen : ""}`}>
+                    <div className={styles.faqBodyInner}>
+                      <ApplyCalendar />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>
               {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
             </div>
 
             {/* 동의 분리 — 필수(제15조 고지 4항목 포함) / 선택(마케팅, 제22조·정보통신망법 제50조.
                 필수화·목적 혼용 금지 — 인터뷰 결과 안내는 필수 동의의 '이용 목적'으로 커버) */}
-            <div className={styles.consentBox}>
-              <label htmlFor="privacyConsent" className={styles.consentLabel}>
-                <input
-                  id="privacyConsent"
-                  type="checkbox"
-                  checked={privacyConsent}
-                  onChange={(e) => {
-                    setPrivacyConsent(e.target.checked)
-                    if (e.target.checked) clearError("privacyConsent")
-                  }}
-                  className={styles.checkbox}
-                />
-                <span className={styles.consentText}>
-                  개인정보 수집·이용에 동의합니다.{" "}
-                  <span className={styles.requiredTag}>(필수)</span>
-                </span>
-              </label>
-              {/* 상세설명은 드롭다운 뒤로 (운영자 지시 2026-07-27) — 동의 시점에 즉시 열람 가능하므로 고지 요건 유지 */}
-              <button
-                type="button"
-                className={styles.consentDetailToggle}
-                onClick={() => setPrivacyDetailOpen((v) => !v)}
-                aria-expanded={privacyDetailOpen}
-              >
-                <span>자세히 보기</span>
-                <span className={`${styles.consentDetailIcon} ${privacyDetailOpen ? styles.consentDetailIconOpen : ""}`}>+</span>
-              </button>
-              <div className={`${styles.calBody} ${privacyDetailOpen ? styles.calBodyOpen : ""}`}>
-                <div className={styles.calBodyInner}>
+            <div className={styles.faqList}>
+            <div className={styles.faqItem}>
+              <div className={styles.consentRow}>
+                <label htmlFor="privacyConsent" className={styles.consentRowLabel}>
+                  <input
+                    id="privacyConsent"
+                    type="checkbox"
+                    checked={privacyConsent}
+                    onChange={(e) => {
+                      setPrivacyConsent(e.target.checked)
+                      if (e.target.checked) clearError("privacyConsent")
+                    }}
+                    className={styles.checkbox}
+                  />
+                  <span className={styles.consentText}>
+                    개인정보 수집·이용에 동의합니다.{" "}
+                    <span className={styles.requiredTag}>(필수)</span>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  className={styles.faqIconBtn}
+                  onClick={() => setPrivacyDetailOpen((v) => !v)}
+                  aria-expanded={privacyDetailOpen}
+                  aria-label="개인정보 수집·이용 동의 상세"
+                >
+                  <span className={`${styles.faqIcon} ${privacyDetailOpen ? styles.faqIconOpen : ""}`}>+</span>
+                </button>
+              </div>
+              {/* 상세 고지는 FAQ 라인 드롭다운 뒤 — 동의 시점에 즉시 열람 가능하므로 고지 요건 유지 */}
+              <div className={`${styles.faqBody} ${privacyDetailOpen ? styles.faqBodyOpen : ""}`}>
+                <div className={styles.faqBodyInner}>
+                  <div className={styles.consentDetail}>
                   <p className={styles.consentNote}>
                     개인정보 보호법 제15조에 따라 동의를 받습니다.
                     <br />· 수집 항목: 신청서에 기재하신 정보
                     <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영
                     <br />· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)
                   </p>
+                  </div>
                 </div>
               </div>
               {errors.privacyConsent && (
@@ -568,36 +577,41 @@ export default function ApplyPage() {
               )}
             </div>
 
-            <div className={styles.consentBox}>
-              <label htmlFor="marketingConsent" className={styles.consentLabel}>
-                <input
-                  id="marketingConsent"
-                  type="checkbox"
-                  checked={marketingConsent}
-                  onChange={(e) => setMarketingConsent(e.target.checked)}
-                  className={styles.checkbox}
-                />
-                <span className={styles.consentText}>
-                  모임 소식·다음 기수 안내 수신에 동의합니다.{" "}
-                  <span className={styles.optional}>(선택)</span>
-                </span>
-              </label>
-              <button
-                type="button"
-                className={styles.consentDetailToggle}
-                onClick={() => setMarketingDetailOpen((v) => !v)}
-                aria-expanded={marketingDetailOpen}
-              >
-                <span>자세히 보기</span>
-                <span className={`${styles.consentDetailIcon} ${marketingDetailOpen ? styles.consentDetailIconOpen : ""}`}>+</span>
-              </button>
-              <div className={`${styles.calBody} ${marketingDetailOpen ? styles.calBodyOpen : ""}`}>
-                <div className={styles.calBodyInner}>
+            <div className={styles.faqItem}>
+              <div className={styles.consentRow}>
+                <label htmlFor="marketingConsent" className={styles.consentRowLabel}>
+                  <input
+                    id="marketingConsent"
+                    type="checkbox"
+                    checked={marketingConsent}
+                    onChange={(e) => setMarketingConsent(e.target.checked)}
+                    className={styles.checkbox}
+                  />
+                  <span className={styles.consentText}>
+                    모임 소식·다음 기수 안내 수신에 동의합니다.{" "}
+                    <span className={styles.optional}>(선택)</span>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  className={styles.faqIconBtn}
+                  onClick={() => setMarketingDetailOpen((v) => !v)}
+                  aria-expanded={marketingDetailOpen}
+                  aria-label="모임 소식 수신 동의 상세"
+                >
+                  <span className={`${styles.faqIcon} ${marketingDetailOpen ? styles.faqIconOpen : ""}`}>+</span>
+                </button>
+              </div>
+              <div className={`${styles.faqBody} ${marketingDetailOpen ? styles.faqBodyOpen : ""}`}>
+                <div className={styles.faqBodyInner}>
+                  <div className={styles.consentDetail}>
                   <p className={styles.consentNote}>
                     정보통신망법 제50조에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 제한이 없습니다.
                   </p>
+                  </div>
                 </div>
               </div>
+            </div>
             </div>
 
           {errors._form && (

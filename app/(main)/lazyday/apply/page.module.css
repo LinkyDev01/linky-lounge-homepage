@@ -604,3 +604,16 @@
   color: #8a7660;
   margin: 8px 0 0;
 }
+
+/* 참여 불가능한 요일 — 슬롯 4개(화·수·일 오전·일 오후)라 2열 그리드로 배치 */
+.dayGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* 라벨 내 '불가능한' 강조 — 희망 요일로 오독하지 않도록 브랜드 주황 */
+.labelStrong {
+  color: #d2691e;
+  font-weight: 700;
+}

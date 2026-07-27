@@ -65,6 +65,9 @@ export default function PreviewApplyPage() {
   const [errors, setErrors] = useState<Errors>({})
   const [privacyConsent, setPrivacyConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
+  // 동의 상세설명 드롭다운 (실 apply 쌍 동기화 — 기본 접힘, '자세히 보기'로 전개)
+  const [privacyDetailOpen, setPrivacyDetailOpen] = useState(false)
+  const [marketingDetailOpen, setMarketingDetailOpen] = useState(false)
   const [interviewType, setInterviewType] = useState("")
   const [simulateFail, setSimulateFail] = useState(false)
   // 참여 불가 요일 (복수 선택) — 실 apply와 쌍 동기화 (운영자 지시 2026-07-27)
@@ -267,44 +270,6 @@ export default function PreviewApplyPage() {
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
-            {/* 요일 문항을 맨 먼저 — 그 아래 이름부터 (운영자 지시 2026-07-27) */}
-            <div id="unavailableDays-group" className={styles.formGroup}>
-              {/* '불가' 강조 — 희망 요일로 오독 방지 */}
-              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가</strong> 요일</span>
-              <div className={styles.dayGrid}>
-                {SEASON.unavailableDaySlots.map((slot) => (
-                  <label key={slot.label} className={styles.radioLabel}>
-                    <input
-                      type="checkbox"
-                      checked={unavailableDays.includes(slot.label)}
-                      onChange={() => toggleUnavailableDay(slot.label)}
-                    />
-                    <span className={styles.dayCol}>
-                      <span className={styles.radioText}>{slot.label}</span>
-                      <span className={styles.daySlotTime}>{slot.time}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-              {/* 캘린더 드롭다운 — FAQ 미니멀 라인 문법 (실 apply 쌍 동기화) */}
-              <button
-                type="button"
-                className={styles.calToggle}
-                onClick={() => setCalOpen((v) => !v)}
-                aria-expanded={calOpen}
-              >
-                <span className={styles.calToggleText}>{SEASON.name} 일정 캘린더 보기</span>
-                <span className={`${styles.calToggleIcon} ${calOpen ? styles.calToggleIconOpen : ""}`}>+</span>
-              </button>
-              <div className={`${styles.calBody} ${calOpen ? styles.calBodyOpen : ""}`}>
-                <div className={styles.calBodyInner}>
-                  <ApplyCalendar />
-                </div>
-              </div>
-              <p className={styles.dayHint}>*반배정을 위해 고정적으로 참여 불가능한 요일을 선택해주세요.</p>
-              <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>
-              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
-            </div>
 
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
@@ -449,6 +414,47 @@ export default function PreviewApplyPage() {
               />
             </FormField>
 
+            {/* 요일 문항은 추천인 아래 (운영자 지시 2026-07-27) */}
+            <div id="unavailableDays-group" className={styles.formGroup}>
+              <span className={styles.formLabel}>
+                참여 불가 요일
+                <span className={styles.optional}>(선택)</span>
+              </span>
+              <p className={styles.dayHint}>참여가 불가능한 요일이 있는 경우에만 선택해주세요.</p>
+              <div className={styles.dayGrid}>
+                {SEASON.unavailableDaySlots.map((slot) => (
+                  <label key={slot.label} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={unavailableDays.includes(slot.label)}
+                      onChange={() => toggleUnavailableDay(slot.label)}
+                    />
+                    <span className={styles.dayCol}>
+                      <span className={styles.radioText}>{slot.label}</span>
+                      <span className={styles.daySlotTime}>{slot.time}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {/* 캘린더 드롭다운 — FAQ 미니멀 라인 문법 (실 apply 쌍 동기화) */}
+              <button
+                type="button"
+                className={styles.calToggle}
+                onClick={() => setCalOpen((v) => !v)}
+                aria-expanded={calOpen}
+              >
+                <span className={styles.calToggleText}>{SEASON.name} 일정 캘린더 보기</span>
+                <span className={`${styles.calToggleIcon} ${calOpen ? styles.calToggleIconOpen : ""}`}>+</span>
+              </button>
+              <div className={`${styles.calBody} ${calOpen ? styles.calBodyOpen : ""}`}>
+                <div className={styles.calBodyInner}>
+                  <ApplyCalendar />
+                </div>
+              </div>
+              <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>
+              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
+            </div>
+
             {/* 개선: 동의 분리 — 필수(수집·이용) / 선택(마케팅) */}
             <div className={styles.consentBox}>
               <label htmlFor="privacyConsent" className={styles.consentLabel}>
@@ -467,13 +473,26 @@ export default function PreviewApplyPage() {
                   <span className={styles.requiredTag}>(필수)</span>
                 </span>
               </label>
-              <p className={styles.consentNote}>
-                개인정보 보호법 제15조 제1항 제1호에 따라 동의를 받습니다.
-                <br />· 수집 항목: 이름, 성별, 나이, 전화번호, 인스타그램 아이디, 추천인 등 신청서 기재 정보
-                <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영을 위한 연락
-                <br />· 보유·이용 기간: 동의 철회 시까지 (철회 시 지체 없이 파기, 동법 제21조)
-                <br />· 동의를 거부하실 수 있으나, 거부 시 신청 접수가 어렵습니다.
-              </p>
+              {/* 상세설명은 드롭다운 뒤로 (실 apply 쌍 동기화) */}
+              <button
+                type="button"
+                className={styles.consentDetailToggle}
+                onClick={() => setPrivacyDetailOpen((v) => !v)}
+                aria-expanded={privacyDetailOpen}
+              >
+                <span>자세히 보기</span>
+                <span className={`${styles.consentDetailIcon} ${privacyDetailOpen ? styles.consentDetailIconOpen : ""}`}>+</span>
+              </button>
+              <div className={`${styles.calBody} ${privacyDetailOpen ? styles.calBodyOpen : ""}`}>
+                <div className={styles.calBodyInner}>
+                  <p className={styles.consentNote}>
+                    개인정보 보호법 제15조에 따라 동의를 받습니다.
+                    <br />· 수집 항목: 신청서에 기재하신 정보
+                    <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영
+                    <br />· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)
+                  </p>
+                </div>
+              </div>
               {errors.privacyConsent && (
                 <p className={styles.errorText}>{errors.privacyConsent}</p>
               )}
@@ -493,9 +512,22 @@ export default function PreviewApplyPage() {
                   <span className={styles.optional}>(선택)</span>
                 </span>
               </label>
-              <p className={styles.consentNote}>
-                개인정보 보호법 제22조 및 정보통신망법 제50조 제1항에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 불이익이 없습니다.
-              </p>
+              <button
+                type="button"
+                className={styles.consentDetailToggle}
+                onClick={() => setMarketingDetailOpen((v) => !v)}
+                aria-expanded={marketingDetailOpen}
+              >
+                <span>자세히 보기</span>
+                <span className={`${styles.consentDetailIcon} ${marketingDetailOpen ? styles.consentDetailIconOpen : ""}`}>+</span>
+              </button>
+              <div className={`${styles.calBody} ${marketingDetailOpen ? styles.calBodyOpen : ""}`}>
+                <div className={styles.calBodyInner}>
+                  <p className={styles.consentNote}>
+                    정보통신망법 제50조에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 제한이 없습니다.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* 참가비 상세는 기존처럼 인터뷰 페이지에서만 노출 (운영자 결정 2026-07-03) */}

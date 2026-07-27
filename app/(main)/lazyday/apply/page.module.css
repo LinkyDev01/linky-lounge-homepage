@@ -688,3 +688,33 @@
 .calBodyOpen { grid-template-rows: 1fr; }
 .calBodyInner { overflow: hidden; padding: 0 2px; }
 .calBodyOpen .calBodyInner { padding-top: 14px; }
+
+/* 동의 상세설명 드롭다운 — 작은 '자세히 보기' 토글 (열림 애니는 calBody 공용) */
+.consentDetailToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  align-self: flex-start;
+  margin: -4px 0 0 30px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  color: #8a6a50;
+}
+.consentDetailIcon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8571a;
+  font-size: 14px;
+  font-weight: 300;
+  transition: transform 0.3s ease;
+}
+.consentDetailIconOpen { transform: rotate(45deg); }
+/* 동의 박스 안에서는 드롭다운 열림 여백을 얇게 */
+.consentBox .calBodyOpen .calBodyInner { padding-top: 4px; }

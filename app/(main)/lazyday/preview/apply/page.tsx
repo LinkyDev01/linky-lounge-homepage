@@ -414,10 +414,11 @@ export default function PreviewApplyPage() {
                 </span>
               </label>
               <p className={styles.consentNote}>
-                수집 항목: 이름·성별·나이·연락처 등 신청서 기재 정보 / 이용 목적: 인터뷰 및 모임 운영을 위한 연락 / 보유 기간: 해당 기수 종료 후 파기.{" "}
-                <a href="/policy" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>
-                  개인정보처리방침
-                </a>
+                개인정보 보호법 제15조 제1항 제1호에 따라 동의를 받습니다.
+                <br />· 수집 항목: 이름, 성별, 나이, 전화번호, 인스타그램 아이디, 추천인 등 신청서 기재 정보
+                <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영을 위한 연락
+                <br />· 보유·이용 기간: 동의 철회 시까지 (철회 시 지체 없이 파기, 동법 제21조)
+                <br />· 동의를 거부하실 수 있으나, 거부 시 신청 접수가 어렵습니다.
               </p>
               {errors.privacyConsent && (
                 <p className={styles.errorText}>{errors.privacyConsent}</p>
@@ -434,12 +435,12 @@ export default function PreviewApplyPage() {
                   className={styles.checkbox}
                 />
                 <span className={styles.consentText}>
-                  다음 기수·모임 소식 알림 수신에 동의합니다.{" "}
+                  모임 소식·다음 기수 안내 수신에 동의합니다.{" "}
                   <span className={styles.optional}>(선택)</span>
                 </span>
               </label>
               <p className={styles.consentNote}>
-                동의하지 않아도 신청과 인터뷰 진행에는 아무런 제한이 없어요.
+                개인정보 보호법 제22조 및 정보통신망법 제50조 제1항에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 불이익이 없습니다.
               </p>
             </div>
 

@@ -20,7 +20,7 @@ const SUBMIT_URL = "/api/lazyday/apply"
 const SHOW_PREFERRED_DAYS = false
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "preferredDays" | "unavailableDays" | "interviewType" | "marketingConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "preferredDays" | "unavailableDays" | "interviewType" | "privacyConsent" | "_form",
   string
 >>
 
@@ -66,7 +66,9 @@ export default function ApplyPage() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
-  // 동의는 기존 통합 문구(마케팅 활용 및 개인정보 수집, 필수) 유지 — 분리안은 추후 재논의
+  // 동의 분리 (운영자 확정 2026-07-27): 개인정보 수집·이용(필수, 개인정보 보호법 제15조)
+  // + 마케팅 수신(선택, 제22조·정보통신망법 제50조 — 필수화 금지)
+  const [privacyConsent, setPrivacyConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [interviewType, setInterviewType] = useState("")
   // 주로 참여할 요일 (복수 선택) — 요일별 정원 관리·인터뷰 시 조율 시간 절약용
@@ -121,14 +123,14 @@ export default function ApplyPage() {
     if (unavailableDays.length === SEASON.unavailableDaySlots.length)
       newErrors.unavailableDays = "모든 요일을 선택하면 참여 가능한 요일이 없어요. 참여 가능한 요일은 남겨주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
-    if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
+    if (!privacyConsent) newErrors.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       const firstKey = Object.keys(newErrors)[0]
       const target =
-        firstKey === "marketingConsent"
-          ? document.getElementById("marketingConsent")
+        firstKey === "privacyConsent"
+          ? document.getElementById("privacyConsent")
           : firstKey === "interviewType"
           ? document.getElementById("interviewType-group")
           : firstKey === "preferredDays"
@@ -460,29 +462,54 @@ export default function ApplyPage() {
               />
             </FormField>
 
+            {/* 동의 분리 — 필수(제15조 고지 4항목 포함) / 선택(마케팅, 제22조·정보통신망법 제50조.
+                필수화·목적 혼용 금지 — 인터뷰 결과 안내는 필수 동의의 '이용 목적'으로 커버) */}
+            <div className={styles.consentBox}>
+              <label htmlFor="privacyConsent" className={styles.consentLabel}>
+                <input
+                  id="privacyConsent"
+                  type="checkbox"
+                  checked={privacyConsent}
+                  onChange={(e) => {
+                    setPrivacyConsent(e.target.checked)
+                    if (e.target.checked) clearError("privacyConsent")
+                  }}
+                  className={styles.checkbox}
+                />
+                <span className={styles.consentText}>
+                  개인정보 수집·이용에 동의합니다.{" "}
+                  <span className={styles.requiredTag}>(필수)</span>
+                </span>
+              </label>
+              <p className={styles.consentNote}>
+                개인정보 보호법 제15조 제1항 제1호에 따라 동의를 받습니다.
+                <br />· 수집 항목: 이름, 성별, 나이, 전화번호, 인스타그램 아이디, 추천인 등 신청서 기재 정보
+                <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영을 위한 연락
+                <br />· 보유·이용 기간: 동의 철회 시까지 (철회 시 지체 없이 파기, 동법 제21조)
+                <br />· 동의를 거부하실 수 있으나, 거부 시 신청 접수가 어렵습니다.
+              </p>
+              {errors.privacyConsent && (
+                <p className={styles.errorText}>{errors.privacyConsent}</p>
+              )}
+            </div>
+
             <div className={styles.consentBox}>
               <label htmlFor="marketingConsent" className={styles.consentLabel}>
                 <input
                   id="marketingConsent"
                   type="checkbox"
                   checked={marketingConsent}
-                  onChange={(e) => {
-                    setMarketingConsent(e.target.checked)
-                    if (e.target.checked) clearError("marketingConsent")
-                  }}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
                   className={styles.checkbox}
                 />
                 <span className={styles.consentText}>
-                  마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
-                  <span className={styles.requiredTag}>(필수)</span>
+                  모임 소식·다음 기수 안내 수신에 동의합니다.{" "}
+                  <span className={styles.optional}>(선택)</span>
                 </span>
               </label>
               <p className={styles.consentNote}>
-                수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.
+                개인정보 보호법 제22조 및 정보통신망법 제50조 제1항에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 불이익이 없습니다.
               </p>
-              {errors.marketingConsent && (
-                <p className={styles.errorText}>{errors.marketingConsent}</p>
-              )}
             </div>
 
           {errors._form && (

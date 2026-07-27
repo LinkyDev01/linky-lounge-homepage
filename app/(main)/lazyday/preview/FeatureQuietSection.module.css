@@ -33,7 +33,7 @@
   /* 제목 — 모바일(390px)에서 한 줄에 들어오는 최대 크기로 통일 (운영자 지시 2026-07-27).
      가장 긴 2번 제목 기준으로 측정해 확정한 값 — 제목 문구가 바뀌면 재측정할 것.
      본문(320px)보다 넓은 폭을 쓰려고 chapter 폭 제약 밖으로 빼낸다. */
-  font-size: 14px;
+  font-size: 16.5px;
   font-weight: 700;
   color: #1a1208;
   line-height: 1.5;
@@ -48,7 +48,7 @@
 }
 /* 좁은 화면(<380px)에서는 한 줄 유지를 위해 한 단계 축소 */
 @media (max-width: 379px) {
-  .qtLabel { font-size: 12.5px; }
+  .qtLabel { font-size: 15px; }
 }
 .qtPull {
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;

@@ -689,7 +689,81 @@
 .calBodyInner { overflow: hidden; padding: 0 2px; }
 .calBodyOpen .calBodyInner { padding-top: 14px; }
 
-/* 동의 상세설명 드롭다운 — 작은 '자세히 보기' 토글 (열림 애니는 calBody 공용) */
+/* ═══ FAQ 미니멀 라인 문법 이식 (운영자 지시 2026-07-27) ═══
+   랜딩 FaqSection.module.css의 line* 블록과 같은 값 — 괘선 리스트 + '+' 45° 회전 + grid-rows.
+   캘린더 드롭다운과 동의 2박스가 공유한다. 랜딩 FAQ 수정 시 값 동기화 확인. */
+.faqList { border-top: 1px solid rgba(74, 58, 42, 0.18); }
+.faqItem { border-bottom: 1px solid rgba(74, 58, 42, 0.18); }
+.faqQ {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.faqQText {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #1a1208;
+  line-height: 1.45;
+  flex: 1;
+  word-break: keep-all;
+}
+.faqIcon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8571a;
+  font-size: 18px;
+  font-weight: 300;
+  transition: transform 0.3s ease;
+}
+.faqIconOpen { transform: rotate(45deg); }
+.faqBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.faqBodyOpen { grid-template-rows: 1fr; }
+.faqBodyInner { overflow: hidden; }
+
+/* 동의 행 — FAQ 라인 위에 체크박스를 얹은 형태 (텍스트 없는 우측 '+' 아이콘 버튼) */
+.consentRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 2px;
+}
+.consentRowLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+}
+.faqIconBtn {
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+/* 동의 상세는 여백만 소폭 (마지막 문단 아래 숨 쉴 공간) */
+.consentDetail { padding: 0 0 18px 30px; }
+.consentDetail .consentNote { margin: 0; }
+
+/* (구) 동의 상세설명 드롭다운 — '자세히 보기' 텍스트 토글. FAQ 형태로 대체됨(고아 보존) */
 .consentDetailToggle {
   display: inline-flex;
   align-items: center;

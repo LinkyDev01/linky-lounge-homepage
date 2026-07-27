@@ -303,6 +303,10 @@ export default function OnedayApplyPage() {
               <span className={cal.infoValue}>링키라운지(사당역 도보 3분)</span>
             </div>
             <p className={cal.infoNote}>*장소는 변경될 수 있습니다.</p>
+            <div className={cal.infoRow}>
+              <span className={cal.infoLabel}>가격</span>
+              <span className={cal.infoValue}>35,000원</span>
+            </div>
           </div>
         </section>
 

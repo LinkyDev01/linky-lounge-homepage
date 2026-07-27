@@ -74,6 +74,8 @@ export default function PreviewApplyPage() {
   const [unavailableDays, setUnavailableDays] = useState<string[]>([])
   // 요일 문항 내 캘린더 드롭다운 (FAQ A안 grid-rows 애니 문법 재사용)
   const [calOpen, setCalOpen] = useState(false)
+  // 2단계 폼 (실 apply 쌍 동기화 — 프리뷰는 임시저장 전송 없이 화면 전환만)
+  const [step, setStep] = useState<1 | 2>(1)
 
   function toggleUnavailableDay(slot: string) {
     setUnavailableDays((prev) =>
@@ -89,6 +91,33 @@ export default function PreviewApplyPage() {
       delete next[name]
       return next
     })
+  }
+
+  /** 1단계 검증 → 2단계 (프리뷰는 임시저장 API 미연동 — 실 apply와 화면만 동일) */
+  function handleNext() {
+    const form = document.querySelector("form") as HTMLFormElement | null
+    if (!form) return
+    const data = new FormData(form)
+    const newErrors: Errors = {}
+    const name = (data.get("name") as string)?.trim() || ""
+    const gender = (data.get("gender") as string) || ""
+    const age = (data.get("age") as string)?.trim() || ""
+    const phone = (data.get("phone") as string)?.trim() || ""
+
+    if (!name) newErrors.name = "이름을 입력해주세요."
+    if (!gender) newErrors.gender = "성별을 선택해주세요."
+    if (!age) newErrors.age = "나이를 입력해주세요."
+    if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      const firstKey = Object.keys(newErrors)[0]
+      document.querySelector(`[name="${firstKey}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+      return
+    }
+    setErrors({})
+    setStep(2)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -135,7 +164,7 @@ export default function PreviewApplyPage() {
     if (simulateFail) {
       setLoading(false)
       setErrors({
-        _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '신청 완료하기'를 다시 눌러주세요.",
+        _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '다음'을 다시 눌러주세요.",
       })
       document.getElementById("form-error-anchor")?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
@@ -266,10 +295,12 @@ export default function PreviewApplyPage() {
             <p className={styles.schedulePlace}>
               <span className={styles.schedulePlaceLabel}>장소</span> {SEASON.location.short}
             </p>
-            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
+            <p className={styles.scheduleNote}>*회차별 화·수·일 중 참여 요일 선택 가능</p>
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            {/* ── 1단계: 요일 · 이름 · 성별 · 나이 · 전화번호 (실 apply 쌍 동기화) ── */}
+            <div className={step === 1 ? styles.stepPane : styles.stepPaneHidden}>
 
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
@@ -345,6 +376,10 @@ export default function PreviewApplyPage() {
               <p className={pstyles.microcopy}>인터뷰 안내와 합류 확정 연락에 사용돼요.</p>
             </FormField>
 
+            </div>
+
+            {/* ── 2단계: 인터뷰 방식 · 선택 항목 · 동의 ── */}
+            <div className={step === 2 ? styles.stepPane : styles.stepPaneHidden}>
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -438,14 +473,21 @@ export default function PreviewApplyPage() {
                 ))}
               </div>
               {/* 캘린더 드롭다운 — FAQ 미니멀 라인 문법 (실 apply 쌍 동기화) */}
-              <div className={styles.faqList}>
-                <div className={styles.faqItem}>
+              <div className={`${styles.faqList} ${styles.calFaqList}`}>
+                <div className={`${styles.faqItem} ${styles.calFaqItem}`}>
                   <button
                     type="button"
-                    className={styles.faqQ}
+                    className={`${styles.faqQ} ${styles.calFaqQ}`}
                     onClick={() => setCalOpen((v) => !v)}
                     aria-expanded={calOpen}
                   >
+                    {/* 선으로 그린 캘린더 아이콘 — 브랜드 주황 (운영자 지시 2026-07-27) */}
+                    <svg className={styles.calIcon} viewBox="0 0 20 20" fill="none" aria-hidden>
+                      <rect x="2.5" y="4" width="15" height="13.5" rx="2" stroke="#d2691e" strokeWidth="1.4" />
+                      <path d="M2.5 8.25h15" stroke="#d2691e" strokeWidth="1.4" strokeLinecap="round" />
+                      <path d="M6.75 2.5v3M13.25 2.5v3" stroke="#d2691e" strokeWidth="1.4" strokeLinecap="round" />
+                      <path d="M6 11.5h2.5M11.5 11.5H14M6 14.5h2.5M11.5 14.5H14" stroke="#d2691e" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
                     <span className={styles.faqQText}>{SEASON.name} 일정 캘린더 보기</span>
                     <span className={`${styles.faqIcon} ${calOpen ? styles.faqIconOpen : ""}`}>+</span>
                   </button>
@@ -546,6 +588,8 @@ export default function PreviewApplyPage() {
 
             {/* 참가비 상세는 기존처럼 인터뷰 페이지에서만 노출 (운영자 결정 2026-07-03) */}
 
+            </div>
+
           <div id="form-error-anchor">
           {errors._form && (
               <div className={pstyles.failBanner} role="alert">
@@ -555,9 +599,15 @@ export default function PreviewApplyPage() {
           )}
           </div>
 
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? "신청 중입니다..." : "신청 완료하기"}
-            </button>
+            {step === 1 ? (
+              <button type="button" className={styles.submitButton} disabled={loading} onClick={handleNext}>
+                다음
+              </button>
+            ) : (
+              <button type="submit" className={styles.submitButton} disabled={loading}>
+                {loading ? "신청 중입니다..." : "다음"}
+              </button>
+            )}
         </form>
 
         {/* 프리뷰 전용: 실패 시뮬레이션 토글 */}

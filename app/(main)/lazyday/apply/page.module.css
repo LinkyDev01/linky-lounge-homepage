@@ -601,9 +601,12 @@
 
 .dayHint {
   font-size: 12.5px;
+  line-height: 1.6;
   color: #8a7660;
-  margin: 8px 0 0;
+  margin: 0;
 }
+/* 각주 줄 사이만 살짝 (formGroup gap 8px가 이미 있어 margin은 0) */
+.dayHint + .dayHint { margin-top: 2px; }
 
 /* 참여 불가능한 요일 — 슬롯 4개(화·수·일 오전·일 오후)라 2열 그리드로 배치 */
 .dayGrid {
@@ -792,3 +795,22 @@
 .consentDetailIconOpen { transform: rotate(45deg); }
 /* 동의 박스 안에서는 드롭다운 열림 여백을 얇게 */
 .consentBox .calBodyOpen .calBodyInner { padding-top: 4px; }
+
+/* ── 2단계 폼 패널 (운영자 지시 2026-07-27) — 입력값 보존 위해 언마운트 대신 숨김 ── */
+.stepPane {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.stepPaneHidden { display: none; }
+
+/* ── 캘린더 토글 — 감싸는 회색 괘선 제거 + 좌측 오렌지 라인 캘린더 아이콘 ── */
+.calFaqList { border-top: none; }
+.calFaqItem { border-bottom: none; }
+.calFaqQ { padding: 14px 2px; }
+.calIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}

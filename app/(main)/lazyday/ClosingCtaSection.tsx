@@ -24,7 +24,7 @@ export function ClosingCtaSection() {
           : d !== null && d < 0
           ? `${SEASON.name} 모집이 마감되었습니다.`
           : !SEASON.showDeadline || d === null
-          ? `${SEASON.name} 모집 중입니다.`
+          ? `레이지데이 북클럽 ${SEASON.name} 모집 중`
           : d === 0
           ? `${SEASON.name} 모집은 오늘 마감됩니다.`
           : `${SEASON.name} 모집은 ${d}일 뒤 마감됩니다.`}

@@ -36,7 +36,8 @@
   margin: 0;
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
   font-weight: 600;
-  font-size: 18px;
+  /* 18px → 20px 확대 (운영자 지시 2026-07-27) */
+  font-size: 20px;
   line-height: 1.7;
   letter-spacing: -0.01em;
   color: #1a1208;

@@ -15,6 +15,12 @@ import styles from "./page.module.css"
 
 const SUBMIT_URL = "/api/lazyday/apply"
 
+// 1단계 임시저장 전송 스위치 (운영자 지시 2026-07-27).
+// ⚠️ GAS에 handleApplyDraft(type:"apply_draft")가 배포된 뒤에만 true로 켤 것 —
+// 구버전 GAS는 모르는 type을 신청 폼으로 간주해 '신청현황'에 미완성 행을 쓰고
+// 신청자에게 알림톡까지 보낸다. GAS 새 버전 확인 후 이 값만 true로 바꿔 배포.
+const SAVE_DRAFT = false
+
 // '주로 참여할 요일' 문항 — 보류 중 (2026-07-02 운영자 결정). true로 바꾸면 다시 노출.
 // GAS handleApply는 이 필드가 있을 때만 '희망 요일' 컬럼을 만들므로 켜고 끄기만 하면 됨.
 const SHOW_PREFERRED_DAYS = false
@@ -88,6 +94,8 @@ export default function ApplyPage() {
   const [unavailableDays, setUnavailableDays] = useState<string[]>([])
   // 요일 문항 내 캘린더 드롭다운 (FAQ A안 grid-rows 애니 문법 재사용)
   const [calOpen, setCalOpen] = useState(false)
+  // 2단계 폼 (운영자 지시 2026-07-27): 1 = 요일·인적사항(임시저장) / 2 = 인터뷰 방식·선택 항목·동의
+  const [step, setStep] = useState<1 | 2>(1)
 
   function toggleUnavailableDay(slot: string) {
     setUnavailableDays((prev) =>
@@ -103,6 +111,49 @@ export default function ApplyPage() {
       delete next[name]
       return next
     })
+  }
+
+  /** 1단계(요일·이름·성별·나이·전화) 검증 → 임시저장 전송 → 2단계로.
+   *  임시저장은 이탈자 연락처 확보용이라 실패해도 진행을 막지 않는다 (최종 제출이 정본). */
+  async function handleNext() {
+    const form = document.querySelector("form") as HTMLFormElement | null
+    if (!form) return
+    const data = new FormData(form)
+    const newErrors: Errors = {}
+
+    const name = (data.get("name") as string)?.trim() || ""
+    const gender = (data.get("gender") as string) || ""
+    const age = (data.get("age") as string)?.trim() || ""
+    const phone = (data.get("phone") as string)?.trim() || ""
+
+    if (!name) newErrors.name = "이름을 입력해주세요."
+    if (!gender) newErrors.gender = "성별을 선택해주세요."
+    if (!age) newErrors.age = "나이를 입력해주세요."
+    if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      const firstKey = Object.keys(newErrors)[0]
+      document.querySelector(`[name="${firstKey}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+      return
+    }
+
+    setErrors({})
+    if (SAVE_DRAFT) {
+      setLoading(true)
+      try {
+        await fetch(SUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "apply_draft", name, gender, age, phone }),
+        })
+      } catch {
+        // 임시저장 실패는 무시 — 최종 제출에서 다시 기록된다
+      }
+      setLoading(false)
+    }
+    setStep(2)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -177,7 +228,7 @@ export default function ApplyPage() {
     } catch {
       setLoading(false)
       setErrors({
-        _form: "일시적인 오류로 신청이 접수되지 않았어요. 잠시 후 '신청 완료하기'를 다시 눌러주세요.",
+        _form: "일시적인 오류로 신청이 접수되지 않았어요. 잠시 후 '다음'을 다시 눌러주세요.",
       })
       return
     }
@@ -315,10 +366,12 @@ export default function ApplyPage() {
             <p className={styles.schedulePlace}>
               <span className={styles.schedulePlaceLabel}>장소</span> {SEASON.location.short}
             </p>
-            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
+            <p className={styles.scheduleNote}>*회차별 화·수·일 중 참여 요일 선택 가능</p>
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            {/* ── 1단계: 요일 · 이름 · 성별 · 나이 · 전화번호 (입력값 보존 위해 언마운트 대신 숨김) ── */}
+            <div className={step === 1 ? styles.stepPane : styles.stepPaneHidden}>
 
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
@@ -414,6 +467,10 @@ export default function ApplyPage() {
             </div>
             )}
 
+            </div>
+
+            {/* ── 2단계: 인터뷰 방식 · 선택 항목 · 동의 ── */}
+            <div className={step === 2 ? styles.stepPane : styles.stepPaneHidden}>
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -507,14 +564,21 @@ export default function ApplyPage() {
                 ))}
               </div>
               {/* 캘린더 드롭다운 — 열고 닫는 애니메이션은 FAQ 미니멀 라인 문법(grid-rows + '+' 45° 회전) */}
-              <div className={styles.faqList}>
-                <div className={styles.faqItem}>
+              <div className={`${styles.faqList} ${styles.calFaqList}`}>
+                <div className={`${styles.faqItem} ${styles.calFaqItem}`}>
                   <button
                     type="button"
-                    className={styles.faqQ}
+                    className={`${styles.faqQ} ${styles.calFaqQ}`}
                     onClick={() => setCalOpen((v) => !v)}
                     aria-expanded={calOpen}
                   >
+                    {/* 선으로 그린 캘린더 아이콘 — 브랜드 주황 (운영자 지시 2026-07-27) */}
+                    <svg className={styles.calIcon} viewBox="0 0 20 20" fill="none" aria-hidden>
+                      <rect x="2.5" y="4" width="15" height="13.5" rx="2" stroke="#d2691e" strokeWidth="1.4" />
+                      <path d="M2.5 8.25h15" stroke="#d2691e" strokeWidth="1.4" strokeLinecap="round" />
+                      <path d="M6.75 2.5v3M13.25 2.5v3" stroke="#d2691e" strokeWidth="1.4" strokeLinecap="round" />
+                      <path d="M6 11.5h2.5M11.5 11.5H14M6 14.5h2.5M11.5 14.5H14" stroke="#d2691e" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
                     <span className={styles.faqQText}>{SEASON.name} 일정 캘린더 보기</span>
                     <span className={`${styles.faqIcon} ${calOpen ? styles.faqIconOpen : ""}`}>+</span>
                   </button>
@@ -614,13 +678,21 @@ export default function ApplyPage() {
             </div>
             </div>
 
+            </div>
+
           {errors._form && (
               <p className={styles.formError}>{errors._form}</p>
           )}
 
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? "신청 중입니다..." : "신청 완료하기"}
-            </button>
+            {step === 1 ? (
+              <button type="button" className={styles.submitButton} disabled={loading} onClick={handleNext}>
+                {loading ? "저장 중입니다..." : "다음"}
+              </button>
+            ) : (
+              <button type="submit" className={styles.submitButton} disabled={loading}>
+                {loading ? "신청 중입니다..." : "다음"}
+              </button>
+            )}
         </form>
       </div>
     </main>

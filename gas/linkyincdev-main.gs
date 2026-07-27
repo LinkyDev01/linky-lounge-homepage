@@ -27,6 +27,7 @@ var PHONE_SHEET = "전화 인터뷰";
 var WRITTEN_SHEET = "서면 인터뷰";
 var CLASS_SHEET = "반배정";
 var NOTIFY_SHEET = "4기 알림"; // 다음 기수 오픈 알림 신청 (2026-07-13)
+var DRAFT_SHEET  = "임시저장"; // 신청 1단계 임시저장 (2026-07-27) — 같은 문서 별도 탭
 var ONEDAY_SHEET = "1회성 모임"; // 1회성 모임 신청 (2026-07-24) — 같은 문서 별도 탭
 
 // 확인 완료: 운영 캘린더 "레이지데이북클럽 인터뷰" (라이브 일정과 대조 검증됨)
@@ -184,6 +185,7 @@ function doPost(e) {
     if (data.type === "admin_delete")    return handleAdminDelete(data);
     if (data.type === "notify")          return handleNotify(data);
     if (data.type === "oneday")          return handleOnedayApply(data);
+    if (data.type === "apply_draft")     return handleApplyDraft(data);
 
     return handleApply(data); // type 없음 = 신청 폼
   } catch (err) {
@@ -293,6 +295,69 @@ function handleOnedayApply(d) {
   return jsonResponse({ success: true });
 }
 
+// ── 신청 1단계 임시저장 → '임시저장' 시트 (2026-07-27) ─────────────
+// 프론트 apply 폼이 2단계로 나뉘면서, 1단계(요일·이름·성별·나이·전화) 입력 직후
+// 이탈해도 연락처가 남도록 별도 탭에 즉시 기록한다.
+// payload: type:"apply_draft"/name/gender/age/phone
+//  · 최종 제출은 종전대로 handleApply가 '신청현황'에 기록 — 이 시트는 이탈자 추적용
+//  · 알림톡은 보내지 않는다 (아직 신청 완료가 아님). 관리자 메일만.
+//  · 시트가 없으면 자동 생성 (수동 작업 불필요)
+function handleApplyDraft(d) {
+  if (!d.name || !d.phone) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
+  var sheet = ss().getSheetByName(DRAFT_SHEET);
+  if (!sheet) {
+    sheet = ss().insertSheet(DRAFT_SHEET);
+    sheet.getRange(1, 1).setValue("입력일시")
+      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
+  }
+  ensureColumn(sheet, "이름");
+  ensureColumn(sheet, "성별");
+  ensureColumn(sheet, "나이");
+  ensureColumn(sheet, "전화번호");
+  ensureColumn(sheet, "최종 제출");
+  var col = colIndexMap(sheet);
+  var row = new Array(sheet.getLastColumn()).fill("");
+  row[col["입력일시"]]  = new Date();
+  row[col["이름"]]      = d.name || "";
+  row[col["성별"]]      = d.gender || "";
+  row[col["나이"]]      = d.age || "";
+  row[col["전화번호"]]  = d.phone || "";
+  row[col["최종 제출"]] = "X"; // 최종 제출 시 handleApply가 O로 갱신
+  prependRow(sheet, row);
+
+  MailApp.sendEmail({
+    to: ADMIN_EMAIL,
+    subject: "[레이지데이 북클럽] 신청 1단계 입력 — " + (d.name || "?") + "님",
+    body: "신청 1단계(연락처)가 입력되었습니다. 아직 최종 제출 전입니다.\n\n" +
+          "이름: " + (d.name || "-") + "\n" +
+          "성별: " + (d.gender || "-") + "\n" +
+          "나이: " + (d.age || "-") + "\n" +
+          "연락처: " + (d.phone || "-") + "\n\n" +
+          "📄 스프레드시트('임시저장' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
+  });
+
+  return jsonResponse({ success: true });
+}
+
+/** 최종 제출된 신청자의 임시저장 행에 '최종 제출' = O 표시 (전화번호 기준, 최근 1건) */
+function markDraftSubmitted(phone) {
+  var sheet = ss().getSheetByName(DRAFT_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return;
+  var col = colIndexMap(sheet);
+  if (col["전화번호"] == null || col["최종 제출"] == null) return;
+  var np = normPhone(phone);
+  if (!np) return;
+  var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
+  for (var i = 0; i < values.length; i++) {
+    if (normPhone(values[i][col["전화번호"]]) === np) {
+      sheet.getRange(i + 2, col["최종 제출"] + 1).setValue("O");
+      return;
+    }
+  }
+}
+
 // ── 신청 폼 → 신청현황 ──────────────────────────────────────
 // (2026-07-02) 새 폼 필드 반영: '희망 요일'(preferredDays) + '동의 시각'(consentAt).
 //  두 컬럼이 없으면 맨 뒤에 자동 생성되므로 시트 수동 작업 불필요.
@@ -344,6 +409,8 @@ function handleApply(d) {
 
   // 신청자에게 카카오 알림톡 (실패 시 SMS fallback)
   // 인터뷰 방식 분기: 서면 인터뷰 선택 시 별도 템플릿, 그 외(전화)는 기존과 동일
+  markDraftSubmitted(d.phone); // 1단계 임시저장 행에 최종 제출 O 표시
+
   var npApply = normPhone(d.phone);
   if (npApply) {
     var applyTemplate = (d.interviewType === "서면 인터뷰") ? KAKAO_TEMPLATE_APPLY_WRITTEN : KAKAO_TEMPLATE_APPLY;

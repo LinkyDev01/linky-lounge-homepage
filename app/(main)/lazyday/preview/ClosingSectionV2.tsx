@@ -28,7 +28,7 @@ export function ClosingSectionV2() {
             : d !== null && d < 0
             ? `${PREVIEW.season} 모집이 마감되었습니다.`
             : !SEASON.showDeadline || d === null
-            ? `${PREVIEW.season} 모집 중입니다.`
+            ? `레이지데이 북클럽 ${PREVIEW.season} 모집 중`
             : d === 0
             ? `${PREVIEW.season} 모집은 오늘 마감됩니다.`
             : `${PREVIEW.season} 모집은 ${d}일 뒤 마감됩니다.`}

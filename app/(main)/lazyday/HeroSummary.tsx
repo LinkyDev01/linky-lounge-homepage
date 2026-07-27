@@ -6,7 +6,7 @@ import styles from "./HeroSummary.module.css"
 
 /**
  * 히어로 포스터 바로 아래의 핵심 요약 (10b 정본 이식, 운영자 확정 2026-07-08).
- * 키커(D-day) + 제목 '오프라인 독서모임'(명조 18px — 세리프 확장 승인) + 종이 낱장 SummaryCard.
+ * 키커(D-day) + 제목 '오프라인 독서모임'(명조 20px — 세리프 확장 승인) + 종이 낱장 SummaryCard.
  * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행 없음(이번 기수 미표기).
  * 데이터는 season-config 단일 출처. D-day는 마운트 후 계산(빌드 박제 방지).
  * ⚠ 프리뷰 쌍: preview/HeroSummary.tsx — 한쪽 수정 시 동기화 (TSX 쌍 동기화).

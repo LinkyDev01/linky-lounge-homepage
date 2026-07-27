@@ -30,12 +30,25 @@
   text-align: center;
 }
 .qtLabel {
-  font-size: 19px;
+  /* 제목 — 모바일(390px)에서 한 줄에 들어오는 최대 크기로 통일 (운영자 지시 2026-07-27).
+     가장 긴 2번 제목 기준으로 측정해 확정한 값 — 제목 문구가 바뀌면 재측정할 것.
+     본문(320px)보다 넓은 폭을 쓰려고 chapter 폭 제약 밖으로 빼낸다. */
+  font-size: 14px;
   font-weight: 700;
   color: #1a1208;
   line-height: 1.5;
   margin: 0 0 18px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  /* 한 줄 고정 — 본문 폭(320px) 밖으로 빼내 좌우 10px 거터까지 쓴다 */
+  white-space: nowrap;
+  width: min(370px, calc(100vw - 20px));
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+/* 좁은 화면(<380px)에서는 한 줄 유지를 위해 한 단계 축소 */
+@media (max-width: 379px) {
+  .qtLabel { font-size: 12.5px; }
 }
 .qtPull {
   font-family: var(--font-noto-serif), "Noto Serif KR", serif;
@@ -60,7 +73,7 @@
 }
 .qtBody p { margin: 0 0 14px; }
 .qtBody p:last-child { margin-bottom: 0; }
-.qtBody strong { color: #4a3020; font-weight: 700; }
+.qtBody strong { color: #d2691e; font-weight: 700; }
 .qtNote { font-size: 12px; color: #9a9590; margin: 14px 0 0; }
 .qtDivider {
   font-size: 15px;

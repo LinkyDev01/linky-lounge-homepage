@@ -137,14 +137,34 @@
 }
 
 .schTdMidnight {
-  text-align: left;
-  padding-left: 4px;
+  /* 5회차 행: 날짜+시간 한 줄 가운데 정렬 (운영자 지시 2026-07-27) */
+  text-align: center;
+  white-space: nowrap;
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
   border-top: 1px solid #f0e8df;
   letter-spacing: -0.01em;
   line-height: 1.4;
+}
+
+.schTimeInline {
+  /* 5회차 인라인 시간 — 헤더용 .schThTime의 block/줄분리 없이 같은 톤만 유지 */
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 500;
+  color: #8a6a50;
+  letter-spacing: 0;
+}
+
+.schTdPlace {
+  /* 장소 행 — 5회차 행과 동일한 가운데 정렬 값 서식 */
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1208;
+  border-top: 1px solid #f0e8df;
+  letter-spacing: -0.01em;
 }
 
 .schMidnightIcon {
@@ -154,7 +174,8 @@
 .scheduleNote {
   font-size: 11px;
   color: #8a6a50;
-  margin: 12px 0 0;
+  /* 윗줄(장소 행)과의 간격 축소 (운영자 지시 2026-07-27) */
+  margin: 2px 0 0;
   text-align: center;
 }
 

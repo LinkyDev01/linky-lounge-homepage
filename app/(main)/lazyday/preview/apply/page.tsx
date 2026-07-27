@@ -299,15 +299,19 @@ export default function PreviewApplyPage() {
                 <tr>
                   <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
                   <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
-                    {SEASON.fifth.date}<br />
-                    <span className={styles.schThTime}>{SEASON.fifth.timeLabel}</span>
+                    {SEASON.fifth.date}{" "}
+                    <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
+                  </td>
+                </tr>
+                {/* 장소도 회차 행과 동일한 서식 — 좌측 라벨 + 값 (운영자 지시 2026-07-27) */}
+                <tr>
+                  <td className={styles.schTdLabel}>장소</td>
+                  <td colSpan={SEASON.days.length} className={styles.schTdPlace}>
+                    {SEASON.location.name}
                   </td>
                 </tr>
               </tbody>
             </table>
-            <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>장소</span> {SEASON.location.short}
-            </p>
             <p className={styles.scheduleNote}>*회차별 화·수·일 중 참여 요일 선택 가능</p>
           </section>
         )}

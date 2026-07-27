@@ -108,11 +108,19 @@ export default function PreviewApplyPage() {
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+    if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
+    if (!privacyConsent) newErrors.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       const firstKey = Object.keys(newErrors)[0]
-      document.querySelector(`[name="${firstKey}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+      const target =
+        firstKey === "privacyConsent"
+          ? document.getElementById("privacyConsent")
+          : firstKey === "interviewType"
+          ? document.getElementById("interviewType-group")
+          : document.querySelector(`[name="${firstKey}"]`)
+      target?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
     }
     setErrors({})
@@ -144,6 +152,9 @@ export default function PreviewApplyPage() {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       const firstKey = Object.keys(newErrors)[0]
+      // 필수 항목은 전부 1단계에 있다 — 누락이면 1단계로 되돌린다
+      const step1Keys = ["name", "gender", "age", "phone", "interviewType", "privacyConsent"]
+      if (step1Keys.includes(firstKey)) setStep(1)
       const target =
         firstKey === "privacyConsent"
           ? document.getElementById("privacyConsent")
@@ -376,10 +387,7 @@ export default function PreviewApplyPage() {
               <p className={pstyles.microcopy}>인터뷰 안내와 합류 확정 연락에 사용돼요.</p>
             </FormField>
 
-            </div>
-
-            {/* ── 2단계: 인터뷰 방식 · 선택 항목 · 동의 ── */}
-            <div className={step === 2 ? styles.stepPane : styles.stepPaneHidden}>
+            {/* 필수 — 인터뷰 방식 */}
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -419,6 +427,59 @@ export default function PreviewApplyPage() {
               )}
             </div>
 
+            {/* 필수 — 개인정보 수집·이용 동의 */}
+            <div className={styles.faqList}>
+            <div className={styles.faqItem}>
+              <div className={styles.consentRow}>
+                <label htmlFor="privacyConsent" className={styles.consentRowLabel}>
+                  <input
+                    id="privacyConsent"
+                    type="checkbox"
+                    checked={privacyConsent}
+                    onChange={(e) => {
+                      setPrivacyConsent(e.target.checked)
+                      if (e.target.checked) clearError("privacyConsent")
+                    }}
+                    className={styles.checkbox}
+                  />
+                  <span className={styles.consentText}>
+                    개인정보 수집·이용에 동의합니다.{" "}
+                    <span className={styles.requiredTag}>(필수)</span>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  className={styles.faqIconBtn}
+                  onClick={() => setPrivacyDetailOpen((v) => !v)}
+                  aria-expanded={privacyDetailOpen}
+                  aria-label="개인정보 수집·이용 동의 상세"
+                >
+                  <span className={`${styles.faqIcon} ${privacyDetailOpen ? styles.faqIconOpen : ""}`}>+</span>
+                </button>
+              </div>
+              {/* 상세 고지는 FAQ 라인 드롭다운 뒤 (실 apply 쌍 동기화) */}
+              <div className={`${styles.faqBody} ${privacyDetailOpen ? styles.faqBodyOpen : ""}`}>
+                <div className={styles.faqBodyInner}>
+                  <div className={styles.consentDetail}>
+                  <p className={styles.consentNote}>
+                    개인정보 보호법 제15조에 따라 동의를 받습니다.
+                    <br />· 수집 항목: 신청서에 기재하신 정보
+                    <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영
+                    <br />· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)
+                  </p>
+                  </div>
+                </div>
+              </div>
+              {errors.privacyConsent && (
+                <p className={styles.errorText}>{errors.privacyConsent}</p>
+              )}
+            </div>
+
+            </div>
+            </div>
+
+            {/* ── 2단계: 선택 항목 (한 줄 인사·인스타·추천인·참여 불가 요일·마케팅 수신) ── */}
+            <div className={step === 2 ? styles.stepPane : styles.stepPaneHidden}>
             <FormField label="한 줄 인사" name="greeting" optional sectionId="apply-optional">
               <input
                 id="greeting"
@@ -505,52 +566,6 @@ export default function PreviewApplyPage() {
             <div className={styles.faqList}>
             <div className={styles.faqItem}>
               <div className={styles.consentRow}>
-                <label htmlFor="privacyConsent" className={styles.consentRowLabel}>
-                  <input
-                    id="privacyConsent"
-                    type="checkbox"
-                    checked={privacyConsent}
-                    onChange={(e) => {
-                      setPrivacyConsent(e.target.checked)
-                      if (e.target.checked) clearError("privacyConsent")
-                    }}
-                    className={styles.checkbox}
-                  />
-                  <span className={styles.consentText}>
-                    개인정보 수집·이용에 동의합니다.{" "}
-                    <span className={styles.requiredTag}>(필수)</span>
-                  </span>
-                </label>
-                <button
-                  type="button"
-                  className={styles.faqIconBtn}
-                  onClick={() => setPrivacyDetailOpen((v) => !v)}
-                  aria-expanded={privacyDetailOpen}
-                  aria-label="개인정보 수집·이용 동의 상세"
-                >
-                  <span className={`${styles.faqIcon} ${privacyDetailOpen ? styles.faqIconOpen : ""}`}>+</span>
-                </button>
-              </div>
-              {/* 상세 고지는 FAQ 라인 드롭다운 뒤 (실 apply 쌍 동기화) */}
-              <div className={`${styles.faqBody} ${privacyDetailOpen ? styles.faqBodyOpen : ""}`}>
-                <div className={styles.faqBodyInner}>
-                  <div className={styles.consentDetail}>
-                  <p className={styles.consentNote}>
-                    개인정보 보호법 제15조에 따라 동의를 받습니다.
-                    <br />· 수집 항목: 신청서에 기재하신 정보
-                    <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영
-                    <br />· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)
-                  </p>
-                  </div>
-                </div>
-              </div>
-              {errors.privacyConsent && (
-                <p className={styles.errorText}>{errors.privacyConsent}</p>
-              )}
-            </div>
-
-            <div className={styles.faqItem}>
-              <div className={styles.consentRow}>
                 <label htmlFor="marketingConsent" className={styles.consentRowLabel}>
                   <input
                     id="marketingConsent"
@@ -604,9 +619,23 @@ export default function PreviewApplyPage() {
                 다음
               </button>
             ) : (
-              <button type="submit" className={styles.submitButton} disabled={loading}>
-                {loading ? "신청 중입니다..." : "다음"}
-              </button>
+              /* 2단계에서 1단계로 돌아가기 (실 apply 쌍 동기화) */
+              <div className={styles.stepButtonRow}>
+                <button
+                  type="button"
+                  className={styles.backButton}
+                  disabled={loading}
+                  onClick={() => {
+                    setStep(1)
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }}
+                >
+                  이전
+                </button>
+                <button type="submit" className={styles.submitButton} disabled={loading}>
+                  {loading ? "신청 중입니다..." : "다음"}
+                </button>
+              </div>
             )}
         </form>
 

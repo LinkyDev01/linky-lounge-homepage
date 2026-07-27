@@ -391,26 +391,6 @@ export default function ApplyPage() {
             </div>
             )}
 
-            <div id="unavailableDays-group" className={styles.formGroup}>
-              {/* '불가능한' 강조 — 희망 요일로 오독 방지 (운영자 지시 2026-07-27) */}
-              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가능한</strong> 요일</span>
-              <div className={styles.dayGrid}>
-                {SEASON.unavailableDaySlots.map((slot) => (
-                  <label key={slot} className={styles.radioLabel}>
-                    <input
-                      type="checkbox"
-                      checked={unavailableDays.includes(slot)}
-                      onChange={() => toggleUnavailableDay(slot)}
-                    />
-                    <span className={styles.radioText}>{slot}</span>
-                  </label>
-                ))}
-              </div>
-              <p className={styles.dayHint}>참여가 불가능한 요일을 모두 선택해주세요. 모두 가능하다면 비워두셔도 돼요.</p>
-              <p className={styles.dayHint}>*반 배정 후 개별 연락을 드려요. 특정 회차는 다른 요일 반에 교차 참여도 가능해요.</p>
-              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
-            </div>
-
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식

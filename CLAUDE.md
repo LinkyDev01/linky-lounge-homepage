@@ -77,7 +77,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 | `BrandCloseSection.module.css` | BrandCloseSection, preview/ClosingSectionV2 | 실+프리뷰 클로징 |
 | `apply/page.module.css` · `apply/interview/written/page.module.css` · `apply/interview/schedule/page.module.css` | 실 apply 페이지 + preview/apply 대응 페이지 + **one-day-talk-01/apply/page.tsx(apply/page.module.css만)** | 신청·서면·전화 실+프리뷰 + 1회성 모임 (주의: `apply/interview/page.module.css`는 소비자 없는 고아 — 공유 아님) |
 | `FifthSessionSection`의 module.css | **V2 없음** — 프리뷰 랜딩이 실사이트 컴포넌트를 직접 import | 수정 = 실사이트 즉시 변경. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS를 새로 만들 것 |
-| `HowToSection`·`ScheduleSection`·`FeatureQuietSection`·`ClosingCtaSection` (실) ↔ `HowToSectionV2`·`ScheduleSectionV2`·`preview/FeatureQuietSection`·`ClosingSectionV2` (프리뷰) | **분리된 파일 쌍** (2026-07-06 배포) | 실·프리뷰가 같은 디자인의 **별도 사본** — 한쪽 수정 시 반드시 쌍도 같은 값으로 (TSX 쌍 동기화 원칙). CSS import 공유 없음 |
+| `HowToSection`·`ScheduleSection`·`FeatureQuietSection`·`ClosingCtaSection` (실) ↔ `HowToSectionV2`·`ScheduleSectionV2`·`preview/FeatureQuietSection`·`ClosingSectionV2` (프리뷰) | **분리된 파일 쌍** (2026-07-06 배포) | 실·프리뷰가 같은 디자인의 **별도 사본** — 한쪽 수정 시 반드시 쌍도 같은 값으로 (TSX 쌍 동기화 원칙). CSS import 공유 없음. **ScheduleSection 캘린더는 사본이 하나 더**: `apply/ApplyCalendar.tsx/.module.css`(실·프리뷰 apply 공용, 2026-07-27) — 랜딩 캘린더 수정 시 3벌 동기화 |
 | `lazyday/lounge-info/page.tsx` | **lazyday 밖** `(main)/lounge-info/page.module.css`를 import | 라운지 오시는길과 교차 |
 | `preview/preview.module.css` | 프리뷰 트리 전역 허브 (10개 파일) | 수정 전 import grep 필수 |
 

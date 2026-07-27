@@ -10,6 +10,7 @@ import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
 import { SEASON } from "../season-config"
 import { JourneyStepper } from "../JourneyStepper"
+import { ApplyCalendar } from "./ApplyCalendar"
 import styles from "./page.module.css"
 
 const SUBMIT_URL = "/api/lazyday/apply"
@@ -266,45 +267,36 @@ export default function ApplyPage() {
           </div>
         </FadeUp>
 
+        {/* 일정 안내 = 랜딩 14a 월별 달력의 분리 사본 (구 표 형식 대체 — 운영자 지시 2026-07-27) */}
         <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
-            <table className={styles.scheduleTable}>
-              <thead>
-                <tr>
-                  <th className={styles.schThEmpty} />
-                  {SEASON.days.map((d) => (
-                    <th key={d.label} className={styles.schThDay}>
-                      {d.label}<br />
-                      {/* 시간대는 줄 단위(줄바꿈 없이) — 일요일 오전·오후 2슬롯 대응 */}
-                      {d.time.split(", ").map((t) => (
-                        <span key={t} className={styles.schThTime}>{t}</span>
-                      ))}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {SEASON.sessions.map((s) => (
-                  <tr key={s.label}>
-                    <td className={styles.schTdLabel}>{s.label}</td>
-                    {s.dates.map((date, i) => (
-                      <td key={i} className={styles.schTdDate}>{date}</td>
-                    ))}
-                  </tr>
-                ))}
-                <tr>
-                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
-                    {SEASON.fifth.date}<br />
-                    <span className={styles.schThTime}>{SEASON.fifth.timeLabel}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
+            <ApplyCalendar />
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            {/* 요일 문항을 맨 먼저 — 그 아래 이름부터 (운영자 지시 2026-07-27) */}
+            <div id="unavailableDays-group" className={styles.formGroup}>
+              {/* '불가' 강조 — 희망 요일로 오독 방지 */}
+              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가</strong> 요일</span>
+              <div className={styles.dayGrid}>
+                {SEASON.unavailableDaySlots.map((slot) => (
+                  <label key={slot.label} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={unavailableDays.includes(slot.label)}
+                      onChange={() => toggleUnavailableDay(slot.label)}
+                    />
+                    <span className={styles.dayCol}>
+                      <span className={styles.radioText}>{slot.label}</span>
+                      <span className={styles.daySlotTime}>{slot.time}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <p className={styles.dayHint}>*반배정을 위해 고정적으로 참여 불가능한 요일을 선택해주세요.</p>
+              <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>
+              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
+            </div>
+
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
                 id="name"
@@ -399,26 +391,6 @@ export default function ApplyPage() {
             </div>
             )}
 
-            <div id="unavailableDays-group" className={styles.formGroup}>
-              {/* '불가능한' 강조 — 희망 요일로 오독 방지 (운영자 지시 2026-07-27) */}
-              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가능한</strong> 요일</span>
-              <div className={styles.dayGrid}>
-                {SEASON.unavailableDaySlots.map((slot) => (
-                  <label key={slot} className={styles.radioLabel}>
-                    <input
-                      type="checkbox"
-                      checked={unavailableDays.includes(slot)}
-                      onChange={() => toggleUnavailableDay(slot)}
-                    />
-                    <span className={styles.radioText}>{slot}</span>
-                  </label>
-                ))}
-              </div>
-              <p className={styles.dayHint}>참여가 불가능한 요일을 모두 선택해주세요. 모두 가능하다면 비워두셔도 돼요.</p>
-              <p className={styles.dayHint}>*반 배정 후 개별 연락을 드려요. 특정 회차는 다른 요일 반에 교차 참여도 가능해요.</p>
-              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
-            </div>
-
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -484,7 +456,7 @@ export default function ApplyPage() {
                 type="text"
                 name="referral"
                 className={styles.input}
-                placeholder="지인 성함 입력 시 10% 할인 적용해드려요."
+                placeholder="추천인 입력 시 10% 할인을 적용해 드립니다."
               />
             </FormField>
 

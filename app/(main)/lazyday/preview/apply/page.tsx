@@ -10,13 +10,7 @@ import pstyles from "../preview.module.css"
 import { JourneyStepper } from "../JourneyStepper"
 import { PREVIEW } from "../preview-config"
 import { SEASON } from "../../season-config"
-
-const sessions = [
-  { label: "1회차", wed: "9/9",   sun: "9/13",  tue: "9/15"  },
-  { label: "2회차", wed: "9/23",  sun: "9/27",  tue: "9/29"  },
-  { label: "3회차", wed: "10/7",  sun: "10/11", tue: "10/13" },
-  { label: "4회차", wed: "10/21", sun: "10/25", tue: "10/27" },
-]
+import { ApplyCalendar } from "../../apply/ApplyCalendar"
 
 type Errors = Partial<Record<
   "name" | "gender" | "age" | "phone" | "unavailableDays" | "interviewType" | "privacyConsent" | "_form",
@@ -228,49 +222,36 @@ export default function PreviewApplyPage() {
           </div>
         </FadeUp>
 
+        {/* 일정 안내 = 랜딩 14a 월별 달력의 분리 사본 (실 apply와 공유 — 운영자 지시 2026-07-27) */}
         <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>4기 일정</h2>
-            <table className={styles.scheduleTable}>
-              <thead>
-                <tr>
-                  <th className={styles.schThEmpty} />
-                  <th className={styles.schThDay}>
-                    수요일<br />
-                    <span className={styles.schThTime}>19:30–22:30</span>
-                  </th>
-                  <th className={styles.schThDay}>
-                    일요일<br />
-                    <span className={styles.schThTime}>10:30–13:30</span>
-                    <span className={styles.schThTime}>14:30–17:30</span>
-                  </th>
-                  <th className={styles.schThDay}>
-                    화요일<br />
-                    <span className={styles.schThTime}>19:30–22:30</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sessions.map((s) => (
-                  <tr key={s.label}>
-                    <td className={styles.schTdLabel}>{s.label}</td>
-                    <td className={styles.schTdDate}>{s.wed}</td>
-                    <td className={styles.schTdDate}>{s.sun}</td>
-                    <td className={styles.schTdDate}>{s.tue}</td>
-                  </tr>
-                ))}
-                <tr>
-                  <td className={styles.schTdLabel}>5회차</td>
-                  <td colSpan={3} className={styles.schTdMidnight}>
-                    11/1 (일)<br />
-                    <span className={styles.schThTime}>19:00–22:00</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
+            <ApplyCalendar />
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            {/* 요일 문항을 맨 먼저 — 그 아래 이름부터 (운영자 지시 2026-07-27) */}
+            <div id="unavailableDays-group" className={styles.formGroup}>
+              {/* '불가' 강조 — 희망 요일로 오독 방지 */}
+              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가</strong> 요일</span>
+              <div className={styles.dayGrid}>
+                {SEASON.unavailableDaySlots.map((slot) => (
+                  <label key={slot.label} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={unavailableDays.includes(slot.label)}
+                      onChange={() => toggleUnavailableDay(slot.label)}
+                    />
+                    <span className={styles.dayCol}>
+                      <span className={styles.radioText}>{slot.label}</span>
+                      <span className={styles.daySlotTime}>{slot.time}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <p className={styles.dayHint}>*반배정을 위해 고정적으로 참여 불가능한 요일을 선택해주세요.</p>
+              <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>
+              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
+            </div>
+
             <FormField label="이름" name="name" required error={errors.name} sectionId="apply-required">
               <input
                 id="name"
@@ -345,26 +326,6 @@ export default function PreviewApplyPage() {
               <p className={pstyles.microcopy}>인터뷰 안내와 합류 확정 연락에 사용돼요.</p>
             </FormField>
 
-            <div id="unavailableDays-group" className={styles.formGroup}>
-              {/* '불가능한' 강조 — 희망 요일로 오독 방지 (운영자 지시 2026-07-27) */}
-              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가능한</strong> 요일</span>
-              <div className={styles.dayGrid}>
-                {SEASON.unavailableDaySlots.map((slot) => (
-                  <label key={slot} className={styles.radioLabel}>
-                    <input
-                      type="checkbox"
-                      checked={unavailableDays.includes(slot)}
-                      onChange={() => toggleUnavailableDay(slot)}
-                    />
-                    <span className={styles.radioText}>{slot}</span>
-                  </label>
-                ))}
-              </div>
-              <p className={styles.dayHint}>참여가 불가능한 요일을 모두 선택해주세요. 모두 가능하다면 비워두셔도 돼요.</p>
-              <p className={styles.dayHint}>*반 배정 후 개별 연락을 드려요. 특정 회차는 다른 요일 반에 교차 참여도 가능해요.</p>
-              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
-            </div>
-
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>
                 인터뷰 방식
@@ -430,7 +391,7 @@ export default function PreviewApplyPage() {
                 type="text"
                 name="referral"
                 className={styles.input}
-                placeholder="지인 성함 입력 시 10% 할인 적용해드려요."
+                placeholder="추천인 입력 시 10% 할인을 적용해 드립니다."
               />
             </FormField>
 

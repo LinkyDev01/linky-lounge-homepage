@@ -69,6 +69,8 @@ export default function PreviewApplyPage() {
   const [simulateFail, setSimulateFail] = useState(false)
   // 참여 불가 요일 (복수 선택) — 실 apply와 쌍 동기화 (운영자 지시 2026-07-27)
   const [unavailableDays, setUnavailableDays] = useState<string[]>([])
+  // 요일 문항 내 캘린더 드롭다운 (FAQ A안 grid-rows 애니 문법 재사용)
+  const [calOpen, setCalOpen] = useState(false)
 
   function toggleUnavailableDay(slot: string) {
     setUnavailableDays((prev) =>
@@ -222,9 +224,46 @@ export default function PreviewApplyPage() {
           </div>
         </FadeUp>
 
-        {/* 일정 안내 = 랜딩 14a 월별 달력의 분리 사본 (실 apply와 공유 — 운영자 지시 2026-07-27) */}
+        {/* 일정·장소 안내 — 표 형식 부활 + 장소 라인 (실 apply 쌍 동기화 — 운영자 지시 2026-07-27).
+            상세 캘린더는 아래 요일 문항의 드롭다운으로 이동 */}
         <section className={styles.scheduleNotice}>
-            <ApplyCalendar />
+            <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
+            <table className={styles.scheduleTable}>
+              <thead>
+                <tr>
+                  <th className={styles.schThEmpty} />
+                  {SEASON.days.map((d) => (
+                    <th key={d.label} className={styles.schThDay}>
+                      {d.label}<br />
+                      {d.time.split(", ").map((t) => (
+                        <span key={t} className={styles.schThTime}>{t}</span>
+                      ))}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {SEASON.sessions.map((s) => (
+                  <tr key={s.label}>
+                    <td className={styles.schTdLabel}>{s.label}</td>
+                    {s.dates.map((date, i) => (
+                      <td key={i} className={styles.schTdDate}>{date}</td>
+                    ))}
+                  </tr>
+                ))}
+                <tr>
+                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
+                  <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
+                    {SEASON.fifth.date}<br />
+                    <span className={styles.schThTime}>{SEASON.fifth.timeLabel}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p className={styles.schedulePlace}>
+              <span className={styles.schedulePlaceLabel}>장소</span> {SEASON.location.short}
+            </p>
+            <p className={styles.scheduleNote}>*회차별 수·일·화 중 참여 요일 선택 가능</p>
           </section>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -246,6 +285,21 @@ export default function PreviewApplyPage() {
                     </span>
                   </label>
                 ))}
+              </div>
+              {/* 캘린더 드롭다운 — FAQ 미니멀 라인 문법 (실 apply 쌍 동기화) */}
+              <button
+                type="button"
+                className={styles.calToggle}
+                onClick={() => setCalOpen((v) => !v)}
+                aria-expanded={calOpen}
+              >
+                <span className={styles.calToggleText}>{SEASON.name} 일정 캘린더 보기</span>
+                <span className={`${styles.calToggleIcon} ${calOpen ? styles.calToggleIconOpen : ""}`}>+</span>
+              </button>
+              <div className={`${styles.calBody} ${calOpen ? styles.calBodyOpen : ""}`}>
+                <div className={styles.calBodyInner}>
+                  <ApplyCalendar />
+                </div>
               </div>
               <p className={styles.dayHint}>*반배정을 위해 고정적으로 참여 불가능한 요일을 선택해주세요.</p>
               <p className={styles.dayHint}>*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다.</p>

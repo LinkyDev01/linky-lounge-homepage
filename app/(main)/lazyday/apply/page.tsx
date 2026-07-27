@@ -19,7 +19,7 @@ const SUBMIT_URL = "/api/lazyday/apply"
 const SHOW_PREFERRED_DAYS = false
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "preferredDays" | "interviewType" | "marketingConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "preferredDays" | "unavailableDays" | "interviewType" | "marketingConsent" | "_form",
   string
 >>
 
@@ -78,6 +78,16 @@ export default function ApplyPage() {
     clearError("preferredDays")
   }
 
+  // 참여 불가 요일 (복수 선택) — 반 배정 시 배제 조건으로 활용 (운영자 지시 2026-07-27)
+  const [unavailableDays, setUnavailableDays] = useState<string[]>([])
+
+  function toggleUnavailableDay(slot: string) {
+    setUnavailableDays((prev) =>
+      prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]
+    )
+    clearError("unavailableDays")
+  }
+
   function clearError(name: keyof Errors) {
     setErrors((prev) => {
       if (!prev[name]) return prev
@@ -106,6 +116,9 @@ export default function ApplyPage() {
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
     if (SHOW_PREFERRED_DAYS && preferredDays.length === 0) newErrors.preferredDays = "주로 참여할 요일을 한 개 이상 선택해주세요."
+    // 전부 불가면 참여 자체가 불가능 — 실수 방지
+    if (unavailableDays.length === SEASON.unavailableDaySlots.length)
+      newErrors.unavailableDays = "모든 요일을 선택하면 참여 가능한 요일이 없어요. 참여 가능한 요일은 남겨주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
 
@@ -119,6 +132,8 @@ export default function ApplyPage() {
           ? document.getElementById("interviewType-group")
           : firstKey === "preferredDays"
           ? document.getElementById("preferredDays-group")
+          : firstKey === "unavailableDays"
+          ? document.getElementById("unavailableDays-group")
           : document.querySelector(`[name="${firstKey}"]`)
       target?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
@@ -135,6 +150,8 @@ export default function ApplyPage() {
       instagram,
       referral,
       preferredDays: SHOW_PREFERRED_DAYS ? preferredDays.join(", ") : "",
+      // 미선택 = 모든 요일 가능 — 시트에서 공란과 구분되게 "없음"으로 명시 기록
+      unavailableDays: unavailableDays.length > 0 ? unavailableDays.join(", ") : "없음",
       interviewType,
       marketingConsent: marketingConsent ? "동의" : "미동의",
       consentAt: new Date().toISOString(), // 동의 시각 기록 (법적 증빙)
@@ -381,6 +398,26 @@ export default function ApplyPage() {
               {errors.preferredDays && <p className={styles.errorText}>{errors.preferredDays}</p>}
             </div>
             )}
+
+            <div id="unavailableDays-group" className={styles.formGroup}>
+              {/* '불가능한' 강조 — 희망 요일로 오독 방지 (운영자 지시 2026-07-27) */}
+              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가능한</strong> 요일</span>
+              <div className={styles.dayGrid}>
+                {SEASON.unavailableDaySlots.map((slot) => (
+                  <label key={slot} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={unavailableDays.includes(slot)}
+                      onChange={() => toggleUnavailableDay(slot)}
+                    />
+                    <span className={styles.radioText}>{slot}</span>
+                  </label>
+                ))}
+              </div>
+              <p className={styles.dayHint}>참여가 불가능한 요일을 모두 선택해주세요. 모두 가능하다면 비워두셔도 돼요.</p>
+              <p className={styles.dayHint}>*반 배정 후 개별 연락을 드려요. 특정 회차는 다른 요일 반에 교차 참여도 가능해요.</p>
+              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
+            </div>
 
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>

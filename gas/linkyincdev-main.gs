@@ -296,12 +296,15 @@ function handleOnedayApply(d) {
 // ── 신청 폼 → 신청현황 ──────────────────────────────────────
 // (2026-07-02) 새 폼 필드 반영: '희망 요일'(preferredDays) + '동의 시각'(consentAt).
 //  두 컬럼이 없으면 맨 뒤에 자동 생성되므로 시트 수동 작업 불필요.
+// (2026-07-27) '불가 요일'(unavailableDays) 추가 — 참여 불가 요일 복수 선택,
+//  미선택 시 "없음"(모든 요일 가능). 희망 요일 문항은 꺼진 상태 유지(항상 빈 값).
 function handleApply(d) {
   var sheet = ss().getSheetByName(MAIN_SHEET);
 
   // 새 컬럼 보장 후 인덱스 계산 (row 배열 길이에 새 컬럼이 포함되도록 순서 중요)
   ensureColumn(sheet, "희망 요일");
   ensureColumn(sheet, "동의 시각");
+  ensureColumn(sheet, "불가 요일");
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
 
@@ -317,6 +320,7 @@ function handleApply(d) {
   row[col["마케팅 동의"]] = d.marketingConsent || "";
   row[col["희망 요일"]]   = d.preferredDays || "";
   row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
+  row[col["불가 요일"]]   = d.unavailableDays || "";
   prependRow(sheet, row);
   if (d.consentAt && col["동의 시각"] != null) {
     sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
@@ -330,7 +334,7 @@ function handleApply(d) {
           "성별: " + (d.gender || "-") + "\n" +
           "나이: " + (d.age || "-") + "\n" +
           "연락처: " + (d.phone || "-") + "\n" +
-          "희망 요일: " + (d.preferredDays || "-") + "\n" +
+          "불가 요일: " + (d.unavailableDays || "-") + "\n" +
           "인터뷰 방식: " + (d.interviewType || "-") + "\n" +
           "한 줄 인사: " + (d.greeting || "-") + "\n" +
           "인스타그램: " + (d.instagram || "-") + "\n" +

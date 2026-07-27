@@ -9,6 +9,7 @@ import styles from "../../apply/page.module.css"
 import pstyles from "../preview.module.css"
 import { JourneyStepper } from "../JourneyStepper"
 import { PREVIEW } from "../preview-config"
+import { SEASON } from "../../season-config"
 
 const sessions = [
   { label: "1회차", wed: "9/9",   sun: "9/13",  tue: "9/15"  },
@@ -18,7 +19,7 @@ const sessions = [
 ]
 
 type Errors = Partial<Record<
-  "name" | "gender" | "age" | "phone" | "interviewType" | "privacyConsent" | "_form",
+  "name" | "gender" | "age" | "phone" | "unavailableDays" | "interviewType" | "privacyConsent" | "_form",
   string
 >>
 
@@ -72,6 +73,15 @@ export default function PreviewApplyPage() {
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [interviewType, setInterviewType] = useState("")
   const [simulateFail, setSimulateFail] = useState(false)
+  // 참여 불가 요일 (복수 선택) — 실 apply와 쌍 동기화 (운영자 지시 2026-07-27)
+  const [unavailableDays, setUnavailableDays] = useState<string[]>([])
+
+  function toggleUnavailableDay(slot: string) {
+    setUnavailableDays((prev) =>
+      prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]
+    )
+    clearError("unavailableDays")
+  }
 
   function clearError(name: keyof Errors) {
     setErrors((prev) => {
@@ -97,6 +107,9 @@ export default function PreviewApplyPage() {
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
+    // 전부 불가면 참여 자체가 불가능 — 실수 방지
+    if (unavailableDays.length === SEASON.unavailableDaySlots.length)
+      newErrors.unavailableDays = "모든 요일을 선택하면 참여 가능한 요일이 없어요. 참여 가능한 요일은 남겨주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!privacyConsent) newErrors.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
 
@@ -108,6 +121,8 @@ export default function PreviewApplyPage() {
           ? document.getElementById("privacyConsent")
           : firstKey === "interviewType"
           ? document.getElementById("interviewType-group")
+          : firstKey === "unavailableDays"
+          ? document.getElementById("unavailableDays-group")
           : document.querySelector(`[name="${firstKey}"]`)
       target?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
@@ -329,6 +344,26 @@ export default function PreviewApplyPage() {
               />
               <p className={pstyles.microcopy}>인터뷰 안내와 합류 확정 연락에 사용돼요.</p>
             </FormField>
+
+            <div id="unavailableDays-group" className={styles.formGroup}>
+              {/* '불가능한' 강조 — 희망 요일로 오독 방지 (운영자 지시 2026-07-27) */}
+              <span className={styles.formLabel}>참여 <strong className={styles.labelStrong}>불가능한</strong> 요일</span>
+              <div className={styles.dayGrid}>
+                {SEASON.unavailableDaySlots.map((slot) => (
+                  <label key={slot} className={styles.radioLabel}>
+                    <input
+                      type="checkbox"
+                      checked={unavailableDays.includes(slot)}
+                      onChange={() => toggleUnavailableDay(slot)}
+                    />
+                    <span className={styles.radioText}>{slot}</span>
+                  </label>
+                ))}
+              </div>
+              <p className={styles.dayHint}>참여가 불가능한 요일을 모두 선택해주세요. 모두 가능하다면 비워두셔도 돼요.</p>
+              <p className={styles.dayHint}>*반 배정 후 개별 연락을 드려요. 특정 회차는 다른 요일 반에 교차 참여도 가능해요.</p>
+              {errors.unavailableDays && <p className={styles.errorText}>{errors.unavailableDays}</p>}
+            </div>
 
             <div id="interviewType-group" className={styles.formGroup}>
               <span className={styles.formLabel}>

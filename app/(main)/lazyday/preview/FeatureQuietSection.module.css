@@ -24,15 +24,12 @@
   position: relative;
   aspect-ratio: 2 / 1;
   margin: 0 0 24px;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  /* 폭 기준은 랜딩 컨테이너(page.module.css .container max-width: 600px — 값 변경 시 동기화).
+     100vw만 쓰면 창이 600px보다 넓을 때 높이는 뷰포트 기준으로 커지는데 가로는 컨테이너에
+     잘려 비율이 깨진다 (운영자 제보 2026-07-28) */
+  width: min(100vw, 600px);
+  margin-left: calc(50% - min(100vw, 600px) / 2);
   overflow: hidden;
-}
-@media (min-width: 1024px) {
-  .qtPhoto {
-    width: 640px;
-    margin-left: calc(50% - 320px);
-  }
 }
 .qtPhotoWash {
   /* 잉크 워시 오버레이 — 팔레트 잉크(#1a1208) 기반, 사진 채도를 눌러 오트 톤에 앉힘 */

@@ -274,6 +274,21 @@
   color: #6b5a48;
   margin: 0 0 20px;
 }
+/* 신청 버튼 복원 (운영자 지시 2026-07-28) — 구 클로징(ClosingSection .cta) 서식 재사용, 실 쌍과 동일 값 */
+.closingCtaBtn {
+  display: inline-block;
+  padding: 16px 40px;
+  background-color: #d2691e;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 100px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: background-color 0.15s ease;
+  margin-top: 2px;
+}
+.closingCtaBtn:hover { background-color: #b8571a; }
 .closingCtaLink {
   color: #6b5a48;
   text-decoration: underline;

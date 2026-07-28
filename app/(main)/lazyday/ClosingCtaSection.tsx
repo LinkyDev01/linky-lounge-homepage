@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import styles from "./ClosingCtaSection.module.css"
+import { LazydayLink } from "@/components/common/LazydayLink"
 import { SEASON, daysUntilDeadline } from "./season-config"
 
 /**
@@ -14,6 +15,9 @@ import { SEASON, daysUntilDeadline } from "./season-config"
 export function ClosingCtaSection() {
   const [d, setD] = useState<number | null>(null)
   useEffect(() => { setD(daysUntilDeadline()) }, [])
+
+  // 신청 버튼은 모집 중일 때만 (조기마감·마감 경과 시 미표기)
+  const open = SEASON.status !== "closedEarly" && !(d !== null && d < 0)
 
   return (
     <div className={styles.closingCta}>
@@ -42,6 +46,12 @@ export function ClosingCtaSection() {
           링키라운지
         </a>
       </p>
+      {/* 신청 버튼 복원 — 구 클로징(2기)의 '신청하기' CTA 서식 재사용 (운영자 지시 2026-07-28) */}
+      {open && (
+        <LazydayLink href="/apply" className={styles.closingCtaBtn}>
+          {SEASON.name} 신청하기
+        </LazydayLink>
+      )}
     </div>
   )
 }

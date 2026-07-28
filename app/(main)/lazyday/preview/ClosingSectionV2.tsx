@@ -7,6 +7,7 @@ import pstyles from "./preview.module.css"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
 import { SEASON } from "../season-config"
 import { NextSeasonNotify } from "../NextSeasonNotify"
+import { LazydayLink } from "@/components/common/LazydayLink"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 
 /**
@@ -17,6 +18,9 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 export function ClosingSectionV2() {
   const [d, setD] = useState<number | null>(null)
   useEffect(() => { setD(daysUntilDeadline()) }, [])
+
+  // 신청 버튼은 모집 중일 때만 (조기마감·마감 경과 시 미표기)
+  const open = SEASON.status !== "closedEarly" && !(d !== null && d < 0)
 
   return (
     <>
@@ -46,6 +50,12 @@ export function ClosingSectionV2() {
             링키라운지
           </a>
         </p>
+        {/* 신청 버튼 복원 — 구 클로징(2기)의 '신청하기' CTA 서식 재사용 (운영자 지시 2026-07-28) */}
+        {open && (
+          <LazydayLink href="/apply" className={pstyles.closingCtaBtn}>
+            {PREVIEW.season} 신청하기
+          </LazydayLink>
+        )}
       </div>
 
       {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 (실 컴포넌트 직접 import, HeroParallax 패턴) */}

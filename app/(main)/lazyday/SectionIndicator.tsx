@@ -7,8 +7,8 @@ const sections = [
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행" },
   { id: "schedule", label: "일정" },
-  { id: "reviews", label: "후기" },
-  { id: "faq", label: "FAQ" },
+  /* 후기+FAQ 통합 점 (운영자 지시 2026-07-28) — 내비 '후기·FAQ' 탭과 동기 */
+  { id: "reviews", label: "후기·FAQ" },
 ]
 
 /**

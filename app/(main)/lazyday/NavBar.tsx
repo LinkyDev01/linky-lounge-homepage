@@ -7,8 +7,9 @@ const navItems = [
   { id: 'feature',  label: '모임소개' },
   { id: 'howto',    label: '진행방식' },
   { id: 'schedule', label: '일정·장소' },
-  { id: 'reviews',  label: '후기' },
-  { id: 'faq',      label: 'FAQ' },
+  /* 후기+FAQ 통합 탭 (운영자 지시 2026-07-28) — #reviews로 이동, FAQ 구간에서도
+     뒤에 다른 탭이 없어 활성 상태가 이 탭에 그대로 유지된다 */
+  { id: 'reviews',  label: '후기·FAQ' },
 ]
 
 export function NavBar() {

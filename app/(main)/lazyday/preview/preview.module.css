@@ -274,21 +274,25 @@
   color: #6b5a48;
   margin: 0 0 20px;
 }
-/* 신청 버튼 복원 (운영자 지시 2026-07-28) — 구 클로징(ClosingSection .cta) 서식 재사용, 실 쌍과 동일 값 */
+/* 신청 버튼 복원 (운영자 지시 2026-07-28) — 스티키 CTA(.applyButton)와 같은
+   라운드 직사각형 서식 + 풀폭(max 400px), 실 쌍과 동일 값 */
 .closingCtaBtn {
-  display: inline-block;
-  padding: 16px 40px;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 2px auto 0;
+  padding: 18px 32px;
   background-color: #d2691e;
   color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 100px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-align: center;
   text-decoration: none;
-  letter-spacing: 0.02em;
-  transition: background-color 0.15s ease;
-  margin-top: 2px;
+  transition: background-color 0.2s ease;
 }
 .closingCtaBtn:hover { background-color: #b8571a; }
+.closingCtaBtn:active { background-color: #a04d16; }
 .closingCtaLink {
   color: #6b5a48;
   text-decoration: underline;

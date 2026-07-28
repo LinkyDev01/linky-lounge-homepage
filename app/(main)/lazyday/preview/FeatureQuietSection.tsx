@@ -28,7 +28,7 @@ const CHAPTERS: Chapter[] = [
   {
     key: "people",
     label: "타인의 낯선 시선을 기꺼이 환대하는 분들과",
-    photo: { src: "/linky-lounge/book-club/feature/feature-people.webp", position: "center 75%" },
+    photo: { src: "/linky-lounge/book-club/feature/feature-people.webp", position: "center center" },
     paragraphs: [
       <><strong>문학과 철학, 예술</strong>의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는 사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간, 고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.</>,
       <>비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은 저마다 엇갈리고, 그 <strong>불협화음</strong> 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.</>,

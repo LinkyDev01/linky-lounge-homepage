@@ -12,6 +12,33 @@
   word-break: keep-all;
   /* 내비 #feature 앵커 오프셋 — 실사이트 이식본과 동기화 (비시각) */
   scroll-margin-top: 52px;
+  /* 챕터 사진 풀블리드(100vw)가 스크롤바 폭만큼 넘치지 않게 가드 (15e, 2026-07-28) */
+  overflow-x: clip;
+}
+
+/* 챕터 사진 — 풀블리드 190px + 잉크 워시 (15e 시안, 2026-07-28).
+   섹션 좌우 패딩 밖까지 사진만 확장, 본문 단(320px)은 불변.
+   높이 고정 + fill로 CLS 0. ≥1024에서도 높이 190 유지, 폭만 본문 칼럼 기준. */
+.qtPhoto {
+  position: relative;
+  height: 190px;
+  margin: 0 0 24px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .qtPhoto {
+    width: 640px;
+    margin-left: calc(50% - 320px);
+  }
+}
+.qtPhotoWash {
+  /* 잉크 워시 오버레이 — 팔레트 잉크(#1a1208) 기반, 사진 채도를 눌러 오트 톤에 앉힘 */
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 18, 8, 0.38);
+  pointer-events: none;
 }
 
 .qtTitle {

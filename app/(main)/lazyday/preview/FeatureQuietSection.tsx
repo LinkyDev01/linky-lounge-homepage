@@ -28,7 +28,7 @@ const CHAPTERS: Chapter[] = [
   {
     key: "people",
     label: "타인의 낯선 시선을 기꺼이 환대하는 분들과",
-    photo: { src: "/linky-lounge/book-club/feature/feature-people.webp", position: "center 46%" },
+    photo: { src: "/linky-lounge/book-club/feature/feature-people.webp", position: "center 75%" },
     paragraphs: [
       <><strong>문학과 철학, 예술</strong>의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는 사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간, 고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.</>,
       <>비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은 저마다 엇갈리고, 그 <strong>불협화음</strong> 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.</>,
@@ -38,7 +38,7 @@ const CHAPTERS: Chapter[] = [
   {
     key: "books",
     label: "고전 속 인물들의 복잡한 내면을 철학적 시선으로",
-    photo: { src: "/linky-lounge/book-club/feature/feature-books.webp", position: "center 52%" },
+    photo: { src: "/linky-lounge/book-club/feature/feature-books.webp", position: "center 75%" },
     paragraphs: [
       <>기수마다 고전 소설과 철학서를 교차하여 읽습니다. 소설 속 인물들이 던진 욕망과 모순에 철학자의 시선을 덧대어 봅니다. 그렇게 벼려진 <strong>철학</strong>이라는 관점으로 <strong>저자의 의도</strong>를, 인물의 욕망을 통해 <strong>인간의 본성</strong>을 파헤쳐 봅니다.</>,
       <>철학이라는 관점을 갖추고 다시 만난 문장은 처음과 전혀 다르게 읽힙니다. 그래서 같은 고전을 읽고도, <strong>대화의 밀도</strong>가 달라집니다.</>,

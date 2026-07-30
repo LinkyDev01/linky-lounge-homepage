@@ -206,6 +206,7 @@ export function ScheduleSectionV2() {
         {timeFootLines().map((line) => (
           <p key={line} className={styles.calTimeFoot}>{line}</p>
         ))}
+        <p className={styles.calNote}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능한 상품입니다.</p>
         <p className={styles.calNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
       </div>
 

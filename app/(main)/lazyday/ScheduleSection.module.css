@@ -428,8 +428,12 @@
   margin: 2px 0 0;
 }
 .calNote {
+  /* 주석 표준 서식 (운영자 지시 2026-07-28): 좌측정렬 + 줄간격 1 */
   text-align: left;
   font-size: 11px;
+  line-height: 1;
   color: #8a6a50;
   margin: 8px 0 0;
 }
+/* 주석이 연달아 올 때의 문장 간격 — 줄간격 1을 유지하면서 붙지 않을 최소값 */
+.calNote + .calNote { margin-top: 4px; }

@@ -206,7 +206,10 @@
   /* 윗줄(장소)과의 간격 축소 — 부모 .infoRows의 gap 10px을 음수 마진으로 상쇄 (운영자 지시 2026-07-27) */
   margin: -6px 0 0;
   padding-left: 62px;
+  /* 주석 표준 서식 (운영자 지시 2026-07-28): 좌측정렬 + 줄간격 1 */
+  text-align: left;
   font-size: 11px;
+  line-height: 1;
   color: #9a9590;
 }
 /* 체크옵션 저자명 — 제목보다 옅게 */

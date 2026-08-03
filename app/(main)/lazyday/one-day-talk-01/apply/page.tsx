@@ -33,7 +33,8 @@ const penScript = Nanum_Pen_Script({
   preload: false,
 })
 const TOSS_URL = "https://buy.tosspayments.com/products/OBBn5YubQ0?shopId=prreBmgHJwPY"
-// 계좌이체 안내 (운영자 지시 2026-07-29)
+// 계좌이체 안내 (운영자 지시 2026-07-29 — 우리은행, 예금주 주식회사 링키)
+const BANK_NAME = "우리은행"
 const BANK_ACCOUNT = "1005-104-815136"
 const BANK_HOLDER = "주식회사 링키"
 
@@ -320,7 +321,7 @@ export default function OnedayApplyPage() {
             <div className={cal.payRow}>
               <button
                 type="button"
-                className={cal.payBtn}
+                className={`${cal.payBtn} ${bankOpen ? cal.payBtnOn : ""}`}
                 onClick={() => setBankOpen((v) => !v)}
                 aria-expanded={bankOpen}
               >
@@ -333,7 +334,7 @@ export default function OnedayApplyPage() {
             {bankOpen && (
               <div className={cal.bankPanel}>
                 <p className={cal.bankAccountRow}>
-                  <span className={cal.bankAccount}>{BANK_ACCOUNT}</span>
+                  <span className={cal.bankAccount}>{BANK_NAME} {BANK_ACCOUNT}</span>
                   <button
                     type="button"
                     className={cal.bankCopyBtn}
@@ -350,7 +351,7 @@ export default function OnedayApplyPage() {
                     )}
                   </button>
                 </p>
-                <p className={cal.bankHolder}>{BANK_HOLDER}</p>
+                <p className={cal.bankHolder}>예금주 {BANK_HOLDER}</p>
               </div>
             )}
           </FadeUp>

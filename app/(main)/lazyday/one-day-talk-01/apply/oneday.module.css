@@ -229,13 +229,14 @@
   margin: 8px auto 0;
 }
 .payBtn {
-  /* apply 완료 화면 successPrimaryLink 서식 기반 — 1행 반반 배치용 flex:1 */
+  /* 기존 버튼 서식(스티키 CTA .applyButton 라운드 12px) 유지 — 필 100px 금지
+     (운영자 지시 2026-07-29 "버튼 라운딩 저렇게 크게 하지 마") — 1행 반반 배치용 flex:1 */
   flex: 1;
   display: inline-block;
   padding: 14px 10px;
   font-size: 14px;
   font-weight: 700;
-  border-radius: 100px;
+  border-radius: 12px;
   text-decoration: none;
   text-align: center;
   white-space: nowrap;
@@ -246,6 +247,8 @@
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .payBtn:hover { background: #b8571a; border-color: #b8571a; }
+/* 계좌이체 선택 상태 — 계좌 창이 떠 있는 동안 눌린 색으로 표시 */
+.payBtnOn { background: #a04d16; border-color: #a04d16; }
 .bankPanel {
   /* 카드 배경 문법 (#fffdf8 / 보더 #eee2d0) */
   max-width: 340px;

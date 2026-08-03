@@ -151,9 +151,10 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
   * 정적 골격 승인 전 모션 구현 금지 (2층 순서 강제)
   * 신규 CSS는 기존 .module.css를 import하지 않는다 (공유 CSS 지도 오염 방지)
   * season-config.ts 등 데이터 단일 출처는 계승. 일회성 모임은 one-day-config.ts 신설
-- 로고: 모노톤 2종 파생 완료 — `public/assets/logo/logo-mono-ink.svg`(#1c1814) ·
-  `logo-mono-cream.svg`(#F5F0E6, 색면 위 사용). **오렌지 #F59936 → #d2691e 교체는 보류**
-  (01 최신 결정 — 팔레트 실측 후 재확정). 원본·파생 모두 임의 색 교체 금지,
-  색 버전 확정 시 같은 체계(`logo-color*.svg`)로 추가.
-  ⚠️ 레포에 로고 벡터 원본 없음 — 실사용 원본은 `public/linky-lounge/book-club/lazyday_logo.png`(래스터)뿐이라
-  모노톤 SVG는 PNG 실측 기하로 재구성한 것. 운영자 SVG 마스터 수령 시 같은 파일명으로 재파생
+- 로고: 벡터 마스터 `public/assets/logo/lazyday_logo.svg` (2026-08-03 운영자 제공 —
+  정본 호 6종 내장, 3색 #F59936/#95AC9A/#7D5456, 카운터 evenodd 투명).
+  모노톤 2종은 마스터에서 파생 — `logo-mono-ink.svg`(#1c1814) ·
+  `logo-mono-cream.svg`(#F5F0E6, 색면 위 사용). 컬러 버전은 리컬러 4안 중 운영자
+  선정 대기 — **선정 전 화면 노출은 mono-ink**. 원본·파생 모두 임의 색 교체 금지,
+  확정 시 같은 체계(`logo-color*.svg`)로 추가. (구 래스터
+  `linky-lounge/book-club/lazyday_logo.png`는 기존 화면이 계속 사용 — 교체는 별도 지시 시)

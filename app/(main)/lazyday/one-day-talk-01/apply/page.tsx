@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, type FormEvent, type ReactNode } from "react"
+import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { Nanum_Pen_Script } from "next/font/google"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../apply/page.module.css"
 import cal from "./oneday.module.css"
@@ -15,7 +16,8 @@ import cal from "./oneday.module.css"
  *  · 상단 프로세스(JourneyStepper)·섹션 인디케이터 없음
  *  · 일정 = 랜딩 14a 달력 문법의 8월 시트 1장 (8/2·8/9 손그림 타원 체크)
  *  · 인터뷰 방식·추천인 문항 제거
- *  · 접수 성공 시 토스페이먼츠 결제 페이지로 즉시 이동
+ *  · 접수 성공 시 완료 화면 표시 (리다이렉트 아님 — 운영자 지시 2026-07-29)
+ *    → 완료 화면에서 결제 방식 선택: 계좌이체(계좌 안내+복사) / 토스페이(결제 링크 이동)
  *  · 데이터는 기존 스프레드시트의 별도 탭('1회성 모임')으로 — GAS handleOnedayApply
  *    (⚠ 배포 순서: GAS 새 버전 반영 확인 후 프론트 병합 — CLAUDE.md §6)
  * 폼 스타일은 ../apply/page.module.css 재사용(수정 금지), 달력은 oneday.module.css 분리 사본.
@@ -31,6 +33,9 @@ const penScript = Nanum_Pen_Script({
   preload: false,
 })
 const TOSS_URL = "https://buy.tosspayments.com/products/OBBn5YubQ0?shopId=prreBmgHJwPY"
+// 계좌이체 안내 (운영자 지시 2026-07-29)
+const BANK_ACCOUNT = "1005-104-815136"
+const BANK_HOLDER = "주식회사 링키"
 
 // 1회성 모임 일정 — 8월, 8/2·8/9 (운영자 지시 2026-07-24)
 const ONEDAY = {
@@ -175,6 +180,25 @@ export default function OnedayApplyPage() {
   const [marketingConsent, setMarketingConsent] = useState(false)
   // 신청 회차 멀티체크 — 8/2 브람스 / 8/9 시지프, 각각 복수 선택 가능 (운영자 지시 2026-07-24)
   const [pickedDays, setPickedDays] = useState<number[]>([])
+  // 접수 완료 화면 + 결제 방식 선택 (운영자 지시 2026-07-29)
+  const [submitted, setSubmitted] = useState(false)
+  const [bankOpen, setBankOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (submitted) window.scrollTo(0, 0)
+  }, [submitted])
+
+  async function copyAccount() {
+    try {
+      await navigator.clipboard.writeText(BANK_ACCOUNT)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // 클립보드 API 미지원 환경 폴백 — 선택 가능한 프롬프트로 제공
+      window.prompt("계좌번호를 길게 눌러 복사해주세요.", BANK_ACCOUNT)
+    }
+  }
 
   function toggleSession(day: number) {
     setPickedDays((prev) =>
@@ -265,13 +289,82 @@ export default function OnedayApplyPage() {
     trackStandard("Lead", { content_name: "OneDayTalk_신청완료" })
     trackEvent("oneday_apply_complete", { program: "book_club" })
 
-    // 접수 완료 → 토스페이먼츠 결제 페이지로 즉시 이동 (오버레이 유지 상태로 전환)
-    window.location.href = TOSS_URL
+    // 접수 완료 → 완료 화면에서 결제 방식 선택 (리다이렉트 아님 — 운영자 지시 2026-07-29)
+    setLoading(false)
+    setSubmitted(true)
+  }
+
+  if (submitted) {
+    return (
+      <main className={styles.successPage}>
+        <div className={styles.successInner}>
+          <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
+            <img
+              src="/linky-lounge/book-club/lazyday_logo.png"
+              alt="레이지데이"
+              className={styles.successMark}
+            />
+          </BlurReveal>
+          <FadeUp delay={0.15}>
+            <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
+          </FadeUp>
+          <FadeUp delay={0.3}>
+            <p className={styles.successBody}>
+              신청이 완료되었습니다.
+              <br />
+              아래에서 <span className={styles.successAccent}>결제 방식</span>을 선택해주세요.
+            </p>
+          </FadeUp>
+          <FadeUp delay={0.45}>
+            {/* 결제 방식 — 같은 주황 버튼 2개를 1행 가로 배치 (운영자 지시 2026-07-29) */}
+            <div className={cal.payRow}>
+              <button
+                type="button"
+                className={cal.payBtn}
+                onClick={() => setBankOpen((v) => !v)}
+                aria-expanded={bankOpen}
+              >
+                계좌이체
+              </button>
+              <a href={TOSS_URL} className={cal.payBtn}>
+                토스페이 결제
+              </a>
+            </div>
+            {bankOpen && (
+              <div className={cal.bankPanel}>
+                <p className={cal.bankAccountRow}>
+                  <span className={cal.bankAccount}>{BANK_ACCOUNT}</span>
+                  <button
+                    type="button"
+                    className={cal.bankCopyBtn}
+                    onClick={copyAccount}
+                    aria-label="계좌번호 복사"
+                  >
+                    {copied ? (
+                      "복사됨"
+                    ) : (
+                      <svg viewBox="0 0 16 16" className={cal.bankCopyIcon} aria-hidden>
+                        <rect x="5.5" y="5.5" width="8" height="9" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                        <path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h1" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                      </svg>
+                    )}
+                  </button>
+                </p>
+                <p className={cal.bankHolder}>{BANK_HOLDER}</p>
+              </div>
+            )}
+          </FadeUp>
+          <FadeUp delay={0.6}>
+            <p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p>
+          </FadeUp>
+        </div>
+      </main>
+    )
   }
 
   return (
     <main className={styles.applyPage} data-track-section="bookclub_oneday_apply">
-      {loading && <SubmitOverlay label="접수 후 결제 페이지로 이동 중..." />}
+      {loading && <SubmitOverlay label="신청 접수 중..." />}
       <div className={styles.container}>
         <FadeUp y={12} duration={0.9}>
           <div className={styles.header}>

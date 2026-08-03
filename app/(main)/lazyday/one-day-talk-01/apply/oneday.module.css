@@ -218,3 +218,78 @@
   font-weight: 500;
   color: #8a7660;
 }
+
+/* ── 완료 화면 결제 선택 (운영자 지시 2026-07-29) ──
+   같은 주황 버튼 2개 1행 가로 배치 + 계좌이체 안내 패널(계좌번호 복사) */
+.payRow {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  margin: 8px auto 0;
+}
+.payBtn {
+  /* apply 완료 화면 successPrimaryLink 서식 기반 — 1행 반반 배치용 flex:1 */
+  flex: 1;
+  display: inline-block;
+  padding: 14px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 100px;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  color: #ffffff;
+  background: #d2691e;
+  border: 1.5px solid #d2691e;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.payBtn:hover { background: #b8571a; border-color: #b8571a; }
+.bankPanel {
+  /* 카드 배경 문법 (#fffdf8 / 보더 #eee2d0) */
+  max-width: 340px;
+  margin: 14px auto 0;
+  padding: 16px 18px;
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  border-radius: 12px;
+  text-align: center;
+}
+.bankAccountRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+}
+.bankAccount {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1208;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.bankCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid #e5d9c8;
+  border-radius: 8px;
+  background: transparent;
+  color: #d2691e;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.bankCopyBtn:hover { border-color: #d2691e; }
+.bankCopyIcon { width: 14px; height: 14px; }
+.bankHolder {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #4a3020;
+}

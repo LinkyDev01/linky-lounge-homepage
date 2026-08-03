@@ -1,0 +1,35 @@
+/* home-v3 시안 전용 폰트 — 서체 비교(?type=a|b|c)가 목적이라 CDN 대신
+ * 로컬 서브셋을 로드한다 (원본·라이선스: public/fonts/home-v3/README.md).
+ * 패밀리명에 HV3 접두를 붙여 사이트 전역(CDN SUIT·Pretendard·Noto Serif)과 격리. */
+
+@font-face {
+  font-family: "HV3 MaruBuri";
+  src: url("/fonts/home-v3/MaruBuri-Bold.subset.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HV3 Noto Serif KR";
+  src: url("/fonts/home-v3/NotoSerifKR-900.subset.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HV3 Pretendard";
+  src: url("/fonts/home-v3/PretendardVariable.subset.woff2") format("woff2-variations");
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HV3 SUIT";
+  src: url("/fonts/home-v3/SUIT-Variable.subset.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

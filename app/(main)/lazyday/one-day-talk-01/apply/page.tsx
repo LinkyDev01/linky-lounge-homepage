@@ -298,19 +298,20 @@ export default function OnedayApplyPage() {
   if (submitted) {
     return (
       <main className={styles.successPage}>
-        <div className={styles.successInner}>
+        {/* done* 오버라이드 — 랜딩 타이포 위계로 밸런스 축소 (운영자 지시 2026-07-29) */}
+        <div className={`${styles.successInner} ${cal.doneInner}`}>
           <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img
               src="/linky-lounge/book-club/lazyday_logo.png"
               alt="레이지데이"
-              className={styles.successMark}
+              className={`${styles.successMark} ${cal.doneMark}`}
             />
           </BlurReveal>
           <FadeUp delay={0.15}>
-            <h1 className={styles.successTitle}>신청해주셔서 감사합니다.</h1>
+            <h1 className={`${styles.successTitle} ${cal.doneTitle}`}>신청해주셔서 감사합니다.</h1>
           </FadeUp>
           <FadeUp delay={0.3}>
-            <p className={styles.successBody}>
+            <p className={`${styles.successBody} ${cal.doneBody}`}>
               신청이 완료되었습니다.
               <br />
               아래에서 <span className={styles.successAccent}>결제 방식</span>을 선택해주세요.
@@ -356,7 +357,7 @@ export default function OnedayApplyPage() {
             )}
           </FadeUp>
           <FadeUp delay={0.6}>
-            <p className={styles.successCloser}>레이지데이 북클럽에서 곧 만나요.</p>
+            <p className={`${styles.successCloser} ${cal.doneCloser}`}>레이지데이 북클럽에서 곧 만나요.</p>
           </FadeUp>
         </div>
       </main>

@@ -229,11 +229,12 @@
   margin: 8px auto 0;
 }
 .payBtn {
+  /* 세로 축소 (운영자 지시 2026-07-29 "버튼 세로길이도 좀 길다") */
   /* 기존 버튼 서식(스티키 CTA .applyButton 라운드 12px) 유지 — 필 100px 금지
      (운영자 지시 2026-07-29 "버튼 라운딩 저렇게 크게 하지 마") — 1행 반반 배치용 flex:1 */
   flex: 1;
   display: inline-block;
-  padding: 14px 10px;
+  padding: 11px 10px;
   font-size: 14px;
   font-weight: 700;
   border-radius: 12px;
@@ -252,8 +253,8 @@
 .bankPanel {
   /* 카드 배경 문법 (#fffdf8 / 보더 #eee2d0) */
   max-width: 340px;
-  margin: 14px auto 0;
-  padding: 16px 18px;
+  margin: 12px auto 0;
+  padding: 13px 16px;
   background: #fffdf8;
   border: 1px solid #eee2d0;
   border-radius: 12px;
@@ -267,7 +268,7 @@
   margin: 0;
 }
 .bankAccount {
-  font-size: 17px;
+  font-size: 15.5px;
   font-weight: 700;
   color: #1a1208;
   letter-spacing: 0.02em;
@@ -296,3 +297,12 @@
   font-size: 13px;
   color: #4a3020;
 }
+
+/* ── 완료 화면 밸런스 오버라이드 (운영자 지시 2026-07-29 "전체적으로 밸런스가 안 맞아") ──
+   랜딩 타이포 위계(제목 26px/800, 본문 14.5px)에 맞춰 축소 — 공유 success* 클래스는
+   기수제 완료창이 쓰므로 수정 금지, 이 페이지에서만 겹쳐 적용한다 */
+.doneInner { gap: 18px; }
+.doneMark { width: 96px; height: 96px; }
+.doneTitle { font-size: 26px; }
+.doneBody { font-size: 14.5px; line-height: 1.8; }
+.doneCloser { font-size: 15px; }

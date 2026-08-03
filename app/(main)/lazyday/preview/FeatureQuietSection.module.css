@@ -32,10 +32,11 @@
   overflow: hidden;
 }
 .qtPhotoWash {
-  /* 잉크 워시 오버레이 — 팔레트 잉크(#1a1208) 기반, 사진 채도를 눌러 오트 톤에 앉힘 */
+  /* 잉크 워시 오버레이 — 팔레트 잉크(#1a1208) 기반, 사진 채도를 눌러 오트 톤에 앉힘.
+     .38 → .34 아주 살짝 완화 (운영자 지시 2026-07-29 "불투명도는 아주 살짝 더 낮춰") */
   position: absolute;
   inset: 0;
-  background: rgba(26, 18, 8, 0.38);
+  background: rgba(26, 18, 8, 0.34);
   pointer-events: none;
 }
 

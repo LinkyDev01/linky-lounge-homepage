@@ -29,8 +29,14 @@ export function middleware(req: NextRequest) {
 
   // 0) 프리뷰 트리는 프로덕션(책클럽 도메인)에 공개하지 않는다 — 내부 리뷰는
   //    브랜치 프리뷰(vercel.app)에서만. /preview·/lazyday/preview 모두 홈으로 보낸다.
+  //    예외: 난수 슬러그 공유 경로(운영자 2026-08-04 "복잡한 하위페이지명") —
+  //    토큰 링크 대신 이 경로만 실도메인에서 열린다 (noindex는 프리뷰 레이아웃이 보장)
+  const isSharedPreview =
+    pathname.startsWith("/preview/lazyclub-4b073000ddec094f") ||
+    pathname.startsWith("/lazyday/preview/lazyclub-4b073000ddec094f")
   if (
     isBookclub &&
+    !isSharedPreview &&
     (pathname === "/preview" ||
       pathname.startsWith("/preview/") ||
       pathname === "/lazyday/preview" ||

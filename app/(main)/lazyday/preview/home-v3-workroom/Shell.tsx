@@ -12,11 +12,12 @@ import styles from "./home.module.css"
 
 export const BASE = "/preview/home-v3-workroom"
 
-// 내비 — 영문 단일 확정 (운영자 2026-08-04 라운드 14): Bookclub / One Day Talk / Brand
+// 내비 — 라운드 19: 이 페이지의 브랜드는 '레이지 클럽'(허브). 4항목 확정
+// LazyClub(홈) / LazydayBookclub(기수제 랜딩) / OneDayTalk(목록) / About
 const NAV_ITEMS: { label: string; href?: string; pending?: string }[] = [
-  { label: "Bookclub", href: "/" },
-  { label: "One Day Talk", href: `${BASE}/meetings` },
-  { label: "Brand", pending: "브랜드 페이지는 준비 중입니다." },
+  { label: "LazydayBookclub", href: "/" },
+  { label: "OneDayTalk", href: `${BASE}/meetings` },
+  { label: "About", pending: "소개 페이지는 준비 중입니다." },
 ]
 
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
@@ -61,7 +62,7 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
       <header className={`${styles.header} ${menuOpen ? styles.headerOpen : ""}`}>
         <div className={styles.headerLeft}>
           <LazydayLink href={BASE} className={styles.current}>
-            lazyday bookclub
+            LazyClub
           </LazydayLink>
           <nav className={styles.navMenu}>
             {nav.map((item) =>
@@ -133,8 +134,8 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <figure className={styles.footerLogo}>
-            {/* 로고는 원본 3색 풀컬러 사용 (운영자 2026-08-04 — 색 제한 완화) */}
-            <img src="/assets/logo/lazyday_logo.svg" alt="레이지데이 북클럽" />
+            {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}
+            <img src="/linky-lounge/book-club/home-v3/logo-lazyclub.png" alt="레이지 클럽" />
           </figure>
           <div className={styles.footerDesc}>
             {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}

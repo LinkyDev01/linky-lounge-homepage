@@ -240,16 +240,7 @@
   background: var(--ph-gray);
 }
 .itemFigure img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* 이미지 틀 미세 외곽선 — 시안 기본 ON (운영자 고민 중: 대안 비교 스크린샷 제공) */
-.itemFigure::after,
-.shopFigure::after,
-.productFigure::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 1px solid rgba(26, 18, 8, 0.09);
-  pointer-events: none;
-}
+/* 이미지 틀 외곽선: 시안 비교 후 제거 확정 (운영자 2026-08-04 라운드 6) */
 .itemBody {
   grid-column: 3 / 6;
   display: flex;
@@ -326,10 +317,10 @@
 }
 .footerLogo { grid-column: 1 / 2; position: absolute; top: 11px; }
 .footerLogo img { width: 44px; height: auto; display: block; }
-/* 브랜드 문단 — 명조 (랜딩 책 본문 문법: Noto Serif KR 500 / 1.85) */
-.footerDesc { grid-column: 2 / 4; font-family: var(--serif); font-weight: 500; line-height: 1.85; }
-/* About 링크 — 모임 설명 헤더와 같은 Gothic A1 (운영자: "about lazyday bookclub부터도 그걸로") */
-.footerAbout { grid-column: 4 / 6; font-family: var(--gothic); font-weight: 600; }
+/* 브랜드 문단 + About 링크 한 블록 — 문단 명조, 아래 행 링크는 Gothic A1 600 */
+.footerDesc { grid-column: 2 / 5; }
+.footerDesc p { font-family: var(--serif); font-weight: 500; line-height: 1.85; margin: 0; }
+.footerAboutLink { margin-top: 14px; font-family: var(--gothic); font-weight: 600; }
 /* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
 .footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-weight: 300; }
 .footerBiz .contracts { margin-top: 18px; }
@@ -413,7 +404,6 @@
   /* 푸터: 각 블록 2/5 스택 (08 — 4컬럼 그리드) */
   .footerInner { grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .footerDesc,
-  .footerAbout,
   .footerBiz,
   .footerContact { grid-column: 2 / 5; }
 }

@@ -76,13 +76,13 @@ const LANDING_DOCS = [
   },
 ]
 
-/** shop 굿즈 — 드라이브 '굿즈' 폴더 실사진, 상품명은 운영자 확정 영문
- *  (티셔츠02=Printed T-shirt / 코스터01=Acrylic Coaster / 컵01=Coffee Mug —
- *  지시문의 "티셔츠02(Coffee Mug…)"는 문맥상 컵01 오타로 해석) */
+/** shop 굿즈 — 드라이브 '굿즈' 폴더 실사진, 상품명은 운영자 확정 영문.
+ *  카테고리는 'goods' 대신 워크룸 문법의 품목별 소분류(운영자 위임 2026-08-04):
+ *  의류 apparel / 탁상 물성 tableware */
 const GOODS = [
-  { name: "Printed T-shirt", img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp" },
-  { name: "Acrylic Coaster", img: "/linky-lounge/book-club/home-v3/goods-coaster.webp" },
-  { name: "Coffee Mug (5-color)", img: "/linky-lounge/book-club/home-v3/goods-mug.webp" },
+  { cat: "apparel", name: "Printed T-shirt", img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp" },
+  { cat: "tableware", name: "Acrylic Coaster", img: "/linky-lounge/book-club/home-v3/goods-coaster.webp" },
+  { cat: "tableware", name: "Coffee Mug (5-color)", img: "/linky-lounge/book-club/home-v3/goods-mug.webp" },
 ]
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 휠 가로 변환 + 활성 인덱스 (+선택적 자동 넘김) */
@@ -111,19 +111,8 @@ function useDragCarousel(slideCount: number, autoplay = false) {
     setActive(best)
   }, [])
 
-  useEffect(() => {
-    const el = trackRef.current
-    if (!el) return
-    // 세로 휠 → 가로 스크롤 (02: 드래그/휠 가로 스크롤)
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return
-      if (el.scrollWidth <= el.clientWidth) return
-      e.preventDefault()
-      el.scrollLeft += e.deltaY
-    }
-    el.addEventListener("wheel", onWheel, { passive: false })
-    return () => el.removeEventListener("wheel", onWheel)
-  }, [])
+  // 세로 휠 하이재킹 없음 — 캐러셀 위에서도 페이지 상하 스크롤만 (운영자 2026-08-04).
+  // 가로 이동은 드래그·도트·자동 넘김으로만.
 
   const onPointerDown = (e: React.PointerEvent) => {
     const el = trackRef.current
@@ -298,10 +287,11 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
             </div>
             <div className={styles.productDesc}>
               <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
-              {/* 브랜드 단락 — 운영자 확정 원문 그대로 (첫 문단 교체 2026-08-04) */}
+              {/* 브랜드 단락 — 운영자 확정 원문 그대로 (라운드 6에서 원문 원복) */}
               <p>
-                결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 저마다 다른 사유의 궤적 속 불협화음이 고전의
-                본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.
+                문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
+                사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
+                고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
               </p>
               {/* 아래 두 문단은 모바일에서 텍스트량 조정을 위해 미노출 (운영자 2026-08-04) */}
               <p className={styles.productDescMore}>
@@ -427,7 +417,7 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                     </figure>
                     <div className={styles.shopBody}>
                       <div>
-                        <div className={styles.itemCat}>goods</div>
+                        <div className={styles.itemCat}>{g.cat}</div>
                         <div className={styles.shopName}>{g.name}</div>
                       </div>
                     </div>
@@ -458,14 +448,15 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
             <img src="/assets/logo/lazyday_logo.svg" alt="레이지데이 북클럽" />
           </figure>
           <div className={styles.footerDesc}>
-            {/* 브랜드 단락 1문단 발췌 — 운영자 확정 원문 그대로 (05) */}
-            문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
-            사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간, 고립되어
-            있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
-          </div>
-          <div className={styles.footerAbout}>
-            {/* 브랜드 페이지 링크 — 페이지는 확산 단계 예정 (README 파이프라인 7) */}
-            <a href="#">About Lazyday Bookclub</a>
+            {/* 문단 + About 링크 한 블록 (운영자 2026-08-04 — 문단 아래 행에 링크) */}
+            <p>
+              결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 저마다 다른 사유의 궤적 속 불협화음이 고전의
+              본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.
+            </p>
+            <div className={styles.footerAboutLink}>
+              {/* 브랜드 페이지 링크 — 페이지는 확산 단계 예정 (README 파이프라인 7) */}
+              <a href="#">About Lazyday Bookclub</a>
+            </div>
           </div>
           <div className={styles.footerBiz}>
             <div>

@@ -1,0 +1,341 @@
+/* ═══════════════════════════════════════════════════════════
+   home-v3-workroom — 워크룸 이식판 홈 (docs/redesign/08 실측값)
+   신규 CSS. 기존 .module.css import 금지 (§9 오염 방지).
+   수치 출처: 전부 08 실측 — 임의값 금지.
+   ═══════════════════════════════════════════════════════════ */
+
+.page {
+  --ink: #000;
+  --paper: #fff;
+  --ph-gray: #e8e7e6; /* 캐러셀 슬라이드 바탕·플레이스홀더 (08 실측) */
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Pretendard Variable", Pretendard, sans-serif; /* 08: mysteria(유료) → Pretendard 대체 */
+  font-size: 13.2px;
+  line-height: 1.5;
+  font-weight: 400;
+  word-break: keep-all;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.page a { color: inherit; text-decoration: none; }
+.page a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* ── 헤더 (08: fixed, 15컬럼 gap 15, padding 10px 15px) ────
+   프리뷰 바(높이 34px 고정) 아래에 붙인다 — 실사이트 이식 시 top:0 */
+.header {
+  position: fixed;
+  top: 34px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 15px;
+  padding: 10px 15px;
+}
+.headerLeft {
+  grid-column: 1 / 5;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  white-space: nowrap;
+}
+.navMenu { display: flex; gap: 15px; }
+/* 현재 페이지(홈 워드마크) 밑줄 상시 — 원문 문법 */
+.headerLeft .current {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+.headerSearch {
+  grid-column: 5 / 11;
+  width: 0;
+  overflow: hidden;
+}
+.headerSearchActive { width: 100%; }
+.headerSearch form { width: 100%; border-bottom: 1px solid var(--ink); }
+.headerSearch input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--paper);
+  font: inherit;
+  color: inherit;
+}
+.headerSearch input::placeholder { color: #bcbcbc; }
+.headerSearch input:focus { outline: 0; }
+.headerRight {
+  grid-column: 11 / 16;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.searchTrigger {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+.searchTrigger:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* 본문 시작 (08: site-content padding 0 15px + top 39px) */
+.content { padding: 0 15px; padding-top: 39px; }
+
+/* ── 섹션 라벨 (08: 13.2px 소문자 + ↗ 8×8, ml 4px, top 1px) ── */
+.sectionTitle { margin-bottom: 14px; }
+.sectionTitle a:hover {
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 3px;
+}
+.labelIcon { margin-left: 4px; position: relative; top: 1px; display: inline-block; }
+
+/* ── ① 도서 캐러셀 (08: 풀블리드, 높이 400, gap 15) ────── */
+.books {
+  width: calc(100% + 30px);
+  position: relative;
+  left: -15px;
+}
+.books .sectionTitle { padding-left: 15px; }
+.booksTrack {
+  display: flex;
+  gap: 15px;
+  height: 400px;
+  padding: 0 15px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.booksTrack::-webkit-scrollbar { display: none; }
+.booksTrack:active { cursor: grabbing; }
+.bookSlide {
+  display: block;
+  height: 100%;
+  flex: 0 0 auto;
+  background: var(--ph-gray);
+  scroll-snap-align: center;
+}
+/* 플레이스홀더: 세로 판형 회색 (03) — 표지 실판형 비율(1200:1977 실측 근사) */
+.bookSlide { aspect-ratio: 1200 / 1977; }
+.bookSlide img { width: auto; height: 100%; }
+
+/* 도트 (08: 8×8 #000, 비활성 .4, gap 8, 캐러셀과 25px) */
+.dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding-top: 25px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--ink);
+  opacity: 0.4;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.dotActive { opacity: 1; }
+
+/* ── ②③ meetings + shop 병치 (08: 15컬럼 col-gap 14, 10:5) ── */
+.textsShop {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  column-gap: 14px;
+}
+.meetings {
+  grid-column: 1 / -6;
+  padding-right: 7px;
+  width: calc(100% + 7px);
+  border-right: 1px solid var(--ink); /* 세로 괘선 (08) */
+}
+.meetingsList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 14px;
+}
+.shop { grid-column: -6 / -1; }
+
+/* ── 리스트 항목 (08: ts-item — 5컬럼 gap 15, padding 7.5px 0,
+      하단 1px 괘선. 썸네일 1차 미노출 → 콘텐츠가 전폭) ────── */
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  row-gap: 0;
+  padding: 7.5px 0;
+  border-bottom: 1px solid var(--ink);
+}
+.itemLink { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+/* 썸네일 미노출 1차: 콘텐츠가 5컬럼 전체 (썸네일 도입 시 3/6으로 복귀) */
+.itemBody {
+  grid-column: 1 / 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 15px;
+}
+.itemCat { line-height: 1; position: relative; bottom: 3px; margin-bottom: 3px; }
+.itemTitle { font-size: 18px; line-height: 1.5; font-weight: 400; }
+.itemDate { margin-top: 9px; } /* 원문 가격 자리 문법 (08) */
+
+/* 마지막 행(2열 기준) 하단선 제거 — 원문 방식 */
+.meetingsList .rowLast { border-bottom: 0; }
+
+/* 빈 상태 — 예정 모임 없음 (03: 모집 알림 신청 블록, 1차 목업) */
+.emptyBlock { padding: 7.5px 0 40px; }
+.emptyBlock form {
+  margin-top: 14px;
+  max-width: 320px;
+  border-bottom: 1px solid var(--ink);
+  display: flex;
+}
+.emptyBlock input {
+  flex: 1;
+  border: 0;
+  padding: 0 0 3px;
+  font: inherit;
+  background: var(--paper);
+}
+.emptyBlock input::placeholder { color: #bcbcbc; }
+.emptyBlock input:focus { outline: 0; }
+
+/* ── shop 항목 (08: 이미지 3/5 + 콘텐츠 2/5, 마지막 무선) ── */
+.shopItem {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  row-gap: 0;
+  padding: 7.5px 0;
+  border-bottom: 1px solid var(--ink);
+}
+.shopItem:last-of-type { border-bottom: 0; }
+.shopFigure {
+  grid-column: 1 / 4;
+  aspect-ratio: 3 / 4;
+  background: var(--ph-gray); /* 사진 플레이스홀더 (03) */
+}
+.shopBody {
+  grid-column: 4 / 6;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.shopName { font-size: 18px; line-height: 1.5; }
+
+/* shop 도트 — 모바일 스와이프 전용 (08) */
+.shopDots { display: none; }
+
+/* ── 푸터 (08: border-top 1px, 15컬럼, padding 6px 0 40px) ── */
+.footer { padding: 0 15px; }
+.footerInner {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 15px;
+  border-top: 1px solid var(--ink);
+  padding: 6px 0 40px;
+  position: relative;
+}
+.footerLogo { grid-column: 1 / 2; position: absolute; top: 11px; }
+.footerLogo img { width: 44px; height: auto; display: block; }
+.footerDesc { grid-column: 2 / 4; }
+.footerAbout { grid-column: 4 / 6; }
+.footerBiz { grid-column: 8 / 11; }
+.footerBiz .contracts { margin-top: 18px; }
+.footerContact { grid-column: 11 / 16; }
+.footerSns { margin-top: 8px; }
+
+/* ═══ 반응형 해제 (08: 단일 720px — 768은 데스크톱 구성 유지) ═══ */
+@media all and (max-width: 720px) {
+  .header { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .headerLeft { grid-column: 1 / 3; }
+  .headerLeft .navMenu { display: none; }
+  .headerSearch { display: none; }
+  .headerRight { display: none; }
+  .menuTrigger { grid-column: 3 / 5; display: block; cursor: pointer; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: inherit; }
+  .headerOpen { box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.3); row-gap: 25px; }
+  .mobileMenu {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 10px;
+  }
+  .mobileMenu ul { display: flex; flex-direction: column; gap: 15px; margin: 0; padding: 0; list-style: none; }
+
+  /* 캐러셀: 정사각 1장 풀폭 (08) */
+  .books { margin-bottom: 65px; }
+  .books .sectionTitle { margin-bottom: 25px; }
+  .booksTrack { height: auto; aspect-ratio: 1; padding: 0; }
+  .bookSlide { aspect-ratio: auto; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+
+  /* 병치 해제: 전부 세로 스택 (08) */
+  .meetings { grid-column: 1 / -1; padding: 0; border-right: 0; width: 100%; }
+  .meetingsList { display: flex; flex-direction: column; }
+  .meetingsList .rowLast { border-bottom: 1px solid var(--ink); }
+  .meetingsList .itemLast { border-bottom: 0; }
+  .shop { grid-column: 1 / -1; }
+  .shop .sectionTitle { padding-top: 5px; }
+
+  /* shop 가로 스와이프 (08: slidesPerView 1.3, gap 15) */
+  .shopList {
+    width: calc(100% + 30px);
+    position: relative;
+    left: -15px;
+    margin-bottom: 50px;
+  }
+  .shopTrack {
+    display: flex;
+    gap: 15px;
+    padding: 0 15px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .shopTrack::-webkit-scrollbar { display: none; }
+  .shopItem {
+    flex: 0 0 calc((100% - 30px) / 1.3);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 0;
+    gap: 7px;
+    border-bottom: 0;
+    scroll-snap-align: start;
+  }
+  .shopFigure { grid-column: 1 / -1; }
+  .shopBody { grid-column: 1 / -1; }
+  .shopDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
+
+  /* 리스트 항목: 모바일 2컬럼 문법(썸네일 자리) — 1차는 전폭 유지 */
+  .itemBody { grid-column: 1 / -1; }
+
+  /* 푸터: 각 블록 2/5 스택 (08 — 4컬럼 그리드) */
+  .footerInner { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .footerDesc,
+  .footerAbout,
+  .footerBiz,
+  .footerContact { grid-column: 2 / 5; }
+}
+
+/* 데스크톱에서 모바일 전용 요소 숨김 */
+@media all and (min-width: 721px) {
+  .menuTrigger { display: none; }
+  .mobileMenu { display: none; }
+}

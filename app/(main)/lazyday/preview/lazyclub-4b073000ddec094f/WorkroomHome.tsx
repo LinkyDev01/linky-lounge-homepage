@@ -157,6 +157,19 @@ function HomeContent() {
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
+  // 기수 진열 (라운드 24 이동 · 라운드 26 굿즈와 동일 배열) — 4기 → 랜딩, 2·3기 sold out
+  const seasonItems = [
+    {
+      id: "bookclub-4",
+      status: "open" as const,
+      title: `레이지데이 북클럽 ${SEASON.name}`,
+      link: "/",
+      thumbnail: "/linky-lounge/book-club/home-v3/hero-4th-poster.webp",
+    },
+    ...PAST_SEASONS,
+  ]
+  const seasonCarousel = useDragCarousel(seasonItems.length)
+
   // 모임 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠.
   // 지난 기수는 라운드 24에서 우측 '레이지데이 북클럽' 섹션으로 이동
   const items = [
@@ -273,27 +286,35 @@ function HomeContent() {
               <ArrowIcon />
             </a>
           </div>
-          {/* 기수 진열 — 포스터 + 제목만 (운영자 라운드 24). 4기 → 랜딩, 2·3기 sold out */}
-          <div className={styles.seasonList}>
-            <article className={styles.seasonItem}>
-              <LazydayLink href="/" className={styles.itemLink} aria-label="레이지데이 북클럽 4기 안내로 이동" />
-              <figure className={styles.seasonFigure}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/linky-lounge/book-club/home-v3/hero-4th-poster.webp" alt="" draggable={false} />
-              </figure>
-              <div className={styles.itemTitle}>레이지데이 북클럽 {SEASON.name}</div>
-            </article>
-            {PAST_SEASONS.map((s) => (
-              <article key={s.id} className={styles.seasonItem}>
-                <LazydayLink href={s.link} className={styles.itemLink} aria-label={`${s.title} 안내로 이동`} />
-                <figure className={styles.seasonFigure}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.thumbnail} alt="" draggable={false} />
-                  <StatusOverlay status={s.status} />
-                </figure>
-                <div className={styles.itemTitle}>{s.title}</div>
-              </article>
-            ))}
+          {/* 기수 진열 — 구 굿즈와 동일한 배열(shopItem 문법, 모바일 가로 넘김)로 통일
+               (운영자 라운드 26 "원래 굿즈 배열했던 것처럼"). 포스터+제목만, 2·3기 sold out */}
+          <div className={`${styles.shopList} ${styles.seasonList}`}>
+            <div ref={seasonCarousel.trackRef} className={styles.shopTrack} onScroll={seasonCarousel.onScroll}>
+              {seasonItems.map((s) => (
+                <article key={s.id} className={styles.shopItem}>
+                  <LazydayLink href={s.link} className={styles.itemLink} aria-label={`${s.title} 안내로 이동`} />
+                  <figure className={styles.shopFigure}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.thumbnail} alt="" draggable={false} />
+                    {s.status !== "open" && <StatusOverlay status={s.status} />}
+                  </figure>
+                  <div className={styles.shopBody}>
+                    <div className={styles.shopName}>{s.title}</div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className={styles.shopDots}>
+              {seasonItems.map((s, i) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`${styles.dot} ${i === seasonCarousel.active ? styles.dotActive : ""}`}
+                  aria-label={`${i + 1}번째 기수로 이동`}
+                  onClick={() => seasonCarousel.scrollTo(i)}
+                />
+              ))}
+            </div>
           </div>
           {/* 굿즈 — 포스터 대비 2/3 축소 진열 (운영자 라운드 24) */}
           <div className={`${styles.shopList} ${styles.goodsScaled}`}>

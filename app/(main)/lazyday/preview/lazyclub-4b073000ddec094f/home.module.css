@@ -455,16 +455,8 @@
 /* shop 도트 — 모바일 스와이프 전용 (08) */
 .shopDots { display: none; }
 
-/* ── 기수 진열 (라운드 24: 구 shop 위치 — 포스터+제목만, 2·3기 sold out) ── */
-.seasonList { display: flex; flex-direction: column; gap: 22.5px; margin-bottom: 30px; }
-.seasonItem { position: relative; }
-.seasonFigure {
-  margin: 0 0 9px;
-  position: relative;
-  overflow: hidden;
-  pointer-events: none; /* 이미지 클릭이 항목 오버레이 링크로 통과하도록 */
-}
-.seasonFigure img { width: 100%; height: auto; display: block; }
+/* ── 기수 진열 (라운드 24 이동 → 라운드 26: 구 굿즈와 동일한 shopItem 배열) ── */
+.seasonList { margin-bottom: 30px; }
 
 /* 굿즈 — 포스터 기준 2/3 축소 (라운드 24) */
 .goodsScaled { width: 66.7%; }

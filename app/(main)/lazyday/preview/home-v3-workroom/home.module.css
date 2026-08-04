@@ -468,7 +468,7 @@
   position: relative;
 }
 .footerLogo { grid-column: 1 / 2; position: absolute; top: 11px; }
-.footerLogo img { width: 44px; height: auto; display: block; }
+.footerLogo img { width: 88px; height: auto; display: block; } /* 라운드 20: 2배 확대 */
 /* 브랜드 문단 + About 링크 한 블록 — 사업자 정보 전까지 가로로 넓게 (운영자 라운드 7) */
 .footerDesc { grid-column: 2 / 8; }
 /* 푸터 텍스트: 고딕 통일, 12→13.2 중간(12.6px) + 더 굵게 600 (라운드 14) */

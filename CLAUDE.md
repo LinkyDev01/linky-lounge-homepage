@@ -158,6 +158,6 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
   `public/assets/logo/lazyday_logo.svg` (운영자 제공 — 정본 호 6종 내장,
   3색 #F59936/#95AC9A/#7D5456, 카운터 evenodd 투명) + 마스터 파생
   `logo-mono-ink.svg`(#1c1814)·`logo-mono-cream.svg`(#F5F0E6).
-  **사용 규칙: 화면 노출 = mono-ink / 색면 위 = mono-cream / 파비콘·OG = 원본 풀컬러.**
+  **사용 규칙: 화면 노출 = mono-ink / 색면 위 = mono-cream / 파비콘·OG = 원본 풀컬러 / 개편 홈(v3)은 원본 풀컬러 (운영자 2026-08-04).**
   리컬러 없음(`logo-color*` 폐기), 원본·파생 임의 색 교체 금지. (구 래스터
   `linky-lounge/book-club/lazyday_logo.png`는 기존 화면이 계속 사용 — 교체는 별도 지시 시)

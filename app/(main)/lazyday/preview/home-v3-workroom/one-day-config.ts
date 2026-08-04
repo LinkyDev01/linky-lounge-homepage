@@ -23,23 +23,24 @@ export type OneDayMeeting = {
 }
 
 // 원데이 토크 1차 (운영자 확정 일정 2026-07-24 — one-day-talk-01/apply와 동일 데이터)
+// 제목 문체는 워크룸 원문 뉘앙스(『서명』 앞세움 + 건조한 행위명사 — 운영자 2026-08-04)
 export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     category: "booktalk",
-    title: "원데이 토크 『브람스를 좋아하세요...』 프랑수아즈 사강",
+    title: "『브람스를 좋아하세요...』 원데이 토크",
     date: "8.2 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
     status: "closed",
     link: "/one-day-talk-01/apply",
-    thumbnail: "/linky-lounge/book-club/books/2기-2-브람스를 좋아하세요.jpg",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
   },
   {
     category: "booktalk",
-    title: "원데이 토크 『시지프 신화』 알베르 카뮈",
+    title: "『시지프 신화』 원데이 토크",
     date: "8.9 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
     status: "open",
     link: "/one-day-talk-01/apply",
-    thumbnail: "/linky-lounge/book-club/books/1기-4-시지프 신화.jpg",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-talk.webp",
   },
 ]

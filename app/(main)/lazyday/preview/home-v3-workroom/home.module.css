@@ -10,9 +10,14 @@
   --ph-gray: #e8e7e6; /* 캐러셀 슬라이드 바탕·플레이스홀더 (08 실측) */
   background: var(--paper);
   color: var(--ink);
-  /* 08: mysteria(유료) → Pretendard 대체. 제목·브랜드 문단만 명조(Noto Serif KR) —
-     랜딩의 고딕·명조 밸런싱 문법 (운영자 2026-08-04) */
+  /* 서체 배역 (운영자 2026-08-04 확정):
+     - 영문 UI(내비·섹션 라벨·카테고리) = SUIT
+     - 모임 설명 헤더·About 링크 = Gothic A1 600 ("550 정도" → 정적 최근접 상위)
+     - 사업자 정보 = Gothic A1 300 (조금 더 가늘게)
+     - 푸터 브랜드 문단 = Noto Serif KR 명조 유지 / 그 외 기본 = Pretendard */
   --serif: var(--font-noto-serif), "Noto Serif KR", serif;
+  --suit: "SUIT", sans-serif;
+  --gothic: "Gothic A1", sans-serif;
   font-family: "Pretendard Variable", Pretendard, sans-serif;
   font-size: 13.2px;
   line-height: 1.5;
@@ -41,6 +46,7 @@
   grid-template-columns: repeat(15, 1fr);
   gap: 15px;
   padding: 10px 15px;
+  font-family: var(--suit); /* 내비 = SUIT (운영자 2026-08-04) */
 }
 .headerLeft {
   grid-column: 1 / 5;
@@ -98,14 +104,48 @@
 /* 본문 시작 (08: site-content padding 0 15px + top 39px) */
 .content { padding: 0 15px; padding-top: 39px; }
 
-/* ── 섹션 라벨 (08: 13.2px 소문자 + ↗ 8×8, ml 4px, top 1px) ── */
-.sectionTitle { margin-bottom: 14px; }
+/* ── 섹션 라벨 (08: 13.2px 소문자 + ↗ 8×8, ml 4px, top 1px) — SUIT ── */
+.sectionTitle { margin-bottom: 14px; font-family: var(--suit); }
 .sectionTitle a:hover {
   text-decoration: none;
   border-bottom: 1px solid var(--ink);
   padding-bottom: 3px;
 }
 .labelIcon { margin-left: 4px; position: relative; top: 1px; display: inline-block; }
+
+/* ── ⓪ 정규 독서모임 상품 모듈 (워크룸 상품 상세 구성 차용) ──
+   좌 포스터 / 우 상품명·일정·설명. 맨 윗란은 4기 모집 전담 */
+.productHero {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 15px;
+  padding-top: 10px; /* 고정 헤더와의 간섭 보정 (08 padding-top 39px 유지 위에 가산) */
+  margin-bottom: 50px;
+}
+.productFigure { grid-column: 1 / 8; margin: 0; position: relative; }
+.productFigure a { display: block; }
+.productFigure img { width: 100%; height: auto; display: block; }
+.productInfo { grid-column: 8 / 16; }
+.productTitle {
+  font-family: var(--gothic);
+  font-size: 26px;
+  line-height: 1.4;
+  font-weight: 600;
+  margin: 8px 0 2px;
+}
+.productSub { margin: 0 0 18px; }
+.productSchedule { margin-bottom: 22px; }
+.productSchedule p { margin: 0; }
+.productLead { font-family: var(--gothic); font-weight: 600; margin: 0 0 8px; }
+/* 설명 본문 — 명조 (브랜드 단락 원문, 랜딩 책 본문 문법) */
+.productDesc p:not(.productLead) {
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 1.85;
+  margin: 0 0 10px;
+  max-width: 520px;
+  text-wrap: pretty;
+}
 
 /* ── ① 도서 캐러셀 (08: 풀블리드, 높이 400, gap 15) ────── */
 .books {
@@ -167,10 +207,12 @@
   width: calc(100% + 7px);
   border-right: 1px solid var(--ink); /* 세로 괘선 (08) */
 }
+/* 우리 이미지는 원문보다 가로 비율이 높아 여백이 좁아 보임 →
+   열 간격 14→20, 항목 상하 패딩 7.5→12로 보정 (운영자 2026-08-04) */
 .meetingsList {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 14px;
+  column-gap: 20px;
 }
 .shop { grid-column: -6 / -1; }
 
@@ -182,7 +224,7 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 15px;
   row-gap: 0;
-  padding: 7.5px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--ink);
 }
 .itemLink { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -190,7 +232,7 @@
 .itemFigure {
   grid-column: 1 / 3;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 5; /* 원문 3:4 → 보유 이미지 실비율(포스터·카드 4:5)로 조정 */
   position: relative;
   z-index: 2;
   margin: 0;
@@ -198,6 +240,16 @@
   background: var(--ph-gray);
 }
 .itemFigure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 이미지 틀 미세 외곽선 — 시안 기본 ON (운영자 고민 중: 대안 비교 스크린샷 제공) */
+.itemFigure::after,
+.shopFigure::after,
+.productFigure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(26, 18, 8, 0.09);
+  pointer-events: none;
+}
 .itemBody {
   grid-column: 3 / 6;
   display: flex;
@@ -205,9 +257,9 @@
   justify-content: space-between;
   gap: 15px;
 }
-.itemCat { line-height: 1; position: relative; bottom: 3px; margin-bottom: 3px; }
-/* 제목만 명조 — 고딕(라벨·메타)과의 무게 대비 (랜딩 밸런싱 문법) */
-.itemTitle { font-family: var(--serif); font-size: 18px; line-height: 1.5; font-weight: 500; }
+.itemCat { line-height: 1; position: relative; bottom: 3px; margin-bottom: 3px; font-family: var(--suit); }
+/* 모임 설명 헤더 = Gothic A1, "550 정도" → 정적 최근접 상위 600 */
+.itemTitle { font-family: var(--gothic); font-size: 18px; line-height: 1.5; font-weight: 600; }
 .itemDate { margin-top: 9px; } /* 원문 가격 자리 문법 (08) */
 
 /* 마지막 행(2열 기준) 하단선 제거 — 원문 방식 */
@@ -243,8 +295,11 @@
 .shopItem:last-of-type { border-bottom: 0; }
 .shopFigure {
   grid-column: 1 / 4;
-  aspect-ratio: 3 / 4;
-  background: var(--ph-gray); /* 사진 플레이스홀더 (03) */
+  aspect-ratio: 4 / 5;
+  background: var(--ph-gray);
+  position: relative;
+  margin: 0;
+  overflow: hidden;
 }
 .shopBody {
   grid-column: 4 / 6;
@@ -252,7 +307,9 @@
   flex-direction: column;
   gap: 15px;
 }
-.shopName { font-size: 18px; line-height: 1.5; }
+/* 품명 영문 확정(운영자) → 영문 구성 요소는 SUIT */
+.shopName { font-family: var(--suit); font-size: 18px; line-height: 1.5; font-weight: 600; }
+.shopFigure img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* shop 도트 — 모바일 스와이프 전용 (08) */
 .shopDots { display: none; }
@@ -271,10 +328,12 @@
 .footerLogo img { width: 44px; height: auto; display: block; }
 /* 브랜드 문단 — 명조 (랜딩 책 본문 문법: Noto Serif KR 500 / 1.85) */
 .footerDesc { grid-column: 2 / 4; font-family: var(--serif); font-weight: 500; line-height: 1.85; }
-.footerAbout { grid-column: 4 / 6; }
-.footerBiz { grid-column: 8 / 11; }
+/* About 링크 — 모임 설명 헤더와 같은 Gothic A1 (운영자: "about lazyday bookclub부터도 그걸로") */
+.footerAbout { grid-column: 4 / 6; font-family: var(--gothic); font-weight: 600; }
+/* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
+.footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-weight: 300; }
 .footerBiz .contracts { margin-top: 18px; }
-.footerContact { grid-column: 11 / 16; }
+.footerContact { grid-column: 11 / 16; font-family: var(--gothic); font-weight: 300; }
 .footerSns { margin-top: 8px; }
 
 /* ═══ 반응형 해제 (08: 단일 720px — 768은 데스크톱 구성 유지) ═══ */
@@ -294,6 +353,12 @@
     padding-bottom: 10px;
   }
   .mobileMenu ul { display: flex; flex-direction: column; gap: 15px; margin: 0; padding: 0; list-style: none; }
+
+  /* 상품 모듈: 세로 스택 */
+  .productHero { grid-template-columns: 1fr; gap: 10px; margin-bottom: 65px; }
+  .productFigure { grid-column: 1 / -1; }
+  .productInfo { grid-column: 1 / -1; padding-top: 8px; }
+  .productTitle { font-size: 22px; }
 
   /* 캐러셀: 정사각 1장 풀폭 (08) */
   .books { margin-bottom: 65px; }

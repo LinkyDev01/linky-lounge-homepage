@@ -44,18 +44,18 @@ const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].f
   s.books.map((b) => ({ key: `${s.label}-${b.week}`, alt: `${s.label} ${b.weekLabel} 『${b.title}』 ${b.author}`, src: b.imagePath })),
 )
 
-/** 랜딩 콘텐츠 인덱스 항목 — 문구는 랜딩 확정 카피 우선, 다듬기만 쓰레드 어조 */
+/** 랜딩 콘텐츠 인덱스 항목 — 문체는 워크룸 원문 뉘앙스(도록체 명사형·한다체, 운영자 2026-08-04) */
 const LANDING_DOCS = [
   {
     category: "documents",
-    title: "타인의 낯선 시선을 기꺼이 환대하는 사람들",
+    title: "타인의 낯선 시선을 환대하는 일",
     meta: "모임 소개",
     link: "/#feature",
     thumbnail: "/linky-lounge/book-club/feature/feature-people.webp",
   },
   {
     category: "documents",
-    title: "대화는 한 편의 발제문에서 시작됩니다",
+    title: "대화는 한 편의 발제문에서 시작된다",
     meta: "진행 방식",
     link: "/#howto",
     thumbnail: "/linky-lounge/book-club/feature/feature-questions.webp",
@@ -69,11 +69,20 @@ const LANDING_DOCS = [
   },
   {
     category: "documents",
-    title: "멤버들이 남긴 문장",
+    title: "멤버들이 남긴 문장들",
     meta: "후기",
     link: "/#reviews",
     thumbnail: "/linky-lounge/book-club/reviews/review-01.webp",
   },
+]
+
+/** shop 굿즈 — 드라이브 '굿즈' 폴더 실사진, 상품명은 운영자 확정 영문
+ *  (티셔츠02=Printed T-shirt / 코스터01=Acrylic Coaster / 컵01=Coffee Mug —
+ *  지시문의 "티셔츠02(Coffee Mug…)"는 문맥상 컵01 오타로 해석) */
+const GOODS = [
+  { name: "Printed T-shirt", img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp" },
+  { name: "Acrylic Coaster", img: "/linky-lounge/book-club/home-v3/goods-coaster.webp" },
+  { name: "Coffee Mug (5-color)", img: "/linky-lounge/book-club/home-v3/goods-mug.webp" },
 ]
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 휠 가로 변환 + 활성 인덱스 (02 유지 3번) */
@@ -152,15 +161,15 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const carousel = useDragCarousel(ALL_BOOKS.length)
-  const shopCarousel = useDragCarousel(2) // 모바일 shop 스와이프 도트 (08)
+  const shopCarousel = useDragCarousel(GOODS.length) // 모바일 shop 스와이프 도트 (08)
 
   const nav = NAV_ITEMS[lang]
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
   const hasOpen = booktalks.some((m) => m.status === "open")
   const badge = (status: "open" | "closed") => (status === "open" ? "모집중" : "마감")
 
-  // meetings 리스트: notice 고정 1행(03) → booktalk(모집중 먼저) → 랜딩 콘텐츠 documents
-  const noticeMeta = `${SEASON.periodLabel.replaceAll("/", ".")} · ${SEASON.days.map((d) => d.label[0]).join("·")} · 링키라운지`
+  // meetings 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠 documents
+  // (4기 모집 notice는 상단 상품 모듈로 승격 — 모집 진입점 1곳 유지, 운영자 2026-08-04)
   const items: {
     category: string
     badgeText?: string
@@ -169,13 +178,6 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
     link: string
     thumbnail?: string
   }[] = [
-    {
-      category: "notice",
-      title: `레이지데이 북클럽 ${SEASON.name} 멤버를 모집합니다.`,
-      meta: noticeMeta,
-      link: "/",
-      thumbnail: "/linky-lounge/book-club/4th-poster-typo.webp",
-    },
     ...booktalks.map((m) => ({
       category: m.category,
       badgeText: badge(m.status),
@@ -191,6 +193,11 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
 
   return (
     <div className={styles.page}>
+      {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
+      />
       {/* ── 내비 ── */}
       <header className={`${styles.header} ${menuOpen ? styles.headerOpen : ""}`}>
         <div className={styles.headerLeft}>
@@ -245,6 +252,49 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
       </header>
 
       <main className={styles.content}>
+        {/* ── ⓪ 정규 독서모임 상품 모듈 (워크룸 상품 상세 구성 차용 — 운영자 2026-08-04)
+             맨 윗란은 4기 모집만 홍보. 모집 진입점은 이 1곳 ── */}
+        <section className={styles.productHero}>
+          <figure className={styles.productFigure}>
+            <LazydayLink href="/" aria-label="레이지데이 북클럽 4기 안내로 이동">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/linky-lounge/book-club/home-v3/hero-4th-poster.webp" alt={`레이지데이 북클럽 ${SEASON.name} 모집 포스터`} />
+            </LazydayLink>
+          </figure>
+          <div className={styles.productInfo}>
+            <div className={styles.itemCat}>bookclub · 모집중</div>
+            <h1 className={styles.productTitle}>
+              <LazydayLink href="/">레이지데이 북클럽 {SEASON.name}</LazydayLink>
+            </h1>
+            <p className={styles.productSub}>오프라인 독서모임</p>
+            <div className={styles.productSchedule}>
+              <p>{SEASON.periodLabel.replaceAll("/", ".")} · 링키라운지</p>
+              {SEASON.days.map((d) => (
+                <p key={d.label}>
+                  {d.label} {d.time}
+                </p>
+              ))}
+            </div>
+            <div className={styles.productDesc}>
+              <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
+              {/* 브랜드 단락 — 운영자 확정 원문 그대로 (05) */}
+              <p>
+                문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
+                사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
+                고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
+              </p>
+              <p>
+                비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은
+                저마다 엇갈리고, 그 불협화음 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.
+              </p>
+              <p>
+                그래서 모든 멤버는 참여에 앞서 인터뷰를 진행합니다. 서로의 결을 미리 엿보며, 우리의 대화가 앞으로
+                어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* ── ① 도서 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
         <section className={styles.books}>
           <div className={styles.sectionTitle}>
@@ -347,30 +397,26 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                 className={styles.shopTrack}
                 onScroll={shopCarousel.onScroll}
               >
-                {/* 굿즈 진열 (03: 가격 미표기, 사진 플레이스홀더 + 품명) */}
-                <article className={styles.shopItem}>
-                  <div className={styles.shopFigure} role="img" aria-label="레이지데이 코스터 (사진 준비 중)" />
-                  <div className={styles.shopBody}>
-                    <div>
-                      <div className={styles.itemCat}>goods</div>
-                      <div className={styles.shopName}>레이지데이 코스터</div>
+                {/* 굿즈 진열 (03: 가격 미표기 — 드라이브 실사진 + 품명) */}
+                {GOODS.map((g) => (
+                  <article key={g.name} className={styles.shopItem}>
+                    <figure className={styles.shopFigure}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={g.img} alt={g.name} draggable={false} />
+                    </figure>
+                    <div className={styles.shopBody}>
+                      <div>
+                        <div className={styles.itemCat}>goods</div>
+                        <div className={styles.shopName}>{g.name}</div>
+                      </div>
                     </div>
-                  </div>
-                </article>
-                <article className={styles.shopItem}>
-                  <div className={styles.shopFigure} role="img" aria-label="레이지데이 머그 5색 (사진 준비 중)" />
-                  <div className={styles.shopBody}>
-                    <div>
-                      <div className={styles.itemCat}>goods</div>
-                      <div className={styles.shopName}>레이지데이 머그 (5색)</div>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                ))}
               </div>
               <div className={styles.shopDots}>
-                {[0, 1].map((i) => (
+                {GOODS.map((g, i) => (
                   <button
-                    key={i}
+                    key={g.name}
                     type="button"
                     className={`${styles.dot} ${i === shopCarousel.active ? styles.dotActive : ""}`}
                     aria-label={`${i + 1}번째 굿즈로 이동`}
@@ -387,8 +433,8 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <figure className={styles.footerLogo}>
-            {/* 화면 노출 로고 = mono-ink (로고 사용 규칙, §9) */}
-            <img src="/assets/logo/logo-mono-ink.svg" alt="레이지데이 북클럽" />
+            {/* 로고는 원본 3색 풀컬러 사용 (운영자 2026-08-04 — 색 제한 완화) */}
+            <img src="/assets/logo/lazyday_logo.svg" alt="레이지데이 북클럽" />
           </figure>
           <div className={styles.footerDesc}>
             {/* 브랜드 단락 1문단 발췌 — 운영자 확정 원문 그대로 (05) */}

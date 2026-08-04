@@ -157,8 +157,8 @@ function HomeContent() {
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
-  // meetings 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠 → 지난 기수(sold out)
-  // 메타·뱃지 텍스트 없음 — 카테고리와 오버레이만으로 상태 전달 (라운드 14)
+  // 모임 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠.
+  // 지난 기수는 라운드 24에서 우측 '레이지데이 북클럽' 섹션으로 이동
   const items = [
     ...booktalks.map((m) => ({
       id: `meeting-${m.slug}`,
@@ -169,7 +169,6 @@ function HomeContent() {
       thumbnail: m.thumbnail,
     })),
     ...LANDING_DOCS.map((d) => ({ id: `doc-${d.category}`, status: "open" as const, ...d })),
-    ...PAST_SEASONS,
   ]
   const itemCount = items.length
   const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1)
@@ -180,79 +179,13 @@ function HomeContent() {
 
   return (
     <main className={styles.content}>
-      {/* ── ⓪ 정규 독서모임 모듈 — 워크룸 '상품 상세' 2열 구성 (라운드 22)
-           좌 포스터(1/8) / 가운데 3칸 공백(원문 여백) / 우 제목·설명·필드(11/15).
-           이 상품만 구매·카트 없음: '자세히 보기'·포스터 → 기존 랜딩 ── */}
-      <section className={styles.productHero}>
-        <figure className={styles.heroFigure}>
-          <LazydayLink href="/" aria-label="레이지데이 북클럽 4기 안내로 이동">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/linky-lounge/book-club/home-v3/hero-4th-poster.webp" alt={`레이지데이 북클럽 ${SEASON.name} 모집 포스터`} />
-          </LazydayLink>
-        </figure>
-        <div className={styles.productInfo}>
-          <div className={styles.itemCat}>오프라인 독서모임</div>
-          <h1 className={styles.productTitle}>
-            <LazydayLink href="/">레이지데이 북클럽 {SEASON.name}</LazydayLink>
-          </h1>
-          <div className={styles.productDesc}>
-            <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
-            <p>
-              문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
-              사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
-              고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
-            </p>
-            {/* 아래 두 문단은 모바일 미노출 (텍스트량 조정) */}
-            <p className={styles.productDescMore}>
-              비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은
-              저마다 엇갈리고, 그 불협화음 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.
-            </p>
-            <p className={styles.productDescMore}>
-              그래서 모든 멤버는 참여에 앞서 인터뷰를 진행합니다. 서로의 결을 미리 엿보며, 우리의 대화가 앞으로
-              어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
-            </p>
-          </div>
-          {/* 정보 필드 — 설명 마지막 문단 아래 (운영자 라운드 22) */}
-          <div className={styles.heroFields}>
-            <div className={styles.productField}>
-              <p>일정</p>
-              <p>{"'26.09.07-'26.11.01 (격주, 5회)"}</p>
-            </div>
-            <div className={styles.productField}>
-              <p>장소</p>
-              <p>링키라운지(사당역 10번 출구 도보 3분)</p>
-            </div>
-            <div className={styles.productField}>
-              <p>{SEASON.name} 커리큘럼 및 대상 도서</p>
-              <p>• 1회차 | 『변신』 - 프란츠 카프카</p>
-              <p>• 2회차 | 『피로사회』 - 한병철</p>
-              <p>• 3회차 | 『인간 실격』 - 다자이 오사무</p>
-              <p>• 4회차 | 『사람, 장소, 환대』 - 김현경</p>
-              <p>• 5회차 | 자유 독서모임</p>
-            </div>
-          </div>
-          {/* 가격 미노출 (라운드 17) · 자세히 보기 → 기존 랜딩 */}
-          <div className={styles.productActions}>
-            <LazydayLink href="/" className={styles.chipBtn}>
-              자세히 보기
-            </LazydayLink>
-          </div>
-          <button
-            type="button"
-            className={styles.saveBtn}
-            aria-label="저장"
-            onClick={() => toggleSave("bookclub-4")}
-          >
-            <SaveIcon filled={saved.has("bookclub-4")} />
-          </button>
-        </div>
-      </section>
-
-      {/* ── ① 도서 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
+      {/* 상단 정규모임 모듈은 라운드 24에서 삭제 — 4기는 우측 '레이지데이 북클럽' 섹션의
+           단일 항목(포스터+제목)으로 이동 */}
+      {/* ── ① 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
       <section className={styles.books}>
         <div className={styles.sectionTitle}>
           <LazydayLink href="/">
-            <span>books</span>
+            <span>아카이브</span>
             <ArrowIcon />
           </LazydayLink>
         </div>
@@ -285,12 +218,12 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* ── ②③ meetings 리스트 + shop 사이드바 ── */}
+      {/* ── ②③ 모임 리스트 + 레이지데이 북클럽 사이드바 ── */}
       <div className={styles.textsShop} id="meetings">
         <section className={styles.meetings}>
           <div className={styles.sectionTitle}>
             <LazydayLink href={`${BASE}/meetings`}>
-              <span>meetings</span>
+              <span>모임</span>
               <ArrowIcon />
             </LazydayLink>
           </div>
@@ -336,11 +269,34 @@ function HomeContent() {
         <aside className={styles.shop} id="shop">
           <div className={styles.sectionTitle}>
             <a href="#shop">
-              <span>shop</span>
+              <span>레이지데이 북클럽</span>
               <ArrowIcon />
             </a>
           </div>
-          <div className={styles.shopList}>
+          {/* 기수 진열 — 포스터 + 제목만 (운영자 라운드 24). 4기 → 랜딩, 2·3기 sold out */}
+          <div className={styles.seasonList}>
+            <article className={styles.seasonItem}>
+              <LazydayLink href="/" className={styles.itemLink} aria-label="레이지데이 북클럽 4기 안내로 이동" />
+              <figure className={styles.seasonFigure}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/linky-lounge/book-club/home-v3/hero-4th-poster.webp" alt="" draggable={false} />
+              </figure>
+              <div className={styles.itemTitle}>레이지데이 북클럽 {SEASON.name}</div>
+            </article>
+            {PAST_SEASONS.map((s) => (
+              <article key={s.id} className={styles.seasonItem}>
+                <LazydayLink href={s.link} className={styles.itemLink} aria-label={`${s.title} 안내로 이동`} />
+                <figure className={styles.seasonFigure}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={s.thumbnail} alt="" draggable={false} />
+                  <StatusOverlay status={s.status} />
+                </figure>
+                <div className={styles.itemTitle}>{s.title}</div>
+              </article>
+            ))}
+          </div>
+          {/* 굿즈 — 포스터 대비 2/3 축소 진열 (운영자 라운드 24) */}
+          <div className={`${styles.shopList} ${styles.goodsScaled}`}>
             <div ref={shopCarousel.trackRef} className={styles.shopTrack} onScroll={shopCarousel.onScroll}>
               {GOODS.map((g) => (
                 <article key={g.slug} className={styles.shopItem}>

@@ -455,6 +455,20 @@
 /* shop 도트 — 모바일 스와이프 전용 (08) */
 .shopDots { display: none; }
 
+/* ── 기수 진열 (라운드 24: 구 shop 위치 — 포스터+제목만, 2·3기 sold out) ── */
+.seasonList { display: flex; flex-direction: column; gap: 22.5px; margin-bottom: 30px; }
+.seasonItem { position: relative; }
+.seasonFigure {
+  margin: 0 0 9px;
+  position: relative;
+  overflow: hidden;
+  pointer-events: none; /* 이미지 클릭이 항목 오버레이 링크로 통과하도록 */
+}
+.seasonFigure img { width: 100%; height: auto; display: block; }
+
+/* 굿즈 — 포스터 기준 2/3 축소 (라운드 24) */
+.goodsScaled { width: 66.7%; }
+
 /* ── 푸터 (08: border-top 1px, 15컬럼, padding 6px 0 40px) ── */
 .footer { padding: 0 15px; }
 .footerInner {
@@ -550,6 +564,10 @@
   .shopFigure { grid-column: 1 / -1; }
   .shopBody { grid-column: 1 / -1; }
   .shopDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
+
+  /* 모바일: 기수 진열 풀폭 스택, 굿즈는 블리드 유지 + 슬라이드 폭 축소(≈2/3) */
+  .goodsScaled { width: calc(100% + 30px); }
+  .goodsScaled .shopItem { flex: 0 0 calc((100% - 30px) / 2); }
 
   /* 리스트 항목: 모바일 2컬럼 — 썸네일 좌 절반 + 콘텐츠 우 절반 (08) */
   .item { grid-template-columns: 1fr 1fr; }

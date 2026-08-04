@@ -317,8 +317,8 @@
 }
 .footerLogo { grid-column: 1 / 2; position: absolute; top: 11px; }
 .footerLogo img { width: 44px; height: auto; display: block; }
-/* 브랜드 문단 + About 링크 한 블록 — 문단 명조, 아래 행 링크는 Gothic A1 600 */
-.footerDesc { grid-column: 2 / 5; }
+/* 브랜드 문단 + About 링크 한 블록 — 사업자 정보 전까지 가로로 넓게 (운영자 라운드 7) */
+.footerDesc { grid-column: 2 / 8; }
 .footerDesc p { font-family: var(--serif); font-weight: 500; line-height: 1.85; margin: 0; }
 .footerAboutLink { margin-top: 14px; font-family: var(--gothic); font-weight: 600; }
 /* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
@@ -412,4 +412,47 @@
 @media all and (min-width: 721px) {
   .menuTrigger { display: none; }
   .mobileMenu { display: none; }
+}
+
+/* ── 임시 팔레트 패널 (시안 검토 전용 — 이식 시 제거) ────── */
+.palettePanel {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 200;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  padding: 10px 12px;
+  font-family: var(--suit);
+  font-size: 12px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 210px;
+}
+.paletteRow { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.paletteRow input { width: 44px; height: 22px; padding: 0; border: 1px solid #ccc; background: none; }
+.palettePresets { display: flex; flex-wrap: wrap; gap: 4px; }
+.palettePresets button {
+  border: 1px solid #999;
+  background: #fff;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+.paletteToggle {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 200;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-family: var(--suit);
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
 }

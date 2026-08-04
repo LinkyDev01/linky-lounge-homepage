@@ -167,9 +167,19 @@ function useDragCarousel(slideCount: number, autoplay = false) {
   return { trackRef, active, slideCount, onScroll, onPointerDown, onPointerMove, onPointerUp, onClickCapture, scrollTo }
 }
 
+// 임시 팔레트 프리셋 (시안 검토 전용) — 배경/텍스트·괘선/보조 회색 3집합만
+const PALETTE_PRESETS = [
+  { name: "백지·잉크", paper: "#ffffff", ink: "#000000", gray: "#e8e7e6" },
+  { name: "오트", paper: "#f7f3ee", ink: "#1a1208", gray: "#ece5da" },
+  { name: "크림", paper: "#f5f0e6", ink: "#1c1814", gray: "#e9e2d4" },
+  { name: "반전", paper: "#1c1814", ink: "#f5f0e6", gray: "#2a241d" },
+]
+
 export function WorkroomHome({ lang }: { lang: NavLang }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [palette, setPalette] = useState(PALETTE_PRESETS[0])
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const carousel = useDragCarousel(ALL_BOOKS.length, true) // 자동 넘김 (운영자 2026-08-04)
   const shopCarousel = useDragCarousel(GOODS.length) // 모바일 shop 스와이프 도트 (08)
 
@@ -202,7 +212,10 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
   const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1) // 데스크톱 2열 마지막 행
 
   return (
-    <div className={styles.page}>
+    <div
+      className={styles.page}
+      style={{ "--paper": palette.paper, "--ink": palette.ink, "--ph-gray": palette.gray } as React.CSSProperties}
+    >
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
       <link
         rel="stylesheet"
@@ -492,6 +505,53 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
           </div>
         </div>
       </footer>
+
+      {/* ── 임시 팔레트 패널 — 시안 색 검토 전용, 이식 시 제거 ── */}
+      {paletteOpen ? (
+        <div className={styles.palettePanel}>
+          <div className={styles.paletteRow}>
+            <strong>팔레트 (임시)</strong>
+            <button type="button" onClick={() => setPaletteOpen(false)}>
+              닫기
+            </button>
+          </div>
+          <label className={styles.paletteRow}>
+            배경
+            <input
+              type="color"
+              value={palette.paper}
+              onChange={(e) => setPalette({ ...palette, name: "custom", paper: e.target.value })}
+            />
+          </label>
+          <label className={styles.paletteRow}>
+            텍스트·괘선
+            <input
+              type="color"
+              value={palette.ink}
+              onChange={(e) => setPalette({ ...palette, name: "custom", ink: e.target.value })}
+            />
+          </label>
+          <label className={styles.paletteRow}>
+            보조 회색
+            <input
+              type="color"
+              value={palette.gray}
+              onChange={(e) => setPalette({ ...palette, name: "custom", gray: e.target.value })}
+            />
+          </label>
+          <div className={styles.palettePresets}>
+            {PALETTE_PRESETS.map((p) => (
+              <button key={p.name} type="button" onClick={() => setPalette(p)}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <button type="button" className={styles.paletteToggle} onClick={() => setPaletteOpen(true)}>
+          팔레트
+        </button>
+      )}
     </div>
   )
 }

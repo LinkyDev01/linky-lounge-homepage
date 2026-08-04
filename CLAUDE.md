@@ -133,9 +133,12 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 
 ## 9. 전면 대개편 (docs/redesign/)
 
-> 원문: `docs/redesign/06-claude-md-patch.md` (2026-08-03 부트스트랩 커밋). 개편 범위에서 기존 규칙과 충돌 시 본 절이 우선한다.
+> 원문: `docs/redesign/06-claude-md-patch.md` (2026-08-03 부트스트랩 커밋, 2026-08-04 v3 개정 반영). 개편 범위에서 기존 규칙과 충돌 시 본 절이 우선한다.
 > 원문 대비 현행화 2곳: ① 로고 색 교체 서술 → **보류** 반영 (01 최신 결정 우선) ② 모션 절 "(확정 후)" → 확정 완료 반영.
 
+- **v3 (2026-08-04)**: docs/redesign/ 문서군은 v3(워크룸 이식판)이며, 03 v2의 좌축+오프셋 레이아웃 서술은 실효 없음
+- 프리뷰 라우트 기준: `preview/lazyclub-4b073000ddec094f` (구 `home-v3-workroom` — 실도메인 공유용 난수 슬러그로 개명, 2026-08-04. 기존 home-v3 트리가 있으면 보존)
+- 수치 우선순위: 08 실측값 > 02 규율 > 기존 §3 (충돌 시 상위 우선)
 - 범위: 신규 홈(허브), 일회성 모임 목록·상세, `preview/home-v3/` 이하 프리뷰 트리.
   기수제 상세·신청·GAS는 종전 규칙 유지
 - 세션 시작 시 `docs/redesign/README.md`와 `01-decisions.md` 필독
@@ -155,6 +158,6 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
   `public/assets/logo/lazyday_logo.svg` (운영자 제공 — 정본 호 6종 내장,
   3색 #F59936/#95AC9A/#7D5456, 카운터 evenodd 투명) + 마스터 파생
   `logo-mono-ink.svg`(#1c1814)·`logo-mono-cream.svg`(#F5F0E6).
-  **사용 규칙: 화면 노출 = mono-ink / 색면 위 = mono-cream / 파비콘·OG = 원본 풀컬러.**
+  **사용 규칙: 화면 노출 = mono-ink / 색면 위 = mono-cream / 파비콘·OG = 원본 풀컬러 / 개편 홈(v3)은 원본 풀컬러 (운영자 2026-08-04).**
   리컬러 없음(`logo-color*` 폐기), 원본·파생 임의 색 교체 금지. (구 래스터
   `linky-lounge/book-club/lazyday_logo.png`는 기존 화면이 계속 사용 — 교체는 별도 지시 시)

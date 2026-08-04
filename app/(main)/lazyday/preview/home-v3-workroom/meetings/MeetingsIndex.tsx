@@ -5,12 +5,12 @@
 import { useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { ONE_DAY_MEETINGS } from "../one-day-config"
-import { LANDING_DOCS } from "../WorkroomHome"
+import { LANDING_DOCS, PAST_SEASONS } from "../WorkroomHome"
 import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "../Shell"
 import { useSaved } from "../store"
 import styles from "../home.module.css"
 
-const CATEGORIES = ["전체", "booktalk", "documents"] as const
+const CATEGORIES = ["전체", "booktalk", "documents", "bookclub"] as const
 
 export function MeetingsIndex() {
   return (
@@ -38,6 +38,7 @@ function IndexBody() {
       thumbnail: m.thumbnail,
     })),
     ...LANDING_DOCS.map((d) => ({ id: `doc-${d.meta}`, status: "open" as const, badgeText: "", ...d })),
+    ...PAST_SEASONS,
   ]
   const items = filter === "전체" ? all : all.filter((i) => i.category === filter)
   const itemCount = items.length

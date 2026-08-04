@@ -54,6 +54,30 @@ export const LANDING_DOCS = [
   },
 ]
 
+/** 지난 기수 — sold out 진열 (운영자 2026-08-04 라운드 11, 리스트 하단) */
+export const PAST_SEASONS = [
+  {
+    id: "bookclub-3",
+    category: "bookclub",
+    badgeText: "마감",
+    status: "soldout" as const,
+    title: "레이지데이 북클럽 3기",
+    meta: "7.15 – 9.6 · 시즌 종료",
+    link: "/#book",
+    thumbnail: "/linky-lounge/book-club/home-v3/poster-3rd.webp",
+  },
+  {
+    id: "bookclub-2",
+    category: "bookclub",
+    badgeText: "마감",
+    status: "soldout" as const,
+    title: "레이지데이 북클럽 2기",
+    meta: "5.21 – 7.12 · 시즌 종료",
+    link: "/#book",
+    thumbnail: "/linky-lounge/book-club/home-v3/poster-2nd.webp",
+  },
+]
+
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 활성 인덱스 + 자동 넘김 (휠 하이재킹 없음) */
 function useDragCarousel(slideCount: number, autoplay = false) {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -142,7 +166,7 @@ function HomeContent() {
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
   const badge = (status: string) => (status === "open" ? "모집중" : status === "soldout" ? "마감" : "오픈 예정")
 
-  // meetings 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠 documents
+  // meetings 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠 documents → 지난 기수(sold out)
   const items = [
     ...booktalks.map((m) => ({
       id: `meeting-${m.slug}`,
@@ -155,6 +179,7 @@ function HomeContent() {
       thumbnail: m.thumbnail,
     })),
     ...LANDING_DOCS.map((d) => ({ id: `doc-${d.meta}`, status: "open" as const, badgeText: "", ...d })),
+    ...PAST_SEASONS,
   ]
   const itemCount = items.length
   const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1)

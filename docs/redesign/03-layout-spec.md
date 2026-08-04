@@ -15,7 +15,7 @@
 - 우: search / login / cart 중 1차 구현은 search만 (login·cart는 커머스
   도입 전까지 미노출 — 기능 없는 메뉴 금지)
 - 메뉴 명칭 (확정 2026-08-04): ?nav=ko|en 두 벌 구현, 기본 ko
-  ko: **북클럽 / 원데이 클럽 / 브랜드** · en: books / meetings / about
+  ko: **북클럽 / 원데이 토크 / 브랜드** · en: books / meetings / about
 - 보더 버튼 금지, 전부 텍스트 링크
 
 ## ① 도서 캐러셀 (섹션 라벨: 소문자 + ↗)

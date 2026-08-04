@@ -14,11 +14,11 @@ export const BASE = "/preview/home-v3-workroom"
 
 type NavLang = "ko" | "en"
 
-// 내비 (ko 확정: 북클럽/원데이 클럽/브랜드 — 원데이 클럽은 목록 페이지로)
+// 내비 (ko 확정: 북클럽/원데이 토크/브랜드 — 원데이 토크는 목록 페이지로)
 const NAV_ITEMS: Record<NavLang, { label: string; href?: string; pending?: string }[]> = {
   ko: [
     { label: "북클럽", href: "/" },
-    { label: "원데이 클럽", href: `${BASE}/meetings` },
+    { label: "원데이 토크", href: `${BASE}/meetings` },
     { label: "브랜드", pending: "브랜드 페이지는 준비 중입니다." },
   ],
   en: [

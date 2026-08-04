@@ -1,6 +1,6 @@
 "use client"
 
-/** 원데이 클럽 목록 — 홈 리스트 문법 재사용 + 카테고리 필터 (워크룸 아카이브 대응) */
+/** 원데이 토크 목록 — 홈 리스트 문법 재사용 + 카테고리 필터 (워크룸 아카이브 대응) */
 
 import { useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"

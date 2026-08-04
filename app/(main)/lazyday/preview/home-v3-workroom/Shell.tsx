@@ -12,21 +12,12 @@ import styles from "./home.module.css"
 
 export const BASE = "/preview/home-v3-workroom"
 
-type NavLang = "ko" | "en"
-
-// 내비 (ko 확정: 북클럽/원데이 토크/브랜드 — 원데이 토크는 목록 페이지로)
-const NAV_ITEMS: Record<NavLang, { label: string; href?: string; pending?: string }[]> = {
-  ko: [
-    { label: "북클럽", href: "/" },
-    { label: "원데이 토크", href: `${BASE}/meetings` },
-    { label: "브랜드", pending: "브랜드 페이지는 준비 중입니다." },
-  ],
-  en: [
-    { label: "books", href: "/" },
-    { label: "meetings", href: `${BASE}/meetings` },
-    { label: "about", pending: "브랜드 페이지는 준비 중입니다." },
-  ],
-}
+// 내비 — 영문 단일 확정 (운영자 2026-08-04 라운드 14): Bookclub / One Day Talk / Brand
+const NAV_ITEMS: { label: string; href?: string; pending?: string }[] = [
+  { label: "Bookclub", href: "/" },
+  { label: "One Day Talk", href: `${BASE}/meetings` },
+  { label: "Brand", pending: "브랜드 페이지는 준비 중입니다." },
+]
 
 // 임시 팔레트 프리셋 (시안 검토 전용) — 배경/텍스트·괘선/보조 회색 3집합만
 const PALETTE_PRESETS = [
@@ -85,7 +76,7 @@ function hslToHex(h: number, s: number, l: number): string {
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
-export function WorkroomShell({ lang = "ko", children }: { lang?: NavLang; children: React.ReactNode }) {
+export function WorkroomShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [palette, setPalette] = useState(PALETTE_PRESETS[0])
@@ -120,7 +111,7 @@ export function WorkroomShell({ lang = "ko", children }: { lang?: NavLang; child
       })
   }, [])
 
-  const nav = NAV_ITEMS[lang]
+  const nav = NAV_ITEMS
 
   return (
     <div
@@ -212,22 +203,11 @@ export function WorkroomShell({ lang = "ko", children }: { lang?: NavLang; child
             <img src="/assets/logo/lazyday_logo.svg" alt="레이지데이 북클럽" />
           </figure>
           <div className={styles.footerDesc}>
-            {/* 문단 + About 링크 한 블록 (운영자 2026-08-04) */}
+            {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
             <p>
               결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 저마다 다른 사유의 궤적 속 불협화음이 고전의
               본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.
             </p>
-            <div className={styles.footerAboutLink}>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  notify("브랜드 페이지는 준비 중입니다.")
-                }}
-              >
-                About Lazyday Bookclub
-              </a>
-            </div>
           </div>
           <div className={styles.footerBiz}>
             <div>
@@ -255,9 +235,22 @@ export function WorkroomShell({ lang = "ko", children }: { lang?: NavLang; child
               <br />
               contact@linkylounge.com
             </div>
+            {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG */}
             <div className={styles.footerSns}>
-              <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer">
-                instagram
+              <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" aria-label="인스타그램">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="0.7" y="0.7" width="12.6" height="12.6" rx="3.4" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="7" cy="7" r="3" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="10.7" cy="3.3" r="0.9" fill="currentColor" />
+                </svg>
+              </a>
+              <a href="https://pf.kakao.com/_gixaAX/chat" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 채널">
+                <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M7.5 1C3.9 1 1 3.3 1 6.1c0 1.8 1.2 3.4 3 4.3l-.7 2.7c-.06.24.2.43.4.29l3.1-2.05c.23.02.46.03.7.03 3.6 0 6.5-2.3 6.5-5.17S11.1 1 7.5 1Z"
+                    fill="currentColor"
+                  />
+                </svg>
               </a>
             </div>
           </div>

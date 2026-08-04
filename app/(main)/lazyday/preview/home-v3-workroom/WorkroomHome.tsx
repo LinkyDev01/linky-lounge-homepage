@@ -22,57 +22,50 @@ const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].f
   s.books.map((b) => ({ key: `${s.label}-${b.week}`, alt: `${s.label} ${b.weekLabel} 『${b.title}』 ${b.author}`, src: b.imagePath })),
 )
 
-/** 랜딩 콘텐츠 인덱스 항목 — 문체는 워크룸 원문 뉘앙스(도록체 명사형·한다체, 운영자 2026-08-04) */
+/** 랜딩 콘텐츠 인덱스 항목 — 카테고리가 성격을 말하고 별도 메타 텍스트는 없음
+ *  (운영자 2026-08-04 라운드 14: "후기 → reviews, 일정과 장소 → place 식으로 정돈") */
 export const LANDING_DOCS = [
   {
-    category: "documents",
+    category: "about",
     title: "타인의 낯선 시선을 기꺼이 환대하며",
-    meta: "모임 소개",
     link: "/#feature",
     thumbnail: "/linky-lounge/book-club/feature/feature-people.webp",
   },
   {
-    category: "documents",
+    category: "process",
     title: "한 편의 발제문에서 시작되는 북토크",
-    meta: "진행 방식",
     link: "/#howto",
     thumbnail: "/linky-lounge/book-club/feature/feature-questions.webp",
   },
   {
-    category: "documents",
+    category: "place",
     title: "이야기가 무르익는 곳, 링키라운지",
-    meta: "일정과 장소",
     link: "/#schedule",
     thumbnail: "/linky-lounge/book-club/feature/feature-space.webp",
   },
   {
-    category: "documents",
+    category: "reviews",
     title: "멤버들이 남긴 문장들",
-    meta: "후기",
     link: "/#reviews",
     thumbnail: "/linky-lounge/book-club/reviews/review-01.webp",
   },
 ]
 
-/** 지난 기수 — sold out 진열 (운영자 2026-08-04 라운드 11, 리스트 하단) */
+/** 지난 기수 — sold out 진열 (라운드 11; 라운드 14에서 메타·뱃지 제거, 오버레이가 상태 표시) */
 export const PAST_SEASONS = [
   {
     id: "bookclub-3",
     category: "bookclub",
-    badgeText: "마감",
     status: "soldout" as const,
     title: "레이지데이 북클럽 3기",
-    meta: "7.15 – 9.6 · 시즌 종료",
     link: "/#book",
     thumbnail: "/linky-lounge/book-club/home-v3/poster-3rd.webp",
   },
   {
     id: "bookclub-2",
     category: "bookclub",
-    badgeText: "마감",
     status: "soldout" as const,
     title: "레이지데이 북클럽 2기",
-    meta: "5.21 – 7.12 · 시즌 종료",
     link: "/#book",
     thumbnail: "/linky-lounge/book-club/home-v3/poster-2nd.webp",
   },
@@ -164,21 +157,19 @@ function HomeContent() {
   const shopCarousel = useDragCarousel(GOODS.length)
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
-  const badge = (status: string) => (status === "open" ? "모집중" : status === "soldout" ? "마감" : "오픈 예정")
 
-  // meetings 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠 documents → 지난 기수(sold out)
+  // meetings 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠 → 지난 기수(sold out)
+  // 메타·뱃지 텍스트 없음 — 카테고리와 오버레이만으로 상태 전달 (라운드 14)
   const items = [
     ...booktalks.map((m) => ({
       id: `meeting-${m.slug}`,
       category: m.category,
-      badgeText: badge(m.status),
       status: m.status,
       title: m.title,
-      meta: m.date,
       link: `${BASE}/meetings/${m.slug}`,
       thumbnail: m.thumbnail,
     })),
-    ...LANDING_DOCS.map((d) => ({ id: `doc-${d.meta}`, status: "open" as const, badgeText: "", ...d })),
+    ...LANDING_DOCS.map((d) => ({ id: `doc-${d.category}`, status: "open" as const, ...d })),
     ...PAST_SEASONS,
   ]
   const itemCount = items.length
@@ -342,14 +333,10 @@ function HomeContent() {
                   )}
                   <div className={styles.itemBody}>
                     <div>
-                      <div className={styles.itemCat}>
-                        {m.category}
-                        {m.badgeText ? ` · ${m.badgeText}` : ""}
-                      </div>
+                      <div className={styles.itemCat}>{m.category}</div>
                       <div className={styles.itemTitle}>{m.title}</div>
                     </div>
                     <div className={styles.itemBottom}>
-                      {m.meta && <div className={styles.itemDate}>{m.meta}</div>}
                       <button
                         type="button"
                         className={styles.saveBtn}
@@ -420,9 +407,9 @@ function HomeContent() {
   )
 }
 
-export function WorkroomHome({ lang }: { lang: NavLang }) {
+export function WorkroomHome() {
   return (
-    <WorkroomShell lang={lang}>
+    <WorkroomShell>
       <HomeContent />
     </WorkroomShell>
   )

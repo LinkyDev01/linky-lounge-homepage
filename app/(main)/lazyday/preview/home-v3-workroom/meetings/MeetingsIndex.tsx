@@ -10,7 +10,7 @@ import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } fro
 import { useSaved } from "../store"
 import styles from "../home.module.css"
 
-const CATEGORIES = ["전체", "booktalk", "documents", "bookclub"] as const
+const CATEGORIES = ["전체", "booktalk", "bookclub"] as const
 
 export function MeetingsIndex() {
   return (
@@ -25,19 +25,16 @@ function IndexBody() {
   const saved = useSaved()
   const [filter, setFilter] = useState<(typeof CATEGORIES)[number]>("전체")
 
-  const badge = (status: string) => (status === "open" ? "모집중" : status === "soldout" ? "마감" : "오픈 예정")
   const all = [
     ...ONE_DAY_MEETINGS.map((m) => ({
       id: `meeting-${m.slug}`,
       category: m.category as string,
-      badgeText: badge(m.status),
       status: m.status,
       title: m.title,
-      meta: m.date,
       link: `${BASE}/meetings/${m.slug}`,
       thumbnail: m.thumbnail,
     })),
-    ...LANDING_DOCS.map((d) => ({ id: `doc-${d.meta}`, status: "open" as const, badgeText: "", ...d })),
+    ...LANDING_DOCS.map((d) => ({ id: `doc-${d.category}`, status: "open" as const, ...d })),
     ...PAST_SEASONS,
   ]
   const items = filter === "전체" ? all : all.filter((i) => i.category === filter)
@@ -86,14 +83,10 @@ function IndexBody() {
               )}
               <div className={styles.itemBody}>
                 <div>
-                  <div className={styles.itemCat}>
-                    {m.category}
-                    {m.badgeText ? ` · ${m.badgeText}` : ""}
-                  </div>
+                  <div className={styles.itemCat}>{m.category}</div>
                   <div className={styles.itemTitle}>{m.title}</div>
                 </div>
                 <div className={styles.itemBottom}>
-                  {m.meta && <div className={styles.itemDate}>{m.meta}</div>}
                   <button
                     type="button"
                     className={styles.saveBtn}

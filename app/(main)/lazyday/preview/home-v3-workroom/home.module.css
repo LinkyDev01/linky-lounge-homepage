@@ -447,14 +447,15 @@
 .footerLogo img { width: 44px; height: auto; display: block; }
 /* 브랜드 문단 + About 링크 한 블록 — 사업자 정보 전까지 가로로 넓게 (운영자 라운드 7) */
 .footerDesc { grid-column: 2 / 8; }
-/* About 제외 텍스트: 고딕 통일 + 더 작고 짙게 (운영자 2026-08-04) */
-.footerDesc p { font-family: var(--gothic); font-size: 12px; font-weight: 500; color: var(--ink); line-height: 1.7; margin: 0; }
-.footerAboutLink { margin-top: 14px; font-family: var(--gothic); font-weight: 600; }
+/* 푸터 텍스트: 고딕 통일, 12→13.2 중간(12.6px) + 더 굵게 600 (라운드 14) */
+.footerDesc p { font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); line-height: 1.7; margin: 0; }
 /* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
-.footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-size: 12px; font-weight: 500; color: var(--ink); }
+.footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
 .footerBiz .contracts { margin-top: 18px; }
-.footerContact { grid-column: 11 / 16; font-family: var(--gothic); font-size: 12px; font-weight: 500; color: var(--ink); }
-.footerSns { margin-top: 8px; }
+.footerContact { grid-column: 11 / 16; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
+/* SNS 아이콘 행 — 원문 문법 (14px 아이콘, gap 4, 위 8px) */
+.footerSns { margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.footerSns a { display: flex; color: var(--ink); }
 
 /* ═══ 반응형 해제 (08: 단일 720px — 768은 데스크톱 구성 유지) ═══ */
 @media all and (max-width: 720px) {

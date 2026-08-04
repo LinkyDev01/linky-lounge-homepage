@@ -175,11 +175,66 @@ const PALETTE_PRESETS = [
   { name: "반전", paper: "#1c1814", ink: "#f5f0e6", gray: "#2a241d" },
 ]
 
+type PaletteKey = "paper" | "ink" | "gray"
+const PALETTE_LABELS: Record<PaletteKey, string> = { paper: "배경", ink: "텍스트·괘선", gray: "보조 회색" }
+
+/* hex ↔ HSL 변환 — 채도·명도 슬라이더용 */
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) return { h: 0, s: 0, l: 0 }
+  const n = parseInt(m[1], 16)
+  const r = ((n >> 16) & 255) / 255
+  const g = ((n >> 8) & 255) / 255
+  const b = (n & 255) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  const d = max - min
+  let h = 0
+  let s = 0
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l - 1))
+    if (max === r) h = 60 * (((g - b) / d) % 6)
+    else if (max === g) h = 60 * ((b - r) / d + 2)
+    else h = 60 * ((r - g) / d + 4)
+    if (h < 0) h += 360
+  }
+  return { h, s: Math.round(s * 100), l: Math.round(l * 100) }
+}
+function hslToHex(h: number, s: number, l: number): string {
+  const S = s / 100
+  const L = l / 100
+  const c = (1 - Math.abs(2 * L - 1)) * S
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+  const m = L - c / 2
+  let rgb: [number, number, number]
+  if (h < 60) rgb = [c, x, 0]
+  else if (h < 120) rgb = [x, c, 0]
+  else if (h < 180) rgb = [0, c, x]
+  else if (h < 240) rgb = [0, x, c]
+  else if (h < 300) rgb = [x, 0, c]
+  else rgb = [c, 0, x]
+  const to2 = (v: number) =>
+    Math.round((v + m) * 255)
+      .toString(16)
+      .padStart(2, "0")
+  return `#${to2(rgb[0])}${to2(rgb[1])}${to2(rgb[2])}`
+}
+
 export function WorkroomHome({ lang }: { lang: NavLang }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [palette, setPalette] = useState(PALETTE_PRESETS[0])
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [paletteTarget, setPaletteTarget] = useState<PaletteKey>("paper")
+  // 헥스 입력 초안 (유효할 때만 반영)
+  const [hexDraft, setHexDraft] = useState<Record<PaletteKey, string> | null>(null)
+
+  const setColor = (key: PaletteKey, hex: string) => {
+    setPalette((p) => ({ ...p, name: "custom", [key]: hex }))
+    setHexDraft(null)
+  }
+  const targetHsl = hexToHsl(palette[paletteTarget])
   const carousel = useDragCarousel(ALL_BOOKS.length, true) // 자동 넘김 (운영자 2026-08-04)
   const shopCarousel = useDragCarousel(GOODS.length) // 모바일 shop 스와이프 도트 (08)
 
@@ -515,28 +570,51 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
               닫기
             </button>
           </div>
+          {(Object.keys(PALETTE_LABELS) as PaletteKey[]).map((key) => (
+            <div key={key} className={styles.paletteRow}>
+              <button
+                type="button"
+                className={`${styles.paletteTarget} ${paletteTarget === key ? styles.paletteTargetActive : ""}`}
+                onClick={() => setPaletteTarget(key)}
+              >
+                {PALETTE_LABELS[key]}
+              </button>
+              <input type="color" value={palette[key]} onChange={(e) => setColor(key, e.target.value)} />
+              {/* 컬러코드 직접 입력 — 유효한 6자리 hex일 때 즉시 반영 */}
+              <input
+                type="text"
+                className={styles.paletteHex}
+                value={hexDraft?.[key] ?? palette[key]}
+                spellCheck={false}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setHexDraft((d) => ({ ...(d ?? { ...palette }), [key]: v }) as Record<PaletteKey, string>)
+                  const withHash = v.startsWith("#") ? v : `#${v}`
+                  if (/^#[0-9a-f]{6}$/i.test(withHash)) setColor(key, withHash.toLowerCase())
+                }}
+                onBlur={() => setHexDraft(null)}
+              />
+            </div>
+          ))}
+          {/* 채도·명도 — 위에서 선택된 대상에 적용 (색상 H 유지) */}
           <label className={styles.paletteRow}>
-            배경
+            채도 {targetHsl.s}
             <input
-              type="color"
-              value={palette.paper}
-              onChange={(e) => setPalette({ ...palette, name: "custom", paper: e.target.value })}
+              type="range"
+              min={0}
+              max={100}
+              value={targetHsl.s}
+              onChange={(e) => setColor(paletteTarget, hslToHex(targetHsl.h, Number(e.target.value), targetHsl.l))}
             />
           </label>
           <label className={styles.paletteRow}>
-            텍스트·괘선
+            명도 {targetHsl.l}
             <input
-              type="color"
-              value={palette.ink}
-              onChange={(e) => setPalette({ ...palette, name: "custom", ink: e.target.value })}
-            />
-          </label>
-          <label className={styles.paletteRow}>
-            보조 회색
-            <input
-              type="color"
-              value={palette.gray}
-              onChange={(e) => setPalette({ ...palette, name: "custom", gray: e.target.value })}
+              type="range"
+              min={0}
+              max={100}
+              value={targetHsl.l}
+              onChange={(e) => setColor(paletteTarget, hslToHex(targetHsl.h, targetHsl.s, Number(e.target.value)))}
             />
           </label>
           <div className={styles.palettePresets}>

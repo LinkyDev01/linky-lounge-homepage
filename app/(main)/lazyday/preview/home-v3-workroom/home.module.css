@@ -432,8 +432,29 @@
   gap: 6px;
   max-width: 210px;
 }
-.paletteRow { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
-.paletteRow input { width: 44px; height: 22px; padding: 0; border: 1px solid #ccc; background: none; }
+.paletteRow { display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+.paletteRow input[type="color"] { width: 28px; height: 22px; padding: 0; border: 1px solid #ccc; background: none; flex-shrink: 0; }
+.paletteRow input[type="range"] { flex: 1; min-width: 0; accent-color: #000; }
+.paletteHex {
+  width: 68px;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 0;
+}
+.paletteTarget {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 1;
+  text-align: left;
+}
+.paletteTargetActive { text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
 .palettePresets { display: flex; flex-wrap: wrap; gap: 4px; }
 .palettePresets button {
   border: 1px solid #999;

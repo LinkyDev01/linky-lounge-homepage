@@ -34,10 +34,10 @@
 }
 
 /* ── 헤더 (08: fixed, 15컬럼 gap 15, padding 10px 15px) ────
-   프리뷰 바(높이 34px 고정) 아래에 붙인다 — 실사이트 이식 시 top:0 */
+   프리뷰 바는 이 페이지에서 숨김(운영자 2026-08-04) → top 0 (원문과 동일) */
 .header {
   position: fixed;
-  top: 34px;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 99;
@@ -145,6 +145,56 @@
   margin: 0 0 10px;
   max-width: 520px;
   text-wrap: pretty;
+}
+
+/* 구매·카트 칩 버튼 (08 원문: bg 잉크·글자 종이·padding 2px 6px·13.2px) */
+.productActions { display: flex; gap: 6px; margin-top: 18px; }
+.chipBtn {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 13.2px;
+  line-height: 1.5;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+}
+.page a.chipBtn { color: var(--paper); }
+.page a.chipBtn:hover { text-decoration: none; opacity: 0.85; }
+.chipBtn:hover { opacity: 0.85; }
+
+/* 저장(북마크) 버튼 — 원문 ts-item__save 문법, 오버레이 링크 위 z-index */
+.saveBtn {
+  position: relative;
+  z-index: 9;
+  display: flex;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink);
+  width: fit-content;
+  margin-top: 12px;
+}
+.itemBottom { display: flex; flex-direction: column; gap: 0; }
+.itemBottom .saveBtn { margin-top: 9px; }
+
+/* 미구현 기능 안내 토스트 */
+.toast {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 250;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 16px;
+  font-family: var(--suit);
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 /* ── ① 도서 캐러셀 (08: 풀블리드, 높이 400, gap 15) ────── */

@@ -12,6 +12,15 @@ import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import styles from "./home.module.css"
 
+/** 북마크(저장) 아이콘 — 원문 14×18 플래그 문법, 자체 드로잉 */
+function SaveIcon() {
+  return (
+    <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <path d="M13 16.8182L7 12.5077L1 16.8182V1H13V16.8182Z" fill="var(--paper)" stroke="currentColor" strokeMiterlimit="10" />
+    </svg>
+  )
+}
+
 /** 섹션 라벨 화살표 ↗ (8×8 — 원문 문법의 관행적 화살표, 자체 드로잉) */
 function ArrowIcon() {
   return (
@@ -227,6 +236,14 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
   const [palette, setPalette] = useState(PALETTE_PRESETS[0])
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteTarget, setPaletteTarget] = useState<PaletteKey>("paper")
+  // 미구현 구성요소 클릭 안내 (운영자 2026-08-04: 구성요소는 다 넣고, 불가한 건 안내만)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const notify = (msg = "준비 중인 기능입니다.") => {
+    setToast(msg)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2200)
+  }
   // 헥스 입력 초안 (유효할 때만 반영)
   const [hexDraft, setHexDraft] = useState<Record<PaletteKey, string> | null>(null)
 
@@ -234,6 +251,18 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
     setPalette((p) => ({ ...p, name: "custom", [key]: hex }))
     setHexDraft(null)
   }
+
+  // 이 페이지에서만 프리뷰 이동 바 숨김 (운영자 2026-08-04 — 다른 프리뷰 페이지는 유지)
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll<HTMLElement>('[class*="previewBar"]'))
+    els.forEach((el) => {
+      el.style.display = "none"
+    })
+    return () =>
+      els.forEach((el) => {
+        el.style.display = ""
+      })
+  }, [])
   const targetHsl = hexToHsl(palette[paletteTarget])
   const carousel = useDragCarousel(ALL_BOOKS.length, true) // 자동 넘김 (운영자 2026-08-04)
   const shopCarousel = useDragCarousel(GOODS.length) // 모바일 shop 스와이프 도트 (08)
@@ -297,14 +326,25 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
           </nav>
         </div>
         <div className={`${styles.headerSearch} ${searchOpen ? styles.headerSearchActive : ""}`}>
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              notify("검색은 준비 중입니다.")
+            }}
+          >
             <input type="text" placeholder="search" aria-label="search" />
           </form>
         </div>
         <div className={styles.headerRight}>
-          {/* 1차는 search만 — login·cart는 커머스 도입 전까지 미노출 (03) */}
+          {/* 구성요소 전부 노출, 미구현은 클릭 시 안내 (운영자 2026-08-04 — 03의 미노출 방침 갱신) */}
           <button type="button" className={styles.searchTrigger} onClick={() => setSearchOpen((v) => !v)}>
             search
+          </button>
+          <button type="button" className={styles.searchTrigger} onClick={() => notify("로그인은 준비 중입니다.")}>
+            login
+          </button>
+          <button type="button" className={styles.searchTrigger} onClick={() => notify("장바구니는 준비 중입니다.")}>
+            cart
           </button>
         </div>
         <button type="button" className={styles.menuTrigger} onClick={() => setMenuOpen((v) => !v)}>
@@ -371,6 +411,23 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                 어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
               </p>
             </div>
+            {/* 구매·카트 버튼 (워크룸 상품 상세 문법: 잉크 칩) — 구매하기는 신청 페이지로 연결 */}
+            <div className={styles.productActions}>
+              <LazydayLink href="/apply" className={styles.chipBtn}>
+                구매하기
+              </LazydayLink>
+              <button type="button" className={styles.chipBtn} onClick={() => notify("장바구니는 준비 중입니다.")}>
+                카트 담기
+              </button>
+            </div>
+            <button
+              type="button"
+              className={styles.saveBtn}
+              aria-label="저장"
+              onClick={() => notify("저장 기능은 준비 중입니다.")}
+            >
+              <SaveIcon />
+            </button>
           </div>
         </section>
 
@@ -445,7 +502,17 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                         </div>
                         <div className={styles.itemTitle}>{m.title}</div>
                       </div>
-                      {m.meta && <div className={styles.itemDate}>{m.meta}</div>}
+                      <div className={styles.itemBottom}>
+                        {m.meta && <div className={styles.itemDate}>{m.meta}</div>}
+                        <button
+                          type="button"
+                          className={styles.saveBtn}
+                          aria-label={`${m.title} 저장`}
+                          onClick={() => notify("저장 기능은 준비 중입니다.")}
+                        >
+                          <SaveIcon />
+                        </button>
+                      </div>
                     </div>
                   </article>
                 )
@@ -487,6 +554,16 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                       <div>
                         <div className={styles.itemCat}>{g.cat}</div>
                         <div className={styles.shopName}>{g.name}</div>
+                      </div>
+                      <div className={styles.itemBottom}>
+                        <button
+                          type="button"
+                          className={styles.saveBtn}
+                          aria-label={`${g.name} 저장`}
+                          onClick={() => notify("저장 기능은 준비 중입니다.")}
+                        >
+                          <SaveIcon />
+                        </button>
                       </div>
                     </div>
                   </article>
@@ -560,6 +637,13 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
           </div>
         </div>
       </footer>
+
+      {/* 미구현 기능 안내 토스트 */}
+      {toast && (
+        <div className={styles.toast} role="status">
+          {toast}
+        </div>
+      )}
 
       {/* ── 임시 팔레트 패널 — 시안 색 검토 전용, 이식 시 제거 ── */}
       {paletteOpen ? (

@@ -354,8 +354,9 @@
   }
   .mobileMenu ul { display: flex; flex-direction: column; gap: 15px; margin: 0; padding: 0; list-style: none; }
 
-  /* 상품 모듈: 세로 스택 */
+  /* 상품 모듈: 세로 스택. 설명 2·3문단은 모바일 미노출 (텍스트량 조정) */
   .productHero { grid-template-columns: 1fr; gap: 10px; margin-bottom: 65px; }
+  .productDescMore { display: none; }
   .productFigure { grid-column: 1 / -1; }
   .productInfo { grid-column: 1 / -1; padding-top: 8px; }
   .productTitle { font-size: 22px; }

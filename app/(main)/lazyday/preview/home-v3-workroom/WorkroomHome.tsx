@@ -48,14 +48,14 @@ const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].f
 const LANDING_DOCS = [
   {
     category: "documents",
-    title: "타인의 낯선 시선을 환대하는 일",
+    title: "타인의 낯선 시선을 기꺼이 환대하며",
     meta: "모임 소개",
     link: "/#feature",
     thumbnail: "/linky-lounge/book-club/feature/feature-people.webp",
   },
   {
     category: "documents",
-    title: "대화는 한 편의 발제문에서 시작된다",
+    title: "한 편의 발제문에서 시작되는 북토크",
     meta: "진행 방식",
     link: "/#howto",
     thumbnail: "/linky-lounge/book-club/feature/feature-questions.webp",
@@ -85,10 +85,11 @@ const GOODS = [
   { name: "Coffee Mug (5-color)", img: "/linky-lounge/book-club/home-v3/goods-mug.webp" },
 ]
 
-/** 가로 스크롤 캐러셀 훅 — 드래그 + 휠 가로 변환 + 활성 인덱스 (02 유지 3번) */
-function useDragCarousel(slideCount: number) {
+/** 가로 스크롤 캐러셀 훅 — 드래그 + 휠 가로 변환 + 활성 인덱스 (+선택적 자동 넘김) */
+function useDragCarousel(slideCount: number, autoplay = false) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const activeRef = useRef(0)
   const drag = useRef({ down: false, startX: 0, startLeft: 0, moved: false })
 
   const onScroll = useCallback(() => {
@@ -106,6 +107,7 @@ function useDragCarousel(slideCount: number) {
         best = i
       }
     })
+    activeRef.current = best
     setActive(best)
   }, [])
 
@@ -147,12 +149,31 @@ function useDragCarousel(slideCount: number) {
       drag.current.moved = false
     }
   }
-  const scrollTo = (i: number) => {
+  const scrollTo = useCallback((i: number) => {
     const el = trackRef.current
     const child = el?.children[i] as HTMLElement | undefined
     if (!el || !child) return
     el.scrollTo({ left: child.offsetLeft + child.offsetWidth / 2 - el.clientWidth / 2, behavior: "smooth" })
-  }
+  }, [])
+
+  // 자동 넘김 — 원문 문법(간격 2000ms·전환 1000ms, 조작 후에도 지속) 재현.
+  // prefers-reduced-motion에서는 정지 (02 불변 조항)
+  useEffect(() => {
+    if (!autoplay) return
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const t = setInterval(() => {
+      const el = trackRef.current
+      if (!el || drag.current.down || document.hidden) return
+      const max = el.scrollWidth - el.clientWidth
+      if (el.scrollLeft >= max - 10) {
+        el.scrollTo({ left: 0, behavior: "smooth" }) // 끝에 닿으면 처음으로 되감기
+      } else {
+        const cur = el.children[Math.min(activeRef.current, el.children.length - 1)] as HTMLElement | undefined
+        el.scrollBy({ left: (cur?.offsetWidth ?? el.clientWidth / 5) + 15, behavior: "smooth" })
+      }
+    }, 3000)
+    return () => clearInterval(t)
+  }, [autoplay, scrollTo])
 
   return { trackRef, active, slideCount, onScroll, onPointerDown, onPointerMove, onPointerUp, onClickCapture, scrollTo }
 }
@@ -160,7 +181,7 @@ function useDragCarousel(slideCount: number) {
 export function WorkroomHome({ lang }: { lang: NavLang }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const carousel = useDragCarousel(ALL_BOOKS.length)
+  const carousel = useDragCarousel(ALL_BOOKS.length, true) // 자동 넘김 (운영자 2026-08-04)
   const shopCarousel = useDragCarousel(GOODS.length) // 모바일 shop 스와이프 도트 (08)
 
   const nav = NAV_ITEMS[lang]
@@ -277,17 +298,17 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
             </div>
             <div className={styles.productDesc}>
               <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
-              {/* 브랜드 단락 — 운영자 확정 원문 그대로 (05) */}
+              {/* 브랜드 단락 — 운영자 확정 원문 그대로 (첫 문단 교체 2026-08-04) */}
               <p>
-                문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
-                사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
-                고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
+                결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 저마다 다른 사유의 궤적 속 불협화음이 고전의
+                본질을 관통하는 하나의 선율이 되는 순간을 믿습니다.
               </p>
-              <p>
+              {/* 아래 두 문단은 모바일에서 텍스트량 조정을 위해 미노출 (운영자 2026-08-04) */}
+              <p className={styles.productDescMore}>
                 비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은
                 저마다 엇갈리고, 그 불협화음 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.
               </p>
-              <p>
+              <p className={styles.productDescMore}>
                 그래서 모든 멤버는 참여에 앞서 인터뷰를 진행합니다. 서로의 결을 미리 엿보며, 우리의 대화가 앞으로
                 어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
               </p>

@@ -120,8 +120,14 @@
   display: grid;
   grid-template-columns: repeat(15, 1fr);
   gap: 15px;
-  padding-top: 10px; /* 고정 헤더와의 간섭 보정 (08 padding-top 39px 유지 위에 가산) */
+  /* 라운드 18: 그리드 전체를 포스터 시작선 기준으로 내림 (구 오프셋 24px 흡수) */
+  padding-top: 34px;
   margin-bottom: 50px;
+}
+/* 홈 모듈 하단 전폭 가로 괘선 — 원문 상세 구분선 문법 (라운드 18) */
+.productHero:not(.detailHero) {
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 50px;
 }
 /* 원문 실측(상품 상세): 이미지 1/8 · 텍스트 11/15 — 가운데 3컬럼 공백이 무드의 핵심 */
 .productFigure { grid-column: 1 / 8; margin: 0; position: relative; }
@@ -131,22 +137,19 @@
 /* 홈 상단 모듈의 우측 정보는 12/16 (포스터 7칸 + 중 4칸 + 우 4칸) — 상세 페이지(detailHero)는 11/15 유지 */
 .productHero:not(.detailHero) > .productInfo { grid-column: 12 / 16; }
 
-/* ── 홈 상단 모듈: 워크룸 '책 상세' 3열 재해석 (라운드 16·17) ──
-   포스터는 화면 절반 가까이(1/8) — 내부 94% + 하단 오프셋으로 불균형 유지 */
+/* ── 홈 상단 모듈: 워크룸 '책 상세' 3열 재해석 ──
+   라운드 18: 오프셋 종료 — 텍스트를 포스터 시작선(24px)에 정렬 */
 .heroFigure {
   grid-column: 1 / 8;
-  margin: 24px 0 0; /* 제목보다 낮게 시작 — 오프셋 */
+  margin: 0;
   position: relative;
 }
 .heroFigure a { display: block; width: 94%; }
 .heroFigure img { width: 100%; height: auto; display: block; }
 .heroMid { grid-column: 8 / 12; }
-.heroDates {
-  font-family: var(--suit);
-  margin: 22.5px 0 0;
-  letter-spacing: 0.02em;
-}
-.heroMid .saveBtn { margin-top: 45px; }
+/* 제목 아래 정보 필드 (기존 날짜 자리 서식) */
+.heroFields { margin-top: 22.5px; }
+.heroMid .saveBtn { margin-top: 30px; }
 .productPrice s { margin-right: 6px; opacity: 0.55; }
 /* 제목 — 원문 실측 36px/1.278 (Gothic A1 600 유지) */
 .productTitle {

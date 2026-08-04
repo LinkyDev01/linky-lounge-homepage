@@ -122,33 +122,38 @@
   padding-top: 10px; /* 고정 헤더와의 간섭 보정 (08 padding-top 39px 유지 위에 가산) */
   margin-bottom: 50px;
 }
+/* 원문 실측(상품 상세): 이미지 1/8 · 텍스트 11/15 — 가운데 3컬럼 공백이 무드의 핵심 */
 .productFigure { grid-column: 1 / 8; margin: 0; position: relative; }
 .productFigure a { display: block; }
 .productFigure img { width: 100%; height: auto; display: block; }
-.productInfo { grid-column: 8 / 16; }
+.productInfo { grid-column: 11 / 15; }
+/* 제목 — 원문 실측 36px/1.278 (Gothic A1 600 유지) */
 .productTitle {
   font-family: var(--gothic);
-  font-size: 26px;
-  line-height: 1.4;
+  font-size: 36px;
+  line-height: 1.2777;
   font-weight: 600;
-  margin: 8px 0 2px;
+  margin: 15px 0 2px; /* 원문 submenu 아래 15px */
 }
-.productSub { margin: 0 0 18px; }
-.productSchedule { margin-bottom: 22px; }
-.productSchedule p { margin: 0; }
+.productSub { margin: 0 0 22.5px; }
 .productLead { font-family: var(--gothic); font-weight: 600; margin: 0 0 8px; }
-/* 설명 본문 — 명조 (브랜드 단락 원문, 랜딩 책 본문 문법) */
+/* 설명 본문 — 명조 (브랜드 단락 원문, 랜딩 책 본문 문법). 원문 description 아래 22.5px */
+.productDesc { margin-bottom: 22.5px; }
 .productDesc p:not(.productLead) {
   font-family: var(--serif);
   font-weight: 500;
   line-height: 1.85;
   margin: 0 0 10px;
-  max-width: 520px;
   text-wrap: pretty;
 }
+/* 필드(일시·장소·문의) — 원문 라벨 줄 + 값 줄, 블록 간격 */
+.productFields { margin-bottom: 22.5px; }
+.productField { margin-bottom: 15px; }
+.productField p { margin: 0; }
+.productPrice { margin: 0 0 22.5px; }
 
-/* 구매·카트 칩 버튼 (08 원문: bg 잉크·글자 종이·padding 2px 6px·13.2px) */
-.productActions { display: flex; gap: 6px; margin-top: 18px; }
+/* 구매·카트 칩 버튼 (08 원문: bg 잉크·글자 종이·padding 2px 6px·13.2px, cart 아래 30px) */
+.productActions { display: flex; gap: 6px; margin-bottom: 30px; }
 .chipBtn {
   display: inline-block;
   background: var(--ink);
@@ -400,7 +405,7 @@
   .productDescMore { display: none; }
   .productFigure { grid-column: 1 / -1; }
   .productInfo { grid-column: 1 / -1; padding-top: 8px; }
-  .productTitle { font-size: 22px; }
+  .productTitle { font-size: 26px; }
 
   /* 캐러셀: 정사각 1장 풀폭 (08) */
   .books { margin-bottom: 65px; }

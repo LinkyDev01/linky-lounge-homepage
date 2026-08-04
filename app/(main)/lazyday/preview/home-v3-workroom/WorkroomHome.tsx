@@ -380,19 +380,12 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
             </LazydayLink>
           </figure>
           <div className={styles.productInfo}>
+            {/* 원문 상세 순서: 카테고리 → 제목 → 설명 → 필드(일시·장소·문의) → 가격 → 버튼 → 저장 */}
             <div className={styles.itemCat}>bookclub · 모집중</div>
             <h1 className={styles.productTitle}>
               <LazydayLink href="/">레이지데이 북클럽 {SEASON.name}</LazydayLink>
             </h1>
             <p className={styles.productSub}>오프라인 독서모임</p>
-            <div className={styles.productSchedule}>
-              <p>{SEASON.periodLabel.replaceAll("/", ".")} · 링키라운지</p>
-              {SEASON.days.map((d) => (
-                <p key={d.label}>
-                  {d.label} {d.time}
-                </p>
-              ))}
-            </div>
             <div className={styles.productDesc}>
               <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
               {/* 브랜드 단락 — 운영자 확정 원문 그대로 (라운드 6에서 원문 원복) */}
@@ -411,6 +404,26 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                 어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
               </p>
             </div>
+            <div className={styles.productFields}>
+              <div className={styles.productField}>
+                <p>일시</p>
+                <p>{SEASON.periodLabel.replaceAll("/", ".")} · 격주 진행</p>
+                {SEASON.days.map((d) => (
+                  <p key={d.label}>
+                    {d.label} {d.time}
+                  </p>
+                ))}
+              </div>
+              <div className={styles.productField}>
+                <p>장소</p>
+                <p>링키라운지 (경기도 남양주시 별내3로 322, 404호)</p>
+              </div>
+              <div className={styles.productField}>
+                <p>문의</p>
+                <p>contact@linkylounge.com</p>
+              </div>
+            </div>
+            <p className={styles.productPrice}>₩150,000</p>
             {/* 구매·카트 버튼 (워크룸 상품 상세 문법: 잉크 칩) — 구매하기는 신청 페이지로 연결 */}
             <div className={styles.productActions}>
               <LazydayLink href="/apply" className={styles.chipBtn}>

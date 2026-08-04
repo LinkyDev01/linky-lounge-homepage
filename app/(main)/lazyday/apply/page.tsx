@@ -384,7 +384,7 @@ export default function ApplyPage() {
             </table>
             {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
                 구 "*회차별 화·수·일 중 참여 요일 선택 가능"은 같은 내용의 확정 문면으로 대체 */}
-            <p className={styles.scheduleNote}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능한 상품입니다.</p>
+            <p className={styles.scheduleNote}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>
             <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
           </section>
         )}
@@ -619,7 +619,7 @@ export default function ApplyPage() {
               <p className={styles.dayHint}>*반배정을 위하여 참여가 불가능한 요일이 있는 경우에만 선택해주세요.</p>
               {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
                   구 "*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다."는 같은 내용의 확정 문면으로 대체 */}
-              <p className={styles.dayHint}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능한 상품입니다.</p>
+              <p className={styles.dayHint}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>
               <p className={styles.dayHint}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
               <div className={styles.dayGrid}>
                 {SEASON.unavailableDaySlots.map((slot) => (

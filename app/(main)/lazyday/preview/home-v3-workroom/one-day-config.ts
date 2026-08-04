@@ -18,7 +18,7 @@ export type OneDayMeeting = {
   status: "open" | "closed"
   /** LazydayLink 기준 내부 경로 */
   link: string
-  /** 썸네일 — 스키마 예약, 1차 미노출 (docs/redesign/03) */
+  /** 썸네일 — 2026-08-04 운영자 지시로 1차부터 노출 (이미지 다 넣기) */
   thumbnail?: string
 }
 
@@ -31,6 +31,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     host: "레이지데이 북클럽",
     status: "closed",
     link: "/one-day-talk-01/apply",
+    thumbnail: "/linky-lounge/book-club/books/2기-2-브람스를 좋아하세요.jpg",
   },
   {
     category: "booktalk",
@@ -39,5 +40,6 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     host: "레이지데이 북클럽",
     status: "open",
     link: "/one-day-talk-01/apply",
+    thumbnail: "/linky-lounge/book-club/books/1기-4-시지프 신화.jpg",
   },
 ]

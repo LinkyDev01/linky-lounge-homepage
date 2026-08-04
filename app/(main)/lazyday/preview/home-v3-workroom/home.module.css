@@ -10,7 +10,10 @@
   --ph-gray: #e8e7e6; /* 캐러셀 슬라이드 바탕·플레이스홀더 (08 실측) */
   background: var(--paper);
   color: var(--ink);
-  font-family: "Pretendard Variable", Pretendard, sans-serif; /* 08: mysteria(유료) → Pretendard 대체 */
+  /* 08: mysteria(유료) → Pretendard 대체. 제목·브랜드 문단만 명조(Noto Serif KR) —
+     랜딩의 고딕·명조 밸런싱 문법 (운영자 2026-08-04) */
+  --serif: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
   font-size: 13.2px;
   line-height: 1.5;
   font-weight: 400;
@@ -127,12 +130,11 @@
   display: block;
   height: 100%;
   flex: 0 0 auto;
-  background: var(--ph-gray);
+  background: var(--ph-gray); /* 로딩 중 바탕 — 원문 슬라이드 배경과 동일 (08) */
   scroll-snap-align: center;
 }
-/* 플레이스홀더: 세로 판형 회색 (03) — 표지 실판형 비율(1200:1977 실측 근사) */
-.bookSlide { aspect-ratio: 1200 / 1977; }
-.bookSlide img { width: auto; height: 100%; }
+/* 실표지: 높이 400 고정 + 폭 자동(실판형 비율 유지 — 08) */
+.bookSlide img { width: auto; height: 100%; display: block; user-select: none; }
 
 /* 도트 (08: 8×8 #000, 비활성 .4, gap 8, 캐러셀과 25px) */
 .dots {
@@ -184,16 +186,28 @@
   border-bottom: 1px solid var(--ink);
 }
 .itemLink { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-/* 썸네일 미노출 1차: 콘텐츠가 5컬럼 전체 (썸네일 도입 시 3/6으로 복귀) */
+/* 썸네일 — 2026-08-04 운영자 지시로 1차부터 노출 (08 원문: 2/5 폭, 3:4) */
+.itemFigure {
+  grid-column: 1 / 3;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ph-gray);
+}
+.itemFigure img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .itemBody {
-  grid-column: 1 / 6;
+  grid-column: 3 / 6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 15px;
 }
 .itemCat { line-height: 1; position: relative; bottom: 3px; margin-bottom: 3px; }
-.itemTitle { font-size: 18px; line-height: 1.5; font-weight: 400; }
+/* 제목만 명조 — 고딕(라벨·메타)과의 무게 대비 (랜딩 밸런싱 문법) */
+.itemTitle { font-family: var(--serif); font-size: 18px; line-height: 1.5; font-weight: 500; }
 .itemDate { margin-top: 9px; } /* 원문 가격 자리 문법 (08) */
 
 /* 마지막 행(2열 기준) 하단선 제거 — 원문 방식 */
@@ -255,7 +269,8 @@
 }
 .footerLogo { grid-column: 1 / 2; position: absolute; top: 11px; }
 .footerLogo img { width: 44px; height: auto; display: block; }
-.footerDesc { grid-column: 2 / 4; }
+/* 브랜드 문단 — 명조 (랜딩 책 본문 문법: Noto Serif KR 500 / 1.85) */
+.footerDesc { grid-column: 2 / 4; font-family: var(--serif); font-weight: 500; line-height: 1.85; }
 .footerAbout { grid-column: 4 / 6; }
 .footerBiz { grid-column: 8 / 11; }
 .footerBiz .contracts { margin-top: 18px; }
@@ -284,7 +299,8 @@
   .books { margin-bottom: 65px; }
   .books .sectionTitle { margin-bottom: 25px; }
   .booksTrack { height: auto; aspect-ratio: 1; padding: 0; }
-  .bookSlide { aspect-ratio: auto; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .bookSlide { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .bookSlide img { width: 100%; height: 100%; object-fit: contain; }
 
   /* 병치 해제: 전부 세로 스택 (08) */
   .meetings { grid-column: 1 / -1; padding: 0; border-right: 0; width: 100%; }
@@ -323,8 +339,10 @@
   .shopBody { grid-column: 1 / -1; }
   .shopDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
 
-  /* 리스트 항목: 모바일 2컬럼 문법(썸네일 자리) — 1차는 전폭 유지 */
-  .itemBody { grid-column: 1 / -1; }
+  /* 리스트 항목: 모바일 2컬럼 — 썸네일 좌 절반 + 콘텐츠 우 절반 (08) */
+  .item { grid-template-columns: 1fr 1fr; }
+  .itemFigure { grid-column: 1 / 2; }
+  .itemBody { grid-column: 2 / 3; }
 
   /* 푸터: 각 블록 2/5 스택 (08 — 4컬럼 그리드) */
   .footerInner { grid-template-columns: repeat(4, 1fr); gap: 10px; }

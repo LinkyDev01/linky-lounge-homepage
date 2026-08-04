@@ -7,6 +7,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
+import { season1Config, season2Config, season3Config, season4Config } from "../../book-config"
+import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import styles from "./home.module.css"
 
@@ -23,11 +25,11 @@ function ArrowIcon() {
 
 type NavLang = "ko" | "en"
 
-// 내비 두 벌 (03: ?nav=ko|en, 기본 ko). ko 2번째 항목 '모임'은 01 미결 — 확정 시 교체
+// 내비 두 벌 (03: ?nav=ko|en, 기본 ko). ko 확정: 북클럽/원데이 클럽/브랜드 (운영자 2026-08-04)
 const NAV_ITEMS: Record<NavLang, { label: string; href: string; anchor?: boolean }[]> = {
   ko: [
-    { label: "기수제", href: "/" },
-    { label: "모임", href: "#meetings", anchor: true },
+    { label: "북클럽", href: "/" },
+    { label: "원데이 클럽", href: "#meetings", anchor: true },
     { label: "브랜드", href: "#", anchor: true },
   ],
   en: [
@@ -37,7 +39,42 @@ const NAV_ITEMS: Record<NavLang, { label: string; href: string; anchor?: boolean
   ],
 }
 
-const PLACEHOLDER_COUNT = 12 // 03: 세로 판형 회색 12칸
+// 역대 기수 선정 도서 — 최신 우선 (03), book-config 단일 출처
+const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].flatMap((s) =>
+  s.books.map((b) => ({ key: `${s.label}-${b.week}`, alt: `${s.label} ${b.weekLabel} 『${b.title}』 ${b.author}`, src: b.imagePath })),
+)
+
+/** 랜딩 콘텐츠 인덱스 항목 — 문구는 랜딩 확정 카피 우선, 다듬기만 쓰레드 어조 */
+const LANDING_DOCS = [
+  {
+    category: "documents",
+    title: "타인의 낯선 시선을 기꺼이 환대하는 사람들",
+    meta: "모임 소개",
+    link: "/#feature",
+    thumbnail: "/linky-lounge/book-club/feature/feature-people.webp",
+  },
+  {
+    category: "documents",
+    title: "대화는 한 편의 발제문에서 시작됩니다",
+    meta: "진행 방식",
+    link: "/#howto",
+    thumbnail: "/linky-lounge/book-club/feature/feature-questions.webp",
+  },
+  {
+    category: "documents",
+    title: "이야기가 무르익는 곳, 링키라운지",
+    meta: "일정과 장소",
+    link: "/#schedule",
+    thumbnail: "/linky-lounge/book-club/feature/feature-space.webp",
+  },
+  {
+    category: "documents",
+    title: "멤버들이 남긴 문장",
+    meta: "후기",
+    link: "/#reviews",
+    thumbnail: "/linky-lounge/book-club/reviews/review-01.webp",
+  },
+]
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 휠 가로 변환 + 활성 인덱스 (02 유지 3번) */
 function useDragCarousel(slideCount: number) {
@@ -114,17 +151,43 @@ function useDragCarousel(slideCount: number) {
 export function WorkroomHome({ lang }: { lang: NavLang }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const carousel = useDragCarousel(PLACEHOLDER_COUNT)
+  const carousel = useDragCarousel(ALL_BOOKS.length)
   const shopCarousel = useDragCarousel(2) // 모바일 shop 스와이프 도트 (08)
 
   const nav = NAV_ITEMS[lang]
-  // meetings 리스트: notice 고정 1행(03) + booktalk (모집중 먼저)
-  const meetings = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
-  const itemCount = 1 + meetings.length
-  const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1) // 데스크톱 2열 마지막 행
-  const hasOpen = meetings.some((m) => m.status === "open")
-
+  const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
+  const hasOpen = booktalks.some((m) => m.status === "open")
   const badge = (status: "open" | "closed") => (status === "open" ? "모집중" : "마감")
+
+  // meetings 리스트: notice 고정 1행(03) → booktalk(모집중 먼저) → 랜딩 콘텐츠 documents
+  const noticeMeta = `${SEASON.periodLabel.replaceAll("/", ".")} · ${SEASON.days.map((d) => d.label[0]).join("·")} · 링키라운지`
+  const items: {
+    category: string
+    badgeText?: string
+    title: string
+    meta?: string
+    link: string
+    thumbnail?: string
+  }[] = [
+    {
+      category: "notice",
+      title: `레이지데이 북클럽 ${SEASON.name} 멤버를 모집합니다.`,
+      meta: noticeMeta,
+      link: "/",
+      thumbnail: "/linky-lounge/book-club/4th-poster-typo.webp",
+    },
+    ...booktalks.map((m) => ({
+      category: m.category,
+      badgeText: badge(m.status),
+      title: m.title,
+      meta: m.date,
+      link: m.link,
+      thumbnail: m.thumbnail,
+    })),
+    ...LANDING_DOCS,
+  ]
+  const itemCount = items.length
+  const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1) // 데스크톱 2열 마지막 행
 
   return (
     <div className={styles.page}>
@@ -182,7 +245,7 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
       </header>
 
       <main className={styles.content}>
-        {/* ── ① 도서 캐러셀 (역대 기수 표지 — 플레이스홀더 12칸) ── */}
+        {/* ── ① 도서 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
         <section className={styles.books}>
           <div className={styles.sectionTitle}>
             <LazydayLink href="/">
@@ -199,14 +262,17 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
             onPointerUp={carousel.onPointerUp}
             onClickCapture={carousel.onClickCapture}
           >
-            {Array.from({ length: PLACEHOLDER_COUNT }, (_, i) => (
-              <LazydayLink key={i} href="/" className={styles.bookSlide} aria-label={`선정 도서 ${i + 1} (표지 준비 중)`} />
+            {ALL_BOOKS.map((b) => (
+              <LazydayLink key={b.key} href="/#book" className={styles.bookSlide} aria-label={b.alt}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={b.src} alt={b.alt} draggable={false} />
+              </LazydayLink>
             ))}
           </div>
           <div className={styles.dots}>
-            {Array.from({ length: PLACEHOLDER_COUNT }, (_, i) => (
+            {ALL_BOOKS.map((b, i) => (
               <button
-                key={i}
+                key={b.key}
                 type="button"
                 className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
                 aria-label={`${i + 1}번째 표지로 이동`}
@@ -226,20 +292,8 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
               </a>
             </div>
             <div className={styles.meetingsList}>
-              {/* 고정 notice — 모집 진입점은 이 1곳 (03) */}
-              <article
-                className={`${styles.item} ${0 >= lastRowStart ? styles.rowLast : ""}`}
-              >
-                <LazydayLink href="/" className={styles.itemLink} aria-label="레이지데이 북클럽 4기 안내로 이동" />
-                <div className={styles.itemBody}>
-                  <div>
-                    <div className={styles.itemCat}>notice</div>
-                    <div className={styles.itemTitle}>레이지데이 북클럽 4기 멤버를 모집합니다.</div>
-                  </div>
-                </div>
-              </article>
-              {meetings.map((m, i) => {
-                const idx = i + 1
+              {/* notice 고정 1행(모집 진입점) → booktalk → 랜딩 콘텐츠 documents */}
+              {items.map((m, idx) => {
                 const isLastRow = idx >= lastRowStart
                 const isLast = idx === itemCount - 1
                 return (
@@ -248,14 +302,21 @@ export function WorkroomHome({ lang }: { lang: NavLang }) {
                     className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
                   >
                     <LazydayLink href={m.link} className={styles.itemLink} aria-label={`${m.title} 안내로 이동`} />
+                    {m.thumbnail && (
+                      <figure className={styles.itemFigure}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={m.thumbnail} alt="" draggable={false} />
+                      </figure>
+                    )}
                     <div className={styles.itemBody}>
                       <div>
                         <div className={styles.itemCat}>
-                          {m.category} · {badge(m.status)}
+                          {m.category}
+                          {m.badgeText ? ` · ${m.badgeText}` : ""}
                         </div>
                         <div className={styles.itemTitle}>{m.title}</div>
                       </div>
-                      <div className={styles.itemDate}>{m.date}</div>
+                      {m.meta && <div className={styles.itemDate}>{m.meta}</div>}
                     </div>
                   </article>
                 )

@@ -447,12 +447,13 @@
 .footerLogo img { width: 44px; height: auto; display: block; }
 /* 브랜드 문단 + About 링크 한 블록 — 사업자 정보 전까지 가로로 넓게 (운영자 라운드 7) */
 .footerDesc { grid-column: 2 / 8; }
-.footerDesc p { font-family: var(--serif); font-weight: 500; line-height: 1.85; margin: 0; }
+/* About 제외 텍스트: 고딕 통일 + 더 작고 짙게 (운영자 2026-08-04) */
+.footerDesc p { font-family: var(--gothic); font-size: 12px; font-weight: 500; color: var(--ink); line-height: 1.7; margin: 0; }
 .footerAboutLink { margin-top: 14px; font-family: var(--gothic); font-weight: 600; }
 /* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
-.footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-weight: 300; }
+.footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-size: 12px; font-weight: 500; color: var(--ink); }
 .footerBiz .contracts { margin-top: 18px; }
-.footerContact { grid-column: 11 / 16; font-family: var(--gothic); font-weight: 300; }
+.footerContact { grid-column: 11 / 16; font-family: var(--gothic); font-size: 12px; font-weight: 500; color: var(--ink); }
 .footerSns { margin-top: 8px; }
 
 /* ═══ 반응형 해제 (08: 단일 720px — 768은 데스크톱 구성 유지) ═══ */

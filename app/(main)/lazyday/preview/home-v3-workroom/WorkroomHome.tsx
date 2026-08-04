@@ -180,8 +180,8 @@ function HomeContent() {
 
   return (
     <main className={styles.content}>
-      {/* ── ⓪ 정규 독서모임 모듈 — 워크룸 '책 상세' 3열 구성 (라운드 16)
-           좌 포스터(축소·오프셋 — 불균형 재해석) / 중 제목 블록 / 우 정보.
+      {/* ── ⓪ 정규 독서모임 모듈 — 워크룸 '상품 상세' 2열 구성 (라운드 22)
+           좌 포스터(1/8) / 가운데 3칸 공백(원문 여백) / 우 제목·설명·필드(11/15).
            이 상품만 구매·카트 없음: '자세히 보기'·포스터 → 기존 랜딩 ── */}
       <section className={styles.productHero}>
         <figure className={styles.heroFigure}>
@@ -190,12 +190,29 @@ function HomeContent() {
             <img src="/linky-lounge/book-club/home-v3/hero-4th-poster.webp" alt={`레이지데이 북클럽 ${SEASON.name} 모집 포스터`} />
           </LazydayLink>
         </figure>
-        <div className={styles.heroMid}>
+        <div className={styles.productInfo}>
           <div className={styles.itemCat}>오프라인 독서모임</div>
           <h1 className={styles.productTitle}>
             <LazydayLink href="/">레이지데이 북클럽 {SEASON.name}</LazydayLink>
           </h1>
-          {/* 제목 아래 정보 필드 (운영자 라운드 18 — 기존 날짜 자리 서식) */}
+          <div className={styles.productDesc}>
+            <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
+            <p>
+              문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
+              사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
+              고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
+            </p>
+            {/* 아래 두 문단은 모바일 미노출 (텍스트량 조정) */}
+            <p className={styles.productDescMore}>
+              비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은
+              저마다 엇갈리고, 그 불협화음 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.
+            </p>
+            <p className={styles.productDescMore}>
+              그래서 모든 멤버는 참여에 앞서 인터뷰를 진행합니다. 서로의 결을 미리 엿보며, 우리의 대화가 앞으로
+              어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
+            </p>
+          </div>
+          {/* 정보 필드 — 설명 마지막 문단 아래 (운영자 라운드 22) */}
           <div className={styles.heroFields}>
             <div className={styles.productField}>
               <p>일정</p>
@@ -214,6 +231,12 @@ function HomeContent() {
               <p>• 5회차 | 자유 독서모임</p>
             </div>
           </div>
+          {/* 가격 미노출 (라운드 17) · 자세히 보기 → 기존 랜딩 */}
+          <div className={styles.productActions}>
+            <LazydayLink href="/" className={styles.chipBtn}>
+              자세히 보기
+            </LazydayLink>
+          </div>
           <button
             type="button"
             className={styles.saveBtn}
@@ -222,32 +245,6 @@ function HomeContent() {
           >
             <SaveIcon filled={saved.has("bookclub-4")} />
           </button>
-        </div>
-        <div className={styles.productInfo}>
-          {/* 긴 설명글 우측 복원 (운영자 라운드 18) */}
-          <div className={styles.productDesc}>
-            <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
-            <p>
-              문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
-              사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
-              고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
-            </p>
-            {/* 아래 두 문단은 모바일 미노출 (텍스트량 조정) */}
-            <p className={styles.productDescMore}>
-              비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은
-              저마다 엇갈리고, 그 불협화음 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.
-            </p>
-            <p className={styles.productDescMore}>
-              그래서 모든 멤버는 참여에 앞서 인터뷰를 진행합니다. 서로의 결을 미리 엿보며, 우리의 대화가 앞으로
-              어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
-            </p>
-          </div>
-          {/* 가격 미노출 (라운드 17) · 자세히 보기 → 기존 랜딩 */}
-          <div className={styles.productActions}>
-            <LazydayLink href="/" className={styles.chipBtn}>
-              자세히 보기
-            </LazydayLink>
-          </div>
         </div>
       </section>
 

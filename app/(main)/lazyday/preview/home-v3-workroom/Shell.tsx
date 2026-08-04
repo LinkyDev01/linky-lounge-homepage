@@ -139,10 +139,7 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
           </figure>
           <div className={styles.footerDesc}>
             {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
-            <p>
-              결이 맞물리는 사람들과 철학과 고전을 함께 읽습니다. 저마다 다른 삶의 궤적 속 불협화음이 예술의
-              본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.
-            </p>
+            <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.</p>
           </div>
           <div className={styles.footerBiz}>
             <div>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { findGoods } from "../../goods-config"
 import { ProductDetail } from "../../ProductDetail"
+import { BASE } from "../../Shell"
 
 /** 굿즈 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 2순위) */
 export default async function GoodsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -21,7 +22,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       fields={[{ label: "문의", lines: ["contact@linkylounge.com"] }]}
       price={g.price}
       images={[{ src: g.img, alt: g.name }]}
-      cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `/preview/home-v3-workroom/shop/${g.slug}`, img: g.img }}
+      cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/shop/${g.slug}`, img: g.img }}
     />
   )
 }

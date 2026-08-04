@@ -10,7 +10,8 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import { useCart } from "./store"
 import styles from "./home.module.css"
 
-export const BASE = "/preview/home-v3-workroom"
+// 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
+export const BASE = "/preview/lazyclub-4b073000ddec094f"
 
 // 내비 — 라운드 19: 이 페이지의 브랜드는 '레이지 클럽'(허브). 4항목 확정
 // LazyClub(홈) / LazydayBookclub(기수제 랜딩) / OneDayTalk(목록) / About

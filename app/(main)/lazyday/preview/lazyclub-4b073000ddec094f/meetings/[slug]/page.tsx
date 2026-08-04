@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { findMeeting } from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
+import { BASE } from "../../Shell"
 
 /** 원데이 토크 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 1순위) */
 export default async function MeetingDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -27,7 +28,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       price={m.price}
       buyHref="/one-day-talk-01/apply"
       images={m.images}
-      cartItem={{ id: `meeting-${m.slug}`, name: m.title, price: m.price, href: `/preview/home-v3-workroom/meetings/${m.slug}`, img: m.thumbnail }}
+      cartItem={{ id: `meeting-${m.slug}`, name: m.title, price: m.price, href: `${BASE}/meetings/${m.slug}`, img: m.thumbnail }}
     />
   )
 }

@@ -19,70 +19,12 @@ const NAV_ITEMS: { label: string; href?: string; pending?: string }[] = [
   { label: "Brand", pending: "브랜드 페이지는 준비 중입니다." },
 ]
 
-// 임시 팔레트 프리셋 (시안 검토 전용) — 배경/텍스트·괘선/보조 회색 3집합만
-const PALETTE_PRESETS = [
-  { name: "백지·잉크", paper: "#ffffff", ink: "#000000", gray: "#e8e7e6" },
-  { name: "오트", paper: "#f7f3ee", ink: "#1a1208", gray: "#ece5da" },
-  { name: "크림", paper: "#f5f0e6", ink: "#1c1814", gray: "#e9e2d4" },
-  { name: "반전", paper: "#1c1814", ink: "#f5f0e6", gray: "#2a241d" },
-]
-
-type PaletteKey = "paper" | "ink" | "gray"
-const PALETTE_LABELS: Record<PaletteKey, string> = { paper: "배경", ink: "텍스트·괘선", gray: "보조 회색" }
-
-/* hex ↔ HSL 변환 — 채도·명도 슬라이더용 */
-function hexToHsl(hex: string): { h: number; s: number; l: number } {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
-  if (!m) return { h: 0, s: 0, l: 0 }
-  const n = parseInt(m[1], 16)
-  const r = ((n >> 16) & 255) / 255
-  const g = ((n >> 8) & 255) / 255
-  const b = (n & 255) / 255
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const l = (max + min) / 2
-  const d = max - min
-  let h = 0
-  let s = 0
-  if (d !== 0) {
-    s = d / (1 - Math.abs(2 * l - 1))
-    if (max === r) h = 60 * (((g - b) / d) % 6)
-    else if (max === g) h = 60 * ((b - r) / d + 2)
-    else h = 60 * ((r - g) / d + 4)
-    if (h < 0) h += 360
-  }
-  return { h, s: Math.round(s * 100), l: Math.round(l * 100) }
-}
-function hslToHex(h: number, s: number, l: number): string {
-  const S = s / 100
-  const L = l / 100
-  const c = (1 - Math.abs(2 * L - 1)) * S
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
-  const m = L - c / 2
-  let rgb: [number, number, number]
-  if (h < 60) rgb = [c, x, 0]
-  else if (h < 120) rgb = [x, c, 0]
-  else if (h < 180) rgb = [0, c, x]
-  else if (h < 240) rgb = [0, x, c]
-  else if (h < 300) rgb = [x, 0, c]
-  else rgb = [c, 0, x]
-  const to2 = (v: number) =>
-    Math.round((v + m) * 255)
-      .toString(16)
-      .padStart(2, "0")
-  return `#${to2(rgb[0])}${to2(rgb[1])}${to2(rgb[2])}`
-}
-
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
 export function WorkroomShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [palette, setPalette] = useState(PALETTE_PRESETS[0])
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [paletteTarget, setPaletteTarget] = useState<PaletteKey>("paper")
-  const [hexDraft, setHexDraft] = useState<Record<PaletteKey, string> | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cart = useCart()
@@ -93,11 +35,6 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
     toastTimer.current = setTimeout(() => setToast(null), 2200)
   }
 
-  const setColor = (key: PaletteKey, hex: string) => {
-    setPalette((p) => ({ ...p, name: "custom", [key]: hex }))
-    setHexDraft(null)
-  }
-  const targetHsl = hexToHsl(palette[paletteTarget])
 
   // 이 트리에서만 프리뷰 이동 바 숨김 (운영자 2026-08-04)
   useEffect(() => {
@@ -114,10 +51,7 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
   const nav = NAV_ITEMS
 
   return (
-    <div
-      className={styles.page}
-      style={{ "--paper": palette.paper, "--ink": palette.ink, "--ph-gray": palette.gray } as React.CSSProperties}
-    >
+    <div className={styles.page}>
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
       <link
         rel="stylesheet"
@@ -264,73 +198,6 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* ── 임시 팔레트 패널 — 시안 색 검토 전용, 이식 시 제거 ── */}
-      {paletteOpen ? (
-        <div className={styles.palettePanel}>
-          <div className={styles.paletteRow}>
-            <strong>팔레트 (임시)</strong>
-            <button type="button" onClick={() => setPaletteOpen(false)}>
-              닫기
-            </button>
-          </div>
-          {(Object.keys(PALETTE_LABELS) as PaletteKey[]).map((key) => (
-            <div key={key} className={styles.paletteRow}>
-              <button
-                type="button"
-                className={`${styles.paletteTarget} ${paletteTarget === key ? styles.paletteTargetActive : ""}`}
-                onClick={() => setPaletteTarget(key)}
-              >
-                {PALETTE_LABELS[key]}
-              </button>
-              <input type="color" value={palette[key]} onChange={(e) => setColor(key, e.target.value)} />
-              <input
-                type="text"
-                className={styles.paletteHex}
-                value={hexDraft?.[key] ?? palette[key]}
-                spellCheck={false}
-                onChange={(e) => {
-                  const v = e.target.value
-                  setHexDraft((d) => ({ ...(d ?? { ...palette }), [key]: v }) as Record<PaletteKey, string>)
-                  const withHash = v.startsWith("#") ? v : `#${v}`
-                  if (/^#[0-9a-f]{6}$/i.test(withHash)) setColor(key, withHash.toLowerCase())
-                }}
-                onBlur={() => setHexDraft(null)}
-              />
-            </div>
-          ))}
-          <label className={styles.paletteRow}>
-            채도 {targetHsl.s}
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={targetHsl.s}
-              onChange={(e) => setColor(paletteTarget, hslToHex(targetHsl.h, Number(e.target.value), targetHsl.l))}
-            />
-          </label>
-          <label className={styles.paletteRow}>
-            명도 {targetHsl.l}
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={targetHsl.l}
-              onChange={(e) => setColor(paletteTarget, hslToHex(targetHsl.h, targetHsl.s, Number(e.target.value)))}
-            />
-          </label>
-          <div className={styles.palettePresets}>
-            {PALETTE_PRESETS.map((p) => (
-              <button key={p.name} type="button" onClick={() => setPalette(p)}>
-                {p.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <button type="button" className={styles.paletteToggle} onClick={() => setPaletteOpen(true)}>
-          팔레트
-        </button>
-      )}
     </div>
   )
 }

@@ -5,9 +5,10 @@
    ═══════════════════════════════════════════════════════════ */
 
 .page {
-  --ink: #000;
-  --paper: #fff;
-  --ph-gray: #e8e7e6; /* 캐러셀 슬라이드 바탕·플레이스홀더 (08 실측) */
+  /* 컬러 확정: 오트 베이스 (운영자 2026-08-04 라운드 16 — 팔레트 패널 종료) */
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --ph-gray: #ece5da;
   background: var(--paper);
   color: var(--ink);
   /* 서체 배역 (운영자 2026-08-04 확정):
@@ -127,6 +128,25 @@
 .productFigure a { display: block; }
 .productFigure img { width: 100%; height: auto; display: block; }
 .productInfo { grid-column: 11 / 15; }
+
+/* ── 홈 상단 모듈: 워크룸 '책 상세' 3열 재해석 (라운드 16) ──
+   포스터는 원문 books형(2/5)에서 살짝 더 축소(내부 88%) + 아래로 오프셋 —
+   제목 기선과 어긋나는 불균형 유지 */
+.heroFigure {
+  grid-column: 2 / 5;
+  margin: 24px 0 0; /* 제목보다 낮게 시작 — 오프셋 */
+  position: relative;
+}
+.heroFigure a { display: block; width: 88%; }
+.heroFigure img { width: 100%; height: auto; display: block; }
+.heroMid { grid-column: 6 / 10; }
+.heroDates {
+  font-family: var(--suit);
+  margin: 22.5px 0 0;
+  letter-spacing: 0.02em;
+}
+.heroMid .saveBtn { margin-top: 45px; }
+.productPrice s { margin-right: 6px; opacity: 0.55; }
 /* 제목 — 원문 실측 36px/1.278 (Gothic A1 600 유지) */
 .productTitle {
   font-family: var(--gothic);
@@ -481,6 +501,11 @@
   .productFigure { grid-column: 1 / -1; }
   .productInfo { grid-column: 1 / -1; padding-top: 8px; }
   .productTitle { font-size: 26px; }
+  /* 홈 상단 3열 모듈: 스택 (포스터 → 제목 → 정보) */
+  .heroFigure { grid-column: 1 / -1; margin: 0; display: flex; justify-content: center; }
+  .heroFigure a { width: 74%; }
+  .heroMid { grid-column: 1 / -1; padding-top: 8px; }
+  .heroMid .saveBtn { margin-top: 15px; }
 
   /* 캐러셀: 정사각 1장 풀폭 (08) */
   .books { margin-bottom: 65px; }

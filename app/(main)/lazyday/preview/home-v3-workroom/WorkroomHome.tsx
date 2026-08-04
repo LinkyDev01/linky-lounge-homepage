@@ -12,7 +12,7 @@ import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
-import { useCart, useSaved } from "./store"
+import { useSaved } from "./store"
 import styles from "./home.module.css"
 
 type NavLang = "ko" | "en"
@@ -151,7 +151,6 @@ function useDragCarousel(slideCount: number, autoplay = false) {
 
 function HomeContent() {
   const { notify } = useToast()
-  const cart = useCart()
   const saved = useSaved()
   const carousel = useDragCarousel(ALL_BOOKS.length, true)
   const shopCarousel = useDragCarousel(GOODS.length)
@@ -178,85 +177,25 @@ function HomeContent() {
   const toggleSave = (id: string) => {
     notify(saved.toggle(id) ? "저장했습니다." : "저장을 해제했습니다.")
   }
-  const addToCart = (item: Parameters<typeof cart.add>[0]) => {
-    notify(cart.add(item) ? "카트에 담았습니다." : "이미 카트에 담겨 있습니다.")
-  }
 
   return (
     <main className={styles.content}>
-      {/* ── ⓪ 정규 독서모임 상품 모듈 (원문 상세 실측: 이미지 1/8 · 텍스트 11/15) ── */}
+      {/* ── ⓪ 정규 독서모임 모듈 — 워크룸 '책 상세' 3열 구성 (라운드 16)
+           좌 포스터(축소·오프셋 — 불균형 재해석) / 중 제목 블록 / 우 정보.
+           이 상품만 구매·카트 없음: '자세히 보기'·포스터 → 기존 랜딩 ── */}
       <section className={styles.productHero}>
-        <figure className={styles.productFigure}>
+        <figure className={styles.heroFigure}>
           <LazydayLink href="/" aria-label="레이지데이 북클럽 4기 안내로 이동">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/linky-lounge/book-club/home-v3/hero-4th-poster.webp" alt={`레이지데이 북클럽 ${SEASON.name} 모집 포스터`} />
           </LazydayLink>
         </figure>
-        <div className={styles.productInfo}>
-          <div className={styles.itemCat}>bookclub · 모집중</div>
+        <div className={styles.heroMid}>
+          <div className={styles.itemCat}>레이지데이 북클럽 {SEASON.name}</div>
           <h1 className={styles.productTitle}>
-            <LazydayLink href="/">레이지데이 북클럽 {SEASON.name}</LazydayLink>
+            <LazydayLink href="/">타인의 낯선 시선을 기꺼이 환대하는 이들의 오프라인 독서모임</LazydayLink>
           </h1>
-          <p className={styles.productSub}>오프라인 독서모임</p>
-          <div className={styles.productDesc}>
-            <p className={styles.productLead}>타인의 낯선 시선을 기꺼이 환대하는 분들과</p>
-            {/* 브랜드 단락 — 운영자 확정 원문 그대로 */}
-            <p>
-              문학과 철학, 예술의 한가운데서, 쉽게 공감하는 대화보다 서로 다른 시선과 부딪히는 순간을 기다리는
-              사람들이 모입니다. 무색무취한 이야기에 고개만 끄덕이지 않습니다. 서로의 시선이 엇갈리는 순간,
-              고립되어 있던 내 관점이 타인의 시선에 부딪혀 언제든 깨질 수 있음을 받아들이며 그 순간을 환대합니다.
-            </p>
-            {/* 아래 두 문단은 모바일에서 텍스트량 조정을 위해 미노출 (운영자 2026-08-04) */}
-            <p className={styles.productDescMore}>
-              비슷한 결을 가졌다고 같은 결론에 도달할 필요는 없습니다. 같은 이야기 앞에 멈춰 서도 이어지는 생각은
-              저마다 엇갈리고, 그 불협화음 속에서 우리가 가진 생각의 윤곽은 더 또렷해집니다.
-            </p>
-            <p className={styles.productDescMore}>
-              그래서 모든 멤버는 참여에 앞서 인터뷰를 진행합니다. 서로의 결을 미리 엿보며, 우리의 대화가 앞으로
-              어떻게 얽혀 나갈지 함께 가늠해 보는 첫 출발점이 되어 줍니다.
-            </p>
-          </div>
-          <div className={styles.productFields}>
-            <div className={styles.productField}>
-              <p>일시</p>
-              <p>{SEASON.periodLabel.replaceAll("/", ".")} · 격주 진행</p>
-              {SEASON.days.map((d) => (
-                <p key={d.label}>
-                  {d.label} {d.time}
-                </p>
-              ))}
-            </div>
-            <div className={styles.productField}>
-              <p>장소</p>
-              <p>링키라운지 (경기도 남양주시 별내3로 322, 404호)</p>
-            </div>
-            <div className={styles.productField}>
-              <p>문의</p>
-              <p>contact@linkylounge.com</p>
-            </div>
-          </div>
-          <p className={styles.productPrice}>₩150,000</p>
-          {/* 구매하기는 신청 페이지 실연결 */}
-          <div className={styles.productActions}>
-            <LazydayLink href="/apply" className={styles.chipBtn}>
-              구매하기
-            </LazydayLink>
-            <button
-              type="button"
-              className={styles.chipBtn}
-              onClick={() =>
-                addToCart({
-                  id: "bookclub-4",
-                  name: `레이지데이 북클럽 ${SEASON.name}`,
-                  price: 150000,
-                  href: "/",
-                  img: "/linky-lounge/book-club/home-v3/notice-4th-poster.webp",
-                })
-              }
-            >
-              카트 담기
-            </button>
-          </div>
+          <p className={styles.heroDates}>{"'26.09.07-'26.11.01"}</p>
           <button
             type="button"
             className={styles.saveBtn}
@@ -265,6 +204,31 @@ function HomeContent() {
           >
             <SaveIcon filled={saved.has("bookclub-4")} />
           </button>
+        </div>
+        <div className={styles.productInfo}>
+          <div className={styles.productFields}>
+            <div className={styles.productField}>
+              <p>장소</p>
+              <p>링키라운지(사당역 10번 출구 도보 3분)</p>
+            </div>
+            <div className={styles.productField}>
+              <p>{SEASON.name} 커리큘럼 및 대상 도서</p>
+              <p>• 1회차 | 『변신』 - 프란츠 카프카</p>
+              <p>• 2회차 | 『피로사회』 - 한병철</p>
+              <p>• 3회차 | 『인간 실격』 - 다자이 오사무</p>
+              <p>• 4회차 | 『사람, 장소, 환대』 - 김현경</p>
+              <p>• 5회차 | 자유 독서모임</p>
+            </div>
+          </div>
+          <p className={styles.productPrice}>
+            <s>₩200,000</s> ₩150,000
+          </p>
+          {/* 구매·카트 대신 자세히 보기 → 기존 랜딩 (운영자 라운드 16) */}
+          <div className={styles.productActions}>
+            <LazydayLink href="/" className={styles.chipBtn}>
+              자세히 보기
+            </LazydayLink>
+          </div>
         </div>
       </section>
 

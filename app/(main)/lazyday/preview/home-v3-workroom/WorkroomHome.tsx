@@ -191,9 +191,9 @@ function HomeContent() {
           </LazydayLink>
         </figure>
         <div className={styles.heroMid}>
-          <div className={styles.itemCat}>레이지데이 북클럽 {SEASON.name}</div>
+          <div className={styles.itemCat}>오프라인 독서모임</div>
           <h1 className={styles.productTitle}>
-            <LazydayLink href="/">타인의 낯선 시선을 기꺼이 환대하는 이들의 오프라인 독서모임</LazydayLink>
+            <LazydayLink href="/">레이지데이 북클럽 {SEASON.name}</LazydayLink>
           </h1>
           <p className={styles.heroDates}>{"'26.09.07-'26.11.01"}</p>
           <button
@@ -220,10 +220,7 @@ function HomeContent() {
               <p>• 5회차 | 자유 독서모임</p>
             </div>
           </div>
-          <p className={styles.productPrice}>
-            <s>₩200,000</s> ₩150,000
-          </p>
-          {/* 구매·카트 대신 자세히 보기 → 기존 랜딩 (운영자 라운드 16) */}
+          {/* 가격 미노출 (운영자 라운드 17) · 구매·카트 대신 자세히 보기 → 기존 랜딩 */}
           <div className={styles.productActions}>
             <LazydayLink href="/" className={styles.chipBtn}>
               자세히 보기

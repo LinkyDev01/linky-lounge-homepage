@@ -33,13 +33,23 @@ function parseJsonOrThrow(text: string, status: number) {
  * GAS GET — 조회는 부작용이 없으므로 자유롭게 재시도한다.
  * 실패 시 마지막 오류를 throw (호출부가 폴백 처리).
  */
-export async function gasGetJson(url: string, attempts = 3, timeoutMs = 10_000) {
+export async function gasGetJson(
+  url: string,
+  attempts = 3,
+  timeoutMs = 7_000,
+  /** 재시도 전체 시간 예산 — Vercel 함수 제한(관측상 ≥12s — 실측 최악 ~11s로 여유 확보)을 넘겨 504가 나지 않도록 (2026-08-05:
+   *  GAS가 10초를 넘기는 사례 관측됨. 예산이 남지 않으면 더 시도하지 않고 실패시킨다) */
+  totalBudgetMs = 10_000,
+) {
+  const startedAt = Date.now()
   let lastErr: unknown
   for (let i = 0; i < attempts; i++) {
+    const remaining = totalBudgetMs - (Date.now() - startedAt)
+    if (remaining <= 500) break // 남은 예산으로는 의미 있는 시도가 불가
     try {
       const res = await fetch(url, {
         redirect: "follow",
-        signal: AbortSignal.timeout(timeoutMs),
+        signal: AbortSignal.timeout(Math.min(timeoutMs, remaining)),
       })
       const text = await res.text()
       if (!res.ok) throw new Error(`GAS responded with ${res.status}`)
@@ -49,7 +59,7 @@ export async function gasGetJson(url: string, attempts = 3, timeoutMs = 10_000) 
       if (i < attempts - 1) await sleep(300 * (i + 1))
     }
   }
-  throw lastErr
+  throw lastErr ?? new Error("GAS GET budget exhausted")
 }
 
 /**

@@ -64,7 +64,8 @@ export function middleware(req: NextRequest) {
   // 2) 관리자 인증 — 실제 경로(/lazyday/admin) 기준으로 검사
   if (effectivePath.startsWith("/lazyday/admin") && effectivePath !== "/lazyday/admin/login") {
     const cookie = req.cookies.get("lazyday_admin")?.value
-    const secret = process.env.ADMIN_SECRET
+    // 앞뒤 공백·줄바꿈 방어 — auth/blocks 라우트와 동일 규칙 (2026-07-29)
+    const secret = process.env.ADMIN_SECRET?.trim()
     if (!secret || cookie !== secret) {
       const loginUrl = req.nextUrl.clone()
       loginUrl.pathname = isBookclub ? "/admin/login" : "/lazyday/admin/login"

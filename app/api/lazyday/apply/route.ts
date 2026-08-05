@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { gasPostJson } from "@/lib/gas"
 
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 const IS_DEV  = process.env.NODE_ENV === "development"
@@ -24,13 +25,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      redirect: "follow",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    if (!res.ok) throw new Error(`GAS ${res.status}`)
+    // GAS 간헐 404 대응 — 미실행이 확실할 때만 1회 재시도 (lib/gas.ts)
+    await gasPostJson(GAS_URL, body)
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error("[lazyday/apply] GAS 호출 실패:", err)

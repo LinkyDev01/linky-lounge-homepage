@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { gasGetJson, gasPostJson } from "@/lib/gas"
 
 const GAS_URL      = process.env.INTERVIEW_GAS_URL
 // 환경변수 붙여넣기 시 섞이는 앞뒤 공백·줄바꿈 방어 (2026-07-29)
@@ -25,9 +26,17 @@ export async function GET(req: NextRequest) {
   if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
-  const res = await fetch(gasGetUrl(GAS_URL, ADMIN_TOKEN!), { redirect: "follow" })
-  const data = await res.json()
-  return NextResponse.json(data)
+  // GAS가 간헐적으로 HTML 오류 페이지를 주므로 재시도 + 원인 노출 (lib/gas.ts)
+  try {
+    const data = await gasGetJson(gasGetUrl(GAS_URL, ADMIN_TOKEN!))
+    return NextResponse.json(data)
+  } catch (err) {
+    console.error("[admin/blocks] GAS 조회 실패:", err)
+    return NextResponse.json(
+      { success: false, error: `GAS 조회 실패: ${err instanceof Error ? err.message : "알 수 없음"}` },
+      { status: 502 },
+    )
+  }
 }
 
 // POST: 차단 시간 추가
@@ -36,14 +45,16 @@ export async function POST(req: NextRequest) {
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
   const { start, end, title } = await req.json()
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    redirect: "follow",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "admin_block", adminToken: ADMIN_TOKEN, start, end, title }),
-  })
-  const data = await res.json()
-  return NextResponse.json(data)
+  try {
+    const data = await gasPostJson(GAS_URL, { type: "admin_block", adminToken: ADMIN_TOKEN, start, end, title })
+    return NextResponse.json(data)
+  } catch (err) {
+    console.error("[admin/blocks] 차단 추가 실패:", err)
+    return NextResponse.json(
+      { success: false, error: `GAS 오류: ${err instanceof Error ? err.message : "알 수 없음"}` },
+      { status: 502 },
+    )
+  }
 }
 
 // DELETE: 이벤트 삭제
@@ -52,12 +63,14 @@ export async function DELETE(req: NextRequest) {
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
   const { id } = await req.json()
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    redirect: "follow",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "admin_delete", adminToken: ADMIN_TOKEN, id }),
-  })
-  const data = await res.json()
-  return NextResponse.json(data)
+  try {
+    const data = await gasPostJson(GAS_URL, { type: "admin_delete", adminToken: ADMIN_TOKEN, id })
+    return NextResponse.json(data)
+  } catch (err) {
+    console.error("[admin/blocks] 차단 삭제 실패:", err)
+    return NextResponse.json(
+      { success: false, error: `GAS 오류: ${err instanceof Error ? err.message : "알 수 없음"}` },
+      { status: 502 },
+    )
+  }
 }

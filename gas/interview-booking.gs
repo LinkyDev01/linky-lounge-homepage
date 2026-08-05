@@ -18,6 +18,9 @@ var SENDER_PHONE = "010-7444-5790";         // 솔라피 발신 번호
 var _BOOKING_PROPS = PropertiesService.getScriptProperties();
 var SOLAPI_KEY   = _BOOKING_PROPS.getProperty("SOLAPI_KEY") || ""; // 솔라피 API Key
 var SOLAPI_SEC   = _BOOKING_PROPS.getProperty("SOLAPI_SEC") || ""; // 솔라피 API Secret
+// 관리자 토큰 — 차단 시간 관리(admin) 요청 검증용. 스크립트 속성 ADMIN_TOKEN에
+// Vercel ADMIN_SECRET과 같은 값을 넣어야 admin 페이지가 동작한다 (2026-07-29).
+var ADMIN_TOKEN  = _BOOKING_PROPS.getProperty("ADMIN_TOKEN") || "";
 // ────────────────────────────────────────────────────────────────
 
 // ── 스프레드시트 (없으면 자동 생성) ──────────────────────────────
@@ -57,21 +60,32 @@ function getSheet(sheetName, headers) {
 // ────────────────────────────────────────────────────────────────
 
 // ── GET: 예약된 슬롯 목록 반환 (캘린더 기반) ─────────────────────
+// 공개 호출(신청 페이지): start/end만 — 예약 불가 슬롯 표시용.
+// 관리자 호출(?adminToken=...): id + title 포함 — admin 차단 관리 화면이
+// 이벤트를 그리드에 매핑([BLOCK] 구분)하고 삭제(id)할 때 필요 (2026-07-29).
 function doGet(e) {
   try {
+    var isAdmin = !!(ADMIN_TOKEN && e && e.parameter &&
+                     e.parameter.adminToken === ADMIN_TOKEN);
     var cal = CalendarApp.getCalendarById(CALENDAR_ID);
     var bookedSlots = [];
 
     if (cal) {
-      // 오늘부터 60일 이내 이벤트 조회
-      var now  = new Date();
-      var then = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
-      var events = cal.getEvents(now, then);
+      // 공개: 오늘부터 60일 / 관리자: 지난 주 탐색을 위해 30일 전부터
+      var now   = new Date();
+      var from  = isAdmin ? new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) : now;
+      var then  = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+      var events = cal.getEvents(from, then);
       for (var i = 0; i < events.length; i++) {
-        bookedSlots.push({
+        var slot = {
           start: events[i].getStartTime().toISOString(),
           end:   events[i].getEndTime().toISOString()
-        });
+        };
+        if (isAdmin) {
+          slot.id    = events[i].getId();
+          slot.title = events[i].getTitle();
+        }
+        bookedSlots.push(slot);
       }
     }
 
@@ -94,12 +108,61 @@ function doPost(e) {
     if (data.type === "written") {
       return handleWrittenInterview(data);
     }
+    // 관리자: 차단 시간 추가/삭제 (admin 페이지, 2026-07-29)
+    if (data.type === "admin_block") {
+      return handleAdminBlock(data);
+    }
+    if (data.type === "admin_delete") {
+      return handleAdminDelete(data);
+    }
 
     return handlePhoneInterviewBooking(data);
 
   } catch (err) {
     return jsonResponse({ success: false, error: err.message });
   }
+}
+
+// ── 관리자: 차단 시간 추가 ────────────────────────────────────────
+// 제목을 "[BLOCK] ..."으로 만들어 admin 화면이 예약 인터뷰와 구분한다.
+// 차단 이벤트도 공개 GET(bookedSlots)에 포함되므로 신청 페이지에서
+// 해당 슬롯은 자동으로 예약 불가 처리된다.
+function handleAdminBlock(data) {
+  if (!ADMIN_TOKEN || data.adminToken !== ADMIN_TOKEN) {
+    return jsonResponse({ success: false, error: "인증 실패" });
+  }
+  if (!data.start || !data.end) {
+    return jsonResponse({ success: false, error: "start/end 누락" });
+  }
+  var cal = CalendarApp.getCalendarById(CALENDAR_ID);
+  if (!cal) {
+    return jsonResponse({ success: false, error: "캘린더를 찾을 수 없음" });
+  }
+  var title = "[BLOCK] " + (data.title || "차단");
+  var ev = cal.createEvent(title, new Date(data.start), new Date(data.end), {
+    description: "admin 페이지에서 추가한 인터뷰 차단 시간"
+  });
+  return jsonResponse({ success: true, id: ev.getId() });
+}
+
+// ── 관리자: 이벤트 삭제 (차단 해제) ──────────────────────────────
+function handleAdminDelete(data) {
+  if (!ADMIN_TOKEN || data.adminToken !== ADMIN_TOKEN) {
+    return jsonResponse({ success: false, error: "인증 실패" });
+  }
+  if (!data.id) {
+    return jsonResponse({ success: false, error: "id 누락" });
+  }
+  var cal = CalendarApp.getCalendarById(CALENDAR_ID);
+  if (!cal) {
+    return jsonResponse({ success: false, error: "캘린더를 찾을 수 없음" });
+  }
+  var ev = cal.getEventById(data.id);
+  if (!ev) {
+    return jsonResponse({ success: false, error: "이벤트를 찾을 수 없음" });
+  }
+  ev.deleteEvent();
+  return jsonResponse({ success: true });
 }
 
 // ── 전화 인터뷰 예약 ──────────────────────────────────────────────

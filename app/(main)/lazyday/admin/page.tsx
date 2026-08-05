@@ -84,15 +84,24 @@ export default function AdminPage() {
       const res = await fetch("/api/lazyday/admin/blocks")
       if (res.status === 401) { router.replace("/lazyday/admin/login"); return }
       const data = await res.json()
-      setBlocks(data.bookedSlots || [])
+      const slots: BlockEvent[] = data.bookedSlots || []
+      setBlocks(slots)
+      // GAS 관리자 인증 실패 감지 (2026-07-29): 이벤트는 오는데 id·title이 없으면
+      // GAS가 adminToken 불일치로 공개 응답(시각만)으로 강등한 것 — 조용히 매핑만
+      // 깨지는 설정 사고라 화면에 명시한다.
+      if (data.success === false) {
+        showToast(`GAS 오류: ${data.error || "알 수 없음"}`, 8000)
+      } else if (slots.length > 0 && slots[0].id === undefined) {
+        showToast("관리자 인증 실패 — GAS 스크립트 속성 ADMIN_TOKEN이 Vercel ADMIN_SECRET과 같은 값인지 확인하세요", 10000)
+      }
     } catch { showToast("불러오기 실패") }
     finally { setLoading(false) }
   }, [router])
 
   useEffect(() => { loadBlocks() }, [loadBlocks])
 
-  function showToast(msg: string) {
-    setToast(msg); setTimeout(() => setToast(""), 2500)
+  function showToast(msg: string, ms = 2500) {
+    setToast(msg); setTimeout(() => setToast(""), ms)
   }
 
   // ── 필터된 블록 ──────────────────────────────────────────────
@@ -106,13 +115,18 @@ export default function AdminPage() {
   async function deleteBlock(id: string) {
     setSaving(true)
     try {
-      await fetch("/api/lazyday/admin/blocks", {
+      const res = await fetch("/api/lazyday/admin/blocks", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       })
+      // GAS 실패(인증 등)를 성공으로 오인하지 않도록 응답을 확인 (2026-07-29)
+      const result = await res.json().catch(() => null)
+      if (!result?.success) throw new Error(result?.error || "GAS 응답 오류")
       await loadBlocks(); showToast("차단 삭제됨")
-    } catch { showToast("삭제 실패") }
+    } catch (err) {
+      showToast(`삭제 실패: ${err instanceof Error ? err.message : "알 수 없음"}`, 6000)
+    }
     finally { setSaving(false); setModal(null) }
   }
 
@@ -143,18 +157,29 @@ export default function AdminPage() {
           const blockStart = slotToTime(dayStart, min)
           const blockEnd   = slotToTime(dayStart, max + 1)
           promises.push(
+            // GAS 실패(인증 등)를 성공으로 오인하지 않도록 응답을 확인 (2026-07-29)
             fetch("/api/lazyday/admin/blocks", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ start: blockStart.toISOString(), end: blockEnd.toISOString(), title: "차단" }),
-            }).then(() => {})
+            }).then(async (res) => {
+              const result = await res.json().catch(() => null)
+              if (!result?.success) throw new Error(result?.error || "GAS 응답 오류")
+            })
           )
         })
       })
-      await Promise.all(promises)
+      const results = await Promise.allSettled(promises)
+      const failed = results.filter((r) => r.status === "rejected")
       setPending(new Set())
       await loadBlocks()
-      showToast(`${pending.size}개 슬롯 차단 완료`)
+      if (failed.length > 0) {
+        const first = failed[0] as PromiseRejectedResult
+        const reason = first.reason instanceof Error ? first.reason.message : "알 수 없음"
+        showToast(`차단 실패 ${failed.length}건: ${reason}`, 8000)
+      } else {
+        showToast(`${pending.size}개 슬롯 차단 완료`)
+      }
     } catch { showToast("차단 추가 실패") }
     finally { setSaving(false) }
   }

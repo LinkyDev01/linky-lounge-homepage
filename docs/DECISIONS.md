@@ -10,6 +10,7 @@
 
 | 날짜 | 상태 | 내용 | 근거 (운영자 발화 요지) |
 |---|---|---|---|
+| 2026-07-29 | 진행중 | **admin 차단 연동 재진단 (직전 행 대체 — 어제 GAS 수정안 폐기, PR #158 닫음)** — 운영자가 붙여준 실배포 원문 = 통합 스크립트(linkyincdev-main)이며 **admin 계약이 이미 있음**. INTERVIEW_GAS_URL도 통합본을 가리킴(같은 URL의 apply·oneday가 정상 동작). 유력 원인: **GAS 스크립트 속성 ADMIN_TOKEN ≠ Vercel ADMIN_SECRET** — 불일치 시 doGet이 id·title 없는 공개 응답으로 강등(매핑 깨짐)되고 admin_block은 Unauthorized인데 화면이 응답을 안 읽어 '차단 완료'로 오표시. 조치: admin 화면에 실패 표면화(강등 감지 경고·POST/DELETE 응답 검증·부분 실패 카운트) 배포. **대기: 운영자 토큰 일치 확인 후 재시도** | "기존 gs 스크립트는 이거였는데 왜그래" (실배포 원문 제공) |
 <<<<<<< Updated upstream
 | 2026-08-04 | 확정 | **개편 v3(워크룸 이식판) 전환** — docs/redesign/ 9종 전량 덮어쓰기. 홈은 workroompress.kr 구조 충실 이식 + 레이지데이 콘텐츠 치환, 프리뷰 라우트 `preview/home-v3-workroom`, 수치는 08 실측 우선. 상세 결정은 `docs/redesign/01-decisions.md` | "첨부한 9개 문서로 docs/redesign/을 전량 덮어쓰기 커밋 … 워크룸 이식 시안 착수" |
 =======

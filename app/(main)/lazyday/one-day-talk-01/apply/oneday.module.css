@@ -306,3 +306,29 @@
 .doneTitle { font-size: 26px; }
 .doneBody { font-size: 14.5px; line-height: 1.8; }
 .doneCloser { font-size: 15px; }
+
+/* ── 지난 회차 처리 (2026-08-05) — 종료된 모임이 선택·결제되는 사고 방지 ── */
+.sessionOptionPast {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f6f2ec;
+  border-color: #e5d9c8;
+}
+.sessionOptionPast .sessionCheck { cursor: not-allowed; }
+.sessionEnded {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #e9e2d8;
+  color: #8a7660;
+  font-size: 11px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.sessionClosed {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #8a7660;
+  word-break: keep-all;
+}

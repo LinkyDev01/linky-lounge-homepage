@@ -56,6 +56,12 @@ const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 // 손그림 타원 회전 — 날짜별 제각각 (랜딩 문법)
 const MARK_ROT = [-6, 4]
 
+/** 이미 지난 회차 판정 — 모임 시작(19:00 KST = 10:00 UTC)이 지나면 신청 불가 (2026-08-05).
+ *  지난 회차가 선택 가능하면 종료된 모임에 결제까지 진행되어 환불 사고가 난다. */
+function isPastSession(day: number) {
+  return Date.now() > Date.UTC(ONEDAY.year, ONEDAY.month - 1, day, 10, 0)
+}
+
 // "2026-08-02 (일)" 요일 계산 → 캘린더 밑 일정표 라벨
 function sessionDateLabel(day: number) {
   const wd = ["일", "월", "화", "수", "목", "금", "토"][new Date(ONEDAY.year, ONEDAY.month - 1, day).getDay()]
@@ -201,7 +207,18 @@ export default function OnedayApplyPage() {
     }
   }
 
+  // 지난 회차는 선택 자체를 막는다 (마운트 후 계산 — 정적 프리렌더에 시각 박제 방지)
+  const [now, setNow] = useState<number | null>(null)
+  useEffect(() => {
+    setNow(Date.now())
+    const t = setInterval(() => setNow(Date.now()), 60_000)
+    return () => clearInterval(t)
+  }, [])
+  const isPast = (day: number) => now !== null && isPastSession(day)
+  const openSessions = ONEDAY.sessions.filter((s) => !isPast(s.day))
+
   function toggleSession(day: number) {
+    if (isPast(day)) return
     setPickedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     )
@@ -415,16 +432,25 @@ export default function OnedayApplyPage() {
             <div className={cal.sessionList}>
               {ONEDAY.sessions.map((s) => {
                 const on = pickedDays.includes(s.day)
+                const past = isPast(s.day)
                 return (
-                  <label key={s.day} className={`${cal.sessionOption} ${on ? cal.sessionOptionOn : ""}`}>
+                  <label
+                    key={s.day}
+                    className={`${cal.sessionOption} ${on ? cal.sessionOptionOn : ""} ${past ? cal.sessionOptionPast : ""}`}
+                  >
                     <input
                       type="checkbox"
                       checked={on}
+                      disabled={past}
                       onChange={() => toggleSession(s.day)}
                       className={cal.sessionCheck}
                     />
                     <span className={cal.sessionInfo}>
-                      <span className={cal.sessionDate}>{sessionDateLabel(s.day)}</span>
+                      <span className={cal.sessionDate}>
+                        {sessionDateLabel(s.day)}
+                        {/* 지난 회차 표시 — 종료된 모임 결제 방지 (2026-08-05) */}
+                        {past && <span className={cal.sessionEnded}>종료</span>}
+                      </span>
                       <span className={cal.sessionBook}>『{s.book}』 <span className={cal.sessionAuthor}>{s.author}</span></span>
                       <span className={cal.sessionTime}>{s.time}</span>
                     </span>
@@ -432,7 +458,11 @@ export default function OnedayApplyPage() {
                 )
               })}
             </div>
-            <p className={cal.sessionHint}>복수 선택 가능 · 참여할 모임을 모두 선택해주세요.</p>
+            {openSessions.length === 0 ? (
+              <p className={cal.sessionClosed}>현재 신청 가능한 회차가 없습니다. 다음 모임 일정은 인스타그램·카카오채널로 안내드릴게요.</p>
+            ) : (
+              <p className={cal.sessionHint}>복수 선택 가능 · 참여할 모임을 모두 선택해주세요.</p>
+            )}
             {errors.sessions && <p className={styles.errorText}>{errors.sessions}</p>}
           </div>
 

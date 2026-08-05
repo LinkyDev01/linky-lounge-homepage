@@ -215,6 +215,20 @@ export default function InterviewSchedulePage() {
     return map
   }, [calDays, nowUTCMs, bookedKeys])
 
+  /** 예약 창(오늘~DAYS_AHEAD일) 안에 실제로 잡을 수 있는 날이 하나라도 있는지 (2026-08-05).
+   *  availableMap은 보고 있는 달 전체(예약 창 밖 먼 날짜 포함)라 0이 되지 않아
+   *  '전부 마감' 판정에 쓸 수 없다. */
+  const bookableDayCount = useMemo(() => {
+    const kst = new Date(Date.now() + 9 * 3600_000)
+    let n = 0
+    for (let i = 0; i < DAYS_AHEAD; i++) {
+      const d = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate() + i))
+      const slots = slotsForDay(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCDay(), nowUTCMs, bookedKeys)
+      if (slots.some(s => !s.booked)) n++
+    }
+    return n
+  }, [nowUTCMs, bookedKeys])
+
   // 선택된 날의 슬롯
   const daySlots = useMemo(() => {
     if (!selectedDate) return []
@@ -438,8 +452,18 @@ export default function InterviewSchedulePage() {
             <div className={styles.timeSide}>
               <h2 className={styles.timeTitle}>시간 선택</h2>
 
+              {/* 예약 가능한 날짜가 하나도 없으면 그 사실을 알린다 — 안내가 없으면
+                  달력이 전부 회색인 채 멈춘 것처럼 보인다 (2026-08-05 감사에서 발견) */}
               {selectedDate === null ? (
-                <p className={styles.timeHint}>캘린더에서 날짜를 먼저 선택해주세요.</p>
+                bookableDayCount === 0 && !slotsLoading ? (
+                  <p className={styles.timeHint}>
+                    지금은 예약 가능한 시간이 없습니다.
+                    <br />
+                    카카오채널로 문의해 주시면 일정을 조율해 드릴게요.
+                  </p>
+                ) : (
+                  <p className={styles.timeHint}>캘린더에서 날짜를 먼저 선택해주세요.</p>
+                )
               ) : (
                 <>
                   <p className={styles.selectedDateLabel}>{selectedDateLabel}</p>

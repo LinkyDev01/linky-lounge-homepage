@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { gasPostJson } from "@/lib/gas"
 
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 const IS_DEV  = process.env.NODE_ENV === "development"
@@ -38,18 +39,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      redirect: "follow",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "phone_interview", name, phone, slotStart, slotEnd }),
-    })
-
-    if (!res.ok) {
-      throw new Error(`GAS responded with ${res.status}`)
-    }
-
-    const data = await res.json()
+    // GAS 간헐 404 대응 — 미실행이 확실할 때만 1회 재시도 (lib/gas.ts)
+    const data = await gasPostJson(GAS_URL, { type: "phone_interview", name, phone, slotStart, slotEnd })
     return NextResponse.json(data)
   } catch (err) {
     console.error("[interview/book] GAS 호출 실패:", err)

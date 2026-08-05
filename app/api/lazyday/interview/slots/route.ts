@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { gasGetJson } from "@/lib/gas"
 
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 
@@ -13,16 +14,8 @@ export async function GET() {
   }
 
   try {
-    const res = await fetch(GAS_URL, {
-      redirect: "follow",
-      next: { revalidate: 60 }, // 1분 캐시
-    })
-
-    if (!res.ok) {
-      throw new Error(`GAS responded with ${res.status}`)
-    }
-
-    const data = await res.json()
+    // 조회는 부작용이 없어 자유롭게 재시도 (GAS 간헐 404·HTML 응답 대응)
+    const data = await gasGetJson(GAS_URL)
     return NextResponse.json(data)
   } catch (err) {
     console.error("[interview/slots] GAS 호출 실패:", err)

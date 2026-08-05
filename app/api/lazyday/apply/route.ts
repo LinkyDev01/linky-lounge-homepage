@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { gasPostJson } from "@/lib/gas"
+import { gasPostJson, isGasExecuted } from "@/lib/gas"
 
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 const IS_DEV  = process.env.NODE_ENV === "development"
@@ -29,6 +29,12 @@ export async function POST(req: NextRequest) {
     await gasPostJson(GAS_URL, body)
     return NextResponse.json({ success: true })
   } catch (err) {
+    // 302를 받았다면 시트 기록·메일은 이미 끝난 상태 — 본문만 못 받은 것이라
+    // 사용자에게 실패를 알리면 중복 제출을 유도하게 된다 (2026-08-05)
+    if (isGasExecuted(err)) {
+      console.warn("[lazyday/apply] GAS 실행됨(응답 본문 유실) — 성공 처리")
+      return NextResponse.json({ success: true })
+    }
     console.error("[lazyday/apply] GAS 호출 실패:", err)
     // 저장이 안 됐는데 성공으로 응답하면 신청이 유실됨 — 실패를 그대로 알린다
     return NextResponse.json(

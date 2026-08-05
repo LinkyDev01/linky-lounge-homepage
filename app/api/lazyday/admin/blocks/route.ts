@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
 const GAS_URL      = process.env.INTERVIEW_GAS_URL
-const ADMIN_SECRET = process.env.ADMIN_SECRET
-const ADMIN_TOKEN  = process.env.ADMIN_SECRET // GAS의 ADMIN_TOKEN과 동일
+// 환경변수 붙여넣기 시 섞이는 앞뒤 공백·줄바꿈 방어 (2026-07-29)
+const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
+const ADMIN_TOKEN  = ADMIN_SECRET // GAS 스크립트 속성 ADMIN_TOKEN과 같은 값이어야 함
 
 function isAuthorized(req: NextRequest) {
   const cookie = req.cookies.get("lazyday_admin")?.value
   return ADMIN_SECRET && cookie === ADMIN_SECRET
+}
+
+/** GAS GET URL 생성 — 토큰을 쿼리로 안전하게 실어 보낸다 (2026-07-29).
+ *  구현: 문자열 접합(`?adminToken=`)은 ① 토큰에 &·#·+·공백 등이 있으면 값이 잘리고
+ *  ② GAS_URL에 이미 쿼리가 있으면 '?'가 두 번 붙어 깨진다. URL API로 둘 다 해결. */
+function gasGetUrl(base: string, token: string) {
+  const url = new URL(base)
+  url.searchParams.set("adminToken", token)
+  return url.toString()
 }
 
 // GET: 이벤트 목록 (ID 포함)
@@ -15,7 +25,7 @@ export async function GET(req: NextRequest) {
   if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
-  const res = await fetch(`${GAS_URL}?adminToken=${ADMIN_TOKEN}`, { redirect: "follow" })
+  const res = await fetch(gasGetUrl(GAS_URL, ADMIN_TOKEN!), { redirect: "follow" })
   const data = await res.json()
   return NextResponse.json(data)
 }

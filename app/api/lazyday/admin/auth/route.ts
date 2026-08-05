@@ -3,7 +3,9 @@ import { cookies } from "next/headers"
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json()
-  const secret = process.env.ADMIN_SECRET
+  // 앞뒤 공백·줄바꿈 방어 — 쿠키 발급/검증/GAS 전달 세 곳이 같은 값을 써야 한다
+  // (middleware.ts·admin/blocks/route.ts와 동일 규칙, 2026-07-29)
+  const secret = process.env.ADMIN_SECRET?.trim()
 
   if (!secret || password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ success: false, error: "비밀번호가 틀렸습니다." }, { status: 401 })

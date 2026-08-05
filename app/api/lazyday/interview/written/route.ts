@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { gasPostJson } from "@/lib/gas"
+import { gasPostJson, isGasExecuted } from "@/lib/gas"
 
 // 서면 인터뷰는 캘린더 예약 GAS와 동일한 엔드포인트를 공유합니다.
 // GAS 측에서 { type: "written" } 필드를 보고 분기 처리합니다.
@@ -42,6 +42,10 @@ export async function POST(req: NextRequest) {
     const data = await gasPostJson(GAS_URL, { type: "written", name, phone, answers, questions })
     return NextResponse.json(data)
   } catch (err) {
+    if (isGasExecuted(err)) {
+      console.warn("[interview/written] GAS 실행됨(응답 본문 유실) — 성공 처리")
+      return NextResponse.json({ success: true })
+    }
     console.error("[interview/written] GAS 호출 실패:", err)
     // 에러 시에도 success: true 반환 (UX 우선 — 사용자에게 오류 노출 방지)
     return NextResponse.json({ success: true })

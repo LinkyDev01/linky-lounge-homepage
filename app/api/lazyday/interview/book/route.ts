@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { gasPostJson } from "@/lib/gas"
+import { gasPostJson, isGasExecuted } from "@/lib/gas"
 
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 const IS_DEV  = process.env.NODE_ENV === "development"
@@ -43,6 +43,11 @@ export async function POST(req: NextRequest) {
     const data = await gasPostJson(GAS_URL, { type: "phone_interview", name, phone, slotStart, slotEnd })
     return NextResponse.json(data)
   } catch (err) {
+    // 302 수신 = 캘린더 등록까지 완료 — 본문 유실을 실패로 알리면 중복 예약을 부른다
+    if (isGasExecuted(err)) {
+      console.warn("[interview/book] GAS 실행됨(응답 본문 유실) — 성공 처리")
+      return NextResponse.json({ success: true })
+    }
     console.error("[interview/book] GAS 호출 실패:", err)
     return NextResponse.json(
       { success: false, error: "예약 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요." },

@@ -1,0 +1,390 @@
+/* ═══════════════════════════════════════════════════════════
+   4기 포스터 디자인 시안 쇼케이스 — 슬기와 민 레퍼런스 5방향
+   포스터 캔버스는 container query(cqw) 기반이라 폭에 비례해
+   전체가 축소·확대된다 (인쇄물 미리보기와 동일한 원리).
+   신규 전용 CSS — 기존 공유 .module.css 미사용.
+   ═══════════════════════════════════════════════════════════ */
+
+.page {
+  min-height: 100vh;
+  background: #ede0d0;
+  padding: 58px 0 96px;
+  word-break: keep-all;
+}
+.frame {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.pageTitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 24px 0 6px;
+  letter-spacing: -0.02em;
+}
+.pageSub {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #7a6450;
+  margin: 0 0 20px;
+}
+
+/* ── 시안 전환 스위처 (faq-designs 문법) ── */
+.switcher {
+  position: sticky;
+  top: 34px;
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px 24px;
+  margin: 0 -24px 18px;
+  background: rgba(237, 224, 208, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(74, 58, 42, 0.12);
+}
+.switcher::-webkit-scrollbar { display: none; }
+.switchBtn {
+  flex-shrink: 0;
+  border: 1px solid #cdbca6;
+  background: #fffdf8;
+  color: #6b5a48;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.switchBtnActive {
+  background: #4a3a2a;
+  border-color: #4a3a2a;
+  color: #fffdf8;
+}
+
+.variantMeta {
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 0 0 26px;
+}
+.variantName {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0 0 4px;
+}
+.variantRef {
+  font-size: 12px;
+  color: #b8571a;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: 0.02em;
+}
+.variantDesc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #6b5a48;
+  margin: 0;
+}
+
+/* ── 공통 포스터 캔버스 (A1 비율) ── */
+.poster {
+  width: 100%;
+  aspect-ratio: 594 / 841;
+  container-type: inline-size;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 34px rgba(26, 18, 8, 0.16);
+  word-break: keep-all;
+}
+.posterCaption {
+  font-size: 11px;
+  color: #9a9590;
+  text-align: center;
+  margin: 12px 0 0;
+}
+
+/* ═══ A. 활자 견본 (쓔이써60) ══════════════════════════════ */
+.specPoster {
+  background: #f7f3ee;
+  display: flex;
+  flex-direction: column;
+  padding: 5cqw 5.5cqw 5.5cqw;
+}
+.specHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 0.6cqw solid #1a1208;
+  padding-top: 1.6cqw;
+  font-size: 2cqw;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1a1208;
+}
+.specLines {
+  margin-top: 5cqw;
+}
+.specRow {
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+  border-bottom: 0.17cqw solid rgba(74, 58, 42, 0.16);
+  padding: 1.9cqw 0 1.6cqw;
+}
+.specLabel {
+  flex-shrink: 0;
+  width: 5cqw;
+  font-size: 1.9cqw;
+  color: #a08b70;
+  font-variant-numeric: tabular-nums;
+}
+.specText {
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  color: #1a1208;
+  white-space: nowrap;
+}
+.specTextAccent {
+  color: #d2691e;
+}
+.specInfo {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 4cqw;
+  border-top: 0.34cqw solid #1a1208;
+  padding-top: 2.4cqw;
+}
+.specInfoHead {
+  font-size: 2cqw;
+  font-weight: 800;
+  color: #1a1208;
+  letter-spacing: 0.05em;
+  margin: 0 0 1.2cqw;
+}
+.specInfoHeadGap {
+  margin-top: 2.6cqw;
+}
+.specInfoLine {
+  font-size: 2.1cqw;
+  line-height: 1.7;
+  color: #4a3020;
+  margin: 0;
+}
+
+/* ═══ B. 남는 글자들 (클래식 멀티플즈) ═════════════════════ */
+.multiPoster {
+  background: #f0e9e0;
+  display: flex;
+  flex-direction: column;
+  padding: 6cqw 5cqw 5cqw;
+}
+.multiField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.multiRow {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+}
+.multiCell {
+  font-size: 8cqw;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: #1a1208;
+  min-height: 9.6cqw;
+}
+.multiCellAccent {
+  color: #d2691e;
+}
+.multiInfo {
+  margin: 4cqw 0 0;
+  font-size: 2.1cqw;
+  font-weight: 600;
+  color: #4a3020;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* ═══ C. 마주 보기 (한반도 오감도) ═════════════════════════ */
+.mirrorPoster {
+  background: #f7f3ee;
+  display: flex;
+  flex-direction: column;
+  padding: 6cqw 6cqw 5.4cqw;
+}
+.mirrorTitle {
+  font-size: 6.4cqw;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #1a1208;
+  margin: 0;
+  white-space: nowrap;
+}
+.mirrorTitleFlip {
+  transform: rotate(180deg);
+  align-self: flex-end;
+}
+.mirrorField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin: 4cqw 0;
+}
+.mirrorRow {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  text-align: center;
+  font-size: 4cqw;
+  font-weight: 500;
+  line-height: 1;
+  color: rgba(26, 18, 8, 0.32);
+  font-variant-numeric: tabular-nums;
+}
+.mirrorDot {
+  color: #d2691e;
+  font-size: 3.4cqw;
+  align-self: center;
+}
+.mirrorInfo {
+  font-size: 2.2cqw;
+  font-weight: 700;
+  color: #1a1208;
+  text-align: center;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+/* ═══ D. 본문이 곧 포스터 (오민) ═══════════════════════════ */
+.maniPoster {
+  background: #fffdf8;
+  display: flex;
+  flex-direction: column;
+  padding: 6cqw 6cqw 5.4cqw;
+}
+.maniBody {
+  flex: 1;
+}
+.maniPara {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 3.7cqw;
+  line-height: 1.92;
+  text-align: justify;
+  color: #4a3020;
+  margin: 0 0 3.4cqw;
+}
+.maniPara:last-child {
+  margin-bottom: 0;
+}
+.maniMark {
+  font-style: normal;
+  font-weight: 700;
+  color: #d2691e;
+}
+.maniFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 0.34cqw solid #1a1208;
+  padding-top: 2.6cqw;
+  margin-top: 4cqw;
+}
+.maniFootTitle {
+  font-size: 3.6cqw;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #1a1208;
+  margin: 0;
+  white-space: nowrap;
+}
+.maniFootInfo {
+  font-size: 1.9cqw;
+  line-height: 1.7;
+  color: #8a6a50;
+  text-align: right;
+  margin: 0;
+}
+
+/* ═══ E. 봉인된 사유 (암호적 상상 5) ═══════════════════════ */
+.cipherPoster {
+  background: #f7f3ee;
+  display: flex;
+  flex-direction: column;
+  padding: 7cqw 6.5cqw 5.4cqw;
+}
+.cipherTitleBlock {
+  margin: 0;
+}
+.cipherLine {
+  font-size: 15.5cqw;
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: #1a1208;
+  margin: 0;
+}
+.cipherLineAccent {
+  font-size: 26cqw;
+  color: #d2691e;
+  line-height: 1.02;
+}
+.cipherInfo {
+  margin-top: auto;
+}
+.cipherInfoLine {
+  font-size: 2.2cqw;
+  line-height: 1.75;
+  color: #4a3020;
+  margin: 0;
+}
+.cipherInfoGap {
+  margin-top: 2.4cqw;
+  font-weight: 700;
+  color: #1a1208;
+}
+.cipherBand {
+  position: absolute;
+  left: -25%;
+  top: 30%;
+  width: 150%;
+  height: 26cqw;
+  transform: rotate(-24deg);
+  border: none;
+  border-top: 0.6cqw solid #1a1208;
+  border-bottom: 0.6cqw solid #1a1208;
+  cursor: pointer;
+  padding: 0;
+  background-color: #f0e9e0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(26, 18, 8, 0.55) 0, rgba(26, 18, 8, 0.55) 0.3cqw, transparent 0.3cqw, transparent 1.7cqw),
+    repeating-linear-gradient(-45deg, rgba(26, 18, 8, 0.55) 0, rgba(26, 18, 8, 0.55) 0.3cqw, transparent 0.3cqw, transparent 1.7cqw);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease;
+}
+.cipherBandOpened {
+  transform: rotate(-24deg) translateY(-120cqw);
+  opacity: 0;
+  pointer-events: auto;
+}
+.cipherHint {
+  position: absolute;
+  right: 6.5cqw;
+  top: 3cqw;
+  font-size: 1.9cqw;
+  color: #a08b70;
+  letter-spacing: 0.08em;
+  margin: 0;
+}

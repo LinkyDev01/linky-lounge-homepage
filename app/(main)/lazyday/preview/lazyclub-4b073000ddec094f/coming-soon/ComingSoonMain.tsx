@@ -1,83 +1,119 @@
 "use client"
 
 /**
- * lazy-club.com coming soon (라운드 33 C안 · 37 커서 크롤 · 46 와이프 반전)
+ * lazy-club.com 랜딩 인트로 (라운드 47 전면 교체)
  *
- * 라운드 46 (운영자 "배경과 텍스트가 하나씩이 아니라 동시에 반전"):
- * 색상 크로스페이드는 중간에 글자·배경이 같은 회갈색에서 만나 순차 반전처럼 보인다.
- * → 같은 장면을 두 팔레트(반전/오트)로 겹쳐 렌더하고, 위에 덮인 반전 레이어를
- *   clip-path 와이프로 위→아래 걷어낸다. 경계면이 지나는 자리마다 배경과 텍스트가
- *   **같은 순간에** 원래 색으로 반전된다 (중간 혼색·색 틀어짐 없음 — backdrop 필터의
- *   청색 시프트 문제로 필터 방식은 폐기).
- *  - 마지막 글자 + 0.7s 텀 → 와이프 1.2s → 오트 상태로 고정 (1회성)
- *  - 써클은 고정 흑색 3px: 반전 레이어(배경 #1a1208)에선 완전히 묻히고,
- *    와이프가 걷힌 오트 레이어에서 드러난다 (라운드 45 유지)
- *  - 내비·푸터는 반전 레이어에서 chromeDim(글자=배경색)으로 묻힘
- * 모든 타이밍은 단일 rAF 클록의 순수 함수(stateAt).
+ * 이 페이지는 '커밍순'이 아니라 정식 랜딩이다. 방문하면 인트로(4×4 알파벳 셔플 →
+ * LAZY·CLUB 완성 → 빙고 동그라미)가 재생되고, 끝나는 순간 내비·푸터가 나타난다.
+ * COMING SOON 문구·타이핑·흑백 반전·커서 크롤은 전부 폐기 (라운드 47).
+ *
+ * 시퀀스 (총 3.5s, 1회성):
+ *   0–2.5s   4×4 셔플 — 화면에는 그리드 하나뿐 (내비·푸터 미렌더, 스크롤 없음).
+ *            16칸이 각자 60~140ms 무작위 간격으로 A–Z를 빠르게 교체하며,
+ *            글자가 바뀔 때마다 3색(#f49938/#96ab9b/#845d5e) 중 무작위 재배정
+ *   2.5s     고정 — 원 마크 배열(CDEF/LAZY/UVWX/BCDE). LAZY·CLUB 7글자는
+ *            세 컬러 중 무작위 1색으로 통일(새로고침마다 다름), 나머지 9글자는
+ *            셔플 마지막 색 유지 — 단, 단색과 같으면 다른 색으로 치환
+ *            (써클 주위 글자는 써클 안 텍스트와 반드시 다른 색)
+ *   2.5s     LAZY 동그라미 → 2.75s CLUB 동그라미 (각 즉시, 3px 1단계)
+ *   3.0–3.5s 정지 유지
+ *   3.5s     최종 상태 — 내비·푸터 출현 (페이드 없이 즉시), 그대로 고정
+ *
+ * 스킵: 인트로 중 어떤 입력이든 즉시 최종 상태. reduced-motion도 즉시 최종.
+ * 인트로는 방문마다 재생.
+ *
+ * 구현: 단일 rAF 클록 + 순수 함수 stateAt. 난수는 마운트 시 시드 하나만 뽑고
+ * (셔플 글자·색·간격·단색은 전부 시드 해시로 유도) stateAt은 읽기만 한다 —
+ * 프레임마다 Math.random()을 부르면 화면이 발작하듯 재추첨된다.
+ * 시드는 클라이언트 effect에서 생성 (SSR 첫 페인트는 빈 그리드 → 하이드레이션 불일치 없음).
  */
 
 import { useEffect, useState } from "react"
-import { WorkroomShell } from "../Shell"
+import { usePreviewBarHide, WorkroomShell } from "../Shell"
 import styles from "./coming-soon.module.css"
 
-// 원 마크와 동일한 배열 — 2행 = LAZY(가로), 1열 = CLUB(세로)
+// 원 마크와 동일한 최종 배열 — 2행 = LAZY(가로), 1열 = CLUB(세로, L 공유)
 const GRID = [
   ["C", "D", "E", "F"],
   ["L", "A", "Z", "Y"],
   ["U", "V", "W", "X"],
   ["B", "C", "D", "E"],
 ]
+const HOT = new Set(["0-0", "1-0", "2-0", "3-0", "1-1", "1-2", "1-3"]) // C·L·U·B + A·Z·Y
 
-const PHRASE = "COMING SOON"
+const PALETTE = ["#f49938", "#96ab9b", "#845d5e"]
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-/* 커서 경로 — 커서1은 CLUB 세로, 커서2는 두 박자 늦게 LAZY 꼬리 가로.
-   보폭이 겹쳐 점등 그룹 C / L / U·A / B·Z / Y 가 만들어진다 (라운드 37) */
-const CURSOR1_PATH = ["0-0", "1-0", "2-0", "3-0"]
-const CURSOR2_PATH = ["1-1", "1-2", "1-3"]
-const CURSOR2_LAG = 2
-
-/* 타임라인 (ms) — 1회성, 총 ~7s (라운드 45·46) */
+/* 타임라인 (ms) — 1회성, 총 3.5s */
 const T = {
-  TYPE_END: 1600, // 타이핑 완료 (11스텝)
-  VANISH: 2800, // 문구+커서 일괄 소멸 (커서 점멸 2회 후)
-  CRAWL_START: 3100, // 선택 커서 출발
-  STEP: 350, // 커서 보폭 — 마지막 글자 4500에 완성
-  REVERT: 5200, // 마지막 글자 + 0.7s → 반전 레이어 와이프 시작 (CSS 1.2s)
-  END: 6500, // 와이프 종료 — 반전 레이어 제거, 상태 고정
+  FIX: 2500, // 셔플 종료 — LAZY·CLUB 고정
+  CAP_LAZY: 2500, // LAZY 동그라미 (즉시)
+  CAP_CLUB: 2750, // CLUB 동그라미 (즉시)
+  END: 3500, // 최종 상태 — 내비·푸터 출현, 고정
 }
 
-/** 경과시간 → 화면 상태 (순수 함수 — 모든 연출의 단일 출처) */
-function stateAt(raw: number) {
+/** 결정적 해시 → [0,1) — 시드·칸·틱이 같으면 항상 같은 값 (프레임 간 안정) */
+function rnd(seed: number, a: number, b: number) {
+  let h = (seed ^ (a * 374761393) ^ (b * 668265263)) >>> 0
+  h = Math.imul(h ^ (h >>> 13), 1274126177) >>> 0
+  h = (h ^ (h >>> 16)) >>> 0
+  return h / 4294967296
+}
+
+type Cell = { ch: string; color: string }
+
+/** 경과시간 + 시드 → 화면 상태 (순수 함수 — 모든 연출의 단일 출처) */
+function stateAt(raw: number, seed: number) {
   const e = Math.min(raw, T.END)
+  const wordColor = PALETTE[Math.floor(rnd(seed, 4242, 1) * 3)]
 
-  const textVisible = e < T.VANISH
-  const typed = !textVisible ? 0 : e >= T.TYPE_END ? PHRASE.length : Math.floor((e / T.TYPE_END) * PHRASE.length)
-  // 타이핑 커서: 입력 중 점등 고정, 완료 후 0.3s 간격 점멸 2회
-  const blockCursor = textVisible && (e < T.TYPE_END ? true : Math.floor((e - T.TYPE_END) / 300) % 2 === 0)
-
-  const live = e >= T.CRAWL_START
-  const step = live ? Math.floor((e - T.CRAWL_START) / T.STEP) : -1
-  const cursor1 = step >= 0 && step < CURSOR1_PATH.length ? CURSOR1_PATH[step] : null
-  const c2i = step - CURSOR2_LAG
-  const cursor2 = c2i >= 0 && c2i < CURSOR2_PATH.length ? CURSOR2_PATH[c2i] : null
-
-  const lit = new Set<string>()
-  if (live) {
-    CURSOR1_PATH.forEach((k, i) => step >= i && lit.add(k))
-    CURSOR2_PATH.forEach((k, i) => step >= i + CURSOR2_LAG && lit.add(k))
+  const cells: Cell[] = []
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const i = r * 4 + c
+      // 칸별 셔플 간격 60~140ms (시드로 고정)
+      const interval = 60 + rnd(seed, i, 999) * 80
+      // 고정 이후에는 마지막 틱에 멈춘다 → 색이 이어진다
+      const tick = Math.floor(Math.min(e, T.FIX - 1) / interval)
+      if (e < T.FIX) {
+        cells.push({
+          ch: ALPHABET[Math.floor(rnd(seed, i, tick) * 26)],
+          color: PALETTE[Math.floor(rnd(seed, i, tick + 7) * 3)],
+        })
+      } else {
+        // LAZY·CLUB은 단색 통일. 나머지 9칸은 셔플 마지막 색을 잇되,
+        // 그 색이 단색과 같으면 나머지 2색 중 하나로 치환 —
+        // 써클 주위 글자는 써클 안 텍스트와 반드시 다른 색 (운영자 지시)
+        let color = PALETTE[Math.floor(rnd(seed, i, tick + 7) * 3)]
+        if (HOT.has(`${r}-${c}`)) {
+          color = wordColor
+        } else if (color === wordColor) {
+          const others = PALETTE.filter((p) => p !== wordColor)
+          color = others[Math.floor(rnd(seed, i, 555) * 2)]
+        }
+        cells.push({ ch: GRID[r][c], color })
+      }
+    }
   }
 
-  // 라운드 46: 반전 레이어가 위에 덮인 채 시작 → REVERT에 와이프 → END에 레이어 제거
-  const darkLayerOn = e < T.END
-  const wiping = e >= T.REVERT
-
-  return { textVisible, typed, blockCursor, cursor1, cursor2, lit, darkLayerOn, wiping }
+  return {
+    cells,
+    capLazy: e >= T.CAP_LAZY,
+    capClub: e >= T.CAP_CLUB,
+    done: e >= T.END,
+  }
 }
 
 export function ComingSoonMain() {
   const [elapsed, setElapsed] = useState(0)
+  const [seed, setSeed] = useState<number | null>(null)
+  usePreviewBarHide() // 인트로는 셸 밖에서 렌더되므로 여기서도 프리뷰 바를 숨긴다
 
   useEffect(() => {
+    // 난수 시드는 여기서 딱 한 번 (구현 주의 — stateAt은 읽기만 한다)
+    const s = Math.floor(Math.random() * 2147483647) || 1
+    setSeed(s)
+
     // ?t=<ms> — 검토 스크린샷용 시점 고정
     const q = new URLSearchParams(window.location.search)
     const t = Number(q.get("t"))
@@ -86,74 +122,68 @@ export function ComingSoonMain() {
       return
     }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setElapsed(T.END) // 모션 없이 최종 상태로
+      setElapsed(T.END) // 모션 없이 즉시 최종 상태
       return
     }
+
     const start = performance.now()
     let raf = 0
+    let finished = false
+    const finish = () => {
+      if (finished) return
+      finished = true
+      cancelAnimationFrame(raf)
+      removeListeners()
+      setElapsed(T.END)
+    }
     const tick = (now: number) => {
       const e = now - start
+      if (e >= T.END) {
+        finish()
+        return
+      }
       setElapsed(e)
-      if (e < T.END) raf = requestAnimationFrame(tick) // 1회성 — 끝나면 고정
+      raf = requestAnimationFrame(tick)
     }
+    // 스킵 — 인트로 중 어떤 입력이든 즉시 최종 상태로 점프
+    const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
+    const onInput = () => finish()
+    const removeListeners = () => EVENTS.forEach((ev) => window.removeEventListener(ev, onInput))
+    EVENTS.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }))
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(raf)
+      removeListeners()
+    }
   }, [])
 
-  const s = stateAt(elapsed)
+  // 시드 전 첫 페인트(SSR 포함)는 빈 그리드 — 하이드레이션 불일치 방지
+  const s = seed === null ? null : stateAt(elapsed, seed)
 
-  /** 장면 — 두 레이어가 완전히 같은 내용을 렌더한다 (팔레트만 셸에서 갈림) */
-  const scene = (
-    <main className={styles.main}>
-      <div className={styles.stage}>
-        <div className={styles.grid} aria-label="LAZY CLUB">
-          {GRID.map((row, r) =>
-            row.map((ch, c) => {
-              const key = `${r}-${c}`
-              const isCursor = s.cursor1 === key || s.cursor2 === key
-              const cls = [styles.cell, s.lit.has(key) ? styles.lit : "", isCursor ? styles.cellCursor : ""]
-                .filter(Boolean)
-                .join(" ")
-              return (
-                <span key={key} className={cls} aria-hidden>
-                  {ch}
-                </span>
-              )
-            }),
-          )}
-          {/* 빙고 써클 — 고정 흑색 3px: 반전 레이어에선 배경과 같은 색이라 완전히
-               묻히고, 와이프가 걷힌 오트 레이어에서 드러난다 (라운드 45·46) */}
-          <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />
-          <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />
-        </div>
-
-        <div className={styles.overlay} aria-label="COMING SOON">
-          {/* CLI식 좌측 고정 타이핑 — sizer가 폭을 잡고 왼쪽부터 채워진다 */}
-          <span className={styles.typeBox} aria-hidden>
-            <span className={styles.sizer}>{PHRASE}▮</span>
-            {s.textVisible && (
-              <span className={styles.typedLine}>
-                {PHRASE.slice(0, s.typed)}
-                <span className={s.blockCursor ? "" : styles.blockCursorOff}>▮</span>
-              </span>
-            )}
-          </span>
-        </div>
-      </div>
-    </main>
+  const grid = (
+    <div className={styles.grid} aria-label="LAZY CLUB">
+      {(s?.cells ?? Array.from({ length: 16 }, () => null)).map((cell, i) => (
+        <span key={i} className={styles.cell} style={cell ? { color: cell.color } : undefined} aria-hidden>
+          {cell?.ch ?? ""}
+        </span>
+      ))}
+      {/* 빙고 동그라미 — LAZY 먼저, 이어 CLUB (각 즉시 표시, 3px 1단계) */}
+      {s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}
+      {s?.capClub && <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />}
+    </div>
   )
 
-  return (
-    <div className={styles.wipeWrap}>
-      {/* 최종(오트) 레이어 — 항상 문서 흐름에 존재 */}
-      <WorkroomShell>{scene}</WorkroomShell>
+  // 인트로 구간 — 화면에는 그리드 하나뿐 (내비·푸터·스크롤 없음)
+  if (!s?.done) {
+    return <div className={styles.introRoot}>{grid}</div>
+  }
 
-      {/* 반전 레이어 — 같은 장면을 반전 팔레트로 덮었다가 와이프로 위→아래 걷는다 */}
-      {s.darkLayerOn && (
-        <div className={`${styles.layerDark} ${s.wiping ? styles.layerDarkWipe : ""}`} aria-hidden>
-          <WorkroomShell invert>{scene}</WorkroomShell>
-        </div>
-      )}
-    </div>
+  // 최종 상태 — 내비·푸터 출현, 그리드·색 배치는 그대로 고정
+  return (
+    <WorkroomShell paper="#f8f3ef">
+      <main className={styles.main}>
+        <div className={styles.stage}>{grid}</div>
+      </main>
+    </WorkroomShell>
   )
 }

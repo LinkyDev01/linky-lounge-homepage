@@ -29,14 +29,6 @@
 }
 .page a { color: inherit; text-decoration: none; }
 
-/* 반전 레이어의 내비·푸터 (라운드 44 방식) — 서브트리 팔레트를 잉크로 되돌려
-   글자가 반전 배경에 묻힌다 (변수 방식이라 뒤에 정의된 규칙까지 함께 적용) */
-.chromeDim {
-  --ink: #1a1208;
-  --paper: #1a1208;
-  --ph-gray: #1a1208;
-  color: #1a1208;
-}
 .page a:hover {
   text-decoration: underline;
   text-underline-offset: 4.5px;

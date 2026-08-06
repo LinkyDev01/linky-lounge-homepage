@@ -1,12 +1,12 @@
 import { ComingSoonMain } from "./ComingSoonMain"
 
 /**
- * lazy-club.com coming soon 페이지 (라운드 30 신설 · 33/37/41 개편)
- * — 내비 + 워드서치 그리드(폰트 조판) + COMING SOON 타이핑 + 푸터(내부 홈과 동일).
- * 셸은 ComingSoonMain이 직접 감싼다 (클라이맥스에서 팔레트를 반전하기 위함).
+ * lazy-club.com 랜딩페이지 (라운드 47 — '커밍순' 개념 폐기)
+ * — 인트로(4×4 셔플 → LAZY·CLUB 완성 → 빙고 동그라미) 후 내비·푸터가 나타난다.
+ * 경로명 /coming-soon 은 내부 식별자로만 유지 (미들웨어 rewrite·OG·파비콘이 묶임).
  * 파비콘·OG는 상위 layout.tsx(레이지클럽 메타)를 그대로 상속.
  * lazy-club.com 호스트는 middleware가 모든 경로를 이 페이지로 rewrite.
  */
-export default function LazyClubComingSoonPage() {
+export default function LazyClubLandingPage() {
   return <ComingSoonMain />
 }

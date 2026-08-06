@@ -26,24 +26,12 @@ const NAV_ITEMS: { label: string; href: string }[] = [
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
-// 프리뷰 바 숨김 참조 카운트 — coming soon은 셸을 두 겹(반전/오트) 렌더하므로
-// 한 겹이 언마운트돼도 남은 겹이 있으면 바를 되살리지 않는다 (라운드 46)
+// 프리뷰 바 숨김 참조 카운트 — 사용처가 여러 곳(셸 + 랜딩 인트로)이라
+// 마지막 사용처가 사라질 때만 바를 되살린다 (라운드 46·47)
 let previewBarHideCount = 0
 
-/** invert (coming soon 전용): 팔레트를 맞바꾼 반전 화면을 만든다.
- *  내비·푸터는 chromeDim으로 글자를 배경색(잉크)에 맞춰 묻는다. 기본값 false. */
-export function WorkroomShell({ children, invert = false }: { children: React.ReactNode; invert?: boolean }) {
-  const [toast, setToast] = useState<string | null>(null)
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const notify = (msg = "준비 중인 기능입니다.") => {
-    setToast(msg)
-    if (toastTimer.current) clearTimeout(toastTimer.current)
-    toastTimer.current = setTimeout(() => setToast(null), 2200)
-  }
-
-
-  // 이 트리에서만 프리뷰 이동 바 숨김 (운영자 2026-08-04 · 참조 카운트 라운드 46)
+/** 이 트리에서 프리뷰 이동 바를 숨긴다 (운영자 2026-08-04) — 참조 카운트 방식 */
+export function usePreviewBarHide() {
   useEffect(() => {
     previewBarHideCount++
     const els = Array.from(document.querySelectorAll<HTMLElement>('[class*="previewBar"]'))
@@ -58,21 +46,34 @@ export function WorkroomShell({ children, invert = false }: { children: React.Re
         })
     }
   }, [])
+}
+
+/** paper (라운드 47, 랜딩 인트로 전용): 이 페이지의 종이색만 다르게 지정한다.
+ *  (인트로 배경 #f8f3ef 와 최종 상태를 일치시키기 위함 — 기본값 없음, 타 페이지 무영향) */
+export function WorkroomShell({ children, paper }: { children: React.ReactNode; paper?: string }) {
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const notify = (msg = "준비 중인 기능입니다.") => {
+    setToast(msg)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2200)
+  }
+
+
+  usePreviewBarHide()
 
   const nav = NAV_ITEMS
 
   return (
-    <div
-      className={styles.page}
-      style={invert ? ({ ["--ink"]: "#f7f3ee", ["--paper"]: "#1a1208", ["--ph-gray"]: "#2a2018" } as React.CSSProperties) : undefined}
-    >
+    <div className={styles.page} style={paper ? ({ ["--paper"]: paper } as React.CSSProperties) : undefined}>
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
       {/* ── 내비 — 라운드 39: LazydayBookclub · OneDayTalk 두 항목만 ── */}
-      <header className={`${styles.header} ${invert ? styles.chromeDim : ""}`}>
+      <header className={styles.header}>
         <div className={styles.headerLeft}>
           <LazydayLink href={BASE} className={styles.current}>
             LazyClub
@@ -90,7 +91,7 @@ export function WorkroomShell({ children, invert = false }: { children: React.Re
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>
 
       {/* ── 푸터 — 전 섹션 동일 유지 (운영자 라운드 31: coming soon도 같은 푸터) ── */}
-      <footer className={`${styles.footer} ${invert ? styles.chromeDim : ""}`}>
+      <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <figure className={styles.footerLogo}>
             {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}

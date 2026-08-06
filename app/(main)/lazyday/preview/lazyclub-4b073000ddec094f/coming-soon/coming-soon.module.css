@@ -3,17 +3,17 @@
    퍼즐을 "푸는" 연출. 모든 타이밍은 ComingSoonMain의 단일 rAF 클록이
    순수 함수로 구동한다 (CSS 애니메이션 없음 — 시계가 하나라 어긋남도 없다).
 
-   한 사이클(12s):
-     0–2.4s     COMING SOON 타이핑 (11스텝) + 블록 커서 점등
-     2.4–4.56s  유지 — 커서 0.525s 간격 점멸
-     4.56s      문구+커서 일괄 소멸
-     5.0s~      선택 커서(반전 블록) 2개가 0.45s 보폭으로 기어감:
+   한 사이클(10.5s, 라운드 38 가속):
+     0–2.0s     COMING SOON 타이핑 (11스텝, CLI식 좌측 고정) + 블록 커서
+     2.0–3.8s   유지 — 커서 0.45s 간격 점멸
+     3.8s       문구+커서 일괄 소멸
+     4.2s~      선택 커서(반전 블록) 2개가 0.38s 보폭으로 기어감:
                 커서1 C→L→U→B (세로), 커서2는 두 박자 늦게 A→Z→Y (가로)
                 → 점등 그룹 C / L / U·A / B·Z / Y (운영자 라운드 37)
-     7.4–8.75s  써클 스탬프: CLUB 얇게→굵게, 이어 LAZY 얇게→굵게
-     ~10.6s     전체 점등 유지
-     10.6s      전원 일괄 즉시 소등 (그라데이션·개별 소거 없음)
-     ~12s       쉼 → 처음부터 반복 */
+     6.3–7.35s  써클 스탬프: LAZY 얇게→굵게, 이어 CLUB 얇게→굵게 (라운드 38)
+     ~9.4s      전체 점등 유지
+     9.4s       전원 일괄 즉시 소등 (그라데이션·개별 소거 없음)
+     ~10.5s     쉼 → 처음부터 반복 */
 
 @font-face {
   font-family: "DungGeunMo";
@@ -88,6 +88,9 @@
   white-space: pre;
   color: var(--ink);
 }
-.typedText { flex: none; }
-.blockCursor { flex: none; }
+/* CLI식 좌측 고정 타이핑 (라운드 38) — sizer가 완성 문구 폭으로 박스를 고정,
+   실제 타이핑은 좌상단에서 오른쪽으로 채워진다 (가운데 재정렬 없음) */
+.typeBox { position: relative; display: inline-block; flex: none; }
+.sizer { visibility: hidden; white-space: pre; }
+.typedLine { position: absolute; left: 0; top: 0; white-space: pre; }
 .blockCursorOff { visibility: hidden; }

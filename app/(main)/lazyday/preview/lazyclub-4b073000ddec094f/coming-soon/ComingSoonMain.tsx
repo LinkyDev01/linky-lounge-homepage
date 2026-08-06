@@ -40,26 +40,27 @@ const CURSOR1_PATH = ["0-0", "1-0", "2-0", "3-0"]
 const CURSOR2_PATH = ["1-1", "1-2", "1-3"]
 const CURSOR2_LAG = 2
 
-/* 타임라인 (ms) — 단일 클록, 사이클 12s */
+/* 타임라인 (ms) — 단일 클록. 라운드 38: 사이클 12s → 10.5s (소폭 가속),
+   써클은 LAZY 먼저 → CLUB */
 const T = {
-  TYPE_END: 2400, // 타이핑 완료 (11스텝)
-  VANISH: 4560, // 문구+커서 일괄 소멸 (38%)
-  CRAWL_START: 5000, // 선택 커서 출발
-  STEP: 450, // 커서 보폭
-  CAP_CLUB_THIN: 7400, // CLUB 써클 얇게 (커서 퇴장 후)
-  CAP_CLUB_THICK: 7850, //           → 굵게
-  CAP_LAZY_THIN: 8300, // LAZY 써클 얇게
-  CAP_LAZY_THICK: 8750, //           → 굵게
-  OFF: 10600, // 전원 일괄 즉시 소등
-  CYCLE: 12000,
+  TYPE_END: 2000, // 타이핑 완료 (11스텝)
+  VANISH: 3800, // 문구+커서 일괄 소멸
+  CRAWL_START: 4200, // 선택 커서 출발
+  STEP: 380, // 커서 보폭
+  CAP_LAZY_THIN: 6300, // LAZY 써클 얇게 (커서 퇴장 후)
+  CAP_LAZY_THICK: 6650, //           → 굵게
+  CAP_CLUB_THIN: 7000, // CLUB 써클 얇게
+  CAP_CLUB_THICK: 7350, //           → 굵게
+  OFF: 9400, // 전원 일괄 즉시 소등
+  CYCLE: 10500,
 }
 
 /** 사이클 내 경과시간 → 화면 상태 (순수 함수 — 모든 연출의 단일 출처) */
 function stateAt(e: number) {
   const textVisible = e < T.VANISH
   const typed = !textVisible ? 0 : e >= T.TYPE_END ? PHRASE.length : Math.floor((e / T.TYPE_END) * PHRASE.length)
-  // 커서: 타이핑 중 점등 고정, 완료 후 0.525s 간격 점멸 (2회)
-  const blockCursor = textVisible && (e < T.TYPE_END ? true : Math.floor((e - T.TYPE_END) / 525) % 2 === 0)
+  // 커서: 타이핑 중 점등 고정, 완료 후 0.45s 간격 점멸 (2회)
+  const blockCursor = textVisible && (e < T.TYPE_END ? true : Math.floor((e - T.TYPE_END) / 450) % 2 === 0)
 
   const live = e >= T.CRAWL_START && e < T.OFF
   const step = live ? Math.floor((e - T.CRAWL_START) / T.STEP) : -1
@@ -82,7 +83,7 @@ function stateAt(e: number) {
   return { textVisible, typed, blockCursor, cursor1, cursor2, lit, capClub, capLazy }
 }
 
-const STILL_ELAPSED = { type: 3000, hot: 9500 } as const
+const STILL_ELAPSED = { type: 2500, hot: 8600 } as const
 
 export function ComingSoonMain() {
   const [now, setNow] = useState(0)
@@ -133,22 +134,23 @@ export function ComingSoonMain() {
               )
             }),
           )}
-          {/* 빙고 써클 — 단어 완성 순서대로 CLUB → LAZY, 얇게→굵게 2단계 */}
+          {/* 빙고 써클 — LAZY 먼저, 이어 CLUB (운영자 라운드 38), 얇게→굵게 2단계 */}
           <div className={`${styles.capsule} ${styles.capCol} ${capClass(s.capClub)}`} aria-hidden />
           <div className={`${styles.capsule} ${styles.capRow} ${capClass(s.capLazy)}`} aria-hidden />
         </div>
 
         <div className={styles.overlay} aria-label="COMING SOON">
-          {s.textVisible && (
-            <>
-              <span className={styles.typedText} aria-hidden>
+          {/* CLI식 좌측 고정 타이핑 (라운드 38) — 보이지 않는 완성 문구가 박스 폭을
+               고정하고, 타이핑은 그 왼쪽 모서리에서 오른쪽으로 채워진다 (재정렬 없음) */}
+          <span className={styles.typeBox} aria-hidden>
+            <span className={styles.sizer}>{PHRASE}▮</span>
+            {s.textVisible && (
+              <span className={styles.typedLine}>
                 {PHRASE.slice(0, s.typed)}
+                <span className={s.blockCursor ? "" : styles.blockCursorOff}>▮</span>
               </span>
-              <span className={`${styles.blockCursor} ${s.blockCursor ? "" : styles.blockCursorOff}`} aria-hidden>
-                ▮
-              </span>
-            </>
-          )}
+            )}
+          </span>
         </div>
       </div>
     </main>

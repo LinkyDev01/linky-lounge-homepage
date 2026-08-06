@@ -1,20 +1,22 @@
 /* lazy-club.com coming soon — C안(워터마크) 확정 · 라운드 33 · 톤 보정 라운드 34
    이미지 대신 둥근모꼴로 워드서치 그리드를 직접 조판한다.
 
-   라운드 34 (운영자: "너무 빨라, 모션 과격, 톤앤매너 안 맞아"):
-   급점멸·지터를 걷어내고 픽셀 LCD가 예열되듯 2단계 점등으로 —
-   Y2K는 '요란한 글리치'가 아니라 '느린 디지털 리듬'으로 녹인다.
-   모든 상태 전환은 여전히 하드 스텝(중간 보간 없음, 픽셀 문법 유지).
+   라운드 34: 사이클 14s로 감속. 라운드 35 (운영자):
+   - 사라짐은 전부 일괄·즉시 (하나씩 지우기·흐려지기 금지)
+   - 그라데이션 금지 — 써클은 얇은 선(1px) → 굵은 선(3px) 2단계로 채움
+   모든 상태 전환은 하드 스텝(중간 보간 0). 타이핑·커서는 CSS 키프레임,
+   그리드·써클은 rAF 상태 머신(ComingSoonMain)이 구동한다 — ON 캐스케이드와
+   일괄 OFF를 동시에 만족시키기 위함.
 
    한 사이클(14s):
-     0–20%      COMING SOON 타이핑 (steps, 2.8s — 종전보다 느긋하게)
+     0–20%      COMING SOON 타이핑 (steps, 2.8s)
      20–38%     유지 + 커서 느린 점멸 2회 (1.1s 주기)
-     38%        문구 전체가 한 번에 사라짐
-     40–48%     가로 LAZY · 세로 CLUB 점등 — 글자당 0.18s 캐스케이드,
-                각 글자는 dim → 중간(0.55) → 완전 점등의 2단계 (지터 없음)
-     ~48–86%    활성 유지 (약 5s의 정지 — 숨 쉬는 구간)
-     86–90%     2단계 소등 (점등의 역순 리듬)
-     90–100%    쉼 (1.4s) → 처음부터 반복 */
+     38%        문구 전체가 한 번에 사라짐 (일괄)
+     5.6s~      LAZY·CLUB 글자 점등 — 글자당 0.18s 캐스케이드 (dim→1 즉시)
+     6.9~8.25s  빙고 써클: LAZY 얇게→굵게, 이어 CLUB 얇게→굵게
+     ~12.04s    활성 유지 (약 4s의 정지)
+     12.04s     글자·써클 전원 일괄 즉시 소등
+     ~14s       쉼 → 처음부터 반복 */
 
 @font-face {
   font-family: "DungGeunMo";
@@ -53,46 +55,31 @@
 }
 .cell { opacity: var(--dim); }
 
-/* 활성 글자 — 가로 LAZY(2행) · 세로 CLUB(1열).
-   라운드 34: 지터·급점멸 제거 — 글자당 0.18s 캐스케이드, dim → 0.55 → 1의
-   2단계 점등 (하드 스텝 유지 = 픽셀 LCD 예열 리듬) */
-.hot {
-  animation: hotOn var(--cycle) step-end infinite;
-  animation-delay: calc(var(--i) * 0.18s);
-}
-@keyframes hotOn {
-  0% { opacity: var(--dim); }
-  40% { opacity: 0.55; }   /* 1단계 — 반쯤 밝아지고 */
-  41.5% { opacity: 1; }    /* 2단계 — 완전 점등 */
-  86% { opacity: 1; }
-  87.5% { opacity: 0.55; } /* 소등도 같은 리듬의 역순 */
-  89% { opacity: var(--dim); }
-  100% { opacity: var(--dim); }
+/* 활성 글자 — 가로 LAZY(2행) · 세로 CLUB(1열). 라운드 35:
+   중간 밝기(그라데이션) 폐기 — dim → 1 하드 스텝만.
+   켤 때는 글자당 0.18s 지연 캐스케이드(0s 트랜지션 + delay = 즉시 점등의 순차),
+   끌 때는 .gridOn 제거로 전원이 한 번에 즉시 꺼진다 (기본 상태 delay 0) */
+.hot { transition: opacity 0s 0s; }
+.gridOn .hot {
+  opacity: 1;
+  transition: opacity 0s calc(var(--i) * 0.18s);
 }
 
 /* 찾은 단어 캡슐 — 활성화 때 함께 점등 (원 마크의 오벌 문법).
    ⚠ 그리드 아이템으로 두면 글자 자동 배치를 밀어내므로 반드시 절대 배치 오버레이로 둔다 */
 .capsule {
   position: absolute;
-  border: 1.5px solid var(--ink);
+  border: 0 solid var(--ink);
   border-radius: 999px;
   pointer-events: none;
-  opacity: 0;
-  animation: capOn var(--cycle) step-end infinite;
 }
-/* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%).
-   글자 캐스케이드가 끝난 뒤 단어를 '찾았다'고 표시하듯 순서대로 점등 */
-.capRow { left: -2%; width: 104%; top: 27%; height: 21%; animation-delay: 0.9s; }
-.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; animation-delay: 1.5s; }
-@keyframes capOn {
-  0% { opacity: 0; }
-  40% { opacity: 0.45; }  /* 글자와 같은 2단계 리듬 */
-  41.5% { opacity: 1; }
-  86% { opacity: 1; }
-  87.5% { opacity: 0.45; }
-  89% { opacity: 0; }
-  100% { opacity: 0; }
-}
+/* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%) */
+.capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
+.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }
+/* 라운드 35: 그라데이션 없이 선 굵기 2단계로 써클을 채운다 — 얇게(1px) → 굵게(3px).
+   상태 전환은 JS(rAF) — 켜짐은 LAZY → CLUB 순서, 꺼짐은 글자와 함께 일괄 즉시 */
+.capThin { border-width: 1px; }
+.capThick { border-width: 3px; }
 
 /* ── COMING SOON 오버레이 (C안 — 그리드 위 중앙) ── */
 .overlay {
@@ -148,19 +135,17 @@
   100% { opacity: 0; }
 }
 
-/* 검토용 정지(?phase=type|hot) — 스크린샷 확인 전용 */
+/* 검토용 정지(?phase=type|hot) — 스크린샷 확인 전용
+   (그리드·써클은 JS 상태 머신이 정지 모드에서 직접 고정한다) */
 .phaseType .typing { animation: none; width: var(--typeW, max-content); opacity: 1; }
 .phaseType .cursor { animation: none; opacity: 1; }
-.phaseType .hot, .phaseType .capsule { animation: none; }
-.phaseType .capsule { opacity: 0; }
 .phaseHot .typing { animation: none; width: 0; opacity: 0; }
 .phaseHot .cursor { animation: none; opacity: 0; }
-.phaseHot .hot { animation: none; opacity: 1; }
-.phaseHot .capsule { animation: none; opacity: 1; }
+.phaseHot .hot { opacity: 1; transition: none; }
+.phaseHot .capsule { border-width: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .typing, .cursor, .hot, .capsule { animation: none; }
+  .typing, .cursor { animation: none; }
   .typing { width: var(--typeW, max-content); }
-  .hot { opacity: 1; }
-  .capsule { opacity: 1; }
+  .hot { transition: none; }
 }

@@ -1,14 +1,20 @@
-/* lazy-club.com coming soon — C안(워터마크) 확정 · 라운드 33
+/* lazy-club.com coming soon — C안(워터마크) 확정 · 라운드 33 · 톤 보정 라운드 34
    이미지 대신 둥근모꼴로 워드서치 그리드를 직접 조판한다.
 
-   한 사이클(9s):
-     0–22%   COMING SOON 타이핑 (steps)
-     22–36%  유지 + 커서 2회 점멸
-     36%     문구 전체가 한 번에 사라짐
-     38–43%  가로 LAZY · 세로 CLUB 활성화 (y2k 스텝 점멸 + 1px 지터)
-     43–70%  활성 유지
-     70–74%  비활성화
-     74–100% 쉼 → 처음부터 반복 */
+   라운드 34 (운영자: "너무 빨라, 모션 과격, 톤앤매너 안 맞아"):
+   급점멸·지터를 걷어내고 픽셀 LCD가 예열되듯 2단계 점등으로 —
+   Y2K는 '요란한 글리치'가 아니라 '느린 디지털 리듬'으로 녹인다.
+   모든 상태 전환은 여전히 하드 스텝(중간 보간 없음, 픽셀 문법 유지).
+
+   한 사이클(14s):
+     0–20%      COMING SOON 타이핑 (steps, 2.8s — 종전보다 느긋하게)
+     20–38%     유지 + 커서 느린 점멸 2회 (1.1s 주기)
+     38%        문구 전체가 한 번에 사라짐
+     40–48%     가로 LAZY · 세로 CLUB 점등 — 글자당 0.18s 캐스케이드,
+                각 글자는 dim → 중간(0.55) → 완전 점등의 2단계 (지터 없음)
+     ~48–86%    활성 유지 (약 5s의 정지 — 숨 쉬는 구간)
+     86–90%     2단계 소등 (점등의 역순 리듬)
+     90–100%    쉼 (1.4s) → 처음부터 반복 */
 
 @font-face {
   font-family: "DungGeunMo";
@@ -18,7 +24,7 @@
 
 .main {
   --dim: 0.16;
-  --cycle: 9s;
+  --cycle: 14s;
   /* 그리드 크기 — 화면 세로에 거의 꽉 차게 (원 마크 비율 1:1.273 유지).
      52vh: 캡슐 상단이 고정 헤더에 걸리지 않는 최대치 */
   --gridW: min(94vw, 52vh);
@@ -47,23 +53,21 @@
 }
 .cell { opacity: var(--dim); }
 
-/* 활성 글자 — 가로 LAZY(2행) · 세로 CLUB(1열). y2k 스텝 점멸 + 1px 지터 */
+/* 활성 글자 — 가로 LAZY(2행) · 세로 CLUB(1열).
+   라운드 34: 지터·급점멸 제거 — 글자당 0.18s 캐스케이드, dim → 0.55 → 1의
+   2단계 점등 (하드 스텝 유지 = 픽셀 LCD 예열 리듬) */
 .hot {
   animation: hotOn var(--cycle) step-end infinite;
-  animation-delay: calc(var(--i) * 0.06s);
+  animation-delay: calc(var(--i) * 0.18s);
 }
 @keyframes hotOn {
-  0% { opacity: var(--dim); transform: none; }
-  38% { opacity: 1; transform: translate(1px, -1px); }
-  39% { opacity: var(--dim); transform: none; }
-  40% { opacity: 1; transform: translate(-1px, 1px); }
-  41% { opacity: var(--dim); transform: none; }
-  42% { opacity: 1; transform: none; }
-  70% { opacity: 1; transform: none; }
-  71% { opacity: var(--dim); transform: none; }
-  72% { opacity: 1; transform: none; }
-  73% { opacity: var(--dim); transform: none; }
-  100% { opacity: var(--dim); transform: none; }
+  0% { opacity: var(--dim); }
+  40% { opacity: 0.55; }   /* 1단계 — 반쯤 밝아지고 */
+  41.5% { opacity: 1; }    /* 2단계 — 완전 점등 */
+  86% { opacity: 1; }
+  87.5% { opacity: 0.55; } /* 소등도 같은 리듬의 역순 */
+  89% { opacity: var(--dim); }
+  100% { opacity: var(--dim); }
 }
 
 /* 찾은 단어 캡슐 — 활성화 때 함께 점등 (원 마크의 오벌 문법).
@@ -76,18 +80,17 @@
   opacity: 0;
   animation: capOn var(--cycle) step-end infinite;
 }
-/* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%) */
-.capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
-.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }
+/* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%).
+   글자 캐스케이드가 끝난 뒤 단어를 '찾았다'고 표시하듯 순서대로 점등 */
+.capRow { left: -2%; width: 104%; top: 27%; height: 21%; animation-delay: 0.9s; }
+.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; animation-delay: 1.5s; }
 @keyframes capOn {
   0% { opacity: 0; }
-  40% { opacity: 1; }
-  41% { opacity: 0; }
-  42% { opacity: 1; }
-  70% { opacity: 1; }
-  71% { opacity: 0; }
-  72% { opacity: 1; }
-  73% { opacity: 0; }
+  40% { opacity: 0.45; }  /* 글자와 같은 2단계 리듬 */
+  41.5% { opacity: 1; }
+  86% { opacity: 1; }
+  87.5% { opacity: 0.45; }
+  89% { opacity: 0; }
   100% { opacity: 0; }
 }
 
@@ -120,27 +123,28 @@
 .ghost { flex: none; }
 @keyframes csType {
   0% { width: 0; animation-timing-function: steps(11, end); }
-  22% { width: var(--typeW); }
-  36% { width: var(--typeW); }
-  36.01% { width: 0; }
+  20% { width: var(--typeW); }
+  38% { width: var(--typeW); }
+  38.01% { width: 0; }
   100% { width: 0; }
 }
 /* 지울 땐 한 글자씩이 아니라 전체가 한 번에 사라진다 (운영자 라운드 33) */
 @keyframes csVanish {
   0% { opacity: 1; }
-  36% { opacity: 1; }
-  36.01% { opacity: 0; }
+  38% { opacity: 1; }
+  38.01% { opacity: 0; }
   100% { opacity: 0; }
 }
+/* 커서 — 느린 점멸 2회 (켜짐/꺼짐 각 0.56s ≈ 1.1s 주기, 라운드 34 감속) */
 .cursor { animation: csCursor var(--cycle) step-end infinite; }
 @keyframes csCursor {
   0% { opacity: 1; }
-  24% { opacity: 0; }
-  27% { opacity: 1; }
+  22% { opacity: 0; }
+  26% { opacity: 1; }
   30% { opacity: 0; }
-  33% { opacity: 1; }
-  36% { opacity: 1; }
-  36.01% { opacity: 0; }
+  34% { opacity: 1; }
+  38% { opacity: 1; }
+  38.01% { opacity: 0; }
   100% { opacity: 0; }
 }
 

@@ -647,3 +647,24 @@
   padding: 4px 10px;
   cursor: pointer;
 }
+
+/* ═══ 인트로 중 크롬 가림 (라운드 48 — 랜딩 인트로 전용 신규 클래스) ═══
+   내비·푸터를 배치·크기 그대로 두고 색만 배경색으로 맞춰 숨긴다.
+   레이아웃이 변하지 않으므로 인트로 시작 시점과 종료 시점의 화면이 완전히 같다.
+   (이 클래스가 붙지 않는 다른 페이지에는 영향 없음) */
+.chromeVeiled .header,
+.chromeVeiled .footer {
+  color: var(--paper);
+  pointer-events: none;
+}
+.chromeVeiled .header a,
+.chromeVeiled .footer a,
+.chromeVeiled .footerDesc p,
+.chromeVeiled .footerBiz,
+.chromeVeiled .footerContact,
+.chromeVeiled .footerSns a {
+  color: var(--paper);
+}
+.chromeVeiled .footerInner { border-top-color: var(--paper); }
+/* 색으로 못 숨기는 요소 — 자리는 그대로 차지 */
+.chromeVeiled .footerLogo { opacity: 0; }

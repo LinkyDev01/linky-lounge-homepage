@@ -1,23 +1,30 @@
 "use client"
 
 /**
- * lazy-club.com 랜딩 인트로 (라운드 47 전면 교체)
+ * lazy-club.com 랜딩 인트로 (라운드 47 도입 · 라운드 48 개정)
  *
- * 이 페이지는 '커밍순'이 아니라 정식 랜딩이다. 방문하면 인트로(4×4 알파벳 셔플 →
- * LAZY·CLUB 완성 → 빙고 동그라미)가 재생되고, 끝나는 순간 내비·푸터가 나타난다.
- * COMING SOON 문구·타이핑·흑백 반전·커서 크롤은 전부 폐기 (라운드 47).
+ * 이 페이지는 '커밍순'이 아니라 정식 랜딩이다. 방문하면 인트로(WELCOME TO →
+ * 4×4 알파벳 셔플 → LAZY·CLUB 완성 → 빙고 동그라미)가 재생되고, 끝나는 순간
+ * 내비·푸터가 색을 되찾으며 나타난다.
  *
  * 시퀀스 (총 3.5s, 1회성):
- *   0–2.5s   4×4 셔플 — 화면에는 그리드 하나뿐 (내비·푸터 미렌더, 스크롤 없음).
- *            16칸이 각자 60~140ms 무작위 간격으로 A–Z를 빠르게 교체하며,
+ *   0–0.5s   WELX / COME / TOXX / XXXX — 잉크 단색(#1a1208) 정지 화면
+ *   0.5–2.5s 셔플 2.0s — 16칸이 각자 60~140ms 무작위 간격으로 A–Z를 교체하며,
  *            글자가 바뀔 때마다 3색(#f49938/#96ab9b/#845d5e) 중 무작위 재배정
- *   2.5s     고정 — 원 마크 배열(CDEF/LAZY/UVWX/BCDE). LAZY·CLUB 7글자는
- *            세 컬러 중 무작위 1색으로 통일(새로고침마다 다름), 나머지 9글자는
- *            셔플 마지막 색 유지 — 단, 단색과 같으면 다른 색으로 치환
- *            (써클 주위 글자는 써클 안 텍스트와 반드시 다른 색)
- *   2.5s     LAZY 동그라미 → 2.75s CLUB 동그라미 (각 즉시, 3px 1단계)
+ *   2.5s     고정 — CWEL / LAZY / UCOM / BETO. LAZY·CLUB 7글자는 세 컬러 중
+ *            무작위 1색으로 통일(새로고침마다 다름), 나머지 9글자(=WELCOME TO)는
+ *            셔플 마지막 색 유지 — 단 단색과 같으면 다른 색으로 치환
+ *            (써클 주위 글자는 써클 안 글자와 반드시 다른 색)
+ *   2.75s    LAZY 동그라미 (글자 확정 후 0.25s 텀)
+ *   3.0s     CLUB 동그라미 (다시 0.25s 텀) — 글자 확정과 동시에 그리지 않는다
  *   3.0–3.5s 정지 유지
- *   3.5s     최종 상태 — 내비·푸터 출현 (페이드 없이 즉시), 그대로 고정
+ *   3.5s     최종 상태 — 내비·푸터가 색을 되찾아 노출 (페이드 없이 즉시)
+ *
+ * 레이아웃 불변 (라운드 48 핵심): 내비·푸터는 t=0부터 최종 레이아웃 그대로
+ * 렌더하고, 인트로 동안에만 배경색으로 맞춰 숨긴다(로고 이미지는 opacity 0).
+ * 따라서 시작 시점과 끝 시점의 화면 배치가 완전히 같고 그리드는 1px도 움직이지 않는다.
+ * 스크롤은 잠그지 않는다 — 잠그면 데스크톱 스크롤바가 사라지며 폭이 바뀐다.
+ * 대신 스크롤·휠은 스킵 트리거라 인트로가 즉시 끝난다.
  *
  * 스킵: 인트로 중 어떤 입력이든 즉시 최종 상태. reduced-motion도 즉시 최종.
  * 인트로는 방문마다 재생.
@@ -25,31 +32,41 @@
  * 구현: 단일 rAF 클록 + 순수 함수 stateAt. 난수는 마운트 시 시드 하나만 뽑고
  * (셔플 글자·색·간격·단색은 전부 시드 해시로 유도) stateAt은 읽기만 한다 —
  * 프레임마다 Math.random()을 부르면 화면이 발작하듯 재추첨된다.
- * 시드는 클라이언트 effect에서 생성 (SSR 첫 페인트는 빈 그리드 → 하이드레이션 불일치 없음).
+ * 시드는 클라이언트 effect에서 생성 (SSR 첫 페인트는 웰컴 배열 → 배치 동일).
  */
 
 import { useEffect, useState } from "react"
-import { usePreviewBarHide, WorkroomShell } from "../Shell"
+import { WorkroomShell } from "../Shell"
 import styles from "./coming-soon.module.css"
 
-// 원 마크와 동일한 최종 배열 — 2행 = LAZY(가로), 1열 = CLUB(세로, L 공유)
+// 오프닝 0.5s — WELCOME TO + 채움 X (라운드 48)
+const WELCOME = [
+  ["W", "E", "L", "X"],
+  ["C", "O", "M", "E"],
+  ["T", "O", "X", "X"],
+  ["X", "X", "X", "X"],
+]
+// 최종 배열 — 2행 = LAZY(가로), 1열 = CLUB(세로, L 공유).
+// 나머지 9칸을 행 순서로 읽으면 W E L C O M E T O (라운드 48)
 const GRID = [
-  ["C", "D", "E", "F"],
+  ["C", "W", "E", "L"],
   ["L", "A", "Z", "Y"],
-  ["U", "V", "W", "X"],
-  ["B", "C", "D", "E"],
+  ["U", "C", "O", "M"],
+  ["B", "E", "T", "O"],
 ]
 const HOT = new Set(["0-0", "1-0", "2-0", "3-0", "1-1", "1-2", "1-3"]) // C·L·U·B + A·Z·Y
 
 const PALETTE = ["#f49938", "#96ab9b", "#845d5e"]
+const INK = "#1a1208"
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 /* 타임라인 (ms) — 1회성, 총 3.5s */
 const T = {
-  FIX: 2500, // 셔플 종료 — LAZY·CLUB 고정
-  CAP_LAZY: 2500, // LAZY 동그라미 (즉시)
-  CAP_CLUB: 2750, // CLUB 동그라미 (즉시)
-  END: 3500, // 최종 상태 — 내비·푸터 출현, 고정
+  WELCOME: 500, // 웰컴 정지 화면 종료 — 셔플 시작
+  FIX: 2500, // 셔플 종료(2.0s) — LAZY·CLUB 고정
+  CAP_LAZY: 2750, // LAZY 동그라미 (고정 후 0.25s)
+  CAP_CLUB: 3000, // CLUB 동그라미 (다시 0.25s)
+  END: 3500, // 최종 상태 — 내비·푸터 노출, 고정
 }
 
 /** 결정적 해시 → [0,1) — 시드·칸·틱이 같으면 항상 같은 값 (프레임 간 안정) */
@@ -71,10 +88,15 @@ function stateAt(raw: number, seed: number) {
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 4; c++) {
       const i = r * 4 + c
+      if (e < T.WELCOME) {
+        // 오프닝 — 잉크 단색 정지 (색 규칙과 별개)
+        cells.push({ ch: WELCOME[r][c], color: INK })
+        continue
+      }
       // 칸별 셔플 간격 60~140ms (시드로 고정)
       const interval = 60 + rnd(seed, i, 999) * 80
       // 고정 이후에는 마지막 틱에 멈춘다 → 색이 이어진다
-      const tick = Math.floor(Math.min(e, T.FIX - 1) / interval)
+      const tick = Math.floor((Math.min(e, T.FIX - 1) - T.WELCOME) / interval)
       if (e < T.FIX) {
         cells.push({
           ch: ALPHABET[Math.floor(rnd(seed, i, tick) * 26)],
@@ -104,10 +126,12 @@ function stateAt(raw: number, seed: number) {
   }
 }
 
+/** 시드 전(SSR 포함) 첫 페인트 — 웰컴 배열 잉크 단색. 배치는 이후와 동일 */
+const INITIAL: Cell[] = WELCOME.flat().map((ch) => ({ ch, color: INK }))
+
 export function ComingSoonMain() {
   const [elapsed, setElapsed] = useState(0)
   const [seed, setSeed] = useState<number | null>(null)
-  usePreviewBarHide() // 인트로는 셸 밖에서 렌더되므로 여기서도 프리뷰 바를 숨긴다
 
   useEffect(() => {
     // 난수 시드는 여기서 딱 한 번 (구현 주의 — stateAt은 읽기만 한다)
@@ -157,32 +181,25 @@ export function ComingSoonMain() {
     }
   }, [])
 
-  // 시드 전 첫 페인트(SSR 포함)는 빈 그리드 — 하이드레이션 불일치 방지
   const s = seed === null ? null : stateAt(elapsed, seed)
+  const cells = s?.cells ?? INITIAL
 
-  const grid = (
-    <div className={styles.grid} aria-label="LAZY CLUB">
-      {(s?.cells ?? Array.from({ length: 16 }, () => null)).map((cell, i) => (
-        <span key={i} className={styles.cell} style={cell ? { color: cell.color } : undefined} aria-hidden>
-          {cell?.ch ?? ""}
-        </span>
-      ))}
-      {/* 빙고 동그라미 — LAZY 먼저, 이어 CLUB (각 즉시 표시, 3px 1단계) */}
-      {s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}
-      {s?.capClub && <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />}
-    </div>
-  )
-
-  // 인트로 구간 — 화면에는 그리드 하나뿐 (내비·푸터·스크롤 없음)
-  if (!s?.done) {
-    return <div className={styles.introRoot}>{grid}</div>
-  }
-
-  // 최종 상태 — 내비·푸터 출현, 그리드·색 배치는 그대로 고정
+  // 셸은 t=0부터 최종 레이아웃 그대로 — 인트로 동안 내비·푸터만 배경색으로 가린다
   return (
-    <WorkroomShell paper="#f8f3ef">
+    <WorkroomShell paper="#f8f3ef" chromeHidden={!s?.done}>
       <main className={styles.main}>
-        <div className={styles.stage}>{grid}</div>
+        <div className={styles.stage}>
+          <div className={styles.grid} aria-label="LAZY CLUB">
+            {cells.map((cell, i) => (
+              <span key={i} className={styles.cell} style={{ color: cell.color }} aria-hidden>
+                {cell.ch}
+              </span>
+            ))}
+            {/* 빙고 동그라미 — 글자 확정 후 0.25s 텀, LAZY 먼저 이어 CLUB (3px 1단계) */}
+            {s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}
+            {s?.capClub && <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />}
+          </div>
+        </div>
       </main>
     </WorkroomShell>
   )

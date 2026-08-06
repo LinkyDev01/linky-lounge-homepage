@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
-import { KAKAO_CHAT_URL, reportClientError } from "../../../support"
+import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../../support"
 import { readSim, simSubmit, simSlots, type SimMode } from "../../../sim"
 import { SimBanner } from "../../../SimBanner"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -105,6 +105,14 @@ function slotsForDay(
 export default function InterviewSchedulePage() {
   const [bookedEvents,  setBookedEvents]  = useState<{ start: string; end: string }[]>([])
   const [slotsLoading, setSlotsLoading] = useState(true)
+  const [failedText, setFailedText] = useState("")
+  const [failCopied, setFailCopied] = useState(false)
+  async function copyFailed() {
+    if (await copyText(failedText)) {
+      setFailCopied(true)
+      setTimeout(() => setFailCopied(false), 2500)
+    }
+  }
   const [sim, setSim] = useState<SimMode | null>(null)
   const [simReady, setSimReady] = useState(false)
   useEffect(() => { setSim(readSim()); setSimReady(true) }, [])
@@ -280,6 +288,22 @@ export default function InterviewSchedulePage() {
     return `${selectedDate.month + 1}월 ${selectedDate.date}일 ${DAY_KO[selectedDate.dow]}요일`
   }, [selectedDate])
 
+  /** 예약이 실패했을 때 카카오톡으로 대신 보낼 수 있게 내용을 보관 (운영자 지시 2026-08-06) */
+  function keepFailed(name?: string, phone?: string) {
+    const when = selectedSlot
+      ? `${selectedDateLabel} ${selectedSlot.label}`
+      : "-"
+    setFailedText(
+      [
+        "[레이지데이 북클럽 전화 인터뷰 예약]",
+        `희망 일시: ${when}`,
+        `이름: ${name || "-"}`,
+        `연락처: ${phone || "-"}`,
+      ].join("\n"),
+    )
+    reportClientError("schedule_book", "전화 인터뷰 예약 실패")
+  }
+
   // 예약 제출
   async function handleBook(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -313,11 +337,13 @@ export default function InterviewSchedulePage() {
         setSubmitted(true)
         window.scrollTo(0, 0)
       } else {
-        setErrors({ _form: data.error ?? "예약 중 오류가 발생했습니다." })
+        setErrors({ _form: data.error ?? "일시적인 오류로 예약이 완료되지 않았어요. 잠시 후 다시 시도해주세요." })
+        keepFailed(name, phone)
         reportClientError("schedule_book", String(data.error ?? "예약 실패"))
       }
     } catch {
-      setErrors({ _form: "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요." })
+      setErrors({ _form: "연결이 잠시 불안정했어요. 선택하신 시간은 그대로니, 잠시 후 다시 시도해주세요." })
+      keepFailed(name, phone)
       reportClientError("schedule_book", "네트워크 오류")
     }
     setSubmitting(false)
@@ -489,7 +515,7 @@ export default function InterviewSchedulePage() {
                 <p className={styles.timeHint}>
                   예약 가능한 시간을 불러오지 못했어요.
                   <br />
-                  잠시 후 새로고침해 주시거나, 아래로 문의해 주세요.
+                  잠시 후 새로고침해 주세요. 계속 안 되면 아래로 문의해주세요.
                   <br />
                   <a
                     href={KAKAO_CHAT_URL}
@@ -504,7 +530,9 @@ export default function InterviewSchedulePage() {
               ) : selectedDate === null ? (
                 bookableDayCount === 0 && !slotsLoading ? (
                   <p className={styles.timeHint}>
-                    지금은 예약 가능한 시간이 없습니다.
+                    지금 예약할 수 있는 시간이 모두 찼어요.
+                    <br />
+                    카카오채널로 문의해 주시면 일정을 조율해 드릴게요.
                     <br />
                     <a
                       href={KAKAO_CHAT_URL}
@@ -524,7 +552,7 @@ export default function InterviewSchedulePage() {
                   <p className={styles.selectedDateLabel}>{selectedDateLabel}</p>
                   <div className={styles.slotList}>
                     {daySlots.length === 0 ? (
-                      <p className={styles.noSlots}>가능한 시간이 없습니다.</p>
+                      <p className={styles.noSlots}>이 날은 가능한 시간이 없어요. 다른 날짜를 선택해주세요.</p>
                     ) : (
                       daySlots.map(slot => {
                         const isSel = selectedSlot?.key === slot.key
@@ -586,15 +614,19 @@ export default function InterviewSchedulePage() {
                 {errors._form && (
                   <>
                     <p className={styles.formErr}>{errors._form}</p>
-                    {/* 막혔을 때 빠져나갈 길 — 작은 밑줄 링크 (운영자 지시 2026-08-06) */}
+                    {/* 막혔을 때 빠져나갈 길 — 복사해서 카카오톡으로 보내면 대신 접수 (운영자 지시 2026-08-06) */}
+                    <p className={styles.rescueGuide}>{KAKAO_SUBMIT_GUIDE}</p>
+                    <button type="button" className={styles.rescueCopyBtn} onClick={copyFailed}>
+                      {failCopied ? "복사됐어요" : "예약 내용 복사"}
+                    </button>
                     <a
                       href={KAKAO_CHAT_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.supportLink}
-                      onClick={() => reportClientError("schedule_kakao", "예약 실패 후 문의 링크 클릭")}
+                      onClick={() => reportClientError("schedule_kakao", "예약 실패 후 카카오톡 제출")}
                     >
-                      예약이 계속 안 되면 카카오채널로 문의하기
+                      {KAKAO_SUBMIT_LABEL}
                     </a>
                   </>
                 )}

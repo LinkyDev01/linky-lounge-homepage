@@ -3,13 +3,15 @@
    퍼즐을 "푸는" 연출. 모든 타이밍은 ComingSoonMain의 단일 rAF 클록이
    순수 함수로 구동한다 (CSS 애니메이션 없음 — 시계가 하나라 어긋남도 없다).
 
-   1회성 시퀀스, 총 ~7s (라운드 45 — 깜빡임·블록 단계 없음):
-     0–1.6s     COMING SOON 타이핑 (11스텝, CLI식 좌측 고정, 반전 배경 위)
+   1회성 시퀀스, 총 ~7s (라운드 45·46):
+     0–1.6s     COMING SOON 타이핑 (11스텝, CLI식 좌측 고정, 반전 화면 위)
      1.6–2.8s   커서 점멸 2회 → 문구+커서 일괄 소멸
      3.1s~      선택 커서 2개가 0.35s 보폭으로 기어감 — C / L / U·A / B·Z / Y
      4.5s       마지막 글자 완성
-     5.2s       (0.7s 텀 후) 색상이 서서히 반전 — CSS 1.5s 페이드로 오트 복귀 후 고정
-     써클은 처음부터 끝까지 고정 흑색(3px) — 배경이 밝아지며 서서히 드러난다 */
+     5.2s       (0.7s 텀 후) 반전 와이프 — 반전 팔레트 레이어가 위→아래로 걷히며,
+                경계면이 지나는 자리마다 배경·텍스트가 같은 순간에 원래 색으로
+                (라운드 46 — 크로스페이드의 순차 반전 인상 해소). 1.2s 후 고정
+     써클은 고정 흑색 — 반전 레이어에선 배경에 묻히고 오트 레이어에서 드러남 */
 
 @font-face {
   font-family: "DungGeunMo";
@@ -57,7 +59,8 @@
 }
 
 /* ── 빙고 써클 — 처음부터 끝까지 고정 흑색 3px (라운드 45).
-   반전(잉크) 배경과 같은 색이라 보이지 않다가, 배경이 오트로 페이드되며 드러난다 */
+   반전 레이어에선 배경(#1a1208)과 같은 색이라 완전히 묻히고,
+   와이프가 걷힌 오트 레이어에서 드러난다 */
 .capsule {
   position: absolute;
   border: 3px solid #1a1208;
@@ -89,3 +92,21 @@
 .sizer { visibility: hidden; white-space: pre; }
 .typedLine { position: absolute; left: 0; top: 0; white-space: pre; }
 .blockCursorOff { visibility: hidden; }
+
+/* ── 반전 레이어 와이프 (라운드 46) — 같은 장면의 반전 팔레트 사본이 위에 덮여
+   있다가, clip-path 상단 인셋이 자라며 위→아래로 걷힌다. 경계면이 지나는 픽셀은
+   배경·글자가 같은 순간에 원래 색으로 바뀐다 (중간 혼색 없음).
+   translateZ(0): 내부 fixed 헤더를 레이어 기준으로 가둔다 */
+.wipeWrap { position: relative; }
+.layerDark {
+  position: absolute;
+  inset: 0;
+  z-index: 150;
+  overflow: hidden;
+  transform: translateZ(0);
+  clip-path: inset(0 0 0 0);
+}
+.layerDarkWipe {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.2s ease-in-out;
+}

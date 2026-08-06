@@ -614,7 +614,7 @@ export default function InterviewSchedulePage() {
                 {errors._form && (
                   <>
                     <p className={styles.formErr}>{errors._form}</p>
-                    {/* 막혔을 때 빠져나갈 길 — 복사해서 카카오톡으로 보내면 대신 접수 (운영자 지시 2026-08-06) */}
+                    {/* 막혔을 때 빠져나갈 길 — 복사해서 카카오톡으로 전달 → 순차 확인 후 연락 (운영자 지시 2026-08-06) */}
                     <p className={styles.rescueGuide}>{KAKAO_SUBMIT_GUIDE}</p>
                     <button type="button" className={styles.rescueCopyBtn} onClick={copyFailed}>
                       {failCopied ? "복사됐어요" : "예약 내용 복사"}

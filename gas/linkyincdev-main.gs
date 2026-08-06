@@ -1066,21 +1066,9 @@ function scheduleKakao(to, scheduledDate, templateId, variables) {
   }
 }
 
-// ── 윤채원님(이미 예약된 분) 일회성 리마인더 예약 — 한 번만 실행 ──
-// GAS 편집기에서 아래 값(연락처/인터뷰 일시)을 채우고 이 함수를 직접 실행하세요.
-function scheduleReminderOnce() {
-  var name  = "윤채원";
-  var phone = "01045446912";               // 윤채원님 연락처
-  var when  = "2026-06-26T19:00:00+09:00";  // 인터뷰 시작 일시(KST) — 6/26(금) 19:00
-  var start = new Date(when);
-  var remindAt = new Date(start.getTime() - 3 * 3600 * 1000); // 3시간 전
-  var schedKST = Utilities.formatDate(remindAt, "Asia/Seoul", "yyyy-MM-dd'T'HH:mm:ss") + "+09:00";
-  var rDate = Utilities.formatDate(start, "Asia/Seoul", "M/d (E)");
-  var rTime = Utilities.formatDate(start, "Asia/Seoul", "HH:mm");
-  scheduleKakao(normPhone(phone), schedKST, KAKAO_TEMPLATE_REMIND,
-    { "#{이름}": name, "#{날짜}": rDate, "#{시간}": rTime });
-  Logger.log("윤채원 리마인더 예약 완료: " + schedKST);
-}
+// (삭제됨) 일회성 리마인더 예약 함수 — 특정 신청자의 실명·전화번호가 코드에
+// 하드코딩돼 있어 제거했다 (2026-08-06). 공개 레포에 개인정보가 남지 않도록,
+// 이런 1회성 작업은 코드로 남기지 말고 편집기에서 실행 후 지운다.
 
 // ── 카카오 알림톡 (Solapi) — 신청자 발송. 성공 true / 실패 false(→ SMS fallback) ──
 function sendKakaoAlimtalk(to, templateId, variables) {

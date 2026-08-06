@@ -49,21 +49,45 @@ export async function GET(req: NextRequest) {
 
   if (!GAS_URL) return NextResponse.json({ checkedAt: new Date().toISOString(), checks })
 
-  // 1) 공개 조회 — 신청자 화면(예약 슬롯)이 쓰는 경로
-  const [pub, pubMs, pubErr] = await timed(async () => {
+  // 1) 공개 조회 — 신청자 화면(예약 슬롯)이 쓰는 경로.
+  //    구글 스크립트는 유휴 상태였다면 첫 호출이 매우 느리다(실측 80초). 한 번 타임아웃되면
+  //    그 사이 깨어나므로 재조회해 본다 — 이때 성공하면 '장애'가 아니라 '콜드 스타트'다.
+  let [pub, pubMs, pubErr] = await timed(async () => {
     const res = await fetch(GAS_URL, { redirect: "follow", signal: AbortSignal.timeout(20_000) })
     const text = await res.text()
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     if (!text.trim().startsWith("{")) throw new Error("JSON이 아닌 응답(HTML) — 스크립트 오류 페이지")
     return JSON.parse(text) as { bookedSlots?: unknown[] }
   })
+  let coldStart = false
+  if (!pub) {
+    coldStart = true
+    const retry = await timed(async () => {
+      const res = await fetch(GAS_URL, { redirect: "follow", signal: AbortSignal.timeout(20_000) })
+      const text = await res.text()
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!text.trim().startsWith("{")) throw new Error("JSON이 아닌 응답(HTML)")
+      return JSON.parse(text) as { bookedSlots?: unknown[] }
+    })
+    pub = retry[0]
+    pubMs = retry[1]
+    pubErr = retry[2]
+  }
   checks.push({
     key: "gas_public",
     label: "예약 슬롯 조회 (신청자 화면)",
     ok: !!pub,
     ms: pubMs,
-    detail: pub ? `정상 · 등록된 일정 ${pub.bookedSlots?.length ?? 0}건` : `실패 — ${pubErr}`,
-    hint: pubMs > 10_000 ? "응답이 10초를 넘었습니다. 구글 스크립트가 깨어나는 중일 수 있어요(첫 요청은 느립니다)." : undefined,
+    detail: pub
+      ? coldStart
+        ? `정상 · 등록된 일정 ${pub.bookedSlots?.length ?? 0}건 (첫 호출은 응답 없어 재시도함)`
+        : `정상 · 등록된 일정 ${pub.bookedSlots?.length ?? 0}건`
+      : `실패 — ${pubErr}`,
+    hint: !pub
+      ? "두 번 연속 응답이 없습니다. 구글 스크립트 배포 상태(액세스 '모든 사용자')를 확인하세요."
+      : coldStart || pubMs > 10_000
+      ? "구글 스크립트가 잠들어 있다가 깨어난 것입니다. 신청자도 이때는 예약 화면이 느릴 수 있어요(정상)."
+      : undefined,
   })
 
   // 2) 관리자 조회 — 차단 관리가 쓰는 경로 (토큰 일치 여부까지 판정)

@@ -3,17 +3,13 @@
    퍼즐을 "푸는" 연출. 모든 타이밍은 ComingSoonMain의 단일 rAF 클록이
    순수 함수로 구동한다 (CSS 애니메이션 없음 — 시계가 하나라 어긋남도 없다).
 
-   1회성 시퀀스 (라운드 41 — 반복 없음, 역반전 후 고정):
-     0–2.0s     COMING SOON 타이핑 (11스텝, CLI식 좌측 고정) + 블록 커서
-     2.0–3.8s   유지 — 커서 0.45s 간격 점멸
-     3.8s       문구+커서 일괄 소멸
-     4.2s~      선택 커서(반전 블록) 2개가 0.38s 보폭으로 기어감:
-                커서1 C→L→U→B (세로), 커서2는 두 박자 늦게 A→Z→Y (가로)
-                → 점등 그룹 C / L / U·A / B·Z / Y (운영자 라운드 37)
-     6.3–7.35s  써클 스탬프: LAZY 얇게→굵게, 이어 CLUB 얇게→굵게 (라운드 38)
-     (전 구간 반전 — 잉크 배경에서 시작, 라운드 42)
-     7.9s       찾은 글자 블록 강조 (사라지지 않음 — 라운드 41)
-     9.5s       원래 오트 컬러로 복귀 (직전 2프레임 깜빡) → 그대로 고정 (반복 없음) */
+   1회성 시퀀스, 총 ~7s (라운드 45 — 깜빡임·블록 단계 없음):
+     0–1.6s     COMING SOON 타이핑 (11스텝, CLI식 좌측 고정, 반전 배경 위)
+     1.6–2.8s   커서 점멸 2회 → 문구+커서 일괄 소멸
+     3.1s~      선택 커서 2개가 0.35s 보폭으로 기어감 — C / L / U·A / B·Z / Y
+     4.5s       마지막 글자 완성
+     5.2s       (0.7s 텀 후) 색상이 서서히 반전 — CSS 1.5s 페이드로 오트 복귀 후 고정
+     써클은 처음부터 끝까지 고정 흑색(3px) — 배경이 밝아지며 서서히 드러난다 */
 
 @font-face {
   font-family: "DungGeunMo";
@@ -32,9 +28,6 @@
   justify-content: center;
   min-height: calc(100vh - 250px);
 }
-
-/* 반전 — 라운드 44: 페이지 전체(셸 팔레트 스왑)로 되돌림. 블록 경계가 생기지 않고,
-   내비·푸터는 글자만 원래 잉크색으로 남아 배경에 묻힌다 (Shell의 chromeDim) */
 
 .stage { position: relative; width: var(--gridW); }
 
@@ -55,29 +48,25 @@
 .cell { opacity: var(--dim); }
 .lit { opacity: 1; }
 /* 선택 커서 — 반전 블록 (지나가는 칸을 잉크로 덮고 글자는 종이색) */
-.cellCursor,
-.cellBlock {
+.cellCursor {
   opacity: 1;
   background: var(--ink);
   color: var(--paper);
   padding: 0.05em 0.1em;
   margin: -0.05em -0.1em;
 }
-/* 클라이맥스(반전 구간) — 찾은 글자는 사라지지 않고 블록으로 남는다 (라운드 41).
-   셸이 --ink/--paper를 맞바꾼 상태라 자동으로 밝은 블록 + 어두운 글자가 된다 */
 
-/* ── 빙고 써클 — 얇게(1px) → 굵게(3px) 2단계 스탬프, CLUB → LAZY 순 ── */
+/* ── 빙고 써클 — 처음부터 끝까지 고정 흑색 3px (라운드 45).
+   반전(잉크) 배경과 같은 색이라 보이지 않다가, 배경이 오트로 페이드되며 드러난다 */
 .capsule {
   position: absolute;
-  border: 0 solid var(--ink);
+  border: 3px solid #1a1208;
   border-radius: 999px;
   pointer-events: none;
 }
 /* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%) */
 .capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
 .capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }
-.capThin { border-width: 1px; }
-.capThick { border-width: 3px; }
 
 /* ── COMING SOON 오버레이 (그리드 위 중앙) ── */
 .overlay {

@@ -1,15 +1,17 @@
 "use client"
 
 /**
- * lazy-club.com coming soon (라운드 33 C안 · 37 커서 크롤 · 41 A안 클라이맥스)
+ * lazy-club.com coming soon (라운드 33 C안 · 37 커서 크롤 · 45 확정 구성)
  *
- * 라운드 41 A안(정답 반전) · 라운드 42 정정 (운영자):
- *  - **처음부터 반전(잉크 배경)인 채로 시작** — 타이핑·크롤·써클 전부 반전 위에서 진행
- *  - 강조 차례가 온 글자는 사라지지 않고 **블록**으로 표시 (크롤 커서와 같은 문법)
- *  - **마지막에 원래 오트 컬러로 복귀** (2프레임 깜빡 후) — **1회성, 복귀 상태로 고정**
+ * 라운드 45 (운영자): 총 7초. 깜빡임·블록 색칠 단계 전부 제거.
+ *  - 마지막 글자까지 하나씩 찍고 → 0.7s 텀 → **색상을 서서히 반전** (1.5s 페이드)
+ *  - 써클은 처음부터 끝까지 **고정 흑색** — 반전(잉크) 배경에선 보이지 않다가
+ *    배경이 오트로 밝아지며 서서히 드러난다
+ *  - 1회성, 복귀 상태로 고정
  *
- * 반전은 셸의 팔레트 변수(--ink/--paper) 스왑이라 헤더·푸터까지 화면 전체가 뒤집힌다.
- * 모든 타이밍은 단일 rAF 클록의 순수 함수(stateAt) — 시계가 하나라 어긋남이 없다.
+ * 반전은 셸 팔레트(--ink/--paper) 스왑 + 내비·푸터는 chromeDim으로 글자만 잉크 고정
+ * (배경에 묻힘 — 복귀 후에도 같은 잉크색이라 색이 튀지 않고 배경만 밝아진다).
+ * 모든 타이밍은 단일 rAF 클록의 순수 함수(stateAt).
  */
 
 import { useEffect, useState } from "react"
@@ -31,21 +33,15 @@ const PHRASE = "COMING SOON"
 const CURSOR1_PATH = ["0-0", "1-0", "2-0", "3-0"]
 const CURSOR2_PATH = ["1-1", "1-2", "1-3"]
 const CURSOR2_LAG = 2
-const HOT = new Set([...CURSOR1_PATH, ...CURSOR2_PATH])
 
-/* 타임라인 (ms) — 1회성. END 이후에는 최종 상태로 고정된다 */
+/* 타임라인 (ms) — 1회성, 총 ~7s (라운드 45) */
 const T = {
-  TYPE_END: 2000, // 타이핑 완료 (11스텝)
-  VANISH: 3800, // 문구+커서 일괄 소멸
-  CRAWL_START: 4200, // 선택 커서 출발
-  STEP: 380, // 커서 보폭 (마지막 글자 5720)
-  CAP_LAZY_THIN: 6300, // LAZY 써클 얇게 → 굵게
-  CAP_LAZY_THICK: 6650,
-  CAP_CLUB_THIN: 7000, // CLUB 써클 얇게 → 굵게
-  CAP_CLUB_THICK: 7350,
-  BLOCK_IN: 7900, // 찾은 글자 블록 강조 시작
-  REVERT: 9500, // 원래 오트 컬러로 복귀 (직전 2프레임 깜빡) → 고정
-  END: 9500, // 이후 고정
+  TYPE_END: 1600, // 타이핑 완료 (11스텝)
+  VANISH: 2800, // 문구+커서 일괄 소멸 (커서 점멸 2회 후)
+  CRAWL_START: 3100, // 선택 커서 출발
+  STEP: 350, // 커서 보폭 — 마지막 글자 4500에 완성
+  REVERT: 5200, // 마지막 글자 + 0.7s → 서서히 오트로 반전 (CSS 1.5s 페이드)
+  END: 5300, // 상태 고정 (페이드는 CSS가 이어서 6.7s에 마무리)
 }
 
 /** 경과시간 → 화면 상태 (순수 함수 — 모든 연출의 단일 출처) */
@@ -54,8 +50,8 @@ function stateAt(raw: number) {
 
   const textVisible = e < T.VANISH
   const typed = !textVisible ? 0 : e >= T.TYPE_END ? PHRASE.length : Math.floor((e / T.TYPE_END) * PHRASE.length)
-  // 커서: 타이핑 중 점등 고정, 완료 후 0.45s 간격 점멸
-  const blockCursor = textVisible && (e < T.TYPE_END ? true : Math.floor((e - T.TYPE_END) / 450) % 2 === 0)
+  // 타이핑 커서: 입력 중 점등 고정, 완료 후 0.3s 간격 점멸 2회
+  const blockCursor = textVisible && (e < T.TYPE_END ? true : Math.floor((e - T.TYPE_END) / 300) % 2 === 0)
 
   const live = e >= T.CRAWL_START
   const step = live ? Math.floor((e - T.CRAWL_START) / T.STEP) : -1
@@ -69,17 +65,12 @@ function stateAt(raw: number) {
     CURSOR2_PATH.forEach((k, i) => step >= i + CURSOR2_LAG && lit.add(k))
   }
 
-  const capLazy = e >= T.CAP_LAZY_THICK ? 2 : e >= T.CAP_LAZY_THIN ? 1 : 0
-  const capClub = e >= T.CAP_CLUB_THICK ? 2 : e >= T.CAP_CLUB_THIN ? 1 : 0
+  // 라운드 45: 깜빡임 없이 REVERT에 팔레트를 바꾸고 CSS transition이 서서히 페이드
+  const inverted = e < T.REVERT
+  // 페이드 트랜지션은 복귀 직전에만 켠다 — 크롤 중 커서 블록이 번지는 것 방지
+  const smooth = e >= T.REVERT - 150
 
-  // 라운드 42: 처음부터 반전으로 시작 → 복귀 직전 원컬러가 2프레임 깜빡 → 복귀 고정.
-  // 깜빡 슬롯: [REVERT-390, REVERT-260) · [REVERT-130, REVERT) 에서 잠깐 원컬러
-  const flash = e >= T.REVERT - 390 && ((e < T.REVERT - 260) || e >= T.REVERT - 130)
-  const inverted = e < T.REVERT && !flash
-  // 블록 강조 구간 — 찾은 글자는 사라지지 않고 블록으로 (운영자 라운드 41)
-  const blocked = e >= T.BLOCK_IN && e < T.REVERT
-
-  return { textVisible, typed, blockCursor, cursor1, cursor2, lit, capLazy, capClub, inverted, blocked }
+  return { textVisible, typed, blockCursor, cursor1, cursor2, lit, inverted, smooth }
 }
 
 export function ComingSoonMain() {
@@ -109,10 +100,9 @@ export function ComingSoonMain() {
   }, [])
 
   const s = stateAt(elapsed)
-  const capClass = (n: number) => (n === 2 ? styles.capThick : n === 1 ? styles.capThin : "")
 
   return (
-    <WorkroomShell invert={s.inverted}>
+    <WorkroomShell invert={s.inverted} smooth={s.smooth}>
       <main className={styles.main}>
         <div className={styles.stage}>
           <div className={styles.grid} aria-label="LAZY CLUB">
@@ -120,12 +110,7 @@ export function ComingSoonMain() {
               row.map((ch, c) => {
                 const key = `${r}-${c}`
                 const isCursor = s.cursor1 === key || s.cursor2 === key
-                const cls = [
-                  styles.cell,
-                  s.lit.has(key) ? styles.lit : "",
-                  isCursor ? styles.cellCursor : "",
-                  s.blocked && HOT.has(key) ? styles.cellBlock : "",
-                ]
+                const cls = [styles.cell, s.lit.has(key) ? styles.lit : "", isCursor ? styles.cellCursor : ""]
                   .filter(Boolean)
                   .join(" ")
                 return (
@@ -135,9 +120,10 @@ export function ComingSoonMain() {
                 )
               }),
             )}
-            {/* 빙고 써클 — LAZY 먼저, 이어 CLUB (얇게→굵게 2단계) */}
-            <div className={`${styles.capsule} ${styles.capRow} ${capClass(s.capLazy)}`} aria-hidden />
-            <div className={`${styles.capsule} ${styles.capCol} ${capClass(s.capClub)}`} aria-hidden />
+            {/* 빙고 써클 — 처음부터 끝까지 고정 흑색(3px). 반전 배경에선 보이지 않다가
+                 배경이 오트로 페이드되며 서서히 드러난다 (라운드 45) */}
+            <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />
+            <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />
           </div>
 
           <div className={styles.overlay} aria-label="COMING SOON">

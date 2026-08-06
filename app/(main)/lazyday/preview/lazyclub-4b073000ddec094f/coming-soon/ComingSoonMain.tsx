@@ -26,7 +26,9 @@
  * 스크롤은 잠그지 않는다 — 잠그면 데스크톱 스크롤바가 사라지며 폭이 바뀐다.
  * 대신 스크롤·휠은 스킵 트리거라 인트로가 즉시 끝난다.
  *
- * 스킵: 인트로 중 어떤 입력이든 즉시 최종 상태. reduced-motion도 즉시 최종.
+ * 입력(라운드 57): 인트로를 끊지 않는다. 터치·클릭·키·휠·스크롤이 들어오면
+ * **내비·푸터만 먼저 드러내고** 애니메이션은 끝까지 재생된다 — 한 번의 터치로
+ * 연출 전체가 날아가지 않게. reduced-motion만 예외로 즉시 최종 상태.
  * 인트로는 방문마다 재생.
  *
  * 구현: 단일 rAF 클록 + 순수 함수 stateAt. 난수는 마운트 시 시드 하나만 뽑고
@@ -143,6 +145,8 @@ const INITIAL: Cell[] = WELCOME.flat().map((ch) => ({ ch, color: INK }))
 export function ComingSoonMain() {
   const [elapsed, setElapsed] = useState(0)
   const [seed, setSeed] = useState<number | null>(null)
+  // 입력이 있으면 인트로를 끊지 않고 내비·푸터만 먼저 내보낸다 (라운드 57)
+  const [chromeEarly, setChromeEarly] = useState(false)
 
   useEffect(() => {
     // 난수 시드는 여기서 딱 한 번 (구현 주의 — stateAt은 읽기만 한다)
@@ -163,26 +167,20 @@ export function ComingSoonMain() {
 
     const start = performance.now()
     let raf = 0
-    let finished = false
-    const finish = () => {
-      if (finished) return
-      finished = true
-      cancelAnimationFrame(raf)
-      removeListeners()
-      setElapsed(T.END)
-    }
     const tick = (now: number) => {
       const e = now - start
       if (e >= T.END) {
-        finish()
+        setElapsed(T.END)
+        removeListeners()
         return
       }
       setElapsed(e)
       raf = requestAnimationFrame(tick)
     }
-    // 스킵 — 인트로 중 어떤 입력이든 즉시 최종 상태로 점프
+    // 입력 — 인트로를 끊지 않는다. 내비·푸터만 먼저 드러내고 애니메이션은 끝까지 재생
+    // (라운드 57: 터치 한 번에 연출이 통째로 날아가던 동작 폐기)
     const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
-    const onInput = () => finish()
+    const onInput = () => setChromeEarly(true)
     const removeListeners = () => EVENTS.forEach((ev) => window.removeEventListener(ev, onInput))
     EVENTS.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }))
     raf = requestAnimationFrame(tick)
@@ -199,8 +197,9 @@ export function ComingSoonMain() {
   const colClip = `inset(0 0 ${(STEPS - (s?.clubStep ?? 0)) * 25}% 0)`
 
   // 셸은 t=0부터 최종 레이아웃 그대로 — 인트로 동안 내비·푸터만 배경색으로 가린다
+  // (인트로가 끝났거나, 사용자가 입력해 크롬을 먼저 요청했으면 노출)
   return (
-    <WorkroomShell paper="#f8f3ef" chromeHidden={!s?.done}>
+    <WorkroomShell paper="#f8f3ef" chromeHidden={!s?.done && !chromeEarly}>
       <main className={styles.main}>
         <div className={styles.stage}>
           <div className={styles.grid} aria-label="LAZY CLUB">

@@ -365,27 +365,10 @@ function HomeContent() {
   )
 }
 
-/** lazy-club.com 전용 coming soon 본문 — 마크 + 둥근모꼴 타이핑 (라운드 30, B안 채택)
- *  타이핑 → 커서 2회 점멸 → 역타이핑으로 지움 → 반복. 마지막 N까지 노출 후 우측 커서. */
-function ComingSoonContent() {
+export function WorkroomHome() {
   return (
-    <main className={styles.content}>
-      <section className={`${styles.brandMark} ${styles.brandMarkOnly}`}>
-        <div className={styles.csStack}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/linky-lounge/book-club/home-v3/lazyclub-wordsearch.png" alt="레이지 클럽" draggable={false} />
-          <div className={styles.csTypingRow} aria-label="COMING SOON">
-            <span className={styles.csTyping}>COMING SOON</span>
-            <span className={styles.csCursor} aria-hidden>
-              ▮
-            </span>
-          </div>
-        </div>
-      </section>
-    </main>
+    <WorkroomShell>
+      <HomeContent />
+    </WorkroomShell>
   )
-}
-
-export function WorkroomHome({ comingSoon = false }: { comingSoon?: boolean }) {
-  return <WorkroomShell>{comingSoon ? <ComingSoonContent /> : <HomeContent />}</WorkroomShell>
 }

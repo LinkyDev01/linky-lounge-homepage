@@ -294,60 +294,7 @@
 }
 .cartTotalRow { display: flex; justify-content: space-between; padding: 15px 0 22.5px; }
 
-/* ── ⓪ 브랜드 워드서치 마크 (라운드 27 — coming soon 소재, 투명 PNG) ── */
-.brandMark { display: flex; justify-content: center; padding: 26px 0 60px; }
-.brandMark img { width: min(340px, 72%); height: auto; display: block; }
-/* coming soon 모드 (라운드 28): 본문이 이미지 하나뿐 — 화면을 채우도록 세로 중앙 정렬 */
-.brandMarkOnly { align-items: center; padding: 0 0 44px; }
-
-/* ── coming soon 타이핑 (라운드 30, B안 채택 — 둥근모꼴) ──
-   타이핑(N까지 완주) → 커서 2회 점멸 → 역타이핑 → 반복. 6s 사이클. */
-@font-face {
-  font-family: "DungGeunMo";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
-  font-display: swap;
-}
-.csStack { display: flex; flex-direction: column; align-items: center; }
-/* 라운드 31: 마크를 화면 세로에 거의 꽉 차게 (여백 트림 후 비율 1:1.273).
-   높이 기준 72vh, 좁은 화면에서는 가로 94vw(=120vw 높이)로 전환 → 모바일은 폭을 가득 채움.
-   타이핑 줄·헤더 몫으로 vh는 72까지만 쓴다. */
-.csStack img { height: min(72vh, 120vw); width: auto; max-width: 94vw; display: block; }
-.csTypingRow {
-  margin-top: 30px;
-  font-family: "DungGeunMo", monospace;
-  font-size: clamp(20px, 3.4vw, 27px);
-  letter-spacing: 0.08em;
-  color: var(--ink);
-  white-space: nowrap;
-}
-/* 폭 = 11자(ch) + 자간(0.08em × 11자, 끝 자간 포함) — 마지막 N까지 노출 (라운드 30 보정) */
-.csTyping {
-  display: inline-block;
-  vertical-align: bottom;
-  overflow: hidden;
-  animation: csType 6s infinite;
-}
-@keyframes csType {
-  0% { width: 0; animation-timing-function: steps(11, end); }      /* 0–30%: 타이핑 */
-  30% { width: calc(11ch + 0.92em); }
-  70% { width: calc(11ch + 0.92em); animation-timing-function: steps(11, end); } /* 70–90%: 역타이핑 */
-  90% { width: 0; }
-  100% { width: 0; }                                               /* 90–100%: 쉼 */
-}
-/* 커서: 타이핑 중 고정 점등 → 완성 후 2회 점멸(30–70%) → 지울 때 점등 */
-.csCursor { animation: csCursor 6s step-end infinite; }
-@keyframes csCursor {
-  0% { opacity: 1; }
-  30% { opacity: 0; }
-  40% { opacity: 1; }
-  50% { opacity: 0; }
-  60% { opacity: 1; }
-  100% { opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .csTyping, .csCursor { animation: none; }
-  .csTyping { width: auto; }
-}
+/* coming soon 블록(브랜드 마크·타이핑)은 라운드 33에서 coming-soon 전용 모듈로 이관 */
 
 /* ── ① 도서 캐러셀 (08: 풀블리드, 높이 400, gap 15) ────── */
 .books {

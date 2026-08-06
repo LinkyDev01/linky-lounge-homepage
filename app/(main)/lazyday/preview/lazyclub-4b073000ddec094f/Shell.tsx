@@ -7,7 +7,6 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
-import { useCart } from "./store"
 import styles from "./home.module.css"
 
 // 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
@@ -17,23 +16,19 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 이 트리의 홈은 기존 기획안(전체 섹션)을 내부 검토용으로 유지.
 // 라운드 31: 내비·푸터는 두 페이지가 완전히 동일 (분기 없음).
 
-// 내비 — 라운드 19: 이 페이지의 브랜드는 '레이지 클럽'(허브). 4항목 확정
-// LazyClub(홈) / LazydayBookclub(기수제 랜딩) / OneDayTalk(목록) / About
-const NAV_ITEMS: { label: string; href?: string; pending?: string }[] = [
+// 내비 — 라운드 39: 메뉴 관련 버튼 전부 숨김, 두 항목만 활성
+// (About·search·login·cart·모바일 menu 제거 — 코드는 git 이력에 보존)
+const NAV_ITEMS: { label: string; href: string }[] = [
   { label: "LazydayBookclub", href: "/" },
   { label: "OneDayTalk", href: `${BASE}/meetings` },
-  { label: "About", pending: "소개 페이지는 준비 중입니다." },
 ]
 
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
 export function WorkroomShell({ children }: { children: React.ReactNode }) {
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const cart = useCart()
 
   const notify = (msg = "준비 중인 기능입니다.") => {
     setToast(msg)
@@ -63,74 +58,20 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
-      {/* ── 내비 ── */}
-      <header className={`${styles.header} ${menuOpen ? styles.headerOpen : ""}`}>
+      {/* ── 내비 — 라운드 39: LazydayBookclub · OneDayTalk 두 항목만 ── */}
+      <header className={styles.header}>
         <div className={styles.headerLeft}>
           <LazydayLink href={BASE} className={styles.current}>
             LazyClub
           </LazydayLink>
-          <nav className={styles.navMenu}>
-            {nav.map((item) =>
-              item.href ? (
-                <LazydayLink key={item.label} href={item.href}>
-                  {item.label}
-                </LazydayLink>
-              ) : (
-                <button
-                  key={item.label}
-                  type="button"
-                  className={styles.searchTrigger}
-                  onClick={() => notify(item.pending)}
-                >
-                  {item.label}
-                </button>
-              ),
-            )}
+          <nav className={`${styles.navMenu} ${styles.navMenuAlways}`}>
+            {nav.map((item) => (
+              <LazydayLink key={item.label} href={item.href}>
+                {item.label}
+              </LazydayLink>
+            ))}
           </nav>
         </div>
-        <div className={`${styles.headerSearch} ${searchOpen ? styles.headerSearchActive : ""}`}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              notify("검색은 준비 중입니다.")
-            }}
-          >
-            <input type="text" placeholder="search" aria-label="search" />
-          </form>
-        </div>
-        <div className={styles.headerRight}>
-          {/* 구성요소 전부 노출, 미구현은 클릭 시 안내 (운영자 2026-08-04) */}
-          <button type="button" className={styles.searchTrigger} onClick={() => setSearchOpen((v) => !v)}>
-            search
-          </button>
-          <button type="button" className={styles.searchTrigger} onClick={() => notify("로그인은 준비 중입니다.")}>
-            login
-          </button>
-          <LazydayLink href={`${BASE}/cart`}>cart{cart.count > 0 ? ` (${cart.count})` : ""}</LazydayLink>
-        </div>
-        <button type="button" className={styles.menuTrigger} onClick={() => setMenuOpen((v) => !v)}>
-          menu
-        </button>
-        {menuOpen && (
-          <div className={styles.mobileMenu}>
-            <ul>
-              {nav.map((item) => (
-                <li key={item.label}>
-                  {item.href ? (
-                    <LazydayLink href={item.href}>{item.label}</LazydayLink>
-                  ) : (
-                    <button type="button" className={styles.searchTrigger} onClick={() => notify(item.pending)}>
-                      {item.label}
-                    </button>
-                  )}
-                </li>
-              ))}
-              <li>
-                <LazydayLink href={`${BASE}/cart`}>cart{cart.count > 0 ? ` (${cart.count})` : ""}</LazydayLink>
-              </li>
-            </ul>
-          </div>
-        )}
       </header>
 
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>

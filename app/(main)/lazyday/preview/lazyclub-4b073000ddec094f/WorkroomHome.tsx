@@ -194,6 +194,12 @@ function HomeContent() {
     <main className={styles.content}>
       {/* 상단 정규모임 모듈은 라운드 24에서 삭제 — 4기는 우측 '레이지데이 북클럽' 섹션의
            단일 항목(포스터+제목)으로 이동 */}
+      {/* ── ⓪ 브랜드 워드서치 마크 (운영자 라운드 27 — lazy-club.com coming soon 소재,
+           흰 배경 → 투명 알파 최적화) ── */}
+      <section className={styles.brandMark}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/linky-lounge/book-club/home-v3/lazyclub-wordsearch.png" alt="레이지 클럽" draggable={false} />
+      </section>
       {/* ── ① 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
       <section className={styles.books}>
         <div className={styles.sectionTitle}>

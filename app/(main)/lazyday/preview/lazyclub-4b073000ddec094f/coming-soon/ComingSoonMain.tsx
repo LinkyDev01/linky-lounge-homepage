@@ -1,18 +1,24 @@
 "use client"
 
 /**
- * lazy-club.com coming soon 본문 (라운드 33 C안 · 35 개편)
- * 둥근모꼴 4×4 워드서치 그리드 + COMING SOON 타이핑.
+ * lazy-club.com coming soon 본문 (라운드 33 C안 · 37 전면 재구성)
  *
- * 라운드 35 (운영자):
- *  - 사라짐은 전부 "일괄·즉시" — 글자 하나씩 지우기·흐려지기 금지
- *  - 그라데이션 금지 — 빙고 써클(캡슐)은 얇은 선 → 굵은 선 2단계로 채움
- * 그리드 점등은 켤 때만 글자당 캐스케이드(하드 스텝), 끌 때는 전체가 한 번에 꺼진다.
- * ON 스태거 + 일괄 OFF는 CSS 키프레임으로 불가능해 rAF 상태 전환으로 구동한다.
- * (타이핑·커서는 종전대로 순수 CSS 키프레임 — 14s 사이클 공유)
+ * 라운드 37 (운영자): 순서 C → L → U·A → B·Z → Y, "부자연스러움" 해결,
+ * y2k 컨셉을 미학적으로 + 골때리게.
+ *
+ * 부자연스러움의 근본 원인: 타이핑(CSS 키프레임)과 그리드(rAF)가 서로 다른
+ * 시계로 돌아 탭 전환·로드 지연 시 위상이 어긋났다 → 모든 상태를 단일
+ * rAF 클록의 순수 함수로 통합 (드리프트 원천 차단).
+ *
+ * 연출: 워드서치 퍼즐을 "푸는" 픽셀 선택 커서(반전 블록) 2개 —
+ * 하나는 CLUB을 세로로(C→L→U→B), 다른 하나는 두 박자 늦게 A→Z→Y를
+ * 가로로 기어가며, 지나간 글자는 잉크색으로 남는다. 두 커서의 보폭이
+ * 겹치며 자연히 C / L / U·A / B·Z / Y 그룹이 만들어진다.
+ * 단어가 다 찾히면 CLUB 써클 → LAZY 써클 순서로 얇게→굵게 2단계 스탬프.
+ * 사라짐은 전부 일괄·즉시, 그라데이션 없음 (라운드 35 규칙 유지).
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import styles from "./coming-soon.module.css"
 
 // 원 마크와 동일한 배열 — 2행 = LAZY(가로), 1열 = CLUB(세로)
@@ -23,93 +29,103 @@ const GRID = [
   ["B", "C", "D", "E"],
 ]
 
-/** 활성 글자 점등 순서 (운영자 라운드 36 — 두 단어를 짝지어 동시 진행):
- *  1단계 L·C → 2단계 A → 3단계 Z·U → 4단계 Y·B */
-const HOT_ORDER: Record<string, number> = {
-  "1-0": 0, // L
-  "0-0": 0, // C
-  "1-1": 1, // A
-  "1-2": 2, // Z
-  "2-0": 2, // U
-  "1-3": 3, // Y
-  "3-0": 3, // B
+const PHRASE = "COMING SOON"
+
+/* 커서 경로 — 스텝 s에 커서가 서 있는 칸. 커서2는 두 스텝 늦게 출발.
+   s:      0    1    2      3      4
+   커서1:  C    L    U      B      —      (CLUB 세로)
+   커서2:  —    —    A      Z      Y      (LAZY 꼬리 가로)
+   → 점등 그룹: C / L / U·A / B·Z / Y (운영자 라운드 37 순서) */
+const CURSOR1_PATH = ["0-0", "1-0", "2-0", "3-0"]
+const CURSOR2_PATH = ["1-1", "1-2", "1-3"]
+const CURSOR2_LAG = 2
+
+/* 타임라인 (ms) — 단일 클록, 사이클 12s */
+const T = {
+  TYPE_END: 2400, // 타이핑 완료 (11스텝)
+  VANISH: 4560, // 문구+커서 일괄 소멸 (38%)
+  CRAWL_START: 5000, // 선택 커서 출발
+  STEP: 450, // 커서 보폭
+  CAP_CLUB_THIN: 7400, // CLUB 써클 얇게 (커서 퇴장 후)
+  CAP_CLUB_THICK: 7850, //           → 굵게
+  CAP_LAZY_THIN: 8300, // LAZY 써클 얇게
+  CAP_LAZY_THICK: 8750, //           → 굵게
+  OFF: 10600, // 전원 일괄 즉시 소등
+  CYCLE: 12000,
 }
 
-/* 타임라인 (ms) — CSS 사이클(12s, 라운드 36 단축)과 동일 기준.
-   글자 4단계가 모두 끝난 뒤 → LAZY 써클 얇게→굵게 → CLUB 써클 얇게→굵게
-   (겹침 없이 엄격히 순차), 86%(10.3s)에 전원 일괄 소등 */
-const CYCLE = 12000
-const GRID_ON = 4800 // 글자 점등 시작 (0.25s × 4단계 = 5.85s에 완료)
-const CAP_ROW_THIN = 6000 // LAZY 써클 — 얇은 선
-const CAP_ROW_THICK = 6450 //            → 굵은 선
-const CAP_COL_THIN = 6900 // CLUB 써클 — 얇은 선
-const CAP_COL_THICK = 7350 //            → 굵은 선
-const ALL_OFF = 10300 // 전체 일괄 소등 (글자·써클 동시, 즉시)
+/** 사이클 내 경과시간 → 화면 상태 (순수 함수 — 모든 연출의 단일 출처) */
+function stateAt(e: number) {
+  const textVisible = e < T.VANISH
+  const typed = !textVisible ? 0 : e >= T.TYPE_END ? PHRASE.length : Math.floor((e / T.TYPE_END) * PHRASE.length)
+  // 커서: 타이핑 중 점등 고정, 완료 후 0.525s 간격 점멸 (2회)
+  const blockCursor = textVisible && (e < T.TYPE_END ? true : Math.floor((e - T.TYPE_END) / 525) % 2 === 0)
+
+  const live = e >= T.CRAWL_START && e < T.OFF
+  const step = live ? Math.floor((e - T.CRAWL_START) / T.STEP) : -1
+  const cursor1 = step >= 0 && step < CURSOR1_PATH.length ? CURSOR1_PATH[step] : null
+  const c2i = step - CURSOR2_LAG
+  const cursor2 = c2i >= 0 && c2i < CURSOR2_PATH.length ? CURSOR2_PATH[c2i] : null
+
+  const lit = new Set<string>()
+  if (live) {
+    CURSOR1_PATH.forEach((k, i) => {
+      if (step >= i) lit.add(k)
+    })
+    CURSOR2_PATH.forEach((k, i) => {
+      if (step >= i + CURSOR2_LAG) lit.add(k)
+    })
+  }
+  const capClub = live ? (e >= T.CAP_CLUB_THICK ? 2 : e >= T.CAP_CLUB_THIN ? 1 : 0) : 0
+  const capLazy = live ? (e >= T.CAP_LAZY_THICK ? 2 : e >= T.CAP_LAZY_THIN ? 1 : 0) : 0
+
+  return { textVisible, typed, blockCursor, cursor1, cursor2, lit, capClub, capLazy }
+}
+
+const STILL_ELAPSED = { type: 3000, hot: 9500 } as const
 
 export function ComingSoonMain() {
-  const ghostRef = useRef<HTMLSpanElement>(null)
-  const [typeW, setTypeW] = useState<number | null>(null)
-  const [phase, setPhase] = useState<"type" | "hot" | null>(null)
-  const [gridOn, setGridOn] = useState(false)
-  const [capRow, setCapRow] = useState(0) // 0 없음 · 1 얇게 · 2 굵게
-  const [capCol, setCapCol] = useState(0)
+  const [now, setNow] = useState(0)
+  const [still, setStill] = useState<keyof typeof STILL_ELAPSED | null>(null)
+  const [staticAll, setStaticAll] = useState(false)
 
-  // 타이핑 완성 폭 실측 — ch 계산은 폰트 크기·로딩 시점에 따라 마지막 글자가 잘린다
-  useEffect(() => {
-    const measure = () => {
-      if (ghostRef.current) setTypeW(ghostRef.current.getBoundingClientRect().width)
-    }
-    measure()
-    document.fonts?.ready.then(measure).catch(() => {})
-    window.addEventListener("resize", measure)
-    return () => window.removeEventListener("resize", measure)
-  }, [])
-
-  // ?phase=type|hot — 검토 스크린샷용 정지
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get("phase")
-    if (p === "type" || p === "hot") setPhase(p)
-  }, [])
-
-  // 그리드 상태 머신 — rAF로 사이클 내 위치를 계산 (드리프트 없음)
-  useEffect(() => {
-    if (phase) return // 정지 모드
+    if (p === "type" || p === "hot") {
+      setStill(p)
+      return
+    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setGridOn(true)
-      setCapRow(2)
-      setCapCol(2)
+      setStaticAll(true)
       return
     }
     const start = performance.now()
     let raf = 0
-    const tick = (now: number) => {
-      const e = (now - start) % CYCLE
-      const lit = e >= GRID_ON && e < ALL_OFF
-      setGridOn(lit)
-      setCapRow(lit ? (e >= CAP_ROW_THICK ? 2 : e >= CAP_ROW_THIN ? 1 : 0) : 0)
-      setCapCol(lit ? (e >= CAP_COL_THICK ? 2 : e >= CAP_COL_THIN ? 1 : 0) : 0)
+    const tick = (t: number) => {
+      setNow((t - start) % T.CYCLE)
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [phase])
+  }, [])
 
-  const phaseClass = phase === "type" ? styles.phaseType : phase === "hot" ? styles.phaseHot : ""
+  const s = staticAll
+    ? { ...stateAt(9500), textVisible: false, typed: 0, blockCursor: false }
+    : stateAt(still ? STILL_ELAPSED[still] : now)
   const capClass = (state: number) => (state === 2 ? styles.capThick : state === 1 ? styles.capThin : "")
 
   return (
-    <main className={`${styles.main} ${phaseClass}`}>
+    <main className={styles.main}>
       <div className={styles.stage}>
-        <div className={`${styles.grid} ${gridOn ? styles.gridOn : ""}`} aria-label="LAZY CLUB">
+        <div className={styles.grid} aria-label="LAZY CLUB">
           {GRID.map((row, r) =>
             row.map((ch, c) => {
               const key = `${r}-${c}`
-              const hot = key in HOT_ORDER
+              const isCursor = s.cursor1 === key || s.cursor2 === key
               return (
                 <span
                   key={key}
-                  className={`${styles.cell} ${hot ? styles.hot : ""}`}
-                  style={hot ? ({ ["--i"]: HOT_ORDER[key] } as React.CSSProperties) : undefined}
+                  className={`${styles.cell} ${s.lit.has(key) ? styles.lit : ""} ${isCursor ? styles.cellCursor : ""}`}
                   aria-hidden
                 >
                   {ch}
@@ -117,25 +133,22 @@ export function ComingSoonMain() {
               )
             }),
           )}
-          {/* 빙고 써클 — 얇게 → 굵게 2단계 (가로 LAZY · 세로 CLUB) */}
-          <div className={`${styles.capsule} ${styles.capRow} ${capClass(capRow)}`} aria-hidden />
-          <div className={`${styles.capsule} ${styles.capCol} ${capClass(capCol)}`} aria-hidden />
+          {/* 빙고 써클 — 단어 완성 순서대로 CLUB → LAZY, 얇게→굵게 2단계 */}
+          <div className={`${styles.capsule} ${styles.capCol} ${capClass(s.capClub)}`} aria-hidden />
+          <div className={`${styles.capsule} ${styles.capRow} ${capClass(s.capLazy)}`} aria-hidden />
         </div>
 
         <div className={styles.overlay} aria-label="COMING SOON">
-          <span ref={ghostRef} className={styles.ghost} aria-hidden>
-            COMING SOON
-          </span>
-          <span
-            className={styles.typing}
-            style={typeW ? ({ ["--typeW"]: `${Math.ceil(typeW)}px` } as React.CSSProperties) : undefined}
-            aria-hidden
-          >
-            COMING SOON
-          </span>
-          <span className={styles.cursor} aria-hidden>
-            ▮
-          </span>
+          {s.textVisible && (
+            <>
+              <span className={styles.typedText} aria-hidden>
+                {PHRASE.slice(0, s.typed)}
+              </span>
+              <span className={`${styles.blockCursor} ${s.blockCursor ? "" : styles.blockCursorOff}`} aria-hidden>
+                ▮
+              </span>
+            </>
+          )}
         </div>
       </div>
     </main>

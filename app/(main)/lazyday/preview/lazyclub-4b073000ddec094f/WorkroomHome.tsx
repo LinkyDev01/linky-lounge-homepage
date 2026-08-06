@@ -11,7 +11,7 @@ import { season1Config, season2Config, season3Config, season4Config } from "../.
 import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
-import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
+import { ArrowIcon, BASE, COMING_SOON, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
 
@@ -196,10 +196,12 @@ function HomeContent() {
            단일 항목(포스터+제목)으로 이동 */}
       {/* ── ⓪ 브랜드 워드서치 마크 (운영자 라운드 27 — lazy-club.com coming soon 소재,
            흰 배경 → 투명 알파 최적화) ── */}
-      <section className={styles.brandMark}>
+      <section className={`${styles.brandMark} ${COMING_SOON ? styles.brandMarkOnly : ""}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/linky-lounge/book-club/home-v3/lazyclub-wordsearch.png" alt="레이지 클럽" draggable={false} />
       </section>
+      {COMING_SOON ? null : (
+      <>
       {/* ── ① 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
       <section className={styles.books}>
         <div className={styles.sectionTitle}>
@@ -366,6 +368,8 @@ function HomeContent() {
           </div>
         </aside>
       </div>
+      </>
+      )}
     </main>
   )
 }

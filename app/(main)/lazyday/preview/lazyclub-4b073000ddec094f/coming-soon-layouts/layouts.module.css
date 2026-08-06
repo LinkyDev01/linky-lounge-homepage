@@ -1,0 +1,126 @@
+/* Coming Soon 배치 시안 3안 (라운드 32 제안) — 시안 전용 CSS.
+   실제 coming soon 페이지(home.module.css)는 손대지 않는다. */
+
+@font-face {
+  font-family: "DungGeunMo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
+  font-display: swap;
+}
+
+.page {
+  --paper: #f7f3ee;
+  --ink: #1a1208;
+  /* 마크 실측: 트림 후 1000×1273 → 폭 = 높이/1.273 */
+  --markH: min(66vh, 118vw);
+  --markW: calc(var(--markH) / 1.273);
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 30px 15px 70px;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 34px;
+}
+.markImg { height: var(--markH); width: auto; display: block; }
+
+/* 공통 타이포 (채택된 B안 타이핑 유지) */
+.type {
+  font-family: "DungGeunMo", monospace;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  line-height: 1;
+}
+/* 완성 폭(--typeW)은 컴포넌트가 실측해 주입 — 미주입 시엔 정적 노출(폴백) */
+.ghost { position: absolute; visibility: hidden; white-space: nowrap; pointer-events: none; }
+.typing {
+  display: inline-block;
+  vertical-align: bottom;
+  overflow: hidden;
+  width: var(--typeW, max-content);
+  animation: csType 6s infinite;
+}
+@keyframes csType {
+  0% { width: 0; animation-timing-function: steps(11, end); }
+  30% { width: var(--typeW); }
+  70% { width: var(--typeW); animation-timing-function: steps(11, end); }
+  90% { width: 0; }
+  100% { width: 0; }
+}
+.cursor { animation: csCursor 6s step-end infinite; }
+@keyframes csCursor {
+  0% { opacity: 1; }
+  30% { opacity: 0; }
+  40% { opacity: 1; }
+  50% { opacity: 0; }
+  60% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* ── A. 폭 맞춤 (마크 아래, 마크 폭에 정렬) ──
+   실측(390뷰포트): 나눗수 7.6일 때 텍스트 391 vs 마크 360 → 8.25로 보정해 폭 일치 */
+.fitRow { margin-top: 26px; font-size: calc(var(--markW) / 8.25); }
+
+/* ── B. 밴드 오버레이 (마크를 가로지르는 페이퍼 밴드) ── */
+.bandStage { position: relative; }
+.band {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--markW) * 1.12);
+  background: var(--paper);
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  padding: 14px 0;
+  text-align: center;
+  font-size: calc(var(--markW) / 9.2);
+}
+
+/* ── C. 워터마크 (마크를 옅게 깔고 중앙에 초대형 텍스트) ── */
+.watermarkStage { position: relative; }
+.watermarkStage .markImg { opacity: 0.16; }
+.watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--markW) / 7.9);
+}
+
+/* 스위처 · 설명 */
+.tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.tab {
+  font-family: "DungGeunMo", monospace;
+  font-size: 13.2px;
+  background: none;
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.tabActive { background: var(--ink); color: var(--paper); }
+.desc {
+  max-width: 560px;
+  margin: 0 auto;
+  font-family: "DungGeunMo", monospace;
+  font-size: 13.2px;
+  line-height: 1.85;
+  text-align: center;
+}
+.reco { margin-top: 10px; font-size: 12px; opacity: 0.65; }
+.head { text-align: center; font-family: "DungGeunMo", monospace; font-size: 13.2px; margin-bottom: 26px; }
+
+/* 검토 스크린샷용 정지 상태(?still=1) — 타이핑 완료 시점으로 고정 */
+.still { animation: none !important; }
+.typing.still { width: var(--typeW, max-content); }
+
+@media (prefers-reduced-motion: reduce) {
+  .typing, .cursor { animation: none; }
+  .typing { width: var(--typeW, max-content); }
+}

@@ -49,8 +49,18 @@ export function usePreviewBarHide() {
 }
 
 /** paper (라운드 47, 랜딩 인트로 전용): 이 페이지의 종이색만 다르게 지정한다.
- *  (인트로 배경 #f8f3ef 와 최종 상태를 일치시키기 위함 — 기본값 없음, 타 페이지 무영향) */
-export function WorkroomShell({ children, paper }: { children: React.ReactNode; paper?: string }) {
+ *  (인트로 배경 #f8f3ef 와 최종 상태를 일치시키기 위함 — 기본값 없음, 타 페이지 무영향)
+ *  chromeHidden (라운드 48): 내비·푸터를 배치는 그대로 둔 채 배경색으로 가린다.
+ *  인트로 동안 자리를 미리 확보해 시작·종료 시점의 레이아웃이 완전히 같게 만든다. */
+export function WorkroomShell({
+  children,
+  paper,
+  chromeHidden = false,
+}: {
+  children: React.ReactNode
+  paper?: string
+  chromeHidden?: boolean
+}) {
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -66,7 +76,10 @@ export function WorkroomShell({ children, paper }: { children: React.ReactNode; 
   const nav = NAV_ITEMS
 
   return (
-    <div className={styles.page} style={paper ? ({ ["--paper"]: paper } as React.CSSProperties) : undefined}>
+    <div
+      className={`${styles.page}${chromeHidden ? ` ${styles.chromeVeiled}` : ""}`}
+      style={paper ? ({ ["--paper"]: paper } as React.CSSProperties) : undefined}
+    >
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
       <link
         rel="stylesheet"

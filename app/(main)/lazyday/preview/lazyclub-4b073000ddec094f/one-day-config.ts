@@ -40,10 +40,8 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     host: "레이지데이 북클럽",
     status: "soldout",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
-    images: [
-      { src: "/linky-lounge/book-club/home-v3/oneday-brahms.webp", alt: "브람스를 좋아하세요... 원데이 토크 카드" },
-      { src: "/linky-lounge/book-club/books/2기-2-브람스를 좋아하세요.jpg", alt: "브람스를 좋아하세요... 표지" },
-    ],
+    // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-brahms.webp", alt: "브람스를 좋아하세요... 원데이 토크 카드" }],
     description: [
       "\"브람스를 좋아하세요?\" 한 줄의 질문은 39세 주인공 '폴'이 잊고 지내던 설렘과 자아를 흔들어 놓습니다.",
       "익숙함과 외로움이 얽힌 관계 속에서 방황하는 인물들의 심리를 다각도로 들여다봅니다.",
@@ -61,10 +59,8 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     host: "레이지데이 북클럽",
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-talk.webp",
-    images: [
-      { src: "/linky-lounge/book-club/home-v3/oneday-sisyphus.webp", alt: "시지프 신화 원데이 토크 카드" },
-      { src: "/linky-lounge/book-club/books/1기-4-시지프 신화.jpg", alt: "시지프 신화 표지" },
-    ],
+    // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-sisyphus.webp", alt: "시지프 신화 원데이 토크 카드" }],
     description: [
       "끊임없이 바위를 밀어 올려야 하는 형벌 속에서, 시지프는 어떻게 자신의 운명을 긍정할 수 있었을까요?",
       "카뮈가 말하는 '삶의 부조리'를 직시하고, 회피나 자살이 아닌 반항과 자유, 그리고 열정으로 오늘을 살아내는 실존적 태도를 탐구합니다.",

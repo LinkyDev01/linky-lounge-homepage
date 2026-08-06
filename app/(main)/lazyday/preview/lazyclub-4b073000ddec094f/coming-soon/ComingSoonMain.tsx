@@ -23,26 +23,28 @@ const GRID = [
   ["B", "C", "D", "E"],
 ]
 
-/** 활성 글자와 점등 순서: LAZY 좌→우, 이어서 CLUB 위→아래(L은 LAZY에 포함) */
+/** 활성 글자 점등 순서 (운영자 라운드 36 — 두 단어를 짝지어 동시 진행):
+ *  1단계 L·C → 2단계 A → 3단계 Z·U → 4단계 Y·B */
 const HOT_ORDER: Record<string, number> = {
   "1-0": 0, // L
+  "0-0": 0, // C
   "1-1": 1, // A
   "1-2": 2, // Z
+  "2-0": 2, // U
   "1-3": 3, // Y
-  "0-0": 4, // C
-  "2-0": 5, // U
-  "3-0": 6, // B
+  "3-0": 3, // B
 }
 
-/* 타임라인 (ms) — CSS 사이클(14s)과 동일 기준.
-   문구 일괄 소멸(38% = 5.32s) 뒤 점등 시작, 86%(12.04s)에 전원 일괄 소등 */
-const CYCLE = 14000
-const GRID_ON = 5600 // 글자 캐스케이드 시작 (transition-delay가 0.18s씩 지연)
-const CAP_ROW_THIN = 6900 // LAZY 써클 — 얇은 선
-const CAP_ROW_THICK = 7350 //            → 굵은 선
-const CAP_COL_THIN = 7800 // CLUB 써클 — 얇은 선
-const CAP_COL_THICK = 8250 //            → 굵은 선
-const ALL_OFF = 12040 // 전체 일괄 소등 (글자·써클 동시, 즉시)
+/* 타임라인 (ms) — CSS 사이클(12s, 라운드 36 단축)과 동일 기준.
+   글자 4단계가 모두 끝난 뒤 → LAZY 써클 얇게→굵게 → CLUB 써클 얇게→굵게
+   (겹침 없이 엄격히 순차), 86%(10.3s)에 전원 일괄 소등 */
+const CYCLE = 12000
+const GRID_ON = 4800 // 글자 점등 시작 (0.25s × 4단계 = 5.85s에 완료)
+const CAP_ROW_THIN = 6000 // LAZY 써클 — 얇은 선
+const CAP_ROW_THICK = 6450 //            → 굵은 선
+const CAP_COL_THIN = 6900 // CLUB 써클 — 얇은 선
+const CAP_COL_THICK = 7350 //            → 굵은 선
+const ALL_OFF = 10300 // 전체 일괄 소등 (글자·써클 동시, 즉시)
 
 export function ComingSoonMain() {
   const ghostRef = useRef<HTMLSpanElement>(null)

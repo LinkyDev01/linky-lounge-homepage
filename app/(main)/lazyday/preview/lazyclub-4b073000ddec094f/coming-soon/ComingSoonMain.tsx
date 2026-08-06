@@ -3,10 +3,10 @@
 /**
  * lazy-club.com coming soon (라운드 33 C안 · 37 커서 크롤 · 41 A안 클라이맥스)
  *
- * 라운드 41 (운영자): A안(정답 반전) 채택 + 규칙 3건
+ * 라운드 41 A안(정답 반전) · 라운드 42 정정 (운영자):
+ *  - **처음부터 반전(잉크 배경)인 채로 시작** — 타이핑·크롤·써클 전부 반전 위에서 진행
  *  - 강조 차례가 온 글자는 사라지지 않고 **블록**으로 표시 (크롤 커서와 같은 문법)
- *  - 반전을 준 뒤 **역반전**으로 원래 오트 컬러로 복귀
- *  - **1회성** — 반복 없이 역반전 후 그대로 고정
+ *  - **마지막에 원래 오트 컬러로 복귀** (2프레임 깜빡 후) — **1회성, 복귀 상태로 고정**
  *
  * 반전은 셸의 팔레트 변수(--ink/--paper) 스왑이라 헤더·푸터까지 화면 전체가 뒤집힌다.
  * 모든 타이밍은 단일 rAF 클록의 순수 함수(stateAt) — 시계가 하나라 어긋남이 없다.
@@ -43,8 +43,8 @@ const T = {
   CAP_LAZY_THICK: 6650,
   CAP_CLUB_THIN: 7000, // CLUB 써클 얇게 → 굵게
   CAP_CLUB_THICK: 7350,
-  INVERT_IN: 7900, // 반전 (2프레임 깜빡)
-  INVERT_OUT: 9500, // 역반전 → 원래 컬러로 복귀
+  BLOCK_IN: 7900, // 찾은 글자 블록 강조 시작
+  REVERT: 9500, // 원래 오트 컬러로 복귀 (직전 2프레임 깜빡) → 고정
   END: 9500, // 이후 고정
 }
 
@@ -72,11 +72,12 @@ function stateAt(raw: number) {
   const capLazy = e >= T.CAP_LAZY_THICK ? 2 : e >= T.CAP_LAZY_THIN ? 1 : 0
   const capClub = e >= T.CAP_CLUB_THICK ? 2 : e >= T.CAP_CLUB_THIN ? 1 : 0
 
-  // 클라이맥스: 반전(2프레임 깜빡) → 유지 → 역반전 후 고정
-  const f = e - T.INVERT_IN
-  const inverted = e < T.INVERT_OUT && f >= 0 && (f < 130 || (f >= 260 && f < 390) || f >= 520)
-  // 반전 구간에서 찾은 글자는 사라지지 않고 블록으로 표시 (운영자 라운드 41)
-  const blocked = e >= T.INVERT_IN && e < T.INVERT_OUT
+  // 라운드 42: 처음부터 반전으로 시작 → 복귀 직전 원컬러가 2프레임 깜빡 → 복귀 고정.
+  // 깜빡 슬롯: [REVERT-390, REVERT-260) · [REVERT-130, REVERT) 에서 잠깐 원컬러
+  const flash = e >= T.REVERT - 390 && ((e < T.REVERT - 260) || e >= T.REVERT - 130)
+  const inverted = e < T.REVERT && !flash
+  // 블록 강조 구간 — 찾은 글자는 사라지지 않고 블록으로 (운영자 라운드 41)
+  const blocked = e >= T.BLOCK_IN && e < T.REVERT
 
   return { textVisible, typed, blockCursor, cursor1, cursor2, lit, capLazy, capClub, inverted, blocked }
 }

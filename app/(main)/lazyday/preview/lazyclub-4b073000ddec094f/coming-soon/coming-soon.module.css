@@ -1,22 +1,18 @@
-/* lazy-club.com coming soon — C안(워터마크) 확정 · 라운드 33 · 톤 보정 라운드 34
-   이미지 대신 둥근모꼴로 워드서치 그리드를 직접 조판한다.
+/* lazy-club.com coming soon — C안(워터마크) · 라운드 37 전면 재구성
+   둥근모꼴 4×4 워드서치 그리드를 폰트로 조판하고, 픽셀 선택 커서 2개가
+   퍼즐을 "푸는" 연출. 모든 타이밍은 ComingSoonMain의 단일 rAF 클록이
+   순수 함수로 구동한다 (CSS 애니메이션 없음 — 시계가 하나라 어긋남도 없다).
 
-   라운드 34: 사이클 14s로 감속. 라운드 35 (운영자):
-   - 사라짐은 전부 일괄·즉시 (하나씩 지우기·흐려지기 금지)
-   - 그라데이션 금지 — 써클은 얇은 선(1px) → 굵은 선(3px) 2단계로 채움
-   모든 상태 전환은 하드 스텝(중간 보간 0). 타이핑·커서는 CSS 키프레임,
-   그리드·써클은 rAF 상태 머신(ComingSoonMain)이 구동한다 — ON 캐스케이드와
-   일괄 OFF를 동시에 만족시키기 위함.
-
-   한 사이클(12s, 라운드 36 단축):
-     0–20%      COMING SOON 타이핑 (steps, 2.4s)
-     20–38%     유지 + 커서 느린 점멸 2회
-     38%        문구 전체가 한 번에 사라짐 (일괄)
-     4.8s~      글자 점등 4단계 (0.25s 간격): L·C → A → Z·U → Y·B
-     6.0~7.35s  글자 완료 후 써클 순차: LAZY 얇게→굵게 → CLUB 얇게→굵게
-                (써클과 글자·써클끼리 겹침 없음 — 운영자 라운드 36)
-     ~10.3s     활성 유지
-     10.3s      글자·써클 전원 일괄 즉시 소등
+   한 사이클(12s):
+     0–2.4s     COMING SOON 타이핑 (11스텝) + 블록 커서 점등
+     2.4–4.56s  유지 — 커서 0.525s 간격 점멸
+     4.56s      문구+커서 일괄 소멸
+     5.0s~      선택 커서(반전 블록) 2개가 0.45s 보폭으로 기어감:
+                커서1 C→L→U→B (세로), 커서2는 두 박자 늦게 A→Z→Y (가로)
+                → 점등 그룹 C / L / U·A / B·Z / Y (운영자 라운드 37)
+     7.4–8.75s  써클 스탬프: CLUB 얇게→굵게, 이어 LAZY 얇게→굵게
+     ~10.6s     전체 점등 유지
+     10.6s      전원 일괄 즉시 소등 (그라데이션·개별 소거 없음)
      ~12s       쉼 → 처음부터 반복 */
 
 @font-face {
@@ -27,7 +23,6 @@
 
 .main {
   --dim: 0.16;
-  --cycle: 12s;
   /* 그리드 크기 — 화면 세로에 거의 꽉 차게 (원 마크 비율 1:1.273 유지).
      52vh: 캡슐 상단이 고정 헤더에 걸리지 않는 최대치 */
   --gridW: min(94vw, 52vh);
@@ -55,20 +50,17 @@
   user-select: none;
 }
 .cell { opacity: var(--dim); }
-
-/* 활성 글자 — 가로 LAZY(2행) · 세로 CLUB(1열). 라운드 35:
-   중간 밝기(그라데이션) 폐기 — dim → 1 하드 스텝만.
-   켤 때는 글자당 0.18s 지연 캐스케이드(0s 트랜지션 + delay = 즉시 점등의 순차),
-   끌 때는 .gridOn 제거로 전원이 한 번에 즉시 꺼진다 (기본 상태 delay 0) */
-.hot { transition: opacity 0s 0s; }
-/* 라운드 36: 단계당 0.25s — L·C → A → Z·U → Y·B (두 단어 짝 리듬) */
-.gridOn .hot {
+.lit { opacity: 1; }
+/* 선택 커서 — 반전 블록 (지나가는 칸을 잉크로 덮고 글자는 종이색) */
+.cellCursor {
   opacity: 1;
-  transition: opacity 0s calc(var(--i) * 0.25s);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.05em 0.1em;
+  margin: -0.05em -0.1em;
 }
 
-/* 찾은 단어 캡슐 — 활성화 때 함께 점등 (원 마크의 오벌 문법).
-   ⚠ 그리드 아이템으로 두면 글자 자동 배치를 밀어내므로 반드시 절대 배치 오버레이로 둔다 */
+/* ── 빙고 써클 — 얇게(1px) → 굵게(3px) 2단계 스탬프, CLUB → LAZY 순 ── */
 .capsule {
   position: absolute;
   border: 0 solid var(--ink);
@@ -78,12 +70,10 @@
 /* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%) */
 .capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
 .capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }
-/* 라운드 35: 그라데이션 없이 선 굵기 2단계로 써클을 채운다 — 얇게(1px) → 굵게(3px).
-   상태 전환은 JS(rAF) — 켜짐은 LAZY → CLUB 순서, 꺼짐은 글자와 함께 일괄 즉시 */
 .capThin { border-width: 1px; }
 .capThick { border-width: 3px; }
 
-/* ── COMING SOON 오버레이 (C안 — 그리드 위 중앙) ── */
+/* ── COMING SOON 오버레이 (그리드 위 중앙) ── */
 .overlay {
   position: absolute;
   inset: 0;
@@ -91,63 +81,13 @@
   align-items: center;
   justify-content: center;
   font-family: "DungGeunMo", monospace;
-  /* 문구+커서가 그리드 폭 안에 들어오도록 (8.6 → 폭의 약 96%) */
+  /* 문구+커서가 그리드 폭 안에 들어오도록 */
   font-size: calc(var(--gridW) / 8.6);
   letter-spacing: 0.08em;
   line-height: 1;
-  white-space: nowrap;
+  white-space: pre;
   color: var(--ink);
 }
-/* 완성 폭(--typeW)은 컴포넌트가 실측해 주입 */
-.ghost { position: absolute; visibility: hidden; white-space: nowrap; pointer-events: none; }
-.typing {
-  display: inline-block;
-  vertical-align: bottom;
-  overflow: hidden;
-  width: 0;
-  flex: none; /* ⚠ flex 축소가 걸리면 마지막 글자가 잘린다 */
-  animation: csType var(--cycle) infinite, csVanish var(--cycle) step-end infinite;
-}
-.cursor,
-.ghost { flex: none; }
-@keyframes csType {
-  0% { width: 0; animation-timing-function: steps(11, end); }
-  20% { width: var(--typeW); }
-  38% { width: var(--typeW); }
-  38.01% { width: 0; }
-  100% { width: 0; }
-}
-/* 지울 땐 한 글자씩이 아니라 전체가 한 번에 사라진다 (운영자 라운드 33) */
-@keyframes csVanish {
-  0% { opacity: 1; }
-  38% { opacity: 1; }
-  38.01% { opacity: 0; }
-  100% { opacity: 0; }
-}
-/* 커서 — 느린 점멸 2회 (켜짐/꺼짐 각 0.56s ≈ 1.1s 주기, 라운드 34 감속) */
-.cursor { animation: csCursor var(--cycle) step-end infinite; }
-@keyframes csCursor {
-  0% { opacity: 1; }
-  22% { opacity: 0; }
-  26% { opacity: 1; }
-  30% { opacity: 0; }
-  34% { opacity: 1; }
-  38% { opacity: 1; }
-  38.01% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-/* 검토용 정지(?phase=type|hot) — 스크린샷 확인 전용
-   (그리드·써클은 JS 상태 머신이 정지 모드에서 직접 고정한다) */
-.phaseType .typing { animation: none; width: var(--typeW, max-content); opacity: 1; }
-.phaseType .cursor { animation: none; opacity: 1; }
-.phaseHot .typing { animation: none; width: 0; opacity: 0; }
-.phaseHot .cursor { animation: none; opacity: 0; }
-.phaseHot .hot { opacity: 1; transition: none; }
-.phaseHot .capsule { border-width: 3px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .typing, .cursor { animation: none; }
-  .typing { width: var(--typeW, max-content); }
-  .hot { transition: none; }
-}
+.typedText { flex: none; }
+.blockCursor { flex: none; }
+.blockCursorOff { visibility: hidden; }

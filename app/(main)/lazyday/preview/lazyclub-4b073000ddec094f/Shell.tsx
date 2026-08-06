@@ -26,7 +26,10 @@ const NAV_ITEMS: { label: string; href: string }[] = [
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
-export function WorkroomShell({ children }: { children: React.ReactNode }) {
+/** invert: 팔레트 변수(--ink/--paper)를 맞바꿔 페이지 전체를 반전한다 (라운드 44).
+ *  단, 내비·푸터 글자는 원래 잉크색으로 고정해 반전 배경에 묻히게 둔다
+ *  ("글자만 반전하지 말자 — 그래야 눈에 안 띈다", 운영자). 기본값 false. */
+export function WorkroomShell({ children, invert = false }: { children: React.ReactNode; invert?: boolean }) {
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -52,14 +55,17 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
   const nav = NAV_ITEMS
 
   return (
-    <div className={styles.page}>
+    <div
+      className={styles.page}
+      style={invert ? ({ ["--ink"]: "#f7f3ee", ["--paper"]: "#1a1208", ["--ph-gray"]: "#2a2018" } as React.CSSProperties) : undefined}
+    >
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
       {/* ── 내비 — 라운드 39: LazydayBookclub · OneDayTalk 두 항목만 ── */}
-      <header className={styles.header}>
+      <header className={`${styles.header} ${invert ? styles.chromeDim : ""}`}>
         <div className={styles.headerLeft}>
           <LazydayLink href={BASE} className={styles.current}>
             LazyClub
@@ -77,7 +83,7 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>
 
       {/* ── 푸터 — 전 섹션 동일 유지 (운영자 라운드 31: coming soon도 같은 푸터) ── */}
-      <footer className={styles.footer}>
+      <footer className={`${styles.footer} ${invert ? styles.chromeDim : ""}`}>
         <div className={styles.footerInner}>
           <figure className={styles.footerLogo}>
             {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}

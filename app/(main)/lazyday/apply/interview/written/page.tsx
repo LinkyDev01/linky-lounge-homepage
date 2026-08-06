@@ -11,6 +11,8 @@ import { JourneyStepper } from "../../../JourneyStepper"
 import styles from "./page.module.css"
 
 import { KAKAO_CHAT_URL, reportClientError, copyText } from "../../../support"
+import { readSim, simSubmit, type SimMode } from "../../../sim"
+import { SimBanner } from "../../../SimBanner"
 
 const QUESTIONS = [
   {
@@ -84,6 +86,8 @@ export default function WrittenInterviewPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [missingList, setMissingList] = useState<string[]>([])
   const [submitError, setSubmitError] = useState(false)
+  const [sim, setSim] = useState<SimMode | null>(null)
+  useEffect(() => { setSim(readSim()) }, [])
   // 제출이 오래 걸릴 때(응답 지연) 답변을 잃지 않도록 복사 안내를 띄운다 (운영자 지시 2026-08-06)
   const [slowSubmit, setSlowSubmit] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -196,6 +200,9 @@ export default function WrittenInterviewPage() {
     if (slowTimer.current) clearTimeout(slowTimer.current)
     slowTimer.current = setTimeout(() => setSlowSubmit(true), 10_000)
     try {
+      if (sim) {
+        await simSubmit(sim) // 테스트 모드: 실제 전송 없음
+      } else {
       const res = await fetch("/api/lazyday/interview/written", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -209,6 +216,7 @@ export default function WrittenInterviewPage() {
       })
       const data = await res.json().catch(() => null)
       if (!res.ok || !data?.success) throw new Error(data?.error || "submit failed")
+      }
     } catch {
       if (slowTimer.current) clearTimeout(slowTimer.current)
       setLoading(false)
@@ -274,6 +282,7 @@ export default function WrittenInterviewPage() {
   if (submitted) {
     return (
       <main className={styles.successPage}>
+        <SimBanner mode={sim} />
         <div className={styles.successInner}>
           <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img
@@ -303,6 +312,7 @@ export default function WrittenInterviewPage() {
 
   return (
     <main className={styles.writtenPage}>
+      <SimBanner mode={sim} />
       {loading && <SubmitOverlay label="제출 중..." />}
 
       <div className={styles.container}>

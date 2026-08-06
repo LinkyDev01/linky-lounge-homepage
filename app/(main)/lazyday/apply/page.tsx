@@ -12,6 +12,8 @@ import { SEASON } from "../season-config"
 import { JourneyStepper } from "../JourneyStepper"
 import { ApplyCalendar } from "./ApplyCalendar"
 import styles from "./page.module.css"
+import { readSim, simSubmit, withSim, type SimMode } from "../sim"
+import { SimBanner } from "../SimBanner"
 
 const SUBMIT_URL = "/api/lazyday/apply"
 
@@ -69,6 +71,9 @@ function formatPhone(value: string) {
 
 export default function ApplyPage() {
   const base = useBasePath()
+  // 테스트 모드(?sim=) — 켜져 있으면 서버를 호출하지 않는다 (2026-08-06)
+  const [sim, setSim] = useState<SimMode | null>(null)
+  useEffect(() => { setSim(readSim()) }, [])
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
@@ -229,6 +234,9 @@ export default function ApplyPage() {
 
     // 서버 접수가 확인된 경우에만 완료 화면을 보여준다 (신청 유실 방지)
     try {
+      if (sim) {
+        await simSubmit(sim) // 테스트 모드: 실제 전송 없음
+      } else {
       const res = await fetch(SUBMIT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -236,6 +244,7 @@ export default function ApplyPage() {
       })
       const result = await res.json().catch(() => null)
       if (!res.ok || !result?.success) throw new Error("submit failed")
+      }
     } catch {
       setLoading(false)
       setErrors({
@@ -264,6 +273,7 @@ export default function ApplyPage() {
     const isPhone = interviewType === "전화 인터뷰"
     return (
       <main className={styles.successPage}>
+        <SimBanner mode={sim} />
         <div className={styles.successInner}>
           <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img
@@ -303,7 +313,7 @@ export default function ApplyPage() {
                 돌아가기
               </a>
               <a
-                href={isPhone ? `${base}/apply/interview/schedule` : `${base}/apply/interview/written`}
+                href={withSim(isPhone ? `${base}/apply/interview/schedule` : `${base}/apply/interview/written`, sim)}
                 className={styles.successPrimaryLink}
               >
                 {isPhone ? "전화 인터뷰 일정 잡기" : "서면 인터뷰 작성하기"}
@@ -317,6 +327,7 @@ export default function ApplyPage() {
 
   return (
     <main className={styles.applyPage} data-track-section="bookclub_apply_page">
+      <SimBanner mode={sim} />
       {loading && <SubmitOverlay label="신청 접수 중..." />}
       <ApplySectionIndicator />
       <div className={styles.container}>

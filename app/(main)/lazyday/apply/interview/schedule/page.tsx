@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo, useRef } from "react"
 import { KAKAO_CHAT_URL, reportClientError } from "../../../support"
+import { readSim, simSubmit, simSlots, type SimMode } from "../../../sim"
+import { SimBanner } from "../../../SimBanner"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -103,6 +105,9 @@ function slotsForDay(
 export default function InterviewSchedulePage() {
   const [bookedEvents,  setBookedEvents]  = useState<{ start: string; end: string }[]>([])
   const [slotsLoading, setSlotsLoading] = useState(true)
+  const [sim, setSim] = useState<SimMode | null>(null)
+  const [simReady, setSimReady] = useState(false)
+  useEffect(() => { setSim(readSim()); setSimReady(true) }, [])
   // 예약 현황 조회 실패 — 캘린더가 안 뜨는 상황을 사용자에게 알리고 문의로 연결 (2026-08-06)
   const [slotsFailed, setSlotsFailed] = useState(false)
 
@@ -138,17 +143,22 @@ export default function InterviewSchedulePage() {
   }, [])
 
   useEffect(() => {
-    fetch("/api/lazyday/interview/slots")
-      .then(r => r.json())
-      .then(d => setBookedEvents(
-        (d.bookedSlots ?? []).map((s: { start: string; end: string }) => ({ start: s.start, end: s.end }))
+    // sim 확정 전에는 호출하지 않는다 — 테스트 모드에서 실제 서버를 치면 안 된다
+    if (!simReady) return
+    // 테스트 모드면 서버 대신 시뮬레이션 응답을 쓴다 (2026-08-06)
+    const load = sim
+      ? simSlots(sim)
+      : fetch("/api/lazyday/interview/slots").then(r => r.json())
+    load
+      .then((d: { bookedSlots?: { start: string; end: string }[] }) => setBookedEvents(
+        (d.bookedSlots ?? []).map((s) => ({ start: s.start, end: s.end }))
       ))
       .catch(() => {
         setSlotsFailed(true)
-        reportClientError("schedule_slots", "예약 가능 시간 조회 실패")
+        if (!sim) reportClientError("schedule_slots", "예약 가능 시간 조회 실패")
       })
       .finally(() => setSlotsLoading(false))
-  }, [])
+  }, [sim, simReady])
 
   const nowUTCMs   = useMemo(() => Date.now(), [])
   // KST 기준 당일 포함 DAYS_AHEAD일째의 자정 UTC (= 예약 마감 기준)
@@ -284,6 +294,14 @@ export default function InterviewSchedulePage() {
     setErrors({})
     setSubmitting(true)
     try {
+      if (sim) {
+        await simSubmit(sim) // 테스트 모드: 실제 예약 없음
+        setConfirmed(selectedSlot)
+        setSubmitted(true)
+        setSubmitting(false)
+        window.scrollTo(0, 0)
+        return
+      }
       const res = await fetch("/api/lazyday/interview/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -320,6 +338,7 @@ export default function InterviewSchedulePage() {
       "&details=" + encodeURIComponent("레이지데이 북클럽 전화 인터뷰입니다. 선택하신 시간에 담당자가 전화드릴게요.")
     return (
       <main className={styles.successPage}>
+        <SimBanner mode={sim} />
         <div className={styles.successInner}>
           <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
             <img src="/linky-lounge/book-club/lazyday_logo.png" alt="레이지데이" className={styles.successMark} />
@@ -346,6 +365,7 @@ export default function InterviewSchedulePage() {
   // ── 메인 화면 ──────────────────────────────────────────────────
   return (
     <main className={styles.page}>
+      <SimBanner mode={sim} />
       {submitting && <SubmitOverlay label="예약 중..." />}
       <div className={styles.container}>
 

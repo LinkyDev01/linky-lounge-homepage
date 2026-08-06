@@ -4,22 +4,28 @@
 // 이 파일 하나가 기존 운영 스크립트(접수 doPost/doGet + 반배정)를
 // 전부 대체합니다. 시트에 바인딩된 Apps Script 프로젝트에 붙여넣으세요.
 //
-// (2026-07-02 동기화) 배포본 원문 기준. 변경점은 handleApply 하나:
-//   신청 폼의 새 필드 '희망 요일'(preferredDays)과 '동의 시각'(consentAt)을
-//   신청현황에 기록 — 두 컬럼은 없으면 첫 신청 때 맨 뒤에 자동 생성됨.
+// (2026-08-06 정리) 1회용·미사용 코드를 제거한 정리본.
+//   삭제: restoreMigratedOriginals / migratePhoneBookingRows / cleanupTestData
+//         (모두 완료된 1회성 마이그레이션) · scheduleSMS(미사용) ·
+//         scheduleReminderOnce(특정 신청자 실명·전화번호 하드코딩 — 개인정보)
+//   메뉴: '이관 원본 복구(1회)'와 중복된 '전화 인터뷰 일정순 정렬' 제거
+//   ⚠ 1회성 작업은 코드로 남기지 말고 편집기에서 실행 후 지울 것.
 //
 // 데이터 구조:
-//   신청현황    — 신청 폼 제출 (1행 = 1신청). "서면 인터뷰"/"전화 인터뷰"
-//                 열에 제출 여부 O/X 자동 표시, "인터뷰 일시"에 예약시간 기록
+//   신청현황    — 신청 폼 제출 (1행 = 1신청). '인터뷰 상태'에 O/대기/X,
+//                 '인터뷰 일시'에 전화 인터뷰 예약시간 기록
 //   전화 인터뷰 — 전화 인터뷰 예약 내역 (별도 시트, 1행 = 1예약)
-//   서면 인터뷰 — 서면 인터뷰 답변 (기존 그대로)
-//   반배정      — 기수-요일-시간 기준 자동 반배정 (onEdit)
+//   서면 인터뷰 — 서면 인터뷰 답변
+//   4기 알림    — 다음 기수 오픈 알림 신청
+//   1회성 모임  — 원데이 토크 신청
+//   반배정      — 기수 기준 자동 반배정 (onEdit)
 //
-// 설치 후 1회 실행: 메뉴 [레이지데이 관리] → "전화예약 행 이전(1회)"
-//   → 신청현황에 섞여 있던 전화 예약 행을 전화 인터뷰 시트로 옮기고
-//     O/X 상태를 전체 재계산합니다.
-// ============================================================
-
+// ⚠ 프론트(Vercel)와의 계약
+//   · POST type: written / phone_interview / admin_block / admin_delete /
+//     notify / oneday / (없음 = 신청 폼)
+//   · GET ?adminToken=<스크립트 속성 ADMIN_TOKEN> → 이벤트에 id·title 포함
+//     (admin 차단 관리 화면이 이 값으로 차단/인터뷰를 구분·삭제한다.
+//      Vercel 환경변수 ADMIN_SECRET 과 반드시 같은 값이어야 한다)
 // ── 설정값 ──────────────────────────────────────────────────
 var SHEET_ID    = "1yDy7VeJ_XkOYNfv_CXVqXy0S1UOAObgCiL4j22etfko"; // 레이지데이 북클럽 시트
 var MAIN_SHEET  = "신청현황";
@@ -185,7 +191,6 @@ function doPost(e) {
     if (data.type === "admin_delete")    return handleAdminDelete(data);
     if (data.type === "notify")          return handleNotify(data);
     if (data.type === "oneday")          return handleOnedayApply(data);
-    if (data.type === "apply_draft")     return handleApplyDraft(data);
 
     return handleApply(data); // type 없음 = 신청 폼
   } catch (err) {
@@ -295,69 +300,6 @@ function handleOnedayApply(d) {
   return jsonResponse({ success: true });
 }
 
-// ── 신청 1단계 임시저장 → '임시저장' 시트 (2026-07-27) ─────────────
-// 프론트 apply 폼이 2단계로 나뉘면서, 1단계(요일·이름·성별·나이·전화) 입력 직후
-// 이탈해도 연락처가 남도록 별도 탭에 즉시 기록한다.
-// payload: type:"apply_draft"/name/gender/age/phone
-//  · 최종 제출은 종전대로 handleApply가 '신청현황'에 기록 — 이 시트는 이탈자 추적용
-//  · 알림톡은 보내지 않는다 (아직 신청 완료가 아님). 관리자 메일만.
-//  · 시트가 없으면 자동 생성 (수동 작업 불필요)
-function handleApplyDraft(d) {
-  if (!d.name || !d.phone) {
-    return jsonResponse({ success: false, error: "필수 항목 누락" });
-  }
-  var sheet = ss().getSheetByName(DRAFT_SHEET);
-  if (!sheet) {
-    sheet = ss().insertSheet(DRAFT_SHEET);
-    sheet.getRange(1, 1).setValue("입력일시")
-      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
-  }
-  ensureColumn(sheet, "이름");
-  ensureColumn(sheet, "성별");
-  ensureColumn(sheet, "나이");
-  ensureColumn(sheet, "전화번호");
-  ensureColumn(sheet, "최종 제출");
-  var col = colIndexMap(sheet);
-  var row = new Array(sheet.getLastColumn()).fill("");
-  row[col["입력일시"]]  = new Date();
-  row[col["이름"]]      = d.name || "";
-  row[col["성별"]]      = d.gender || "";
-  row[col["나이"]]      = d.age || "";
-  row[col["전화번호"]]  = d.phone || "";
-  row[col["최종 제출"]] = "X"; // 최종 제출 시 handleApply가 O로 갱신
-  prependRow(sheet, row);
-
-  MailApp.sendEmail({
-    to: ADMIN_EMAIL,
-    subject: "[레이지데이 북클럽] 신청 1단계 입력 — " + (d.name || "?") + "님",
-    body: "신청 1단계(연락처)가 입력되었습니다. 아직 최종 제출 전입니다.\n\n" +
-          "이름: " + (d.name || "-") + "\n" +
-          "성별: " + (d.gender || "-") + "\n" +
-          "나이: " + (d.age || "-") + "\n" +
-          "연락처: " + (d.phone || "-") + "\n\n" +
-          "📄 스프레드시트('임시저장' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
-  });
-
-  return jsonResponse({ success: true });
-}
-
-/** 최종 제출된 신청자의 임시저장 행에 '최종 제출' = O 표시 (전화번호 기준, 최근 1건) */
-function markDraftSubmitted(phone) {
-  var sheet = ss().getSheetByName(DRAFT_SHEET);
-  if (!sheet || sheet.getLastRow() < 2) return;
-  var col = colIndexMap(sheet);
-  if (col["전화번호"] == null || col["최종 제출"] == null) return;
-  var np = normPhone(phone);
-  if (!np) return;
-  var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
-  for (var i = 0; i < values.length; i++) {
-    if (normPhone(values[i][col["전화번호"]]) === np) {
-      sheet.getRange(i + 2, col["최종 제출"] + 1).setValue("O");
-      return;
-    }
-  }
-}
-
 // ── 신청 폼 → 신청현황 ──────────────────────────────────────
 // (2026-07-02) 새 폼 필드 반영: '희망 요일'(preferredDays) + '동의 시각'(consentAt).
 //  두 컬럼이 없으면 맨 뒤에 자동 생성되므로 시트 수동 작업 불필요.
@@ -409,7 +351,6 @@ function handleApply(d) {
 
   // 신청자에게 카카오 알림톡 (실패 시 SMS fallback)
   // 인터뷰 방식 분기: 서면 인터뷰 선택 시 별도 템플릿, 그 외(전화)는 기존과 동일
-  markDraftSubmitted(d.phone); // 1단계 임시저장 행에 최종 제출 O 표시
 
   var npApply = normPhone(d.phone);
   if (npApply) {
@@ -606,36 +547,6 @@ function sortPhoneByInterview() {
     .sort({ column: dCol, ascending: false });
 }
 
-// ── 1회용: 신청현황에 섞인 전화 예약 행 → 전화 인터뷰 시트로 이전 ──
-function migratePhoneBookingRows() {
-  var sheet = ss().getSheetByName(MAIN_SHEET);
-  var col = colIndexMap(sheet);
-  var data = sheet.getDataRange().getValues();
-  var phoneSheet = getOrCreateSheet(PHONE_SHEET,
-    ["예약일시", "이름", "전화번호", "인터뷰 일시", "비고"]);
-
-  var moved = 0;
-  // 예약 행 판별: 인터뷰 일시 있음 + 마케팅 동의 없음 (= 폼 신청이 아닌 행)
-  for (var i = data.length - 1; i >= 1; i--) {
-    var slot = String(data[i][col["인터뷰 일시"]] || "").trim();
-    var consent = String(data[i][col["마케팅 동의"]] || "").trim();
-    if (slot && !consent) {
-      phoneSheet.appendRow([
-        data[i][col["신청일자"]] || "",
-        data[i][col["이름"]] || "",
-        data[i][col["전화번호"]] || "",
-        slot, "신청현황에서 이전"
-      ]);
-      // 본 신청 행에 일시 복사
-      updateMainStatus(data[i][col["전화번호"]], { "인터뷰 일시": slot, "인터뷰 상태": "대기" });
-      sheet.deleteRow(i + 1);
-      moved++;
-    }
-  }
-  syncInterviewStatus();
-  SpreadsheetApp.getUi().alert("이전 완료: " + moved + "건을 전화 인터뷰 시트로 옮기고 O/X를 갱신했습니다.");
-}
-
 // 시트의 연락처 존재 집합 (있으면 true)
 function presenceSet(sheetName, phoneHeader, defaultIdx) {
   var s = ss().getSheetByName(sheetName), set = {};
@@ -776,95 +687,6 @@ function onEdit(e) {
   if (sheet.getName() === MAIN_SHEET) makeClassList();
 }
 
-// ── 1회용: 전화예약 이관 때 잘못 삭제된 신청 원본 복구 ──────
-// 이관(6/12) 과정에서 전화 예약자 5명의 신청 원본 행이 함께 삭제됨.
-// 마이그레이션 전 백업에서 "현재 신청현황에 없는 신청 원본"만 찾아 복원한다.
-var PRE_MIGRATION_BACKUP_ID = "1ucEsDSh9pWVeoICstV-h8Hp506FR0Poriat5TUkv4ms";
-
-function restoreMigratedOriginals() {
-  var backup = SpreadsheetApp.openById(PRE_MIGRATION_BACKUP_ID).getSheetByName(MAIN_SHEET);
-  var main = ss().getSheetByName(MAIN_SHEET);
-  var bData = backup.getDataRange().getValues();
-  var bCol = {};
-  bData[0].forEach(function (h, i) { bCol[String(h).trim()] = i; });
-  var col = colIndexMap(main);
-  var mData = main.getDataRange().getValues();
-
-  // 행 식별 키: 전화번호 + 신청일자(초 단위)
-  function rowKey(phone, date) {
-    var d = (date instanceof Date)
-      ? Utilities.formatDate(date, "Asia/Seoul", "yyyyMMddHHmmss")
-      : String(date);
-    return normPhone(phone) + "|" + d;
-  }
-  var existing = {};
-  for (var i = 1; i < mData.length; i++) {
-    existing[rowKey(mData[i][col["전화번호"]], mData[i][col["신청일자"]])] = true;
-  }
-
-  var SKIP_NAMES = { "test": true, "검증테스트": true }; // 의도적으로 지운 테스트 행
-  var restored = 0, names = [];
-  for (var j = 1; j < bData.length; j++) {
-    var consent = String(bData[j][bCol["마케팅 동의"]] || "").trim();
-    var name = String(bData[j][bCol["이름"]] || "").trim();
-    if (!consent || SKIP_NAMES[name]) continue; // 신청 원본만 (예약 행 제외)
-    var key = rowKey(bData[j][bCol["전화번호"]], bData[j][bCol["신청일자"]]);
-    if (existing[key]) continue; // 이미 있으면 건너뜀 → 중복 복원 방지
-
-    var row = new Array(main.getLastColumn()).fill("");
-    Object.keys(bCol).forEach(function (h) {
-      if (col[h] !== undefined) row[col[h]] = bData[j][bCol[h]];
-    });
-    prependRow(main, row);
-    restored++;
-    names.push(name);
-  }
-
-  // 전화 인터뷰 시트의 예약시간을 복원된 신청 행에 다시 매핑
-  var ps = ss().getSheetByName(PHONE_SHEET);
-  if (ps) {
-    var pData = ps.getDataRange().getValues();
-    var pCol = {};
-    pData[0].forEach(function (h, i) { pCol[String(h).trim()] = i; });
-    for (var k = 1; k < pData.length; k++) {
-      var slot = String(pData[k][pCol["인터뷰 일시"]] || "").trim();
-      if (slot) updateMainStatus(pData[k][pCol["전화번호"]], { "인터뷰 일시": slot, "인터뷰 상태": "대기" });
-    }
-  }
-  syncInterviewStatus();
-  [MAIN_SHEET, PHONE_SHEET, WRITTEN_SHEET].forEach(sortSheetNewestFirst);
-  SpreadsheetApp.getUi().alert(
-    "복구 완료: " + restored + "건\n" + names.join(", ") +
-    "\n\n신청 원본을 신청현황에 복원하고 인터뷰 일시·O/X를 다시 매핑했습니다."
-  );
-}
-
-// ── 1회용: 테스트 데이터 삭제 (이름이 test/검증테스트인 행) ──
-function cleanupTestData() {
-  var TEST_NAMES = { "test": true, "검증테스트": true };
-  var targets = [
-    { name: MAIN_SHEET,    nameHeader: "이름" },
-    { name: PHONE_SHEET,   nameHeader: "이름" },
-    { name: WRITTEN_SHEET, nameHeader: "이름" }
-  ];
-  var removed = 0;
-  targets.forEach(function (t) {
-    var sheet = ss().getSheetByName(t.name);
-    if (!sheet) return;
-    var data = sheet.getDataRange().getValues();
-    var idx = data[0].map(String).indexOf(t.nameHeader);
-    if (idx === -1) idx = 1; // 기본: 2번째 열
-    for (var i = data.length - 1; i >= 1; i--) {
-      if (TEST_NAMES[String(data[i][idx]).trim()]) {
-        sheet.deleteRow(i + 1);
-        removed++;
-      }
-    }
-  });
-  syncInterviewStatus();
-  SpreadsheetApp.getUi().alert("테스트 데이터 " + removed + "행을 삭제했습니다.");
-}
-
 // ── 백업: 시트 전체 사본을 백업 폴더에 저장 ─────────────────
 var BACKUP_FOLDER = "레이지데이 백업";
 var BACKUP_KEEP   = 14; // 보관 개수 (이보다 오래된 사본은 자동 삭제)
@@ -990,14 +812,13 @@ function colorPaidRows(sheetName) {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("레이지데이 관리")
-    .addItem("0. 지금 백업하기", "backupNowWithAlert")
-    .addItem("★ 이관 원본 복구(1회)", "restoreMigratedOriginals")
+    .addItem("지금 백업하기", "backupNowWithAlert")
     .addSeparator()
     .addItem("정렬 (신청·서면 최신순 / 전화 일정순)", "sortAllNewestFirst")
-    .addItem("전화 인터뷰 일정순 정렬", "sortPhoneByInterview")
     .addItem("인터뷰 상태 재계산", "syncInterviewStatus")
-    .addItem("시트 서식·정리 (이동·드롭다운·색)", "applySheetFormatting")
     .addItem("반배정 다시 만들기", "makeClassList")
+    .addSeparator()
+    .addItem("시트 서식·정리 (최초 1회)", "applySheetFormatting")
     .addItem("자동 백업 켜기 (매일 4시)", "enableDailyBackup")
     .addToUi();
 }
@@ -1024,25 +845,6 @@ function sendSMS(to, text) {
     });
   } catch (err) {
     Logger.log("SMS 발송 오류: " + err.message);
-  }
-}
-
-// ── 예약 문자 (Solapi 예약 발송) — scheduledDate(ISO8601 KST)에 자동 전송 ──
-function scheduleSMS(to, scheduledDate, text) {
-  if (!to || !scheduledDate) return;
-  try {
-    var resp = UrlFetchApp.fetch("https://api.solapi.com/messages/v4/send-many/detail", {
-      method: "post",
-      headers: { "Authorization": buildSolapiAuth(), "Content-Type": "application/json" },
-      payload: JSON.stringify({
-        messages: [ { to: to, from: SENDER_PHONE, text: text } ],
-        scheduledDate: scheduledDate
-      }),
-      muteHttpExceptions: true
-    });
-    Logger.log("예약문자 응답: " + resp.getContentText());
-  } catch (err) {
-    Logger.log("예약문자 오류: " + err.message);
   }
 }
 

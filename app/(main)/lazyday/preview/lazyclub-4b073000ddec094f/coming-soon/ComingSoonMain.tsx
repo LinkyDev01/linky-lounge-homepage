@@ -15,8 +15,8 @@
  *            무작위 1색으로 통일(새로고침마다 다름), 나머지 9글자(=WELCOME TO)는
  *            셔플 마지막 색 유지 — 단 단색과 같으면 다른 색으로 치환
  *            (써클 주위 글자는 써클 안 글자와 반드시 다른 색)
- *   3.25s    LAZY 동그라미 — 글자 확정 후 0.25s (라운드 55)
- *   3.5s     CLUB 동그라미 (다시 0.25s 텀) — 글자 확정과 동시에 그리지 않는다
+ *   3.25s    LAZY 동그라미 — 글자 확정 후 0.25s (라운드 55). 왼→오 4스텝 와이프(0.24s, 라운드 56)
+ *   3.5s     CLUB 동그라미 (다시 0.25s 텀) — 위→아래 4스텝. 글자 확정과 동시에 그리지 않는다
  *   3.5–5.0s 정지 유지 (써클까지 완성된 화면을 1.5s)
  *   5.0s     최종 상태 — 내비·푸터가 색을 되찾아 노출 (페이드 없이 즉시)
  *
@@ -64,10 +64,15 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const T = {
   WELCOME: 1000, // 웰컴 정지 화면 종료 — 셔플 시작 (라운드 54: 0.5s → 1.0s)
   FIX: 3000, // 셔플 종료(2.0s) — LAZY·CLUB 고정
-  CAP_LAZY: 3250, // LAZY 동그라미 — 글자 확정 후 0.25s (라운드 55: 1.25s 대기가 길어 보임)
-  CAP_CLUB: 3500, // CLUB 동그라미 (다시 0.25s)
+  CAP_LAZY: 3250, // LAZY 동그라미 시작 — 글자 확정 후 0.25s (라운드 55)
+  CAP_CLUB: 3500, // CLUB 동그라미 시작 (다시 0.25s)
   END: 5000, // 최종 상태 — 써클까지 그린 뒤 1.5s 유지하고 내비·푸터 노출
 }
+/* 써클 와이프 (라운드 56) — 가로는 왼→오, 세로는 위→아래로 4토막.
+   펜 드로잉(연속 이징)이 아니라 이산 스텝이다: 셔플·고정·크롬 노출이 전부
+   툭툭 끊기는 이 화면의 문법을 지키기 위해 CSS 트랜지션 없이 정수 스텝만 바꾼다. */
+const STEP = 60 // 스텝 간격 (ms)
+const STEPS = 4 // 스텝 수 → 총 0.24s
 
 /** 결정적 해시 → [0,1) — 시드·칸·틱이 같으면 항상 같은 값 (프레임 간 안정) */
 function rnd(seed: number, a: number, b: number) {
@@ -75,6 +80,12 @@ function rnd(seed: number, a: number, b: number) {
   h = Math.imul(h ^ (h >>> 13), 1274126177) >>> 0
   h = (h ^ (h >>> 16)) >>> 0
   return h / 4294967296
+}
+
+/** 경과시간 → 0~4 스텝 (보간 없음 — 정수만) */
+function wipeStep(e: number, from: number) {
+  if (e < from) return 0
+  return Math.min(STEPS, Math.floor((e - from) / STEP) + 1)
 }
 
 type Cell = { ch: string; color: string }
@@ -120,8 +131,8 @@ function stateAt(raw: number, seed: number) {
 
   return {
     cells,
-    capLazy: e >= T.CAP_LAZY,
-    capClub: e >= T.CAP_CLUB,
+    lazyStep: wipeStep(e, T.CAP_LAZY),
+    clubStep: wipeStep(e, T.CAP_CLUB),
     done: e >= T.END,
   }
 }
@@ -183,6 +194,9 @@ export function ComingSoonMain() {
 
   const s = seed === null ? null : stateAt(elapsed, seed)
   const cells = s?.cells ?? INITIAL
+  // 스텝 → clip-path (가로는 오른쪽을, 세로는 아래쪽을 잘라 두었다가 걷어낸다)
+  const rowClip = `inset(0 ${(STEPS - (s?.lazyStep ?? 0)) * 25}% 0 0)`
+  const colClip = `inset(0 0 ${(STEPS - (s?.clubStep ?? 0)) * 25}% 0)`
 
   // 셸은 t=0부터 최종 레이아웃 그대로 — 인트로 동안 내비·푸터만 배경색으로 가린다
   return (
@@ -195,9 +209,14 @@ export function ComingSoonMain() {
                 {cell.ch}
               </span>
             ))}
-            {/* 빙고 동그라미 — 글자 확정 후 0.25s 텀, LAZY 먼저 이어 CLUB (3px 1단계) */}
-            {s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}
-            {s?.capClub && <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />}
+            {/* 빙고 동그라미 — 글자 확정 후 0.25s 텀, LAZY 먼저 이어 CLUB.
+                각각 4스텝 와이프로 채워진다 (라운드 56) */}
+            {!!s?.lazyStep && (
+              <div className={`${styles.capsule} ${styles.capRow}`} style={{ clipPath: rowClip }} aria-hidden />
+            )}
+            {!!s?.clubStep && (
+              <div className={`${styles.capsule} ${styles.capCol}`} style={{ clipPath: colClip }} aria-hidden />
+            )}
           </div>
         </div>
       </main>

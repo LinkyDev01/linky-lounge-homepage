@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   title: "레이지클럽",
   description: "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.",
   openGraph: {
-    title: "레이지클럽",
+    // 링크 미리보기 제목 — 운영자 지정 표기 (라운드 51). 브라우저 탭 제목은 "레이지클럽" 유지
+    title: "레이지클럽  |  lazy-club.com",
     description: "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.",
     images: ["/linky-lounge/book-club/home-v3/og-lazyclub-v2.png"],
     type: "website",

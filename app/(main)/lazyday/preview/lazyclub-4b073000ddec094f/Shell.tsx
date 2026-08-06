@@ -14,7 +14,8 @@ import styles from "./home.module.css"
 export const BASE = "/preview/lazyclub-4b073000ddec094f"
 
 // 라운드 30 (운영자 2026-08-06): coming soon은 lazy-club.com 전용 페이지(/coming-soon)로 분리 —
-// 이 트리의 홈은 기존 기획안(전체 섹션)을 내부 검토용으로 유지. 모드는 prop으로 전달.
+// 이 트리의 홈은 기존 기획안(전체 섹션)을 내부 검토용으로 유지.
+// 라운드 31: 내비·푸터는 두 페이지가 완전히 동일 (분기 없음).
 
 // 내비 — 라운드 19: 이 페이지의 브랜드는 '레이지 클럽'(허브). 4항목 확정
 // LazyClub(홈) / LazydayBookclub(기수제 랜딩) / OneDayTalk(목록) / About
@@ -27,7 +28,7 @@ const NAV_ITEMS: { label: string; href?: string; pending?: string }[] = [
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
-export function WorkroomShell({ children, comingSoon = false }: { children: React.ReactNode; comingSoon?: boolean }) {
+export function WorkroomShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -134,21 +135,17 @@ export function WorkroomShell({ children, comingSoon = false }: { children: Reac
 
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>
 
-      {/* ── 푸터 — coming soon 페이지에서는 사업자정보(법정 표기)만 남긴다 (라운드 28·30) ── */}
+      {/* ── 푸터 — 전 섹션 동일 유지 (운영자 라운드 31: coming soon도 같은 푸터) ── */}
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
-          {!comingSoon && (
-            <figure className={styles.footerLogo}>
-              {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}
-              <img src="/linky-lounge/book-club/home-v3/logo-lazyclub.png" alt="레이지 클럽" />
-            </figure>
-          )}
-          {!comingSoon && (
-            <div className={styles.footerDesc}>
-              {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
-              <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.</p>
-            </div>
-          )}
+          <figure className={styles.footerLogo}>
+            {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}
+            <img src="/linky-lounge/book-club/home-v3/logo-lazyclub.png" alt="레이지 클럽" />
+          </figure>
+          <div className={styles.footerDesc}>
+            {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
+            <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.</p>
+          </div>
           <div className={styles.footerBiz}>
             <div>
               <span>주식회사 링키</span>
@@ -175,8 +172,7 @@ export function WorkroomShell({ children, comingSoon = false }: { children: Reac
               <br />
               contact@linkylounge.com
             </div>
-            {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG. coming soon 모드 미노출 */}
-            {!comingSoon && (
+            {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG */}
             <div className={styles.footerSns}>
               <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" aria-label="인스타그램">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -194,7 +190,6 @@ export function WorkroomShell({ children, comingSoon = false }: { children: Reac
                 </svg>
               </a>
             </div>
-            )}
           </div>
         </div>
       </footer>

@@ -387,9 +387,5 @@ function ComingSoonContent() {
 }
 
 export function WorkroomHome({ comingSoon = false }: { comingSoon?: boolean }) {
-  return (
-    <WorkroomShell comingSoon={comingSoon}>
-      {comingSoon ? <ComingSoonContent /> : <HomeContent />}
-    </WorkroomShell>
-  )
+  return <WorkroomShell>{comingSoon ? <ComingSoonContent /> : <HomeContent />}</WorkroomShell>
 }

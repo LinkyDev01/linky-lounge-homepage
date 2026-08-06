@@ -700,3 +700,26 @@
   text-underline-offset: 3px;
 }
 .supportLink:hover { color: #d2691e; }
+
+/* ── 예약 실패 구제 (운영자 지시 2026-08-06) — 복사 → 카카오톡 제출 ── */
+.rescueGuide {
+  margin: 8px 0 10px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #6a5038;
+  word-break: keep-all;
+}
+.rescueCopyBtn {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #d2691e;
+  background: #fffdf8;
+  border: 1.5px solid #d2691e;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.rescueCopyBtn:hover { background: rgba(210, 105, 30, 0.08); }

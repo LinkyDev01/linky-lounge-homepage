@@ -4,8 +4,14 @@
  * 동시에 서버에 실패 사실을 남겨 운영자가 인지할 수 있게 한다.
  */
 
-/** 카카오채널 1:1 문의 */
+/** 카카오채널 1:1 채팅 */
 export const KAKAO_CHAT_URL = "https://pf.kakao.com/_gixaAX/chat"
+
+/** 전송이 끝내 안 될 때의 안내 — "복사 → 카카오톡으로 보내면 우리가 접수한다"는 맥락을
+ *  링크보다 먼저 전달한다 (운영자 지시 2026-08-06). 링크 라벨은 '문의'가 아니라 '제출'. */
+export const KAKAO_SUBMIT_GUIDE =
+  "계속 안 되면 아래 버튼으로 내용을 복사해 카카오톡으로 보내주세요. 저희가 대신 접수해 드릴게요."
+export const KAKAO_SUBMIT_LABEL = "카카오톡으로 제출하기"
 
 /** 실패 사실을 서버 로그로 신고 (개인정보 미전송, 실패해도 조용히 무시) */
 export function reportClientError(where: string, detail = "") {

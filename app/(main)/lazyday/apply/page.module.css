@@ -868,3 +868,44 @@
   color: #4a3020;
 }
 .backButton:disabled { opacity: 0.6; cursor: default; }
+
+/* ── 전송 실패 구제 박스 (운영자 지시 2026-08-06) ──
+   실패 → 안심 → 복사 → 카카오톡 제출 순서로 안내한다.
+   ⚠ 공유 파일: 실 apply + preview/apply + 원데이 토크가 함께 쓴다 */
+.rescueBox {
+  background: #fdf4ec;
+  border: 1px solid #f0d8bf;
+  border-radius: 12px;
+  padding: 14px 16px 12px;
+  margin-bottom: 4px;
+}
+.rescueGuide {
+  margin: 6px 0 10px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #6a5038;
+  word-break: keep-all;
+}
+.rescueCopyBtn {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #d2691e;
+  background: #fffdf8;
+  border: 1.5px solid #d2691e;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.rescueCopyBtn:hover { background: rgba(210, 105, 30, 0.08); }
+.rescueLink {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: #8a6a50;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rescueLink:hover { color: #d2691e; }

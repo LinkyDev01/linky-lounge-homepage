@@ -10,7 +10,7 @@ import { SEASON } from "../../../season-config"
 import { JourneyStepper } from "../../../JourneyStepper"
 import styles from "./page.module.css"
 
-import { KAKAO_CHAT_URL, reportClientError, copyText } from "../../../support"
+import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../../support"
 import { readSim, simSubmit, type SimMode } from "../../../sim"
 import { SimBanner } from "../../../SimBanner"
 
@@ -401,7 +401,7 @@ export default function WrittenInterviewPage() {
                         <p className={styles.failText}>
                           작성하신 답변은 이 기기에 안전하게 저장되어 있어요.
                           {submitError ? " 잠시 후 다시 제출해주세요." : " 잠시만 기다려 주세요."}
-                          {" "}만약을 위해 아래 버튼으로 작성 내용을 복사해두실 수 있어요.
+                          {" "}{KAKAO_SUBMIT_GUIDE}
                         </p>
                         {/* 답변 전문 복사 — 전송이 끝내 실패해도 내용을 잃지 않도록 (운영자 지시 2026-08-06) */}
                         <button
@@ -429,7 +429,7 @@ export default function WrittenInterviewPage() {
                           className={styles.supportLink}
                           onClick={() => reportClientError("written_kakao", "서면 인터뷰 문의 링크 클릭")}
                         >
-                          계속 안 되면 카카오채널로 문의하기
+                          {KAKAO_SUBMIT_LABEL}
                         </a>
                       </div>
                     )}

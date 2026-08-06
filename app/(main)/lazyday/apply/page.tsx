@@ -13,6 +13,7 @@ import { JourneyStepper } from "../JourneyStepper"
 import { ApplyCalendar } from "./ApplyCalendar"
 import styles from "./page.module.css"
 import { readSim, simSubmit, withSim, type SimMode } from "../sim"
+import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../support"
 import { SimBanner } from "../SimBanner"
 
 const SUBMIT_URL = "/api/lazyday/apply"
@@ -74,6 +75,15 @@ export default function ApplyPage() {
   // 테스트 모드(?sim=) — 켜져 있으면 서버를 호출하지 않는다 (2026-08-06)
   const [sim, setSim] = useState<SimMode | null>(null)
   useEffect(() => { setSim(readSim()) }, [])
+  // 접수 실패 시 카카오톡으로 대신 보낼 수 있게 입력 내용을 보관·복사 (운영자 지시 2026-08-06)
+  const [failedText, setFailedText] = useState("")
+  const [copied, setCopied] = useState(false)
+  async function copyFailed() {
+    if (await copyText(failedText)) {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    }
+  }
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
@@ -247,9 +257,24 @@ export default function ApplyPage() {
       }
     } catch {
       setLoading(false)
+      setFailedText(
+        [
+          "[레이지데이 북클럽 신청]",
+          `이름: ${name}`,
+          `성별: ${gender}`,
+          `나이: ${age}`,
+          `연락처: ${phone}`,
+          `인터뷰 방식: ${interviewType}`,
+          `참여 불가 요일: ${unavailableDays.length ? unavailableDays.join(", ") : "없음"}`,
+          `한 줄 인사: ${greeting || "-"}`,
+          `인스타그램: ${instagram || "-"}`,
+          `추천인: ${referral || "-"}`,
+        ].join("\n"),
+      )
       setErrors({
-        _form: "일시적인 오류로 신청이 접수되지 않았어요. 잠시 후 '다음'을 다시 눌러주세요.",
+        _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '다음'을 다시 눌러주세요.",
       })
+      reportClientError("apply_submit", "북클럽 신청 접수 실패")
       return
     }
 
@@ -719,7 +744,22 @@ export default function ApplyPage() {
             </div>
 
           {errors._form && (
+            <div className={styles.rescueBox} role="alert">
               <p className={styles.formError}>{errors._form}</p>
+              <p className={styles.rescueGuide}>{KAKAO_SUBMIT_GUIDE}</p>
+              <button type="button" className={styles.rescueCopyBtn} onClick={copyFailed}>
+                {copied ? "복사됐어요" : "신청 내용 복사"}
+              </button>
+              <a
+                href={KAKAO_CHAT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.rescueLink}
+                onClick={() => reportClientError("apply_kakao", "신청 실패 후 카카오톡 제출")}
+              >
+                {KAKAO_SUBMIT_LABEL}
+              </a>
+            </div>
           )}
 
             {step === 1 ? (

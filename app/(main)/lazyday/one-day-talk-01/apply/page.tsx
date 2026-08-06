@@ -8,6 +8,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../apply/page.module.css"
+import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../support"
 import cal from "./oneday.module.css"
 
 /**
@@ -191,6 +192,15 @@ export default function OnedayApplyPage() {
   const [submitted, setSubmitted] = useState(false)
   const [bankOpen, setBankOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  // 접수 실패 시 카카오톡으로 대신 보낼 수 있게 입력 내용을 보관·복사 (운영자 지시 2026-08-06)
+  const [failedText, setFailedText] = useState("")
+  const [failCopied, setFailCopied] = useState(false)
+  async function copyFailed() {
+    if (await copyText(failedText)) {
+      setFailCopied(true)
+      setTimeout(() => setFailCopied(false), 2500)
+    }
+  }
 
   useEffect(() => {
     if (submitted) window.scrollTo(0, 0)
@@ -298,9 +308,22 @@ export default function OnedayApplyPage() {
       if (!res.ok || !result?.success) throw new Error("submit failed")
     } catch {
       setLoading(false)
+      setFailedText(
+        [
+          "[레이지데이 원데이 토크 신청]",
+          `신청 회차: ${meetingDates || "-"}`,
+          `이름: ${name}`,
+          `성별: ${gender}`,
+          `나이: ${age}`,
+          `연락처: ${phone}`,
+          `한 줄 인사: ${greeting || "-"}`,
+          `인스타그램: ${instagram || "-"}`,
+        ].join("\n"),
+      )
       setErrors({
-        _form: "일시적인 오류로 신청이 접수되지 않았어요. 잠시 후 '신청 완료하기'를 다시 눌러주세요.",
+        _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '신청 완료하기'를 다시 눌러주세요.",
       })
+      reportClientError("oneday_submit", "원데이 토크 접수 실패")
       return
     }
 
@@ -583,7 +606,22 @@ export default function OnedayApplyPage() {
           </div>
 
           {errors._form && (
-            <p className={styles.formError}>{errors._form}</p>
+            <div className={styles.rescueBox} role="alert">
+              <p className={styles.formError}>{errors._form}</p>
+              <p className={styles.rescueGuide}>{KAKAO_SUBMIT_GUIDE}</p>
+              <button type="button" className={styles.rescueCopyBtn} onClick={copyFailed}>
+                {failCopied ? "복사됐어요" : "신청 내용 복사"}
+              </button>
+              <a
+                href={KAKAO_CHAT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.rescueLink}
+                onClick={() => reportClientError("oneday_kakao", "원데이 실패 후 카카오톡 제출")}
+              >
+                {KAKAO_SUBMIT_LABEL}
+              </a>
+            </div>
           )}
 
           <button type="submit" className={styles.submitButton} disabled={loading}>

@@ -1,0 +1,117 @@
+/* Coming Soon 타이포 이펙트 시안 (라운드 29 제안)
+   둥근모꼴(DungGeunMo, 눈누 — 무료·퍼블릭도메인 계열) 로드.
+   시안 전용 CSS — 기존 모듈 import 없음. 채택 시 폰트는 서브셋 자체 호스팅 권장. */
+
+@font-face {
+  font-family: "DungGeunMo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
+  font-display: swap;
+}
+
+.page {
+  --paper: #f7f3ee;
+  --ink: #1a1208;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "DungGeunMo", monospace;
+  padding: 40px 15px 80px;
+}
+
+.head { text-align: center; margin-bottom: 8px; font-size: 13.2px; letter-spacing: 0.06em; }
+.sub { text-align: center; font-size: 12px; opacity: 0.6; margin-bottom: 34px; }
+
+/* 마크 컨텍스트 — 실제 배치 감 확인용 */
+.mark { display: flex; justify-content: center; margin-bottom: 18px; }
+.mark img { width: min(200px, 46%); height: auto; display: block; }
+
+/* 스테이지 */
+.stage {
+  min-height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.text {
+  font-size: clamp(24px, 5vw, 40px);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+/* ── A. 타이핑 + 블록 커서 ── */
+.typing {
+  display: inline-block;
+  vertical-align: bottom;
+  overflow: hidden;
+  animation: typeIn 3.6s steps(11) infinite;
+}
+@keyframes typeIn {
+  0% { width: 0; }
+  45% { width: 11.2ch; }
+  90% { width: 11.2ch; }
+  100% { width: 11.2ch; }
+}
+.cursor { animation: blinkStep 0.9s steps(1) infinite; }
+
+/* ── B. 점멸 (아케이드 INSERT COIN) ── */
+.blink { animation: blinkStep 1.1s steps(1) infinite; }
+@keyframes blinkStep {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ── C. 전광판 마퀴 ── */
+.marqueeWrap { width: min(640px, 92vw); overflow: hidden; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); padding: 12px 0; }
+.marqueeTrack { display: inline-flex; white-space: nowrap; animation: marquee 9s linear infinite; }
+.marqueeTrack span { padding-right: 1.4em; }
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── D. 워드서치 서클 (브랜드 마크의 오벌 문법 연장) ── */
+.circleWrap { position: relative; display: inline-block; padding: 20px 34px; }
+
+.circleSvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.circleSvg rect {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawOval 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes drawOval {
+  0% { stroke-dashoffset: 100; opacity: 1; }
+  40% { stroke-dashoffset: 0; opacity: 1; }
+  82% { stroke-dashoffset: 0; opacity: 1; }
+  95% { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 100; opacity: 0; }
+}
+
+/* 스위처 + 설명 */
+.tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+.tab {
+  font-family: "DungGeunMo", monospace;
+  font-size: 13.2px;
+  background: none;
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.tabActive { background: var(--ink); color: var(--paper); }
+.desc { max-width: 560px; margin: 0 auto; font-size: 13.2px; line-height: 1.8; text-align: center; }
+.reco { margin-top: 10px; font-size: 12px; opacity: 0.65; }
+
+@media (prefers-reduced-motion: reduce) {
+  .typing, .cursor, .blink, .marqueeTrack, .circleSvg rect { animation: none; }
+  .typing { width: auto; }
+  .circleSvg rect { stroke-dashoffset: 0; }
+}
+
+@media (max-width: 720px) {
+  .stage { min-height: 150px; }
+}

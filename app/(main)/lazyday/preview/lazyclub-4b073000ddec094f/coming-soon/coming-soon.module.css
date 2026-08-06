@@ -7,6 +7,14 @@
    고정 헤더가 그리드 윗줄을 자르지 않도록 본문 상단 여백으로 헤더 높이를 비우고,
    그리드 높이는 헤더·푸터를 뺀 공간에 맞춘다 — 시작·종료 시점 배치가 동일해야 한다. */
 
+/* 프리뷰 이동 바 — JS(usePreviewBarHide)는 하이드레이션 뒤에나 돈다.
+   그 사이 첫 페인트에 바(짙은 색)와 34px 스페이서가 노출돼 인트로가 얼룩지고
+   레이아웃까지 밀렸다 (라운드 49). 이 CSS는 랜딩 라우트에서만 로드되므로
+   첫 페인트부터 확실히 숨긴다 — 다른 프리뷰 페이지의 바는 그대로. */
+:global(div[class*="previewBar"]) {
+  display: none !important;
+}
+
 @font-face {
   font-family: "DungGeunMo";
   src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");

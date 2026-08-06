@@ -1,0 +1,49 @@
+/* 라운드 56 시안 (임시) — 실 랜딩 CSS(coming-soon.module.css)와 분리된 사본.
+   차이는 두 곳뿐: ① .main 하단 여백 +3vh (광학 중심) ② 써클은 clip-path로 스텝 와이프
+   (트랜지션 없음 — 스텝 값은 컴포넌트가 정수로 넘긴다). */
+
+:global(div[class*="previewBar"]) {
+  display: none !important;
+}
+
+@font-face {
+  font-family: "DungGeunMo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
+  font-display: swap;
+}
+
+.main {
+  --gridW: min(88vw, calc((100vh - 320px) / 1.273));
+  /* 광학 중심 — 하단 여백에 3vh를 더해 그리드를 위로 (라운드 56 시안) */
+  padding: 64px 15px calc(40px + 6vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 250px);
+}
+.stage { width: var(--gridW); }
+
+.grid {
+  position: relative;
+  width: var(--gridW);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  aspect-ratio: 1 / 1.273;
+  place-items: center;
+  font-family: "DungGeunMo", monospace;
+  font-size: calc(var(--gridW) / 4.6);
+  line-height: 1;
+  user-select: none;
+}
+.cell { min-width: 1ch; text-align: center; }
+
+.capsule {
+  position: absolute;
+  border: 3px solid #1a1208;
+  border-radius: 999px;
+  pointer-events: none;
+  /* 트랜지션 없음 — 4스텝이 또렷하게 끊겨야 한다 */
+}
+.capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
+.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }

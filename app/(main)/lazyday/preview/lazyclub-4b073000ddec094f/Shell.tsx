@@ -13,6 +13,10 @@ import styles from "./home.module.css"
 // 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
 export const BASE = "/preview/lazyclub-4b073000ddec094f"
 
+// 라운드 28 (운영자 2026-08-06): coming soon 모드 — 내비·사업자정보만 남기고
+// 본문은 워드서치 이미지 하나만 노출. 오픈 시 false로 되돌리면 전체 복원.
+export const COMING_SOON = true
+
 // 내비 — 라운드 19: 이 페이지의 브랜드는 '레이지 클럽'(허브). 4항목 확정
 // LazyClub(홈) / LazydayBookclub(기수제 랜딩) / OneDayTalk(목록) / About
 const NAV_ITEMS: { label: string; href?: string; pending?: string }[] = [
@@ -131,17 +135,21 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
 
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>
 
-      {/* ── 푸터 ── */}
+      {/* ── 푸터 — coming soon 모드에서는 사업자정보(법정 표기)만 남긴다 (라운드 28) ── */}
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
-          <figure className={styles.footerLogo}>
-            {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}
-            <img src="/linky-lounge/book-club/home-v3/logo-lazyclub.png" alt="레이지 클럽" />
-          </figure>
-          <div className={styles.footerDesc}>
-            {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
-            <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.</p>
-          </div>
+          {!COMING_SOON && (
+            <figure className={styles.footerLogo}>
+              {/* 레이지 클럽 투명배경 로고 (운영자 제공, 라운드 19) */}
+              <img src="/linky-lounge/book-club/home-v3/logo-lazyclub.png" alt="레이지 클럽" />
+            </figure>
+          )}
+          {!COMING_SOON && (
+            <div className={styles.footerDesc}>
+              {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
+              <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.</p>
+            </div>
+          )}
           <div className={styles.footerBiz}>
             <div>
               <span>주식회사 링키</span>
@@ -168,7 +176,8 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
               <br />
               contact@linkylounge.com
             </div>
-            {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG */}
+            {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG. coming soon 모드 미노출 */}
+            {!COMING_SOON && (
             <div className={styles.footerSns}>
               <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" aria-label="인스타그램">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -186,6 +195,7 @@ export function WorkroomShell({ children }: { children: React.ReactNode }) {
                 </svg>
               </a>
             </div>
+            )}
           </div>
         </div>
       </footer>

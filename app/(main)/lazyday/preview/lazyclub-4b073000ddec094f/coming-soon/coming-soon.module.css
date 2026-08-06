@@ -1,0 +1,162 @@
+/* lazy-club.com coming soon — C안(워터마크) 확정 · 라운드 33
+   이미지 대신 둥근모꼴로 워드서치 그리드를 직접 조판한다.
+
+   한 사이클(9s):
+     0–22%   COMING SOON 타이핑 (steps)
+     22–36%  유지 + 커서 2회 점멸
+     36%     문구 전체가 한 번에 사라짐
+     38–43%  가로 LAZY · 세로 CLUB 활성화 (y2k 스텝 점멸 + 1px 지터)
+     43–70%  활성 유지
+     70–74%  비활성화
+     74–100% 쉼 → 처음부터 반복 */
+
+@font-face {
+  font-family: "DungGeunMo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
+  font-display: swap;
+}
+
+.main {
+  --dim: 0.16;
+  --cycle: 9s;
+  /* 그리드 크기 — 화면 세로에 거의 꽉 차게 (원 마크 비율 1:1.273 유지).
+     52vh: 캡슐 상단이 고정 헤더에 걸리지 않는 최대치 */
+  --gridW: min(94vw, 52vh);
+  padding: 24px 15px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 250px);
+}
+
+.stage { position: relative; width: var(--gridW); }
+
+/* ── 워드서치 그리드 (4×4, 폰트 조판) ── */
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  aspect-ratio: 1 / 1.273;
+  place-items: center;
+  font-family: "DungGeunMo", monospace;
+  font-size: calc(var(--gridW) / 4.6);
+  line-height: 1;
+  color: var(--ink);
+  user-select: none;
+}
+.cell { opacity: var(--dim); }
+
+/* 활성 글자 — 가로 LAZY(2행) · 세로 CLUB(1열). y2k 스텝 점멸 + 1px 지터 */
+.hot {
+  animation: hotOn var(--cycle) step-end infinite;
+  animation-delay: calc(var(--i) * 0.06s);
+}
+@keyframes hotOn {
+  0% { opacity: var(--dim); transform: none; }
+  38% { opacity: 1; transform: translate(1px, -1px); }
+  39% { opacity: var(--dim); transform: none; }
+  40% { opacity: 1; transform: translate(-1px, 1px); }
+  41% { opacity: var(--dim); transform: none; }
+  42% { opacity: 1; transform: none; }
+  70% { opacity: 1; transform: none; }
+  71% { opacity: var(--dim); transform: none; }
+  72% { opacity: 1; transform: none; }
+  73% { opacity: var(--dim); transform: none; }
+  100% { opacity: var(--dim); transform: none; }
+}
+
+/* 찾은 단어 캡슐 — 활성화 때 함께 점등 (원 마크의 오벌 문법).
+   ⚠ 그리드 아이템으로 두면 글자 자동 배치를 밀어내므로 반드시 절대 배치 오버레이로 둔다 */
+.capsule {
+  position: absolute;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  animation: capOn var(--cycle) step-end infinite;
+}
+/* 가로 LAZY = 2행(중심 37.5%) · 세로 CLUB = 1열(중심 12.5%) */
+.capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
+.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }
+@keyframes capOn {
+  0% { opacity: 0; }
+  40% { opacity: 1; }
+  41% { opacity: 0; }
+  42% { opacity: 1; }
+  70% { opacity: 1; }
+  71% { opacity: 0; }
+  72% { opacity: 1; }
+  73% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* ── COMING SOON 오버레이 (C안 — 그리드 위 중앙) ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "DungGeunMo", monospace;
+  /* 문구+커서가 그리드 폭 안에 들어오도록 (8.6 → 폭의 약 96%) */
+  font-size: calc(var(--gridW) / 8.6);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--ink);
+}
+/* 완성 폭(--typeW)은 컴포넌트가 실측해 주입 */
+.ghost { position: absolute; visibility: hidden; white-space: nowrap; pointer-events: none; }
+.typing {
+  display: inline-block;
+  vertical-align: bottom;
+  overflow: hidden;
+  width: 0;
+  flex: none; /* ⚠ flex 축소가 걸리면 마지막 글자가 잘린다 */
+  animation: csType var(--cycle) infinite, csVanish var(--cycle) step-end infinite;
+}
+.cursor,
+.ghost { flex: none; }
+@keyframes csType {
+  0% { width: 0; animation-timing-function: steps(11, end); }
+  22% { width: var(--typeW); }
+  36% { width: var(--typeW); }
+  36.01% { width: 0; }
+  100% { width: 0; }
+}
+/* 지울 땐 한 글자씩이 아니라 전체가 한 번에 사라진다 (운영자 라운드 33) */
+@keyframes csVanish {
+  0% { opacity: 1; }
+  36% { opacity: 1; }
+  36.01% { opacity: 0; }
+  100% { opacity: 0; }
+}
+.cursor { animation: csCursor var(--cycle) step-end infinite; }
+@keyframes csCursor {
+  0% { opacity: 1; }
+  24% { opacity: 0; }
+  27% { opacity: 1; }
+  30% { opacity: 0; }
+  33% { opacity: 1; }
+  36% { opacity: 1; }
+  36.01% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* 검토용 정지(?phase=type|hot) — 스크린샷 확인 전용 */
+.phaseType .typing { animation: none; width: var(--typeW, max-content); opacity: 1; }
+.phaseType .cursor { animation: none; opacity: 1; }
+.phaseType .hot, .phaseType .capsule { animation: none; }
+.phaseType .capsule { opacity: 0; }
+.phaseHot .typing { animation: none; width: 0; opacity: 0; }
+.phaseHot .cursor { animation: none; opacity: 0; }
+.phaseHot .hot { animation: none; opacity: 1; }
+.phaseHot .capsule { animation: none; opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .typing, .cursor, .hot, .capsule { animation: none; }
+  .typing { width: var(--typeW, max-content); }
+  .hot { opacity: 1; }
+  .capsule { opacity: 1; }
+}

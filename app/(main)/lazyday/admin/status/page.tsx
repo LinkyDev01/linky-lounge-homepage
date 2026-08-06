@@ -54,6 +54,9 @@ export default function AdminStatusPage() {
             <button className={styles.refreshBtn} onClick={run} disabled={loading}>
               {loading ? "점검 중..." : "다시 점검"}
             </button>
+            <a className={styles.linkBtn} href="/lazyday/admin/simulate">
+              신청 흐름 테스트
+            </a>
             <a className={styles.linkBtn} href="/lazyday/admin">
               차단 관리
             </a>

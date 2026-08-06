@@ -26,19 +26,13 @@ const NAV_ITEMS: { label: string; href: string }[] = [
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
-/** invert: 팔레트 변수(--ink/--paper)를 맞바꿔 페이지 전체를 반전한다 (라운드 44).
- *  내비·푸터 글자는 원래 잉크색으로 고정해 반전 배경에 묻히게 둔다.
- *  smooth: 색 변화에 1.5s 페이드를 건다 (라운드 45 — 복귀 직전에만 켜서 서서히 반전).
- *  기본값 둘 다 false — 다른 페이지 무영향. */
-export function WorkroomShell({
-  children,
-  invert = false,
-  smooth = false,
-}: {
-  children: React.ReactNode
-  invert?: boolean
-  smooth?: boolean
-}) {
+// 프리뷰 바 숨김 참조 카운트 — coming soon은 셸을 두 겹(반전/오트) 렌더하므로
+// 한 겹이 언마운트돼도 남은 겹이 있으면 바를 되살리지 않는다 (라운드 46)
+let previewBarHideCount = 0
+
+/** invert (coming soon 전용): 팔레트를 맞바꾼 반전 화면을 만든다.
+ *  내비·푸터는 chromeDim으로 글자를 배경색(잉크)에 맞춰 묻는다. 기본값 false. */
+export function WorkroomShell({ children, invert = false }: { children: React.ReactNode; invert?: boolean }) {
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -49,23 +43,27 @@ export function WorkroomShell({
   }
 
 
-  // 이 트리에서만 프리뷰 이동 바 숨김 (운영자 2026-08-04)
+  // 이 트리에서만 프리뷰 이동 바 숨김 (운영자 2026-08-04 · 참조 카운트 라운드 46)
   useEffect(() => {
+    previewBarHideCount++
     const els = Array.from(document.querySelectorAll<HTMLElement>('[class*="previewBar"]'))
     els.forEach((el) => {
       el.style.display = "none"
     })
-    return () =>
-      els.forEach((el) => {
-        el.style.display = ""
-      })
+    return () => {
+      previewBarHideCount--
+      if (previewBarHideCount === 0)
+        els.forEach((el) => {
+          el.style.display = ""
+        })
+    }
   }, [])
 
   const nav = NAV_ITEMS
 
   return (
     <div
-      className={`${styles.page} ${smooth ? styles.pageSmooth : ""}`}
+      className={styles.page}
       style={invert ? ({ ["--ink"]: "#f7f3ee", ["--paper"]: "#1a1208", ["--ph-gray"]: "#2a2018" } as React.CSSProperties) : undefined}
     >
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}

@@ -97,6 +97,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 - **Vercel 유사 프로젝트 혼동 주의**: 같은 팀에 `linky-website`, `lounge-homepage-dev` 등 비슷한 이름이 여럿 — 반드시 `prj_iKxn...` 사용.
 - **파일 일괄 삭제 전 참조 확인**: 과거 미사용 파일 정리 중 사용 중이던 JourneyStepper.tsx를 함께 삭제한 사고(`git checkout --`로 복구). rm 전 파일별 import grep.
 - **JSX 래퍼 추가 직후 `npx tsc --noEmit`**: unclosed div(TS17008) 상태로 빌드하면 6분 타임아웃처럼 보인다 — tsc가 오래 걸리면 구문 에러부터 의심.
+- **shot.mjs networkidle 멈춤**: 외부 스크립트(va.vercel-scripts.com, fbevents 등)가 프록시에서 pending으로 매달리면 `page.goto(networkidle)`이 30s 타임아웃 난다 — 서버는 정상(200)인데 캡처만 실패하면 이것부터 의심. 대처: waitUntil 'load' 폴백 스크립트로 캡처.
 
 ## 6. GAS (Google Apps Script) 계약
 

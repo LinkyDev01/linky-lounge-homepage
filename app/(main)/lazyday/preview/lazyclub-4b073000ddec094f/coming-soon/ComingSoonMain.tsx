@@ -112,8 +112,8 @@ export function ComingSoonMain() {
   const capClass = (n: number) => (n === 2 ? styles.capThick : n === 1 ? styles.capThin : "")
 
   return (
-    <WorkroomShell>
-      <main className={`${styles.main} ${s.inverted ? styles.inverted : ""}`}>
+    <WorkroomShell invert={s.inverted}>
+      <main className={styles.main}>
         <div className={styles.stage}>
           <div className={styles.grid} aria-label="LAZY CLUB">
             {GRID.map((row, r) =>

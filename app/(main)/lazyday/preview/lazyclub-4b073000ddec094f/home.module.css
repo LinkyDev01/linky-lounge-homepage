@@ -294,6 +294,10 @@
 }
 .cartTotalRow { display: flex; justify-content: space-between; padding: 15px 0 22.5px; }
 
+/* ── ⓪ 브랜드 워드서치 마크 (라운드 27 — coming soon 소재, 투명 PNG) ── */
+.brandMark { display: flex; justify-content: center; padding: 26px 0 60px; }
+.brandMark img { width: min(340px, 72%); height: auto; display: block; }
+
 /* ── ① 도서 캐러셀 (08: 풀블리드, 높이 400, gap 15) ────── */
 .books {
   width: calc(100% + 30px);

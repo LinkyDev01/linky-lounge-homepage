@@ -27,9 +27,18 @@ const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify:
 export const useToast = () => useContext(ToastContext)
 
 /** invert: 팔레트 변수(--ink/--paper)를 맞바꿔 페이지 전체를 반전한다 (라운드 44).
- *  단, 내비·푸터 글자는 원래 잉크색으로 고정해 반전 배경에 묻히게 둔다
- *  ("글자만 반전하지 말자 — 그래야 눈에 안 띈다", 운영자). 기본값 false. */
-export function WorkroomShell({ children, invert = false }: { children: React.ReactNode; invert?: boolean }) {
+ *  내비·푸터 글자는 원래 잉크색으로 고정해 반전 배경에 묻히게 둔다.
+ *  smooth: 색 변화에 1.5s 페이드를 건다 (라운드 45 — 복귀 직전에만 켜서 서서히 반전).
+ *  기본값 둘 다 false — 다른 페이지 무영향. */
+export function WorkroomShell({
+  children,
+  invert = false,
+  smooth = false,
+}: {
+  children: React.ReactNode
+  invert?: boolean
+  smooth?: boolean
+}) {
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -56,7 +65,7 @@ export function WorkroomShell({ children, invert = false }: { children: React.Re
 
   return (
     <div
-      className={styles.page}
+      className={`${styles.page} ${smooth ? styles.pageSmooth : ""}`}
       style={invert ? ({ ["--ink"]: "#f7f3ee", ["--paper"]: "#1a1208", ["--ph-gray"]: "#2a2018" } as React.CSSProperties) : undefined}
     >
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}

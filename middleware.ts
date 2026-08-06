@@ -15,6 +15,11 @@ const LINKYLOUNGE_HOSTS = new Set([
 ])
 const BOOKCLUB_ORIGIN = "https://www.lazyday-bookclub.com" // 책클럽 정본(현 Vercel primary)
 
+// 레이지 클럽 신규 도메인 (운영자 2026-08-06 구입) — coming soon 단계:
+// 모든 페이지 요청을 coming soon 페이지로 rewrite (자산·API는 matcher/분기에서 제외)
+const LAZYCLUB_HOSTS = new Set(["lazy-club.com", "www.lazy-club.com"])
+const LAZYCLUB_COMING_SOON = "/lazyday/preview/lazyclub-4b073000ddec094f/coming-soon"
+
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]
   const { pathname } = req.nextUrl
@@ -23,6 +28,13 @@ export function middleware(req: NextRequest) {
   if (LINKYLOUNGE_HOSTS.has(host) && (pathname === "/lazyday" || pathname.startsWith("/lazyday/"))) {
     const clean = pathname === "/lazyday" ? "/" : pathname.slice("/lazyday".length)
     return NextResponse.redirect(new URL(clean + req.nextUrl.search, BOOKCLUB_ORIGIN), 301)
+  }
+
+  // 레이지 클럽 도메인: coming soon 단계 — 페이지 요청 전부를 coming soon으로 (api 제외)
+  if (LAZYCLUB_HOSTS.has(host) && !pathname.startsWith("/api")) {
+    const to = req.nextUrl.clone()
+    to.pathname = LAZYCLUB_COMING_SOON
+    return NextResponse.rewrite(to)
   }
 
   const isBookclub = BOOKCLUB_HOSTS.has(host)

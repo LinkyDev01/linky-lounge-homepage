@@ -275,6 +275,8 @@ export default function AdminPage() {
           <h1 className={styles.title}>인터뷰 차단 시간 관리</h1>
           <div className={styles.headerActions}>
             <button className={styles.iconBtn} onClick={loadBlocks} title="새로고침">↺</button>
+            {/* 운영 상태 점검 (2026-08-06) */}
+            <a className={styles.logoutBtn} href="/lazyday/admin/status">상태 점검</a>
             <button className={styles.logoutBtn} onClick={logout}>로그아웃</button>
           </div>
         </header>

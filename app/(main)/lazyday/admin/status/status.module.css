@@ -1,0 +1,155 @@
+/* 운영 상태 점검 페이지 (2026-08-06) — admin 톤(밝은 오트) 유지, 전용 CSS */
+
+.page {
+  min-height: 100vh;
+  background: #f7f3ee;
+  padding: 28px 16px 64px;
+  word-break: keep-all;
+}
+.container {
+  max-width: 620px;
+  margin: 0 auto;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+.refreshBtn,
+.linkBtn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.refreshBtn {
+  color: #fff;
+  background: #d2691e;
+  border: 1.5px solid #d2691e;
+}
+.refreshBtn:hover:not(:disabled) { background: #b8571a; }
+.refreshBtn:disabled { opacity: 0.6; cursor: default; }
+.linkBtn {
+  color: #8a6a50;
+  background: transparent;
+  border: 1.5px solid #e5d9c8;
+}
+.linkBtn:hover { color: #d2691e; border-color: #d2691e; }
+
+.summary {
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+.summaryOk { background: #eef4ea; color: #3f6b3a; }
+.summaryBad { background: #fbeee6; color: #a04d16; }
+.time {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a7660;
+  font-variant-numeric: tabular-nums;
+}
+
+.loading, .failed {
+  font-size: 14px;
+  color: #8a7660;
+  margin: 0 0 16px;
+}
+.failed { color: #a04d16; }
+
+.list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  border-radius: 12px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.dotOk { background: #5b8f52; }
+.dotBad { background: #d2691e; }
+.itemBody { min-width: 0; }
+.itemLabel {
+  margin: 0 0 3px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1a1208;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ms {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a7660;
+  font-variant-numeric: tabular-nums;
+}
+.itemDetail {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4a3020;
+}
+.itemHint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #a04d16;
+}
+
+.note {
+  padding: 14px 16px;
+  background: #f0e9e0;
+  border-radius: 12px;
+}
+.noteTitle {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #8a6a50;
+}
+.noteText {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #6a5038;
+}
+.noteText:last-child { margin-bottom: 0; }

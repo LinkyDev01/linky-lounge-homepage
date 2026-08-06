@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
+import { KAKAO_CHAT_URL, reportClientError } from "../../../support"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -102,6 +103,8 @@ function slotsForDay(
 export default function InterviewSchedulePage() {
   const [bookedEvents,  setBookedEvents]  = useState<{ start: string; end: string }[]>([])
   const [slotsLoading, setSlotsLoading] = useState(true)
+  // 예약 현황 조회 실패 — 캘린더가 안 뜨는 상황을 사용자에게 알리고 문의로 연결 (2026-08-06)
+  const [slotsFailed, setSlotsFailed] = useState(false)
 
   const nowKST = useMemo(() => {
     const kstMs = Date.now() + 9 * 3600_000
@@ -140,7 +143,10 @@ export default function InterviewSchedulePage() {
       .then(d => setBookedEvents(
         (d.bookedSlots ?? []).map((s: { start: string; end: string }) => ({ start: s.start, end: s.end }))
       ))
-      .catch(() => {})
+      .catch(() => {
+        setSlotsFailed(true)
+        reportClientError("schedule_slots", "예약 가능 시간 조회 실패")
+      })
       .finally(() => setSlotsLoading(false))
   }, [])
 
@@ -168,6 +174,9 @@ export default function InterviewSchedulePage() {
   // 슬롯 로딩 완료 후 — 오늘 날짜 + 가장 빠른 슬롯 자동 선택 (최초 1회)
   useEffect(() => {
     if (slotsLoading || hasAutoSelected.current) return
+    // 조회 실패 시 자동 선택하지 않는다 — '모든 시간이 비어 있는 것처럼' 보이면
+    // 이미 예약된 시간에 중복 예약이 들어온다 (2026-08-06)
+    if (slotsFailed) return
     hasAutoSelected.current = true
 
     const kstMs = Date.now() + 9 * 3600_000
@@ -187,7 +196,7 @@ export default function InterviewSchedulePage() {
       setSelectedDate(todayCell)
       setSelectedSlot(firstAvail)
     }
-  }, [slotsLoading, bookedKeys, nowUTCMs])
+  }, [slotsLoading, slotsFailed, bookedKeys, nowUTCMs])
 
   // 달력 셀 목록
   const calDays = useMemo(() => {
@@ -287,9 +296,11 @@ export default function InterviewSchedulePage() {
         window.scrollTo(0, 0)
       } else {
         setErrors({ _form: data.error ?? "예약 중 오류가 발생했습니다." })
+        reportClientError("schedule_book", String(data.error ?? "예약 실패"))
       }
     } catch {
       setErrors({ _form: "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요." })
+      reportClientError("schedule_book", "네트워크 오류")
     }
     setSubmitting(false)
   }
@@ -454,12 +465,36 @@ export default function InterviewSchedulePage() {
 
               {/* 예약 가능한 날짜가 하나도 없으면 그 사실을 알린다 — 안내가 없으면
                   달력이 전부 회색인 채 멈춘 것처럼 보인다 (2026-08-05 감사에서 발견) */}
-              {selectedDate === null ? (
+              {slotsFailed && !slotsLoading ? (
+                <p className={styles.timeHint}>
+                  예약 가능한 시간을 불러오지 못했어요.
+                  <br />
+                  잠시 후 새로고침해 주시거나, 아래로 문의해 주세요.
+                  <br />
+                  <a
+                    href={KAKAO_CHAT_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.supportLink}
+                    onClick={() => reportClientError("schedule_kakao", "슬롯 조회 실패 후 문의")}
+                  >
+                    카카오채널로 문의하기
+                  </a>
+                </p>
+              ) : selectedDate === null ? (
                 bookableDayCount === 0 && !slotsLoading ? (
                   <p className={styles.timeHint}>
                     지금은 예약 가능한 시간이 없습니다.
                     <br />
-                    카카오채널로 문의해 주시면 일정을 조율해 드릴게요.
+                    <a
+                      href={KAKAO_CHAT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.supportLink}
+                      onClick={() => reportClientError("schedule_kakao", "전부 마감 후 문의")}
+                    >
+                      카카오채널로 문의하기
+                    </a>
                   </p>
                 ) : (
                   <p className={styles.timeHint}>캘린더에서 날짜를 먼저 선택해주세요.</p>
@@ -528,7 +563,21 @@ export default function InterviewSchedulePage() {
                   />
                   {errors.phone && <p className={styles.errText}>{errors.phone}</p>}
                 </div>
-                {errors._form && <p className={styles.formErr}>{errors._form}</p>}
+                {errors._form && (
+                  <>
+                    <p className={styles.formErr}>{errors._form}</p>
+                    {/* 막혔을 때 빠져나갈 길 — 작은 밑줄 링크 (운영자 지시 2026-08-06) */}
+                    <a
+                      href={KAKAO_CHAT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.supportLink}
+                      onClick={() => reportClientError("schedule_kakao", "예약 실패 후 문의 링크 클릭")}
+                    >
+                      예약이 계속 안 되면 카카오채널로 문의하기
+                    </a>
+                  </>
+                )}
                 <button type="submit" className={styles.submitBtn} disabled={submitting}>
                   {submitting ? "예약 중..." : "인터뷰 예약하기"}
                 </button>

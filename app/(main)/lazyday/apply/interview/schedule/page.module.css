@@ -688,3 +688,15 @@
   .successTitle { font-size: 26px; }
   .successMark  { width: 96px; height: 96px; }
 }
+
+/* 장애 시 문의 링크 — 버튼이 아니라 링크임이 드러나는 작은 밑줄 (운영자 지시 2026-08-06) */
+.supportLink {
+  display: block;
+  width: fit-content;
+  margin: 10px auto 2px;
+  font-size: 12.5px;
+  color: #8a6a50;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.supportLink:hover { color: #d2691e; }

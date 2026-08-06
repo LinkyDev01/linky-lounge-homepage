@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
+import { KAKAO_CHAT_URL } from "../../../../support"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -387,7 +388,9 @@ export default function PreviewInterviewSchedulePage() {
                   <p className={styles.timeHint}>
                     지금은 예약 가능한 시간이 없습니다.
                     <br />
-                    카카오채널로 문의해 주시면 일정을 조율해 드릴게요.
+                    <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" className={styles.supportLink}>
+                      카카오채널로 문의하기
+                    </a>
                   </p>
                 ) : (
                   <p className={styles.timeHint}>캘린더에서 날짜를 먼저 선택해주세요.</p>

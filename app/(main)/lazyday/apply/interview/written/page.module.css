@@ -592,3 +592,32 @@
   margin: 0 0 12px;
   word-break: keep-all;
 }
+
+/* ── 장애 시 구제 장치 (운영자 지시 2026-08-06) ──
+   전송 실패·지연 시 작성 내용을 통째로 복사하고, 카카오채널로 문의하게 한다 */
+.copyAllBtn {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #d2691e;
+  background: transparent;
+  border: 1.5px solid #d2691e;
+  /* 같은 배너의 '다시 제출하기'(confirmGo, 8px)와 라운딩·타이포 통일 */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.copyAllBtn:hover { background: rgba(210, 105, 30, 0.08); }
+/* 버튼이 아니라 '링크'임이 드러나는 작은 밑줄 표기 */
+.supportLink {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: #8a6a50;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.supportLink:hover { color: #d2691e; }

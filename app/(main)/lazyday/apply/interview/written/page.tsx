@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, type FormEvent } from "react"
+import { useState, useEffect, useRef, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { trackCustom } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -9,6 +9,8 @@ import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { SEASON } from "../../../season-config"
 import { JourneyStepper } from "../../../JourneyStepper"
 import styles from "./page.module.css"
+
+import { KAKAO_CHAT_URL, reportClientError, copyText } from "../../../support"
 
 const QUESTIONS = [
   {
@@ -82,6 +84,10 @@ export default function WrittenInterviewPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [missingList, setMissingList] = useState<string[]>([])
   const [submitError, setSubmitError] = useState(false)
+  // 제출이 오래 걸릴 때(응답 지연) 답변을 잃지 않도록 복사 안내를 띄운다 (운영자 지시 2026-08-06)
+  const [slowSubmit, setSlowSubmit] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const slowTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     try {
@@ -164,12 +170,31 @@ export default function WrittenInterviewPage() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
+  /** 작성 전문(이름·연락처 + 질문/답변)을 한 덩어리 텍스트로 — 전송 실패 시 복사용 */
+  function buildTranscript() {
+    const head = `[레이지데이 북클럽 서면 인터뷰]\n이름: ${name}\n연락처: ${phone}\n`
+    const body = QUESTIONS.map((q) => `\n${q.label}. ${q.text}\n${(answers[q.id] || "").trim() || "(미작성)"}`).join("\n")
+    return head + body
+  }
+
+  async function copyTranscript() {
+    const ok = await copyText(buildTranscript())
+    if (ok) {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    }
+  }
+
   // 서버 접수가 확인된 경우에만 완료 처리한다 (답변 유실 방지).
   // 실패 시 답변은 localStorage에 그대로 남고, 재시도 배너를 보여준다.
   async function doSubmit() {
     setConfirmOpen(false)
     setSubmitError(false)
+    setSlowSubmit(false)
     setLoading(true)
+    // 10초 넘게 응답이 없으면 '복사해두기' 안내를 먼저 띄운다
+    if (slowTimer.current) clearTimeout(slowTimer.current)
+    slowTimer.current = setTimeout(() => setSlowSubmit(true), 10_000)
     try {
       const res = await fetch("/api/lazyday/interview/written", {
         method: "POST",
@@ -185,11 +210,15 @@ export default function WrittenInterviewPage() {
       const data = await res.json().catch(() => null)
       if (!res.ok || !data?.success) throw new Error(data?.error || "submit failed")
     } catch {
+      if (slowTimer.current) clearTimeout(slowTimer.current)
       setLoading(false)
       setSubmitError(true)
       track("written_interview_submit_error", { program: "book_club" })
+      reportClientError("written_submit", "서면 인터뷰 제출 실패")
       return
     }
+    if (slowTimer.current) clearTimeout(slowTimer.current)
+    setSlowSubmit(false)
     setLoading(false)
     track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
     try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
@@ -354,21 +383,44 @@ export default function WrittenInterviewPage() {
 
                 {isLast && (
                   <>
-                    {submitError && (
+                    {(submitError || slowSubmit) && (
                       <div className={styles.failBanner} role="alert">
-                        <p className={styles.failTitle}>일시적인 오류로 제출되지 않았어요</p>
-                        <p className={styles.failText}>
-                          작성하신 답변은 이 기기에 안전하게 저장되어 있어요. 잠시 후 다시 제출해주세요.
+                        <p className={styles.failTitle}>
+                          {submitError ? "일시적인 오류로 제출되지 않았어요" : "제출이 오래 걸리고 있어요"}
                         </p>
+                        <p className={styles.failText}>
+                          작성하신 답변은 이 기기에 안전하게 저장되어 있어요.
+                          {submitError ? " 잠시 후 다시 제출해주세요." : " 잠시만 기다려 주세요."}
+                          {" "}만약을 위해 아래 버튼으로 작성 내용을 복사해두실 수 있어요.
+                        </p>
+                        {/* 답변 전문 복사 — 전송이 끝내 실패해도 내용을 잃지 않도록 (운영자 지시 2026-08-06) */}
                         <button
                           type="button"
-                          className={styles.confirmGo}
-                          style={{ width: "100%" }}
-                          onClick={doSubmit}
-                          disabled={loading}
+                          className={styles.copyAllBtn}
+                          onClick={copyTranscript}
                         >
-                          다시 제출하기
+                          {copied ? "복사됐어요" : "작성 내용 전체 복사"}
                         </button>
+                        {submitError && (
+                          <button
+                            type="button"
+                            className={styles.confirmGo}
+                            style={{ width: "100%" }}
+                            onClick={doSubmit}
+                            disabled={loading}
+                          >
+                            다시 제출하기
+                          </button>
+                        )}
+                        <a
+                          href={KAKAO_CHAT_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.supportLink}
+                          onClick={() => reportClientError("written_kakao", "서면 인터뷰 문의 링크 클릭")}
+                        >
+                          계속 안 되면 카카오채널로 문의하기
+                        </a>
                       </div>
                     )}
                     {confirmOpen && (

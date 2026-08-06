@@ -1,16 +1,15 @@
 "use client"
 
-/** 원데이 토크 목록 — 홈 리스트 문법 재사용 + 카테고리 필터 (워크룸 아카이브 대응) */
+/** 원데이 토크 목록 — 홈 리스트 문법 재사용.
+ *  라운드 39 (운영자): 두 상품(시지프·브람스)만 진열 — 시지프(모집중)를 맨 위,
+ *  브람스는 sold out. 랜딩 콘텐츠·지난 기수·카테고리 필터는 목록에서 제외
+ *  (지난 기수 진열은 홈 하단 '레이지데이 북클럽' 섹션이 담당). */
 
-import { useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { ONE_DAY_MEETINGS } from "../one-day-config"
-import { LANDING_DOCS, PAST_SEASONS } from "../WorkroomHome"
 import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "../Shell"
 import { useSaved } from "../store"
 import styles from "../home.module.css"
-
-const CATEGORIES = ["전체", "booktalk", "bookclub"] as const
 
 export function MeetingsIndex() {
   return (
@@ -23,21 +22,18 @@ export function MeetingsIndex() {
 function IndexBody() {
   const { notify } = useToast()
   const saved = useSaved()
-  const [filter, setFilter] = useState<(typeof CATEGORIES)[number]>("전체")
 
-  const all = [
-    ...ONE_DAY_MEETINGS.map((m) => ({
+  // 모집중(시지프) 먼저 → sold out(브람스)
+  const items = [...ONE_DAY_MEETINGS]
+    .sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
+    .map((m) => ({
       id: `meeting-${m.slug}`,
       category: m.category as string,
       status: m.status,
       title: m.title,
       link: `${BASE}/meetings/${m.slug}`,
       thumbnail: m.thumbnail,
-    })),
-    ...LANDING_DOCS.map((d) => ({ id: `doc-${d.category}`, status: "open" as const, ...d })),
-    ...PAST_SEASONS,
-  ]
-  const items = filter === "전체" ? all : all.filter((i) => i.category === filter)
+    }))
   const itemCount = items.length
   const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1)
 
@@ -49,19 +45,6 @@ function IndexBody() {
             <span>meetings</span>
             <ArrowIcon />
           </span>
-        </div>
-        {/* 카테고리 필터 — 원문 아카이브 필터 대응(텍스트 링크 문법) */}
-        <div className={styles.filterRow}>
-          {CATEGORIES.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className={`${styles.filterBtn} ${filter === c ? styles.filterBtnActive : ""}`}
-              onClick={() => setFilter(c)}
-            >
-              {c}
-            </button>
-          ))}
         </div>
       </div>
       <div className={styles.meetingsList}>
@@ -101,7 +84,6 @@ function IndexBody() {
           )
         })}
       </div>
-      {items.length === 0 && <p className={styles.emptyNote}>해당 분류의 항목이 아직 없습니다.</p>}
     </main>
   )
 }

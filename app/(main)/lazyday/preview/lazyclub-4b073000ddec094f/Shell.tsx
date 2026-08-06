@@ -26,9 +26,7 @@ const NAV_ITEMS: { label: string; href: string }[] = [
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
-/** invert: 팔레트 변수(--ink/--paper)를 맞바꿔 헤더·본문·푸터를 통째로 반전한다
- *  (라운드 41 coming soon 클라이맥스 — 다른 페이지는 기본값 false로 영향 없음) */
-export function WorkroomShell({ children, invert = false }: { children: React.ReactNode; invert?: boolean }) {
+export function WorkroomShell({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -54,10 +52,7 @@ export function WorkroomShell({ children, invert = false }: { children: React.Re
   const nav = NAV_ITEMS
 
   return (
-    <div
-      className={styles.page}
-      style={invert ? ({ ["--ink"]: "#f7f3ee", ["--paper"]: "#1a1208", ["--ph-gray"]: "#2a2018" } as React.CSSProperties) : undefined}
-    >
+    <div className={styles.page}>
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
       <link
         rel="stylesheet"

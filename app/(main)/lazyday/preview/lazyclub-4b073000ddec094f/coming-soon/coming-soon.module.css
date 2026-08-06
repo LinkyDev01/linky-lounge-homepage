@@ -33,6 +33,16 @@
   min-height: calc(100vh - 250px);
 }
 
+/* 반전 — 라운드 43: 본문 영역에만 적용한다. 상단 내비·하단 푸터는 그대로 흑색 유지
+   (헤더는 background: var(--paper)를 .page 기준으로 잡으므로 영향 없음) */
+.inverted {
+  --ink: #f7f3ee;
+  --paper: #1a1208;
+  --ph-gray: #2a2018;
+  background: var(--paper);
+  color: var(--ink);
+}
+
 .stage { position: relative; width: var(--gridW); }
 
 /* ── 워드서치 그리드 (4×4, 폰트 조판) ── */

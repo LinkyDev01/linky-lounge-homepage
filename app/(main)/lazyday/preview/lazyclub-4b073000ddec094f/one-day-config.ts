@@ -7,6 +7,15 @@
 
 export type OneDayCategory = "booktalk" | "lecture" | "reading" | "documents"
 
+/** 화면 노출용 카테고리 라벨 (라운드 82, 운영자: "booktalk 대신에 원데이토크").
+ *  분류 키는 그대로 두고 표기만 한국어로 — 홈·목록·상세가 공유하는 단일 출처 */
+export const CATEGORY_LABELS: Record<OneDayCategory, string> = {
+  booktalk: "원데이토크",
+  lecture: "강연",
+  reading: "낭독",
+  documents: "기록",
+}
+
 /** open=모집중 / soldout=마감(오버레이) / upcoming=오픈 예정(오버레이) — 라운드 10 */
 export type ProductStatus = "open" | "soldout" | "upcoming"
 

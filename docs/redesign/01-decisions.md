@@ -15,6 +15,11 @@
 
 # 결정 로그 (최신 위)
 
+- 2026-08-07 | 라운드 68 (운영자): 맥동은 **7글자 동일 위상** — LAZY·CLUB이
+  한 몸처럼 같이 밝아지고 같이 어두워진다. 67의 이웃 엇갈림(hotAlt·
+  alternate-reverse) 폐기, `blink 1s infinite linear alternate` 로 왕복
+  (기점 스냅 없이 부드러운 되돌림, 왕복 2s). hover 일시정지·최저 25% 유지
+
 - 2026-08-07 | 라운드 67 (운영자 "점멸 형태가 레퍼런스랑 다른데?"):
   minguhong.fyi CSS를 실측해 **원문 문법 그대로 교정** — 이진 on/off(66)가
   아니라 `@keyframes blink { 0% {opacity:.25} 100% {opacity:1} }` +

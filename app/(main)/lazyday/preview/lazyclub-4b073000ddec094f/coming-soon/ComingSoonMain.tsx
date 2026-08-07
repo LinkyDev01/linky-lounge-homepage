@@ -186,7 +186,13 @@ export function ComingSoonMain() {
   const gridInner = (
     <>
       {cells.map((cell, i) => (
-        <span key={i} className={styles.cell} style={{ color: cell.color }} aria-hidden>
+        // 써클 안 7글자(C·L·U·B + A·Z·Y)에는 hot 표식 — hover 시 써클과 함께 떠오른다 (라운드 61)
+        <span
+          key={i}
+          className={`${styles.cell}${HOT.has(`${Math.floor(i / 4)}-${i % 4}`) ? ` ${styles.hot}` : ""}`}
+          style={{ color: cell.color }}
+          aria-hidden
+        >
           {cell.ch}
         </span>
       ))}

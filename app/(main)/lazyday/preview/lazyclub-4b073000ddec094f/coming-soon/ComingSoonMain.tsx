@@ -38,7 +38,8 @@
  */
 
 import { useEffect, useState } from "react"
-import { WorkroomShell } from "../Shell"
+import { LazydayLink } from "@/components/common/LazydayLink"
+import { BASE, WorkroomShell } from "../Shell"
 import styles from "./coming-soon.module.css"
 
 // 오프닝 1.0s — WELCOME TO + 채움 X (라운드 48 도입 · 54에서 0.5s→1.0s)
@@ -196,27 +197,42 @@ export function ComingSoonMain() {
   const rowClip = `inset(0 ${(STEPS - (s?.lazyStep ?? 0)) * 25}% 0 0)`
   const colClip = `inset(0 0 ${(STEPS - (s?.clubStep ?? 0)) * 25}% 0)`
 
+  const gridInner = (
+    <>
+      {cells.map((cell, i) => (
+        <span key={i} className={styles.cell} style={{ color: cell.color }} aria-hidden>
+          {cell.ch}
+        </span>
+      ))}
+      {/* 빙고 동그라미 — 글자 확정 후 0.25s 텀, LAZY 먼저 이어 CLUB.
+          각각 4스텝 와이프로 채워진다 (라운드 56) */}
+      {!!s?.lazyStep && (
+        <div className={`${styles.capsule} ${styles.capRow}`} style={{ clipPath: rowClip }} aria-hidden />
+      )}
+      {!!s?.clubStep && (
+        <div className={`${styles.capsule} ${styles.capCol}`} style={{ clipPath: colClip }} aria-hidden />
+      )}
+    </>
+  )
+
   // 셸은 t=0부터 최종 레이아웃 그대로 — 인트로 동안 내비·푸터만 배경색으로 가린다
   // (인트로가 끝났거나, 사용자가 입력해 크롬을 먼저 요청했으면 노출)
   return (
     <WorkroomShell paper="#f8f3ef" chromeHidden={!s?.done && !chromeEarly}>
       <main className={styles.main}>
         <div className={styles.stage}>
-          <div className={styles.grid} aria-label="LAZY CLUB">
-            {cells.map((cell, i) => (
-              <span key={i} className={styles.cell} style={{ color: cell.color }} aria-hidden>
-                {cell.ch}
-              </span>
-            ))}
-            {/* 빙고 동그라미 — 글자 확정 후 0.25s 텀, LAZY 먼저 이어 CLUB.
-                각각 4스텝 와이프로 채워진다 (라운드 56) */}
-            {!!s?.lazyStep && (
-              <div className={`${styles.capsule} ${styles.capRow}`} style={{ clipPath: rowClip }} aria-hidden />
-            )}
-            {!!s?.clubStep && (
-              <div className={`${styles.capsule} ${styles.capCol}`} style={{ clipPath: colClip }} aria-hidden />
-            )}
-          </div>
+          {/* 인트로가 끝나면 마크 전체가 레이지클럽 홈으로 가는 링크가 된다 (라운드 58).
+              화면에는 어떤 표시도 더하지 않는다 — 마크가 변하지 않는다는 것이 선택 이유.
+              반응은 hover·press의 옅은 그림자뿐 (모바일은 상시 옅은 그림자) */}
+          {s?.done ? (
+            <LazydayLink href={BASE} className={`${styles.grid} ${styles.gridLink}`} aria-label="레이지클럽 홈으로">
+              {gridInner}
+            </LazydayLink>
+          ) : (
+            <div className={styles.grid} aria-label="LAZY CLUB">
+              {gridInner}
+            </div>
+          )}
         </div>
       </main>
     </WorkroomShell>

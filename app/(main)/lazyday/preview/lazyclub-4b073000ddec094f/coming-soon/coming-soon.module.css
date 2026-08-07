@@ -15,10 +15,15 @@
   display: none !important;
 }
 
+/* 둥근모꼴 — 자체 호스팅 + A~Z·0~9만 남긴 서브셋 (라운드 65).
+   기존엔 jsDelivr CDN의 **1.6MB woff**(한글 글리프 포함)를 swap 으로 불러와,
+   첫 로딩에 대체 고딕이 잠깐 보였다가 바뀌는 순간이 있었다.
+   5KB woff2 + 같은 출처 + preload(page.tsx) + display:block 으로 그 순간을 없앤다.
+   block 은 폰트가 올 때까지 글자를 감춘다 — 5KB라 사실상 즉시 뜬다. */
 @font-face {
   font-family: "DungGeunMo";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
-  font-display: swap;
+  src: url("/fonts/dunggeunmo-latin.woff2") format("woff2");
+  font-display: block;
 }
 
 /* ── 본문 — 고정 헤더(약 40px) 아래로 밀어 그리드 첫 줄이 잘리지 않게 한다 ── */

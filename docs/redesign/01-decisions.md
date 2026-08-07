@@ -15,6 +15,15 @@
 
 # 결정 로그 (최신 위)
 
+- 2026-08-07 | 라운드 65 (운영자 "첫 로딩에 폰트가 잠깐 안 먹는 순간"):
+  **둥근모꼴 자체 호스팅 + 서브셋**으로 FOUT 제거. 원인은 jsDelivr CDN의
+  **1.6MB woff**(한글 글리프 전체)를 `font-display: swap` 으로 부르던 것 —
+  대체 고딕이 먼저 그려졌다가 교체됐다. A~Z·0~9만 남겨 woff2로 서브셋하니
+  **5.1KB**(1/315). `/public/fonts/dunggeunmo-latin.woff2` 로 같은 출처 제공 +
+  page.tsx 에서 `<link rel=preload as=font crossOrigin>` + `font-display: block`.
+  (같은 출처라도 폰트는 CORS 모드라 crossOrigin 없으면 preload가 두 번 받는다)
+  서브셋 도구: `python3 -m fontTools.subset --unicodes=U+0041-005A,… --flavor=woff2`
+
 - 2026-08-07 | 라운드 64 (운영자 "모바일에서도 클릭은 되어야지"): **마크 링크가
   lazy-club.com에서 제자리로 돌아오던 문제** 수정. 원인은 클릭 자체가 아니라
   미들웨어 — lazy-club.com은 `/api` 외 **모든 경로를 랜딩으로 rewrite** 했기에

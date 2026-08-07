@@ -8,5 +8,12 @@ import { ComingSoonMain } from "./ComingSoonMain"
  * lazy-club.com 호스트는 middleware가 모든 경로를 이 페이지로 rewrite.
  */
 export default function LazyClubLandingPage() {
-  return <ComingSoonMain />
+  return (
+    <>
+      {/* 둥근모꼴 서브셋 미리 받기 — CSS 파싱을 기다리지 않고 첫 페인트에 맞춘다.
+          같은 출처라도 폰트는 CORS 모드로 받으므로 crossOrigin 필수 (라운드 65) */}
+      <link rel="preload" href="/fonts/dunggeunmo-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      <ComingSoonMain />
+    </>
+  )
 }

@@ -106,9 +106,13 @@
   0% { opacity: 0.25; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0)); }
   100% { opacity: 1; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.3)); }
 }
+/* 써클 (라운드 72): opacity·drop-shadow 로는 그림자가 획 밝기에 곱해져
+   어두운 구간에서 통째로 사라졌다(나왔다-사라졌다로 보임). 획 깜빡임은
+   border-color 로, 그림자는 box-shadow 로 분리 — 그림자가 획과 무관하게
+   바닥 .1에서 .5까지 **점진적으로** 진해진다 */
 @keyframes blinkCap {
-  0% { opacity: 0.25; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0)); }
-  100% { opacity: 1; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.5)); }
+  0% { border-color: rgba(26, 18, 8, 0.25); box-shadow: 0 3px 6px rgba(26, 18, 8, 0.1); }
+  100% { border-color: rgba(26, 18, 8, 1); box-shadow: 0 3px 6px rgba(26, 18, 8, 0.5); }
 }
 .main .gridLink .hot { animation: blinkText 1s infinite linear alternate; }
 .main .gridLink .capsule { animation: blinkCap 1s infinite linear alternate; }
@@ -122,8 +126,8 @@
 }
 .main .gridLink:hover .capsule {
   animation: none;
-  opacity: 1;
-  filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.5));
+  border-color: rgba(26, 18, 8, 1);
+  box-shadow: 0 3px 6px rgba(26, 18, 8, 0.5);
 }
 @media (prefers-reduced-motion: reduce) {
   .main .gridLink .hot,

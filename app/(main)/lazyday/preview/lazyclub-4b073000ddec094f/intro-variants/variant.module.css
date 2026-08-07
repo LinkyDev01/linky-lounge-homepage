@@ -1,0 +1,72 @@
+/* 세로 써클 = 입구, 어포던스 3안 비교용 임시 CSS (실 랜딩과 분리된 사본).
+   기본 골격은 coming-soon.module.css 와 동일하고, 링크·안별 표현만 추가된다. */
+
+:global(div[class*="previewBar"]) {
+  display: none !important;
+}
+
+@font-face {
+  font-family: "DungGeunMo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff") format("woff");
+  font-display: swap;
+}
+
+.main {
+  --gridW: min(88vw, calc((100vh - 320px) / 1.273));
+  padding: 64px 15px calc(40px + 6vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 250px);
+}
+.stage { width: var(--gridW); }
+
+.grid {
+  position: relative;
+  width: var(--gridW);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  aspect-ratio: 1 / 1.273;
+  place-items: center;
+  font-family: "DungGeunMo", monospace;
+  font-size: calc(var(--gridW) / 4.6);
+  line-height: 1;
+  user-select: none;
+}
+.cell { min-width: 1ch; text-align: center; }
+
+.capsule {
+  position: absolute;
+  border: 3px solid #1a1208;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.capRow { left: -2%; width: 104%; top: 27%; height: 21%; }
+.capCol { left: 1.5%; width: 22%; top: -1.5%; height: 103%; }
+
+/* B안 — 굵기 위계로 알림 */
+.capThick { border-width: 5px; }
+/* C안 — 색으로 알림 */
+.capAccent { border-color: #f49938; }
+
+/* 세로 써클을 감싸는 링크 — 히트 영역은 써클 박스 그대로 */
+.enter {
+  position: absolute;
+  left: 1.5%;
+  width: 22%;
+  top: -1.5%;
+  height: 103%;
+  display: block;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.enter:hover { text-decoration: none; }
+/* hover·active — 굵기만 +2px (색 변화 없음) */
+.enter:hover .capsule,
+.enter:active .capsule { border-width: 5px; }
+.enter:hover .capThick,
+.enter:active .capThick { border-width: 7px; }
+.enter:focus-visible { outline: 1px solid #1a1208; outline-offset: 4px; }
+/* 링크가 감싸면 써클은 부모 기준으로 꽉 차게 */
+.enter .capCol { left: 0; top: 0; width: 100%; height: 100%; }

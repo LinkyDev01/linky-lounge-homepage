@@ -15,6 +15,14 @@
 
 # 결정 로그 (최신 위)
 
+- 2026-08-07 | 라운드 67 (운영자 "점멸 형태가 레퍼런스랑 다른데?"):
+  minguhong.fyi CSS를 실측해 **원문 문법 그대로 교정** — 이진 on/off(66)가
+  아니라 `@keyframes blink { 0% {opacity:.25} 100% {opacity:1} }` +
+  `1s infinite linear`, 이웃 글자는 `alternate-reverse` 로 위상 엇갈림
+  ((r+c) 홀수 칸에 hotAlt), hover 는 제거가 아니라 **그 밝기에서 일시정지**
+  (`animation-play-state: paused`). 글자가 완전히 사라지는 순간이 없다.
+  교훈: 레퍼런스는 기억으로 흉내 내지 말고 CSS를 직접 열어 볼 것
+
 - 2026-08-07 | 라운드 66 (운영자, 레퍼런스 minguhong.fyi): ① **LAZY·CLUB 7글자
   점멸** — 인트로가 끝나 마크가 링크가 된 순간부터 터미널 커서처럼 이진
   on/off (보임 0.6s / 사라짐 0.45s, steps(1) — 페이드 없음). 눌 수 있음을

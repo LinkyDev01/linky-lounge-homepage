@@ -94,18 +94,18 @@
 .main .gridLink:active .hot { filter: drop-shadow(0 1px 1px rgba(26, 18, 8, 0.2)); }
 .main .gridLink:focus-visible { outline: 1px solid #1a1208; outline-offset: 8px; }
 
-/* ── LAZY·CLUB 점멸 (라운드 66, 레퍼런스 minguhong.fyi) ──
-   인트로가 끝나 마크가 링크가 된 순간부터, 눌 수 있는 7글자가 터미널 커서처럼
-   깜빡이며 클릭을 유도한다. 이진 on/off — steps() 로 끊고 페이드는 없다.
-   써클·나머지 9글자는 점멸하지 않는다. 인트로 중에는 .gridLink 가 없으므로 미적용.
-   (인트로 종료 후 rAF 클록은 정지 상태 — 반복 점멸만 CSS 키프레임이 맡는다) */
-@keyframes cursorBlink {
-  0%, 57% { visibility: visible; } /* 보임 0.6s */
-  57.01%, 100% { visibility: hidden; } /* 사라짐 0.45s */
+/* ── LAZY·CLUB 점멸 (라운드 66 도입 · 67에서 레퍼런스 원문 문법으로 교정) ──
+   minguhong.fyi 실측: 이진 on/off가 아니라 **불투명도 .25↔1 맥동**이다.
+   `blink 1s infinite linear` + 이웃 글자는 alternate-reverse 로 위상 엇갈림,
+   hover 는 없애는 게 아니라 그 밝기에서 **일시정지**(animation-play-state).
+   글자가 완전히 사라지는 순간이 없다. 인트로 중에는 .gridLink 가 없으므로 미적용. */
+@keyframes blink {
+  0% { opacity: 0.25; }
+  100% { opacity: 1; }
 }
-.main .gridLink .hot { animation: cursorBlink 1.05s steps(1, end) infinite; }
-/* hover — 잡으려는 순간 사라지면 안 된다: 점멸 정지, 표시 고정 */
-.main .gridLink:hover .hot { animation: none; visibility: visible; }
+.main .gridLink .hot { animation: blink 1s infinite linear; }
+.main .gridLink .hotAlt { animation-direction: alternate-reverse; }
+.main .gridLink:hover .hot { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .main .gridLink .hot { animation: none; }
 }

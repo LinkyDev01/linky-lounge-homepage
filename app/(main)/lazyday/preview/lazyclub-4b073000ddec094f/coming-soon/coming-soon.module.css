@@ -103,15 +103,26 @@
   0% { opacity: 0.25; filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0)); }
   100% { opacity: 1; filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.16)); }
 }
+/* 써클은 3px 얇은 획이라 같은 α로는 그림자가 묻힌다 (라운드 70) —
+   바닥값 .1을 깔아 사이클 내내 존재감을 유지하고 최대는 .45까지 */
 @keyframes blinkCap {
-  0% { filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0)); }
-  100% { filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.36)); }
+  0% { filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.1)); }
+  100% { filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.45)); }
 }
 .main .gridLink .hot { animation: blinkText 1s infinite linear alternate; }
 .main .gridLink .capsule { animation: blinkCap 1s infinite linear alternate; }
-/* hover — 그 순간의 밝기·그림자에서 함께 일시정지 */
-.main .gridLink:hover .hot,
-.main .gridLink:hover .capsule { animation-play-state: paused; }
+/* hover — 맥동을 멈추고 **가장 진한 상태로 고정** (라운드 70):
+   글자 100% + 그림자 최대(글자 .16 / 써클 .36)가 즉시 뜬다.
+   animation: none 으로 키프레임 값을 걷어내야 아래 정적 값이 적용된다 */
+.main .gridLink:hover .hot {
+  animation: none;
+  opacity: 1;
+  filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.16));
+}
+.main .gridLink:hover .capsule {
+  animation: none;
+  filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.45));
+}
 @media (prefers-reduced-motion: reduce) {
   .main .gridLink .hot,
   .main .gridLink .capsule { animation: none; }

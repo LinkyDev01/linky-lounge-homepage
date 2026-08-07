@@ -36,7 +36,8 @@
  * 문법, 종료 시점 없음). 이 동안에는 빙고 동그라미·맥동·링크가 모두 없다 —
  * 마크가 LAZY·CLUB을 말하고 있지 않으므로. 아무 입력이나 들어오면 즉시 최종
  * 고정 상태로 복귀하고 60초 타이머가 다시 시작된다.
- * ?idle=<ms> 로 대기시간을 덮어쓸 수 있다(검증용). ?t= 고정 모드에선 비활성.
+ * 유휴 60초 셔플(라운드 77)은 라운드 79에서 셸 오버레이(IdleShuffle.tsx)로 이관 —
+ * lazy-club.com 트리 전 페이지 공통. 이 컴포넌트는 인트로 1회 재생만 담당한다.
  *
  * ?still=1 (라운드 78, 운영자): 인트로를 재생하지 않고 **최종 정지 화면부터** 연다.
  * 내비 로고가 이 주소를 가리킨다 — 로고를 누를 때마다 인트로가 다시 도는 걸 막기 위함.
@@ -144,36 +145,18 @@ function stateAt(raw: number, seed: number) {
 /** 시드 전(SSR 포함) 첫 페인트 — 웰컴 배열 잉크 단색. 배치는 이후와 동일 */
 const INITIAL: Cell[] = WELCOME.flat().map((ch) => ({ ch, color: INK }))
 
-/** 유휴 60초 후 진입하는 끝없는 셔플 (라운드 77) — 인트로 셔플과 같은 문법.
- *  틱 오프셋을 달리해 인트로 재생분과 겹치지 않는 새 수열을 돈다. 종료 시점 없음 */
-const IDLE_DELAY = 60_000
-function idleCellsAt(e: number, seed: number): Cell[] {
-  const cells: Cell[] = []
-  for (let i = 0; i < 16; i++) {
-    const interval = 60 + rnd(seed, i, 999) * 80
-    const tick = Math.floor(e / interval)
-    cells.push({
-      ch: ALPHABET[Math.floor(rnd(seed, i, tick + 31337) * 26)],
-      color: PALETTE[Math.floor(rnd(seed, i, tick + 31344) * 3)],
-    })
-  }
-  return cells
-}
-
 export function ComingSoonMain() {
   const [elapsed, setElapsed] = useState(0)
   const [seed, setSeed] = useState<number | null>(null)
   // 입력이 있으면 인트로를 끊지 않고 내비·푸터만 먼저 내보낸다 (라운드 57)
   const [chromeEarly, setChromeEarly] = useState(false)
-  // 유휴 셔플 경과시간 — null이면 미유휴(고정 상태 유지) (라운드 77)
-  const [idleElapsed, setIdleElapsed] = useState<number | null>(null)
 
   useEffect(() => {
     // 난수 시드는 여기서 딱 한 번 (구현 주의 — stateAt은 읽기만 한다)
     const s = Math.floor(Math.random() * 2147483647) || 1
     setSeed(s)
 
-    // ?t=<ms> — 검토 스크린샷용 시점 고정 (유휴 셔플도 비활성)
+    // ?t=<ms> — 검토 스크린샷용 시점 고정
     const q = new URLSearchParams(window.location.search)
     const t = Number(q.get("t"))
     if (q.get("t") && Number.isFinite(t)) {
@@ -181,77 +164,45 @@ export function ComingSoonMain() {
       return
     }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setElapsed(T.END) // 모션 없이 즉시 최종 상태 (유휴 셔플도 없음)
+      setElapsed(T.END) // 모션 없이 즉시 최종 상태
       return
     }
-    // ?idle=<ms> — 유휴 대기시간 덮어쓰기 (검증용, 기본 60초)
-    const idleQ = Number(q.get("idle"))
-    const idleDelay = q.get("idle") && Number.isFinite(idleQ) && idleQ > 0 ? idleQ : IDLE_DELAY
     // ?still=1 — 인트로를 건너뛰고 최종 정지 화면부터 (라운드 78: 내비 로고 진입 경로).
     // 색은 이번 시드로 새로 뽑는다 — 이전 값을 저장·복원하지 않아 상태가 없다
-    const still = q.get("still") !== null
-
-    let raf = 0
-    let idleRaf = 0
-    let idleTimer: ReturnType<typeof setTimeout> | undefined
-    let introDone = false
-
-    // 유휴 60초 경과 → 끝없는 셔플 클록 시작 (라운드 77)
-    const armIdleTimer = () => {
-      clearTimeout(idleTimer)
-      idleTimer = setTimeout(() => {
-        const idleStart = performance.now()
-        const idleTick = (now: number) => {
-          setIdleElapsed(now - idleStart)
-          idleRaf = requestAnimationFrame(idleTick)
-        }
-        idleRaf = requestAnimationFrame(idleTick)
-      }, idleDelay)
+    if (q.get("still") !== null) {
+      setElapsed(T.END)
+      return
     }
 
+    // 유휴 60초 셔플은 라운드 79부터 셸 오버레이(IdleShuffle)가 전 페이지 공통으로
+    // 담당한다 — 이 컴포넌트는 인트로 1회 재생만 맡는다 (라운드 77 페이지 내 유휴 로직 이관)
     const start = performance.now()
+    let raf = 0
     const tick = (now: number) => {
       const e = now - start
       if (e >= T.END) {
         setElapsed(T.END)
-        introDone = true
-        armIdleTimer() // 인트로 종료 시점부터 유휴 카운트 (리스너는 유지)
+        removeListeners()
         return
       }
       setElapsed(e)
       raf = requestAnimationFrame(tick)
     }
     // 입력 — 인트로를 끊지 않는다. 내비·푸터만 먼저 드러내고 애니메이션은 끝까지 재생
-    // (라운드 57). 인트로 후에는 유휴 타이머 리셋 + 유휴 셔플 중이면 즉시 고정 복귀
+    // (라운드 57: 터치 한 번에 연출이 통째로 날아가던 동작 폐기)
     const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
-    const onInput = () => {
-      setChromeEarly(true)
-      cancelAnimationFrame(idleRaf)
-      setIdleElapsed(null)
-      if (introDone) armIdleTimer()
-    }
+    const onInput = () => setChromeEarly(true)
     const removeListeners = () => EVENTS.forEach((ev) => window.removeEventListener(ev, onInput))
     EVENTS.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }))
-    if (still) {
-      // 인트로 스킵 — 최종 상태로 바로. 유휴 60초 셔플은 그대로 작동한다
-      setElapsed(T.END)
-      introDone = true
-      armIdleTimer()
-    } else {
-      raf = requestAnimationFrame(tick)
-    }
+    raf = requestAnimationFrame(tick)
     return () => {
       cancelAnimationFrame(raf)
-      cancelAnimationFrame(idleRaf)
-      clearTimeout(idleTimer)
       removeListeners()
     }
   }, [])
 
   const s = seed === null ? null : stateAt(elapsed, seed)
-  // 유휴 셔플 중에는 고정 배열 대신 끝없는 난수 셔플 (써클·맥동·링크 없음)
-  const idleCells = idleElapsed !== null && seed !== null ? idleCellsAt(idleElapsed, seed) : null
-  const cells = idleCells ?? s?.cells ?? INITIAL
+  const cells = s?.cells ?? INITIAL
 
   const gridInner = (
     <>
@@ -261,7 +212,7 @@ export function ComingSoonMain() {
         // 밝아지고 어두워진다 (라운드 68 — 67의 엇갈림 폐기, 운영자 지시)
         <span
           key={i}
-          className={`${styles.cell}${!idleCells && HOT.has(`${Math.floor(i / 4)}-${i % 4}`) ? ` ${styles.hot}` : ""}`}
+          className={`${styles.cell}${HOT.has(`${Math.floor(i / 4)}-${i % 4}`) ? ` ${styles.hot}` : ""}`}
           style={{ color: cell.color }}
           aria-hidden
         >
@@ -269,9 +220,9 @@ export function ComingSoonMain() {
         </span>
       ))}
       {/* 빙고 동그라미 — 각각 한 번에 짠 하고 나타난다 (라운드 59, 4스텝 와이프 폐기).
-          글자 확정 0.3s 뒤 LAZY, 다시 0.3s 뒤 CLUB. 유휴 셔플 중에는 없음 (라운드 77) */}
-      {!idleCells && s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}
-      {!idleCells && s?.capClub && <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />}
+          글자 확정 0.3s 뒤 LAZY, 다시 0.3s 뒤 CLUB */}
+      {s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}
+      {s?.capClub && <div className={`${styles.capsule} ${styles.capCol}`} aria-hidden />}
     </>
   )
 
@@ -283,9 +234,8 @@ export function ComingSoonMain() {
         <div className={styles.stage}>
           {/* 인트로가 끝나면 마크 전체가 레이지클럽 홈으로 가는 링크가 된다 (라운드 58).
               화면에는 어떤 표시도 더하지 않는다 — 마크가 변하지 않는다는 것이 선택 이유.
-              반응은 hover·press의 옅은 그림자뿐 (모바일은 상시 옅은 그림자).
-              유휴 셔플 중에는 링크 해제 — 첫 입력은 고정 상태 복귀로만 쓰인다 (라운드 77) */}
-          {s?.done && !idleCells ? (
+              반응은 hover·press의 옅은 그림자뿐 (모바일은 상시 옅은 그림자) */}
+          {s?.done ? (
             <LazydayLink href={BASE} className={`${styles.grid} ${styles.gridLink}`} aria-label="레이지클럽 홈으로">
               {gridInner}
             </LazydayLink>

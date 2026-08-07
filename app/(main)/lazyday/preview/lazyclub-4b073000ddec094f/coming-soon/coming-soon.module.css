@@ -114,8 +114,11 @@
   0% { border-color: rgba(26, 18, 8, 0.25); box-shadow: 0 3px 6px rgba(26, 18, 8, 0.1); }
   100% { border-color: rgba(26, 18, 8, 1); box-shadow: 0 3px 6px rgba(26, 18, 8, 0.5); }
 }
-.main .gridLink .hot { animation: blinkText 1s infinite linear alternate; }
-.main .gridLink .capsule { animation: blinkCap 1s infinite linear alternate; }
+/* alternate-reverse (라운드 73): 인트로가 끝난 순간의 화면은 글자·써클 모두
+   100% 밝기다. 순방향(alternate)은 첫 프레임이 25%라 최대→25%로 뚝 끊겼다 —
+   역방향 시작이면 100%에서 그대로 이어받아 **옅어지는 것부터** 시작한다 */
+.main .gridLink .hot { animation: blinkText 1s infinite linear alternate-reverse; }
+.main .gridLink .capsule { animation: blinkCap 1s infinite linear alternate-reverse; }
 /* hover — 맥동을 멈추고 **가장 진한 상태로 고정** (라운드 70):
    글자 100% + 그림자 최대(글자 .16 / 써클 .36)가 즉시 뜬다.
    animation: none 으로 키프레임 값을 걷어내야 아래 정적 값이 적용된다 */

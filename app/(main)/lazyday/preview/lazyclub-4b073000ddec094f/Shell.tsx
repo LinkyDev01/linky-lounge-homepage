@@ -20,9 +20,10 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 1행 = 로고(좌) + 계정·카트·검색 아이콘(우) / 2행 = 링크들.
 // 모든 항목이 같은 색·같은 서체 — 크기·굵기로 위계를 만들지 않는다.
 // 라운드 76: 로고 36px, 2행 좌 = 전체상품·제품·아카이브 / 2행 우 = 레이지데이 북클럽.
+// 라운드 78: '전체상품' → **모임**으로 개명. '제품'은 굿즈 섹션 보류와 함께 내비에서도 제거
+// (홈의 굿즈 블록은 Shell이 아니라 WorkroomHome의 SHOW_GOODS 플래그로 잠정 보류).
 const NAV_ROW2_LEFT: { label: string; href: string }[] = [
-  { label: "전체상품", href: BASE },
-  { label: "제품", href: `${BASE}/meetings` },
+  { label: "모임", href: BASE },
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 const NAV_ROW2_RIGHT: { label: string; href: string }[] = [{ label: "레이지데이 북클럽", href: "/" }]
@@ -90,7 +91,9 @@ export function WorkroomShell({
       {/* ── 내비 (라운드 75) — 2행. 1행: 로고 + 계정·카트·검색 / 2행: 전체상품 + 링크 3개 ── */}
       <header className={styles.header}>
         {/* 1행 좌: 로고 → 랜딩(애니메이션) 페이지 */}
-        <LazydayLink href={`${BASE}/coming-soon`} className={styles.navLogo} aria-label="레이지클럽 랜딩으로">
+        {/* 라운드 78: 로고로 들어가면 인트로를 다시 재생하지 않는다 —
+            ?still=1 은 최종 정지 화면으로 바로 진입 (색은 그때 새로 뽑는다) */}
+        <LazydayLink href={`${BASE}/coming-soon?still=1`} className={styles.navLogo} aria-label="레이지클럽 랜딩으로">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/linky-lounge/book-club/home-v3/nav-logo-circle.png" alt="레이지 클럽" />
         </LazydayLink>

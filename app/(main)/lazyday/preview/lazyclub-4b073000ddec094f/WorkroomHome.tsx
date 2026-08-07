@@ -17,6 +17,11 @@ import styles from "./home.module.css"
 
 type NavLang = "ko" | "en"
 
+/** 굿즈(제품) 섹션 — 라운드 77에서 좌측 모임 아래로 옮겼으나 라운드 78에서 **잠정 보류**
+ *  (운영자: "모임 아래 섹션에 제품을 놓는 건 잠정 보류"). 구현은 그대로 두고 렌더만 끈다 —
+ *  다시 켜려면 true 로. 내비의 '제품' 항목도 같이 내렸다 (Shell.tsx). */
+const SHOW_GOODS = false
+
 // 역대 기수 선정 도서 — 최신 우선 (03), book-config 단일 출처
 const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].flatMap((s) =>
   s.books.map((b) => ({ key: `${s.label}-${b.week}`, alt: `${s.label} ${b.weekLabel} 『${b.title}』 ${b.author}`, src: b.imagePath })),
@@ -252,7 +257,9 @@ function HomeContent() {
           </div>
 
           {/* ── 굿즈 — 라운드 77(운영자): 우측 사이드바 → 좌측 모임 아래.
-                 진열 문법도 모임과 같은 2열 리스트로 통일, 태그는 전부 '제품' ── */}
+                 진열 문법도 모임과 같은 2열 리스트로 통일, 태그는 전부 '제품'.
+                 라운드 78: 잠정 보류 — SHOW_GOODS 로만 껐다 (구현·데이터는 그대로) ── */}
+          {SHOW_GOODS && (
           <div className={styles.goodsBlock} id="shop">
             <div className={styles.sectionTitle}>
               <a href="#shop">
@@ -300,6 +307,7 @@ function HomeContent() {
               })}
             </div>
           </div>
+          )}
         </section>
 
         <aside className={styles.shop}>

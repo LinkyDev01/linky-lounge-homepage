@@ -11,7 +11,7 @@ import { season1Config, season2Config, season3Config, season4Config } from "../.
 import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
-import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
+import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
 
@@ -65,7 +65,7 @@ export const PAST_SEASONS = [
     category: "bookclub",
     status: "soldout" as const,
     title: "레이지데이 북클럽 3기",
-    link: "/#book",
+    link: BOOKCLUB_BOOK_URL,
     thumbnail: "/linky-lounge/book-club/home-v3/poster-3rd.webp",
   },
   {
@@ -73,7 +73,7 @@ export const PAST_SEASONS = [
     category: "bookclub",
     status: "soldout" as const,
     title: "레이지데이 북클럽 2기",
-    link: "/#book",
+    link: BOOKCLUB_BOOK_URL,
     thumbnail: "/linky-lounge/book-club/home-v3/poster-2nd.webp",
   },
   // 라운드 77 (운영자): 1기 추가 — 포스터는 운영자 제공본
@@ -82,7 +82,7 @@ export const PAST_SEASONS = [
     category: "bookclub",
     status: "soldout" as const,
     title: "레이지데이 북클럽 1기",
-    link: "/#book",
+    link: BOOKCLUB_BOOK_URL,
     thumbnail: "/linky-lounge/book-club/home-v3/poster-1st.webp",
   },
 ]
@@ -178,7 +178,7 @@ function HomeContent() {
       id: "bookclub-4",
       status: "open" as const,
       title: `레이지데이 북클럽 ${SEASON.name}`,
-      link: "/",
+      link: BOOKCLUB_URL,
       thumbnail: "/linky-lounge/book-club/home-v3/hero-4th-poster.webp",
     },
     ...PAST_SEASONS,
@@ -312,7 +312,7 @@ function HomeContent() {
 
         <aside className={styles.shop}>
           <div className={styles.sectionTitle}>
-            <a href="#shop">
+            <a href={BOOKCLUB_URL} target="_blank" rel="noopener noreferrer">
               <span>레이지데이 북클럽</span>
               <ArrowIcon />
             </a>
@@ -323,7 +323,14 @@ function HomeContent() {
             <div ref={seasonCarousel.trackRef} className={styles.shopTrack} onScroll={seasonCarousel.onScroll}>
               {seasonItems.map((s) => (
                 <article key={s.id} className={styles.shopItem}>
-                  <LazydayLink href={s.link} className={styles.itemLink} aria-label={`${s.title} 안내로 이동`} />
+                  {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazydayLink는 내부 경로 전용) */}
+                  <a
+                    href={s.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.itemLink}
+                    aria-label={`${s.title} 안내로 이동 (새 탭)`}
+                  />
                   <figure className={styles.shopFigure}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={s.thumbnail} alt="" draggable={false} />

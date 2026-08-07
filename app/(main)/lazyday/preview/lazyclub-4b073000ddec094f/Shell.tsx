@@ -28,9 +28,14 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는
-// 미들웨어가 랜딩으로 되돌리므로 상대 경로로는 북클럽에 도달할 수 없다
+// 미들웨어가 랜딩으로 되돌리므로 상대 경로로는 북클럽에 도달할 수 없다.
+// 라운드 81: 북클럽으로 나가는 링크는 전부 **새 탭** (내비 + 기수 포스터 섹션, 운영자)
+export const BOOKCLUB_URL = "https://www.lazyday-bookclub.com"
+/** 기수별 진열은 북클럽 랜딩의 선정도서 섹션으로 (4기는 랜딩 상단이 곧 모집 화면) */
+export const BOOKCLUB_BOOK_URL = `${BOOKCLUB_URL}/#book`
+
 const NAV_ROW2_RIGHT: { label: string; href: string }[] = [
-  { label: "레이지데이 북클럽", href: "https://www.lazyday-bookclub.com" },
+  { label: "레이지데이 북클럽", href: BOOKCLUB_URL },
 ]
 
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
@@ -122,11 +127,12 @@ export function WorkroomShell({
             </LazydayLink>
           ))}
         </nav>
-        {/* 2행 우: 레이지데이 북클럽 — 절대 URL은 일반 <a> (LazydayLink는 내부 경로 전용) */}
+        {/* 2행 우: 레이지데이 북클럽 — 절대 URL은 일반 <a> (LazydayLink는 내부 경로 전용).
+            라운드 81: 다른 도메인이므로 새 탭 */}
         <nav className={styles.navMenu}>
           {NAV_ROW2_RIGHT.map((item) =>
             item.href.startsWith("http") ? (
-              <a key={item.label} href={item.href}>
+              <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer">
                 {item.label}
               </a>
             ) : (

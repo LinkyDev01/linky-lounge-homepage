@@ -96,15 +96,16 @@
 
 /* ── LAZY·CLUB 점멸 (라운드 66 도입 · 67에서 레퍼런스 원문 문법으로 교정) ──
    minguhong.fyi 실측: 이진 on/off가 아니라 **불투명도 .25↔1 맥동**이다.
-   `blink 1s infinite linear` + 이웃 글자는 alternate-reverse 로 위상 엇갈림,
    hover 는 없애는 게 아니라 그 밝기에서 **일시정지**(animation-play-state).
    글자가 완전히 사라지는 순간이 없다. 인트로 중에는 .gridLink 가 없으므로 미적용. */
 @keyframes blink {
   0% { opacity: 0.25; }
   100% { opacity: 1; }
 }
-.main .gridLink .hot { animation: blink 1s infinite linear; }
-.main .gridLink .hotAlt { animation-direction: alternate-reverse; }
+/* 7글자 동일 위상 (라운드 68) — 레퍼런스의 이웃 엇갈림(alternate-reverse)은
+   운영자 지시로 폐기: LAZY·CLUB 이 한 몸처럼 같이 밝아지고 같이 어두워진다.
+   alternate 로 .25↔1 왕복 (기점 스냅 없이 부드러운 되돌림, 왕복 2s) */
+.main .gridLink .hot { animation: blink 1s infinite linear alternate; }
 .main .gridLink:hover .hot { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .main .gridLink .hot { animation: none; }

@@ -185,20 +185,19 @@ export function ComingSoonMain() {
 
   const gridInner = (
     <>
-      {cells.map((cell, i) => {
+      {cells.map((cell, i) => (
         // 써클 안 7글자(C·L·U·B + A·Z·Y)에는 hot 표식 — hover 그림자(라운드 61) +
-        // 링크 상태에서 맥동(라운드 66·67). 이웃 글자는 hotAlt 로 위상을 엇갈리게
-        // 한다 (레퍼런스 minguhong.fyi 의 nth-child(even) alternate-reverse 문법)
-        const r = Math.floor(i / 4)
-        const c = i % 4
-        const isHot = HOT.has(`${r}-${c}`)
-        const cls = `${styles.cell}${isHot ? ` ${styles.hot}` : ""}${isHot && (r + c) % 2 === 1 ? ` ${styles.hotAlt}` : ""}`
-        return (
-          <span key={i} className={cls} style={{ color: cell.color }} aria-hidden>
-            {cell.ch}
-          </span>
-        )
-      })}
+        // 링크 상태에서 맥동(라운드 66~68). 7글자는 한 몸처럼 **동일 위상**으로
+        // 밝아지고 어두워진다 (라운드 68 — 67의 엇갈림 폐기, 운영자 지시)
+        <span
+          key={i}
+          className={`${styles.cell}${HOT.has(`${Math.floor(i / 4)}-${i % 4}`) ? ` ${styles.hot}` : ""}`}
+          style={{ color: cell.color }}
+          aria-hidden
+        >
+          {cell.ch}
+        </span>
+      ))}
       {/* 빙고 동그라미 — 각각 한 번에 짠 하고 나타난다 (라운드 59, 4스텝 와이프 폐기).
           글자 확정 0.3s 뒤 LAZY, 다시 0.3s 뒤 CLUB */}
       {s?.capLazy && <div className={`${styles.capsule} ${styles.capRow}`} aria-hidden />}

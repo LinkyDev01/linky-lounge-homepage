@@ -23,7 +23,9 @@ const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].f
 )
 
 /** 랜딩 콘텐츠 인덱스 항목 — 카테고리가 성격을 말하고 별도 메타 텍스트는 없음
- *  (운영자 2026-08-04 라운드 14: "후기 → reviews, 일정과 장소 → place 식으로 정돈") */
+ *  (운영자 2026-08-04 라운드 14: "후기 → reviews, 일정과 장소 → place 식으로 정돈")
+ *  ⚠️ 라운드 77(운영자): 모임 목록에서 **미렌더** — 원데이토크 2건과 레이지데이 북클럽만 남김.
+ *     데이터는 부활 대비로 보존한다 (삭제 금지). */
 export const LANDING_DOCS = [
   {
     category: "about",
@@ -68,6 +70,15 @@ export const PAST_SEASONS = [
     title: "레이지데이 북클럽 2기",
     link: "/#book",
     thumbnail: "/linky-lounge/book-club/home-v3/poster-2nd.webp",
+  },
+  // 라운드 77 (운영자): 1기 추가 — 포스터는 운영자 제공본
+  {
+    id: "bookclub-1",
+    category: "bookclub",
+    status: "soldout" as const,
+    title: "레이지데이 북클럽 1기",
+    link: "/#book",
+    thumbnail: "/linky-lounge/book-club/home-v3/poster-1st.webp",
   },
 ]
 
@@ -153,7 +164,6 @@ function HomeContent() {
   const { notify } = useToast()
   const saved = useSaved()
   const carousel = useDragCarousel(ALL_BOOKS.length, true)
-  const shopCarousel = useDragCarousel(GOODS.length)
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
@@ -170,21 +180,20 @@ function HomeContent() {
   ]
   const seasonCarousel = useDragCarousel(seasonItems.length)
 
-  // 모임 리스트: booktalk(모집중 먼저) → 랜딩 콘텐츠.
+  // 모임 리스트 = 원데이토크만 (라운드 77 운영자: 랜딩 부연설명 4건 제거).
   // 지난 기수는 라운드 24에서 우측 '레이지데이 북클럽' 섹션으로 이동
-  const items = [
-    ...booktalks.map((m) => ({
-      id: `meeting-${m.slug}`,
-      category: m.category,
-      status: m.status,
-      title: m.title,
-      link: `${BASE}/meetings/${m.slug}`,
-      thumbnail: m.thumbnail,
-    })),
-    ...LANDING_DOCS.map((d) => ({ id: `doc-${d.category}`, status: "open" as const, ...d })),
-  ]
+  const items = booktalks.map((m) => ({
+    id: `meeting-${m.slug}`,
+    category: m.category,
+    status: m.status,
+    title: m.title,
+    link: `${BASE}/meetings/${m.slug}`,
+    thumbnail: m.thumbnail,
+  }))
   const itemCount = items.length
   const lastRowStart = itemCount - (itemCount % 2 === 0 ? 2 : 1)
+  // 굿즈도 같은 2열 리스트 문법으로 (라운드 77: 우측 사이드바 → 좌측 모임 아래)
+  const goodsLastRowStart = GOODS.length - (GOODS.length % 2 === 0 ? 2 : 1)
 
   const toggleSave = (id: string) => {
     notify(saved.toggle(id) ? "저장했습니다." : "저장을 해제했습니다.")
@@ -195,44 +204,7 @@ function HomeContent() {
       {/* 상단 정규모임 모듈은 라운드 24에서 삭제 — 4기는 우측 '레이지데이 북클럽' 섹션의
            단일 항목(포스터+제목)으로 이동. 워드서치 마크·coming soon은 /coming-soon 전용
            페이지로 분리 (라운드 30) — 이 홈은 기존 기획안 그대로 내부 검토용 */}
-      {/* ── ① 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처) ── */}
-      <section className={styles.books}>
-        <div className={styles.sectionTitle}>
-          <LazydayLink href="/">
-            <span>아카이브</span>
-            <ArrowIcon />
-          </LazydayLink>
-        </div>
-        <div
-          ref={carousel.trackRef}
-          className={styles.booksTrack}
-          onScroll={carousel.onScroll}
-          onPointerDown={carousel.onPointerDown}
-          onPointerMove={carousel.onPointerMove}
-          onPointerUp={carousel.onPointerUp}
-          onClickCapture={carousel.onClickCapture}
-        >
-          {ALL_BOOKS.map((b) => (
-            <LazydayLink key={b.key} href="/#book" className={styles.bookSlide} aria-label={b.alt}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={b.src} alt={b.alt} draggable={false} />
-            </LazydayLink>
-          ))}
-        </div>
-        <div className={styles.dots}>
-          {ALL_BOOKS.map((b, i) => (
-            <button
-              key={b.key}
-              type="button"
-              className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
-              aria-label={`${i + 1}번째 표지로 이동`}
-              onClick={() => carousel.scrollTo(i)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* ── ②③ 모임 리스트 + 레이지데이 북클럽 사이드바 ── */}
+      {/* ── ①② 좌: 모임 + 굿즈 / 우: 레이지데이 북클럽 (라운드 77 재배치) ── */}
       <div className={styles.textsShop} id="meetings">
         <section className={styles.meetings}>
           <div className={styles.sectionTitle}>
@@ -278,9 +250,59 @@ function HomeContent() {
               )
             })}
           </div>
+
+          {/* ── 굿즈 — 라운드 77(운영자): 우측 사이드바 → 좌측 모임 아래.
+                 진열 문법도 모임과 같은 2열 리스트로 통일, 태그는 전부 '제품' ── */}
+          <div className={styles.goodsBlock} id="shop">
+            <div className={styles.sectionTitle}>
+              <a href="#shop">
+                <span>굿즈</span>
+                <ArrowIcon />
+              </a>
+            </div>
+            <div className={styles.meetingsList}>
+              {GOODS.map((g, idx) => {
+                const isLastRow = idx >= goodsLastRowStart
+                const isLast = idx === GOODS.length - 1
+                return (
+                  <article
+                    key={g.slug}
+                    className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
+                  >
+                    <LazydayLink
+                      href={`${BASE}/shop/${g.slug}`}
+                      className={styles.itemLink}
+                      aria-label={`${g.name} 상세로 이동`}
+                    />
+                    <figure className={styles.itemFigure}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={g.img} alt={g.name} draggable={false} />
+                      {g.status !== "open" && <StatusOverlay status={g.status} />}
+                    </figure>
+                    <div className={styles.itemBody}>
+                      <div>
+                        <div className={styles.itemCat}>{g.cat}</div>
+                        <div className={styles.shopName}>{g.name}</div>
+                      </div>
+                      <div className={styles.itemBottom}>
+                        <button
+                          type="button"
+                          className={styles.saveBtn}
+                          aria-label={`${g.name} 저장`}
+                          onClick={() => toggleSave(`goods-${g.slug}`)}
+                        >
+                          <SaveIcon filled={saved.has(`goods-${g.slug}`)} />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
         </section>
 
-        <aside className={styles.shop} id="shop">
+        <aside className={styles.shop}>
           <div className={styles.sectionTitle}>
             <a href="#shop">
               <span>레이지데이 북클럽</span>
@@ -317,50 +339,46 @@ function HomeContent() {
               ))}
             </div>
           </div>
-          {/* 굿즈 — 포스터 대비 2/3 축소 진열 (운영자 라운드 24) */}
-          <div className={`${styles.shopList} ${styles.goodsScaled}`}>
-            <div ref={shopCarousel.trackRef} className={styles.shopTrack} onScroll={shopCarousel.onScroll}>
-              {GOODS.map((g) => (
-                <article key={g.slug} className={styles.shopItem}>
-                  <LazydayLink href={`${BASE}/shop/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
-                  <figure className={styles.shopFigure}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={g.img} alt={g.name} draggable={false} />
-                    {g.status !== "open" && <StatusOverlay status={g.status} />}
-                  </figure>
-                  <div className={styles.shopBody}>
-                    <div>
-                      <div className={styles.itemCat}>{g.cat}</div>
-                      <div className={styles.shopName}>{g.name}</div>
-                    </div>
-                    <div className={styles.itemBottom}>
-                      <button
-                        type="button"
-                        className={styles.saveBtn}
-                        aria-label={`${g.name} 저장`}
-                        onClick={() => toggleSave(`goods-${g.slug}`)}
-                      >
-                        <SaveIcon filled={saved.has(`goods-${g.slug}`)} />
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className={styles.shopDots}>
-              {GOODS.map((g, i) => (
-                <button
-                  key={g.slug}
-                  type="button"
-                  className={`${styles.dot} ${i === shopCarousel.active ? styles.dotActive : ""}`}
-                  aria-label={`${i + 1}번째 굿즈로 이동`}
-                  onClick={() => shopCarousel.scrollTo(i)}
-                />
-              ))}
-            </div>
-          </div>
         </aside>
       </div>
+
+      {/* ── ③ 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처)
+             라운드 77(운영자): 맨 위 → 맨 아래로 이동 ── */}
+      <section className={`${styles.books} ${styles.booksBottom}`}>
+        <div className={styles.sectionTitle}>
+          <LazydayLink href="/">
+            <span>아카이브</span>
+            <ArrowIcon />
+          </LazydayLink>
+        </div>
+        <div
+          ref={carousel.trackRef}
+          className={styles.booksTrack}
+          onScroll={carousel.onScroll}
+          onPointerDown={carousel.onPointerDown}
+          onPointerMove={carousel.onPointerMove}
+          onPointerUp={carousel.onPointerUp}
+          onClickCapture={carousel.onClickCapture}
+        >
+          {ALL_BOOKS.map((b) => (
+            <LazydayLink key={b.key} href="/#book" className={styles.bookSlide} aria-label={b.alt}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={b.src} alt={b.alt} draggable={false} />
+            </LazydayLink>
+          ))}
+        </div>
+        <div className={styles.dots}>
+          {ALL_BOOKS.map((b, i) => (
+            <button
+              key={b.key}
+              type="button"
+              className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
+              aria-label={`${i + 1}번째 표지로 이동`}
+              onClick={() => carousel.scrollTo(i)}
+            />
+          ))}
+        </div>
+      </section>
     </main>
   )
 }

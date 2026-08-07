@@ -99,15 +99,16 @@
    68: 7글자 동일 위상(alternate 왕복) · 69: **밝아질 때 그림자도 함께** —
    글자와 써클이 같은 리듬으로 떠올랐다 가라앉는다 (그림자 최대값은
    hover 값과 동일: 써클 .36 / 글자 .16). 인트로 중에는 .gridLink 가 없으므로 미적용. */
+/* 라운드 71: 써클도 글자와 **완전히 동일하게** 깜빡인다 (opacity .25↔1, 동일 위상).
+   그림자는 깜빡임에 비례해 더 크고 조금 더 넓게 — 오프셋 3px·블러 6px,
+   최대 α 글자 .3 / 써클 .5 (밝을수록 높이 떠오른다) */
 @keyframes blinkText {
-  0% { opacity: 0.25; filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0)); }
-  100% { opacity: 1; filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.16)); }
+  0% { opacity: 0.25; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0)); }
+  100% { opacity: 1; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.3)); }
 }
-/* 써클은 3px 얇은 획이라 같은 α로는 그림자가 묻힌다 (라운드 70) —
-   바닥값 .1을 깔아 사이클 내내 존재감을 유지하고 최대는 .45까지 */
 @keyframes blinkCap {
-  0% { filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.1)); }
-  100% { filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.45)); }
+  0% { opacity: 0.25; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0)); }
+  100% { opacity: 1; filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.5)); }
 }
 .main .gridLink .hot { animation: blinkText 1s infinite linear alternate; }
 .main .gridLink .capsule { animation: blinkCap 1s infinite linear alternate; }
@@ -117,11 +118,12 @@
 .main .gridLink:hover .hot {
   animation: none;
   opacity: 1;
-  filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.16));
+  filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.3));
 }
 .main .gridLink:hover .capsule {
   animation: none;
-  filter: drop-shadow(0 2px 3px rgba(26, 18, 8, 0.45));
+  opacity: 1;
+  filter: drop-shadow(0 3px 6px rgba(26, 18, 8, 0.5));
 }
 @media (prefers-reduced-motion: reduce) {
   .main .gridLink .hot,

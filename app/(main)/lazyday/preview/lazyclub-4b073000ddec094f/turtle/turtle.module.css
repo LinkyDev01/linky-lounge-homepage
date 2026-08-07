@@ -52,9 +52,10 @@
   width: 140px;
   height: 78px;
   background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 78px no-repeat;
-  /* 다리 순환 — 5프레임, 0.7s에 한 사이클 */
+  /* 다리 순환 — 5프레임. 운영자 레퍼런스 GIF 실측(프레임당 300ms)에 맞춘
+     느릿한 걸음 = 1.5s에 한 사이클 (라운드 85, 구 0.7s) */
   animation:
-    gait 0.7s steps(5) infinite,
+    gait 1.5s steps(5) infinite,
     advanceTurtle 14s linear infinite;
 }
 

@@ -24,11 +24,13 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 라운드 78: '전체상품' → **모임**으로 개명. '제품'은 굿즈 섹션 보류와 함께 내비에서도 제거.
 // 라운드 82: '제품' 부활 — 모임과 아카이브 사이, 홈의 굿즈 섹션(#shop)으로
 // (굿즈 블록도 SHOW_GOODS=true 로 다시 켬 — WorkroomHome.tsx)
-// 라운드 83: 맨 왼쪽 '전체보기'(→ 홈 전체) 신설 — 모임은 모임 목록 페이지로
+// 라운드 83: 맨 왼쪽 '전체보기'(→ 홈 전체) 신설 — 모임은 모임 목록 페이지로.
+// 라운드 85: 제품도 홈 앵커(#shop)가 아니라 **굿즈만 목록화된 전용 페이지**(/shop)로
+// — "전체보기 페이지 하나에서 섹션이동이 아니라" (운영자)
 const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "전체보기", href: BASE },
   { label: "모임", href: `${BASE}/meetings` },
-  { label: "제품", href: `${BASE}#shop` },
+  { label: "제품", href: `${BASE}/shop` },
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는

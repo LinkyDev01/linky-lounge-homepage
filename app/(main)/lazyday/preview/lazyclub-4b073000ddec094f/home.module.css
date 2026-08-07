@@ -482,8 +482,25 @@
 .footerDesc p { font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); line-height: 1.7; margin: 0; }
 /* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
 .footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
-.footerBiz .contracts { margin-top: 18px; }
-.footerContact { grid-column: 11 / 16; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
+/* 이용약관 — 좌측 끝 로고와 짝이 되게 우측 끝에 붙여 우측정렬 (라운드 74).
+   사업자정보 블록 안(8/11)에 있던 것을 푸터 그리드의 마지막 칸으로 옮겼다 */
+.contracts {
+  /* 첫 행 오른쪽 끝 — 로고(좌측 끝)와 같은 높이에서 마주본다 */
+  grid-column: 15 / 16;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  text-align: right;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--gothic);
+  font-size: 12.6px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.footerContact { grid-column: 11 / 15; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
 /* SNS 아이콘 행 — 원문 문법 (14px 아이콘, gap 4, 위 8px) */
 .footerSns { margin-top: 8px; display: flex; align-items: center; gap: 6px; }
 .footerSns a { display: flex; color: var(--ink); }
@@ -576,6 +593,8 @@
   .footerDesc,
   .footerBiz,
   .footerContact { grid-column: 2 / 5; }
+  /* 모바일(4컬럼)에서도 오른쪽 끝 유지 */
+  .contracts { grid-column: 4 / 5; }
 }
 
 /* 데스크톱에서 모바일 전용 요소 숨김 */
@@ -659,6 +678,7 @@
 }
 .chromeVeiled .header a,
 .chromeVeiled .footer a,
+.chromeVeiled .contracts,
 .chromeVeiled .footerDesc p,
 .chromeVeiled .footerBiz,
 .chromeVeiled .footerContact,

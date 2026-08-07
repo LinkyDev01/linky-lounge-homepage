@@ -62,11 +62,11 @@
   cursor: pointer;
 }
 .enter:hover { text-decoration: none; }
-/* hover·active — 굵기만 +2px (색 변화 없음) */
-.enter:hover .capsule,
-.enter:active .capsule { border-width: 5px; }
-.enter:hover .capThick,
-.enter:active .capThick { border-width: 7px; }
+/* hover — 밑줄도, 굵기·색 변화도 없다. 한쪽으로 떨어지는 옅은 그림자만
+   (네이버 아이콘 hover 감각). drop-shadow 는 도형 알파를 따라가므로
+   속이 빈 써클도 링 모양 그대로 그림자가 진다 (box-shadow 는 안쪽까지 번짐) */
+.enter:hover .capsule { filter: drop-shadow(3px 4px 3px rgba(26, 18, 8, 0.3)); }
+.enter:active .capsule { filter: drop-shadow(1px 2px 2px rgba(26, 18, 8, 0.36)); }
 .enter:focus-visible { outline: 1px solid #1a1208; outline-offset: 4px; }
 /* 링크가 감싸면 써클은 부모 기준으로 꽉 차게 */
 .enter .capCol { left: 0; top: 0; width: 100%; height: 100%; }
@@ -74,6 +74,16 @@
 /* E안 — 그리드 전체가 링크. 평소엔 아무 표시도 없고 누를 때만 반응한다 */
 .gridLink { cursor: pointer; }
 .gridLink:hover { text-decoration: none; }
-.gridLink:hover .capsule,
-.gridLink:active .capsule { border-width: 5px; }
+.gridLink:hover .capsule { filter: drop-shadow(3px 4px 3px rgba(26, 18, 8, 0.3)); }
+.gridLink:active .capsule { filter: drop-shadow(1px 2px 2px rgba(26, 18, 8, 0.36)); }
 .gridLink:focus-visible { outline: 1px solid #1a1208; outline-offset: 8px; }
+
+/* 모바일(hover 없는 기기) — 세로 써클에 아주 옅은 그림자를 상시로 둬서
+   "떠 있는 것 = 누를 수 있는 것"으로 읽히게 한다. 굵기·색은 그대로.
+   누르는 순간 그림자가 짧아져 눌린 느낌이 난다 */
+@media (hover: none) {
+  .enter .capsule,
+  .gridLink .capCol { filter: drop-shadow(2px 3px 2px rgba(26, 18, 8, 0.22)); }
+  .enter:active .capsule,
+  .gridLink:active .capCol { filter: drop-shadow(1px 1px 1px rgba(26, 18, 8, 0.3)); }
+}

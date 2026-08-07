@@ -24,8 +24,10 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 라운드 78: '전체상품' → **모임**으로 개명. '제품'은 굿즈 섹션 보류와 함께 내비에서도 제거.
 // 라운드 82: '제품' 부활 — 모임과 아카이브 사이, 홈의 굿즈 섹션(#shop)으로
 // (굿즈 블록도 SHOW_GOODS=true 로 다시 켬 — WorkroomHome.tsx)
+// 라운드 83: 맨 왼쪽 '전체보기'(→ 홈 전체) 신설 — 모임은 모임 목록 페이지로
 const NAV_ROW2_LEFT: { label: string; href: string }[] = [
-  { label: "모임", href: BASE },
+  { label: "전체보기", href: BASE },
+  { label: "모임", href: `${BASE}/meetings` },
   { label: "제품", href: `${BASE}#shop` },
   { label: "아카이브", href: `${BASE}/archive` },
 ]
@@ -183,6 +185,13 @@ export function WorkroomShell({
               <br />
               contact@linkylounge.com
             </div>
+            {/* 모바일 전용 이용약관 — 인스타·카카오 바로가기 **바로 윗줄** (라운드 83, 운영자).
+                데스크톱은 종전대로 우측 끝(.contracts)이 담당 — 이 줄은 모바일에서만 보인다 */}
+            <ul className={styles.contractsInline}>
+              <li>
+                <a href="/policy">이용약관</a>
+              </li>
+            </ul>
             {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG */}
             <div className={styles.footerSns}>
               <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" aria-label="인스타그램">

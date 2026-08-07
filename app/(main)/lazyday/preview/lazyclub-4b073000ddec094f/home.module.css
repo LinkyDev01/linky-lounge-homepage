@@ -572,6 +572,15 @@
 }
 .footerContact { grid-column: 11 / 15; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
 /* SNS 아이콘 행 — 원문 문법 (14px 아이콘, gap 4, 위 8px) */
+/* 모바일 전용 이용약관 (라운드 83) — SNS 바로가기 바로 윗줄. 데스크톱에선 숨김 */
+.contractsInline {
+  display: none;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* 링크색은 .page a { color: inherit } 로 충분 — 별도 색 지정 없음
+   (인트로 chromeVeiled 의 .footerContact 색 가림이 그대로 상속되도록) */
 .footerSns { margin-top: 8px; display: flex; align-items: center; gap: 6px; }
 .footerSns a { display: flex; color: var(--ink); }
 
@@ -669,8 +678,10 @@
   .footerDesc,
   .footerBiz,
   .footerContact { grid-column: 2 / 5; }
-  /* 모바일(4컬럼)에서도 오른쪽 끝 유지 */
-  .contracts { grid-column: 4 / 5; }
+  /* 라운드 83: 모바일 이용약관은 우상단 코너 대신 SNS 바로가기 **바로 윗줄** —
+     코너용 .contracts 를 숨기고 연락처 블록 안의 .contractsInline 을 켠다 */
+  .contracts { display: none; }
+  .contractsInline { display: block; }
 }
 
 /* 데스크톱에서 모바일 전용 요소 숨김 */

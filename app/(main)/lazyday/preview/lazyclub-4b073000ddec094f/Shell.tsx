@@ -17,13 +17,15 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 라운드 31: 내비·푸터는 두 페이지가 완전히 동일 (분기 없음).
 
 // 내비 — 라운드 75: 2행 구조로 전면 교체 (라운드 39의 NAV_ITEMS 폐기).
-// 1행 = 로고(좌) + 계정·카트·검색 아이콘(우) / 2행 = 전체상품(좌) + 3개 링크(우).
+// 1행 = 로고(좌) + 계정·카트·검색 아이콘(우) / 2행 = 링크들.
 // 모든 항목이 같은 색·같은 서체 — 크기·굵기로 위계를 만들지 않는다.
-const NAV_ROW2_RIGHT: { label: string; href: string }[] = [
-  { label: "레이지데이 북클럽", href: "/" },
+// 라운드 76: 로고 36px, 2행 좌 = 전체상품·제품·아카이브 / 2행 우 = 레이지데이 북클럽.
+const NAV_ROW2_LEFT: { label: string; href: string }[] = [
+  { label: "전체상품", href: BASE },
   { label: "제품", href: `${BASE}/meetings` },
-  { label: "저장소", href: `${BASE}/archive` },
+  { label: "아카이브", href: `${BASE}/archive` },
 ]
+const NAV_ROW2_RIGHT: { label: string; href: string }[] = [{ label: "레이지데이 북클럽", href: "/" }]
 
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
@@ -104,11 +106,15 @@ export function WorkroomShell({
             <SearchIcon />
           </button>
         </div>
-        {/* 2행 좌: 전체상품 → 기획안 홈 */}
-        <LazydayLink href={BASE} className={styles.navAll}>
-          전체상품
-        </LazydayLink>
-        {/* 2행 우: 레이지데이 북클럽 · 제품 · 저장소 */}
+        {/* 2행 좌: 전체상품 · 제품 · 아카이브 */}
+        <nav className={styles.navAll}>
+          {NAV_ROW2_LEFT.map((item) => (
+            <LazydayLink key={item.label} href={item.href}>
+              {item.label}
+            </LazydayLink>
+          ))}
+        </nav>
+        {/* 2행 우: 레이지데이 북클럽 */}
         <nav className={styles.navMenu}>
           {NAV_ROW2_RIGHT.map((item) => (
             <LazydayLink key={item.label} href={item.href}>

@@ -54,7 +54,7 @@
       모든 항목 같은 색·같은 서체. 행 사이 간격은 row-gap 으로만 ── */
 .header { row-gap: 9px; align-items: center; }
 .navLogo { grid-area: 1 / 1 / 2 / 6; justify-self: start; display: block; line-height: 0; }
-.navLogo img { height: 27px; width: auto; display: block; }
+.navLogo img { height: 36px; width: auto; display: block; }
 .navIcons {
   grid-area: 1 / 11 / 2 / 16;
   justify-self: end;
@@ -72,9 +72,16 @@
   color: inherit;
   font: inherit;
 }
-.navAll { grid-area: 2 / 1 / 3 / 6; justify-self: start; white-space: nowrap; }
+/* 2행 좌측 묶음 — 전체상품·제품·아카이브 (라운드 76) */
+.navAll {
+  grid-area: 2 / 1 / 3 / 9;
+  justify-self: start;
+  display: flex;
+  gap: 15px;
+  white-space: nowrap;
+}
 .navMenu {
-  grid-area: 2 / 6 / 3 / 16;
+  grid-area: 2 / 9 / 3 / 16;
   justify-self: end;
   display: flex;
   gap: 15px;
@@ -544,10 +551,10 @@
   .headerLeft { grid-column: 1 / 3; }
   /* 라운드 75: 모바일도 같은 2행 구조 — 간격·크기만 축소 (햄버거 도입 금지) */
   .navLogo { grid-area: 1 / 1 / 2 / 3; }
-  .navLogo img { height: 22px; }
+  .navLogo img { height: 28px; }
   .navIcons { grid-area: 1 / 3 / 2 / 5; gap: 12px; }
-  .navAll { grid-area: 2 / 1 / 3 / 3; }
-  .navMenu { grid-area: 2 / 3 / 3 / 5; gap: 10px; font-size: 12px; }
+  .navAll { grid-area: 2 / 1 / 3 / 4; gap: 10px; font-size: 12px; }
+  .navMenu { grid-area: 2 / 4 / 3 / 5; gap: 10px; font-size: 12px; }
   .headerSearch { display: none; }
   .headerRight { display: none; }
   .menuTrigger { grid-column: 3 / 5; display: block; cursor: pointer; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: inherit; }

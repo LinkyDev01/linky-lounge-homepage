@@ -38,6 +38,11 @@
  * 고정 상태로 복귀하고 60초 타이머가 다시 시작된다.
  * ?idle=<ms> 로 대기시간을 덮어쓸 수 있다(검증용). ?t= 고정 모드에선 비활성.
  *
+ * ?still=1 (라운드 78, 운영자): 인트로를 재생하지 않고 **최종 정지 화면부터** 연다.
+ * 내비 로고가 이 주소를 가리킨다 — 로고를 누를 때마다 인트로가 다시 도는 걸 막기 위함.
+ * 색은 이전 방문값을 저장·복원하지 않고 이번 시드로 새로 뽑는다(상태 없음 = 오류 없음).
+ * 유휴 60초 셔플은 이 경로에서도 그대로 작동한다.
+ *
  * 구현: 단일 rAF 클록 + 순수 함수 stateAt. 난수는 마운트 시 시드 하나만 뽑고
  * (셔플 글자·색·간격·단색은 전부 시드 해시로 유도) stateAt은 읽기만 한다 —
  * 프레임마다 Math.random()을 부르면 화면이 발작하듯 재추첨된다.
@@ -182,6 +187,9 @@ export function ComingSoonMain() {
     // ?idle=<ms> — 유휴 대기시간 덮어쓰기 (검증용, 기본 60초)
     const idleQ = Number(q.get("idle"))
     const idleDelay = q.get("idle") && Number.isFinite(idleQ) && idleQ > 0 ? idleQ : IDLE_DELAY
+    // ?still=1 — 인트로를 건너뛰고 최종 정지 화면부터 (라운드 78: 내비 로고 진입 경로).
+    // 색은 이번 시드로 새로 뽑는다 — 이전 값을 저장·복원하지 않아 상태가 없다
+    const still = q.get("still") !== null
 
     let raf = 0
     let idleRaf = 0
@@ -224,7 +232,14 @@ export function ComingSoonMain() {
     }
     const removeListeners = () => EVENTS.forEach((ev) => window.removeEventListener(ev, onInput))
     EVENTS.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }))
-    raf = requestAnimationFrame(tick)
+    if (still) {
+      // 인트로 스킵 — 최종 상태로 바로. 유휴 60초 셔플은 그대로 작동한다
+      setElapsed(T.END)
+      introDone = true
+      armIdleTimer()
+    } else {
+      raf = requestAnimationFrame(tick)
+    }
     return () => {
       cancelAnimationFrame(raf)
       cancelAnimationFrame(idleRaf)

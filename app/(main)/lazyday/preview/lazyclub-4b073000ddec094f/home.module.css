@@ -54,7 +54,15 @@
       모든 항목 같은 색·같은 서체. 행 사이 간격은 row-gap 으로만 ── */
 .header { row-gap: 9px; align-items: center; }
 .navLogo { grid-area: 1 / 1 / 2 / 6; justify-self: start; display: block; line-height: 0; }
-.navLogo img { height: 36px; width: auto; display: block; }
+/* 라운드 77: 원형 로고 — 10초에 1바퀴, 등속 무한 회전 */
+.navLogo img { height: 36px; width: auto; display: block; animation: logoSpin 10s linear infinite; }
+@keyframes logoSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navLogo img { animation: none; }
+}
 .navIcons {
   grid-area: 1 / 11 / 2 / 16;
   justify-self: end;
@@ -500,8 +508,12 @@
 /* ── 기수 진열 (라운드 24 이동 → 라운드 26: 구 굿즈와 동일한 shopItem 배열) ── */
 .seasonList { margin-bottom: 30px; }
 
-/* 굿즈 — 포스터 기준 2/3 축소 (라운드 24) */
-.goodsScaled { width: 66.7%; }
+/* 굿즈 — 라운드 77: 우측 사이드바에서 좌측 모임 아래로. 모임 리스트와 같은 문법이라
+   전용 CSS는 위 여백뿐 (구 .goodsScaled 축소 진열은 폐기) */
+.goodsBlock { margin-top: 40px; }
+
+/* 아카이브 캐러셀이 맨 아래로 내려가며 생긴 상단 여백 (라운드 77) */
+.booksBottom { margin-top: 65px; }
 
 /* ── 푸터 (08: border-top 1px, 15컬럼, padding 6px 0 40px) ── */
 .footer { padding: 0 15px; }
@@ -622,9 +634,10 @@
   .shopBody { grid-column: 1 / -1; }
   .shopDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
 
-  /* 모바일: 기수 진열 풀폭 스택, 굿즈는 블리드 유지 + 슬라이드 폭 축소(≈2/3) */
-  .goodsScaled { width: calc(100% + 30px); }
-  .goodsScaled .shopItem { flex: 0 0 calc((100% - 30px) / 2); }
+  /* 모바일: 기수 진열 풀폭 스택 (굿즈는 라운드 77에서 모임 리스트 문법으로 이동) */
+  .goodsBlock { margin-top: 30px; }
+  .goodsBlock .sectionTitle { padding-top: 5px; }
+  .booksBottom { margin-top: 40px; }
 
   /* 리스트 항목: 모바일 2컬럼 — 썸네일 좌 절반 + 콘텐츠 우 절반 (08) */
   .item { grid-template-columns: 1fr 1fr; }

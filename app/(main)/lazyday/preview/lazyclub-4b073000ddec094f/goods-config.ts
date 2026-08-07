@@ -6,7 +6,8 @@ import type { ProductStatus } from "./one-day-config"
 
 export type Goods = {
   slug: string
-  cat: "apparel" | "tableware"
+  /** 라운드 77: 어패럴·테이블웨어 세분류 폐기 — 전 품목 "제품" 단일 태그 (운영자) */
+  cat: "제품"
   name: string
   img: string
   status: ProductStatus
@@ -17,7 +18,7 @@ export type Goods = {
 export const GOODS: Goods[] = [
   {
     slug: "printed-t-shirt",
-    cat: "apparel",
+    cat: "제품",
     name: "Printed T-shirt",
     img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp",
     status: "upcoming",
@@ -29,7 +30,7 @@ export const GOODS: Goods[] = [
   },
   {
     slug: "acrylic-coaster",
-    cat: "tableware",
+    cat: "제품",
     name: "Acrylic Coaster",
     img: "/linky-lounge/book-club/home-v3/goods-coaster.webp",
     status: "upcoming",
@@ -41,7 +42,7 @@ export const GOODS: Goods[] = [
   },
   {
     slug: "coffee-mug",
-    cat: "tableware",
+    cat: "제품",
     name: "Coffee Mug (5-color)",
     img: "/linky-lounge/book-club/home-v3/goods-mug.webp",
     status: "upcoming",

@@ -92,7 +92,7 @@ export function WorkroomShell({
         {/* 1행 좌: 로고 → 랜딩(애니메이션) 페이지 */}
         <LazydayLink href={`${BASE}/coming-soon`} className={styles.navLogo} aria-label="레이지클럽 랜딩으로">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/linky-lounge/book-club/home-v3/nav-logo-lazyclub.png" alt="레이지 클럽" />
+          <img src="/linky-lounge/book-club/home-v3/nav-logo-circle.png" alt="레이지 클럽" />
         </LazydayLink>
         {/* 1행 우: 아이콘 3종 — 자체 드로잉 SVG (푸터 SNS와 같은 문법: currentColor, 1.2 스트로크) */}
         <div className={styles.navIcons}>

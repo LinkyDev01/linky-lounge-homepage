@@ -126,11 +126,6 @@ export function WorkroomShell({
               <br />
               <span>개인정보관리책임자: 안동민</span>
             </div>
-            <ul className={styles.contracts}>
-              <li>
-                <a href="/policy">이용약관</a>
-              </li>
-            </ul>
           </div>
           <div className={styles.footerContact}>
             <div>
@@ -159,6 +154,12 @@ export function WorkroomShell({
               </a>
             </div>
           </div>
+          {/* 이용약관 — 로고가 좌측 끝에 붙듯 우측 끝에 우측정렬 (라운드 74) */}
+          <ul className={styles.contracts}>
+            <li>
+              <a href="/policy">이용약관</a>
+            </li>
+          </ul>
         </div>
       </footer>
 

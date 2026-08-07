@@ -7,6 +7,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
+import { IdleShuffle } from "./IdleShuffle"
 import styles from "./home.module.css"
 
 // 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
@@ -26,7 +27,11 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "모임", href: BASE },
   { label: "아카이브", href: `${BASE}/archive` },
 ]
-const NAV_ROW2_RIGHT: { label: string; href: string }[] = [{ label: "레이지데이 북클럽", href: "/" }]
+// 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는
+// 미들웨어가 랜딩으로 되돌리므로 상대 경로로는 북클럽에 도달할 수 없다
+const NAV_ROW2_RIGHT: { label: string; href: string }[] = [
+  { label: "레이지데이 북클럽", href: "https://www.lazyday-bookclub.com" },
+]
 
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
@@ -117,17 +122,26 @@ export function WorkroomShell({
             </LazydayLink>
           ))}
         </nav>
-        {/* 2행 우: 레이지데이 북클럽 */}
+        {/* 2행 우: 레이지데이 북클럽 — 절대 URL은 일반 <a> (LazydayLink는 내부 경로 전용) */}
         <nav className={styles.navMenu}>
-          {NAV_ROW2_RIGHT.map((item) => (
-            <LazydayLink key={item.label} href={item.href}>
-              {item.label}
-            </LazydayLink>
-          ))}
+          {NAV_ROW2_RIGHT.map((item) =>
+            item.href.startsWith("http") ? (
+              <a key={item.label} href={item.href}>
+                {item.label}
+              </a>
+            ) : (
+              <LazydayLink key={item.label} href={item.href}>
+                {item.label}
+              </LazydayLink>
+            ),
+          )}
         </nav>
       </header>
 
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>
+
+      {/* 유휴 60초 → 난수 셔플 오버레이 — 트리 전 페이지 공통 (라운드 79) */}
+      <IdleShuffle />
 
       {/* ── 푸터 — 전 섹션 동일 유지 (운영자 라운드 31: coming soon도 같은 푸터) ── */}
       <footer className={styles.footer}>

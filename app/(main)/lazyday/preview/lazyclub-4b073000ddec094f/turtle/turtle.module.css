@@ -1,0 +1,77 @@
+/* 거북이 프로그레스바 시연 (라운드 84, 임시 페이지) —
+   운영자 제공 5프레임 워크 사이클을 투명 스프라이트(turtle-sprite.png, 셀 140×78
+   발끝 하단 정렬·셀 간 여백으로 블리드 방지)로 가공. 다리 교차는 steps(5) 프레임 순환, 전진은 좌→우 선형 이동.
+   실페이지 이식 시 이 CSS를 복사해 쓰고, 스프라이트는 public 것을 공유한다. */
+
+.page {
+  min-height: 100vh;
+  background: #f7f3ee;
+  color: #1a1208;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  font-family: "SUIT", sans-serif;
+  padding: 40px 20px;
+}
+
+.caption {
+  font-size: 13.2px;
+  color: #8a7660;
+  text-align: center;
+  line-height: 1.8;
+}
+
+/* ── 트랙: 거북이가 밟고 서는 선 + 차오르는 채움 ── */
+.track {
+  position: relative;
+  width: min(720px, 92vw);
+  /* 거북이(77px)가 서 있을 머리 공간 */
+  padding-top: 84px;
+}
+.rail {
+  position: relative;
+  height: 3px;
+  background: rgba(26, 18, 8, 0.15);
+  overflow: hidden;
+}
+.fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  background: #d2691e;
+  animation: advanceFill 14s linear infinite;
+}
+
+/* ── 거북이: 발끝이 레일 윗변에 닿게, 진행 끝(코앞)이 채움 선두와 함께 간다 ── */
+.turtle {
+  position: absolute;
+  bottom: 3px; /* 레일 두께 위 */
+  left: 0;
+  width: 140px;
+  height: 78px;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 78px no-repeat;
+  /* 다리 순환 — 5프레임, 0.7s에 한 사이클 */
+  animation:
+    gait 0.7s steps(5) infinite,
+    advanceTurtle 14s linear infinite;
+}
+
+@keyframes gait {
+  to { background-position-x: -700px; }
+}
+/* 전진 — 채움과 같은 14s 선형이라 어긋나지 않는다 */
+@keyframes advanceTurtle {
+  from { left: 0; }
+  to { left: calc(100% - 140px); }
+}
+@keyframes advanceFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill { animation: none; transform: scaleX(0.6); }
+  .turtle { animation: none; left: calc(0.6 * (100% - 140px)); }
+}

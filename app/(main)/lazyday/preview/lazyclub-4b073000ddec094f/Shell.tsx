@@ -16,11 +16,13 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 이 트리의 홈은 기존 기획안(전체 섹션)을 내부 검토용으로 유지.
 // 라운드 31: 내비·푸터는 두 페이지가 완전히 동일 (분기 없음).
 
-// 내비 — 라운드 39: 메뉴 관련 버튼 전부 숨김, 두 항목만 활성
-// (About·search·login·cart·모바일 menu 제거 — 코드는 git 이력에 보존)
-const NAV_ITEMS: { label: string; href: string }[] = [
-  { label: "LazydayBookclub", href: "/" },
-  { label: "OneDayTalk", href: `${BASE}/meetings` },
+// 내비 — 라운드 75: 2행 구조로 전면 교체 (라운드 39의 NAV_ITEMS 폐기).
+// 1행 = 로고(좌) + 계정·카트·검색 아이콘(우) / 2행 = 전체상품(좌) + 3개 링크(우).
+// 모든 항목이 같은 색·같은 서체 — 크기·굵기로 위계를 만들지 않는다.
+const NAV_ROW2_RIGHT: { label: string; href: string }[] = [
+  { label: "레이지데이 북클럽", href: "/" },
+  { label: "제품", href: `${BASE}/meetings` },
+  { label: "저장소", href: `${BASE}/archive` },
 ]
 
 const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
@@ -73,8 +75,6 @@ export function WorkroomShell({
 
   usePreviewBarHide()
 
-  const nav = NAV_ITEMS
-
   return (
     <div
       className={`${styles.page}${chromeHidden ? ` ${styles.chromeVeiled}` : ""}`}
@@ -85,20 +85,37 @@ export function WorkroomShell({
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
-      {/* ── 내비 — 라운드 39: LazydayBookclub · OneDayTalk 두 항목만 ── */}
+      {/* ── 내비 (라운드 75) — 2행. 1행: 로고 + 계정·카트·검색 / 2행: 전체상품 + 링크 3개 ── */}
       <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <LazydayLink href={BASE} className={styles.current}>
-            LazyClub
+        {/* 1행 좌: 로고 → 랜딩(애니메이션) 페이지 */}
+        <LazydayLink href={`${BASE}/coming-soon`} className={styles.navLogo} aria-label="레이지클럽 랜딩으로">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/linky-lounge/book-club/home-v3/nav-logo-lazyclub.png" alt="레이지 클럽" />
+        </LazydayLink>
+        {/* 1행 우: 아이콘 3종 — 자체 드로잉 SVG (푸터 SNS와 같은 문법: currentColor, 1.2 스트로크) */}
+        <div className={styles.navIcons}>
+          <button type="button" className={styles.navIconBtn} aria-label="계정" onClick={() => notify()}>
+            <AccountIcon />
+          </button>
+          <LazydayLink href={`${BASE}/cart`} className={styles.navIconBtn} aria-label="카트">
+            <CartIcon />
           </LazydayLink>
-          <nav className={`${styles.navMenu} ${styles.navMenuAlways}`}>
-            {nav.map((item) => (
-              <LazydayLink key={item.label} href={item.href}>
-                {item.label}
-              </LazydayLink>
-            ))}
-          </nav>
+          <button type="button" className={styles.navIconBtn} aria-label="검색" onClick={() => notify()}>
+            <SearchIcon />
+          </button>
         </div>
+        {/* 2행 좌: 전체상품 → 기획안 홈 */}
+        <LazydayLink href={BASE} className={styles.navAll}>
+          전체상품
+        </LazydayLink>
+        {/* 2행 우: 레이지데이 북클럽 · 제품 · 저장소 */}
+        <nav className={styles.navMenu}>
+          {NAV_ROW2_RIGHT.map((item) => (
+            <LazydayLink key={item.label} href={item.href}>
+              {item.label}
+            </LazydayLink>
+          ))}
+        </nav>
       </header>
 
       <ToastContext.Provider value={{ notify }}>{children}</ToastContext.Provider>
@@ -171,6 +188,39 @@ export function WorkroomShell({
       )}
 
     </div>
+  )
+}
+
+/* ── 내비 아이콘 3종 (라운드 75) — noahny.kr 골격(가는 스트로크·미니멀)을 참고해
+      직접 그린 SVG. 푸터 SNS 아이콘과 같은 규칙: 16px, currentColor, strokeWidth 1.2 ── */
+
+/** 계정 — 어깨선 위에 원 하나 */
+function AccountIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <circle cx="8" cy="5.4" r="2.9" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M2.4 14.2c0-2.7 2.5-4.4 5.6-4.4s5.6 1.7 5.6 4.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** 카트 — 사다리꼴 바구니 + 손잡이 (담는 그릇 형태) */
+function CartIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <path d="M2.2 5.4h11.6l-1.1 8.4H3.3L2.2 5.4Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M5.6 7.2V4.6a2.4 2.4 0 0 1 4.8 0v2.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** 검색 — 원 + 손잡이 */
+function SearchIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <circle cx="7.1" cy="7.1" r="4.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
   )
 }
 

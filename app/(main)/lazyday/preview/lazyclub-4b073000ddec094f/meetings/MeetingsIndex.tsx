@@ -6,7 +6,7 @@
  *  (지난 기수 진열은 홈 하단 '레이지데이 북클럽' 섹션이 담당). */
 
 import { LazydayLink } from "@/components/common/LazydayLink"
-import { ONE_DAY_MEETINGS } from "../one-day-config"
+import { CATEGORY_LABELS, ONE_DAY_MEETINGS } from "../one-day-config"
 import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "../Shell"
 import { useSaved } from "../store"
 import styles from "../home.module.css"
@@ -28,7 +28,7 @@ function IndexBody() {
     .sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
     .map((m) => ({
       id: `meeting-${m.slug}`,
-      category: m.category as string,
+      category: CATEGORY_LABELS[m.category], // 한국어 라벨 (라운드 82)
       status: m.status,
       title: m.title,
       link: `${BASE}/meetings/${m.slug}`,

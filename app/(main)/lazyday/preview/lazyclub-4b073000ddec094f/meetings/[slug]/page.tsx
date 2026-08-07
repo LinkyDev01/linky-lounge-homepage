@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { findMeeting } from "../../one-day-config"
+import { CATEGORY_LABELS, findMeeting } from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
 import { BASE } from "../../Shell"
 
@@ -13,7 +13,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   return (
     <ProductDetail
       id={`meeting-${m.slug}`}
-      category={m.category}
+      category={CATEGORY_LABELS[m.category]}
       badgeText={badge}
       status={m.status}
       title={m.title}

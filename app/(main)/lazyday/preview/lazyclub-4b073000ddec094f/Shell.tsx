@@ -21,10 +21,12 @@ export const BASE = "/preview/lazyclub-4b073000ddec094f"
 // 1행 = 로고(좌) + 계정·카트·검색 아이콘(우) / 2행 = 링크들.
 // 모든 항목이 같은 색·같은 서체 — 크기·굵기로 위계를 만들지 않는다.
 // 라운드 76: 로고 36px, 2행 좌 = 전체상품·제품·아카이브 / 2행 우 = 레이지데이 북클럽.
-// 라운드 78: '전체상품' → **모임**으로 개명. '제품'은 굿즈 섹션 보류와 함께 내비에서도 제거
-// (홈의 굿즈 블록은 Shell이 아니라 WorkroomHome의 SHOW_GOODS 플래그로 잠정 보류).
+// 라운드 78: '전체상품' → **모임**으로 개명. '제품'은 굿즈 섹션 보류와 함께 내비에서도 제거.
+// 라운드 82: '제품' 부활 — 모임과 아카이브 사이, 홈의 굿즈 섹션(#shop)으로
+// (굿즈 블록도 SHOW_GOODS=true 로 다시 켬 — WorkroomHome.tsx)
 const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "모임", href: BASE },
+  { label: "제품", href: `${BASE}#shop` },
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는

@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { season1Config, season2Config, season3Config, season4Config } from "../../book-config"
 import { SEASON } from "../../season-config"
-import { ONE_DAY_MEETINGS } from "./one-day-config"
+import { CATEGORY_LABELS, ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
@@ -17,10 +17,9 @@ import styles from "./home.module.css"
 
 type NavLang = "ko" | "en"
 
-/** 굿즈(제품) 섹션 — 라운드 77에서 좌측 모임 아래로 옮겼으나 라운드 78에서 **잠정 보류**
- *  (운영자: "모임 아래 섹션에 제품을 놓는 건 잠정 보류"). 구현은 그대로 두고 렌더만 끈다 —
- *  다시 켜려면 true 로. 내비의 '제품' 항목도 같이 내렸다 (Shell.tsx). */
-const SHOW_GOODS = false
+/** 굿즈(제품) 섹션 — 라운드 78에서 잠정 보류(false)했다가 **라운드 82에서 부활** (운영자).
+ *  내비 '제품' 항목도 함께 복귀 (Shell.tsx — 모임과 아카이브 사이, #shop 앵커). */
+const SHOW_GOODS = true
 
 // 역대 기수 선정 도서 — 최신 우선 (03), book-config 단일 출처
 const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].flatMap((s) =>
@@ -63,6 +62,7 @@ export const PAST_SEASONS = [
   {
     id: "bookclub-3",
     category: "bookclub",
+    tag: "7/15-9/6",
     status: "soldout" as const,
     title: "레이지데이 북클럽 3기",
     link: BOOKCLUB_BOOK_URL,
@@ -71,6 +71,7 @@ export const PAST_SEASONS = [
   {
     id: "bookclub-2",
     category: "bookclub",
+    tag: "5/21-7/12",
     status: "soldout" as const,
     title: "레이지데이 북클럽 2기",
     link: BOOKCLUB_BOOK_URL,
@@ -80,6 +81,7 @@ export const PAST_SEASONS = [
   {
     id: "bookclub-1",
     category: "bookclub",
+    tag: "3/19-5/17",
     status: "soldout" as const,
     title: "레이지데이 북클럽 1기",
     link: BOOKCLUB_BOOK_URL,
@@ -176,6 +178,8 @@ function HomeContent() {
   const seasonItems = [
     {
       id: "bookclub-4",
+      // 라운드 82: 태그 = 기수별 일정 (운영자 제공 — 4기 9/7-11/1)
+      tag: "9/7-11/1",
       status: "open" as const,
       title: `레이지데이 북클럽 ${SEASON.name}`,
       link: BOOKCLUB_URL,
@@ -189,7 +193,8 @@ function HomeContent() {
   // 지난 기수는 라운드 24에서 우측 '레이지데이 북클럽' 섹션으로 이동
   const items = booktalks.map((m) => ({
     id: `meeting-${m.slug}`,
-    category: m.category,
+    // 태그는 한국어 라벨로 (라운드 82: "booktalk 대신에 원데이토크")
+    category: CATEGORY_LABELS[m.category],
     status: m.status,
     title: m.title,
     link: `${BASE}/meetings/${m.slug}`,
@@ -337,7 +342,10 @@ function HomeContent() {
                     {s.status !== "open" && <StatusOverlay status={s.status} />}
                   </figure>
                   <div className={styles.shopBody}>
-                    <div className={styles.shopName}>{s.title}</div>
+                    <div>
+                      <div className={styles.itemCat}>{s.tag}</div>
+                      <div className={styles.shopName}>{s.title}</div>
+                    </div>
                   </div>
                 </article>
               ))}

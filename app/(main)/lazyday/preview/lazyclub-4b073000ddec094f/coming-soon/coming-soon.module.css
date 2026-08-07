@@ -51,9 +51,9 @@
 }
 .cell { min-width: 1ch; text-align: center; }
 
-/* ── 빙고 동그라미 — 3px, 글자 확정 후 텀을 두고 LAZY → CLUB 순.
-      채워지는 방향은 컴포넌트가 clip-path 정수 스텝으로 넘긴다 (라운드 56).
-      트랜지션·애니메이션 금지 — 4스텝이 또렷하게 끊겨야 한다 ── */
+/* ── 빙고 동그라미 — 3px. 글자 확정 0.3s 뒤 LAZY, 다시 0.3s 뒤 CLUB.
+      각각 한 번에 짠 하고 나타난다 (라운드 59 — 4스텝 와이프 폐기).
+      트랜지션·애니메이션 금지 ── */
 .capsule {
   position: absolute;
   border: 3px solid #1a1208;

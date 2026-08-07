@@ -101,11 +101,21 @@ function stateAt(raw: number, seed: number) {
 
 const INITIAL: Cell[] = WELCOME.flat().map((ch) => ({ ch, color: INK }))
 
-export function IntroVariant({ variant }: { variant: "a" | "b" | "c" }) {
+/* D안 — 인트로가 끝난 뒤 세로 열이 한 번 더 셔플되어 P·L·A·Y 로 착지한다.
+   새 장치를 더하는 대신 이미 쓰던 셔플 문법을 그대로 재사용해 의미를 전달한다.
+   2행(L)은 건드리지 않는다 — 가로 LAZY와 공유하는 칸이라 바꾸면 LAZY가 깨진다. */
+const OPEN = ["P", "L", "A", "Y"]
+const OPEN_DELAY = 600 // 인트로 종료 후 대기
+const OPEN_SHUFFLE = 600 // 셔플 길이
+const OPEN_TICK = 80 // 글자 교체 간격
+
+export function IntroVariant({ variant }: { variant: "a" | "b" | "c" | "d" | "e" }) {
   const [elapsed, setElapsed] = useState(0)
   const [seed, setSeed] = useState<number | null>(null)
   const [chromeEarly, setChromeEarly] = useState(false)
   const [pulse, setPulse] = useState(0) // A안: 점멸 중 굵기(px), 0이면 기본값
+  const [openPhase, setOpenPhase] = useState(0) // D안: 0 대기 · 1 셔플 · 2 OPEN 착지
+  const [openTick, setOpenTick] = useState(0) // D안: 셔플 틱
 
   useEffect(() => {
     const s = Math.floor(Math.random() * 2147483647) || 1
@@ -156,9 +166,39 @@ export function IntroVariant({ variant }: { variant: "a" | "b" | "c" }) {
     return () => timers.forEach(clearTimeout)
   }, [variant, done])
 
+  // D안 — 종료 0.6s 뒤 세로 열만 다시 셔플 → OPEN 착지
+  useEffect(() => {
+    if (variant !== "d" || !done) return
+    const timers: ReturnType<typeof setTimeout>[] = []
+    timers.push(setTimeout(() => setOpenPhase(1), OPEN_DELAY))
+    const iv = setInterval(() => setOpenTick((n) => n + 1), OPEN_TICK)
+    timers.push(
+      setTimeout(() => {
+        setOpenPhase(2)
+        clearInterval(iv)
+      }, OPEN_DELAY + OPEN_SHUFFLE)
+    )
+    return () => {
+      timers.forEach(clearTimeout)
+      clearInterval(iv)
+    }
+  }, [variant, done])
+
   const rowClip = `inset(0 ${(STEPS - (s?.lazyStep ?? 0)) * 25}% 0 0)`
   const colClip = `inset(0 0 ${(STEPS - (s?.clubStep ?? 0)) * 25}% 0)`
-  const cells = s?.cells ?? INITIAL
+  let cells = s?.cells ?? INITIAL
+  // D안 — 1열만 교체하되 2행(L)은 유지. 색은 단색 그대로
+  if (variant === "d" && openPhase > 0) {
+    cells = cells.map((cell, i) => {
+      if (i % 4 !== 0 || i === 4) return cell
+      const row = i / 4
+      const ch =
+        openPhase === 2
+          ? OPEN[row]
+          : ALPHABET[Math.floor(rnd(seed ?? 1, i, openTick + row * 31) * 26)]
+      return { ...cell, ch }
+    })
+  }
 
   // 세로 써클 — 안별 기본 표현
   const colClass = `${styles.capsule} ${styles.capCol} ${
@@ -169,27 +209,54 @@ export function IntroVariant({ variant }: { variant: "a" | "b" | "c" }) {
 
   const capsuleCol = !!s?.clubStep && <div className={colClass} style={colStyle} aria-hidden />
 
+  const gridInner = (
+    <>
+      {cells.map((cell, i) => (
+        <span key={i} className={styles.cell} style={{ color: cell.color }} aria-hidden>
+          {cell.ch}
+        </span>
+      ))}
+      {!!s?.lazyStep && (
+        <div className={`${styles.capsule} ${styles.capRow}`} style={{ clipPath: rowClip }} aria-hidden />
+      )}
+      {done && variant !== "e" ? (
+        <LazydayLink href={BASE} className={styles.enter} aria-label="레이지클럽 홈으로">
+          {capsuleCol}
+        </LazydayLink>
+      ) : (
+        capsuleCol
+      )}
+    </>
+  )
+
+  // E안 — 표시 없음. 인트로가 끝나면 그리드 전체가 링크가 되고, 누를 때만 반응한다
+  if (variant === "e") {
+    return (
+      <WorkroomShell paper="#f8f3ef" chromeHidden={!done && !chromeEarly}>
+        <main className={styles.main}>
+          <div className={styles.stage}>
+            {done ? (
+              <LazydayLink href={BASE} className={`${styles.grid} ${styles.gridLink}`} aria-label="레이지클럽 홈으로">
+                {gridInner}
+              </LazydayLink>
+            ) : (
+              <div className={styles.grid} aria-label="LAZY CLUB">
+                {gridInner}
+              </div>
+            )}
+          </div>
+        </main>
+      </WorkroomShell>
+    )
+  }
+
+  // A~D안 — 세로 써클 자체가 링크
   return (
     <WorkroomShell paper="#f8f3ef" chromeHidden={!done && !chromeEarly}>
       <main className={styles.main}>
         <div className={styles.stage}>
           <div className={styles.grid} aria-label="LAZY CLUB">
-            {cells.map((cell, i) => (
-              <span key={i} className={styles.cell} style={{ color: cell.color }} aria-hidden>
-                {cell.ch}
-              </span>
-            ))}
-            {!!s?.lazyStep && (
-              <div className={`${styles.capsule} ${styles.capRow}`} style={{ clipPath: rowClip }} aria-hidden />
-            )}
-            {/* 인트로가 끝나면 세로 써클이 링크가 된다 (그 전엔 그냥 도형) */}
-            {done ? (
-              <LazydayLink href={BASE} className={styles.enter} aria-label="레이지클럽 홈으로">
-                {capsuleCol}
-              </LazydayLink>
-            ) : (
-              capsuleCol
-            )}
+            {gridInner}
           </div>
         </div>
       </main>

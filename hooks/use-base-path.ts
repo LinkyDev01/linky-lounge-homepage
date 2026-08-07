@@ -2,7 +2,9 @@
 
 import { useSyncExternalStore } from "react"
 
-const BOOKCLUB_HOSTS = ["lazyday-bookclub.com", "www.lazyday-bookclub.com"]
+// 미들웨어가 깔끔한 경로(/…)를 내부 /lazyday/… 로 rewrite 해 주는 호스트들.
+// lazy-club.com도 같은 방식이라 프리픽스를 붙이지 않는다 (라운드 64)
+const BOOKCLUB_HOSTS = ["lazyday-bookclub.com", "www.lazyday-bookclub.com", "lazy-club.com", "www.lazy-club.com"]
 
 function getClientBase() {
   if (typeof window === "undefined") return "/lazyday"

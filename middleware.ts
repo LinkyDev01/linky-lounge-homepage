@@ -30,10 +30,19 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(clean + req.nextUrl.search, BOOKCLUB_ORIGIN), 301)
   }
 
-  // 레이지 클럽 도메인: coming soon 단계 — 페이지 요청 전부를 coming soon으로 (api 제외)
+  // 레이지 클럽 도메인: 랜딩(인트로) 단계 — 페이지 요청 전부를 랜딩으로 (api 제외).
+  // 예외: 레이지클럽 프리뷰 트리(기획안 홈·모임·카트)는 그대로 연다 (라운드 64) —
+  // 랜딩의 마크를 누르면 기획안 홈으로 가야 하는데, 전부 rewrite면 제자리로 되돌아온다.
+  // 경로는 책클럽 도메인과 같은 깔끔한 형태(/preview/…)를 쓰고 내부 /lazyday/… 로 rewrite.
   if (LAZYCLUB_HOSTS.has(host) && !pathname.startsWith("/api")) {
     const to = req.nextUrl.clone()
-    to.pathname = LAZYCLUB_COMING_SOON
+    if (pathname.startsWith("/preview/lazyclub-4b073000ddec094f")) {
+      to.pathname = `/lazyday${pathname}`
+    } else if (pathname.startsWith("/lazyday/preview/lazyclub-4b073000ddec094f")) {
+      return NextResponse.next()
+    } else {
+      to.pathname = LAZYCLUB_COMING_SOON
+    }
     return NextResponse.rewrite(to)
   }
 

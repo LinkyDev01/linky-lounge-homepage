@@ -23,7 +23,7 @@ export default function TurtleDemoPage() {
       <p className={styles.caption}>
         거북이 프로그레스바 시연 (임시) — 14초에 완주, 무한 반복
         <br />
-        다리 5프레임 순환 1.5s (레퍼런스 GIF 300ms/프레임 준수) · 채움 선과 동기 전진
+        다리 8프레임 순환 2.4s (레퍼런스 GIF 프레임 그대로) · 채움 선과 동기 전진
       </p>
     </main>
   )

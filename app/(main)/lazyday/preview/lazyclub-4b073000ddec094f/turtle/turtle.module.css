@@ -21,7 +21,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px; /* 라운드 89: 세로 슬림화 */
 }
 
 /* 반응형 — viewBox 스케일이라 트랙·거북이·글자가 같은 비율로 줄어든다 */
@@ -48,24 +47,20 @@
   font-variant-numeric: tabular-nums; /* 1초마다 폭이 흔들리지 않게 */
 }
 
-/* 거북이 — 8프레임 다리 순환 (300ms/프레임, GIF 실측). 위치·회전·축소는
-   TurtleTrack 이 <g transform> 으로 — 여기선 셀 원본 크기 그대로 둔다 */
+/* 거북이 — 다리 순환. 레퍼런스 GIF의 8프레임은 실은 **고유 포즈 5개의 왕복**이었다
+   (5·6·7 = 3·2·1 완전 동일). 그 왕복을 프레임으로 구워 두면 양 끝 포즈가 딱 한 박자만
+   찍히고 곧바로 되돌아와 발이 튕기듯 보인다 — 라운드 91에서 지적된 "발 바뀌는 지점".
+   해법: 중복 3장을 버리고 고유 5장 + CSS `alternate` 로 왕복시킨다. 그러면 양 끝이
+   두 박자 유지되며 (…P3 P4 | P4 P3…) 발을 딛고 무게를 옮긴 뒤 방향을 바꾸는 리듬이 된다.
+   400ms/프레임 유지 = 편도 2s · 왕복 4s. 위치·회전·축소는 TurtleTrack 의 <g transform> 담당 */
 .turtle {
   width: 140px;
   height: 81px;
-  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 1120px 81px no-repeat;
-  animation: gait 2.4s steps(8) infinite;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 81px no-repeat;
+  animation: gait 2s steps(5) infinite alternate;
 }
 @keyframes gait {
-  to { background-position-x: -1120px; }
-}
-
-.caption {
-  font-size: 13.2px;
-  color: #8a7660;
-  text-align: center;
-  line-height: 1.8;
-  margin: 0;
+  to { background-position-x: -700px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

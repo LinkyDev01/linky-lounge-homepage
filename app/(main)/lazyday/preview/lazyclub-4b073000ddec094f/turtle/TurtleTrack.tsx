@@ -135,7 +135,6 @@ export function TurtleTrack() {
           </foreignObject>
         </g>
       </svg>
-      <p className={styles.caption}>2026년이 지나간 만큼 트랙이 차오릅니다 — 결승선은 출발선, 2027년 1월 1일.</p>
     </div>
   )
 }

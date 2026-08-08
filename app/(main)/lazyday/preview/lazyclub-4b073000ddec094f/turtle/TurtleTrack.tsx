@@ -165,9 +165,22 @@ export function TurtleTrack() {
             문구는 운영자 지정 원문 고정 — 임의 수정 금지.
             마운트 전에는 통째로 감춘다 ("…까지 초가 남아 있습니다"가 한 프레임 스치는 걸 막음) */}
         <div className={styles.readout} style={{ visibility: secs === null ? "hidden" : "visible" }}>
+          {/* 라운드 109: 한 문장이 두 줄로 흘러 김이 빠지던 걸 폐기.
+              "굳이 세어보면 … 남았습니다."만 문장으로 남기고, 년·초는 **라운드 89 서식으로
+              복귀**(2027년 주황 800 / 큰 숫자). 줄바꿈은 자연 흐름이 아니라 **못 박은 2행** —
+              위 행은 조건, 아래 행은 답. 큰 숫자가 초점이 된다 */}
           <p className={styles.line1}>
-            굳이 세어보니 2027년까지{" "}
-            <span className={styles.num}>{secs === null ? "" : secs.toLocaleString("ko-KR")}</span>초가 남아 있습니다.
+            <span className={styles.rowTop}>
+              <span className={styles.lead}>굳이 세어보면 </span>
+              <span className={styles.year}>2027년</span>
+              <span className={styles.lead}>까지</span>
+            </span>
+            <span className={styles.rowMain}>
+              <span className={styles.big}>
+                <span className={styles.num}>{secs === null ? "" : secs.toLocaleString("ko-KR")}</span>초
+              </span>
+              <span className={styles.lead}> 남았습니다.</span>
+            </span>
           </p>
           {stay >= STAY_REVEAL && (
             <p className={styles.line2}>

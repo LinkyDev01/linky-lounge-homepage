@@ -55,15 +55,38 @@
   text-align: center;
   pointer-events: none; /* 트랙은 장식이라 클릭 방해 금지 */
 }
-/* 운영자 사양: 무표정한 톤 — 강조색·느낌표·이모지 없음.
-   (라운드 89의 '2027년' 주황 강조는 이 규칙으로 해제) */
+/* 라운드 109 — 한 문장을 두 줄로 흘리지 않는다. **못 박은 2행 조판**:
+   위 행 "굳이 세어보면 2027년까지" (조건) / 아래 행 "12,531,539초 남았습니다." (답).
+   년·초 서식은 라운드 89 로 복귀 — 2027년 주황 800, 초 숫자는 크게.
+   (라운드 108 에서 강조색을 뺐다가 "초에 집중이 안 된다"는 지적을 받았다) */
 .line1 {
   margin: 0;
-  font-size: clamp(11.5px, 2.4vw, 15px);
-  line-height: 1.55;
+  line-height: 1.35;
   color: #4a3020;
-  word-break: keep-all; /* 어절 중간에서 끊기지 않게 */
-  text-wrap: pretty;
+  word-break: keep-all;
+}
+.rowTop,
+.rowMain {
+  display: block;
+  white-space: nowrap; /* 각 행은 통째로 — 중간에서 끊기지 않는다 */
+}
+/* 문장 부분 — 조용한 보조 텍스트 */
+.lead {
+  font-size: clamp(10.5px, 2.1vw, 15px);
+  color: #8a7660;
+}
+/* 라운드 89 복귀: '2027년' 브랜드 주황 800, 한 단계 크게 */
+.year {
+  font-size: clamp(13px, 2.7vw, 20px);
+  font-weight: 800;
+  color: #d2691e;
+}
+/* 초점 — 남은 초 */
+.big {
+  font-size: clamp(18px, 3.7vw, 28px);
+  font-weight: 800;
+  color: #1a1208;
+  letter-spacing: -0.01em;
 }
 /* 2행은 혼잣말 — 한 단계 작게, 한 단계 흐리게. 10초에 스윽 붙는다 */
 .line2 {

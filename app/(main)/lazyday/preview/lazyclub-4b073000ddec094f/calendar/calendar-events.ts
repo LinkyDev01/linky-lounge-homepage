@@ -1,19 +1,28 @@
 import { ONE_DAY_MEETINGS } from "../one-day-config"
 import { BASE, BOOKCLUB_URL } from "../Shell"
 import { SEASON, seasonYear } from "../../../season-config"
+import { season3Config } from "../../../book-config"
 
 /**
- * 캘린더 일정 — **단일 출처에서 파생** (라운드 95, 운영자 지시로 실데이터 투입).
+ * 캘린더 일정 (라운드 95 도입 · 97 슬롯 · 99 **모임/일정 분리**)
  *
- *   · 레이지데이 북클럽 4기  ← `season-config.ts` 의 sessions/fifth (하드코딩 금지)
- *   · 원데이 토크 2건        ← `one-day-config.ts` 의 ONE_DAY_MEETINGS
- *   · 무비토크               ← 아래 MOVIE_TALKS (운영자 구두 제공, 전용 config 생기면 이관)
+ * 구조 (운영자 라운드 99: "한 모임은 한 포스터와 정보만. 다른 날이라고 정보까지
+ * 계속 놓는 게 아냐 / 개별일정은 캘린더, 그 밑 모임섹션에는 기수별로 묶어서 하나로"):
  *
- * 기수가 바뀌면 season-config 만 고치면 캘린더도 따라온다.
+ *   ClubProgram — **모임 한 건** = 포스터 + 정보 한 벌. 아래 목록이 이걸 렌더한다.
+ *                 정규 기수는 회차·요일이 몇 개든 프로그램 하나로 묶는다.
+ *   ClubEvent   — **개별 일정 한 날**. 캘린더 칸만 이걸 쓴다.
+ *                 칸 표기는 "n기 n회차 레이지데이 북클럽" (운영자 지정 형식).
  *
- * ⚠️ 원본 컴포넌트는 `useGoogleCalendarMeetups` 로 구글 캘린더를 읽는다. 이 시안은
- * 위 config 들이 이미 확정 일정을 갖고 있어 그쪽을 쓰지 않는다 — 실이식 때 어느 쪽을
- * 소스로 삼을지(구글 캘린더 vs config)는 운영자 결정 사항.
+ * 출처:
+ *   · 4기 ← `season-config.ts` (sessions/fifth) — 기수 전환 시 여기만 고치면 따라온다
+ *   · 3기 ← 아래 SEASON3_SESSIONS. ⚠️ season-config 는 **현재 기수만** 담아서 지난 기수의
+ *          회차 날짜는 단일 출처가 없다. 운영자 제공 구글 캘린더의 '레이지데이' 일정과
+ *          `book-config` 의 3기 dateRange("7.15 – 9.6")로 확정했다
+ *          (7/29·7/30·8/2, 8/12·8/13·8/16, 8/26·8/27·8/30 전부 스크린샷과 일치).
+ *          3기 시간대는 미제공 → 비워 둔다
+ *   · 원데이 토크 ← `one-day-config.ts`
+ *   · 무비토크 ← MOVIE_TALKS (전용 config 생기면 이관)
  */
 
 export type EventCategory = "bookclub" | "booktalk" | "movie"
@@ -25,38 +34,54 @@ export const CATEGORY_TONE: Record<EventCategory, { label: string; color: string
   movie: { label: "무비토크", color: "#96ab9b" },
 }
 
-export type ClubEvent = {
+/** 모임 한 건 — 포스터·정보는 여기 한 벌만 */
+export type ClubProgram = {
   id: string
-  year: number
-  month: number // 1-12
-  day: number
   category: EventCategory
   title: string
-  /** 요일·슬롯 표기 ("화요일" / "일요일 오전" …). 없으면 감춘다 */
-  slot: string
-  /** 날짜 칸에 쓰는 짧은 이름 — 같은 날 여러 슬롯이 겹칠 때 구분되도록 (라운드 97) */
-  cellLabel: string
-  /** 빈 문자열이면 화면에서 감춘다 (미정) */
-  time: string
+  /** 묶은 일정 설명 (예: "9/7 – 11/1 · 격주 화·수·일") */
+  schedule: string
+  /** 요일별 시간대. 비었으면 감춘다 */
+  times: string[]
   price: string
   description: string
   image: string
   href: string
-  /** 외부 도메인이면 새 탭 */
   external: boolean
-  /** 링크 문구 (기본 "자세히 보기") */
   cta: string
+  /** "진행 중" 같은 보조 표기. 비었으면 감춘다 */
+  note: string
 }
 
-/** 무비토크 — 아직 전용 config 가 없어 여기 둔다 (운영자 2026-08-07: "8/2 호프 - 무비토크").
- *  라운드 98: 시간 19시, 참가비는 "문의" (운영자). 종료 시각은 미제공이라 시작만 적는다. */
+/** 개별 일정 한 날 — 캘린더 칸 전용 */
+export type ClubEvent = {
+  id: string
+  programId: string
+  year: number
+  month: number // 1-12
+  day: number
+  category: EventCategory
+  /** 칸 표기 — 정규 기수는 "4기 1회차 레이지데이 북클럽" (운영자 지정) */
+  cellLabel: string
+}
+
+const IMG = "/linky-lounge/book-club/home-v3"
+
+/** 3기 회차 일정 — 수·목·일 격주 (출처는 파일 머리 주석 참조) */
+const SEASON3_SESSIONS: Array<{ label: string; dates: string[] }> = [
+  { label: "1회차", dates: ["7/15", "7/16", "7/19"] },
+  { label: "2회차", dates: ["7/29", "7/30", "8/2"] },
+  { label: "3회차", dates: ["8/12", "8/13", "8/16"] },
+  { label: "4회차", dates: ["8/26", "8/27", "8/30"] },
+  { label: "5회차", dates: ["9/6"] },
+]
+
+/** 무비토크 — 전용 config 가 없어 여기 둔다 (운영자 2026-08-07: 8/2, 19시, 참가비 문의) */
 const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: string }> = [
   { date: "8/2", title: "『호프』 무비토크", time: "19:00", price: "참가비 문의" },
 ]
 
-const IMG = "/linky-lounge/book-club/home-v3"
-
-/** "8.9 (일) 19:00–22:00" / "8.2 (일) 19:00-22:00" → "19:00–22:00" */
+/** "8.9 (일) 19:00–22:00" → "19:00–22:00" */
 function timeFromOneDay(date: string): string {
   const m = date.match(/\)\s*(.+)$/)
   return m ? m[1].trim() : ""
@@ -67,122 +92,143 @@ function mdFromOneDay(date: string): [number, number] {
   return m ? [Number(m[1]), Number(m[2])] : [0, 0]
 }
 
-export function buildEvents(): ClubEvent[] {
-  const year = seasonYear()
-  const out: ClubEvent[] = []
+const YEAR = seasonYear()
 
-  // ── 레이지데이 북클럽 4기 정규 1–4회차 ──
-  // dates 배열 순서 = SEASON.days 순서 (화·수·일) — config 주석에 명시된 계약.
-  // 각 회차는 요일 슬롯 중 하나를 고르는 구조라, 모든 슬롯을 캘린더에 올린다.
-  // ⚠️ 일요일은 **오전·오후 2슬롯**이고 config 가 time 을 ", " 로 이어 둔다
-  //    ("10:30–13:30, 14:30–17:30"). 쪼개서 각각을 독립 일정으로 세운다 (라운드 97).
-  SEASON.sessions.forEach((s, si) => {
-    s.dates.forEach((d, di) => {
-      const [month, day] = d.split("/").map(Number)
-      const dayDef = SEASON.days[di]
-      const times = dayDef.time.split(",").map((t) => t.trim())
-      const partNames = times.length > 1 ? ["오전", "오후"] : [""]
-      times.forEach((time, ti) => {
-        const part = partNames[ti] ?? ""
-        const slot = part ? `${dayDef.label} ${part}` : dayDef.label
-        // 셀 라벨: 같은 날 두 슬롯이 겹쳐도 구분되도록 회차 + 요일(+오전/오후)
-        const short = dayDef.label.replace("요일", "")
-        out.push({
-          id: `bookclub-${si}-${di}-${ti}`,
-          year,
-          month,
-          day,
-          category: "bookclub",
-          title: `레이지데이 북클럽 ${SEASON.name} ${s.label}`,
-          slot,
-          cellLabel: part ? `${s.label} ${short} ${part}` : `${s.label} ${short}`,
-          time,
-          price: SEASON.price,
-          description: SEASON.regularNote,
-          image: `${IMG}/hero-4th-poster.webp`,
-          href: BOOKCLUB_URL,
-          external: true,
-          cta: "자세히 보기",
-        })
-      })
-    })
-  })
-
-  // ── 5회차 (자유 독서모임) ──
+// ── 프로그램 (모임) — 포스터·정보 한 벌씩 ─────────────────────
+const PROGRAMS: ClubProgram[] = [
   {
-    const [month, day] = SEASON.fifth.date.split(" ")[0].split("/").map(Number)
-    out.push({
-      id: "bookclub-fifth",
-      year,
-      month,
-      day,
-      category: "bookclub",
-      title: `레이지데이 북클럽 ${SEASON.name} ${SEASON.fifth.label}`,
-      slot: "일요일",
-      cellLabel: `${SEASON.fifth.label} 자유모임`,
-      time: SEASON.fifth.timeLabel,
-      price: "",
-      description: SEASON.freeNote,
-      image: `${IMG}/hero-4th-poster.webp`,
-      href: BOOKCLUB_URL,
-      external: true,
-      cta: "자세히 보기",
-    })
-  }
+    id: "season-4",
+    category: "bookclub",
+    title: `레이지데이 북클럽 ${SEASON.name}`,
+    schedule: `${SEASON.periodLabel} · 격주 화·수·일 · 정규 4회 + ${SEASON.fifth.label}`,
+    // 일요일은 오전·오후 2슬롯이라 config 가 time 을 ", " 로 이어 둔다 → 줄로 나눠 표기
+    times: SEASON.days.flatMap((d) => {
+      const parts = d.time.split(",").map((t) => t.trim())
+      return parts.map((t, i) =>
+        parts.length > 1 ? `${d.label} ${i === 0 ? "오전" : "오후"} ${t}` : `${d.label} ${t}`,
+      )
+    }),
+    price: SEASON.price,
+    description: SEASON.regularNote,
+    image: `${IMG}/hero-4th-poster.webp`,
+    href: BOOKCLUB_URL,
+    external: true,
+    cta: "자세히 보기",
+    note: "모집 중",
+  },
+  {
+    id: "season-3",
+    category: "bookclub",
+    title: `레이지데이 북클럽 ${season3Config.label}`,
+    schedule: `${season3Config.dateRange} · 격주 수·목·일 · 정규 4회 + 5회차`,
+    times: [], // 3기 시간대는 미제공
+    price: "",
+    description: "",
+    image: `${IMG}/poster-3rd.webp`,
+    href: BOOKCLUB_URL,
+    external: true,
+    cta: "자세히 보기",
+    note: season3Config.ongoing ? "진행 중" : "종료",
+  },
+  ...ONE_DAY_MEETINGS.map((m) => ({
+    id: `oneday-${m.slug}`,
+    category: "booktalk" as const,
+    title: m.title,
+    schedule: m.date,
+    times: [] as string[],
+    price: `${m.price.toLocaleString("ko-KR")}원`,
+    description: m.description[0] ?? "",
+    image: m.thumbnail,
+    href: `${BASE}/meetings/${m.slug}`,
+    external: false,
+    cta: "자세히 보기",
+    note: m.status === "soldout" ? "마감" : m.status === "upcoming" ? "오픈 예정" : "모집 중",
+  })),
+  ...MOVIE_TALKS.map((t, i) => ({
+    id: `movie-${i}`,
+    category: "movie" as const,
+    title: t.title,
+    schedule: `${t.date.replace("/", "월 ")}일 · ${t.time}`,
+    times: [] as string[],
+    price: t.price,
+    description: "",
+    image: "",
+    // 참가비가 "문의"라 문의 창구가 필요하다 → 사이트 기존 카카오 채널 (season-config)
+    href: SEASON.notifyKakaoUrl,
+    external: true,
+    cta: "문의하기",
+    note: "",
+  })),
+]
 
-  // ── 원데이 토크 (one-day-config 단일 출처) ──
-  ONE_DAY_MEETINGS.forEach((m) => {
-    const [month, day] = mdFromOneDay(m.date)
-    out.push({
-      id: `oneday-${m.slug}`,
-      year,
-      month,
-      day,
-      category: "booktalk",
-      title: m.title,
-      slot: "",
-      cellLabel: m.title,
-      time: timeFromOneDay(m.date),
-      price: `${m.price.toLocaleString("ko-KR")}원`,
-      description: m.description[0] ?? "",
-      image: m.thumbnail,
-      href: `${BASE}/meetings/${m.slug}`,
-      external: false,
-      cta: "자세히 보기",
-    })
-  })
-
-  // ── 무비토크 ──
-  MOVIE_TALKS.forEach((t, i) => {
-    const [month, day] = t.date.split("/").map(Number)
-    out.push({
-      id: `movie-${i}`,
-      year,
-      month,
-      day,
-      category: "movie",
-      title: t.title,
-      slot: "",
-      cellLabel: t.title,
-      time: t.time,
-      price: t.price,
-      description: "",
-      image: "",
-      // 참가비가 "문의"라 문의 창구가 필요하다 → 사이트 기존 카카오 채널 (season-config)
-      href: SEASON.notifyKakaoUrl,
-      external: true,
-      cta: "문의하기",
-    })
-  })
-
-  return out
+// ── 개별 일정 (캘린더 칸) ──────────────────────────────────────
+function seasonEvents(
+  programId: string,
+  seasonName: string,
+  sessions: Array<{ label: string; dates: string[] }>,
+): ClubEvent[] {
+  return sessions.flatMap((s) =>
+    s.dates.map((d) => {
+      const [month, day] = d.split("/").map(Number)
+      return {
+        id: `${programId}-${d}`,
+        programId,
+        year: YEAR,
+        month,
+        day,
+        category: "bookclub" as const,
+        // 운영자 지정 형식: "n기 n회차 레이지데이 북클럽"
+        cellLabel: `${seasonName} ${s.label} 레이지데이 북클럽`,
+      }
+    }),
+  )
 }
 
-const ALL = buildEvents()
+const EVENTS: ClubEvent[] = [
+  ...seasonEvents("season-4", SEASON.name, [
+    ...SEASON.sessions.map((s) => ({ label: s.label, dates: s.dates })),
+    { label: SEASON.fifth.label, dates: [SEASON.fifth.date.split(" ")[0]] },
+  ]),
+  ...seasonEvents("season-3", season3Config.label, SEASON3_SESSIONS),
+  ...ONE_DAY_MEETINGS.map((m) => {
+    const [month, day] = mdFromOneDay(m.date)
+    return {
+      id: `oneday-${m.slug}`,
+      programId: `oneday-${m.slug}`,
+      year: YEAR,
+      month,
+      day,
+      category: "booktalk" as const,
+      cellLabel: m.title,
+    }
+  }),
+  ...MOVIE_TALKS.map((t, i) => {
+    const [month, day] = t.date.split("/").map(Number)
+    return {
+      id: `movie-${i}`,
+      programId: `movie-${i}`,
+      year: YEAR,
+      month,
+      day,
+      category: "movie" as const,
+      cellLabel: t.title,
+    }
+  }),
+]
 
 /** month 는 0-11 (Date 규약) */
 export function eventsFor(year: number, month: number): ClubEvent[] {
-  return ALL.filter((e) => e.year === year && e.month === month + 1).sort(
-    (a, b) => a.day - b.day || a.time.localeCompare(b.time),
-  )
+  return EVENTS.filter((e) => e.year === year && e.month === month + 1).sort((a, b) => a.day - b.day)
 }
+
+/** 일정이 걸린 모임들 — **중복 없이 한 번씩**. day 를 주면 그 날 걸린 모임만 */
+export function programsFor(year: number, month: number, day?: number | null): ClubProgram[] {
+  const ids = new Set(
+    eventsFor(year, month)
+      .filter((e) => day == null || e.day === day)
+      .map((e) => e.programId),
+  )
+  return PROGRAMS.filter((p) => ids.has(p.id))
+}
+
+export { timeFromOneDay }

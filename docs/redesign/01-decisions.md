@@ -1,5 +1,24 @@
 # 결정 로그 (최신 위)
 
+- 2026-08-07 | 라운드 93 (운영자): **MeetupCalendarSection 레이지클럽 톤 시안** —
+  `preview/lazyclub-…/calendar` 신설. 원본(`components/lounge/MeetupCalendarSection.tsx`,
+  linkylounge 홈에서 주석 처리된 채 잠자던 740줄)은 **건드리지 않고** 별도 구현.
+  · 데이터 계약 계승: `useGoogleCalendarMeetups(year, month)` 그대로, 매핑 키는 `meetup.day`
+  · 톤 이식: Tailwind sage/rose·민트 CTA·rounded-2xl+그림자+리프트 호버 →
+    **오트/잉크/주황 + 1px 괘선 조판**, SUIT 단일, 장식 0. CSS Module 자체 보유
+    (기존 .module.css import 금지 규율 준수)
+  · 카테고리 색은 이 트리 안에서만 재정의(`CATEGORY_TONE`) — 공유 상수
+    `constants/lounge/categories.ts` 는 linkylounge 소비자가 있어 미변경
+  · 덜어낸 것: 모바일 3D 캐러셀(blur·rotateY) → 세로 목록 하나로 통일
+  · 고친 것: 날짜 셀을 `<div onClick>` → **`<button>`**(원본은 키보드 접근 불가),
+    월 이동 aria-label, `role=grid`/`aria-pressed`/`aria-current`, 로딩 `role=status`
+  · ⚠️ 분석 이벤트 4종은 시안에서 미호출 — 실이식 시 원본과 같은 이름·파라미터로 복원할 것
+  · 폴백 상수 `MEETUPS` 가 2026-01 자료뿐이라 늘 빈 달로 보임 → 시안 전용 표본
+    (`calendar-preview-data.ts`)을 보고 있는 달에 깔았다. 훅이 실데이터를 주면 자동으로 밀려남
+  · **트랙 폭 = 캘린더 폭** (운영자): `.stage` 를 `width:100%` 로 바꿔 부모를 따르게 하고
+    캘린더와 같은 `.wrap` 안에 배치. 실측 데스크톱 560/560 · 모바일 350/350 일치.
+    단독 시연 페이지는 `.demoWrap` 이 폭을 잡는다
+
 - 2026-08-07 | 라운드 92 (운영자): 전체보기 홈 **맨 아래 아카이브 캐러셀 일단 숨김** —
   `SHOW_ARCHIVE = false` 로 렌더만 차단 (SHOW_GOODS 와 같은 문법). book-config 데이터·
   캐러셀 구현은 그대로, 숨김 중엔 자동 넘김 타이머도 정지. 내비 '아카이브'(→ /archive

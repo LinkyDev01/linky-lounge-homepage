@@ -1,0 +1,298 @@
+/* 모임 캘린더 — 레이지클럽 톤 시안 (라운드 93)
+   원본: components/lounge/MeetupCalendarSection.tsx (Tailwind, sage/rose/민트 CTA,
+   rounded-2xl 카드 + shadow + hover translate). 이 시안은 레이지클럽 문법으로 다시 짠다:
+   · 오트 종이(#f7f3ee) + 잉크(#1a1208) + 브랜드 주황(#d2691e), SUIT 단일 서체
+   · 그림자·둥근 카드·리프트 호버 폐기 → **괘선 조판**(1px 헤어라인)으로만 구획
+   · 장식 도형 0개. 위계는 크기·여백·색으로만
+   신규 CSS이므로 기존 .module.css 를 import 하지 않는다 (공유 CSS 지도 오염 방지). */
+
+.page {
+  min-height: 100vh;
+  background: #f7f3ee;
+  color: #1a1208;
+  font-family: "SUIT", sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 56px 20px 80px;
+}
+
+/* 캘린더와 트랙이 공유하는 폭 — 트랙은 width:100% 라 이 폭을 그대로 따라간다 */
+.wrap {
+  width: min(560px, 92vw);
+}
+
+/* ── 머리 — 라벨 + 월 이동 ────────────────────────────── */
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1a1208;
+}
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #8a7660;
+}
+.monthNav {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.month {
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 8.5ch;
+  text-align: center;
+}
+.navBtn {
+  background: none;
+  border: 0;
+  padding: 2px 4px;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1;
+  color: #8a7660;
+  cursor: pointer;
+}
+.navBtn:hover { color: #d2691e; }
+.navBtn:focus-visible { outline: 1px solid #1a1208; outline-offset: 3px; }
+
+/* ── 요일 + 날짜 격자 — 헤어라인 조판 ─────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.dow {
+  padding: 10px 0 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a08b70;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.14);
+}
+
+.cell {
+  position: relative;
+  aspect-ratio: 1 / 0.92;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 0 0;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.09);
+  border-right: 1px solid rgba(26, 18, 8, 0.09);
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: default;
+}
+/* 각 주의 마지막 칸(토요일)은 오른쪽 괘선 제거 — 바깥 테두리를 만들지 않는다 */
+.cell:nth-child(7n) { border-right: 0; }
+.blank {
+  aspect-ratio: 1 / 0.92;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.09);
+  border-right: 1px solid rgba(26, 18, 8, 0.09);
+}
+.blank:nth-child(7n) { border-right: 0; }
+
+.dayNum {
+  font-size: 13.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #8a7660;
+}
+.hasMeetup .dayNum { color: #1a1208; font-weight: 700; }
+
+/* 오늘 — 채우지 않고 숫자 아래 짧은 주황 괘선으로만 (조판 문법) */
+.today .dayNum { position: relative; }
+.today .dayNum::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -3px;
+  width: 13px;
+  height: 1.5px;
+  background: #d2691e;
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 80%;
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+}
+
+/* 선택 — 주황 면. 모임 있는 칸만 선택 가능 */
+.clickable { cursor: pointer; }
+.clickable:hover { background: rgba(210, 105, 30, 0.08); }
+.clickable:focus-visible { outline: 1px solid #1a1208; outline-offset: -1px; }
+.selected,
+.selected.clickable:hover { background: #d2691e; }
+.selected .dayNum { color: #f7f3ee; }
+.selected .dot { box-shadow: 0 0 0 1px rgba(247, 243, 238, 0.9); }
+.selected .today .dayNum::after { background: #f7f3ee; }
+
+/* ── 범례 ─────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(26, 18, 8, 0.14);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #8a7660;
+}
+
+/* ── 거북이 트랙 자리 — 폭은 .wrap 을 그대로 상속한다 ── */
+.trackSlot {
+  margin: 22px 0 4px;
+}
+
+/* ── 모임 목록 ────────────────────────────────────────── */
+.listHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #1a1208;
+}
+.listTitle {
+  font-size: 15px;
+  font-weight: 800;
+}
+.listCount {
+  color: #d2691e;
+}
+.clearBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 12.5px;
+  color: #8a7660;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.clearBtn:hover { color: #d2691e; }
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.14);
+}
+.item:last-child { border-bottom: 0; }
+.thumb {
+  margin: 0;
+  width: 72px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #ece6dc;
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: #8a7660;
+  line-height: 1;
+}
+.itemTitle {
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+.meta {
+  font-size: 12.5px;
+  color: #8a7660;
+  font-variant-numeric: tabular-nums;
+}
+.desc {
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: #4a3020;
+  word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.foot {
+  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.price {
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.seats { font-size: 12px; color: #8a7660; }
+.soldout { color: #a08b70; }
+.apply {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #d2691e;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.apply:hover { text-decoration: underline; text-underline-offset: 3px; }
+.applyOff {
+  font-size: 12.5px;
+  color: #a08b70;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 28px 0 8px;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #8a7660;
+  text-align: center;
+}
+
+@media all and (max-width: 420px) {
+  .item { grid-template-columns: 60px 1fr; gap: 11px; }
+  .thumb { width: 60px; }
+  .month { font-size: 17px; }
+}

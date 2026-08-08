@@ -15,9 +15,15 @@
   font-family: "SUIT", sans-serif;
   padding: 40px 20px;
 }
-
-.stage {
+/* 단독 시연 페이지 전용 폭 제한 — 임베드 시엔 이 래퍼 없이 부모 폭을 그대로 따른다 */
+.demoWrap {
   width: min(720px, 94vw);
+}
+
+/* 라운드 93: 폭을 **부모에 맡긴다** — 캘린더 아래에 놓일 때 캘린더 컨테이너 폭을
+   그대로 따라가야 하기 때문(운영자). 단독 시연 페이지는 .page 가 폭을 잡는다 */
+.stage {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;

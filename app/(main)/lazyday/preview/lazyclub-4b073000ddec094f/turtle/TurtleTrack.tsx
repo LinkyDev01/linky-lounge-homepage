@@ -22,12 +22,16 @@ import styles from "./turtle.module.css"
 const START = new Date("2026-01-01T00:00:00+09:00").getTime()
 const END = new Date("2027-01-01T00:00:00+09:00").getTime()
 
-/** 스타디움 경로 — 반시계(육상 방향), 출발선 = 하단 직선 중앙. dr 로 차선 확장 */
+/** 스타디움 경로 — 반시계(육상 방향), 출발선 = 하단 직선 중앙. dr 로 차선 확장.
+ *  라운드 89: 캘린더 아래 배치를 위한 세로 슬림화 — 곡선 반경 110→70,
+ *  직선을 좌우로 늘려(88↔452) 납작한 타원 + viewBox 를 내용에 딱 맞게 크롭.
+ *  모바일(뷰포트 366px)에서 높이 ≈133px */
+const CY = 107
 function stadiumPath(dr: number) {
-  const r = 110 + dr
-  const top = 200 - r
-  const bottom = 200 + r
-  return `M 360 ${bottom} H 470 A ${r} ${r} 0 0 0 470 ${top} H 250 A ${r} ${r} 0 0 0 250 ${bottom} H 360`
+  const r = 70 + dr
+  const top = CY - r
+  const bottom = CY + r
+  return `M 270 ${bottom} H 452 A ${r} ${r} 0 0 0 452 ${top} H 88 A ${r} ${r} 0 0 0 88 ${bottom} H 270`
 }
 
 // 라운드 88: 거북이가 트랙 **위에 올라서는** 디자인으로 — 밴드 슬림화(44→26),
@@ -64,12 +68,14 @@ export function TurtleTrack() {
       const ang = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI
       // 라운드 88: 뒤집힘 금지 — 왼쪽으로 갈 때는 회전 180° 대신 **좌우 미러**로
       // 진행 방향을 보게 한다 (기울기는 ±90° 이내로만). 발(-76)은 경로선 위에 얹혀
-      // 거북이가 항상 트랙 위에 서 있다
+      // 거북이가 항상 트랙 위에 서 있다.
+      // 라운드 89: 가로 앵커 = 몸 중심이 아니라 **앞다리 끝(셀 x≈106 실측)** —
+      // 채움 경계가 앞발 끝선과 일치하고 머리(x≈136)만 회색 쪽으로 살짝 나간다
       const S = 0.457 // 140×81 셀 → ≈64유닛 폭
       const tf =
         Math.abs(ang) <= 90
-          ? `translate(${p.x} ${p.y}) rotate(${ang}) scale(${S}) translate(-70 -76)`
-          : `translate(${p.x} ${p.y}) rotate(${ang - 180}) scale(${-S} ${S}) translate(-70 -76)`
+          ? `translate(${p.x} ${p.y}) rotate(${ang}) scale(${S}) translate(-106 -76)`
+          : `translate(${p.x} ${p.y}) rotate(${ang - 180}) scale(${-S} ${S}) translate(-106 -76)`
       turtle.setAttribute("transform", tf)
       if (fillRef.current) fillRef.current.style.strokeDashoffset = String(1000 * (1 - frac))
     }
@@ -81,7 +87,7 @@ export function TurtleTrack() {
 
   return (
     <div className={styles.stage}>
-      <svg className={styles.track} viewBox="0 0 720 400" role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
+      <svg className={styles.track} viewBox="0 0 540 196" role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
         {/* 회색 트랙 밴드 (바탕) */}
         <path d={stadiumPath(0)} fill="none" stroke="#e5dfd6" strokeWidth={BAND} />
         {/* 주황 진행 루트 — 출발선부터 거북이 위치까지 경로를 따라 차오른다 */}
@@ -101,12 +107,12 @@ export function TurtleTrack() {
         <path d={stadiumPath(-(BAND / 2))} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
         <path d={stadiumPath(BAND / 2)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
         {/* 출발선 = 결승선 (하단 중앙) — 체크 무늬 느낌의 이중선 */}
-        <line x1={360} y1={200 + 110 - BAND / 2} x2={360} y2={200 + 110 + BAND / 2} stroke="#f7f3ee" strokeWidth={6} />
+        <line x1={270} y1={CY + 70 - BAND / 2} x2={270} y2={CY + 70 + BAND / 2} stroke="#f7f3ee" strokeWidth={6} />
         <line
-          x1={360}
-          y1={200 + 110 - BAND / 2}
-          x2={360}
-          y2={200 + 110 + BAND / 2}
+          x1={270}
+          y1={CY + 70 - BAND / 2}
+          x2={270}
+          y2={CY + 70 + BAND / 2}
           stroke="#1a1208"
           strokeWidth={2}
           strokeDasharray="4 4"
@@ -114,10 +120,12 @@ export function TurtleTrack() {
         {/* 진행률 측정용 (비표시) */}
         <path ref={measureRef} d={stadiumPath(0)} fill="none" stroke="none" />
         {/* 중앙 카운트다운 */}
-        <text x={360} y={182} textAnchor="middle" className={styles.centerSmall}>
-          2027년까지
+        {/* 라운드 89: '2027년' 강조 — 브랜드 주황 800 */}
+        <text x={270} y={92} textAnchor="middle" className={styles.centerSmall}>
+          <tspan className={styles.centerYear}>2027년</tspan>
+          <tspan dx={3}>까지</tspan>
         </text>
-        <text x={360} y={226} textAnchor="middle" className={styles.centerBig}>
+        <text x={270} y={128} textAnchor="middle" className={styles.centerBig}>
           {secs === null ? "" : `${secs.toLocaleString("ko-KR")}초`}
         </text>
         {/* 거북이 — 트랙 속, 채움 선두와 같은 지점 */}

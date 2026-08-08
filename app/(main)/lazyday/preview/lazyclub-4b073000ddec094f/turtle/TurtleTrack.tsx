@@ -46,8 +46,11 @@ const BAND = 26
  *  라운드 111: 10 → 30. 10초는 1행을 읽는 도중에 끼어들고 "10초"라는 숫자가 너무 작아
  *  농담이 서지 않았다. 30초면 1행을 다 읽은 뒤라 "굳이 세어보면"이 회수된다 */
 const STAY_REVEAL = 30
-/** 이 초를 넘기면 초 대신 분으로 (운영자 사양) */
-const STAY_TO_MIN = 600
+/** 이 초부터 분 단위 문장으로 전환. 라운드 113: 600 → 300.
+ *  10분은 거의 아무도 못 보는 이스터에그였다("너무 못 보면 아쉽잖아").
+ *  5분 = 의도적으로 머문 사람만 도달하는 선 — "당신을 위해"라는 헌정의 과장이 성립하는
+ *  최소치이면서, 30초 문장("올해의 N초")이 세 자리 초까지 익을 시간도 남긴다 */
+const STAY_TO_MIN = 300
 
 export function TurtleTrack() {
   const [secs, setSecs] = useState<number | null>(null)
@@ -186,15 +189,21 @@ export function TurtleTrack() {
           </p>
           {stay >= STAY_REVEAL && (
             <p className={styles.line2}>
-              {/* 라운드 112: 볼드는 **수치("42초")까지만**. 문장은 다시 조용한 보조색 —
-                  조사(는/은)는 강조에서 뺀다 (숫자+단위가 한 덩어리로 읽히게) */}
-              이 중{" "}
-              <span className={styles.stayNum}>
-                {stay > STAY_TO_MIN ? Math.floor(stay / 60).toLocaleString("ko-KR") : stay.toLocaleString("ko-KR")}
-                {stay > STAY_TO_MIN ? "분" : "초"}
-              </span>
-              {/* 조사: 초 → "는", 분 → "은" (운영자 원문 두 문장 그대로) */}
-              {stay > STAY_TO_MIN ? "은" : "는"} 이 페이지에서 쓰셨습니다.
+              {/* 라운드 113 문구 (운영자 확정) — 볼드는 수치까지만(라운드 112 규칙 유지).
+                  · 30초~: "올해의 N초" — 1행이 세는 1년치 초와 같은 단위계로 묶인다
+                  · 5분~: 화면의 거북이는 명백히 기어가는 중인데 "서두르고 있습니다"라고
+                    정색하는 무표정 거짓말. 부연 없이 한 문장으로 끝낸다 */}
+              {stay >= STAY_TO_MIN ? (
+                <>
+                  <span className={styles.stayNum}>{Math.floor(stay / 60).toLocaleString("ko-KR")}분</span>째 보고
+                  있는 당신을 위해 거북이가 완주를 서두르고 있습니다.
+                </>
+              ) : (
+                <>
+                  올해의 <span className={styles.stayNum}>{stay.toLocaleString("ko-KR")}초</span>를 거북이 보는 데
+                  쓰셨습니다.
+                </>
+              )}
             </p>
           )}
         </div>

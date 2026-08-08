@@ -195,10 +195,11 @@ export function TurtleTrack() {
                     정색하는 무표정 거짓말. 부연 없이 한 문장으로 끝낸다 */}
               {stay >= STAY_TO_MIN ? (
                 <>
-                  {/* 라운드 114: 모바일에선 "당신을 위해" 뒤에서 줄을 못 박는다 —
-                      자연 줄바꿈은 "완주를 / 서두르고"처럼 어중간한 곳에서 꺾였다 */}
+                  {/* 라운드 116: 모바일도 **한 줄** — 두 줄의 원인은 구멍이 아니라 문구 박스
+                      폭(74%)이었다. 실측 390px: 한 줄 280 ≤ 구멍 304.9. 라운드 114 의
+                      brMobile 줄바꿈은 폐기 */}
                   <span className={styles.stayNum}>{Math.floor(stay / 60).toLocaleString("ko-KR")}분</span>째 보고
-                  있는 당신을 위해<br className={styles.brMobile} /> 거북이가 완주를 서두르고 있습니다.
+                  있는 당신을 위해 거북이가 완주를 서두르고 있습니다.
                 </>
               ) : (
                 <>

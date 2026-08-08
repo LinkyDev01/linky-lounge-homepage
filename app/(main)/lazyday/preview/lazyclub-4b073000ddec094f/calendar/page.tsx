@@ -14,7 +14,8 @@ export default function CalendarPreviewPage() {
   return (
     <main className={styles.page}>
       {/* 제목 배역용 Gothic A1 — 셸(WorkroomShell)을 안 쓰는 단독 시안이라 여기서 로드 */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      {/* 800 은 트랙 문구의 강조 수치용 (라운드 115 — Gothic A1 전환) */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600;800&display=swap" />
       <MeetupCalendar />
     </main>
   )

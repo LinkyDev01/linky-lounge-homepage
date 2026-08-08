@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 export default function TurtleDemoPage() {
   return (
     <main className={styles.page}>
+      {/* 트랙 문구가 Gothic A1 을 쓴다 (라운드 115) — 단독 시연 페이지라 여기서 로드 */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@600;800&display=swap" />
       <div className={styles.demoWrap}>
         <TurtleTrack />
       </div>

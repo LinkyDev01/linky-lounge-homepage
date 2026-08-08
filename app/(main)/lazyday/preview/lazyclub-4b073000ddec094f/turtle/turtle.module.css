@@ -94,15 +94,14 @@
   color: #1a1208;
   letter-spacing: -0.01em;
 }
-/* 2행 — 한 단계 작게. 라운드 111(운영자 "마지막에 추가문장은 블랙 볼드로"):
-   흐린 보조색(#a08b70 400)에서 **잉크 700** 으로. 크기 위계는 그대로 두고 무게로만
-   붙잡는다 (라운드 108 의 "한 단계 흐리게"는 이 지시로 해제). 30초에 스윽 붙는다 */
+/* 2행 — 한 단계 작게, 문장은 조용한 보조색. 30초에 스윽 붙는다.
+   라운드 111 에서 문장 전체를 잉크 700 으로 올렸다가 라운드 112 에서 되돌렸다 —
+   운영자 의도는 **수치("42초")만** 블랙 볼드였다 (.stayNum). 문장은 혼잣말로 남는다 */
 .line2 {
   margin: 3px 0 0;
   font-size: clamp(10px, 2vw, 12.5px);
   line-height: 1.5;
-  font-weight: 700;
-  color: #1a1208;
+  color: #a08b70;
   word-break: keep-all;
   text-wrap: pretty;
   animation: readoutIn 300ms ease-out both;
@@ -111,9 +110,15 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-/* 숫자만 tabular — 1초마다 폭이 흔들리면 문장이 들썩인다. 색·굵기 강조는 하지 않는다 */
+/* 숫자만 tabular — 1초마다 폭이 흔들리면 문장이 들썩인다 */
 .num {
   font-variant-numeric: tabular-nums;
+}
+/* 2행의 수치 — 여기만 잉크 블랙 700 (라운드 112, 운영자) */
+.stayNum {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #1a1208;
 }
 
 /* 거북이 — 다리 순환. 레퍼런스 GIF의 8프레임은 실은 **고유 포즈 5개의 왕복**이었다

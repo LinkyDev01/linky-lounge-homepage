@@ -123,25 +123,34 @@
   line-height: 1.4;
   color: #4a3020;
 }
-.chip .dot { flex: 0 0 auto; background: var(--cat); }
+/* 라운드 104: **모든 칩이 두 줄까지** (구 `:only-child` 한정 폐기).
+   행 높이는 내용에 따라 자란다 — 운영자 "일정은 두 줄씩 반응형 행추가로" */
+.chip { align-items: flex-start; }
+.chip .dot { flex: 0 0 auto; background: var(--cat); margin-top: 4.5px; }
 .chipText {
   min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  /* 어절 우선, 칸 넘는 어절만 글자 단위로 (라운드 101에서 확립) */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* 정규 기수 — 브랜드 / 기수-회차 두 줄 고정 (라운드 104 운영자 지정) */
+.chipLines {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chipBrand,
+.chipRound {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* 그 날 모임이 하나뿐이면 두 줄까지 풀어 쓴다 — 103px 셀에서 한 줄은 너무 많이 잘린다.
-   둘 이상이면 각 한 줄로 유지해야 셀 높이가 들쭉날쭉해지지 않는다 (라운드 94) */
-.chip:only-child { align-items: flex-start; }
-.chip:only-child .dot { margin-top: 4.5px; }
-.chip:only-child .chipText {
-  white-space: normal;
-  text-overflow: clip;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  word-break: keep-all;
-}
+.chipRound { color: #8a7660; }
 .more {
   font-size: 10px;
   color: #a08b70;
@@ -378,10 +387,13 @@
    구글 캘린더 문법으로: 셀 전폭 **알약 라벨**(카테고리 색면 + 종이색 글자 + 말줄임).
    점·여백을 걷어내 3~5글자는 읽힌다. 잘린 제목의 전문은 아래 목록이 담당 */
 @media all and (max-width: 600px) {
+  /* 라운드 104: "레이지데이"(5자)가 잘리지 않도록 셀 가로 여백을 최대한 회수한다.
+     페이지 좌우 여백 20 → 12, 셀 안쪽 2 → 1 */
+  .page { padding-left: 12px; padding-right: 12px; }
   .cell {
     min-height: 64px;
     gap: 3px;
-    padding: 4px 2px 5px;
+    padding: 4px 1px 5px;
   }
   .blank { min-height: 64px; }
   .dayNum { font-size: 11.5px; align-self: center; }
@@ -394,12 +406,15 @@
     color: #1a1208;
     border-left: 2.5px solid var(--cat);
     border-radius: 0;
-    padding: 1px 1px 1px 4px;
+    padding: 1px 0 1px 3px;
     font-size: 9.5px;
     line-height: 1.3;
     font-weight: 600;
     overflow: hidden;
   }
+  /* 브랜드 줄은 잘리면 안 된다(운영자) → 자간을 조여 5자를 칸에 넣는다.
+     회차 줄은 짧아 여유가 있으므로 건드리지 않는다 */
+  .chipBrand { font-size: 9px; letter-spacing: -0.045em; }
   .chip .dot { display: none; }
   /* 라운드 101: 한 줄이면 51px 셀에서 4글자뿐 → **두 줄까지** 허용해 8글자 안팎을 읽힌다.
      한글은 글자 단위로 끊기므로 keep-all 을 쓰지 않는다 (쓰면 단어가 칸을 넘친다).

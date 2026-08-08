@@ -61,8 +61,11 @@ export type ClubEvent = {
   month: number // 1-12
   day: number
   category: EventCategory
-  /** 칸 표기 — 정규 기수는 "4기 1회차 레이지데이 북클럽" (운영자 지정) */
+  /** 칸 표기 (한 줄, 스크린리더·폴백용) */
   cellLabel: string
+  /** 칸 표기 2줄 — 정규 기수는 ["레이지데이", "3기-1회차"] (운영자 라운드 104 지정 형식).
+   *  없으면 cellLabel 을 자유 줄바꿈으로 두 줄까지 흘린다 */
+  cellLines?: [string, string]
 }
 
 const IMG = "/linky-lounge/book-club/home-v3"
@@ -76,9 +79,10 @@ const SEASON3_SESSIONS: Array<{ label: string; dates: string[] }> = [
   { label: "5회차", dates: ["9/6"] },
 ]
 
-/** 무비토크 — 전용 config 가 없어 여기 둔다 (운영자 2026-08-07: 8/2, 19시, 참가비 문의) */
+/** 무비토크 — 전용 config 가 없어 여기 둔다.
+ *  라운드 104(운영자): 8/2 → **일주일 전 일요일 7/26**. 19시, 참가비 문의 */
 const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: string }> = [
-  { date: "8/2", title: "『호프』 무비토크", time: "19:00", price: "참가비 문의" },
+  { date: "7/26", title: "『호프』 무비토크", time: "19:00", price: "참가비 문의" },
 ]
 
 /** "8.9 (일) 19:00–22:00" → "19:00–22:00" */
@@ -177,8 +181,9 @@ function seasonEvents(
         month,
         day,
         category: "bookclub" as const,
-        // 운영자 지정 형식: "n기 n회차 레이지데이 북클럽"
-        cellLabel: `${seasonName} ${s.label} 레이지데이 북클럽`,
+        cellLabel: `레이지데이 ${seasonName}-${s.label}`,
+        // 운영자 지정 형식 (라운드 104): 브랜드 줄 / 기수-회차 줄
+        cellLines: ["레이지데이", `${seasonName}-${s.label}`] as [string, string],
       }
     }),
   )

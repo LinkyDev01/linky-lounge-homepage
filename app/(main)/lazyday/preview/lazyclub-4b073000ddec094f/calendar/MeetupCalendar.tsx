@@ -116,15 +116,28 @@ export function MeetupCalendar() {
             >
               <span className={styles.dayNum}>{day}</span>
               {list.length > 0 && (
-                <span className={styles.dots}>
-                  {list.map((x) => (
-                    <span
-                      key={x.id}
-                      className={styles.dot}
-                      style={{ background: CATEGORY_TONE[x.category].color }}
-                    />
-                  ))}
-                </span>
+                <>
+                  {/* 넓은 화면 — 제목까지 읽히는 텍스트 줄 (라운드 94).
+                      좁은 화면에서는 CSS 로 감추고 아래 점 표기로 되돌아간다 */}
+                  <span className={styles.chips}>
+                    {list.slice(0, 2).map((x) => (
+                      <span key={x.id} className={styles.chip}>
+                        <span className={styles.dot} style={{ background: CATEGORY_TONE[x.category].color }} />
+                        <span className={styles.chipText}>{x.title}</span>
+                      </span>
+                    ))}
+                    {list.length > 2 && <span className={styles.more}>+{list.length - 2}</span>}
+                  </span>
+                  <span className={styles.dots}>
+                    {list.map((x) => (
+                      <span
+                        key={x.id}
+                        className={styles.dot}
+                        style={{ background: CATEGORY_TONE[x.category].color }}
+                      />
+                    ))}
+                  </span>
+                </>
               )}
             </button>
           )

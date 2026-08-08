@@ -1,8 +1,8 @@
-/* 거북이 프로그레스바 시연 (라운드 84, 임시 페이지 · 라운드 86 8프레임 교체) —
-   운영자 레퍼런스 GIF의 8프레임을 그대로 가공(turtle-sprite.png, 셀 140×81).
-   앞다리 X자 꼬임이 있던 구 5프레임 스트립 폐기 — GIF 프레임은 캔버스 등록을
-   공유하므로 공통 크롭만 적용해 걸음이 튀지 않는다. 전진은 좌→우 선형 이동.
-   실페이지 이식 시 이 CSS를 복사해 쓰고, 스프라이트는 public 것을 공유한다. */
+/* 거북이 트랙 프로그레스 (라운드 84 도입 · 86 8프레임 · 87 트랙형 재설계) —
+   스타디움(도보 트랙) 루프 + 2027년 카운트다운. 지오메트리·채움은 TurtleTrack.tsx 의
+   SVG 가 담당하고, 여기는 페이지 골격과 거북이 스프라이트(다리 순환)만.
+   스프라이트: 운영자 레퍼런스 GIF 8프레임 그대로 (turtle-sprite.png, 셀 140×81).
+   실페이지 이식 시 TurtleTrack + 이 CSS 를 함께 복사한다. */
 
 .page {
   min-height: 100vh;
@@ -12,9 +12,46 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 60px;
   font-family: "SUIT", sans-serif;
   padding: 40px 20px;
+}
+
+.stage {
+  width: min(720px, 94vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+/* 반응형 — viewBox 스케일이라 트랙·거북이·글자가 같은 비율로 줄어든다 */
+.track {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.centerSmall {
+  font-size: 17px;
+  fill: #8a7660;
+}
+.centerBig {
+  font-size: 34px;
+  font-weight: 800;
+  fill: #1a1208;
+  font-variant-numeric: tabular-nums; /* 1초마다 폭이 흔들리지 않게 */
+}
+
+/* 거북이 — 8프레임 다리 순환 (300ms/프레임, GIF 실측). 위치·회전·축소는
+   TurtleTrack 이 <g transform> 으로 — 여기선 셀 원본 크기 그대로 둔다 */
+.turtle {
+  width: 140px;
+  height: 81px;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 1120px 81px no-repeat;
+  animation: gait 2.4s steps(8) infinite;
+}
+@keyframes gait {
+  to { background-position-x: -1120px; }
 }
 
 .caption {
@@ -22,57 +59,9 @@
   color: #8a7660;
   text-align: center;
   line-height: 1.8;
-}
-
-/* ── 트랙: 거북이가 밟고 서는 선 + 차오르는 채움 ── */
-.track {
-  position: relative;
-  width: min(720px, 92vw);
-  /* 거북이(77px)가 서 있을 머리 공간 */
-  padding-top: 84px;
-}
-.rail {
-  position: relative;
-  height: 3px;
-  background: rgba(26, 18, 8, 0.15);
-  overflow: hidden;
-}
-.fill {
-  position: absolute;
-  inset: 0;
-  transform-origin: left;
-  background: #d2691e;
-  animation: advanceFill 14s linear infinite;
-}
-
-/* ── 거북이: 발끝이 레일 윗변에 닿게, 진행 끝(코앞)이 채움 선두와 함께 간다 ── */
-.turtle {
-  position: absolute;
-  bottom: 3px; /* 레일 두께 위 */
-  left: 0;
-  width: 140px;
-  height: 81px;
-  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 1120px 81px no-repeat;
-  /* 다리 순환 — 8프레임 × 300ms(GIF 실측) = 2.4s 한 사이클 (라운드 86) */
-  animation:
-    gait 2.4s steps(8) infinite,
-    advanceTurtle 14s linear infinite;
-}
-
-@keyframes gait {
-  to { background-position-x: -1120px; }
-}
-/* 전진 — 채움과 같은 14s 선형이라 어긋나지 않는다 */
-@keyframes advanceTurtle {
-  from { left: 0; }
-  to { left: calc(100% - 140px); }
-}
-@keyframes advanceFill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  margin: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fill { animation: none; transform: scaleX(0.6); }
-  .turtle { animation: none; left: calc(0.6 * (100% - 140px)); }
+  .turtle { animation: none; }
 }

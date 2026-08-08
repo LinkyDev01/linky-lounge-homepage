@@ -54,6 +54,10 @@
   width: 74%;
   text-align: center;
   pointer-events: none; /* 트랙은 장식이라 클릭 방해 금지 */
+  /* 라운드 115(운영자): 서체를 모임 설명 헤더·푸터와 같은 **Gothic A1 600** 으로.
+     (홈 .itemTitle·.footerDesc 배역과 동일 계약. 웹폰트는 calendar/page.tsx 가 로드) */
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 600;
 }
 /* 라운드 109 — 한 문장을 두 줄로 흘리지 않는다. **못 박은 2행 조판**:
    위 행 "굳이 세어보면 2027년까지" (조건) / 아래 행 "12,531,539초 남았습니다." (답).
@@ -76,20 +80,24 @@
    ≥783px)에서는 그 폭 기준 실측치(21/29/40px)를 상한으로 잡는다.
    모바일 하한은 읽히는 최소치. 라운드 109 의 상한(15/20/28)은 데스크톱에서 예전보다
    작아 "연도와 초 강조"가 죽었다 — 그 지적을 반영한 값 */
+/* 라운드 115(운영자 "숫자 크기에 따른 강조가 좀 있는데 위계차를 줄이는 게 더 좋아.
+   구분은 하지만 강조 차이 정도는 줄여"):
+   라운드 110 의 3단 크기(21/29/40, 배율 1.9배)를 **1.28배**로 압축.
+   구분은 색(주황/잉크)과 무게(800)가 계속 맡는다 — 크기는 반 발짝만 */
 /* 문장 부분 — 조용한 보조 텍스트 */
 .lead {
-  font-size: clamp(10.5px, 3vw, 21px);
+  font-size: clamp(10.5px, 2.6vw, 18px);
   color: #8a7660;
 }
-/* 라운드 89 복귀: '2027년' 브랜드 주황 800, 한 단계 크게 */
+/* '2027년' — 브랜드 주황 800, 크기는 반 발짝만 */
 .year {
-  font-size: clamp(13.5px, 4.1vw, 29px);
+  font-size: clamp(11.5px, 2.9vw, 20px);
   font-weight: 800;
   color: #d2691e;
 }
-/* 초점 — 남은 초 */
+/* 남은 초 — 잉크 800, 크기는 반 발짝만 */
 .big {
-  font-size: clamp(18.5px, 5.6vw, 40px);
+  font-size: clamp(13px, 3.3vw, 23px);
   font-weight: 800;
   color: #1a1208;
   letter-spacing: -0.01em;
@@ -134,10 +142,11 @@
    390px 실측 블록 84.1 > 구멍 75.7. 좁은 화면에서만 행간·여백을 조여 구멍 안에 넣는다 */
 @media (max-width: 600px) {
   .line1 { line-height: 1.25; }
-  /* 1행도 반 단계 축소 — 위 조임만으로는 여유가 0.4px 뿐이라 아래 괘선에 닿아 보였다 */
+  /* 1행도 반 단계 축소 — 위 조임만으로는 여유가 0.4px 뿐이라 아래 괘선에 닿아 보였다.
+     라운드 115: 위계 압축(1.28배)을 모바일에도 동일 적용 */
   .lead { font-size: 10px; }
-  .year { font-size: 13px; }
-  .big { font-size: 17.5px; }
+  .year { font-size: 11px; }
+  .big { font-size: 12.5px; }
   .line2 {
     margin-top: 2px;
     font-size: 9.5px;

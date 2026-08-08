@@ -30,6 +30,10 @@ import styles from "./calendar.module.css"
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"]
 
+/** 날짜 칸에 보여 줄 일정 최대 개수 — 운영자 라운드 101: "하루에 세 모임까지는 표시되어야".
+ *  실데이터 최대치가 하루 3건(8/2: 3기 2회차 + 브람스 + 무비토크)이라 3이면 "+N" 이 사라진다 */
+const MAX_CHIPS = 3
+
 /** 시즌이 9~11월이라 8월에 열면 원데이 토크만 보인다 — 첫 화면은 일정이 있는 달로 */
 const FIRST_MONTH = { y: 2026, m: 8 } // 2026년 9월 (0-based)
 
@@ -127,7 +131,7 @@ export function MeetupCalendar() {
                       넓은 화면은 점+제목, 좁은 화면은 구글 캘린더식 **알약 라벨**
                       (색면 + 종이색 글자 + 말줄임)로 같은 마크업이 변신한다 */}
                   <span className={styles.chips}>
-                    {list.slice(0, 2).map((x) => (
+                    {list.slice(0, MAX_CHIPS).map((x) => (
                       <span
                         key={x.id}
                         className={styles.chip}
@@ -137,7 +141,7 @@ export function MeetupCalendar() {
                         <span className={styles.chipText}>{x.cellLabel}</span>
                       </span>
                     ))}
-                    {list.length > 2 && <span className={styles.more}>+{list.length - 2}</span>}
+                    {list.length > MAX_CHIPS && <span className={styles.more}>+{list.length - MAX_CHIPS}</span>}
                   </span>
                 </>
               )}

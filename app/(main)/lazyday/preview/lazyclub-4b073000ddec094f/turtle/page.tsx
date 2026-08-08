@@ -14,7 +14,9 @@ export const metadata: Metadata = {
 export default function TurtleDemoPage() {
   return (
     <main className={styles.page}>
-      <TurtleTrack />
+      <div className={styles.demoWrap}>
+        <TurtleTrack />
+      </div>
     </main>
   )
 }

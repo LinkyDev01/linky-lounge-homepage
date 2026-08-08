@@ -94,6 +94,13 @@ const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: str
   { date: "7/26", title: "『호프』 무비토크", time: "19:00", price: "참가비 문의" },
 ]
 
+/** "『시지프 신화』 원데이 토크" → "시지프 신화" (괄호 밖 종류어는 둘째 줄이 맡는다).
+ *  칸이 좁아 『』 는 뺀다 — 한 글자라도 작품명에 쓰는 편이 식별에 낫다 (라운드 106) */
+function workTitle(title: string): string {
+  const m = title.match(/『(.+?)』/)
+  return m ? m[1] : title
+}
+
 /** "8.9 (일) 19:00–22:00" → "19:00–22:00" */
 function timeFromOneDay(date: string): string {
   const m = date.match(/\)\s*(.+)$/)
@@ -121,7 +128,8 @@ const PROGRAMS: ClubProgram[] = [
         parts.length > 1 ? `${d.label} ${i === 0 ? "오전" : "오후"} ${t}` : `${d.label} ${t}`,
       )
     }),
-    price: SEASON.price,
+    // 라운드 106(운영자): 레이지데이 북클럽은 캘린더에서 가격을 노출하지 않는다
+    price: "",
     description: SEASON.regularNote,
     image: `${IMG}/hero-4th-poster.webp`,
     href: BOOKCLUB_URL,
@@ -214,6 +222,8 @@ const EVENTS: ClubEvent[] = [
       day,
       category: "booktalk" as const,
       cellLabel: m.title,
+      // 라운드 106: 기수와 같은 2줄 서식 — 작품명 / 종류
+      cellLines: [workTitle(m.title), "원데이 토크"] as [string, string],
     }
   }),
   ...MOVIE_TALKS.map((t, i) => {
@@ -226,6 +236,7 @@ const EVENTS: ClubEvent[] = [
       day,
       category: "movie" as const,
       cellLabel: t.title,
+      cellLines: [workTitle(t.title), "무비토크"] as [string, string],
     }
   }),
 ]

@@ -94,12 +94,15 @@
   color: #1a1208;
   letter-spacing: -0.01em;
 }
-/* 2행은 혼잣말 — 한 단계 작게, 한 단계 흐리게. 10초에 스윽 붙는다 */
+/* 2행 — 한 단계 작게. 라운드 111(운영자 "마지막에 추가문장은 블랙 볼드로"):
+   흐린 보조색(#a08b70 400)에서 **잉크 700** 으로. 크기 위계는 그대로 두고 무게로만
+   붙잡는다 (라운드 108 의 "한 단계 흐리게"는 이 지시로 해제). 30초에 스윽 붙는다 */
 .line2 {
   margin: 3px 0 0;
   font-size: clamp(10px, 2vw, 12.5px);
   line-height: 1.5;
-  color: #a08b70;
+  font-weight: 700;
+  color: #1a1208;
   word-break: keep-all;
   text-wrap: pretty;
   animation: readoutIn 300ms ease-out both;

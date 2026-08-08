@@ -135,11 +135,26 @@
    실측 390px: 한 줄 280 ≤ 구멍 304.9 (자간 -0.01em 여유분). 320px 급 초소형은
    vw 스케일(2.44vw ≈ 390px 에서 9.5px)로 같이 줄어 넘치지 않는다 */
 @media (max-width: 600px) {
-  .line1 { line-height: 1.25; }
-  /* 라운드 115: 위계 압축(1.28배)을 모바일에도 동일 적용 */
-  .lead { font-size: 10px; }
-  .year { font-size: 11px; }
-  .big { font-size: 12.5px; }
+  /* 라운드 117(운영자): 1행("굳이 세어보면 … 남았습니다")도 모바일에서 **한 줄**.
+     못 박은 2행(rowTop/rowMain)을 inline 으로 합치고 line2 와 같은 센터링.
+     실측 390px: 한 줄 260.8 ≤ 구멍 중심부 317.6. 크기를 vw 로 걸어 320px 급도 같이 준다 */
+  .line1 {
+    line-height: 1.25;
+    white-space: nowrap;
+    width: max-content;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .rowTop,
+  .rowMain {
+    display: inline;
+  }
+  .rowMain { margin-left: 0.3em; } /* 블록 시절엔 줄바꿈이 만들던 간격 */
+  /* 라운드 115: 위계 압축(1.28배). 117: 390px 기준값을 vw 로 환산 (10/11/12.5px@390) */
+  .lead { font-size: clamp(8px, 2.56vw, 10px); }
+  .year { font-size: clamp(8.8px, 2.82vw, 11px); }
+  .big { font-size: clamp(10px, 3.2vw, 12.5px); }
   .line2 {
     margin: 2px 0 0;
     font-size: clamp(8px, 2.44vw, 9.5px);

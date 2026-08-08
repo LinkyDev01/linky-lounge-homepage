@@ -129,28 +129,30 @@
   color: #1a1208;
 }
 
-/* 라운드 114: 5분 문장의 줄바꿈을 "당신을 위해" 뒤로 못 박는다 (모바일 전용, 운영자).
-   자연 줄바꿈은 "완주를 / 서두르고"처럼 어중간한 곳에서 꺾였다. 데스크톱은 한 줄 유지 */
-.brMobile {
-  display: none;
-}
-@media (max-width: 600px) {
-  .brMobile { display: initial; }
-}
-
-/* 라운드 113: 5분 문장("…완주를 서두르고 있습니다")이 모바일에서 두 줄이 된다 —
-   390px 실측 블록 84.1 > 구멍 75.7. 좁은 화면에서만 행간·여백을 조여 구멍 안에 넣는다 */
+/* 라운드 116: 5분 문장도 모바일에서 **한 줄** (운영자 "지금 폰트사이즈면 한 줄 가능해?").
+   라운드 113~114 의 두 줄 처리(brMobile)는 원인 오진이었다 — 구멍이 아니라 문구 박스
+   폭(74%)이 좁았던 것. nowrap + max-content 로 박스를 문장에 맞추고 가운데 정렬한다.
+   실측 390px: 한 줄 280 ≤ 구멍 304.9 (자간 -0.01em 여유분). 320px 급 초소형은
+   vw 스케일(2.44vw ≈ 390px 에서 9.5px)로 같이 줄어 넘치지 않는다 */
 @media (max-width: 600px) {
   .line1 { line-height: 1.25; }
-  /* 1행도 반 단계 축소 — 위 조임만으로는 여유가 0.4px 뿐이라 아래 괘선에 닿아 보였다.
-     라운드 115: 위계 압축(1.28배)을 모바일에도 동일 적용 */
+  /* 라운드 115: 위계 압축(1.28배)을 모바일에도 동일 적용 */
   .lead { font-size: 10px; }
   .year { font-size: 11px; }
   .big { font-size: 12.5px; }
   .line2 {
-    margin-top: 2px;
-    font-size: 9.5px;
+    margin: 2px 0 0;
+    font-size: clamp(8px, 2.44vw, 9.5px);
     line-height: 1.35;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    width: max-content;
+    max-width: none;
+    /* 문장이 박스(74%)보다 넓어질 수 있다 — margin:auto 는 overflow 시 좌측 정렬로
+       무너지므로 transform 으로 센터링 (320px 실측에서 우측 2.9px 넘침 교정) */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 

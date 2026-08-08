@@ -199,13 +199,14 @@ export function MeetupCalendar() {
 function ProgramRow({ p }: { p: ClubProgram }) {
   const tone = CATEGORY_TONE[p.category]
   return (
-    <li className={`${styles.item} ${p.image ? "" : styles.itemNoThumb}`}>
-      {p.image && (
-        <figure className={styles.thumb}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+    <li className={styles.item}>
+      {/* 포스터가 없어도 칸은 비워 둔다 (운영자 라운드 102) — 카드끼리 본문 시작선이 맞는다 */}
+      <figure className={`${styles.thumb} ${p.image ? "" : styles.thumbEmpty}`}>
+        {p.image && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={p.image} alt="" draggable={false} />
-        </figure>
-      )}
+        )}
+      </figure>
       <div className={styles.body}>
         <span className={styles.cat}>
           <span className={styles.dot} style={{ background: tone.color }} />

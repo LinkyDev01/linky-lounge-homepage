@@ -7,6 +7,8 @@
    신규 CSS이므로 기존 .module.css 를 import 하지 않는다 (공유 CSS 지도 오염 방지). */
 
 .page {
+  /* 서체 배역 — 홈(home.module.css)과 같은 계약: 기본 SUIT, 제목은 Gothic A1 600 */
+  --gothic: "Gothic A1", sans-serif;
   min-height: 100vh;
   background: #f7f3ee;
   color: #1a1208;
@@ -178,13 +180,11 @@
 .clickable { cursor: pointer; }
 .clickable:hover { background: rgba(210, 105, 30, 0.08); }
 .clickable:focus-visible { outline: 1px solid #1a1208; outline-offset: -1px; }
+/* 라운드 100 ⑤: 주황 면 채움이 과해 조판 톤을 눌렀다 → 옅은 주황 + 날짜만 주황 굵게.
+   선택이 분명하면서 칩 글자가 종이색 반전 없이 그대로 읽힌다 */
 .selected,
-.selected.clickable:hover { background: #d2691e; }
-.selected .dayNum { color: #f7f3ee; }
-.selected .chip { color: #f7f3ee; }
-.selected .more { color: rgba(247, 243, 238, 0.75); }
-.selected .chip .dot { box-shadow: 0 0 0 1px rgba(247, 243, 238, 0.9); }
-.selected .today .dayNum::after { background: #f7f3ee; }
+.selected.clickable:hover { background: rgba(210, 105, 30, 0.11); }
+.selected .dayNum { color: #d2691e; font-weight: 800; }
 
 /* ── 범례 ─────────────────────────────────────────────── */
 .legend {
@@ -251,6 +251,10 @@
   border-bottom: 1px solid rgba(26, 18, 8, 0.14);
 }
 .item:last-child { border-bottom: 0; }
+/* 라운드 100 ③: 포스터가 없으면 빈 회색 칸을 남기지 않고 본문이 전폭.
+   ⚠️ `.item` 만으로 쓰면 아래 미디어쿼리의 `.item { grid-template-columns: 60px 1fr }` 가
+   나중에 나와 이겨버린다(같은 특이도 → 후순위 승). `.item.itemNoThumb` 로 특이도를 올린다 */
+.item.itemNoThumb { grid-template-columns: 1fr; }
 .thumb {
   margin: 0;
   width: 72px;
@@ -278,9 +282,11 @@
   color: #8a7660;
   line-height: 1;
 }
+/* 라운드 100 ①: 홈 목록과 같은 제목 배역 — Gothic A1 600 (구 SUIT 700) */
 .itemTitle {
-  font-size: 15.5px;
-  font-weight: 700;
+  font-family: var(--gothic);
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.45;
   word-break: keep-all;
 }
@@ -298,15 +304,16 @@
   color: #a08b70;
   font-variant-numeric: tabular-nums;
 }
-/* 상태 배지 — 카테고리 라벨 옆 (모집 중 / 진행 중 / 마감) */
+/* 상태 표기 — 라운드 100 ②: 박스 배지 폐기, 색 텍스트로만 (이 트리는 상태를 색으로 말한다).
+   모집 중 = 주황 / 진행 중 = 본문색 / 마감·종료 = 옅은 회색 */
 .note {
-  margin-left: 6px;
-  padding: 1.5px 5px;
-  border: 1px solid rgba(26, 18, 8, 0.2);
-  border-radius: 2px;
-  font-size: 10.5px;
+  margin-left: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
   color: #4a3020;
 }
+.noteOpen { color: #d2691e; }
+.noteClosed { color: #a08b70; font-weight: 400; }
 .desc {
   font-size: 12.5px;
   line-height: 1.75;
@@ -365,14 +372,17 @@
   .blank { min-height: 64px; }
   .dayNum { font-size: 11.5px; align-self: center; }
   .chips { gap: 2px; }
+  /* 라운드 100 ④: 색면 채움(구글 문법) → **좌측 색 괘선 + 투명 배경**.
+     이 트리의 괘선 문법을 지키면서 가독성은 그대로 (글자는 잉크색) */
   .chip {
     display: block;
-    background: var(--cat);
-    color: #f7f3ee;
-    border-radius: 2.5px;
-    padding: 2.5px 3.5px;
+    background: none;
+    color: #1a1208;
+    border-left: 2.5px solid var(--cat);
+    border-radius: 0;
+    padding: 1px 2px 1px 4px;
     font-size: 9.5px;
-    line-height: 1.25;
+    line-height: 1.3;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -390,8 +400,7 @@
     -webkit-line-clamp: unset;
   }
   .more { padding-left: 2px; }
-  /* 선택(주황 면) 위에서 알약이 살도록 종이색 테두리 */
-  .selected .chip { box-shadow: 0 0 0 1px rgba(247, 243, 238, 0.75); }
+  /* 선택 배경이 옅은 주황이라 칩은 그대로 읽힌다 — 별도 반전 불필요 (라운드 100) */
 }
 
 @media all and (max-width: 420px) {

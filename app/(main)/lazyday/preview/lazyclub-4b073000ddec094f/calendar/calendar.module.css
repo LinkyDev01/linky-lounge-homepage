@@ -251,10 +251,13 @@
   border-bottom: 1px solid rgba(26, 18, 8, 0.14);
 }
 .item:last-child { border-bottom: 0; }
-/* 라운드 100 ③: 포스터가 없으면 빈 회색 칸을 남기지 않고 본문이 전폭.
-   ⚠️ `.item` 만으로 쓰면 아래 미디어쿼리의 `.item { grid-template-columns: 60px 1fr }` 가
-   나중에 나와 이겨버린다(같은 특이도 → 후순위 승). `.item.itemNoThumb` 로 특이도를 올린다 */
-.item.itemNoThumb { grid-template-columns: 1fr; }
+/* 라운드 102 (운영자): 포스터가 없어도 **칸은 남긴다** — 카드끼리 본문 시작선이 맞아야 한다.
+   (라운드 100 ③의 '칸 접기'를 철회. 회색 면은 빼고 옅은 점선 자리로만 표시해
+   미완성처럼 보이지 않게 한다) */
+.thumbEmpty {
+  background: none;
+  border: 1px dashed rgba(26, 18, 8, 0.16);
+}
 .thumb {
   margin: 0;
   width: 72px;

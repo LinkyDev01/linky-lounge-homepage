@@ -121,7 +121,7 @@
   line-height: 1.4;
   color: #4a3020;
 }
-.chip .dot { flex: 0 0 auto; }
+.chip .dot { flex: 0 0 auto; background: var(--cat); }
 .chipText {
   min-width: 0;
   overflow: hidden;
@@ -168,14 +168,6 @@
   background: #d2691e;
 }
 
-/* 점 표기 — 좁은 화면 전용 (넓은 화면은 위 .chips 가 대신한다) */
-.dots {
-  display: none;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 3px;
-  max-width: 80%;
-}
 .dot {
   width: 5px;
   height: 5px;
@@ -192,7 +184,6 @@
 .selected .chip { color: #f7f3ee; }
 .selected .more { color: rgba(247, 243, 238, 0.75); }
 .selected .chip .dot { box-shadow: 0 0 0 1px rgba(247, 243, 238, 0.9); }
-.selected .dot { box-shadow: 0 0 0 1px rgba(247, 243, 238, 0.9); }
 .selected .today .dayNum::after { background: #f7f3ee; }
 
 /* ── 범례 ─────────────────────────────────────────────── */
@@ -211,13 +202,14 @@
   color: #8a7660;
 }
 
-/* ── 거북이 트랙 자리 — 폭은 .wrap 을 그대로 상속한다 ── */
+/* ── 거북이 트랙 자리 — 맨 아래 섹션 (라운드 96). 폭은 .wrap 을 그대로 상속 ── */
 .trackSlot {
-  margin: 22px 0 4px;
+  margin: 34px 0 4px;
 }
 
 /* ── 모임 목록 ────────────────────────────────────────── */
 .listHead {
+  margin-top: 26px;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -343,21 +335,45 @@
   text-align: center;
 }
 
-/* 좁은 화면 — 셀 폭이 텍스트를 감당 못 하므로 **점 모드**로 되돌린다.
-   달의 개요는 점으로, 내용은 아래 목록이 텍스트로 담당한다 (라운드 94) */
+/* 좁은 화면 — 점 모드 폐기(라운드 96, 운영자 "구글은 그래도 보이던데").
+   구글 캘린더 문법으로: 셀 전폭 **알약 라벨**(카테고리 색면 + 종이색 글자 + 말줄임).
+   점·여백을 걷어내 3~5글자는 읽힌다. 잘린 제목의 전문은 아래 목록이 담당 */
 @media all and (max-width: 600px) {
   .cell {
-    min-height: 0;
-    aspect-ratio: 1 / 0.92;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 0 0;
-    text-align: center;
+    min-height: 64px;
+    gap: 3px;
+    padding: 4px 2px 5px;
   }
-  .blank { min-height: 0; aspect-ratio: 1 / 0.92; }
-  .dayNum { align-self: auto; }
-  .chips { display: none; }
-  .dots { display: flex; }
+  .blank { min-height: 64px; }
+  .dayNum { font-size: 11.5px; align-self: center; }
+  .chips { gap: 2px; }
+  .chip {
+    display: block;
+    background: var(--cat);
+    color: #f7f3ee;
+    border-radius: 2.5px;
+    padding: 2.5px 3.5px;
+    font-size: 9.5px;
+    line-height: 1.25;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chip .dot { display: none; }
+  .chipText {
+    display: inline;
+    white-space: inherit;
+  }
+  /* 단독 모임 두 줄 확장은 알약에선 해제 — 셀 높이 균일 우선 */
+  .chip:only-child .chipText {
+    white-space: nowrap;
+    display: inline;
+    -webkit-line-clamp: unset;
+  }
+  .more { padding-left: 2px; }
+  /* 선택(주황 면) 위에서 알약이 살도록 종이색 테두리 */
+  .selected .chip { box-shadow: 0 0 0 1px rgba(247, 243, 238, 0.75); }
 }
 
 @media all and (max-width: 420px) {

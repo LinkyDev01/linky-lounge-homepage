@@ -30,7 +30,9 @@ function stadiumPath(dr: number) {
   return `M 360 ${bottom} H 470 A ${r} ${r} 0 0 0 470 ${top} H 250 A ${r} ${r} 0 0 0 250 ${bottom} H 360`
 }
 
-const BAND = 44 // 트랙 밴드 두께 (구 3px 레일 → 대폭 상향, 라운드 87 ②)
+// 라운드 88: 거북이가 트랙 **위에 올라서는** 디자인으로 — 밴드 슬림화(44→26),
+// 차선은 가운데 파선 하나만. 거북이 속은 오트로 채워 몸이 비치지 않는다
+const BAND = 26
 
 export function TurtleTrack() {
   const [secs, setSecs] = useState<number | null>(null)
@@ -60,8 +62,15 @@ export function TurtleTrack() {
       const p = path.getPointAtLength(L * frac)
       const p2 = path.getPointAtLength(Math.min(L, L * frac + 1.5))
       const ang = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI
-      // 140×81 스프라이트 셀을 0.457배(≈64유닛 폭)로 줄여 경로점에 몸 중심을 얹는다
-      turtle.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${ang}) scale(0.457) translate(-70 -40.5)`)
+      // 라운드 88: 뒤집힘 금지 — 왼쪽으로 갈 때는 회전 180° 대신 **좌우 미러**로
+      // 진행 방향을 보게 한다 (기울기는 ±90° 이내로만). 발(-76)은 경로선 위에 얹혀
+      // 거북이가 항상 트랙 위에 서 있다
+      const S = 0.457 // 140×81 셀 → ≈64유닛 폭
+      const tf =
+        Math.abs(ang) <= 90
+          ? `translate(${p.x} ${p.y}) rotate(${ang}) scale(${S}) translate(-70 -76)`
+          : `translate(${p.x} ${p.y}) rotate(${ang - 180}) scale(${-S} ${S}) translate(-70 -76)`
+      turtle.setAttribute("transform", tf)
       if (fillRef.current) fillRef.current.style.strokeDashoffset = String(1000 * (1 - frac))
     }
 
@@ -86,9 +95,8 @@ export function TurtleTrack() {
           strokeDasharray={1000}
           strokeDashoffset={1000}
         />
-        {/* 차선 구분 2줄(3레인) — 종이색 파선 */}
-        <path d={stadiumPath(-7.3)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
-        <path d={stadiumPath(7.3)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
+        {/* 차선 — 가운데 파선 하나만 (라운드 88 슬림화) */}
+        <path d={stadiumPath(0)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
         {/* 트랙 안팎 테두리 */}
         <path d={stadiumPath(-(BAND / 2))} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
         <path d={stadiumPath(BAND / 2)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />

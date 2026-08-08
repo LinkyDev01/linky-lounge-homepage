@@ -20,7 +20,7 @@ import { season3Config } from "../../../book-config"
  *          회차 날짜는 단일 출처가 없다. 운영자 제공 구글 캘린더의 '레이지데이' 일정과
  *          `book-config` 의 3기 dateRange("7.15 – 9.6")로 확정했다
  *          (7/29·7/30·8/2, 8/12·8/13·8/16, 8/26·8/27·8/30 전부 스크린샷과 일치).
- *          3기 시간대는 미제공 → 비워 둔다
+ *          시간대는 운영자 제공 (라운드 105, SEASON3_TIMES)
  *   · 원데이 토크 ← `one-day-config.ts`
  *   · 무비토크 ← MOVIE_TALKS (전용 config 생기면 이관)
  */
@@ -69,6 +69,15 @@ export type ClubEvent = {
 }
 
 const IMG = "/linky-lounge/book-club/home-v3"
+
+/** 3기 요일별 시간대 — 운영자 제공 (라운드 105).
+ *  4기와 같은 문법: 평일 저녁 3시간, 일요일은 오전·오후 2슬롯 */
+const SEASON3_TIMES = [
+  "수요일 19:30–22:30",
+  "목요일 19:30–22:30",
+  "일요일 오전 10:30–13:30",
+  "일요일 오후 14:30–17:30",
+]
 
 /** 3기 회차 일정 — 수·목·일 격주 (출처는 파일 머리 주석 참조) */
 const SEASON3_SESSIONS: Array<{ label: string; dates: string[] }> = [
@@ -125,7 +134,7 @@ const PROGRAMS: ClubProgram[] = [
     category: "bookclub",
     title: `레이지데이 북클럽 ${season3Config.label}`,
     schedule: `${season3Config.dateRange} · 격주 수·목·일 · 정규 4회 + 5회차`,
-    times: [], // 3기 시간대는 미제공
+    times: SEASON3_TIMES,
     price: "",
     description: "",
     image: `${IMG}/poster-3rd.webp`,

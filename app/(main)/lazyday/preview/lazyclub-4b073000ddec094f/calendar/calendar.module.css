@@ -412,9 +412,20 @@
     font-weight: 600;
     overflow: hidden;
   }
-  /* 브랜드 줄은 잘리면 안 된다(운영자) → 자간을 조여 5자를 칸에 넣는다.
-     회차 줄은 짧아 여유가 있으므로 건드리지 않는다 */
-  .chipBrand { font-size: 9px; letter-spacing: -0.045em; }
+  /* 브랜드 줄은 잘리면 안 된다(운영자) → **장평(가로 압축) 위주**로 넣는다.
+     라운드 104는 자간만 -0.045em 까지 조여 글자 사이가 답답했다 (운영자 라운드 105:
+     "무리한 자간 좁히기보다는 장평도 건드려").
+     핵심: `transform: scaleX()` 만 쓰면 **레이아웃 폭은 그대로**라 말줄임(…)이 계속 뜬다.
+     그래서 레이아웃 폭을 1/S 로 미리 넓혀 두고(overflow 발생 X) 그만큼 되돌려 그린다.
+     결과 = 자간 -0.01em(거의 원래대로) + 장평 88%, 글자 크기는 회차 줄과 같은 9.5px 복귀 */
+  .chipBrand {
+    --sx: 0.88;
+    font-size: 9.5px;
+    letter-spacing: -0.01em;
+    width: calc(100% / var(--sx));
+    transform: scaleX(var(--sx));
+    transform-origin: left center;
+  }
   .chip .dot { display: none; }
   /* 라운드 101: 한 줄이면 51px 셀에서 4글자뿐 → **두 줄까지** 허용해 8글자 안팎을 읽힌다.
      한글은 글자 단위로 끊기므로 keep-all 을 쓰지 않는다 (쓰면 단어가 칸을 넘친다).

@@ -44,11 +44,15 @@ export type ClubEvent = {
   href: string
   /** 외부 도메인이면 새 탭 */
   external: boolean
+  /** 링크 문구 (기본 "자세히 보기") */
+  cta: string
 }
 
 /** 무비토크 — 아직 전용 config 가 없어 여기 둔다 (운영자 2026-08-07: "8/2 호프 - 무비토크").
- *  시간·참가비는 미제공이라 비워 둔다 (임의로 지어내지 않는다). */
-const MOVIE_TALKS: Array<{ date: string; title: string }> = [{ date: "8/2", title: "『호프』 무비토크" }]
+ *  라운드 98: 시간 19시, 참가비는 "문의" (운영자). 종료 시각은 미제공이라 시작만 적는다. */
+const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: string }> = [
+  { date: "8/2", title: "『호프』 무비토크", time: "19:00", price: "참가비 문의" },
+]
 
 const IMG = "/linky-lounge/book-club/home-v3"
 
@@ -98,6 +102,7 @@ export function buildEvents(): ClubEvent[] {
           image: `${IMG}/hero-4th-poster.webp`,
           href: BOOKCLUB_URL,
           external: true,
+          cta: "자세히 보기",
         })
       })
     })
@@ -121,6 +126,7 @@ export function buildEvents(): ClubEvent[] {
       image: `${IMG}/hero-4th-poster.webp`,
       href: BOOKCLUB_URL,
       external: true,
+      cta: "자세히 보기",
     })
   }
 
@@ -142,6 +148,7 @@ export function buildEvents(): ClubEvent[] {
       image: m.thumbnail,
       href: `${BASE}/meetings/${m.slug}`,
       external: false,
+      cta: "자세히 보기",
     })
   })
 
@@ -157,12 +164,14 @@ export function buildEvents(): ClubEvent[] {
       title: t.title,
       slot: "",
       cellLabel: t.title,
-      time: "",
-      price: "",
+      time: t.time,
+      price: t.price,
       description: "",
       image: "",
-      href: "",
-      external: false,
+      // 참가비가 "문의"라 문의 창구가 필요하다 → 사이트 기존 카카오 채널 (season-config)
+      href: SEASON.notifyKakaoUrl,
+      external: true,
+      cta: "문의하기",
     })
   })
 

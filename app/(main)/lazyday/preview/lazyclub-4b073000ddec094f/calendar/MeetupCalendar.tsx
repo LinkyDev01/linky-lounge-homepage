@@ -217,11 +217,11 @@ function EventRow({ ev, month }: { ev: ClubEvent; month: number }) {
           {ev.href ? (
             ev.external ? (
               <a className={styles.apply} href={ev.href} target="_blank" rel="noopener noreferrer">
-                자세히 보기 ↗
+                {ev.cta} ↗
               </a>
             ) : (
               <LazydayLink href={ev.href} className={styles.apply}>
-                자세히 보기
+                {ev.cta}
               </LazydayLink>
             )
           ) : (

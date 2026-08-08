@@ -32,6 +32,10 @@ export type ClubEvent = {
   day: number
   category: EventCategory
   title: string
+  /** 요일·슬롯 표기 ("화요일" / "일요일 오전" …). 없으면 감춘다 */
+  slot: string
+  /** 날짜 칸에 쓰는 짧은 이름 — 같은 날 여러 슬롯이 겹칠 때 구분되도록 (라운드 97) */
+  cellLabel: string
   /** 빈 문자열이면 화면에서 감춘다 (미정) */
   time: string
   price: string
@@ -65,24 +69,36 @@ export function buildEvents(): ClubEvent[] {
 
   // ── 레이지데이 북클럽 4기 정규 1–4회차 ──
   // dates 배열 순서 = SEASON.days 순서 (화·수·일) — config 주석에 명시된 계약.
-  // 각 회차는 세 요일 중 하나를 고르는 구조라, 세 날짜 모두 캘린더에 올린다.
+  // 각 회차는 요일 슬롯 중 하나를 고르는 구조라, 모든 슬롯을 캘린더에 올린다.
+  // ⚠️ 일요일은 **오전·오후 2슬롯**이고 config 가 time 을 ", " 로 이어 둔다
+  //    ("10:30–13:30, 14:30–17:30"). 쪼개서 각각을 독립 일정으로 세운다 (라운드 97).
   SEASON.sessions.forEach((s, si) => {
     s.dates.forEach((d, di) => {
       const [month, day] = d.split("/").map(Number)
-      const slot = SEASON.days[di]
-      out.push({
-        id: `bookclub-${si}-${di}`,
-        year,
-        month,
-        day,
-        category: "bookclub",
-        title: `레이지데이 북클럽 ${SEASON.name} ${s.label}`,
-        time: slot.time,
-        price: SEASON.price,
-        description: `${slot.label} 진행. ${SEASON.regularNote}`,
-        image: `${IMG}/hero-4th-poster.webp`,
-        href: BOOKCLUB_URL,
-        external: true,
+      const dayDef = SEASON.days[di]
+      const times = dayDef.time.split(",").map((t) => t.trim())
+      const partNames = times.length > 1 ? ["오전", "오후"] : [""]
+      times.forEach((time, ti) => {
+        const part = partNames[ti] ?? ""
+        const slot = part ? `${dayDef.label} ${part}` : dayDef.label
+        // 셀 라벨: 같은 날 두 슬롯이 겹쳐도 구분되도록 회차 + 요일(+오전/오후)
+        const short = dayDef.label.replace("요일", "")
+        out.push({
+          id: `bookclub-${si}-${di}-${ti}`,
+          year,
+          month,
+          day,
+          category: "bookclub",
+          title: `레이지데이 북클럽 ${SEASON.name} ${s.label}`,
+          slot,
+          cellLabel: part ? `${s.label} ${short} ${part}` : `${s.label} ${short}`,
+          time,
+          price: SEASON.price,
+          description: SEASON.regularNote,
+          image: `${IMG}/hero-4th-poster.webp`,
+          href: BOOKCLUB_URL,
+          external: true,
+        })
       })
     })
   })
@@ -97,6 +113,8 @@ export function buildEvents(): ClubEvent[] {
       day,
       category: "bookclub",
       title: `레이지데이 북클럽 ${SEASON.name} ${SEASON.fifth.label}`,
+      slot: "일요일",
+      cellLabel: `${SEASON.fifth.label} 자유모임`,
       time: SEASON.fifth.timeLabel,
       price: "",
       description: SEASON.freeNote,
@@ -116,6 +134,8 @@ export function buildEvents(): ClubEvent[] {
       day,
       category: "booktalk",
       title: m.title,
+      slot: "",
+      cellLabel: m.title,
       time: timeFromOneDay(m.date),
       price: `${m.price.toLocaleString("ko-KR")}원`,
       description: m.description[0] ?? "",
@@ -135,6 +155,8 @@ export function buildEvents(): ClubEvent[] {
       day,
       category: "movie",
       title: t.title,
+      slot: "",
+      cellLabel: t.title,
       time: "",
       price: "",
       description: "",
@@ -151,5 +173,7 @@ const ALL = buildEvents()
 
 /** month 는 0-11 (Date 규약) */
 export function eventsFor(year: number, month: number): ClubEvent[] {
-  return ALL.filter((e) => e.year === year && e.month === month + 1).sort((a, b) => a.day - b.day)
+  return ALL.filter((e) => e.year === year && e.month === month + 1).sort(
+    (a, b) => a.day - b.day || a.time.localeCompare(b.time),
+  )
 }

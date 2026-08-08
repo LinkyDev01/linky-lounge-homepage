@@ -133,7 +133,7 @@ export function MeetupCalendar() {
                         style={{ "--cat": CATEGORY_TONE[x.category].color } as React.CSSProperties}
                       >
                         <span className={styles.dot} />
-                        <span className={styles.chipText}>{x.title}</span>
+                        <span className={styles.chipText}>{x.cellLabel}</span>
                       </span>
                     ))}
                     {list.length > 2 && <span className={styles.more}>+{list.length - 2}</span>}
@@ -208,7 +208,8 @@ function EventRow({ ev, month }: { ev: ClubEvent; month: number }) {
         </span>
         <span className={styles.itemTitle}>{ev.title}</span>
         <span className={styles.meta}>
-          {month}월 {ev.day}일{ev.time ? ` · ${ev.time}` : ""}
+          {month}월 {ev.day}일{ev.slot ? ` · ${ev.slot}` : ""}
+          {ev.time ? ` · ${ev.time}` : ""}
         </span>
         {ev.description && <span className={styles.desc}>{ev.description}</span>}
         <span className={styles.foot}>

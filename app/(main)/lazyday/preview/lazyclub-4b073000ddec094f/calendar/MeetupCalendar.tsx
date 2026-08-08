@@ -122,25 +122,21 @@ export function MeetupCalendar() {
               <span className={styles.dayNum}>{day}</span>
               {list.length > 0 && (
                 <>
-                  {/* 넓은 화면 — 제목까지 읽히는 텍스트 줄 (라운드 94).
-                      좁은 화면에서는 CSS 로 감추고 아래 점 표기로 되돌아간다 */}
+                  {/* 텍스트 줄 (라운드 94 · 96): 카테고리 색은 CSS 변수로 넘긴다 —
+                      넓은 화면은 점+제목, 좁은 화면은 구글 캘린더식 **알약 라벨**
+                      (색면 + 종이색 글자 + 말줄임)로 같은 마크업이 변신한다 */}
                   <span className={styles.chips}>
                     {list.slice(0, 2).map((x) => (
-                      <span key={x.id} className={styles.chip}>
-                        <span className={styles.dot} style={{ background: CATEGORY_TONE[x.category].color }} />
+                      <span
+                        key={x.id}
+                        className={styles.chip}
+                        style={{ "--cat": CATEGORY_TONE[x.category].color } as React.CSSProperties}
+                      >
+                        <span className={styles.dot} />
                         <span className={styles.chipText}>{x.title}</span>
                       </span>
                     ))}
                     {list.length > 2 && <span className={styles.more}>+{list.length - 2}</span>}
-                  </span>
-                  <span className={styles.dots}>
-                    {list.map((x) => (
-                      <span
-                        key={x.id}
-                        className={styles.dot}
-                        style={{ background: CATEGORY_TONE[x.category].color }}
-                      />
-                    ))}
                   </span>
                 </>
               )}
@@ -159,11 +155,6 @@ export function MeetupCalendar() {
           ))}
         </div>
       )}
-
-      {/* 거북이 트랙 — 폭은 .wrap 을 그대로 따른다 (운영자: 트랙 너비는 캘린더에 맞춤) */}
-      <div className={styles.trackSlot}>
-        <TurtleTrack />
-      </div>
 
       <div className={styles.listHead}>
         <span className={styles.listTitle}>
@@ -190,6 +181,12 @@ export function MeetupCalendar() {
           ))}
         </ul>
       )}
+
+      {/* 거북이 트랙 — 맨 아래 섹션 (라운드 96, 운영자).
+          폭은 .wrap 을 그대로 따른다 (트랙 너비 = 캘린더 너비) */}
+      <div className={styles.trackSlot}>
+        <TurtleTrack />
+      </div>
     </div>
   )
 }

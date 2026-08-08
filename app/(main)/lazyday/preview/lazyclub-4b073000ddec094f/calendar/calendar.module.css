@@ -289,6 +289,24 @@
   color: #8a7660;
   font-variant-numeric: tabular-nums;
 }
+/* 요일별 시간대 — 기수 카드에서 줄로 나눠 (라운드 99) */
+.times {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12px;
+  color: #a08b70;
+  font-variant-numeric: tabular-nums;
+}
+/* 상태 배지 — 카테고리 라벨 옆 (모집 중 / 진행 중 / 마감) */
+.note {
+  margin-left: 6px;
+  padding: 1.5px 5px;
+  border: 1px solid rgba(26, 18, 8, 0.2);
+  border-radius: 2px;
+  font-size: 10.5px;
+  color: #4a3020;
+}
 .desc {
   font-size: 12.5px;
   line-height: 1.75;

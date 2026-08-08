@@ -25,7 +25,7 @@
 import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { TurtleTrack } from "../turtle/TurtleTrack"
-import { CATEGORY_TONE, eventsFor, type ClubEvent, type EventCategory } from "./calendar-events"
+import { CATEGORY_TONE, eventsFor, programsFor, type ClubProgram, type EventCategory } from "./calendar-events"
 import styles from "./calendar.module.css"
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"]
@@ -54,7 +54,8 @@ export function MeetupCalendar() {
   const firstDay = new Date(y, m, 1).getDay()
   const daysInMonth = new Date(y, m + 1, 0).getDate()
   const forDay = (day: number) => events.filter((x) => x.day === day)
-  const shown = selectedDay === null ? events : forDay(selectedDay)
+  // 목록은 **모임 단위** — 같은 기수가 여러 날 걸려도 카드는 하나 (라운드 99)
+  const shown = cursor === null ? [] : programsFor(y, m, selectedDay)
 
   // 범례는 이번 달에 실제로 있는 종류만
   const usedCats = (Object.keys(CATEGORY_TONE) as EventCategory[]).filter((k) =>
@@ -176,8 +177,8 @@ export function MeetupCalendar() {
         </p>
       ) : (
         <ul className={styles.list}>
-          {shown.map((x) => (
-            <EventRow key={x.id} ev={x} month={m + 1} />
+          {shown.map((p) => (
+            <ProgramRow key={p.id} p={p} />
           ))}
         </ul>
       )}
@@ -191,41 +192,42 @@ export function MeetupCalendar() {
   )
 }
 
-function EventRow({ ev, month }: { ev: ClubEvent; month: number }) {
-  const tone = CATEGORY_TONE[ev.category]
+function ProgramRow({ p }: { p: ClubProgram }) {
+  const tone = CATEGORY_TONE[p.category]
   return (
     <li className={styles.item}>
       <figure className={styles.thumb}>
-        {ev.image ? (
+        {p.image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={ev.image} alt="" draggable={false} />
+          <img src={p.image} alt="" draggable={false} />
         ) : null}
       </figure>
       <div className={styles.body}>
         <span className={styles.cat}>
           <span className={styles.dot} style={{ background: tone.color }} />
           {tone.label}
+          {p.note && <span className={styles.note}>{p.note}</span>}
         </span>
-        <span className={styles.itemTitle}>{ev.title}</span>
-        <span className={styles.meta}>
-          {month}월 {ev.day}일{ev.slot ? ` · ${ev.slot}` : ""}
-          {ev.time ? ` · ${ev.time}` : ""}
-        </span>
-        {ev.description && <span className={styles.desc}>{ev.description}</span>}
+        <span className={styles.itemTitle}>{p.title}</span>
+        <span className={styles.meta}>{p.schedule}</span>
+        {p.times.length > 0 && (
+          <span className={styles.times}>
+            {p.times.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </span>
+        )}
+        {p.description && <span className={styles.desc}>{p.description}</span>}
         <span className={styles.foot}>
-          {ev.price ? <span className={styles.price}>{ev.price}</span> : <span />}
-          {ev.href ? (
-            ev.external ? (
-              <a className={styles.apply} href={ev.href} target="_blank" rel="noopener noreferrer">
-                {ev.cta} ↗
-              </a>
-            ) : (
-              <LazydayLink href={ev.href} className={styles.apply}>
-                {ev.cta}
-              </LazydayLink>
-            )
+          {p.price ? <span className={styles.price}>{p.price}</span> : <span />}
+          {p.external ? (
+            <a className={styles.apply} href={p.href} target="_blank" rel="noopener noreferrer">
+              {p.cta} ↗
+            </a>
           ) : (
-            <span className={styles.applyOff}>준비 중</span>
+            <LazydayLink href={p.href} className={styles.apply}>
+              {p.cta}
+            </LazydayLink>
           )}
         </span>
       </div>

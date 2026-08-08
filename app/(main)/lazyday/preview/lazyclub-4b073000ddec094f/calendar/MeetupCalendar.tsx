@@ -138,7 +138,15 @@ export function MeetupCalendar() {
                         style={{ "--cat": CATEGORY_TONE[x.category].color } as React.CSSProperties}
                       >
                         <span className={styles.dot} />
-                        <span className={styles.chipText}>{x.cellLabel}</span>
+                        {x.cellLines ? (
+                          // 정규 기수 — 브랜드 줄 / 기수-회차 줄 고정 2줄 (라운드 104)
+                          <span className={styles.chipLines}>
+                            <span className={styles.chipBrand}>{x.cellLines[0]}</span>
+                            <span className={styles.chipRound}>{x.cellLines[1]}</span>
+                          </span>
+                        ) : (
+                          <span className={styles.chipText}>{x.cellLabel}</span>
+                        )}
                       </span>
                     ))}
                     {list.length > MAX_CHIPS && <span className={styles.more}>+{list.length - MAX_CHIPS}</span>}

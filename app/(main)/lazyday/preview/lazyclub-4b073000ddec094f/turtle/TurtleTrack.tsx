@@ -195,8 +195,10 @@ export function TurtleTrack() {
                     정색하는 무표정 거짓말. 부연 없이 한 문장으로 끝낸다 */}
               {stay >= STAY_TO_MIN ? (
                 <>
+                  {/* 라운드 114: 모바일에선 "당신을 위해" 뒤에서 줄을 못 박는다 —
+                      자연 줄바꿈은 "완주를 / 서두르고"처럼 어중간한 곳에서 꺾였다 */}
                   <span className={styles.stayNum}>{Math.floor(stay / 60).toLocaleString("ko-KR")}분</span>째 보고
-                  있는 당신을 위해 거북이가 완주를 서두르고 있습니다.
+                  있는 당신을 위해<br className={styles.brMobile} /> 거북이가 완주를 서두르고 있습니다.
                 </>
               ) : (
                 <>

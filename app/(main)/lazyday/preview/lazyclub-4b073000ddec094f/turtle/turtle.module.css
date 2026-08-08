@@ -36,21 +36,52 @@
   display: block;
 }
 
-.centerSmall {
-  font-size: 16px;
-  fill: #8a7660;
+/* ── 트랙 안쪽 문구 (라운드 108) ─────────────────────────────
+   자리: 스타디움 **내부의 빈 구멍**. 원래 아무것도 없던 공간이라 섹션 높이는 그대로다.
+   SVG <text> 를 버리고 HTML 로 올린 이유: viewBox 스케일을 타면 모바일에서 10px 남짓이
+   되어 못 읽는다. HTML 이면 clamp 로 폭과 무관하게 읽히는 크기를 보장한다.
+   내부 구멍은 y=107(=viewBox 196의 54.6%)이 중심 — 세로 중앙을 거기 맞춘다 */
+.trackBox {
+  position: relative;
+  width: 100%;
 }
-/* 라운드 89: '2027년' 강조 — 브랜드 주황, 굵게, 한 단계 크게 */
-.centerYear {
-  font-size: 22px;
-  font-weight: 800;
-  fill: #d2691e;
+.readout {
+  position: absolute;
+  left: 50%;
+  top: 54.6%;
+  transform: translate(-50%, -50%);
+  /* 구멍의 직선 구간(88↔452 = 67%)보다 살짝 넓게 — 좌우 곡선부가 더 벌어져 있다 */
+  width: 74%;
+  text-align: center;
+  pointer-events: none; /* 트랙은 장식이라 클릭 방해 금지 */
 }
-.centerBig {
-  font-size: 30px;
-  font-weight: 800;
-  fill: #1a1208;
-  font-variant-numeric: tabular-nums; /* 1초마다 폭이 흔들리지 않게 */
+/* 운영자 사양: 무표정한 톤 — 강조색·느낌표·이모지 없음.
+   (라운드 89의 '2027년' 주황 강조는 이 규칙으로 해제) */
+.line1 {
+  margin: 0;
+  font-size: clamp(11.5px, 2.4vw, 15px);
+  line-height: 1.55;
+  color: #4a3020;
+  word-break: keep-all; /* 어절 중간에서 끊기지 않게 */
+  text-wrap: pretty;
+}
+/* 2행은 혼잣말 — 한 단계 작게, 한 단계 흐리게. 10초에 스윽 붙는다 */
+.line2 {
+  margin: 3px 0 0;
+  font-size: clamp(10px, 2vw, 12.5px);
+  line-height: 1.5;
+  color: #a08b70;
+  word-break: keep-all;
+  text-wrap: pretty;
+  animation: readoutIn 300ms ease-out both;
+}
+@keyframes readoutIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* 숫자만 tabular — 1초마다 폭이 흔들리면 문장이 들썩인다. 색·굵기 강조는 하지 않는다 */
+.num {
+  font-variant-numeric: tabular-nums;
 }
 
 /* 거북이 — 다리 순환. 레퍼런스 GIF의 8프레임은 실은 **고유 포즈 5개의 왕복**이었다
@@ -71,4 +102,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .turtle { animation: none; }
+  /* 2행은 페이드 없이 그냥 나타난다 (숫자 갱신 자체는 정보라 유지) */
+  .line2 { animation: none; }
 }

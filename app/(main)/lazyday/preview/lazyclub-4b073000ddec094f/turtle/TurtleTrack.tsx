@@ -4,16 +4,20 @@
  * 거북이 트랙 프로그레스 (라운드 87, 운영자) —
  * 직선 바 폐기, **도보 트랙(스타디움) 형태**로 재설계. 레퍼런스: 육상 트랙 톱뷰.
  *
- * · 진행 = 2027년 1월 1일(KST)까지의 실시간 카운트다운. 중앙에 "2027년까지 N초"
- *   (초로만, 1초마다 갱신). 거북이 위치 = 2026년이 흘러간 비율 — 1년짜리 트랙이라
- *   아주 천천히 꾸역꾸역 간다 (다리는 계속 젓는다).
+ * · 진행 = 2027년 1월 1일(KST)까지의 실시간 카운트다운. 거북이 위치 = 2026년이 흘러간
+ *   비율 — 1년짜리 트랙이라 아주 천천히 꾸역꾸역 간다 (다리는 계속 젓는다).
  * · 결승 = 출발 (닫힌 루프, 하단 중앙 출발선). 회색 트랙 밴드 위에 주황 루트가
  *   거북이가 달려온 위치까지 경로를 따라 차오른다 (stroke-dashoffset).
  * · 거북이와 채움 선두는 같은 비율(frac)에서 유도 — 앞서지도 늦지도 않는다.
  * · 거북이는 트랙 **속**에 산다: 경로 접선을 따라 회전(발이 항상 트랙 바깥쪽) —
  *   상단 직선에선 뒤집혀 보이는 것이 루프의 정직한 표현 (보드게임 말 문법).
  * · 반응형: SVG viewBox 스케일 — 거북이도 트랙과 같이 줄어든다 (모바일 ~34px).
- * · ?frac=0.x 로 위치 고정(검증용), ?speed=<배속> 은 시연 가속.
+ * · 트랙 **안쪽 빈 자리**에 문구 2행 (라운드 108, 운영자 사양). 원래 비어 있던 공간이라
+ *   섹션 높이는 1px 도 늘지 않는다. 문구는 운영자 지정 원문 그대로, 무표정한 톤 —
+ *   이모지·느낌표·강조색 금지 (라운드 89의 '2027년' 주황 강조는 이 규칙으로 해제).
+ *   2행은 **보이는 동안만** 쌓인 체류 시간이며 10초에 페이드로 붙는다.
+ * · ?frac=0.x 로 위치 고정(검증용), ?speed=<배속> 은 시연 가속,
+ *   ?stay=<초> 는 체류 시간 고정 (2행 노출·분 표기 검증용).
  */
 
 import { useEffect, useRef, useState } from "react"
@@ -38,8 +42,15 @@ function stadiumPath(dr: number) {
 // 차선은 가운데 파선 하나만. 거북이 속은 오트로 채워 몸이 비치지 않는다
 const BAND = 26
 
+/** 2행이 붙기 시작하는 체류 시간(초) — 그 전엔 아예 렌더하지 않는다 */
+const STAY_REVEAL = 10
+/** 이 초를 넘기면 초 대신 분으로 (운영자 사양) */
+const STAY_TO_MIN = 600
+
 export function TurtleTrack() {
   const [secs, setSecs] = useState<number | null>(null)
+  /** 체류 시간(초) — **화면에 실제로 보이는 동안만** 쌓인다. 새로고침하면 0부터 */
+  const [stay, setStay] = useState(0)
   const fillRef = useRef<SVGPathElement>(null)
   const measureRef = useRef<SVGPathElement>(null)
   const turtleRef = useRef<SVGGElement>(null)
@@ -48,10 +59,28 @@ export function TurtleTrack() {
     const q = new URLSearchParams(window.location.search)
     const fracQ = Number(q.get("frac"))
     const speedQ = Number(q.get("speed"))
+    const stayQ = Number(q.get("stay"))
     const mounted = Date.now()
+
+    // 체류 시간은 setInterval 횟수가 아니라 **실경과 시간의 누적**으로 잰다 —
+    // 백그라운드 탭에서 타이머를 조이거나 몰아서 도는 브라우저가 있어서.
+    // 숨은 동안(visibilityState === 'hidden')은 그 구간을 통째로 버린다 →
+    // 돌아오면 멈춘 지점부터 이어진다 ("이 페이지에서 쓰셨습니다"가 거짓이 되지 않게)
+    let acc = 0
+    let last = Date.now()
+    const onVis = () => {
+      const now = Date.now()
+      if (document.visibilityState !== "visible") acc += now - last
+      last = now
+    }
+    document.addEventListener("visibilitychange", onVis)
 
     const update = () => {
       const now = Date.now()
+      if (document.visibilityState === "visible") acc += now - last
+      last = now
+      setStay(q.get("stay") && Number.isFinite(stayQ) ? Math.max(0, stayQ) : Math.floor(acc / 1000))
+
       const simNow = q.get("speed") && Number.isFinite(speedQ) && speedQ > 0 ? now + (now - mounted) * speedQ : now
       const frac =
         q.get("frac") && Number.isFinite(fracQ)
@@ -82,59 +111,76 @@ export function TurtleTrack() {
 
     update()
     const t = setInterval(update, 1000)
-    return () => clearInterval(t)
+    return () => {
+      clearInterval(t)
+      document.removeEventListener("visibilitychange", onVis)
+    }
   }, [])
 
   return (
     <div className={styles.stage}>
-      <svg className={styles.track} viewBox="0 0 540 196" role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
-        {/* 회색 트랙 밴드 (바탕) */}
-        <path d={stadiumPath(0)} fill="none" stroke="#e5dfd6" strokeWidth={BAND} />
-        {/* 주황 진행 루트 — 출발선부터 거북이 위치까지 경로를 따라 차오른다 */}
-        <path
-          ref={fillRef}
-          d={stadiumPath(0)}
-          fill="none"
-          stroke="#d2691e"
-          strokeWidth={BAND}
-          pathLength={1000}
-          strokeDasharray={1000}
-          strokeDashoffset={1000}
-        />
-        {/* 차선 — 가운데 파선 하나만 (라운드 88 슬림화) */}
-        <path d={stadiumPath(0)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
-        {/* 트랙 안팎 테두리 */}
-        <path d={stadiumPath(-(BAND / 2))} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
-        <path d={stadiumPath(BAND / 2)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
-        {/* 출발선 = 결승선 (하단 중앙) — 체크 무늬 느낌의 이중선 */}
-        <line x1={270} y1={CY + 70 - BAND / 2} x2={270} y2={CY + 70 + BAND / 2} stroke="#f7f3ee" strokeWidth={6} />
-        <line
-          x1={270}
-          y1={CY + 70 - BAND / 2}
-          x2={270}
-          y2={CY + 70 + BAND / 2}
-          stroke="#1a1208"
-          strokeWidth={2}
-          strokeDasharray="4 4"
-        />
-        {/* 진행률 측정용 (비표시) */}
-        <path ref={measureRef} d={stadiumPath(0)} fill="none" stroke="none" />
-        {/* 중앙 카운트다운 */}
-        {/* 라운드 89: '2027년' 강조 — 브랜드 주황 800 */}
-        <text x={270} y={92} textAnchor="middle" className={styles.centerSmall}>
-          <tspan className={styles.centerYear}>2027년</tspan>
-          <tspan dx={3}>까지</tspan>
-        </text>
-        <text x={270} y={128} textAnchor="middle" className={styles.centerBig}>
-          {secs === null ? "" : `${secs.toLocaleString("ko-KR")}초`}
-        </text>
-        {/* 거북이 — 트랙 속, 채움 선두와 같은 지점 */}
-        <g ref={turtleRef} style={{ visibility: secs === null ? "hidden" : "visible" }}>
-          <foreignObject width={140} height={81}>
-            <div className={styles.turtle} />
-          </foreignObject>
-        </g>
-      </svg>
+      <div className={styles.trackBox}>
+        <svg className={styles.track} viewBox="0 0 540 196" role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
+          {/* 회색 트랙 밴드 (바탕) */}
+          <path d={stadiumPath(0)} fill="none" stroke="#e5dfd6" strokeWidth={BAND} />
+          {/* 주황 진행 루트 — 출발선부터 거북이 위치까지 경로를 따라 차오른다 */}
+          <path
+            ref={fillRef}
+            d={stadiumPath(0)}
+            fill="none"
+            stroke="#d2691e"
+            strokeWidth={BAND}
+            pathLength={1000}
+            strokeDasharray={1000}
+            strokeDashoffset={1000}
+          />
+          {/* 차선 — 가운데 파선 하나만 (라운드 88 슬림화) */}
+          <path d={stadiumPath(0)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
+          {/* 트랙 안팎 테두리 */}
+          <path d={stadiumPath(-(BAND / 2))} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
+          <path d={stadiumPath(BAND / 2)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
+          {/* 출발선 = 결승선 (하단 중앙) — 체크 무늬 느낌의 이중선 */}
+          <line x1={270} y1={CY + 70 - BAND / 2} x2={270} y2={CY + 70 + BAND / 2} stroke="#f7f3ee" strokeWidth={6} />
+          <line
+            x1={270}
+            y1={CY + 70 - BAND / 2}
+            x2={270}
+            y2={CY + 70 + BAND / 2}
+            stroke="#1a1208"
+            strokeWidth={2}
+            strokeDasharray="4 4"
+          />
+          {/* 진행률 측정용 (비표시) */}
+          <path ref={measureRef} d={stadiumPath(0)} fill="none" stroke="none" />
+          {/* 거북이 — 트랙 속, 채움 선두와 같은 지점 */}
+          <g ref={turtleRef} style={{ visibility: secs === null ? "hidden" : "visible" }}>
+            <foreignObject width={140} height={81}>
+              <div className={styles.turtle} />
+            </foreignObject>
+          </g>
+        </svg>
+
+        {/* 트랙 안쪽 문구 (라운드 108) — SVG <text> 가 아니라 HTML 이다.
+            viewBox 스케일을 타면 모바일에서 10px 남짓으로 쪼그라들어 읽히지 않는다.
+            문구는 운영자 지정 원문 고정 — 임의 수정 금지.
+            마운트 전에는 통째로 감춘다 ("…까지 초가 남아 있습니다"가 한 프레임 스치는 걸 막음) */}
+        <div className={styles.readout} style={{ visibility: secs === null ? "hidden" : "visible" }}>
+          <p className={styles.line1}>
+            굳이 세어보니 2027년까지{" "}
+            <span className={styles.num}>{secs === null ? "" : secs.toLocaleString("ko-KR")}</span>초가 남아 있습니다.
+          </p>
+          {stay >= STAY_REVEAL && (
+            <p className={styles.line2}>
+              이 중{" "}
+              <span className={styles.num}>
+                {stay > STAY_TO_MIN ? Math.floor(stay / 60).toLocaleString("ko-KR") : stay.toLocaleString("ko-KR")}
+              </span>
+              {/* 조사: 초 → "는", 분 → "은" (운영자 원문 두 문장 그대로) */}
+              {stay > STAY_TO_MIN ? "분은" : "초는"} 이 페이지에서 쓰셨습니다.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

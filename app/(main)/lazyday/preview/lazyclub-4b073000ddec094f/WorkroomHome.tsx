@@ -21,6 +21,11 @@ type NavLang = "ko" | "en"
  *  내비 '제품' 항목도 함께 복귀 (Shell.tsx — 모임과 아카이브 사이, #shop 앵커). */
 const SHOW_GOODS = true
 
+/** 전체보기 홈 맨 아래 **아카이브 캐러셀**(역대 기수 표지 16권) — 라운드 92에서
+ *  운영자 지시로 **일단 숨김**. 구현·데이터(book-config)는 그대로, 렌더만 끈다 —
+ *  다시 켜려면 true 로. 내비의 '아카이브'(→ /archive 별도 페이지)는 영향 없음. */
+const SHOW_ARCHIVE = false
+
 // 역대 기수 선정 도서 — 최신 우선 (03), book-config 단일 출처
 const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].flatMap((s) =>
   s.books.map((b) => ({ key: `${s.label}-${b.week}`, alt: `${s.label} ${b.weekLabel} 『${b.title}』 ${b.author}`, src: b.imagePath })),
@@ -170,7 +175,8 @@ function useDragCarousel(slideCount: number, autoplay = false) {
 function HomeContent() {
   const { notify } = useToast()
   const saved = useSaved()
-  const carousel = useDragCarousel(ALL_BOOKS.length, true)
+  // 숨김 상태에서는 자동 넘김 타이머도 돌리지 않는다 (라운드 92)
+  const carousel = useDragCarousel(ALL_BOOKS.length, SHOW_ARCHIVE)
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
@@ -366,7 +372,9 @@ function HomeContent() {
       </div>
 
       {/* ── ③ 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처)
-             라운드 77(운영자): 맨 위 → 맨 아래로 이동 ── */}
+             라운드 77(운영자): 맨 위 → 맨 아래로 이동
+             라운드 92(운영자): 일단 숨김 — SHOW_ARCHIVE 로만 껐다 (구현·데이터는 그대로) ── */}
+      {SHOW_ARCHIVE && (
       <section className={`${styles.books} ${styles.booksBottom}`}>
         <div className={styles.sectionTitle}>
           <LazydayLink href="/">
@@ -402,6 +410,7 @@ function HomeContent() {
           ))}
         </div>
       </section>
+      )}
     </main>
   )
 }

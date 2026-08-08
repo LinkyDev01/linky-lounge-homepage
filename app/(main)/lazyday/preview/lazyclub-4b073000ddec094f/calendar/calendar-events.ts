@@ -154,7 +154,9 @@ const PROGRAMS: ClubProgram[] = [
   ...ONE_DAY_MEETINGS.map((m) => ({
     id: `oneday-${m.slug}`,
     category: "booktalk" as const,
-    title: m.title,
+    // 라운드 107: 카테고리 줄이 이미 "원데이 토크" 라 제목의 종류어는 중복 → 작품명만.
+    // 괄호(『』)는 폭이 넉넉한 목록에서는 유지한다 (좁은 캘린더 칸에서만 생략)
+    title: `『${workTitle(m.title)}』`,
     schedule: m.date,
     times: [] as string[],
     price: `${m.price.toLocaleString("ko-KR")}원`,
@@ -168,10 +170,11 @@ const PROGRAMS: ClubProgram[] = [
   ...MOVIE_TALKS.map((t, i) => ({
     id: `movie-${i}`,
     category: "movie" as const,
-    title: t.title,
+    title: `『${workTitle(t.title)}』`,
     schedule: `${t.date.replace("/", "월 ")}일 · ${t.time}`,
     times: [] as string[],
-    price: t.price,
+    // 라운드 107(운영자): 무비토크도 가격 미노출. 문의 창구는 CTA 가 맡는다
+    price: "",
     description: "",
     image: "",
     // 참가비가 "문의"라 문의 창구가 필요하다 → 사이트 기존 카카오 채널 (season-config)

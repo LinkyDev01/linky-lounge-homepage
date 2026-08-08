@@ -195,18 +195,26 @@ export function MeetupCalendar() {
 function ProgramRow({ p }: { p: ClubProgram }) {
   const tone = CATEGORY_TONE[p.category]
   return (
-    <li className={styles.item}>
-      <figure className={styles.thumb}>
-        {p.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
+    <li className={`${styles.item} ${p.image ? "" : styles.itemNoThumb}`}>
+      {p.image && (
+        <figure className={styles.thumb}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={p.image} alt="" draggable={false} />
-        ) : null}
-      </figure>
+        </figure>
+      )}
       <div className={styles.body}>
         <span className={styles.cat}>
           <span className={styles.dot} style={{ background: tone.color }} />
           {tone.label}
-          {p.note && <span className={styles.note}>{p.note}</span>}
+          {p.note && (
+            <span
+              className={`${styles.note} ${
+                p.note === "모집 중" ? styles.noteOpen : p.note === "마감" || p.note === "종료" ? styles.noteClosed : ""
+              }`}
+            >
+              {p.note}
+            </span>
+          )}
         </span>
         <span className={styles.itemTitle}>{p.title}</span>
         <span className={styles.meta}>{p.schedule}</span>

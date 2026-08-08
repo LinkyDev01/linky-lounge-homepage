@@ -186,12 +186,15 @@ export function TurtleTrack() {
           </p>
           {stay >= STAY_REVEAL && (
             <p className={styles.line2}>
+              {/* 라운드 112: 볼드는 **수치("42초")까지만**. 문장은 다시 조용한 보조색 —
+                  조사(는/은)는 강조에서 뺀다 (숫자+단위가 한 덩어리로 읽히게) */}
               이 중{" "}
-              <span className={styles.num}>
+              <span className={styles.stayNum}>
                 {stay > STAY_TO_MIN ? Math.floor(stay / 60).toLocaleString("ko-KR") : stay.toLocaleString("ko-KR")}
+                {stay > STAY_TO_MIN ? "분" : "초"}
               </span>
               {/* 조사: 초 → "는", 분 → "은" (운영자 원문 두 문장 그대로) */}
-              {stay > STAY_TO_MIN ? "분은" : "초는"} 이 페이지에서 쓰셨습니다.
+              {stay > STAY_TO_MIN ? "은" : "는"} 이 페이지에서 쓰셨습니다.
             </p>
           )}
         </div>

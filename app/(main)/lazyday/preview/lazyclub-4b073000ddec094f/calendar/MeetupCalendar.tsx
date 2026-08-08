@@ -1,17 +1,16 @@
 "use client"
 
 /**
- * 모임 캘린더 — 레이지클럽 톤 시안 (라운드 93, 운영자)
+ * 모임 캘린더 — 레이지클럽 톤 시안 (라운드 93 신설 · 94 셀 텍스트 · 95 실일정 투입)
  *
  * 원본 `components/lounge/MeetupCalendarSection.tsx`(linkylounge, Tailwind)를
  * 레이지클럽 문법으로 다시 짠 것. **원본 파일은 건드리지 않는다** — 시안 승인 후
  * 이식 여부를 따로 판단한다.
  *
- * 데이터 계약은 그대로 계승:
- *   useGoogleCalendarMeetups(year, month) → { meetups, isLoading, error, refetch }
- *   날짜 매핑 키는 meetup.day 숫자 하나
- * 시안에서는 폴백 상수(MEETUPS)가 2026-01 자료뿐이라 늘 빈 달로 보이므로
- * 보고 있는 달에 맞춘 표본(calendar-preview-data)을 깐다. 이식 시 표본만 제거.
+ * 일정 출처는 `calendar-events.ts` → season-config(4기) · one-day-config(원데이 토크)
+ * 단일 출처에서 파생. 기수가 바뀌면 season-config 만 고치면 캘린더도 따라온다.
+ * (원본의 `useGoogleCalendarMeetups` 경로는 쓰지 않는다 — 위 config 가 이미 확정
+ *  일정을 갖고 있어서. 실이식 때 소스 선택은 운영자 결정 사항)
  *
  * 원본 대비 의도적으로 뺀 것 (레이지클럽 규율):
  *   · 그림자·rounded-2xl 카드·hover 리프트 → 1px 괘선 조판으로 대체
@@ -24,13 +23,15 @@
  */
 
 import { useEffect, useState } from "react"
-import { useGoogleCalendarMeetups } from "@/hooks/use-google-calendar-meetups"
-import type { Meetup } from "@/types"
+import { LazydayLink } from "@/components/common/LazydayLink"
 import { TurtleTrack } from "../turtle/TurtleTrack"
-import { CATEGORY_TONE, previewMeetupsFor } from "./calendar-preview-data"
+import { CATEGORY_TONE, eventsFor, type ClubEvent, type EventCategory } from "./calendar-events"
 import styles from "./calendar.module.css"
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"]
+
+/** 시즌이 9~11월이라 8월에 열면 원데이 토크만 보인다 — 첫 화면은 일정이 있는 달로 */
+const FIRST_MONTH = { y: 2026, m: 8 } // 2026년 9월 (0-based)
 
 export function MeetupCalendar() {
   // 첫 페인트에 실제 날짜를 쓰면 서버·클라이언트가 어긋난다 → 마운트 후 확정
@@ -40,21 +41,25 @@ export function MeetupCalendar() {
 
   useEffect(() => {
     const now = new Date()
-    setCursor({ y: now.getFullYear(), m: now.getMonth() })
     setToday({ y: now.getFullYear(), m: now.getMonth(), d: now.getDate() })
+    // 이번 달에 일정이 있으면 이번 달, 없으면 시즌 첫 달
+    const has = eventsFor(now.getFullYear(), now.getMonth()).length > 0
+    setCursor(has ? { y: now.getFullYear(), m: now.getMonth() } : FIRST_MONTH)
   }, [])
 
-  const y = cursor?.y ?? 2026
-  const m = cursor?.m ?? 0
-  const { meetups: fetched, isLoading } = useGoogleCalendarMeetups(y, m, { enabled: cursor !== null })
-
-  // 시안 표본 — 훅이 비어 있을 때만 (실데이터가 들어오면 그대로 밀려난다)
-  const meetups: Meetup[] = cursor === null ? [] : fetched.length > 0 ? fetched : previewMeetupsFor(y, m)
+  const y = cursor?.y ?? FIRST_MONTH.y
+  const m = cursor?.m ?? FIRST_MONTH.m
+  const events = cursor === null ? [] : eventsFor(y, m)
 
   const firstDay = new Date(y, m, 1).getDay()
   const daysInMonth = new Date(y, m + 1, 0).getDate()
-  const forDay = (day: number) => meetups.filter((x) => x.day === day)
-  const shown = selectedDay === null ? meetups : forDay(selectedDay)
+  const forDay = (day: number) => events.filter((x) => x.day === day)
+  const shown = selectedDay === null ? events : forDay(selectedDay)
+
+  // 범례는 이번 달에 실제로 있는 종류만
+  const usedCats = (Object.keys(CATEGORY_TONE) as EventCategory[]).filter((k) =>
+    events.some((e) => e.category === k),
+  )
 
   const move = (step: number) => {
     setSelectedDay(null)
@@ -73,7 +78,7 @@ export function MeetupCalendar() {
           <button type="button" className={styles.navBtn} aria-label="이전 달" onClick={() => move(-1)}>
             ‹
           </button>
-          <span className={styles.month}>{cursor ? `${y}년 ${m + 1}월` : " "}</span>
+          <span className={styles.month}>{cursor ? `${y}년 ${m + 1}월` : " "}</span>
           <button type="button" className={styles.navBtn} aria-label="다음 달" onClick={() => move(1)}>
             ›
           </button>
@@ -144,14 +149,16 @@ export function MeetupCalendar() {
         })}
       </div>
 
-      <div className={styles.legend}>
-        {(Object.keys(CATEGORY_TONE) as Array<keyof typeof CATEGORY_TONE>).map((k) => (
-          <span key={k} className={styles.legendItem}>
-            <span className={styles.dot} style={{ background: CATEGORY_TONE[k].color }} />
-            {CATEGORY_TONE[k].label}
-          </span>
-        ))}
-      </div>
+      {usedCats.length > 0 && (
+        <div className={styles.legend}>
+          {usedCats.map((k) => (
+            <span key={k} className={styles.legendItem}>
+              <span className={styles.dot} style={{ background: CATEGORY_TONE[k].color }} />
+              {CATEGORY_TONE[k].label}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* 거북이 트랙 — 폭은 .wrap 을 그대로 따른다 (운영자: 트랙 너비는 캘린더에 맞춤) */}
       <div className={styles.trackSlot}>
@@ -160,7 +167,7 @@ export function MeetupCalendar() {
 
       <div className={styles.listHead}>
         <span className={styles.listTitle}>
-          {selectedDay === null ? "이번 달 모임" : `${m + 1}월 ${selectedDay}일 모임`}{" "}
+          {selectedDay === null ? `${m + 1}월 모임` : `${m + 1}월 ${selectedDay}일 모임`}{" "}
           <span className={styles.listCount}>{shown.length}</span>
         </span>
         {selectedDay !== null && (
@@ -170,20 +177,16 @@ export function MeetupCalendar() {
         )}
       </div>
 
-      {isLoading ? (
-        <p className={styles.empty} role="status">
-          모임 정보를 불러오는 중…
-        </p>
-      ) : shown.length === 0 ? (
+      {shown.length === 0 ? (
         <p className={styles.empty}>
-          이번 달은 예정된 모임이 없습니다.
+          이 달은 예정된 모임이 없습니다.
           <br />
           다른 달을 확인해 보세요.
         </p>
       ) : (
         <ul className={styles.list}>
           {shown.map((x) => (
-            <MeetupRow key={x.id} meetup={x} month={m + 1} />
+            <EventRow key={x.id} ev={x} month={m + 1} />
           ))}
         </ul>
       )}
@@ -191,44 +194,38 @@ export function MeetupCalendar() {
   )
 }
 
-function MeetupRow({ meetup: x, month }: { meetup: Meetup; month: number }) {
-  const tone = CATEGORY_TONE[x.category]
-  const bySex = x.maleCapacity !== undefined && x.femaleCapacity !== undefined
-  const left = x.capacity - x.current
+function EventRow({ ev, month }: { ev: ClubEvent; month: number }) {
+  const tone = CATEGORY_TONE[ev.category]
   return (
     <li className={styles.item}>
       <figure className={styles.thumb}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={x.image || "/placeholder.svg"} alt="" draggable={false} />
+        {ev.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={ev.image} alt="" draggable={false} />
+        ) : null}
       </figure>
       <div className={styles.body}>
         <span className={styles.cat}>
           <span className={styles.dot} style={{ background: tone.color }} />
           {tone.label}
         </span>
-        <span className={styles.itemTitle}>{x.title}</span>
+        <span className={styles.itemTitle}>{ev.title}</span>
         <span className={styles.meta}>
-          {month}월 {x.day}일 · {x.time}
+          {month}월 {ev.day}일{ev.time ? ` · ${ev.time}` : ""}
         </span>
-        {x.description && <span className={styles.desc}>{x.description}</span>}
+        {ev.description && <span className={styles.desc}>{ev.description}</span>}
         <span className={styles.foot}>
-          <span className={styles.price}>{x.price}</span>
-          <span className={styles.seats}>
-            {bySex ? (
-              `남 ${Math.max(0, (x.maleCapacity ?? 0) - (x.maleCurrent ?? 0))}석 · 여 ${Math.max(
-                0,
-                (x.femaleCapacity ?? 0) - (x.femaleCurrent ?? 0),
-              )}석`
-            ) : left <= 0 ? (
-              <span className={styles.soldout}>마감</span>
+          {ev.price ? <span className={styles.price}>{ev.price}</span> : <span />}
+          {ev.href ? (
+            ev.external ? (
+              <a className={styles.apply} href={ev.href} target="_blank" rel="noopener noreferrer">
+                자세히 보기 ↗
+              </a>
             ) : (
-              `잔여 ${left}석`
-            )}
-          </span>
-          {x.registrationUrl ? (
-            <a className={styles.apply} href={x.registrationUrl} target="_blank" rel="noopener noreferrer">
-              신청하기 ↗
-            </a>
+              <LazydayLink href={ev.href} className={styles.apply}>
+                자세히 보기
+              </LazydayLink>
+            )
           ) : (
             <span className={styles.applyOff}>준비 중</span>
           )}

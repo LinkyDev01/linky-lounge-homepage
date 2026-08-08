@@ -70,20 +70,26 @@
   display: block;
   white-space: nowrap; /* 각 행은 통째로 — 중간에서 끊기지 않는다 */
 }
+/* 라운드 110: 크기까지 **이전 버전(라운드 89) 실측 그대로** 되돌린다.
+   그때는 SVG 단위(16/22/30)가 viewBox 스케일을 탔다 → 트랙 폭 대비 비율로 환산하면
+   16/540=3.0vw · 22/540=4.1vw · 30/540=5.6vw. 트랙이 720px 로 고정되는 구간(뷰포트
+   ≥783px)에서는 그 폭 기준 실측치(21/29/40px)를 상한으로 잡는다.
+   모바일 하한은 읽히는 최소치. 라운드 109 의 상한(15/20/28)은 데스크톱에서 예전보다
+   작아 "연도와 초 강조"가 죽었다 — 그 지적을 반영한 값 */
 /* 문장 부분 — 조용한 보조 텍스트 */
 .lead {
-  font-size: clamp(10.5px, 2.1vw, 15px);
+  font-size: clamp(10.5px, 3vw, 21px);
   color: #8a7660;
 }
 /* 라운드 89 복귀: '2027년' 브랜드 주황 800, 한 단계 크게 */
 .year {
-  font-size: clamp(13px, 2.7vw, 20px);
+  font-size: clamp(13.5px, 4.1vw, 29px);
   font-weight: 800;
   color: #d2691e;
 }
 /* 초점 — 남은 초 */
 .big {
-  font-size: clamp(18px, 3.7vw, 28px);
+  font-size: clamp(18.5px, 5.6vw, 40px);
   font-weight: 800;
   color: #1a1208;
   letter-spacing: -0.01em;

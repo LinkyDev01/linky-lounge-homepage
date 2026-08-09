@@ -150,6 +150,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* 라운드 120(운영자): 브랜드가 풀네임 "레이지데이 북클럽"이 되면서 데스크톱 칸(~85px)
+   한 줄에 안 들어간다 → **데스크톱은 어절 줄바꿈으로 전부 보인다** ("레이지데이 / 북클럽").
+   모바일(600px 이하)은 종전 nowrap+장평 유지 — 잘리는 건 운영자 수용 */
+.chipBrand {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
 .chipRound { color: #8a7660; }
 .more {
   font-size: 10px;
@@ -434,6 +442,9 @@
     width: calc(100% / var(--sx));
     transform: scaleX(var(--sx));
     transform-origin: left center;
+    /* 라운드 120: 기본(.chipBrand)이 데스크톱 줄바꿈용 normal 로 바뀌어 — 모바일은
+       종전 nowrap 말줄임을 복원한다 (풀네임은 "레이지데이 북…"으로 잘림, 운영자 수용) */
+    white-space: nowrap;
   }
   .chip .dot { display: none; }
   /* 라운드 101: 한 줄이면 51px 셀에서 4글자뿐 → **두 줄까지** 허용해 8글자 안팎을 읽힌다.

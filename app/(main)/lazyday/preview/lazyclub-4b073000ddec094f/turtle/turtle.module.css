@@ -94,20 +94,23 @@
    구분은 하지만 강조 차이 정도는 줄여"):
    라운드 110 의 3단 크기(21/29/40, 배율 1.9배)를 **1.28배**로 압축.
    구분은 색(주황/잉크)과 무게(800)가 계속 맡는다 — 크기는 반 발짝만 */
+/* 라운드 119: 트랙이 전 폭에서 모바일과 같은 세로 스케일(높이 ≈130px)이 되면서
+   글자도 **모바일 값이 전 폭 기본**이 된다 — 데스크톱 확대분(18/20/23px) 폐기.
+   600px 이하 미디어쿼리는 vw 하한(320px 급 축소)만 담당 */
 /* 문장 부분 — 조용한 보조 텍스트 */
 .lead {
-  font-size: clamp(10.5px, 2.6vw, 18px);
+  font-size: 10px;
   color: #8a7660;
 }
 /* '2027년' — 브랜드 주황 800, 크기는 반 발짝만 */
 .year {
-  font-size: clamp(11.5px, 2.9vw, 20px);
+  font-size: 11px;
   font-weight: 800;
   color: #d2691e;
 }
 /* 남은 초 — 잉크 800, 크기는 반 발짝만 */
 .big {
-  font-size: clamp(13px, 3.3vw, 23px);
+  font-size: 12.5px;
   font-weight: 800;
   color: #1a1208;
   letter-spacing: -0.01em;
@@ -116,12 +119,17 @@
    라운드 111 에서 문장 전체를 잉크 700 으로 올렸다가 라운드 112 에서 되돌렸다 —
    운영자 의도는 **수치("42초")만** 블랙 볼드였다 (.stayNum). 문장은 혼잣말로 남는다 */
 .line2 {
-  margin: 3px 0 0;
-  font-size: clamp(10px, 2vw, 12.5px);
-  line-height: 1.5;
+  margin: 2px 0 0;
+  font-size: 9.5px; /* 라운드 119: 모바일 값이 전 폭 기본 (트랙 세로 스케일 통일) */
+  line-height: 1.35;
   color: #a08b70;
-  word-break: keep-all;
-  text-wrap: pretty;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  width: max-content;
+  max-width: none;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   animation: readoutIn 300ms ease-out both;
 }
 @keyframes readoutIn {
@@ -145,26 +153,13 @@
    실측 390px: 한 줄 280 ≤ 구멍 304.9 (자간 -0.01em 여유분). 320px 급 초소형은
    vw 스케일(2.44vw ≈ 390px 에서 9.5px)로 같이 줄어 넘치지 않는다 */
 @media (max-width: 600px) {
-  /* 한 줄 조판은 라운드 118 에서 기본 규칙으로 올라갔다 — 여기선 행간·크기만 */
+  /* 한 줄 조판·센터링·기본 크기는 이제 전 폭 공통 — 여기는 행간과
+     320px 급 초소형 vw 축소만 담당 (트랙이 540 유닛 미만으로 통째로 줄어드는 구간) */
   .line1 { line-height: 1.25; }
-  /* 라운드 115: 위계 압축(1.28배). 117: 390px 기준값을 vw 로 환산 (10/11/12.5px@390) */
   .lead { font-size: clamp(8px, 2.56vw, 10px); }
   .year { font-size: clamp(8.8px, 2.82vw, 11px); }
   .big { font-size: clamp(10px, 3.2vw, 12.5px); }
-  .line2 {
-    margin: 2px 0 0;
-    font-size: clamp(8px, 2.44vw, 9.5px);
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    width: max-content;
-    max-width: none;
-    /* 문장이 박스(74%)보다 넓어질 수 있다 — margin:auto 는 overflow 시 좌측 정렬로
-       무너지므로 transform 으로 센터링 (320px 실측에서 우측 2.9px 넘침 교정) */
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+  .line2 { font-size: clamp(8px, 2.44vw, 9.5px); }
 }
 
 /* 거북이 — 다리 순환. 레퍼런스 GIF의 8프레임은 실은 **고유 포즈 5개의 왕복**이었다

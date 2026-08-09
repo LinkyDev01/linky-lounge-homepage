@@ -201,9 +201,11 @@ function seasonEvents(
         month,
         day,
         category: "bookclub" as const,
-        cellLabel: `레이지데이 ${seasonName}-${s.label}`,
-        // 운영자 지정 형식 (라운드 104): 브랜드 줄 / 기수-회차 줄
-        cellLines: ["레이지데이", `${seasonName}-${s.label}`] as [string, string],
+        cellLabel: `레이지데이 북클럽 ${seasonName}-${s.label}`,
+        // 운영자 지정 형식 (라운드 104): 브랜드 줄 / 기수-회차 줄.
+        // 라운드 120: 브랜드는 풀네임 "레이지데이 북클럽" — 모바일은 잘려도 되지만
+        // PC 브라우저에선 다 보여야 한다 (CSS 가 데스크톱에서 줄바꿈 허용)
+        cellLines: ["레이지데이 북클럽", `${seasonName}-${s.label}`] as [string, string],
       }
     }),
   )

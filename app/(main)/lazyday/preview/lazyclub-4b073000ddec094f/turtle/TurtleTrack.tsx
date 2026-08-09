@@ -27,15 +27,22 @@ const START = new Date("2026-01-01T00:00:00+09:00").getTime()
 const END = new Date("2027-01-01T00:00:00+09:00").getTime()
 
 /** 스타디움 경로 — 반시계(육상 방향), 출발선 = 하단 직선 중앙. dr 로 차선 확장.
- *  라운드 89: 캘린더 아래 배치를 위한 세로 슬림화 — 곡선 반경 110→70,
- *  직선을 좌우로 늘려(88↔452) 납작한 타원 + viewBox 를 내용에 딱 맞게 크롭.
- *  모바일(뷰포트 366px)에서 높이 ≈133px */
+ *  라운드 89: 캘린더 아래 배치를 위한 세로 슬림화 — 곡선 반경 110→70.
+ *  라운드 119(운영자 "전체 비율 맞춰 키우지 말고 **트랙의 가로만** 늘려"):
+ *  viewBox 폭을 컨테이너에 맞춰 가변으로. 세로 렌더 스케일은 모바일(390 뷰포트)과
+ *  같은 SCALE 로 고정 — 넓은 화면에서 트랙이 통째로 커지지 않고 옆으로만 길어진다.
+ *  (밴드 폭·거북이·글자 렌더 크기 = 모바일과 동일, 높이 ≈130px) */
 const CY = 107
-function stadiumPath(dr: number) {
+const VB_H = 196
+/** 렌더 px / viewBox 유닛 — 390 뷰포트(컨테이너 359px)에서의 값을 전 폭 공통으로 */
+const SCALE = 0.665
+function stadiumPath(dr: number, vbw: number) {
   const r = 70 + dr
   const top = CY - r
   const bottom = CY + r
-  return `M 270 ${bottom} H 452 A ${r} ${r} 0 0 0 452 ${top} H 88 A ${r} ${r} 0 0 0 88 ${bottom} H 270`
+  const cx = vbw / 2
+  const right = vbw - 88
+  return `M ${cx} ${bottom} H ${right} A ${r} ${r} 0 0 0 ${right} ${top} H 88 A ${r} ${r} 0 0 0 88 ${bottom} H ${cx}`
 }
 
 // 라운드 88: 거북이가 트랙 **위에 올라서는** 디자인으로 — 밴드 슬림화(44→26),
@@ -56,9 +63,23 @@ export function TurtleTrack() {
   const [secs, setSecs] = useState<number | null>(null)
   /** 체류 시간(초) — **화면에 실제로 보이는 동안만** 쌓인다. 새로고침하면 0부터 */
   const [stay, setStay] = useState(0)
+  /** viewBox 폭 — 컨테이너 폭 / SCALE (라운드 119, 가로만 늘어나는 트랙) */
+  const [vbw, setVbw] = useState(540)
+  const stageRef = useRef<HTMLDivElement>(null)
   const fillRef = useRef<SVGPathElement>(null)
   const measureRef = useRef<SVGPathElement>(null)
   const turtleRef = useRef<SVGGElement>(null)
+
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => {
+      // 540 미만이면 기존처럼 통째로 축소 (320px 급 초소형)
+      setVbw(Math.max(540, Math.round(el.clientWidth / SCALE)))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
@@ -120,18 +141,19 @@ export function TurtleTrack() {
       clearInterval(t)
       document.removeEventListener("visibilitychange", onVis)
     }
-  }, [])
+    // vbw 변경 시 경로가 바뀌므로 즉시 재계산 (아니면 다음 초까지 거북이가 옛 위치에 뜬다)
+  }, [vbw])
 
   return (
-    <div className={styles.stage}>
+    <div className={styles.stage} ref={stageRef}>
       <div className={styles.trackBox}>
-        <svg className={styles.track} viewBox="0 0 540 196" role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
+        <svg className={styles.track} viewBox={`0 0 ${vbw} ${VB_H}`} role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
           {/* 회색 트랙 밴드 (바탕) */}
-          <path d={stadiumPath(0)} fill="none" stroke="#e5dfd6" strokeWidth={BAND} />
+          <path d={stadiumPath(0, vbw)} fill="none" stroke="#e5dfd6" strokeWidth={BAND} />
           {/* 주황 진행 루트 — 출발선부터 거북이 위치까지 경로를 따라 차오른다 */}
           <path
             ref={fillRef}
-            d={stadiumPath(0)}
+            d={stadiumPath(0, vbw)}
             fill="none"
             stroke="#d2691e"
             strokeWidth={BAND}
@@ -140,23 +162,23 @@ export function TurtleTrack() {
             strokeDashoffset={1000}
           />
           {/* 차선 — 가운데 파선 하나만 (라운드 88 슬림화) */}
-          <path d={stadiumPath(0)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
+          <path d={stadiumPath(0, vbw)} fill="none" stroke="#f7f3ee" strokeWidth={1.6} strokeDasharray="10 12" />
           {/* 트랙 안팎 테두리 */}
-          <path d={stadiumPath(-(BAND / 2))} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
-          <path d={stadiumPath(BAND / 2)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
+          <path d={stadiumPath(-(BAND / 2), vbw)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
+          <path d={stadiumPath(BAND / 2, vbw)} fill="none" stroke="#cfc7bb" strokeWidth={1.5} />
           {/* 출발선 = 결승선 (하단 중앙) — 체크 무늬 느낌의 이중선 */}
-          <line x1={270} y1={CY + 70 - BAND / 2} x2={270} y2={CY + 70 + BAND / 2} stroke="#f7f3ee" strokeWidth={6} />
+          <line x1={vbw / 2} y1={CY + 70 - BAND / 2} x2={vbw / 2} y2={CY + 70 + BAND / 2} stroke="#f7f3ee" strokeWidth={6} />
           <line
-            x1={270}
+            x1={vbw / 2}
             y1={CY + 70 - BAND / 2}
-            x2={270}
+            x2={vbw / 2}
             y2={CY + 70 + BAND / 2}
             stroke="#1a1208"
             strokeWidth={2}
             strokeDasharray="4 4"
           />
           {/* 진행률 측정용 (비표시) */}
-          <path ref={measureRef} d={stadiumPath(0)} fill="none" stroke="none" />
+          <path ref={measureRef} d={stadiumPath(0, vbw)} fill="none" stroke="none" />
           {/* 거북이 — 트랙 속, 채움 선두와 같은 지점 */}
           <g ref={turtleRef} style={{ visibility: secs === null ? "hidden" : "visible" }}>
             <foreignObject width={140} height={81}>
@@ -203,7 +225,7 @@ export function TurtleTrack() {
                 </>
               ) : (
                 <>
-                  올해의 <span className={styles.stayNum}>{stay.toLocaleString("ko-KR")}초</span>를 거북이 보는 데
+                  올해의 <span className={styles.stayNum}>{stay.toLocaleString("ko-KR")}초</span>를 거북이를 보는 데
                   쓰셨습니다.
                 </>
               )}

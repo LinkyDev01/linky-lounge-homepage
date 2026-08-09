@@ -48,8 +48,9 @@ const ONEDAY = {
   // 회차별 책·시간 (운영자 지시 2026-07-24). day = 8월 날짜
   sessions: [
     { day: 2, label: "1회차", book: "브람스를 좋아하세요...", author: "프랑수아즈 사강", time: "19:00–22:00" },
-    { day: 9, label: "2회차", book: "시지프 신화", author: "알베르 카뮈", time: "19:00–22:00" },
-  ],
+    // closed: 시각과 무관한 수동 마감 (운영자 지시 2026-08-09 — 시지프 신화 신청 차단)
+    { day: 9, label: "2회차", book: "시지프 신화", author: "알베르 카뮈", time: "19:00–22:00", closed: true },
+  ] as Array<{ day: number; label: string; book: string; author: string; time: string; closed?: boolean }>,
   rangeLabel: "8/2 · 8/9",
 }
 const ONEDAY_MEET_DAYS = ONEDAY.sessions.map((s) => s.day)
@@ -224,7 +225,9 @@ export default function OnedayApplyPage() {
     const t = setInterval(() => setNow(Date.now()), 60_000)
     return () => clearInterval(t)
   }, [])
-  const isPast = (day: number) => now !== null && isPastSession(day)
+  // closed(수동 마감)는 시각·마운트와 무관하게 즉시 막는다 — 첫 페인트부터 선택 불가
+  const isClosed = (day: number) => ONEDAY.sessions.find((s) => s.day === day)?.closed === true
+  const isPast = (day: number) => isClosed(day) || (now !== null && isPastSession(day))
   const openSessions = ONEDAY.sessions.filter((s) => !isPast(s.day))
 
   function toggleSession(day: number) {
@@ -471,8 +474,8 @@ export default function OnedayApplyPage() {
                     <span className={cal.sessionInfo}>
                       <span className={cal.sessionDate}>
                         {sessionDateLabel(s.day)}
-                        {/* 지난 회차 표시 — 종료된 모임 결제 방지 (2026-08-05) */}
-                        {past && <span className={cal.sessionEnded}>종료</span>}
+                        {/* 지난 회차 = 종료 / 수동 마감(closed) = 마감 (2026-08-09) */}
+                        {past && <span className={cal.sessionEnded}>{isClosed(s.day) ? "마감" : "종료"}</span>}
                       </span>
                       <span className={cal.sessionBook}>『{s.book}』 <span className={cal.sessionAuthor}>{s.author}</span></span>
                       <span className={cal.sessionTime}>{s.time}</span>

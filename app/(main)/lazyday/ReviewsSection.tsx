@@ -43,6 +43,17 @@ const photoCards: ReviewCard[] = [
     photo: "/linky-lounge/book-club/reviews/review-04.webp",
     caption: "2026. 7. 12의 기록",
   },
+  // 2026-08-09 추가분 (운영자 제공 원본 JPG → 세로 1440px webp q82, 기존 4장과 같은 규격)
+  {
+    id: "r5",
+    photo: "/linky-lounge/book-club/reviews/review-05.webp",
+    caption: "2026. 8. 9의 기록",
+  },
+  {
+    id: "r6",
+    photo: "/linky-lounge/book-club/reviews/review-06.webp",
+    caption: "2026. 8. 9의 기록",
+  },
 ]
 
 const ZOOM_SCALE = 2

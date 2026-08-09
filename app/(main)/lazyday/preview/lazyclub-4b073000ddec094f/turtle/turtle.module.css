@@ -63,16 +63,26 @@
    위 행 "굳이 세어보면 2027년까지" (조건) / 아래 행 "12,531,539초 남았습니다." (답).
    년·초 서식은 라운드 89 로 복귀 — 2027년 주황 800, 초 숫자는 크게.
    (라운드 108 에서 강조색을 뺐다가 "초에 집중이 안 된다"는 지적을 받았다) */
+/* 라운드 118(운영자 "데스크톱도 한 줄"): 못 박은 2행을 **전 폭에서 한 줄**로 통일.
+   rowTop/rowMain 은 의미 단위로만 남고(조건 / 답) 조판은 이어 붙는다.
+   문장이 .readout 박스(74%)보다 넓어질 수 있어 max-content + translateX 센터링 —
+   margin:auto 는 overflow 시 좌측 정렬로 무너진다 (라운드 116 에서 확인) */
 .line1 {
   margin: 0;
   line-height: 1.35;
   color: #4a3020;
-  word-break: keep-all;
+  white-space: nowrap;
+  width: max-content;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .rowTop,
 .rowMain {
-  display: block;
-  white-space: nowrap; /* 각 행은 통째로 — 중간에서 끊기지 않는다 */
+  display: inline;
+}
+.rowMain {
+  margin-left: 0.3em; /* 2행 조판 시절 줄바꿈이 만들던 간격 */
 }
 /* 라운드 110: 크기까지 **이전 버전(라운드 89) 실측 그대로** 되돌린다.
    그때는 SVG 단위(16/22/30)가 viewBox 스케일을 탔다 → 트랙 폭 대비 비율로 환산하면
@@ -135,22 +145,8 @@
    실측 390px: 한 줄 280 ≤ 구멍 304.9 (자간 -0.01em 여유분). 320px 급 초소형은
    vw 스케일(2.44vw ≈ 390px 에서 9.5px)로 같이 줄어 넘치지 않는다 */
 @media (max-width: 600px) {
-  /* 라운드 117(운영자): 1행("굳이 세어보면 … 남았습니다")도 모바일에서 **한 줄**.
-     못 박은 2행(rowTop/rowMain)을 inline 으로 합치고 line2 와 같은 센터링.
-     실측 390px: 한 줄 260.8 ≤ 구멍 중심부 317.6. 크기를 vw 로 걸어 320px 급도 같이 준다 */
-  .line1 {
-    line-height: 1.25;
-    white-space: nowrap;
-    width: max-content;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .rowTop,
-  .rowMain {
-    display: inline;
-  }
-  .rowMain { margin-left: 0.3em; } /* 블록 시절엔 줄바꿈이 만들던 간격 */
+  /* 한 줄 조판은 라운드 118 에서 기본 규칙으로 올라갔다 — 여기선 행간·크기만 */
+  .line1 { line-height: 1.25; }
   /* 라운드 115: 위계 압축(1.28배). 117: 390px 기준값을 vw 로 환산 (10/11/12.5px@390) */
   .lead { font-size: clamp(8px, 2.56vw, 10px); }
   .year { font-size: clamp(8.8px, 2.82vw, 11px); }

@@ -53,17 +53,14 @@ function IndexBody() {
               <figure className={`${styles.itemFigure} ${g.status !== "open" ? styles.shopFigDim : ""}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={g.img} alt={g.name} draggable={false} />
-                {g.status !== "open" && (
-                  <span className={styles.shopBadge}>{g.status === "soldout" ? "out of stock" : "coming soon"}</span>
-                )}
+                {/* 좌상단 배지는 coming soon 전용 — soldout 은 브라운야드처럼 정보 행의
+                    붉은 OUT OF STOCK 이 맡는다 (라운드 127, 중복 표기 방지) */}
+                {g.status === "upcoming" && <span className={styles.shopBadge}>coming soon</span>}
               </figure>
               <div className={styles.itemBody}>
+                {/* 정보 행 순서 (라운드 127, 운영자): 상품명 → 컬러 원 → 가격 → 아웃오브스탁 */}
                 <div>
-                  {/* 카테고리 태그("제품")는 미노출 — 품목이 적어 무의미 (라운드 125, 운영자) */}
                   <div className={styles.shopName}>{g.name}</div>
-                  {/* 가격 자리 — 가격 확정 전까지 영문 Coming Soon (운영자) */}
-                  <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
-                  {/* 컬러 옵션 — 브라운야드처럼 원형 칩 나열 (운영자 제공 사진 실측색) */}
                   {g.colors.length > 0 && (
                     <div className={styles.colorChips} aria-label="컬러 옵션">
                       {g.colors.map((c) => (
@@ -71,6 +68,8 @@ function IndexBody() {
                       ))}
                     </div>
                   )}
+                  <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
+                  {g.status === "soldout" && <div className={styles.shopStock}>out of stock</div>}
                 </div>
                 <div className={styles.itemBottom}>
                   <button

@@ -26,7 +26,8 @@ export const GOODS: Goods[] = [
     cat: "제품",
     name: "Printed T-shirt",
     img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp",
-    status: "upcoming",
+    // 라운드 127(운영자): 아웃 오브 스탁 표기 샘플 — 티셔츠만 soldout
+    status: "soldout",
     description: [
       "I ♥ LAZYDAY. 레이지데이의 마음을 가슴에 얹은 프린티드 티셔츠입니다.",
       "책과 함께하는 하루에 어울리는 무게로, 일상에서 편하게 입도록 만들었습니다.",

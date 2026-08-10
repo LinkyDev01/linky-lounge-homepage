@@ -529,22 +529,24 @@
 .shopFigDim img { opacity: 0.45; }
 /* 라운드 126(운영자 "더 세련된 단정한 폰트로 모두 영어 대문자"): 영문 상태·가격 줄을
    Space Grotesk 500 대문자 + 자간 0.07em 으로 — 셸이 웹폰트 로드 */
+/* 좌상단 배지 — 라운드 127(운영자 "브라운야드같은 걸로"): 중립 그로테스크
+   (Helvetica 계열) + 옅은 회색, 브라운야드 NEW ARRIVAL 표기 문법 그대로 */
 .shopBadge {
   position: absolute;
-  top: 8px;
-  left: 9px;
+  top: 9px;
+  left: 10px;
   z-index: 3;
-  font-family: "Space Grotesk", var(--suit);
-  font-weight: 500;
-  font-size: 10.5px;
-  letter-spacing: 0.07em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: #9b9184;
   pointer-events: none;
 }
-/* 가격 줄 — 배지와 같은 영문 배역 (₩ 기호는 폴백 SUIT가 그린다) */
+/* 가격 줄 (₩ 기호는 폴백 SUIT가 그린다) */
 .shopPrice {
-  margin-top: 2px;
+  margin-top: 7px;
   font-family: "Space Grotesk", var(--suit);
   font-weight: 500;
   font-size: 12px;
@@ -553,10 +555,20 @@
   color: #6d6459;
   font-variant-numeric: tabular-nums;
 }
+/* 아웃 오브 스탁 행 — 브라운야드 붉은 표기(#a22525) 이식 (라운드 127) */
+.shopStock {
+  margin-top: 3px;
+  font-family: "Space Grotesk", var(--suit);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #a22525;
+}
 .colorChips {
   display: flex;
   gap: 6px;
-  margin-top: 9px;
+  margin-top: 8px;
 }
 .colorChip {
   width: 11px;

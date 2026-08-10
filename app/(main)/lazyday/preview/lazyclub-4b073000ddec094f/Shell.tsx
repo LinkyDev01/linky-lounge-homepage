@@ -31,6 +31,8 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "전체보기", href: BASE },
   { label: "모임", href: `${BASE}/meetings` },
   { label: "제품", href: `${BASE}/shop` },
+  // 라운드 121(운영자): 제품과 아카이브 사이에 **일정** — 캘린더 페이지
+  { label: "일정", href: `${BASE}/calendar` },
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는

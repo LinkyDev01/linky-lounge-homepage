@@ -24,6 +24,7 @@
 
 import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
+import { WorkroomShell } from "../Shell"
 import { TurtleTrack } from "../turtle/TurtleTrack"
 import { CATEGORY_TONE, eventsFor, programsFor, type ClubProgram, type EventCategory } from "./calendar-events"
 import styles from "./calendar.module.css"
@@ -37,7 +38,20 @@ const MAX_CHIPS = 3
 /** 시즌이 9~11월이라 8월에 열면 원데이 토크만 보인다 — 첫 화면은 일정이 있는 달로 */
 const FIRST_MONTH = { y: 2026, m: 8 } // 2026년 9월 (0-based)
 
+/** 라운드 121: 내비 '일정'의 목적지가 되면서 다른 하위 페이지(제품·아카이브)와 같이
+ *  셸(내비·푸터·토스트)을 두른다. 캘린더 본문은 CalendarBody 그대로 */
 export function MeetupCalendar() {
+  return (
+    <WorkroomShell>
+      {/* 셸이 페이지 골격을 잡으므로 여기선 캘린더 폭만 가운데로 (구 .page 대체) */}
+      <div className={styles.shellFrame}>
+        <CalendarBody />
+      </div>
+    </WorkroomShell>
+  )
+}
+
+function CalendarBody() {
   // 첫 페인트에 실제 날짜를 쓰면 서버·클라이언트가 어긋난다 → 마운트 후 확정
   const [cursor, setCursor] = useState<{ y: number; m: number } | null>(null)
   const [today, setToday] = useState<{ y: number; m: number; d: number } | null>(null)

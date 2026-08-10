@@ -66,7 +66,8 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     title: "『시지프 신화』 원데이 토크",
     date: "8.9 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
-    status: "open",
+    // 라운드 121(운영자): 신청 마감 — 실사이트 one-day-talk-01/apply 의 closed 처리와 같은 날 반영
+    status: "soldout",
     // 라운드 78 (운영자): 범용 One Day Talk 포스터 → 책+설명 카드로 교체 (브람스와 같은 문법)
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-sisyphus.webp",
     // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만

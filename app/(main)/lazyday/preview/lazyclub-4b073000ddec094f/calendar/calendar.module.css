@@ -6,6 +6,21 @@
    · 장식 도형 0개. 위계는 크기·여백·색으로만
    신규 CSS이므로 기존 .module.css 를 import 하지 않는다 (공유 CSS 지도 오염 방지). */
 
+/* 라운드 121: 내비 '일정'의 목적지가 되며 셸(WorkroomShell) 안으로 들어갔다.
+   배경·서체·최소높이는 셸이 잡으므로 여기선 **폭 가운데 정렬과 여백만** 맡는다.
+   (구 .page 는 단독 시안 시절 골격 — 아래에 보존, 지금은 미사용) */
+.shellFrame {
+  --gothic: "Gothic A1", sans-serif;
+  display: flex;
+  justify-content: center;
+  /* 내비가 position:fixed (실측 bottom 65px) — 홈 .content 와 같은 100px 로 비켜 앉는다.
+     모바일은 홈과 같이 92px */
+  padding: 100px 20px 64px;
+}
+@media (max-width: 700px) {
+  .shellFrame { padding: 92px 12px 56px; }
+}
+/* 단독 시안 골격 (미사용, 보존) — 셸 없이 캘린더만 띄울 때 쓰던 래퍼 */
 .page {
   /* 서체 배역 — 홈(home.module.css)과 같은 계약: 기본 SUIT, 제목은 Gothic A1 600 */
   --gothic: "Gothic A1", sans-serif;

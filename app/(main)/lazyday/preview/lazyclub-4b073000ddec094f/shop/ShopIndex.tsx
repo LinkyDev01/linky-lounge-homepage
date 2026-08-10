@@ -6,7 +6,7 @@
 
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { GOODS } from "../goods-config"
-import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "../Shell"
+import { ArrowIcon, BASE, SaveIcon, useToast, WorkroomShell } from "../Shell"
 import { useSaved } from "../store"
 import styles from "../home.module.css"
 
@@ -46,15 +46,31 @@ function IndexBody() {
               className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
             >
               <LazydayLink href={`${BASE}/shop/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
-              <figure className={styles.itemFigure}>
+              {/* 라운드 125 (레퍼런스 brownyard.co.kr 상품 목록):
+                  · 상태는 중앙 반투명 블랙박스 대신 **좌상단 라벨 + 이미지 불투명도 저하**
+                    (브라운야드 .is-soldout { opacity:.45 } 문법 — 운영자 지정)
+                  · 라벨 위치는 뉴 어라이벌·아웃오브스탁 공통 좌상단 */}
+              <figure className={`${styles.itemFigure} ${g.status !== "open" ? styles.shopFigDim : ""}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={g.img} alt={g.name} draggable={false} />
-                {g.status !== "open" && <StatusOverlay status={g.status} />}
+                {g.status !== "open" && (
+                  <span className={styles.shopBadge}>{g.status === "soldout" ? "out of stock" : "coming soon"}</span>
+                )}
               </figure>
               <div className={styles.itemBody}>
                 <div>
-                  <div className={styles.itemCat}>{g.cat}</div>
+                  {/* 카테고리 태그("제품")는 미노출 — 품목이 적어 무의미 (라운드 125, 운영자) */}
                   <div className={styles.shopName}>{g.name}</div>
+                  {/* 가격 자리 — 가격 확정 전까지 영문 Coming Soon (운영자) */}
+                  <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
+                  {/* 컬러 옵션 — 브라운야드처럼 원형 칩 나열 (운영자 제공 사진 실측색) */}
+                  {g.colors.length > 0 && (
+                    <div className={styles.colorChips} aria-label="컬러 옵션">
+                      {g.colors.map((c) => (
+                        <span key={c} className={styles.colorChip} style={{ background: c }} />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className={styles.itemBottom}>
                   <button

@@ -565,10 +565,12 @@
   text-transform: uppercase;
   color: #a22525;
 }
+/* 컬러 원이 맨 위 행 (라운드 128) — 위 여백 대신 이름과의 아래 간격만 */
 .colorChips {
   display: flex;
   gap: 6px;
-  margin-top: 8px;
+  margin-bottom: 7px;
+  padding-top: 3px;
 }
 .colorChip {
   width: 11px;

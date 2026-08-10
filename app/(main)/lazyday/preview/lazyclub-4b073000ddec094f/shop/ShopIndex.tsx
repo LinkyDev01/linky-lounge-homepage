@@ -58,9 +58,9 @@ function IndexBody() {
                 {g.status === "upcoming" && <span className={styles.shopBadge}>coming soon</span>}
               </figure>
               <div className={styles.itemBody}>
-                {/* 정보 행 순서 (라운드 127, 운영자): 상품명 → 컬러 원 → 가격 → 아웃오브스탁 */}
+                {/* 정보 행 순서 (라운드 128, 운영자 정정): 컬러 원 → 상품명 → 가격 → 아웃오브스탁
+                    — 브라운야드 원본과 같은 배열 (컬러가 맨 위) */}
                 <div>
-                  <div className={styles.shopName}>{g.name}</div>
                   {g.colors.length > 0 && (
                     <div className={styles.colorChips} aria-label="컬러 옵션">
                       {g.colors.map((c) => (
@@ -68,6 +68,7 @@ function IndexBody() {
                       ))}
                     </div>
                   )}
+                  <div className={styles.shopName}>{g.name}</div>
                   <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
                   {g.status === "soldout" && <div className={styles.shopStock}>out of stock</div>}
                 </div>

@@ -628,12 +628,33 @@ function syncInterviewStatus() {
   }
 }
 
-// ── 반배정: 신청현황의 '반배정' 값에서 기수(1~4기)를 추출해 기수별로 고객정보를 묶는다 ──
+// ── 반배정: 신청현황의 '반배정' 값에서 기수를 추출해 기수별로 고객정보를 묶는다 ──
 //   · '2기, 3기'처럼 여러 기수가 적히면 각 기수에 모두 포함(다중 기수 지원)
 //   · '1기-목-저녁'처럼 뒤에 요일·시간이 붙어도 '1기' 토큰으로 인식
 //   · 가져오는 정보: 이름·성별·나이·전화번호·한 줄 인사·인스타그램 (신청현황 이름~인스타그램)
+//   ⚠️ 반배정 시트는 이 함수가 그리는 **파생물**이다 — 매번 통째로 지우고 다시 그리므로
+//      반배정 시트에 손으로 적은 내용은 남지 않는다. 메모는 신청현황 쪽에 적을 것.
+// (2026-08-09 꼬임 수정)
+//   ① 기수 하드코딩(1~4기) 폐지 — '5기', '10기'도 자동 인식 (숫자 정렬). 하드코딩 시절엔
+//      5기부터 조용히 누락됐다.
+//   ② '3기 환불'·'4기 취소' 같은 메모가 배정으로 집계되던 것 차단 — 제외어가 있으면 그 행 전체 스킵.
+//   ③ onEdit이 '활성 시트'를 보던 것을 '실제 편집된 범위'로 교정 + **반배정/이름 열을
+//      건드렸을 때만** 재빌드 — 무관한 셀 편집마다 시트를 다시 그리던 낭비(+ 손댄 서식
+//      증발)를 줄인다.
 var CLASS_FIELDS = ["이름", "성별", "나이", "전화번호", "인스타그램", "한 줄 인사"];
-var GISU_LIST = ["1기", "2기", "3기", "4기"];
+// 반배정 칸에 이 단어가 함께 적혀 있으면 배정으로 치지 않는다 (상태 메모로 간주)
+var CLASS_EXCLUDE = ["환불", "취소", "대기", "보류", "노쇼", "이탈"];
+
+function extractGisu(text) {
+  var m = String(text || "").match(/\d+\s*기/g) || [];
+  var seen = {};
+  var out = [];
+  m.forEach(function (t) {
+    var g = t.replace(/\s+/g, ""); // "3 기" → "3기"
+    if (!seen[g]) { seen[g] = true; out.push(g); }
+  });
+  return out;
+}
 
 function makeClassList() {
   var src = ss().getSheetByName(MAIN_SHEET);
@@ -644,18 +665,23 @@ function makeClassList() {
   if (col["반배정"] == null || col["이름"] == null) return;
 
   var groups = {};
-  GISU_LIST.forEach(function (g) { groups[g] = []; });
-
   for (var i = 1; i < data.length; i++) {
     var name = String(data[i][col["이름"]] || "").trim();
     if (!name) continue;
     var assign = String(data[i][col["반배정"]] || "");
-    var matched = GISU_LIST.filter(function (g) { return assign.indexOf(g) !== -1; });
+    if (!assign.trim()) continue;
+    // 상태 메모('3기 환불' 등)는 배정이 아니다 — 명단에서 제외
+    var isExcluded = CLASS_EXCLUDE.some(function (w) { return assign.indexOf(w) !== -1; });
+    if (isExcluded) continue;
+    var matched = extractGisu(assign);
     if (!matched.length) continue;
     var info = CLASS_FIELDS.map(function (f) {
       return col[f] != null ? String(data[i][col[f]] || "").trim() : "";
     });
-    matched.forEach(function (g) { groups[g].push(info); });
+    matched.forEach(function (g) {
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(info);
+    });
   }
 
   dst.clearContents();
@@ -664,7 +690,9 @@ function makeClassList() {
   var width = CLASS_FIELDS.length + 1; // 번호 + 필드
   var titleCols = ["번호", "이름", "성별", "나이", "연락처", "인스타그램", "한 줄 인사"];
   var row = 1;
-  GISU_LIST.forEach(function (g) {
+  // 기수 숫자 오름차순 (1기, 2기, … 10기 — 문자열 정렬이면 10기가 1기 뒤에 끼어든다)
+  var gisus = Object.keys(groups).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+  gisus.forEach(function (g) {
     var members = groups[g];
     if (!members.length) return;
     var tr = dst.getRange(row, 1, 1, width);
@@ -683,8 +711,18 @@ function makeClassList() {
 }
 
 function onEdit(e) {
-  var sheet = e.source.getActiveSheet();
-  if (sheet.getName() === MAIN_SHEET) makeClassList();
+  // 활성 시트가 아니라 **실제 편집된 범위** 기준 (활성 시트는 편집 위치와 다를 수 있다)
+  if (!e || !e.range) return;
+  var sheet = e.range.getSheet();
+  if (sheet.getName() !== MAIN_SHEET) return;
+  // 반배정·이름 열을 건드렸을 때만 재빌드 — 무관한 편집마다 반배정 시트를 다시 그리지 않는다
+  var col = colIndexMap(sheet);
+  var touched = [col["반배정"], col["이름"]].filter(function (c) { return c != null; })
+    .map(function (c) { return c + 1; }); // 1-based
+  var c1 = e.range.getColumn(), c2 = e.range.getLastColumn();
+  // 행 삽입/삭제처럼 열 전체가 걸리는 편집(getColumn=1 & 넓은 범위)도 재빌드에 포함된다
+  var hit = touched.some(function (c) { return c >= c1 && c <= c2; });
+  if (hit) makeClassList();
 }
 
 // ── 백업: 시트 전체 사본을 백업 폴더에 저장 ─────────────────

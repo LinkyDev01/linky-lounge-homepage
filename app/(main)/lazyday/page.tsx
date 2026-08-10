@@ -55,11 +55,13 @@ export default function StudyForeignPage() {
         <ClosingCtaSection />
         {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 B밴드 (A/B 교차 유지, 운영자 확정 2026-07-13) */}
         {SEASON.status === "closedEarly" && <NextSeasonNotify />}
+        {/* 하단 CTA — sticky 라 **문서 흐름상 이 자리**(클로징 CTA 와 로고 사이)에 내려앉는다.
+            스크롤 중에는 뷰포트 바닥에 붙어 종전과 같이 보인다 (운영자 2026-08-09) */}
+        <StickyApplyButton />
         <BrandCloseSection />
       </main>
 
       <SectionIndicator />
-      <StickyApplyButton />
       <Footer
         instagramUrl="https://instagram.com/lazyday_bookclub"
         kakaoUrl="https://pf.kakao.com/_gixaAX"

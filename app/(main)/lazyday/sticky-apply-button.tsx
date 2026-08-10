@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import { ApplyButton } from "./apply-button"
 import styles from "./page.module.css"
 
@@ -10,12 +11,43 @@ import styles from "./page.module.css"
  * 조기마감 모드의 희소성 문구는 버튼 안 둘째 줄로 이동 (운영자 지시 2026-07-13 — 가독성)
  *
  * 2026-08-09 (운영자 "CTA는 4기 신청하기만 남겨놔"): 원데이 토크 병행 2버튼 서식을
- * 걷어내고 **이 원래 버전으로 복귀**. 2버튼 서식은 지우지 않고
- * `sticky-apply-button-duo.tsx` 로 분리 보존 — 다시 켤 땐 랜딩에서 그 컴포넌트를 import.
+ * 걷어내고 원래 1버튼 버전으로 복귀. 2버튼 서식은 `sticky-apply-button-duo.tsx` 로 보존.
+ *
+ * 2026-08-09 (운영자 "하단까지 내려가면 해당 위치에 놓이면 돼. 이중으로 될 필요는 없어 /
+ * 캘린더 하단 고정 거북이 트랙처럼"): **fixed → sticky**.
+ *  · 문서 흐름상 위치 = 클로징 CTA 와 브랜드 로고 사이 → 끝까지 내리면 거기 내려앉는다
+ *  · 그전까지는 `bottom: 0` 으로 뷰포트 하단에 붙어 종전과 똑같이 보인다
+ *  · 클로징 섹션에 있던 중복 신청 버튼은 제거 — 버튼은 이제 하나뿐이다
+ *  · 떠 있을 때만 스크림(그라데이션)을 깔고, 내려앉으면 종이색으로 — 로고 위에
+ *    갈색 띠가 남지 않게. 상태 판정은 rect.bottom 이 뷰포트 바닥에 붙었는지로.
  */
 export function StickyApplyButton() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [docked, setDocked] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+    const check = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        // 스티키가 풀려 제 자리에 앉으면 바닥에서 떨어진다 (1px 허용 오차)
+        setDocked(el.getBoundingClientRect().bottom < window.innerHeight - 1)
+      })
+    }
+    check()
+    window.addEventListener("scroll", check, { passive: true })
+    window.addEventListener("resize", check)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener("scroll", check)
+      window.removeEventListener("resize", check)
+    }
+  }, [])
+
   return (
-    <div className={styles.fixedButtonContainer}>
+    <div ref={ref} className={styles.fixedButtonContainer} data-docked={docked ? "true" : undefined}>
       <ApplyButton />
     </div>
   )

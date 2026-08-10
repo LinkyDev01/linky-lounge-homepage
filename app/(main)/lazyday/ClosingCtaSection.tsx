@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import styles from "./ClosingCtaSection.module.css"
-import { LazydayLink } from "@/components/common/LazydayLink"
 import { SEASON, daysUntilDeadline } from "./season-config"
 
 /**
@@ -16,9 +15,6 @@ export function ClosingCtaSection() {
   const [d, setD] = useState<number | null>(null)
   useEffect(() => { setD(daysUntilDeadline()) }, [])
 
-  // 신청 버튼은 모집 중일 때만 (조기마감·마감 경과 시 미표기)
-  const open = SEASON.status !== "closedEarly" && !(d !== null && d < 0)
-
   return (
     <div className={styles.closingCta}>
       <p className={styles.closingCtaTitle}>
@@ -28,7 +24,8 @@ export function ClosingCtaSection() {
           : d !== null && d < 0
           ? `${SEASON.name} 모집이 마감되었습니다.`
           : !SEASON.showDeadline || d === null
-          ? `레이지데이 북클럽 ${SEASON.name} 모집 중`
+          ? // 운영자 2026-08-09: "모집 중" → 문장형 "…를 모집합니다."
+            `레이지데이 북클럽 ${SEASON.name}를 모집합니다.`
           : d === 0
           ? `${SEASON.name} 모집은 오늘 마감됩니다.`
           : `${SEASON.name} 모집은 ${d}일 뒤 마감됩니다.`}
@@ -46,12 +43,10 @@ export function ClosingCtaSection() {
           링키라운지
         </a>
       </p>
-      {/* 신청 버튼 복원 — 구 클로징(2기)의 '신청하기' CTA 서식 재사용 (운영자 지시 2026-07-28) */}
-      {open && (
-        <LazydayLink href="/apply" className={styles.closingCtaBtn}>
-          {SEASON.name} 신청하기
-        </LazydayLink>
-      )}
+      {/* 2026-08-09 (운영자 "로고 위 CTA는 하단 고정 CTA와 동일한 거라 … 이중으로 될 필요 없어"):
+          여기 있던 신청 버튼을 걷어낸다. 하단 고정 CTA(StickyApplyButton)가 sticky 로
+          바뀌어 **끝까지 내리면 바로 이 자리(로고 위)에 내려앉는다** — 버튼은 하나뿐이다.
+          `.closingCtaBtn` 서식과 `open` 판정은 되살릴 때를 위해 보존 (아래 주석) */}
     </div>
   )
 }

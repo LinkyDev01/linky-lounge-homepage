@@ -527,23 +527,31 @@
    레퍼런스 brownyard.co.kr — 이름 아래 가격 줄, 그 아래 원형 컬러 칩.
    상태는 좌상단 소문자 라벨 + 이미지 불투명도 저하(.is-soldout{opacity:.45} 실측 이식) */
 .shopFigDim img { opacity: 0.45; }
+/* 라운드 126(운영자 "더 세련된 단정한 폰트로 모두 영어 대문자"): 영문 상태·가격 줄을
+   Space Grotesk 500 대문자 + 자간 0.07em 으로 — 셸이 웹폰트 로드 */
 .shopBadge {
   position: absolute;
   top: 8px;
   left: 9px;
   z-index: 3;
-  font-family: var(--suit);
-  font-size: 11.5px;
-  letter-spacing: 0.03em;
+  font-family: "Space Grotesk", var(--suit);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   color: var(--ink);
   pointer-events: none;
 }
-/* 가격 자리 — 확정 전엔 Coming Soon (운영자). 브라운야드 가격 줄과 같은 조용한 톤 */
+/* 가격 줄 — 배지와 같은 영문 배역 (₩ 기호는 폴백 SUIT가 그린다) */
 .shopPrice {
   margin-top: 2px;
-  font-family: var(--suit);
-  font-size: 12.6px;
+  font-family: "Space Grotesk", var(--suit);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: #6d6459;
+  font-variant-numeric: tabular-nums;
 }
 .colorChips {
   display: flex;

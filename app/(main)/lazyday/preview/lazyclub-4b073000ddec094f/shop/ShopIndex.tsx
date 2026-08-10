@@ -46,16 +46,16 @@ function IndexBody() {
               className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
             >
               <LazydayLink href={`${BASE}/shop/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
-              {/* 라운드 125 (레퍼런스 brownyard.co.kr 상품 목록):
-                  · 상태는 중앙 반투명 블랙박스 대신 **좌상단 라벨 + 이미지 불투명도 저하**
-                    (브라운야드 .is-soldout { opacity:.45 } 문법 — 운영자 지정)
-                  · 라벨 위치는 뉴 어라이벌·아웃오브스탁 공통 좌상단 */}
-              <figure className={`${styles.itemFigure} ${g.status !== "open" ? styles.shopFigDim : ""}`}>
+              {/* 라운드 125 (레퍼런스 brownyard.co.kr 상품 목록) · 129 정리:
+                  · 이미지 불투명도 0.45 는 **soldout 전용** — 브라운야드와 동일
+                    ("코스터랑 머그는 반투명할 필요가 없지", 운영자)
+                  · 좌상단 배지는 세 제품 모두 **new arrival** (운영자 "커밍 순 대신
+                    뉴 어라이벌로 세 개 다") — soldout 도 배지는 유지, 품절 표기는
+                    정보 행의 붉은 OUT OF STOCK 이 맡는다 */}
+              <figure className={`${styles.itemFigure} ${g.status === "soldout" ? styles.shopFigDim : ""}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={g.img} alt={g.name} draggable={false} />
-                {/* 좌상단 배지는 coming soon 전용 — soldout 은 브라운야드처럼 정보 행의
-                    붉은 OUT OF STOCK 이 맡는다 (라운드 127, 중복 표기 방지) */}
-                {g.status === "upcoming" && <span className={styles.shopBadge}>coming soon</span>}
+                <span className={styles.shopBadge}>new arrival</span>
               </figure>
               <div className={styles.itemBody}>
                 {/* 정보 행 순서 (라운드 128, 운영자 정정): 컬러 원 → 상품명 → 가격 → 아웃오브스탁

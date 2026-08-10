@@ -57,17 +57,18 @@ function IndexBody() {
                 <img src={g.img} alt={g.name} draggable={false} />
                 <span className={styles.shopBadge}>new arrival</span>
               </figure>
-              <div className={styles.itemBody}>
-                {/* 정보 행 순서 (라운드 128, 운영자 정정): 컬러 원 → 상품명 → 가격 → 아웃오브스탁
-                    — 브라운야드 원본과 같은 배열 (컬러가 맨 위) */}
+              {/* 컬러 원 — **제품 이미지 바로 밑** (라운드 131, 운영자). 그리드에서 이미지와
+                  같은 열의 둘째 행에 앉히고 정보 열은 첫 행에 고정 */}
+              {g.colors.length > 0 && (
+                <div className={`${styles.colorChips} ${styles.chipsUnderImg}`} aria-label="컬러 옵션">
+                  {g.colors.map((c) => (
+                    <span key={c} className={styles.colorChip} style={{ background: c }} />
+                  ))}
+                </div>
+              )}
+              <div className={`${styles.itemBody} ${styles.shopBodyRow}`}>
+                {/* 정보 행 순서 (라운드 128 · 131): 상품명 → 가격 → 아웃오브스탁 — 컬러는 이미지 밑 */}
                 <div>
-                  {g.colors.length > 0 && (
-                    <div className={styles.colorChips} aria-label="컬러 옵션">
-                      {g.colors.map((c) => (
-                        <span key={c} className={styles.colorChip} style={{ background: c }} />
-                      ))}
-                    </div>
-                  )}
                   <div className={styles.shopName}>{g.name}</div>
                   <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
                   {g.status === "soldout" && <div className={styles.shopStock}>out of stock</div>}

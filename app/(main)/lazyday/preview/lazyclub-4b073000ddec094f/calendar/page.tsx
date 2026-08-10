@@ -1,22 +1,21 @@
 import type { Metadata } from "next"
 import { MeetupCalendar } from "./MeetupCalendar"
-import styles from "./calendar.module.css"
 
-/** 모임 캘린더 — 레이지클럽 톤 시안 (라운드 93, 임시 페이지).
+/** 일정 (모임 캘린더) — 라운드 93 시안으로 출발해 라운드 121 부터 **내비 '일정'의 목적지**.
+ *  셸(내비·푸터)은 MeetupCalendar 안에서 두른다 (제품·아카이브 페이지와 같은 구조).
  *  캘린더 아래에 거북이 트랙이 같은 폭으로 붙는다. */
 
 export const metadata: Metadata = {
-  title: "모임 캘린더 — 레이지클럽 톤 시안",
+  title: "일정 — 레이지클럽",
   robots: { index: false, follow: false },
 }
 
-export default function CalendarPreviewPage() {
+export default function CalendarPage() {
   return (
-    <main className={styles.page}>
-      {/* 제목 배역용 Gothic A1 — 셸(WorkroomShell)을 안 쓰는 단독 시안이라 여기서 로드 */}
-      {/* 800 은 트랙 문구의 강조 수치용 (라운드 115 — Gothic A1 전환) */}
+    <>
+      {/* 제목·트랙 문구 배역용 Gothic A1 (800 은 트랙 강조 수치) */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600;800&display=swap" />
       <MeetupCalendar />
-    </main>
+    </>
   )
 }

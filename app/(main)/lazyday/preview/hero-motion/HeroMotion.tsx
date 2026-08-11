@@ -41,8 +41,8 @@ const META: Record<TabKey, { what: string; why: string }> = {
     why: "포스터의 본질(문장이 실이 된 조판)을 모션으로 정직하게 번역한 안. '불필요하게 고퀄' (M3). 데모 문장은 철학 원고 발췌 — 실이식 시 포스터 원문으로",
   },
   breathe: {
-    what: "인트로가 끝난 뒤(또는 인트로 없이) 실이 극히 느리게 루프를 따라 흐른다 — 60초에 한 바퀴, 시선을 끌지 않는 속도. 큰 글자는 완전 정적",
-    why: "존재만 하는 배경 루프 (M2 허용 유형). ①이나 ②의 도착 상태와 조합하는 안 — 포스터가 죽은 이미지가 아니라 아주 천천히 살아 있다",
+    what: "〈사유의 기슭〉 전문이 포스터의 얽힌 실을 따라 흐른다 — 실 한쪽 끝에서 글자가 태어나고 반대쪽 끝에서 사라지며 끝없이 반복 (10~11px/s, 실이 비는 구간 없음). 큰 글자 12자는 완전 정적",
+    why: "존재만 하는 배경 루프 (M2 허용 유형). 정원이 아니라 포스터 구도 그대로의 실 — 포스터가 죽은 이미지가 아니라 아주 천천히 살아 있다",
   },
   touch: {
     what: "평소 완전 정적. 실을 만지면(호버·탭) 그 루프가 한 번 출렁이고 스프링으로 잦아든다. 연타해도 출렁임은 한 번에 하나",
@@ -257,45 +257,91 @@ function FlowDemo() {
   )
 }
 
-/* ── ③ 숨 쉬는 포스터 ──
-   도착 상태에서 문장이 루프를 따라 극히 느리게 흐른다 (60s/바퀴). */
+/* ── ③ 숨 쉬는 포스터 (라운드 134 재구성 — 운영자 원문·구도 반영) ──
+   본문 = 〈사유의 기슭〉 전문 (운영자 제공 원문 그대로 — 임의 수정 금지).
+   구도 = 정원(타원)이 아니라 **포스터의 얽힌 실 그대로** (운영자 "원형이 아닌
+   내가 던진 구도로"): 열린 실 경로 위를 본문이 흐른다 — 실의 한쪽 끝에서 글자가
+   태어나고 반대쪽 끝에서 사라지며, 본문을 여러 벌 이어붙여 오프셋을 한 벌
+   길이로 순환시키므로 실이 비는 구간이 없다 (운영자 "초반이나 후반에 너무
+   비어지는 걸 원치 않음"). 반복 벌 수는 경로 길이를 실측해 동적으로 정한다. */
+
+const SAYU_P1 =
+  "얄팍한 사교와 지적 허영 사이에서 길을 잃은 시중의 모임들엔 여전히 환멸을 느낀다. 그렇다고 내 안의 관성과 경험이라는 좁은 필터 속만 맴돌기엔, 세상과 텍스트가 가진 깊이가 너무도 아득하다. 차라리 고립을 택하겠다던 오기는 결코 틀리지 않았지만, 타인의 단단한 사유를 통해 내 생각의 맹점을 깨뜨리고 싶다는 갈증마저 속일 수는 없었다."
+const SAYU_P2 =
+  "내가 바란 건 거창한 지식을 겨루는 과시의 장도, 적당한 매너로 서로를 우두망찰 다독이는 사교장도 아니다. 그저 텍스트라는 정교한 지도를 나침반 삼아, 저마다의 삶에서 정직하게 길어 올린 생각의 결들이 치열하게 부딪히는 그런 밀도 높은 공간이었다."
+const SAYU_P3 =
+  "서재의 깊이와 삶의 태도가 맞물려 일어나는 묵직한 진동. 문장 사이에 숨은 맥락을 읽어내고, 눈빛만으로도 논점이 공유되는 그런 단단한 공명. 결국 내 기준이 높았던 게 아니라, 내 사유가 온전히 뿌리내릴 제대로 된 장소를 찾지 못해 길 위에서 서성였을 뿐이다."
+
+/* 얽힌 실 경로 — ①②와 같은 포스터 구도(LOOP_A 상단 얽힘 / LOOP_B 하단 8자꼴).
+   글자가 태어나는 끝(경로 끝)과 사라지는 끝(경로 시작)이 있는 열린 실이다. */
+const STREAMS = [
+  { id: "sayuStrA", d: LOOP_A, text: SAYU_P1, speed: 11 },
+  { id: "sayuStrB", d: LOOP_B, text: `${SAYU_P2}   ${SAYU_P3}`, speed: 10 },
+]
+
 function BreatheDemo() {
-  const aRef = useRef<SVGTextPathElement>(null)
-  const bRef = useRef<SVGTextPathElement>(null)
+  const rootRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     let raf = 0
-    const t0 = performance.now()
-    const tick = (now: number) => {
-      const p = ((now - t0) / 60000) % 1 // 60초에 한 바퀴
-      if (aRef.current) aRef.current.setAttribute("startOffset", `${(p * 100).toFixed(3)}%`)
-      if (bRef.current) bRef.current.setAttribute("startOffset", `${(p * 100).toFixed(3)}%`)
+    let cancelled = false
+
+    // 폰트 적용 후 실측 — 경로 길이 대비 본문 반복 벌 수를 동적으로 결정해야
+    // 실이 항상 가득 찬 채 순환한다 (한 벌 길이 P ≥ 필요 조건은 코드가 보장)
+    document.fonts.ready.then(() => {
+      if (cancelled) return
+      const tracks = [...root.querySelectorAll<SVGTextPathElement>("textPath[data-stream]")].map((tp, i) => {
+        const stream = STREAMS[i]
+        const pathEl = root.querySelector<SVGPathElement>(`#${stream.id}`)!
+        const L = pathEl.getTotalLength()
+        const textEl = tp.closest("text") as SVGTextElement
+        tp.textContent = `${stream.text}   ` // 한 벌만 놓고 진행 길이 실측
+        const P = textEl.getComputedTextLength()
+        // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L
+        const K = Math.max(2, Math.ceil((P + L) / P))
+        tp.textContent = `${stream.text}   `.repeat(K)
+        return { tp, P, speed: stream.speed }
+      })
+      const t0 = performance.now()
+      const tick = (now: number) => {
+        const t = (now - t0) / 1000
+        for (const { tp, P, speed } of tracks) {
+          if (P > 0) tp.setAttribute("startOffset", String(-((t * speed) % P)))
+        }
+        raf = requestAnimationFrame(tick)
+      }
       raf = requestAnimationFrame(tick)
+    })
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
     }
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
   }, [])
 
   return (
     <div className={styles.stage}>
-      <svg className={styles.poster} viewBox="0 0 400 500">
+      <svg ref={rootRef} className={styles.poster} viewBox="0 0 400 500">
         <defs>
-          <path id="brLoopA" d={LOOP_A} />
-          <path id="brLoopB" d={LOOP_B} />
+          {STREAMS.map((s) => (
+            <path key={s.id} id={s.id} d={s.d} />
+          ))}
         </defs>
-        <text className={styles.threadText}>
-          <textPath ref={aRef} href="#brLoopA">
-            {THREAD_TEXT_A}
-          </textPath>
-        </text>
-        <text className={styles.threadText}>
-          <textPath ref={bRef} href="#brLoopB">
-            {THREAD_TEXT_B}
-          </textPath>
-        </text>
+        {STREAMS.map((s) => (
+          <text key={s.id} className={styles.threadText}>
+            <textPath href={`#${s.id}`} data-stream>
+              {`${s.text}   `}
+            </textPath>
+          </text>
+        ))}
         <PosterGlyphs />
       </svg>
-      <p className={styles.note}>실이 60초에 한 바퀴 — 알아챈 사람만 아는 속도입니다.</p>
+      <p className={styles.note}>
+        본문은 〈사유의 기슭〉 전문 — 실의 한쪽 끝에서 글자가 태어나고 반대쪽 끝에서 사라지며
+        끝없이 흐릅니다.
+      </p>
     </div>
   )
 }

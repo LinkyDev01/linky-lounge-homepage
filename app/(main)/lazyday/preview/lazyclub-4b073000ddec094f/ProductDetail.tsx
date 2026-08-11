@@ -19,7 +19,8 @@ export type DetailProps = {
   title: string
   sub?: string
   description: string[]
-  fields: { label: string; lines: string[] }[]
+  /** href가 있으면 값 줄을 링크로 (문의의 카카오톡 채널 — 라운드 136) */
+  fields: { label: string; lines: string[]; href?: string }[]
   price: number | null
   /** 구매하기 목적지 (open일 때만 링크 — soldout/upcoming은 안내) */
   buyHref?: string
@@ -33,6 +34,9 @@ export type DetailProps = {
     colors?: { hex: string; name: string }[]
     sizes?: string[]
   }
+  /** 배송·교환 등 거래 조건 — 저장 버튼 **아래**에 놓는다 (라운드 136, 운영자
+   *  "위에 있을 필요가 없어"). 굿즈 전용 — 원데이 토크는 전달하지 않는다 */
+  policies?: { label: string; lines: string[] }[]
 }
 
 export function ProductDetail(props: DetailProps) {
@@ -109,9 +113,17 @@ function DetailBody(p: DetailProps) {
               {p.fields.map((f) => (
                 <div key={f.label} className={styles.productField}>
                   <p>{f.label}</p>
-                  {f.lines.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
+                  {f.lines.map((line) =>
+                    f.href ? (
+                      <p key={line}>
+                        <a href={f.href} target="_blank" rel="noopener noreferrer">
+                          {line}
+                        </a>
+                      </p>
+                    ) : (
+                      <p key={line}>{line}</p>
+                    ),
+                  )}
                 </div>
               ))}
             </div>
@@ -195,6 +207,18 @@ function DetailBody(p: DetailProps) {
           >
             <SaveIcon filled={saved.has(p.id)} />
           </button>
+          {p.policies && p.policies.length > 0 && (
+            <div className={styles.productPolicies}>
+              {p.policies.map((pol) => (
+                <div key={pol.label} className={styles.productPolicy}>
+                  <p>{pol.label}</p>
+                  {pol.lines.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </main>

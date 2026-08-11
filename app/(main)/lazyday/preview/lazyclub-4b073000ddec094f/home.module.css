@@ -322,6 +322,22 @@
 .itemBottom { display: flex; flex-direction: column; gap: 0; }
 .itemBottom .saveBtn { margin-top: 9px; }
 
+/* 거래 조건(배송·수령 / 교환·반품) — 저장 버튼 아래, 괘선으로 본문과 분리.
+   상품 소개가 아니라 규정이라 본문보다 한 단계 조용하게 (라운드 136, 운영자
+   "위에 있을 필요가 없어"). 라벨은 필드와 같은 문법(라벨 줄 + 값 줄) */
+.productPolicies {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid var(--ink);
+  font-size: 12.5px;
+  line-height: 1.75;
+}
+.productPolicy { margin-bottom: 15px; }
+.productPolicy:last-child { margin-bottom: 0; }
+.productPolicy p { margin: 0; }
+.productPolicy p:first-child { font-family: var(--gothic); font-weight: 600; }
+.productPolicy p:not(:first-child) { opacity: 0.75; text-wrap: pretty; }
+
 /* 미구현 기능 안내 토스트 */
 .toast {
   position: fixed;

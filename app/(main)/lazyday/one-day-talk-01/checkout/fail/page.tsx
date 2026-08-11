@@ -44,6 +44,12 @@ export default function OnedayCheckoutFailPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
+        {/* 좌측 위 내비 — 실패 화면에서도 이동 수단 유지 (운영자 2026-08-11) */}
+        <div className={styles.navBar}>
+          <LazydayLink href="/" className={styles.backLink}>
+            홈
+          </LazydayLink>
+        </div>
         <Suspense fallback={null}>
           <FailInner />
         </Suspense>

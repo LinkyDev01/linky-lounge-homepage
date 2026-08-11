@@ -74,6 +74,12 @@ function SuccessInner() {
     return (
       <main className={styles.page}>
         <div className={styles.container}>
+          {/* 좌측 위 내비 — 승인 실패 화면에서도 이동 수단 유지 (운영자 2026-08-11) */}
+          <div className={styles.navBar}>
+            <LazydayLink href="/" className={styles.backLink}>
+              홈
+            </LazydayLink>
+          </div>
           <div className={styles.stateBox}>
             <h1 className={styles.stateTitle}>결제가 완료되지 않았어요</h1>
             <p className={styles.stateBody}>{errorMsg}</p>

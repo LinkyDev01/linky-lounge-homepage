@@ -136,7 +136,7 @@ function CheckoutInner() {
           <ul className={styles.refundList}>
             <li>1. 굿즈는 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 선택할 수 있습니다. 결제 후 안내된 연락처로 수령 방법과 일정(택배 선택 시 배송지)을 확인해 드립니다.</li>
             <li>2. 택배 배송: 우체국택배 · 배송비 3,000원(제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 이내 발송합니다.</li>
-            <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(왕복 6,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 경기도 남양주시 별내3로 322, 404호 주식회사 링키.</li>
+            <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(왕복 6,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 서울 동작구 동작대로 7길 44, 지하 1층 링키라운지.</li>
             <li>4. 상품 하자·오배송의 경우 기간과 관계없이 판매자 부담으로 교환 또는 전액 환불해 드립니다.</li>
             <li>5. 사용·훼손되었거나 포장 개봉으로 상품 가치가 훼손된 경우에는 교환·반품이 제한될 수 있습니다.</li>
             <li>환불은 접수일부터 영업일 기준 5일 이내에 처리됩니다.</li>
@@ -170,11 +170,31 @@ export default function CheckoutPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
+        <CheckoutNav />
         {/* useSearchParams는 Suspense 경계 필요 (Next 정적 프리렌더 규칙) */}
         <Suspense fallback={null}>
           <CheckoutInner />
         </Suspense>
       </div>
     </main>
+  )
+}
+
+/** 좌측 위 내비 — 뒤로 가기(직전 상품·신청 화면)와 홈 (운영자 2026-08-11) */
+function CheckoutNav() {
+  return (
+    <div className={styles.navBar}>
+      <button
+        type="button"
+        className={styles.backLink}
+        onClick={() => (window.history.length > 1 ? window.history.back() : undefined)}
+      >
+        ← 돌아가기
+      </button>
+      <span className={styles.navDivider} aria-hidden />
+      <LazydayLink href="/" className={styles.backLink}>
+        홈
+      </LazydayLink>
+    </div>
   )
 }

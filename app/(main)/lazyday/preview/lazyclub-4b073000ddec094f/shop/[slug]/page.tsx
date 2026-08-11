@@ -22,7 +22,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       badgeText={badge}
       status={g.status}
       title={g.name}
-      sub="레이지데이 굿즈"
+      sub="레이지데이 제품"
       description={g.description}
       fields={[
         {

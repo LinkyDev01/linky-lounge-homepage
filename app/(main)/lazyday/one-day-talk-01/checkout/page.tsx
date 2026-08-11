@@ -156,6 +156,10 @@ function CheckoutInner() {
     <>
       <h1 className={styles.title}>checkout</h1>
 
+      {/* 2단 주문서 (브라운야드) — 좌: 상품·정보 / 우: 결제. 모바일은 상품이 상단 (운영자 2026-08-11) */}
+      <div className={styles.orderGrid}>
+        <div className={styles.colMain}>
+
       {/* 주문 상품 — 브라운야드 상품정보 행 (썸네일·이름·옵션·가격) */}
       <p className={styles.sectionLabel}>주문 상품</p>
       <div className={styles.summaryCard}>
@@ -229,7 +233,11 @@ function CheckoutInner() {
         </div>
       )}
 
-      {/* 결제 파트 — 노아 문법: TOTAL 요약 행 → 결제 수단 → 동의 → 잉크 바 버튼 */}
+        </div>
+
+        {/* 결제 파트 — 노아 문법: TOTAL 요약 행 → 결제 수단 → 동의 → 잉크 바 버튼.
+            데스크톱 우측 고정(sticky), 모바일은 정보 아래 */}
+        <aside className={styles.colPay}>
       <div className={styles.payBlock}>
         <p className={styles.sectionLabel}>결제</p>
         <div className={styles.totalRows}>
@@ -268,13 +276,16 @@ function CheckoutInner() {
         )}
         {error && <p className={styles.errorText}>{error}</p>}
       </div>
+        </aside>
+      </div>
 
-      {/* 굿즈 수령·배송·교환·반품 안내 — 우체국택배·현장 수령 병행 (운영자 확정 2026-08-11) */}
+      {/* 제품 수령·배송·교환·반품 안내 — 우체국택배·현장 수령 병행 (운영자 확정 2026-08-11.
+          표기는 "굿즈" 아닌 "제품" — 레이지클럽 태그와 통일, 운영자 2026-08-11) */}
       {hasGoods && (
         <div className={styles.refundBox}>
-          <p className={styles.refundTitle}>배송·수령·교환·반품 안내 (굿즈)</p>
+          <p className={styles.refundTitle}>배송·수령·교환·반품 안내 (제품)</p>
           <ul className={styles.refundList}>
-            <li>1. 굿즈는 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 위에서 선택하실 수 있습니다. 결제 후 입력하신 연락처로 수령 일정(택배 선택 시 배송지)을 확인해 드립니다.</li>
+            <li>1. 제품은 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 위에서 선택하실 수 있습니다. 결제 후 입력하신 연락처로 수령 일정(택배 선택 시 배송지)을 확인해 드립니다.</li>
             <li>2. 택배 배송: 우체국택배 · 배송비 3,000원(제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 이내 발송합니다.</li>
             <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(왕복 6,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 링키라운지(서울 동작구 동작대로7길 44, 지하 1층).</li>
             <li>4. 상품 하자·오배송의 경우 기간과 관계없이 판매자 부담으로 교환 또는 전액 환불해 드립니다.</li>

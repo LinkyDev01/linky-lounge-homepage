@@ -30,12 +30,13 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       fields={[{ label: "문의", lines: ["카카오톡 채널"], href: KAKAO_CHAT_URL }]}
       buyHref={`/one-day-talk-01/checkout?items=${goodsCode(g.slug)}`}
       options={{
-        colors: g.colors.map((hex, i) => ({ hex, name: g.colorNames[i] ?? hex })),
+        // 색별 제품컷 — 칩 클릭 시 메인 사진 교체 (운영자 2026-08-11, 나열 폐기)
+        colors: g.colors.map((hex, i) => ({ hex, name: g.colorNames[i] ?? hex, img: g.colorImgs?.[i] })),
         sizes: g.sizes,
       }}
       price={g.price}
       policies={GOODS_POLICIES}
-      images={(g.gallery ?? [g.img]).map((src, i) => ({ src, alt: i === 0 ? g.name : `${g.name} ${i + 1}` }))}
+      images={[{ src: g.img, alt: g.name }]}
       cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/shop/${g.slug}`, img: g.img }}
     />
   )

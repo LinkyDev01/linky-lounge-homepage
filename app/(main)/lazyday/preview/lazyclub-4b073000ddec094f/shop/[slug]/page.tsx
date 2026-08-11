@@ -27,7 +27,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
         {
           label: "배송·수령",
           lines: [
-            "링키라운지 현장 수령 또는 택배 배송 중 선택",
+            "링키라운지 현장 수령 또는 택배 배송 중 선택 (결제 화면에서 선택)",
             "택배: 우체국택배 · 배송비 3,000원 (제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 내 발송",
             "배송지는 결제 후 연락처 안내 시 확인합니다.",
           ],

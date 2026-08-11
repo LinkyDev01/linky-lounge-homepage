@@ -7,7 +7,7 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import { useBasePath } from "@/hooks/use-base-path"
 import { reportClientError } from "../../support"
 import { TOSS_DOCS_TEST_CLIENT_KEY } from "../oneday-shared"
-import { buildOrderId, orderNameFor, resolveItems, totalOf } from "@/lib/order-catalog"
+import { SHIPPING_CODE, SHIPPING_FEE, buildOrderId, orderNameFor, resolveItems, totalOf } from "@/lib/order-catalog"
 import styles from "./checkout.module.css"
 
 /**
@@ -25,11 +25,24 @@ function CheckoutInner() {
   const params = useSearchParams()
   const base = useBasePath()
   const raw = params.get("items") || ""
-  const codes = [...new Set(raw.split(",").filter(Boolean))]
-  const items = resolveItems(codes) ?? []
+  // 쿼리에는 상품만 실린다 — 배송비는 화면에서 고른 수령 방법에 따라 붙인다
+  const baseCodes = [...new Set(raw.split(",").filter(Boolean))].filter((c) => c !== SHIPPING_CODE)
+  const baseItems = resolveItems(baseCodes) ?? []
+  const hasGoods = baseItems.some((i) => i.kind === "goods")
+  const hasMeeting = baseItems.some((i) => i.kind === "meeting")
+
+  // 수령 방법 — 굿즈가 있을 때만 노출. 택배면 배송비를 주문 항목으로 더한다 (운영자 2026-08-11)
+  const [delivery, setDelivery] = useState<"pickup" | "parcel">("pickup")
+  const useParcel = hasGoods && delivery === "parcel"
+  const codes = useParcel ? [...baseCodes, SHIPPING_CODE] : baseCodes
+  const items = useParcel ? [...baseItems, ...(resolveItems([SHIPPING_CODE]) ?? [])] : baseItems
   const amount = totalOf(items)
-  const hasGoods = items.some((i) => i.kind === "goods")
-  const hasMeeting = items.some((i) => i.kind === "meeting")
+
+  // 주문자 정보 — 굿즈는 신청 폼을 거치지 않아 연락처가 없다. 결제 정보에 실어
+  // 토스 거래 내역에서 확인할 수 있게 한다 (주소는 받지 않고 연락처로 확인 — 티켓형 결제 원칙)
+  const [buyerName, setBuyerName] = useState("")
+  const [buyerPhone, setBuyerPhone] = useState("")
+  const buyerReady = !hasGoods || (buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10)
 
   const widgetsRef = useRef<TossPaymentsWidgets | null>(null)
   const [ready, setReady] = useState(false)
@@ -64,6 +77,12 @@ function CheckoutInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raw])
 
+  // 수령 방법 변경 → 결제 금액 갱신 (위젯은 재렌더하지 않고 금액만 바꾼다)
+  useEffect(() => {
+    if (!ready) return
+    widgetsRef.current?.setAmount({ currency: "KRW", value: amount }).catch(() => {})
+  }, [amount, ready])
+
   async function handlePay() {
     const widgets = widgetsRef.current
     if (!widgets || paying) return
@@ -75,6 +94,10 @@ function CheckoutInner() {
         orderName: orderNameFor(items),
         successUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/success`,
         failUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/fail`,
+        // 굿즈 주문자 — 토스 거래 내역에서 수령 방법 안내에 쓴다
+        ...(hasGoods
+          ? { customerName: buyerName.trim(), customerMobilePhone: buyerPhone.replace(/[^0-9]/g, "") }
+          : {}),
       })
     } catch (err) {
       // 사용자가 결제창을 닫은 경우도 여기로 온다 — 화면은 그대로 두고 버튼만 되살린다
@@ -117,11 +140,73 @@ function CheckoutInner() {
         </div>
       </div>
 
+      {/* 수령 방법 — 굿즈 주문에만 (운영자 2026-08-11: 현장 수령/택배 선택) */}
+      {hasGoods && (
+        <div className={styles.optionCard}>
+          <p className={styles.optionTitle}>수령 방법</p>
+          <label className={`${styles.optionRow} ${delivery === "pickup" ? styles.optionRowOn : ""}`}>
+            <input
+              type="radio"
+              name="delivery"
+              checked={delivery === "pickup"}
+              onChange={() => setDelivery("pickup")}
+            />
+            <span className={styles.optionLabel}>
+              현장 수령
+              <span className={styles.optionSub}>링키라운지에서 직접 수령 · 배송비 없음</span>
+            </span>
+          </label>
+          <label className={`${styles.optionRow} ${delivery === "parcel" ? styles.optionRowOn : ""}`}>
+            <input
+              type="radio"
+              name="delivery"
+              checked={delivery === "parcel"}
+              onChange={() => setDelivery("parcel")}
+            />
+            <span className={styles.optionLabel}>
+              택배 배송 (+{SHIPPING_FEE.toLocaleString("ko-KR")}원)
+              <span className={styles.optionSub}>우체국택배 · 제주·도서산간 추가 · 결제 확인 후 2~5영업일 내 발송</span>
+            </span>
+          </label>
+
+          <p className={styles.optionTitle}>주문자 정보</p>
+          <input
+            type="text"
+            className={styles.optionInput}
+            placeholder="이름"
+            value={buyerName}
+            onChange={(e) => setBuyerName(e.target.value)}
+          />
+          <input
+            type="tel"
+            inputMode="numeric"
+            className={styles.optionInput}
+            placeholder="연락처 (010-0000-0000)"
+            value={buyerPhone}
+            onChange={(e) => setBuyerPhone(e.target.value)}
+          />
+          <p className={styles.optionNote}>
+            {delivery === "parcel"
+              ? "결제 후 이 연락처로 배송지를 확인해 드립니다. (주소는 결제 화면에서 받지 않습니다)"
+              : "결제 후 이 연락처로 수령 일정을 안내해 드립니다."}
+          </p>
+        </div>
+      )}
+
       <div id="toss-payment-methods" className={styles.widgetBox} />
       <div id="toss-agreement" className={styles.agreementBox} />
 
-      <button type="button" className={styles.payButton} onClick={handlePay} disabled={!ready || paying}>
-        {ready ? `${amount.toLocaleString("ko-KR")}원 결제하기` : "결제 수단 불러오는 중..."}
+      <button
+        type="button"
+        className={styles.payButton}
+        onClick={handlePay}
+        disabled={!ready || paying || !buyerReady}
+      >
+        {!ready
+          ? "결제 수단 불러오는 중..."
+          : !buyerReady
+          ? "주문자 정보를 입력해주세요"
+          : `${amount.toLocaleString("ko-KR")}원 결제하기`}
       </button>
 
       {IS_TEST_KEY && (
@@ -134,7 +219,7 @@ function CheckoutInner() {
         <div className={styles.refundBox}>
           <p className={styles.refundTitle}>배송·수령·교환·반품 안내 (굿즈)</p>
           <ul className={styles.refundList}>
-            <li>1. 굿즈는 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 선택할 수 있습니다. 결제 후 안내된 연락처로 수령 방법과 일정(택배 선택 시 배송지)을 확인해 드립니다.</li>
+            <li>1. 굿즈는 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 위에서 선택하실 수 있습니다. 결제 후 입력하신 연락처로 수령 일정(택배 선택 시 배송지)을 확인해 드립니다.</li>
             <li>2. 택배 배송: 우체국택배 · 배송비 3,000원(제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 이내 발송합니다.</li>
             <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(왕복 6,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 서울 동작구 동작대로 7길 44, 지하 1층 링키라운지.</li>
             <li>4. 상품 하자·오배송의 경우 기간과 관계없이 판매자 부담으로 교환 또는 전액 환불해 드립니다.</li>

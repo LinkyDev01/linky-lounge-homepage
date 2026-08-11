@@ -23,6 +23,10 @@ export type Goods = {
   colorNames: string[]
   /** 사이즈 옵션 (노아 문법 — 상세에서 선택). 없으면 미노출 */
   sizes?: string[]
+  /** 상세 갤러리 (2026-08-11 운영자 "여러 이미지로, 넘기면서 볼 수 있게 — 이미지
+   *  나열하는 형태") — 캐러셀이 아니라 워크룸 상세의 세로 나열 스택으로 전부 노출.
+   *  없으면 img 한 장만. 첫 장이 메인(목록 카드와 동일 컷) */
+  gallery?: string[]
 }
 
 export const GOODS: Goods[] = [
@@ -48,31 +52,43 @@ export const GOODS: Goods[] = [
     slug: "acrylic-coaster",
     cat: "제품",
     name: "Acrylic Coaster",
-    img: "/linky-lounge/book-club/home-v3/goods-coaster.webp",
+    // 2026-08-11 드라이브 일괄 갱신 (운영자 "기존 것 날리고 영문 파일명들만") —
+    // 구 goods-coaster.webp 삭제, 드라이브 원본 3240×4050 → 800×1000 webp q88
+    img: "/linky-lounge/book-club/home-v3/coaster.webp",
     status: "open",
     description: [
       "책 옆의 잔을 받치는 아크릴 코스터입니다.",
       "라운지의 테이블 위, 대화가 무르익는 자리에 함께 놓입니다.",
     ],
     price: 12900, // 운영자 확정가 2026-08-11
-    // I ♥ LAZYDAY 하우스 — 단일 색 (운영자 제공 제품컷 2026-08-11 실측 #f4d1ab)
-    colors: ["#f4d1ab"],
+    // I ♥ LAZYDAY 하우스 — 단일 색 (2026-08-11 신규 제품컷 실측 #e6d6c5)
+    colors: ["#e6d6c5"],
     colorNames: ["베이지"],
   },
   {
     slug: "coffee-mug",
     cat: "제품",
     name: "Coffee Mug (5-color)",
-    img: "/linky-lounge/book-club/home-v3/goods-mug.webp",
+    // 2026-08-11 드라이브 일괄 갱신 (운영자 "기존 것 날리고 영문 파일명들만") —
+    // 구 goods-mug.webp 삭제. 메인(목록 카드·갤러리 첫 장) = y 옐로 (운영자 지정)
+    img: "/linky-lounge/book-club/home-v3/coffee-mug-y.webp",
     status: "open",
     description: [
       "다섯 가지 색으로 만든 레이지데이 머그입니다.",
       "각인된 I ♥ LAZYDAY와 함께, 읽는 시간의 온도를 지켜 줍니다.",
     ],
     price: 18900, // 운영자 확정가 2026-08-11
-    // 민트·옐로·핑크·블루·그레이 (운영자 제공 사진 실측)
-    colors: ["#99bbab", "#c9ad52", "#c6a298", "#8395a3", "#5d5f5c"],
-    colorNames: ["민트", "옐로", "핑크", "블루", "그레이"],
+    // 옐로·민트·핑크·블루·그레이 — 2026-08-11 신규 제품컷 실측 (옐로가 메인이라 첫 번째)
+    colors: ["#e7b131", "#a5bca8", "#bfa196", "#8b98a1", "#61615f"],
+    colorNames: ["옐로", "민트", "핑크", "블루", "그레이"],
+    // 상세 갤러리 — 옐로 메인, 이후 칩 순서(민트·핑크·블루·그레이)와 동일
+    gallery: [
+      "/linky-lounge/book-club/home-v3/coffee-mug-y.webp",
+      "/linky-lounge/book-club/home-v3/coffee-mug-m.webp",
+      "/linky-lounge/book-club/home-v3/coffee-mug-p.webp",
+      "/linky-lounge/book-club/home-v3/coffee-mug-b.webp",
+      "/linky-lounge/book-club/home-v3/coffee-mug-g.webp",
+    ],
   },
 ]
 

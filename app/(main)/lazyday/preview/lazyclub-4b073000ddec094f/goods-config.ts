@@ -55,9 +55,9 @@ export const GOODS: Goods[] = [
       "라운지의 테이블 위, 대화가 무르익는 자리에 함께 놓입니다.",
     ],
     price: 12900, // 운영자 확정가 2026-08-11
-    // I ♥ LAZYDAY 하우스 — 크림 단일 (운영자 제공 도안 실측)
-    colors: ["#f7ebc3"],
-    colorNames: ["크림"],
+    // I ♥ LAZYDAY 하우스 — 단일 색 (운영자 제공 제품컷 2026-08-11 실측 #f4d1ab)
+    colors: ["#f4d1ab"],
+    colorNames: ["베이지"],
   },
   {
     slug: "coffee-mug",

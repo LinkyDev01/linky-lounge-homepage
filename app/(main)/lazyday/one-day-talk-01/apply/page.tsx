@@ -9,6 +9,9 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../apply/page.module.css"
 import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../support"
+import { ONEDAY, isPastSession, sessionDateLabel, sessionKey, type OnedaySession } from "../oneday-shared"
+import { useBasePath } from "@/hooks/use-base-path"
+import { meetingCode } from "@/lib/order-catalog"
 import cal from "./oneday.module.css"
 
 /**
@@ -33,42 +36,18 @@ const penScript = Nanum_Pen_Script({
   display: "swap",
   preload: false,
 })
-const TOSS_URL = "https://buy.tosspayments.com/products/OBBn5YubQ0?shopId=prreBmgHJwPY"
+// 일정·가격은 ../oneday-shared.ts 단일 출처 (checkout·confirm API와 공유, 2026-08-11)
 // 계좌이체 안내 (운영자 지시 2026-07-29 — 우리은행, 예금주 주식회사 링키)
 const BANK_NAME = "우리은행"
 const BANK_ACCOUNT = "1005-104-815136"
 const BANK_HOLDER = "주식회사 링키"
 
-// 1회성 모임 일정 — 8월, 8/2·8/9 (운영자 지시 2026-07-24)
-const ONEDAY = {
-  year: 2026,
-  month: 8,
-  monthName: "8월",
-  monthEng: "AUG. 2026",
-  // 회차별 책·시간 (운영자 지시 2026-07-24). day = 8월 날짜
-  sessions: [
-    { day: 2, label: "1회차", book: "브람스를 좋아하세요...", author: "프랑수아즈 사강", time: "19:00–22:00" },
-    // closed: 시각과 무관한 수동 마감 (운영자 지시 2026-08-09 — 시지프 신화 신청 차단)
-    { day: 9, label: "2회차", book: "시지프 신화", author: "알베르 카뮈", time: "19:00–22:00", closed: true },
-  ] as Array<{ day: number; label: string; book: string; author: string; time: string; closed?: boolean }>,
-  rangeLabel: "8/2 · 8/9",
-}
-const ONEDAY_MEET_DAYS = ONEDAY.sessions.map((s) => s.day)
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
-// 손그림 타원 회전 — 날짜별 제각각 (랜딩 문법)
-const MARK_ROT = [-6, 4]
-
-/** 이미 지난 회차 판정 — 모임 시작(19:00 KST = 10:00 UTC)이 지나면 신청 불가 (2026-08-05).
- *  지난 회차가 선택 가능하면 종료된 모임에 결제까지 진행되어 환불 사고가 난다. */
-function isPastSession(day: number) {
-  return Date.now() > Date.UTC(ONEDAY.year, ONEDAY.month - 1, day, 10, 0)
-}
-
-// "2026-08-02 (일)" 요일 계산 → 캘린더 밑 일정표 라벨
-function sessionDateLabel(day: number) {
-  const wd = ["일", "월", "화", "수", "목", "금", "토"][new Date(ONEDAY.year, ONEDAY.month - 1, day).getDay()]
-  return `${ONEDAY.month}/${day} (${wd})`
-}
+// 손그림 타원 회전 — 날짜별 제각각 (랜딩 문법). 회차 전역 순서(sessions 배열 인덱스) 기준
+const MARK_ROT = [-6, 4, -3]
+// 회차가 8월·9월에 걸쳐 있어 (4주 연기, 2026-08-11) 월별 시트를 각각 그린다
+const ONEDAY_MONTHS = [...new Set(ONEDAY.sessions.map((s) => s.month))]
+const MONTH_ENG = ["", "JAN.", "FEB.", "MAR.", "APR.", "MAY", "JUN.", "JUL.", "AUG.", "SEP.", "OCT.", "NOV.", "DEC."]
 
 type Errors = Partial<Record<
   "sessions" | "name" | "gender" | "age" | "phone" | "marketingConsent" | "_form",
@@ -110,85 +89,98 @@ function formatPhone(value: string) {
   return nums.slice(0, 3) + "-" + nums.slice(3, 7) + "-" + nums.slice(7, 11)
 }
 
-/** 8월 달력 시트 — 랜딩 14a 문법, 모임일은 손그림 타원 체크 */
-function OnedayCalendar() {
-  const firstDow = new Date(ONEDAY.year, ONEDAY.month - 1, 1).getDay()
-  const daysInMonth = new Date(ONEDAY.year, ONEDAY.month, 0).getDate()
+/** 월별 달력 시트 한 장 — 랜딩 14a 문법, 모임일은 손그림 타원 체크 */
+function OnedayMonthSheet({ month }: { month: number }) {
+  const firstDow = new Date(ONEDAY.year, month - 1, 1).getDay()
+  const daysInMonth = new Date(ONEDAY.year, month, 0).getDate()
   const totalCells = (Math.floor((firstDow + daysInMonth - 1) / 7) + 1) * 7
 
   return (
+    <FadeUp y={10} duration={0.6}>
+      <div className={cal.calSheet}>
+        <span className={cal.calTape} aria-hidden />
+        <div className={cal.calSheetHead}>
+          <span className={cal.calMonthName}>{month}월</span>
+          <span className={cal.calMonthEng}>{MONTH_ENG[month]} {ONEDAY.year}</span>
+        </div>
+        <div className={cal.calDowRow} aria-hidden>
+          {DOW_LABELS.map((d) => (
+            <span key={d} className={cal.calDow}>{d}</span>
+          ))}
+        </div>
+        <div className={cal.calGrid}>
+          {Array.from({ length: totalCells }, (_, ci) => {
+            const day = ci - firstDow + 1
+            const inMonth = day >= 1 && day <= daysInMonth
+            // 회차 인덱스는 전역(sessions 배열) 기준 — 타원 회전·첨자 각도가 회차마다 다르다
+            const meetIdx = inMonth
+              ? ONEDAY.sessions.findIndex((s) => s.month === month && s.day === day)
+              : -1
+            return (
+              <div key={ci} className={cal.calCell}>
+                {inMonth && (
+                  <span className={meetIdx >= 0 ? cal.calDayNumMeet : cal.calDayNum}>{day}</span>
+                )}
+                {meetIdx >= 0 && (
+                  <>
+                    <svg
+                      viewBox="0 0 40 30"
+                      className={cal.calMarker}
+                      style={{ transform: `translate(-50%, -50%) rotate(${MARK_ROT[meetIdx % MARK_ROT.length]}deg)` }}
+                      aria-hidden
+                    >
+                      <ellipse
+                        cx="20"
+                        cy="15"
+                        rx="15"
+                        ry="10"
+                        fill="none"
+                        stroke="#d2691e"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeDasharray="72 9"
+                      />
+                    </svg>
+                    {/* 필기체 회차 첨자 — 랜딩 1st/2nd 문법의 한글판 (운영자 지시 2026-07-24) */}
+                    <span
+                      className={`${penScript.className} ${cal.calRoundTag}`}
+                      style={{ transform: `rotate(${meetIdx % 2 === 0 ? -5 : 4}deg)` }}
+                    >
+                      {ONEDAY.sessions[meetIdx].label}
+                    </span>
+                  </>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </FadeUp>
+  )
+}
+
+/** 일정 달력 — 회차가 걸친 월(8·9월)마다 시트 한 장씩 */
+function OnedayCalendar() {
+  return (
     <div>
       <div className={cal.calHeader}>
-        <p className={cal.calHeaderTitle}>원데이 토크 일정</p>
+        <p className={cal.calHeaderTitle}>일회성 모임 일정</p>
         <span className={cal.calHeaderRange}>{ONEDAY.rangeLabel}</span>
       </div>
-      <FadeUp y={10} duration={0.6}>
-        <div className={cal.calSheet}>
-          <span className={cal.calTape} aria-hidden />
-          <div className={cal.calSheetHead}>
-            <span className={cal.calMonthName}>{ONEDAY.monthName}</span>
-            <span className={cal.calMonthEng}>{ONEDAY.monthEng}</span>
-          </div>
-          <div className={cal.calDowRow} aria-hidden>
-            {DOW_LABELS.map((d) => (
-              <span key={d} className={cal.calDow}>{d}</span>
-            ))}
-          </div>
-          <div className={cal.calGrid}>
-            {Array.from({ length: totalCells }, (_, ci) => {
-              const day = ci - firstDow + 1
-              const inMonth = day >= 1 && day <= daysInMonth
-              const meetIdx = inMonth ? ONEDAY_MEET_DAYS.indexOf(day) : -1
-              return (
-                <div key={ci} className={cal.calCell}>
-                  {inMonth && (
-                    <span className={meetIdx >= 0 ? cal.calDayNumMeet : cal.calDayNum}>{day}</span>
-                  )}
-                  {meetIdx >= 0 && (
-                    <>
-                      <svg
-                        viewBox="0 0 40 30"
-                        className={cal.calMarker}
-                        style={{ transform: `translate(-50%, -50%) rotate(${MARK_ROT[meetIdx]}deg)` }}
-                        aria-hidden
-                      >
-                        <ellipse
-                          cx="20"
-                          cy="15"
-                          rx="15"
-                          ry="10"
-                          fill="none"
-                          stroke="#d2691e"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeDasharray="72 9"
-                        />
-                      </svg>
-                      {/* 필기체 회차 첨자 — 랜딩 1st/2nd 문법의 한글판 (운영자 지시 2026-07-24) */}
-                      <span
-                        className={`${penScript.className} ${cal.calRoundTag}`}
-                        style={{ transform: `rotate(${meetIdx === 0 ? -5 : 4}deg)` }}
-                      >
-                        {ONEDAY.sessions[meetIdx].label}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </FadeUp>
+      {ONEDAY_MONTHS.map((m) => (
+        <OnedayMonthSheet key={m} month={m} />
+      ))}
     </div>
   )
 }
 
 export default function OnedayApplyPage() {
+  const base = useBasePath()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [marketingConsent, setMarketingConsent] = useState(false)
-  // 신청 회차 멀티체크 — 8/2 브람스 / 8/9 시지프, 각각 복수 선택 가능 (운영자 지시 2026-07-24)
-  const [pickedDays, setPickedDays] = useState<number[]>([])
+  // 신청 회차 멀티체크 — 복수 선택 가능 (운영자 지시 2026-07-24). 키 = month*100+day (8·9월 혼재)
+  const [pickedKeys, setPickedKeys] = useState<number[]>([])
   // 접수 완료 화면 + 결제 방식 선택 (운영자 지시 2026-07-29)
   const [submitted, setSubmitted] = useState(false)
   const [bankOpen, setBankOpen] = useState(false)
@@ -226,14 +218,14 @@ export default function OnedayApplyPage() {
     return () => clearInterval(t)
   }, [])
   // closed(수동 마감)는 시각·마운트와 무관하게 즉시 막는다 — 첫 페인트부터 선택 불가
-  const isClosed = (day: number) => ONEDAY.sessions.find((s) => s.day === day)?.closed === true
-  const isPast = (day: number) => isClosed(day) || (now !== null && isPastSession(day))
-  const openSessions = ONEDAY.sessions.filter((s) => !isPast(s.day))
+  const isPast = (s: OnedaySession) => s.closed === true || (now !== null && isPastSession(s))
+  const openSessions = ONEDAY.sessions.filter((s) => !isPast(s))
 
-  function toggleSession(day: number) {
-    if (isPast(day)) return
-    setPickedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+  function toggleSession(s: OnedaySession) {
+    if (isPast(s)) return
+    const key = sessionKey(s)
+    setPickedKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     )
     clearError("sessions")
   }
@@ -260,7 +252,7 @@ export default function OnedayApplyPage() {
     const greeting = (data.get("greeting") as string)?.trim() || ""
     const instagram = (data.get("instagram") as string)?.trim() || ""
 
-    if (pickedDays.length === 0) newErrors.sessions = "신청할 모임을 한 개 이상 선택해주세요."
+    if (pickedKeys.length === 0) newErrors.sessions = "신청할 모임을 한 개 이상 선택해주세요."
     if (!name) newErrors.name = "이름을 입력해주세요."
     if (!gender) newErrors.gender = "성별을 선택해주세요."
     if (!age) newErrors.age = "나이를 입력해주세요."
@@ -282,10 +274,10 @@ export default function OnedayApplyPage() {
 
     setErrors({})
     setLoading(true)
-    // 선택 회차 → 시트 '모임 일자' 컬럼 기록 문자열 (예: "8/2 브람스를 좋아하세요..., 8/9 시지프 신화")
+    // 선택 회차 → 시트 '모임 일자' 컬럼 기록 문자열 (예: "8/30 브람스를 좋아하세요..., 9/6 시지프 신화")
     const meetingDates = ONEDAY.sessions
-      .filter((s) => pickedDays.includes(s.day))
-      .map((s) => `${ONEDAY.month}/${s.day} ${s.book}`)
+      .filter((s) => pickedKeys.includes(sessionKey(s)))
+      .map((s) => `${s.month}/${s.day} ${s.work}`)
       .join(", ")
     const payload = {
       type: "oneday",
@@ -371,7 +363,14 @@ export default function OnedayApplyPage() {
               >
                 계좌이체
               </button>
-              <a href={TOSS_URL} className={cal.payBtn}>
+              {/* 결제위젯 체크아웃으로 이동 — 선택 회차를 쿼리로 전달 (구 buy.tosspayments 링크 대체, 2026-08-11) */}
+              <a
+                href={`${base}/one-day-talk-01/checkout?items=${[...pickedKeys]
+                  .sort((a, b) => a - b)
+                  .map(meetingCode)
+                  .join(",")}`}
+                className={cal.payBtn}
+              >
                 토스페이 결제
               </a>
             </div>
@@ -418,10 +417,11 @@ export default function OnedayApplyPage() {
               alt="레이지데이 북클럽"
               className={styles.headerImage}
             />
+            {/* 포괄 표기 "일회성 모임" (운영자 2026-08-11) — 원데이 토크·무비토크를 한 폼이 담는다 */}
             <h1 className={styles.headerTitle}>
               레이지데이 북클럽
               <br />
-              <span className={styles.headerSeason}>원데이 토크</span> 신청하기
+              <span className={styles.headerSeason}>일회성 모임</span> 신청하기
             </h1>
           </div>
         </FadeUp>
@@ -431,9 +431,9 @@ export default function OnedayApplyPage() {
           {/* 행 형식 일정 — 표 폐기, 라벨(회차·장소)은 주황 서식 통일 (운영자 지시 2026-07-24) */}
           <div className={cal.infoRows}>
             {ONEDAY.sessions.map((s) => (
-              <div key={s.day} className={cal.infoRow}>
+              <div key={sessionKey(s)} className={cal.infoRow}>
                 <span className={cal.infoLabel}>{s.label}</span>
-                <span className={cal.infoValue}>{sessionDateLabel(s.day)} {s.time}</span>
+                <span className={cal.infoValue}>{sessionDateLabel(s)} {s.time}</span>
               </div>
             ))}
             <div className={cal.infoRow}>
@@ -457,27 +457,27 @@ export default function OnedayApplyPage() {
             </span>
             <div className={cal.sessionList}>
               {ONEDAY.sessions.map((s) => {
-                const on = pickedDays.includes(s.day)
-                const past = isPast(s.day)
+                const on = pickedKeys.includes(sessionKey(s))
+                const past = isPast(s)
                 return (
                   <label
-                    key={s.day}
+                    key={sessionKey(s)}
                     className={`${cal.sessionOption} ${on ? cal.sessionOptionOn : ""} ${past ? cal.sessionOptionPast : ""}`}
                   >
                     <input
                       type="checkbox"
                       checked={on}
                       disabled={past}
-                      onChange={() => toggleSession(s.day)}
+                      onChange={() => toggleSession(s)}
                       className={cal.sessionCheck}
                     />
                     <span className={cal.sessionInfo}>
                       <span className={cal.sessionDate}>
-                        {sessionDateLabel(s.day)}
+                        {sessionDateLabel(s)}
                         {/* 지난 회차 = 종료 / 수동 마감(closed) = 마감 (2026-08-09) */}
-                        {past && <span className={cal.sessionEnded}>{isClosed(s.day) ? "마감" : "종료"}</span>}
+                        {past && <span className={cal.sessionEnded}>{s.closed ? "마감" : "종료"}</span>}
                       </span>
-                      <span className={cal.sessionBook}>『{s.book}』 <span className={cal.sessionAuthor}>{s.author}</span></span>
+                      <span className={cal.sessionBook}>『{s.work}』 <span className={cal.sessionAuthor}>{s.author}</span></span>
                       <span className={cal.sessionTime}>{s.time}</span>
                     </span>
                   </label>

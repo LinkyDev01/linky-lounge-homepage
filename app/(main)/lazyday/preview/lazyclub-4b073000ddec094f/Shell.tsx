@@ -195,6 +195,9 @@ export function WorkroomShell({
               <li>
                 <a href="/policy">이용약관</a>
               </li>
+              <li>
+                <a href="/privacy">개인정보처리방침</a>
+              </li>
             </ul>
             {/* SNS 아이콘 — 원문 문법(작은 아이콘 행). 자체 드로잉 SVG */}
             <div className={styles.footerSns}>
@@ -219,6 +222,9 @@ export function WorkroomShell({
           <ul className={styles.contracts}>
             <li>
               <a href="/policy">이용약관</a>
+            </li>
+            <li>
+              <a href="/privacy">개인정보처리방침</a>
             </li>
           </ul>
         </div>

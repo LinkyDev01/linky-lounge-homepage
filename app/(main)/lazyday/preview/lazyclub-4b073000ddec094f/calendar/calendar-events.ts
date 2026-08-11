@@ -88,11 +88,9 @@ const SEASON3_SESSIONS: Array<{ label: string; dates: string[] }> = [
   { label: "5회차", dates: ["9/6"] },
 ]
 
-/** 무비토크 — 전용 config 가 없어 여기 둔다.
- *  라운드 104(운영자): 8/2 → **일주일 전 일요일 7/26**. 19시, 참가비 문의 */
-const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: string }> = [
-  { date: "7/26", title: "『호프』 무비토크", time: "19:00", price: "참가비 문의" },
-]
+/** 무비토크 — 2026-08-11 호프가 one-day-config 상품으로 승격(포스터·35,000원)되며
+ *  이 임시 배열은 비웠다. 상품화 전 단발 일정이 생기면 다시 쓴다 */
+const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: string }> = []
 
 /** "『시지프 신화』 원데이 토크" → "시지프 신화" (괄호 밖 종류어는 둘째 줄이 맡는다).
  *  칸이 좁아 『』 는 뺀다 — 한 글자라도 작품명에 쓰는 편이 식별에 낫다 (라운드 106) */
@@ -153,7 +151,8 @@ const PROGRAMS: ClubProgram[] = [
   },
   ...ONE_DAY_MEETINGS.map((m) => ({
     id: `oneday-${m.slug}`,
-    category: "booktalk" as const,
+    // 무비토크(호프)는 movie 톤 — 그 외는 원데이 토크 (2026-08-11 상품화)
+    category: (m.category === "movie" ? "movie" : "booktalk") as EventCategory,
     // 라운드 107: 카테고리 줄이 이미 "원데이 토크" 라 제목의 종류어는 중복 → 작품명만.
     // 괄호(『』)는 폭이 넉넉한 목록에서는 유지한다 (좁은 캘린더 칸에서만 생략)
     title: `『${workTitle(m.title)}』`,
@@ -219,16 +218,17 @@ const EVENTS: ClubEvent[] = [
   ...seasonEvents("season-3", season3Config.label, SEASON3_SESSIONS),
   ...ONE_DAY_MEETINGS.map((m) => {
     const [month, day] = mdFromOneDay(m.date)
+    const isMovie = m.category === "movie"
     return {
       id: `oneday-${m.slug}`,
       programId: `oneday-${m.slug}`,
       year: YEAR,
       month,
       day,
-      category: "booktalk" as const,
+      category: (isMovie ? "movie" : "booktalk") as EventCategory,
       cellLabel: m.title,
       // 라운드 106: 기수와 같은 2줄 서식 — 작품명 / 종류
-      cellLines: [workTitle(m.title), "원데이 토크"] as [string, string],
+      cellLines: [workTitle(m.title), isMovie ? "무비토크" : "원데이 토크"] as [string, string],
     }
   }),
   ...MOVIE_TALKS.map((t, i) => {

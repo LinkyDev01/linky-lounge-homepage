@@ -19,6 +19,10 @@ const BOOKCLUB_ORIGIN = "https://www.lazyday-bookclub.com" // 책클럽 정본(�
 // 모든 페이지 요청을 coming soon 페이지로 rewrite (자산·API는 matcher/분기에서 제외)
 const LAZYCLUB_HOSTS = new Set(["lazy-club.com", "www.lazy-club.com"])
 const LAZYCLUB_COMING_SOON = "/lazyday/preview/lazyclub-4b073000ddec094f/coming-soon"
+// PG(토스 결제위젯) 심사 대비 화이트리스트 (2026-08-11): 심사관이 lazy-club.com에서
+// 상품 → 신청 → 결제위젯 → 약관·개인정보처리방침까지 도달할 수 있어야 한다.
+// 이 프리픽스만 북클럽 도메인과 같은 방식(내부 /lazyday/*)으로 열고, 나머지는 coming-soon 유지.
+const LAZYCLUB_OPEN_PREFIXES = ["/one-day-talk-01", "/policy", "/privacy"]
 
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]
@@ -40,6 +44,9 @@ export function middleware(req: NextRequest) {
       to.pathname = `/lazyday${pathname}`
     } else if (pathname.startsWith("/lazyday/preview/lazyclub-4b073000ddec094f")) {
       return NextResponse.next()
+    } else if (LAZYCLUB_OPEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+      // PG 심사 화이트리스트 — 원데이 신청·결제(checkout/success/fail)·정책 페이지
+      to.pathname = `/lazyday${pathname}`
     } else {
       to.pathname = LAZYCLUB_COMING_SOON
     }

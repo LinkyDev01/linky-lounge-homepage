@@ -33,6 +33,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
   - `book-config.ts` — 기수별 책 4권 데이터 (소비자: BookSection, BookSectionV2)
   - `philosophy-content.tsx` — '결'·'불균형의 균형' 확정 원고 (강조는 `<strong>`, 색은 소비처 CSS가)
   - `preview/preview-config.ts` — season-config에서 파생. 프리뷰 실험값(capacity)만 자체 보유.
+  - `one-day-talk-01/oneday-shared.ts` — 원데이 토크 일정·가격·orderId 계약 (소비자: apply, checkout, `/api/lazyday/payment/confirm` — **회차·가격 변경은 여기만**. confirm이 orderId로 금액을 재검증하므로 가격 변경 시 결제 진행 중 주문과의 불일치에 유의)
 
 ## 3. 디자인 시스템 (레이지데이)
 

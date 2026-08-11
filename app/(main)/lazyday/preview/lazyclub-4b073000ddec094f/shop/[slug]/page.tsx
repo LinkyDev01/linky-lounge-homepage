@@ -5,8 +5,9 @@ import { BASE } from "../../Shell"
 import { goodsCode } from "@/lib/order-catalog"
 
 /** 굿즈 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 2순위).
- *  2026-08-11: 전 품목 **현장 수령**(배송 없음)으로 정하며 결제위젯 연결 —
- *  주소를 받지 않으므로 09 문서의 "티켓형 결제" 원칙 유지 */
+ *  2026-08-11: 결제위젯 연결. 수령은 현장 수령 기본 + 택배 병행(운영자 "혹시 모르니
+ *  배송정책" — 스마트스토어 표준 고지 양식). 배송지는 결제 후 연락 시 확인 —
+ *  폼에서 주소를 받지 않아 09 문서의 "티켓형 결제" 원칙 유지 */
 export default async function GoodsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const g = findGoods(slug)
@@ -23,9 +24,25 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       sub="레이지데이 굿즈"
       description={g.description}
       fields={[
-        { label: "수령", lines: ["링키라운지 현장 수령 (배송 없음)", "결제 후 수령 일정을 연락처로 안내드립니다."] },
-        { label: "교환·환불", lines: ["수령일부터 7일 이내 미개봉·미사용 시 현장 반납 (반품 비용 없음)"] },
-        { label: "문의", lines: ["contact@linkylounge.com"] },
+        {
+          label: "배송·수령",
+          lines: [
+            "링키라운지 현장 수령 또는 택배 배송 중 선택",
+            "택배: 우체국택배 · 배송비 3,000원 (제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 내 발송",
+            "배송지는 결제 후 연락처 안내 시 확인합니다.",
+          ],
+        },
+        {
+          label: "교환·반품",
+          lines: [
+            "수령일(배송 완료일)부터 7일 이내 신청 가능",
+            "단순 변심: 반품 배송비 구매자 부담 (왕복 6,000원 · 현장 반납 시 무료)",
+            "상품 하자·오배송: 기간 무관 판매자 부담으로 교환 또는 전액 환불",
+            "보내실 곳: 경기도 남양주시 별내3로 322, 404호 주식회사 링키",
+            "사용·훼손되었거나 포장 개봉으로 상품 가치가 훼손된 경우 교환·반품이 제한될 수 있습니다.",
+          ],
+        },
+        { label: "문의", lines: ["contact@linkylounge.com · 010-7444-5790"] },
       ]}
       buyHref={`/one-day-talk-01/checkout?items=${goodsCode(g.slug)}`}
       price={g.price}

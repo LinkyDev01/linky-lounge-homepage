@@ -113,7 +113,7 @@ function SuccessInner() {
             <p className={`${applyStyles.successBody} ${cal.doneBody}`}>
               주문이 완료되었어요.
               <br />
-              굿즈는 <span className={applyStyles.successAccent}>링키라운지 현장 수령</span>이며, 수령 일정은 연락처로 안내드립니다.
+              굿즈 <span className={applyStyles.successAccent}>수령 방법(현장 수령/택배)</span>은 연락처로 안내드립니다.
             </p>
           ) : (
             <p className={`${applyStyles.successBody} ${cal.doneBody}`}>

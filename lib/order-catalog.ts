@@ -17,10 +17,22 @@ export type OrderItem = {
   code: string
   name: string
   price: number
-  /** 결제창 이후 안내가 달라진다: 모임=참여 확정 / 굿즈=현장 수령 */
-  kind: "meeting" | "goods"
+  /** 결제창 이후 안내가 달라진다: 모임=참여 확정 / 굿즈=수령 / 배송비=가산 항목 */
+  kind: "meeting" | "goods" | "shipping"
   /** 보조 설명 (모임은 일시, 굿즈는 수령 안내) */
   note: string
+}
+
+/** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-11).
+ *  주문 항목으로 취급해 서버 금액 검증(orderId 재계산)에 자동으로 포함시킨다. */
+export const SHIPPING_CODE = "ship"
+export const SHIPPING_FEE = 3000
+const SHIPPING_ITEM: OrderItem = {
+  code: SHIPPING_CODE,
+  name: "배송비 (우체국택배)",
+  price: SHIPPING_FEE,
+  kind: "shipping",
+  note: "제주·도서산간 추가",
 }
 
 /** 일회성 모임 코드: d + 회차키 (예: d823) / 굿즈 코드: g- + slug (예: g-coffee-mug) */
@@ -47,7 +59,7 @@ export function catalog(): OrderItem[] {
     kind: "goods" as const,
     note: "현장 수령",
   }))
-  return [...meetings, ...goods]
+  return [...meetings, ...goods, SHIPPING_ITEM]
 }
 
 export function findItem(code: string): OrderItem | undefined {
@@ -90,8 +102,10 @@ export function parseOrderCodes(orderId: string): string[] | null {
   return codes
 }
 
-/** 결제창에 노출되는 주문명 — "원데이 토크 『브람스…』" / 2건 이상이면 "외 N건" */
+/** 결제창에 노출되는 주문명 — "원데이 토크 『브람스…』" / 2건 이상이면 "외 N건".
+ *  배송비는 상품이 아니므로 이름·건수에서 제외한다 */
 export function orderNameFor(items: OrderItem[]) {
-  if (items.length === 0) return "레이지데이"
-  return items.length === 1 ? items[0].name : `${items[0].name} 외 ${items.length - 1}건`
+  const products = items.filter((i) => i.kind !== "shipping")
+  if (products.length === 0) return "레이지데이"
+  return products.length === 1 ? products[0].name : `${products[0].name} 외 ${products.length - 1}건`
 }

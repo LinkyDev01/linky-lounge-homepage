@@ -104,6 +104,91 @@
   color: #d2691e;
 }
 
+/* ── 수령 방법·주문자 정보 (굿즈 주문) ── */
+.optionCard {
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.optionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a3020;
+  margin: 0 0 10px;
+}
+.optionTitle + .optionRow {
+  margin-top: 0;
+}
+.optionCard > .optionTitle:not(:first-child) {
+  margin-top: 20px;
+}
+
+.optionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid #eee2d0;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.optionRowOn {
+  border-color: #d2691e;
+  background: rgba(210, 105, 30, 0.05);
+}
+.optionRow input {
+  margin-top: 2px;
+  accent-color: #d2691e;
+}
+
+.optionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 14px;
+  color: #1a1208;
+  font-weight: 600;
+  word-break: keep-all;
+}
+
+.optionSub {
+  font-size: 12px;
+  font-weight: 400;
+  color: #8a7660;
+  line-height: 1.7;
+}
+
+.optionInput {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #eee2d0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1208;
+  background: #fff;
+  margin-bottom: 8px;
+  font-family: inherit;
+}
+.optionInput::placeholder {
+  color: #a08b70;
+}
+.optionInput:focus {
+  outline: none;
+  border-color: #d2691e;
+}
+
+.optionNote {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #8a7660;
+  margin: 4px 0 0;
+  word-break: keep-all;
+}
+
 /* ── 위젯 영역 — 토스 위젯이 내부를 그린다 (자체 스타일 주입 금지) ── */
 .widgetBox {
   background: #fffdf8;

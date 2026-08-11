@@ -145,13 +145,14 @@ function CheckoutInner() {
       )}
       {error && <p className={styles.errorText}>{error}</p>}
 
-      {/* 환불 안내 — docs/tosspayments-refund-notice.md(약관 제3장)와 표현 일치 의무 (DECISIONS 2026-07-04) */}
+      {/* 환불 안내 — 일회성 모임 환불 규정, 운영자 확정 원문 그대로 (2026-08-11) */}
       <div className={styles.refundBox}>
-        <p className={styles.refundTitle}>취소·환불 안내</p>
+        <p className={styles.refundTitle}>취소·환불 안내 (일회성 모임)</p>
         <ul className={styles.refundList}>
-          <li>· 모임 시작 전에는 결제 후 7일 이내 전액 환불이 가능합니다.</li>
-          <li>· 이미 시작된 회차는 환불 대상에서 제외됩니다.</li>
-          <li>· 환불 신청은 카카오톡 채널 또는 문자로 접수되며, 접수일부터 영업일 기준 5일 이내에 처리됩니다. 별도의 위약금·수수료는 없습니다.</li>
+          <li>1. 환불 신청일이 결제일부터 7일 이내이거나 모임 시작일 7일 전까지인 경우, 참가비 전액을 환불합니다. 다만 이미 개최된 모임의 참가비는 환불되지 않습니다.</li>
+          <li>2. 위에 해당하지 않는 경우, 모임 시작일 7일 전이 지난 날부터 하루가 지날 때마다 참가비의 20퍼센트씩 차감하여 환불하며, 모임 시작일 2일 전부터는 환불되지 않습니다.</li>
+          <li>3. 내부 사정으로 모임이 취소되거나 연기되는 경우, 참가비를 전액 환불하거나 다른 모임으로 이월합니다.</li>
+          <li>환불 신청은 안내된 연락처로 접수하며, 접수일부터 영업일 기준 5일 이내에 처리됩니다. 자세한 기준은 이용약관 3장에서 확인하실 수 있습니다.</li>
         </ul>
         <LazydayLink href="/policy" className={styles.refundLink}>
           이용약관·환불 규정 전문 보기

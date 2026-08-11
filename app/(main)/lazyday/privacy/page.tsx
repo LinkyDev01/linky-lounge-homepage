@@ -8,8 +8,10 @@ export const metadata: Metadata = {
 }
 
 /**
- * 개인정보처리방침 (2026-08-11 초안 — PG 심사 대비 신설).
- * 이용약관 제15조가 참조하는 문서. 개인정보 보호법 제30조 기재사항 기준으로 작성.
+ * 개인정보처리방침 (2026-08-11 신설 — PG 심사 대비, 운영자 "법률 검토해서 최소한으로").
+ * 이용약관 제15조가 참조하는 문서. 개인정보 보호법 제30조 필수 기재사항 + 해당되는
+ * 법정 고지 2건(제28조의8 국외 이전 — Google·Vercel이 국외 사업자 / 자동 수집 장치 —
+ * Meta Pixel·Google Analytics 실사용)을 최소 범위로 담는다.
  * 수집 항목은 신청 폼 실측(이름·성별·나이·연락처·한 줄 인사·인스타그램), 처리위탁은
  * 실사용 수탁사(Google·Vercel·솔라피·토스페이먼츠) 기준. 조판은 policy 페이지 재사용
  * (page.module.css 소비자 추가 — 클래스 변경 없음).
@@ -96,7 +98,43 @@ export default function LazydayPrivacyPage() {
           </p>
         </Article>
 
-        <Article title="제6조 (정보주체의 권리·의무 및 행사 방법)">
+        <Article title="제6조 (개인정보의 국외 이전)">
+          <p className={styles.clause}>
+            회사는 서비스 제공을 위하여 다음과 같이 개인정보 처리를 국외 사업자에게 위탁하고 있으며, 이 과정에서
+            개인정보가 국외로 이전된다. 정보주체는 아래 연락처(제11조의 개인정보 보호책임자)로 국외 이전을 거부할 수
+            있으나, 거부하는 경우 신청 접수 등 서비스 이용이 제한될 수 있다.
+          </p>
+          <ol className={styles.clauseList}>
+            <li>Google LLC (미국)
+              <ol className={styles.itemList}>
+                <li>이전 항목: 제2조의 수집 항목 전체 / 이전 시기·방법: 신청 접수 시 정보통신망을 통한 전송</li>
+                <li>이용 목적: 신청 정보의 저장·관리(처리위탁) / 보유 기간: 제3조의 보유 기간 종료 시까지</li>
+                <li>연락처: support.google.com (개인정보 문의 창구)</li>
+              </ol>
+            </li>
+            <li>Vercel Inc. (미국)
+              <ol className={styles.itemList}>
+                <li>이전 항목: 웹사이트 이용 과정에서 처리되는 정보 / 이전 시기·방법: 웹사이트 접속 시 정보통신망을 통한 전송</li>
+                <li>이용 목적: 웹사이트 호스팅(처리위탁) / 보유 기간: 위탁 계약 종료 시까지</li>
+                <li>연락처: privacy@vercel.com</li>
+              </ol>
+            </li>
+          </ol>
+        </Article>
+
+        <Article title="제7조 (개인정보 자동 수집 장치의 설치·운영 및 거부)">
+          <ol className={styles.clauseList}>
+            <li>회사 웹사이트는 서비스 개선과 광고 성과 측정을 위하여 쿠키 등 자동 수집 장치를 사용한다. 이를 통해 수집되는 정보는 접속 기록, 방문 페이지 등 웹사이트 이용 정보이며, 개인을 직접 식별하는 정보는 포함하지 않는다.
+              <ol className={styles.itemList}>
+                <li>Google Analytics (Google LLC): 방문·이용 통계 분석</li>
+                <li>Meta Pixel (Meta Platforms, Inc.): 광고 성과 측정</li>
+              </ol>
+            </li>
+            <li>정보주체는 브라우저 설정에서 쿠키 저장을 거부하거나 삭제할 수 있다. 다만 쿠키 저장을 거부할 경우 일부 서비스 이용에 어려움이 있을 수 있다.</li>
+          </ol>
+        </Article>
+
+        <Article title="제8조 (정보주체의 권리·의무 및 행사 방법)">
           <ol className={styles.clauseList}>
             <li>정보주체는 회사에 대해 언제든지 개인정보의 열람·정정·삭제·처리정지를 요구할 수 있다.</li>
             <li>권리 행사는 이메일(contact@linkylounge.com), 전화(010-7444-5790) 또는 카카오톡 채널을 통해 할 수 있으며, 회사는 지체 없이 조치한다.</li>
@@ -105,14 +143,14 @@ export default function LazydayPrivacyPage() {
           </ol>
         </Article>
 
-        <Article title="제7조 (개인정보의 파기)">
+        <Article title="제9조 (개인정보의 파기)">
           <ol className={styles.clauseList}>
             <li>회사는 개인정보 보유 기간의 경과, 처리 목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체 없이 해당 개인정보를 파기한다.</li>
             <li>전자적 파일 형태의 정보는 복구할 수 없는 방법으로 삭제하며, 종이 문서는 분쇄하거나 소각하여 파기한다.</li>
           </ol>
         </Article>
 
-        <Article title="제8조 (개인정보의 안전성 확보 조치)">
+        <Article title="제10조 (개인정보의 안전성 확보 조치)">
           <ol className={styles.clauseList}>
             <li>개인정보 접근 권한의 최소화 및 관리</li>
             <li>개인정보 전송 구간의 암호화(HTTPS)</li>
@@ -120,7 +158,7 @@ export default function LazydayPrivacyPage() {
           </ol>
         </Article>
 
-        <Article title="제9조 (개인정보 보호책임자)">
+        <Article title="제11조 (개인정보 보호책임자)">
           <p className={styles.clause}>
             회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을
             위하여 아래와 같이 개인정보 보호책임자를 지정하고 있다.
@@ -135,7 +173,7 @@ export default function LazydayPrivacyPage() {
           </p>
         </Article>
 
-        <Article title="제10조 (개인정보처리방침의 변경)">
+        <Article title="제12조 (개인정보처리방침의 변경)">
           <p className={styles.clause}>
             이 개인정보처리방침은 2026년 8월 11일부터 적용된다. 내용의 추가·삭제 및 수정이 있을 경우 시행 7일 전부터
             웹사이트를 통해 고지한다.

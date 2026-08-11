@@ -5,6 +5,9 @@
 // 지금은 프리뷰 트리 안에 두고, 실사이트 이식 시 lazyday 루트로 승격한다.
 // ================================================================
 
+import { ONEDAY, sessionKey } from "@/app/(main)/lazyday/one-day-talk-01/oneday-shared"
+import { meetingCode } from "@/lib/order-catalog"
+
 export type OneDayCategory = "booktalk" | "movie" | "lecture" | "reading" | "documents"
 
 /** 화면 노출용 카테고리 라벨 (라운드 82, 운영자: "booktalk 대신에 원데이토크").
@@ -106,4 +109,14 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
 
 export function findMeeting(slug: string) {
   return ONE_DAY_MEETINGS.find((m) => m.slug === slug)
+}
+
+/** 모임 slug → 주문 코드 (dNNN). 실 일정(oneday-shared ONEDAY)과 작품명으로 대조 —
+ *  일정에 없는(지난·미등록) 모임은 null. 카트·상세 구매하기가 공유 (선결제→후신청, 2026-08-11) */
+export function meetingOrderCode(slug: string): string | null {
+  const m = findMeeting(slug)
+  if (!m) return null
+  const work = m.title.match(/『(.+?)』/)?.[1]
+  const s = ONEDAY.sessions.find((x) => x.work === work)
+  return s ? meetingCode(sessionKey(s)) : null
 }

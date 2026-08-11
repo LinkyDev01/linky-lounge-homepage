@@ -332,3 +332,13 @@
   color: #8a7660;
   word-break: keep-all;
 }
+
+/* 선결제→후신청 (2026-08-11): 폼 제출 버튼이 결제 진입 앵커가 되며 필요해진 보정 —
+   .submitButton(공유 apply/page.module.css, 수정 금지)은 button 기준이라 앵커에선
+   가운데 정렬·밑줄 제거가 빠진다 */
+.submitLink {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}

@@ -129,8 +129,17 @@ function CheckoutInner() {
       // 주문명에는 첫 상품의 옵션을 병기 — 운영자가 토스 내역에서 옵션 확인
       const firstOpt = entries[0]?.option
       const name = orderNameFor(items)
+      const orderId = buildOrderId(codes)
+      // 선결제→후신청 (2026-08-11): 결제 후 success 신청서에 이름·연락처를 프리필한다.
+      // 토스 리다이렉트는 같은 탭이라 sessionStorage 가 살아 있다 (실패해도 폼은 빈 값으로 동작)
+      try {
+        sessionStorage.setItem(
+          "lz-buyer",
+          JSON.stringify({ orderId, name: buyerName.trim(), phone: buyerPhone.replace(/[^0-9]/g, "") }),
+        )
+      } catch {}
       await widgets.requestPayment({
-        orderId: buildOrderId(codes),
+        orderId,
         orderName: firstOpt ? name.replace(/^([^—]+)/, `$1(${firstOpt}) `) : name,
         successUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/success`,
         failUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/fail`,

@@ -7,9 +7,8 @@
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { BASE, useToast, WorkroomShell } from "../Shell"
 import { useCart } from "../store"
-import { findMeeting } from "../one-day-config"
-import { goodsCode, meetingCode } from "@/lib/order-catalog"
-import { ONEDAY, sessionKey } from "../../../one-day-talk-01/oneday-shared"
+import { meetingOrderCode } from "../one-day-config"
+import { goodsCode } from "@/lib/order-catalog"
 import { useBasePath } from "@/hooks/use-base-path"
 import styles from "../home.module.css"
 
@@ -19,14 +18,8 @@ function orderCodeOf(rawId: string): string | null {
   const [id, opt] = rawId.split("#")
   const withOpt = (code: string | null) => (code && opt ? `${code}:${encodeURIComponent(opt)}` : code)
   if (id.startsWith("goods-")) return withOpt(goodsCode(id.slice("goods-".length)))
-  if (id.startsWith("meeting-")) {
-    // 모임 상세의 slug(brahms 등) → 일정의 회차 키. 작품명으로 대조한다
-    const m = findMeeting(id.slice("meeting-".length))
-    if (!m) return null
-    const work = m.title.match(/『(.+?)』/)?.[1]
-    const s = ONEDAY.sessions.find((x) => x.work === work)
-    return s ? meetingCode(sessionKey(s)) : null
-  }
+  // 모임 slug → 회차 코드 — 상세 구매하기와 같은 매핑 (one-day-config.meetingOrderCode)
+  if (id.startsWith("meeting-")) return meetingOrderCode(id.slice("meeting-".length))
   return null
 }
 

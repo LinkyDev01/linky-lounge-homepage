@@ -19,6 +19,10 @@ export type Goods = {
   /** 컬러 옵션 (라운드 125, 브라운야드 문법) — 운영자 제공 제품 사진에서 실측 추출한 HEX.
    *  목록 카드에 원형 칩으로 나열. 빈 배열이면 칩 미노출 */
   colors: string[]
+  /** 컬러 이름 — colors 와 같은 순서 (상세 옵션 선택·주문 표기용, 2026-08-11) */
+  colorNames: string[]
+  /** 사이즈 옵션 (노아 문법 — 상세에서 선택). 없으면 미노출 */
+  sizes?: string[]
 }
 
 export const GOODS: Goods[] = [
@@ -36,6 +40,9 @@ export const GOODS: Goods[] = [
     price: 24900, // 운영자 확정가 2026-08-11
     // 화이트·블랙·더스티 블루·카멜·더스티 핑크·다크브라운 (운영자 제공 사진 실측)
     colors: ["#f0f0f2", "#1a191f", "#8488c0", "#b17335", "#d29e8f", "#543021"],
+    colorNames: ["화이트", "블랙", "더스티 블루", "카멜", "더스티 핑크", "다크브라운"],
+    // ⚠ 임시 사이즈 구성 — 운영자 확정값 나오면 교체 (2026-08-11)
+    sizes: ["S", "M", "L", "XL"],
   },
   {
     slug: "acrylic-coaster",
@@ -50,6 +57,7 @@ export const GOODS: Goods[] = [
     price: 12900, // 운영자 확정가 2026-08-11
     // I ♥ LAZYDAY 하우스 — 크림 단일 (운영자 제공 도안 실측)
     colors: ["#f7ebc3"],
+    colorNames: ["크림"],
   },
   {
     slug: "coffee-mug",
@@ -64,6 +72,7 @@ export const GOODS: Goods[] = [
     price: 18900, // 운영자 확정가 2026-08-11
     // 민트·옐로·핑크·블루·그레이 (운영자 제공 사진 실측)
     colors: ["#99bbab", "#c9ad52", "#c6a298", "#8395a3", "#5d5f5c"],
+    colorNames: ["민트", "옐로", "핑크", "블루", "그레이"],
   },
 ]
 

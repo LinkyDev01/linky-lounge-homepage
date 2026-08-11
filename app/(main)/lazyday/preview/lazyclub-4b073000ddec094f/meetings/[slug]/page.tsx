@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
 import { CATEGORY_LABELS, findMeeting } from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
-import { BASE } from "../../Shell"
+// 서버 컴포넌트 — Shell("use client") 경유로 BASE 를 받으면 프록시가 찍힌다 (base-path 직수입)
+import { BASE } from "../../base-path"
 
 /** 원데이 토크 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 1순위) */
 export default async function MeetingDetailPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -13,9 +13,12 @@ import { ONEDAY, sessionKey } from "../../../one-day-talk-01/oneday-shared"
 import { useBasePath } from "@/hooks/use-base-path"
 import styles from "../home.module.css"
 
-/** 카트 항목 id → 주문 코드. 결제 불가 항목(마감·가격 미정)은 null */
-function orderCodeOf(id: string): string | null {
-  if (id.startsWith("goods-")) return goodsCode(id.slice("goods-".length))
+/** 카트 항목 id → 주문 코드 (+옵션). 결제 불가 항목(마감·가격 미정)은 null.
+ *  id 의 #옵션 접미(색상/사이즈)는 코드 뒤에 :옵션 으로 실어 결제 요약·주문명에 쓴다 */
+function orderCodeOf(rawId: string): string | null {
+  const [id, opt] = rawId.split("#")
+  const withOpt = (code: string | null) => (code && opt ? `${code}:${encodeURIComponent(opt)}` : code)
+  if (id.startsWith("goods-")) return withOpt(goodsCode(id.slice("goods-".length)))
   if (id.startsWith("meeting-")) {
     // 모임 상세의 slug(brahms 등) → 일정의 회차 키. 작품명으로 대조한다
     const m = findMeeting(id.slice("meeting-".length))

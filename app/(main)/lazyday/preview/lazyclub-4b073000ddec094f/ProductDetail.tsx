@@ -96,7 +96,10 @@ function DetailBody(p: DetailProps) {
           {p.images.map((img, i) => (
             <div key={img.src} className={styles.detailImage}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={i === 0 && activeColorImg ? activeColorImg : img.src} alt={img.alt} />
+              <img
+                src={i === 0 && activeColorImg ? activeColorImg : img.src}
+                alt={i === 0 && activeColorImg ? `${p.title} — ${color}` : img.alt}
+              />
               {p.status !== "open" && <StatusOverlay status={p.status} />}
             </div>
           ))}

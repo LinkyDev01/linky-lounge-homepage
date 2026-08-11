@@ -6,7 +6,7 @@ import { loadTossPayments, ANONYMOUS, type TossPaymentsWidgets } from "@tosspaym
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { useBasePath } from "@/hooks/use-base-path"
 import { reportClientError } from "../../support"
-import { TOSS_DOCS_TEST_CLIENT_KEY } from "../oneday-shared"
+import { TOSS_DOCS_TEST_CLIENT_KEY, findSession, isPastSession } from "../oneday-shared"
 import {
   SHIPPING_CODE,
   SHIPPING_FEE,
@@ -36,7 +36,19 @@ const VARIANT_AGREEMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_AGREEMENT || "AGR
 
 type Entry = { item: OrderItem; option: string }
 
-/** ?items= 파싱 — "code:옵션" 항목을 카탈로그와 대조해 확정 (모르는 코드는 버린다) */
+/** 010-0000-0000 자동 하이픈 — apply·결제 후 신청서와 동일 문법 (2026-08-11 디버깅:
+ *  checkout 만 미적용이라 알림톡 발송용 번호 오입력이 가장 잦은 지점이 무방비였다) */
+function formatPhone(value: string) {
+  const nums = value.replace(/[^0-9]/g, "")
+  if (nums.length <= 3) return nums
+  if (nums.length <= 7) return nums.slice(0, 3) + "-" + nums.slice(3)
+  return nums.slice(0, 3) + "-" + nums.slice(3, 7) + "-" + nums.slice(7, 11)
+}
+
+/** ?items= 파싱 — "code:옵션" 항목을 카탈로그와 대조해 확정 (모르는 코드는 버린다).
+ *  지난·마감 회차(dNNN)는 여기서 걸러 결제 자체를 막는다 — 서버 catalog()는 승인
+ *  경계(결제 도중 시각 경과)를 위해 그대로 두고, 진입만 차단 (2026-08-11 디버깅:
+ *  apply 는 지난 회차를 막지만 checkout 직접 URL 로는 종료 모임이 결제됐다) */
 function parseEntries(raw: string): Entry[] {
   const out: Entry[] = []
   const seen = new Set<string>()
@@ -45,6 +57,10 @@ function parseEntries(raw: string): Entry[] {
     if (code === SHIPPING_CODE || seen.has(code)) continue
     const item = resolveItems([code])?.[0]
     if (!item) continue
+    if (item.kind === "meeting") {
+      const s = findSession(Number(code.slice(1)))
+      if (!s || s.closed === true || isPastSession(s)) continue
+    }
     seen.add(code)
     out.push({ item, option: opt ? decodeURIComponent(opt) : "" })
   }
@@ -254,7 +270,7 @@ function CheckoutInner() {
           className={styles.optionInput}
           placeholder="연락처 (010-0000-0000)"
           value={buyerPhone}
-          onChange={(e) => setBuyerPhone(e.target.value)}
+          onChange={(e) => setBuyerPhone(formatPhone(e.target.value))}
         />
 
         {/* 배송지 — 택배 선택 시에만 (우편번호·주소·상세) */}

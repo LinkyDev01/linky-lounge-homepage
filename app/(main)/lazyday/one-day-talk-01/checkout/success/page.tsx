@@ -59,6 +59,10 @@ function SuccessInner() {
   const params = useSearchParams()
   const [phase, setPhase] = useState<Phase>("confirming")
   const [errorMsg, setErrorMsg] = useState("")
+  // 오류 종류 — 결제 실패와 재진입 링크 오류는 문구·행동이 정반대다.
+  // 재진입은 **이미 결제가 끝난** 주문이라 결제 실패 문구·재시도 버튼을 보이면
+  // 중복 결제로 이어진다 (2026-08-11 실측에서 발견)
+  const [errorKind, setErrorKind] = useState<"payment" | "reentry">("payment")
   const calledRef = useRef(false)
 
   const paymentKey = params.get("paymentKey") || ""
@@ -79,8 +83,10 @@ function SuccessInner() {
     if (isReentry) {
       if (orderId && hasMeeting) setPhase("form")
       else {
+        // ⚠ 결제 실패 문구를 쓰면 안 된다 — 이미 결제한 사람이 중복 결제한다 (2026-08-11)
+        setErrorKind("reentry")
         setPhase("error")
-        setErrorMsg("신청서 주소가 올바르지 않습니다. 안내받은 링크를 다시 확인해주세요.")
+        setErrorMsg("주소가 올바르지 않아 신청서를 열지 못했어요. 안내받은 링크를 그대로 다시 열어주세요.")
       }
       return
     }
@@ -128,20 +134,37 @@ function SuccessInner() {
             </LazydayLink>
           </div>
           <div className={styles.stateBox}>
-            <h1 className={styles.stateTitle}>결제가 완료되지 않았어요</h1>
+            <h1 className={styles.stateTitle}>
+              {errorKind === "reentry" ? "신청서를 열지 못했어요" : "결제가 완료되지 않았어요"}
+            </h1>
             <p className={styles.stateBody}>{errorMsg}</p>
-            <p className={styles.stateDetail}>
-              카드 승인 문제일 수 있어요. 잠시 후 다시 시도하거나,
-              <br />
-              문제가 반복되면{" "}
-              <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" className={styles.refundLink}>
-                카카오톡 채널
-              </a>
-              로 문의해주세요.
-            </p>
-            <LazydayLink href={retryHref} className={styles.emptyLink}>
-              결제 다시 시도하기
-            </LazydayLink>
+            {errorKind === "reentry" ? (
+              /* 결제는 이미 끝난 주문 — 재시도 버튼을 주면 중복 결제가 된다 */
+              <p className={styles.stateDetail}>
+                <strong>결제는 이미 정상 처리되었으니 다시 결제하지 마세요.</strong>
+                <br />
+                링크가 계속 열리지 않으면{" "}
+                <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" className={styles.refundLink}>
+                  카카오톡 채널
+                </a>
+                로 알려주시면 바로 도와드릴게요.
+              </p>
+            ) : (
+              <>
+                <p className={styles.stateDetail}>
+                  카드 승인 문제일 수 있어요. 잠시 후 다시 시도하거나,
+                  <br />
+                  문제가 반복되면{" "}
+                  <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" className={styles.refundLink}>
+                    카카오톡 채널
+                  </a>
+                  로 문의해주세요.
+                </p>
+                <LazydayLink href={retryHref} className={styles.emptyLink}>
+                  결제 다시 시도하기
+                </LazydayLink>
+              </>
+            )}
           </div>
         </div>
       </main>

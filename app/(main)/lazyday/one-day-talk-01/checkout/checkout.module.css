@@ -32,8 +32,30 @@
 }
 
 .container {
-  max-width: 620px;
+  max-width: 1060px;
   margin: 0 auto;
+}
+
+/* ── 주문서 2단 (브라운야드 문법) — 좌: 상품·정보 / 우: 결제(고정).
+      모바일은 스택 — 상품이 상단 (운영자 2026-08-11) ── */
+.orderGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 50px;
+  align-items: start;
+}
+.colPay {
+  position: sticky;
+  top: 20px;
+}
+@media (max-width: 900px) {
+  .orderGrid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .colPay {
+    position: static;
+  }
 }
 
 /* ── 상단 내비 — 워크룸 내비 문법 (SUIT) ── */
@@ -172,12 +194,14 @@
   color: var(--dim);
 }
 
+/* 입력창 — 흰색이 종이 위에서 튀어 종이 톤으로 (운영자 2026-08-11). 배경은 페이지와
+   동일한 종이색, 경계는 헤어라인만. 포커스 시 잉크 보더로 구분 */
 .optionInput {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--hair);
   border-radius: 0;
-  background: #fff;
+  background: transparent;
   font: inherit;
   color: var(--ink);
   margin-bottom: 8px;
@@ -223,18 +247,16 @@
   font-size: 17px;
 }
 
+/* 위젯 래퍼 — 내부는 토스가 그린다(스타일 주입 불가). 흰 카드가 튀지 않게
+   래퍼 배경은 종이색으로 두고 경계도 없앤다 (위젯 자체 여백이 경계 역할) */
 .widgetBox {
-  border: 1px solid var(--hair);
-  background: #fff;
+  background: transparent;
   min-height: 200px;
-  margin-bottom: 10px;
-  overflow: hidden;
+  margin-bottom: 4px;
 }
 .agreementBox {
-  border: 1px solid var(--hair);
-  background: #fff;
+  background: transparent;
   margin-bottom: 22px;
-  overflow: hidden;
 }
 
 /* 노아 결제 버튼 문법 — 풀폭 잉크 바, 각진 서식 */

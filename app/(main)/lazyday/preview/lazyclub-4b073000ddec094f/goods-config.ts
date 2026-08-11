@@ -23,10 +23,10 @@ export type Goods = {
   colorNames: string[]
   /** 사이즈 옵션 (노아 문법 — 상세에서 선택). 없으면 미노출 */
   sizes?: string[]
-  /** 상세 갤러리 (2026-08-11 운영자 "여러 이미지로, 넘기면서 볼 수 있게 — 이미지
-   *  나열하는 형태") — 캐러셀이 아니라 워크룸 상세의 세로 나열 스택으로 전부 노출.
-   *  없으면 img 한 장만. 첫 장이 메인(목록 카드와 동일 컷) */
-  gallery?: string[]
+  /** 색별 제품컷 — colors 와 같은 순서 (2026-08-11 운영자 정정: 나열 대신 "컬러
+   *  클릭하면 첫 위치에 사진만 바뀌도록"). 상세에서 칩 선택 시 메인 사진 교체.
+   *  없으면 img 한 장 고정 */
+  colorImgs?: string[]
 }
 
 export const GOODS: Goods[] = [
@@ -81,8 +81,9 @@ export const GOODS: Goods[] = [
     // 옐로·민트·핑크·블루·그레이 — 2026-08-11 신규 제품컷 실측 (옐로가 메인이라 첫 번째)
     colors: ["#e7b131", "#a5bca8", "#bfa196", "#8b98a1", "#61615f"],
     colorNames: ["옐로", "민트", "핑크", "블루", "그레이"],
-    // 상세 갤러리 — 옐로 메인, 이후 칩 순서(민트·핑크·블루·그레이)와 동일
-    gallery: [
+    // 색별 제품컷 — colors 와 같은 순서. 상세는 사진을 나열하지 않고 **컬러 칩을
+    // 클릭하면 첫 위치의 사진만 교체**한다 (운영자 2026-08-11, 구 gallery 나열 폐기)
+    colorImgs: [
       "/linky-lounge/book-club/home-v3/coffee-mug-y.webp",
       "/linky-lounge/book-club/home-v3/coffee-mug-m.webp",
       "/linky-lounge/book-club/home-v3/coffee-mug-p.webp",

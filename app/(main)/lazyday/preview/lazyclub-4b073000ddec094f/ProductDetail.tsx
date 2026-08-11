@@ -29,9 +29,11 @@ export type DetailProps = {
   images: { src: string; alt: string }[]
   cartItem: CartItem
   /** 구매 옵션 (2026-08-11) — 색상은 브라운야드 문법(칩), 사이즈는 노아 문법(선택지 나열).
-   *  지정 시 선택해야 구매·카트 담기가 진행된다. 옵션은 가격에 영향 없음 */
+   *  지정 시 선택해야 구매·카트 담기가 진행된다. 옵션은 가격에 영향 없음.
+   *  색상에 img 가 있으면 칩 클릭 시 **첫 위치의 사진만 교체**된다 (운영자 2026-08-11
+   *  "사진을 1열로 나열하지말고 컬러 클릭할 때만") */
   options?: {
-    colors?: { hex: string; name: string }[]
+    colors?: { hex: string; name: string; img?: string }[]
     sizes?: string[]
   }
   /** 배송·교환 등 거래 조건 — 저장 버튼 **아래**에 놓는다 (라운드 136, 운영자
@@ -84,14 +86,17 @@ function DetailBody(p: DetailProps) {
       ? "오픈 예정입니다. 발매 알림은 준비 중입니다."
       : p.buyMessage ?? null
 
+  // 선택한 색상의 제품컷이 있으면 첫 위치 사진을 그 컷으로 교체 (나열 아님 — 교체)
+  const activeColorImg = color ? p.options?.colors?.find((c) => c.name === color)?.img : undefined
+
   return (
     <main className={styles.content}>
       <section className={`${styles.productHero} ${styles.detailHero}`}>
         <figure className={styles.productFigure}>
-          {p.images.map((img) => (
+          {p.images.map((img, i) => (
             <div key={img.src} className={styles.detailImage}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.src} alt={img.alt} />
+              <img src={i === 0 && activeColorImg ? activeColorImg : img.src} alt={img.alt} />
               {p.status !== "open" && <StatusOverlay status={p.status} />}
             </div>
           ))}

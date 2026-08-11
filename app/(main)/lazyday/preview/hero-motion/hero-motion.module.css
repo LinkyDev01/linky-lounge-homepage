@@ -69,10 +69,10 @@
 }
 .touchGroup { cursor: pointer; transform-origin: center; transform-box: fill-box; }
 
-/* 실 위 문장 (②·③) */
+/* 실 위 문장 (②·③) — 실측 경로는 평행 실 간격이 좁아 포스터 비례(~7px)에 가깝게 */
 .threadText {
   font-family: "SUIT", sans-serif;
-  font-size: 10.5px;
+  font-size: 8px;
   letter-spacing: 0.02em;
   fill: #1a1208;
 }

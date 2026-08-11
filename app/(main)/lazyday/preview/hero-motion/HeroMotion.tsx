@@ -5,7 +5,8 @@
  *
  * 재료는 **현행 4기 포스터의 조형 그대로**: ① 흩어진 큰 글자 12자(레이지데이
  * 북클럽 4기 모집) ② 그 사이를 문장이 실처럼 흐르는 얽힌 루프. 새 도형 없음.
- * 데모는 포스터 구도를 축소 재현한 것 — 채택 시 실제 포스터 좌표로 정밀 이식.
+ * 라운드 135부터 실·글자 좌표는 포스터 원본에서 추출한 실측값(poster-thread.ts)
+ * — 얽힌 실 전체를 한 번씩 지나는 한붓 경로다.
  *
  * 실 위 문장은 데모에선 철학 원고('결') 확정 원문 발췌 — 실이식 시 포스터의
  * 원문(운영자 소유 카피)으로 교체한다.
@@ -18,6 +19,7 @@
 import { useEffect, useRef, useState } from "react"
 import { animate, createSpring, svg } from "animejs"
 import styles from "./hero-motion.module.css"
+import { POSTER_THREAD_D, POSTER_GLYPHS } from "./poster-thread"
 
 const TABS = [
   { key: "draw", label: "① 실선 인트로 (실이 먼저 그어진다)" },
@@ -33,16 +35,16 @@ type TabKey = (typeof TABS)[number]["key"]
 
 const META: Record<TabKey, { what: string; why: string }> = {
   draw: {
-    what: "진입 1회: 실(문장의 루프)이 1.4초에 걸쳐 스스로 그어지고, 끝나갈 때 큰 글자 12자가 60ms 간격으로 내려앉는다. 총 ~2.2초 후 완전 정지 = 현행 포스터",
+    what: "진입 1회: 포스터 실측 실(한붓 경로)이 2.2초에 걸쳐 스스로 그어지고, 끝나갈 때 큰 글자 12자가 60ms 간격으로 내려앉는다. 총 ~2.9초 후 완전 정지 = 현행 포스터",
     why: "포스터가 '그려지는 과정'을 한 번만 보여주는 안. 재방문·스크롤 복귀 시 재생 없음 (M2). 라이브러리 없이도 대체 가능한 가장 견고한 구조",
   },
   flow: {
-    what: "실이 선이 아니라 **문장 그 자체**로 들어온다 — 작은 글자들이 루프 경로를 따라 순서대로 자리를 잡고(글자당 12ms), 큰 글자가 뒤따라 앉는다. ~2.8초",
+    what: "실이 선이 아니라 **문장 그 자체**로 들어온다 — 작은 글자들이 실측 경로 전체를 따라 순서대로 자리를 잡고, 큰 글자가 뒤따라 앉는다. ~2.9초",
     why: "포스터의 본질(문장이 실이 된 조판)을 모션으로 정직하게 번역한 안. '불필요하게 고퀄' (M3). 데모 문장은 철학 원고 발췌 — 실이식 시 포스터 원문으로",
   },
   breathe: {
-    what: "〈사유의 기슭〉 전문이 포스터의 얽힌 실을 따라 흐른다 — 실 한쪽 끝에서 글자가 태어나고 반대쪽 끝에서 사라지며 끝없이 반복 (10~11px/s, 실이 비는 구간 없음). 큰 글자 12자는 완전 정적",
-    why: "존재만 하는 배경 루프 (M2 허용 유형). 정원이 아니라 포스터 구도 그대로의 실 — 포스터가 죽은 이미지가 아니라 아주 천천히 살아 있다",
+    what: "〈사유의 기슭〉 전문이 포스터의 얽힌 실(실측 한붓 경로)을 따라 흐른다 — 실 한쪽 끝에서 글자가 태어나고 반대쪽 끝에서 사라지며 끝없이 반복 (10px/s, 실이 비는 구간 없음). 큰 글자 12자는 완전 정적",
+    why: "존재만 하는 배경 루프 (M2 허용 유형). 포스터의 복잡한 실 그대로 — 포스터가 죽은 이미지가 아니라 아주 천천히 살아 있다",
   },
   touch: {
     what: "평소 완전 정적. 실을 만지면(호버·탭) 그 루프가 한 번 출렁이고 스프링으로 잦아든다. 연타해도 출렁임은 한 번에 하나",
@@ -70,8 +72,8 @@ export function HeroMotion() {
         <h1 className={styles.title}>히어로 모션 — 7안 (포스터 기반 4 + 신규 3)</h1>
         <p className={styles.lede}>
           ①~④는 현행 4기 포스터의 조형(큰 글자 12자 + 문장의 실 루프)을 그대로 재료로 쓴
-          안(구도는 축소 재현), ⑤~⑦은 포스터에 얽매이지 않은 신규안입니다. 채택 시 실제
-          좌표·원문으로 정밀 이식합니다.
+          안입니다 — 실과 글자 좌표는 포스터 원본에서 추출한 실측값(얽힌 실 전체를 한 번씩
+          지나는 한붓 경로). ⑤~⑦은 포스터에 얽매이지 않은 신규안입니다.
         </p>
         <div className={styles.tabs} role="tablist">
           {TABS.map((t) => (
@@ -104,28 +106,12 @@ export function HeroMotion() {
   )
 }
 
-/* ── 공통 조형 (포스터 축소 재현) ───────────────────────────
-   viewBox 400×500. 루프 2벌(상단 얽힘 + 하단 8자꼴)과 큰 글자 12자.
-   좌표는 포스터의 배치 감각을 따른 근사값 — 이식 시 정밀 좌표로. */
+/* ── 공통 조형 (포스터 실측 이식 — 라운드 135) ───────────────
+   viewBox 400×500. 실 = 실제 4기 포스터에서 골격 추출한 한붓 경로
+   (poster-thread.ts — 교차 8개를 직진 통과, 얽힌 실 전체를 한 번씩 지남).
+   큰 글자 12자도 포스터 실측 중심 좌표. */
 
-const LOOP_A = "M 82 178 C 64 70, 268 44, 316 148 C 348 224, 170 268, 138 186 C 116 122, 226 96, 262 150"
-const LOOP_B =
-  "M 66 408 C 48 300, 224 282, 258 356 C 290 428, 128 486, 106 402 C 92 340, 196 322, 238 372 C 286 428, 356 420, 368 340"
-
-const GLYPHS: Array<{ ch: string; x: number; y: number; s: number; r: number }> = [
-  { ch: "레", x: 128, y: 150, s: 46, r: 0 },
-  { ch: "이", x: 196, y: 96, s: 46, r: 0 },
-  { ch: "지", x: 296, y: 112, s: 46, r: 0 },
-  { ch: "데", x: 236, y: 218, s: 46, r: 0 },
-  { ch: "이", x: 318, y: 214, s: 46, r: 0 },
-  { ch: "북", x: 118, y: 330, s: 46, r: 0 },
-  { ch: "클", x: 262, y: 320, s: 46, r: 0 },
-  { ch: "럽", x: 330, y: 352, s: 46, r: 0 },
-  { ch: "4", x: 74, y: 452, s: 48, r: 0 },
-  { ch: "기", x: 158, y: 444, s: 48, r: 0 },
-  { ch: "모", x: 248, y: 452, s: 48, r: 0 },
-  { ch: "집", x: 336, y: 466, s: 48, r: 0 },
-]
+const GLYPHS = POSTER_GLYPHS
 
 function PosterGlyphs({ hidden }: { hidden?: boolean }) {
   return (
@@ -136,9 +122,10 @@ function PosterGlyphs({ hidden }: { hidden?: boolean }) {
           x={g.x}
           y={g.y}
           fontSize={g.s}
+          textAnchor="middle"
+          dominantBaseline="central"
           className={`${styles.glyph} posterGlyph`}
           style={hidden ? { opacity: 0 } : undefined}
-          transform={g.r ? `rotate(${g.r} ${g.x} ${g.y})` : undefined}
         >
           {g.ch}
         </text>
@@ -157,15 +144,15 @@ function DrawDemo() {
     if (!root) return
     const paths = [...root.querySelectorAll<SVGPathElement>("path[data-thread]")]
     const drawables = paths.flatMap((p) => svg.createDrawable(p))
-    const anims = drawables.map((d, i) =>
-      animate(d, { draw: ["0 0", "0 1"], duration: 1400, delay: i * 260, ease: "inOut(2)" }),
+    const anims = drawables.map((d) =>
+      animate(d, { draw: ["0 0", "0 1"], duration: 2200, ease: "inOut(2)" }),
     )
     const glyphs = root.querySelectorAll(".posterGlyph")
     const ga = animate(glyphs, {
       opacity: [0, 1],
       translateY: [8, 0], // SVG text에 y는 속성 트윈이 된다 — transform으로 (라운드 133 실측)
       duration: 520,
-      delay: (_el, i) => 900 + (i ?? 0) * 60,
+      delay: (_el, i) => 1300 + (i ?? 0) * 60,
       ease: "cubicBezier(0.22, 1, 0.36, 1)",
     })
     return () => {
@@ -177,8 +164,7 @@ function DrawDemo() {
   return (
     <div className={styles.stage}>
       <svg ref={rootRef} className={styles.poster} viewBox="0 0 400 500">
-        <path data-thread d={LOOP_A} className={styles.thread} />
-        <path data-thread d={LOOP_B} className={styles.thread} />
+        <path data-thread d={POSTER_THREAD_D} className={styles.thread} />
         <PosterGlyphs hidden />
       </svg>
       <button type="button" className={styles.replayBtn} onClick={() => setRun((n) => n + 1)}>
@@ -189,10 +175,12 @@ function DrawDemo() {
 }
 
 /* ── ② 문장이 걸어 들어온다 ──
-   실이 선이 아니라 문장 자체 — textPath 위 글자를 순서대로 안착. */
+   실이 선이 아니라 문장 자체 — textPath 위 글자를 순서대로 안착.
+   실측 경로(~2687 단위) 전체를 채우도록 결 발췌 2문장을 이어 반복. */
 const THREAD_TEXT_A = "결국 결이 맞는다는 것은 단순한 취향의 일치가 아닙니다. 서로의 아비투스가 어긋나지 않고 정교하게 맞물려 움직이는 상태입니다. "
 const THREAD_TEXT_B =
   "한 사람이 어떤 문장 앞에서 한참을 멈춰 서 있을 때, 다른 이가 기꺼이 그 침묵과 멈춤을 함께 견뎌내는 것. 그 자리에서 누가 말을 보태고 누가 조용히 응시할지가 자연스럽게 정해지는 것. "
+const FLOW_TEXT = `${THREAD_TEXT_A}${THREAD_TEXT_B}`.repeat(3)
 
 function FlowDemo() {
   const rootRef = useRef<SVGSVGElement>(null)
@@ -205,7 +193,7 @@ function FlowDemo() {
     const ca = animate(chars, {
       opacity: [0, 1],
       duration: 260,
-      delay: (_el, i) => (i ?? 0) * 12,
+      delay: (_el, i) => (i ?? 0) * 3.2, // 실측 경로 전체(~800자)를 ~2.6초에 채운다
       ease: "out(2)",
     })
     const glyphs = root.querySelectorAll(".posterGlyph")
@@ -213,7 +201,7 @@ function FlowDemo() {
       opacity: [0, 1],
       translateY: [8, 0], // SVG text에 y는 속성 트윈이 된다 — transform으로 (라운드 133 실측)
       duration: 520,
-      delay: (_el, i) => 1500 + (i ?? 0) * 60,
+      delay: (_el, i) => 1900 + (i ?? 0) * 60,
       ease: "cubicBezier(0.22, 1, 0.36, 1)",
     })
     return () => {
@@ -226,21 +214,11 @@ function FlowDemo() {
     <div className={styles.stage}>
       <svg ref={rootRef} className={styles.poster} viewBox="0 0 400 500">
         <defs>
-          <path id="flowLoopA" d={LOOP_A} />
-          <path id="flowLoopB" d={LOOP_B} />
+          <path id="flowLoop" d={POSTER_THREAD_D} />
         </defs>
         <text className={styles.threadText}>
-          <textPath href="#flowLoopA">
-            {THREAD_TEXT_A.split("").map((c, i) => (
-              <tspan key={i} data-ch style={{ opacity: 0 }}>
-                {c}
-              </tspan>
-            ))}
-          </textPath>
-        </text>
-        <text className={styles.threadText}>
-          <textPath href="#flowLoopB">
-            {THREAD_TEXT_B.split("").map((c, i) => (
+          <textPath href="#flowLoop">
+            {FLOW_TEXT.split("").map((c, i) => (
               <tspan key={i} data-ch style={{ opacity: 0 }}>
                 {c}
               </tspan>
@@ -272,11 +250,10 @@ const SAYU_P2 =
 const SAYU_P3 =
   "서재의 깊이와 삶의 태도가 맞물려 일어나는 묵직한 진동. 문장 사이에 숨은 맥락을 읽어내고, 눈빛만으로도 논점이 공유되는 그런 단단한 공명. 결국 내 기준이 높았던 게 아니라, 내 사유가 온전히 뿌리내릴 제대로 된 장소를 찾지 못해 길 위에서 서성였을 뿐이다."
 
-/* 얽힌 실 경로 — ①②와 같은 포스터 구도(LOOP_A 상단 얽힘 / LOOP_B 하단 8자꼴).
+/* 얽힌 실 경로 — 포스터 실측 한붓 경로 그대로 (라운드 135).
    글자가 태어나는 끝(경로 끝)과 사라지는 끝(경로 시작)이 있는 열린 실이다. */
 const STREAMS = [
-  { id: "sayuStrA", d: LOOP_A, text: SAYU_P1, speed: 11 },
-  { id: "sayuStrB", d: LOOP_B, text: `${SAYU_P2}   ${SAYU_P3}`, speed: 10 },
+  { id: "sayuStr", d: POSTER_THREAD_D, text: `${SAYU_P1}   ${SAYU_P2}   ${SAYU_P3}`, speed: 10 },
 ]
 
 function BreatheDemo() {
@@ -349,7 +326,6 @@ function BreatheDemo() {
 /* ── ④ 만지면 출렁이는 실 ── */
 function TouchDemo() {
   const aGroup = useRef<SVGGElement>(null)
-  const bGroup = useRef<SVGGElement>(null)
   const busy = useRef<Set<SVGGElement>>(new Set())
 
   const wobble = (g: SVGGElement | null) => {
@@ -357,7 +333,7 @@ function TouchDemo() {
     busy.current.add(g)
     animate(g, {
       keyframes: [
-        { scale: 1.025, duration: 140, ease: "out(2)" },
+        { scale: 1.02, duration: 140, ease: "out(2)" },
         { scale: 1, duration: 700, ease: createSpring({ stiffness: 140, damping: 9 }) },
       ],
       onComplete: () => busy.current.delete(g),
@@ -373,18 +349,9 @@ function TouchDemo() {
           onPointerEnter={() => wobble(aGroup.current)}
           onClick={() => wobble(aGroup.current)}
         >
-          <path d={LOOP_A} className={styles.thread} />
+          <path d={POSTER_THREAD_D} className={styles.thread} />
           {/* 만짐 판정을 넉넉히 — 보이지 않는 두꺼운 히트 영역 */}
-          <path d={LOOP_A} className={styles.threadHit} />
-        </g>
-        <g
-          ref={bGroup}
-          className={styles.touchGroup}
-          onPointerEnter={() => wobble(bGroup.current)}
-          onClick={() => wobble(bGroup.current)}
-        >
-          <path d={LOOP_B} className={styles.thread} />
-          <path d={LOOP_B} className={styles.threadHit} />
+          <path d={POSTER_THREAD_D} className={styles.threadHit} />
         </g>
         <PosterGlyphs />
       </svg>

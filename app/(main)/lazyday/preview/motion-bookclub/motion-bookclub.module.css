@@ -1,0 +1,157 @@
+/* 북클럽 모션 시안 — 아카이브 확장 4안 (라운드 132). 신규 CSS, 기존 모듈 미임포트. */
+
+.page {
+  min-height: 100vh;
+  background: #f7f3ee;
+  color: #1a1208;
+  font-family: "SUIT", sans-serif;
+  padding: 46px 20px 120px;
+  word-break: keep-all;
+}
+.inner { max-width: 720px; margin: 0 auto; }
+.title { font-size: 22px; font-weight: 800; margin: 0 0 6px; }
+.lede { font-size: 13px; line-height: 1.85; color: #8a6a50; margin: 0 0 22px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.tabBtn {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a7660;
+  background: #fffdf8;
+  border: 1px solid #e5d9c8;
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.tabBtnOn { color: #fffdf8; background: #d2691e; border-color: #d2691e; }
+
+.meta {
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: #4a3020;
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  padding: 12px 14px;
+  margin: 0 0 18px;
+}
+.meta strong { color: #d2691e; margin-right: 6px; font-weight: 700; }
+
+.stage {
+  background: #f0e9e0;
+  border: 1px solid #e5d9c8;
+  padding: 26px 22px;
+  min-height: 300px;
+}
+.stageCenter {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.replayBtn {
+  font: inherit;
+  font-size: 12px;
+  color: #8a7660;
+  background: none;
+  border: 1px solid #cfc7bb;
+  border-radius: 999px;
+  padding: 6px 14px;
+  margin-top: 26px;
+  cursor: pointer;
+}
+
+/* ── ① 스크롤 거북이 ── */
+.scrollPane {
+  height: 240px;
+  overflow-y: auto;
+  background: #f7f3ee;
+  border: 1px solid #e5d9c8;
+  padding: 18px 16px;
+}
+.fakeSection { margin-bottom: 22px; }
+.fakeTitle { font-size: 14px; font-weight: 800; margin-bottom: 8px; }
+.fakeBlock { height: 84px; background: #ece5da; }
+.fakeEnd { font-size: 12px; color: #a08b70; text-align: center; margin: 18px 0 4px; }
+
+.turtleLane {
+  position: relative;
+  height: 34px;
+  margin-top: 6px;
+  border-bottom: 1.5px solid #cfc7bb;
+}
+.finish {
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  width: 6px;
+  height: 16px;
+  background: #f7f3ee;
+}
+.finishDash {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  width: 2px;
+  height: 16px;
+  background-image: linear-gradient(#1a1208 50%, transparent 50%);
+  background-size: 2px 8px;
+}
+.miniTurtle { position: absolute; left: 0; bottom: -1px; width: 40px; height: 24px; will-change: transform; }
+.miniSprite {
+  /* absolute bottom 앵커 — 정적 배치면 축소 결과가 박스 아래로 벗어난다 (라운드 132) */
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 140px;
+  height: 81px;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 81px no-repeat;
+  transform: scale(0.29);
+  transform-origin: bottom left;
+  animation: gait 2s steps(5) infinite alternate;
+  animation-play-state: paused;
+}
+.miniTurtle[data-walking="true"] .miniSprite { animation-play-state: running; }
+@keyframes gait {
+  to { background-position-x: -700px; }
+}
+.hint { font-size: 11.5px; color: #a08b70; margin: 10px 0 0; text-align: center; }
+
+/* ── ② 페이지 카운트업 ── */
+.countLine { font-size: 15.5px; line-height: 1.85; margin: 0; }
+.countNum {
+  font-size: 34px;
+  font-weight: 800;
+  color: #1a1208;
+  font-variant-numeric: tabular-nums;
+  margin: 0 2px 0 6px;
+}
+.countUnit { font-size: 15.5px; }
+.countFoot { font-size: 11px; color: #9a9590; margin: 10px 0 0; }
+
+/* ── ③ 괘선 손긋기 ── */
+.demoSectionTitle { font-size: 26px; font-weight: 800; margin: 0 0 10px; }
+.ruleSvg { width: 56px; height: 6px; display: block; }
+
+/* ── ④ 어절 스태거 ── */
+.wordsLine {
+  font-family: var(--font-noto-serif, serif);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #4a3020;
+  max-width: 420px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 5px;
+}
+.word { display: inline-block; opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .miniSprite { animation: none; }
+}

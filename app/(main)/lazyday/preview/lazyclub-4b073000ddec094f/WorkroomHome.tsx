@@ -12,6 +12,7 @@ import { SEASON } from "../../season-config"
 import { CATEGORY_LABELS, ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
+import { ScrollTurtle } from "./ScrollTurtle"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
 
@@ -419,6 +420,9 @@ export function WorkroomHome() {
   return (
     <WorkroomShell>
       <HomeContent />
+      {/* 스크롤 거북이 (라운드 132 프리뷰) — 홈에서만. 스크롤 진행률만큼 하단
+          헤어라인 위를 전진, 끝까지 읽으면 결승선 통과 (문구 없음) */}
+      <ScrollTurtle />
     </WorkroomShell>
   )
 }

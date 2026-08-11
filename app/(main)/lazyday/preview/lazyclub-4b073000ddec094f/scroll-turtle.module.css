@@ -1,0 +1,73 @@
+/* 스크롤 거북이 (라운드 132) — 홈 전용. 신규 CSS, 기존 모듈 미임포트 (§9). */
+
+.strip {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  pointer-events: none;
+  z-index: 40; /* 콘텐츠 위, 유휴 셔플 오버레이보단 아래 */
+}
+
+.lane {
+  position: relative;
+  height: 100%;
+  margin: 0 14px;
+  /* 거북이가 딛는 헤어라인 — 캘린더 트랙 테두리와 같은 색 */
+  border-bottom: 1.5px solid #cfc7bb;
+}
+
+/* 결승선 — 캘린더 트랙 출발/결승선의 이중선 문법 (크림 + 잉크 파선) */
+.finish {
+  position: absolute;
+  right: 14px;
+  bottom: 0;
+  width: 6px;
+  height: 16px;
+  background: #f7f3ee;
+}
+.finishDash {
+  position: absolute;
+  right: 16px;
+  bottom: 0;
+  width: 2px;
+  height: 16px;
+  background-image: linear-gradient(#1a1208 50%, transparent 50%);
+  background-size: 2px 8px;
+}
+
+.turtle {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 48px;
+  height: 28px;
+  will-change: transform;
+}
+
+/* 캘린더 트랙 스프라이트 재사용 (140×81, 5프레임) — 0.345 축소.
+   ⚠️ absolute bottom 0 앵커 필수 — 정적 배치면 원본 높이(81) 기준으로 축소돼
+   발이 박스 아래(뷰포트 밖)에 그려진다 (라운드 132 실측) */
+.sprite {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 140px;
+  height: 81px;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 81px no-repeat;
+  transform: scale(0.345);
+  transform-origin: bottom left;
+  animation: gait 2s steps(5) infinite alternate;
+  animation-play-state: paused; /* 평소 정지 — 스크롤 중에만 걷는다 */
+}
+.turtle[data-walking="true"] .sprite {
+  animation-play-state: running;
+}
+@keyframes gait {
+  to { background-position-x: -700px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprite { animation: none; }
+}

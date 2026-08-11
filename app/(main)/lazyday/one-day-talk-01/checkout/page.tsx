@@ -69,11 +69,17 @@ function CheckoutInner() {
   const amount = totalOf(items)
   const goodsSubtotal = totalOf(baseItems)
 
-  // 주문자 정보 — 굿즈는 신청 폼을 거치지 않아 연락처가 없다. 결제 정보에 실어
-  // 토스 거래 내역에서 확인할 수 있게 한다 (주소는 받지 않고 연락처로 확인 — 티켓형 결제 원칙)
+  // 주문자 정보 — 브라운야드 기본정보 문법으로 항상 노출 (운영자 2026-08-11 "주소·연락처 정보가 빠졌네").
+  // 택배 선택 시 배송지(우편번호·주소·상세)까지 입력받아 토스 결제 metadata 로 전달 —
+  // 운영자가 상점관리자 결제 상세에서 확인 (별도 주문 DB 없음)
   const [buyerName, setBuyerName] = useState("")
   const [buyerPhone, setBuyerPhone] = useState("")
-  const buyerReady = !hasGoods || (buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10)
+  const [zip, setZip] = useState("")
+  const [addr1, setAddr1] = useState("")
+  const [addr2, setAddr2] = useState("")
+  const buyerFilled = buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10
+  const addressFilled = addr1.trim().length > 0
+  const buyerReady = buyerFilled && (!useParcel || addressFilled)
 
   const widgetsRef = useRef<TossPaymentsWidgets | null>(null)
   const [ready, setReady] = useState(false)
@@ -128,9 +134,18 @@ function CheckoutInner() {
         orderName: firstOpt ? name.replace(/^([^—]+)/, `$1(${firstOpt}) `) : name,
         successUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/success`,
         failUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/fail`,
-        // 굿즈 주문자 — 토스 거래 내역에서 수령 안내에 쓴다
+        customerName: buyerName.trim(),
+        customerMobilePhone: buyerPhone.replace(/[^0-9]/g, ""),
+        // 수령 방법·배송지 — 상점관리자 결제 상세의 metadata 로 확인 (주문 DB 없음)
         ...(hasGoods
-          ? { customerName: buyerName.trim(), customerMobilePhone: buyerPhone.replace(/[^0-9]/g, "") }
+          ? {
+              metadata: {
+                수령방법: useParcel ? "택배 배송" : "현장 수령",
+                ...(useParcel
+                  ? { 배송지: `${zip.trim() ? `[${zip.trim()}] ` : ""}${addr1.trim()} ${addr2.trim()}`.trim() }
+                  : {}),
+              },
+            }
           : {}),
       })
     } catch (err) {
@@ -184,9 +199,10 @@ function CheckoutInner() {
         ))}
       </div>
 
-      {/* 기본 정보·수령 방법 — 굿즈 주문에만 (운영자 2026-08-11: 현장 수령/택배 선택) */}
-      {hasGoods && (
-        <div className={styles.optionCard}>
+      {/* 기본 정보·수령 방법 — 수령 선택은 제품 주문에만, 주문자 정보는 항상 (운영자 2026-08-11) */}
+      <div className={styles.optionCard}>
+        {hasGoods && (
+          <>
           <p className={styles.optionTitle}>수령 방법</p>
           <label className={styles.optionRow}>
             <input
@@ -212,30 +228,63 @@ function CheckoutInner() {
               <span className={styles.optionSub}>우체국택배 · 제주·도서산간 추가 · 결제 확인 후 2~5영업일 내 발송</span>
             </span>
           </label>
+          </>
+        )}
 
-          <p className={styles.optionTitle}>주문자 정보</p>
-          <input
-            type="text"
-            className={styles.optionInput}
-            placeholder="이름"
-            value={buyerName}
-            onChange={(e) => setBuyerName(e.target.value)}
-          />
-          <input
-            type="tel"
-            inputMode="numeric"
-            className={styles.optionInput}
-            placeholder="연락처 (010-0000-0000)"
-            value={buyerPhone}
-            onChange={(e) => setBuyerPhone(e.target.value)}
-          />
-          <p className={styles.optionNote}>
-            {delivery === "parcel"
-              ? "결제 후 이 연락처로 배송지를 확인해 드립니다. (주소는 결제 화면에서 받지 않습니다)"
-              : "결제 후 이 연락처로 수령 일정을 안내해 드립니다."}
-          </p>
-        </div>
-      )}
+        <p className={styles.optionTitle}>주문자 정보</p>
+        <input
+          type="text"
+          className={styles.optionInput}
+          placeholder="이름"
+          value={buyerName}
+          onChange={(e) => setBuyerName(e.target.value)}
+        />
+        <input
+          type="tel"
+          inputMode="numeric"
+          className={styles.optionInput}
+          placeholder="연락처 (010-0000-0000)"
+          value={buyerPhone}
+          onChange={(e) => setBuyerPhone(e.target.value)}
+        />
+
+        {/* 배송지 — 택배 선택 시에만 (우편번호·주소·상세) */}
+        {useParcel && (
+          <>
+            <p className={styles.optionTitle}>배송지</p>
+            <input
+              type="text"
+              inputMode="numeric"
+              className={styles.optionInput}
+              placeholder="우편번호"
+              value={zip}
+              onChange={(e) => setZip(e.target.value.replace(/[^0-9]/g, "").slice(0, 5))}
+            />
+            <input
+              type="text"
+              className={styles.optionInput}
+              placeholder="주소"
+              value={addr1}
+              onChange={(e) => setAddr1(e.target.value)}
+            />
+            <input
+              type="text"
+              className={styles.optionInput}
+              placeholder="상세 주소 (동·호수 등)"
+              value={addr2}
+              onChange={(e) => setAddr2(e.target.value)}
+            />
+          </>
+        )}
+
+        <p className={styles.optionNote}>
+          {!hasGoods
+            ? "결제 확인·모임 안내에 사용됩니다."
+            : useParcel
+            ? "입력하신 배송지로 발송해 드립니다."
+            : "결제 후 이 연락처로 수령 일정을 안내해 드립니다."}
+        </p>
+      </div>
 
         </div>
 
@@ -270,8 +319,10 @@ function CheckoutInner() {
         >
           {!ready
             ? "결제 수단 불러오는 중..."
-            : !buyerReady
+            : !buyerFilled
             ? "주문자 정보를 입력해주세요"
+            : !buyerReady
+            ? "배송지를 입력해주세요"
             : `₩${amount.toLocaleString()} 결제하기`}
         </button>
 
@@ -289,7 +340,7 @@ function CheckoutInner() {
         <div className={styles.refundBox}>
           <p className={styles.refundTitle}>배송·수령·교환·반품 안내 (제품)</p>
           <ul className={styles.refundList}>
-            <li>1. 제품은 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 위에서 선택하실 수 있습니다. 결제 후 입력하신 연락처로 수령 일정(택배 선택 시 배송지)을 확인해 드립니다.</li>
+            <li>1. 제품은 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 위에서 선택하실 수 있습니다. 현장 수령은 결제 후 연락처로 수령 일정을 안내드리며, 택배는 입력하신 배송지로 발송합니다.</li>
             <li>2. 택배 배송: 우체국택배 · 배송비 3,000원(제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 이내 발송합니다.</li>
             <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(왕복 6,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 링키라운지(서울 동작구 동작대로7길 44, 지하 1층).</li>
             <li>4. 상품 하자·오배송의 경우 기간과 관계없이 판매자 부담으로 교환 또는 전액 환불해 드립니다.</li>

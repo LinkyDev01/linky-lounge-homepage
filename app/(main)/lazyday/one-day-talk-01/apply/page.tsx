@@ -9,6 +9,8 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../apply/page.module.css"
 import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../support"
+import { ONEDAY, isPastSession, sessionDateLabel } from "../oneday-shared"
+import { useBasePath } from "@/hooks/use-base-path"
 import cal from "./oneday.module.css"
 
 /**
@@ -33,42 +35,16 @@ const penScript = Nanum_Pen_Script({
   display: "swap",
   preload: false,
 })
-const TOSS_URL = "https://buy.tosspayments.com/products/OBBn5YubQ0?shopId=prreBmgHJwPY"
+// 일정·가격은 ../oneday-shared.ts 단일 출처 (checkout·confirm API와 공유, 2026-08-11)
 // 계좌이체 안내 (운영자 지시 2026-07-29 — 우리은행, 예금주 주식회사 링키)
 const BANK_NAME = "우리은행"
 const BANK_ACCOUNT = "1005-104-815136"
 const BANK_HOLDER = "주식회사 링키"
 
-// 1회성 모임 일정 — 8월, 8/2·8/9 (운영자 지시 2026-07-24)
-const ONEDAY = {
-  year: 2026,
-  month: 8,
-  monthName: "8월",
-  monthEng: "AUG. 2026",
-  // 회차별 책·시간 (운영자 지시 2026-07-24). day = 8월 날짜
-  sessions: [
-    { day: 2, label: "1회차", book: "브람스를 좋아하세요...", author: "프랑수아즈 사강", time: "19:00–22:00" },
-    // closed: 시각과 무관한 수동 마감 (운영자 지시 2026-08-09 — 시지프 신화 신청 차단)
-    { day: 9, label: "2회차", book: "시지프 신화", author: "알베르 카뮈", time: "19:00–22:00", closed: true },
-  ] as Array<{ day: number; label: string; book: string; author: string; time: string; closed?: boolean }>,
-  rangeLabel: "8/2 · 8/9",
-}
 const ONEDAY_MEET_DAYS = ONEDAY.sessions.map((s) => s.day)
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 // 손그림 타원 회전 — 날짜별 제각각 (랜딩 문법)
 const MARK_ROT = [-6, 4]
-
-/** 이미 지난 회차 판정 — 모임 시작(19:00 KST = 10:00 UTC)이 지나면 신청 불가 (2026-08-05).
- *  지난 회차가 선택 가능하면 종료된 모임에 결제까지 진행되어 환불 사고가 난다. */
-function isPastSession(day: number) {
-  return Date.now() > Date.UTC(ONEDAY.year, ONEDAY.month - 1, day, 10, 0)
-}
-
-// "2026-08-02 (일)" 요일 계산 → 캘린더 밑 일정표 라벨
-function sessionDateLabel(day: number) {
-  const wd = ["일", "월", "화", "수", "목", "금", "토"][new Date(ONEDAY.year, ONEDAY.month - 1, day).getDay()]
-  return `${ONEDAY.month}/${day} (${wd})`
-}
 
 type Errors = Partial<Record<
   "sessions" | "name" | "gender" | "age" | "phone" | "marketingConsent" | "_form",
@@ -184,6 +160,7 @@ function OnedayCalendar() {
 }
 
 export default function OnedayApplyPage() {
+  const base = useBasePath()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [marketingConsent, setMarketingConsent] = useState(false)
@@ -371,7 +348,11 @@ export default function OnedayApplyPage() {
               >
                 계좌이체
               </button>
-              <a href={TOSS_URL} className={cal.payBtn}>
+              {/* 결제위젯 체크아웃으로 이동 — 선택 회차를 쿼리로 전달 (구 buy.tosspayments 링크 대체, 2026-08-11) */}
+              <a
+                href={`${base}/one-day-talk-01/checkout?days=${[...pickedDays].sort((a, b) => a - b).join("x")}`}
+                className={cal.payBtn}
+              >
                 토스페이 결제
               </a>
             </div>

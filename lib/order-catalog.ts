@@ -37,6 +37,18 @@ const SHIPPING_ITEM: OrderItem = {
   note: "제주·도서산간 추가",
 }
 
+/** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-11).
+ *  주문 항목으로 취급해 서버 금액 검증(orderId 재계산)에 자동으로 포함시킨다. */
+export const SHIPPING_CODE = "ship"
+export const SHIPPING_FEE = 3000
+const SHIPPING_ITEM: OrderItem = {
+  code: SHIPPING_CODE,
+  name: "배송비 (우체국택배)",
+  price: SHIPPING_FEE,
+  kind: "shipping",
+  note: "제주·도서산간 추가",
+}
+
 /** 일회성 모임 코드: d + 회차키 (예: d823) / 굿즈 코드: g- + slug (예: g-coffee-mug) */
 export function meetingCode(key: number) {
   return `d${key}`

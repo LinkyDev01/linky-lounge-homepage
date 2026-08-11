@@ -7,7 +7,7 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { KAKAO_CHAT_URL, reportClientError } from "../../../support"
-import { parseOrderKeys } from "../../oneday-shared"
+import { parseOrderCodes, resolveItems } from "@/lib/order-catalog"
 import applyStyles from "../../../apply/page.module.css"
 import cal from "../../apply/oneday.module.css"
 import styles from "../checkout.module.css"
@@ -30,9 +30,12 @@ function SuccessInner() {
   const paymentKey = params.get("paymentKey") || ""
   const orderId = params.get("orderId") || ""
   const amount = Number(params.get("amount") || 0)
-  // 승인 실패 시 같은 회차로 결제를 다시 시도할 수 있게 orderId에서 회차 키 복원
-  const keys = parseOrderKeys(orderId)
-  const retryHref = keys ? `/one-day-talk-01/checkout?days=${keys.join("x")}` : "/one-day-talk-01/apply"
+  // 승인 실패 시 같은 주문으로 다시 시도할 수 있게 orderId에서 상품 코드 복원
+  const codes = parseOrderCodes(orderId)
+  const items = codes ? resolveItems(codes) : null
+  const retryHref = codes ? `/one-day-talk-01/checkout?items=${codes.join(",")}` : "/one-day-talk-01/apply"
+  // 굿즈가 섞여 있으면 완료 문구를 수령 안내로 (배송 없음 — 현장 수령)
+  const hasGoods = items?.some((i) => i.kind === "goods") ?? false
 
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {
@@ -106,11 +109,19 @@ function SuccessInner() {
           <h1 className={`${applyStyles.successTitle} ${cal.doneTitle}`}>결제가 완료되었습니다.</h1>
         </FadeUp>
         <FadeUp delay={0.3}>
-          <p className={`${applyStyles.successBody} ${cal.doneBody}`}>
-            참여가 확정되었어요.
-            <br />
-            모임 안내는 신청하신 <span className={applyStyles.successAccent}>연락처</span>로 보내드립니다.
-          </p>
+          {hasGoods ? (
+            <p className={`${applyStyles.successBody} ${cal.doneBody}`}>
+              주문이 완료되었어요.
+              <br />
+              굿즈는 <span className={applyStyles.successAccent}>링키라운지 현장 수령</span>이며, 수령 일정은 연락처로 안내드립니다.
+            </p>
+          ) : (
+            <p className={`${applyStyles.successBody} ${cal.doneBody}`}>
+              참여가 확정되었어요.
+              <br />
+              모임 안내는 신청하신 <span className={applyStyles.successAccent}>연락처</span>로 보내드립니다.
+            </p>
+          )}
         </FadeUp>
         <FadeUp delay={0.6}>
           <p className={`${applyStyles.successCloser} ${cal.doneCloser}`}>레이지데이 북클럽에서 곧 만나요.</p>

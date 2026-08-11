@@ -11,6 +11,7 @@ import styles from "../../apply/page.module.css"
 import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../support"
 import { ONEDAY, isPastSession, sessionDateLabel, sessionKey, type OnedaySession } from "../oneday-shared"
 import { useBasePath } from "@/hooks/use-base-path"
+import { meetingCode } from "@/lib/order-catalog"
 import cal from "./oneday.module.css"
 
 /**
@@ -364,7 +365,10 @@ export default function OnedayApplyPage() {
               </button>
               {/* 결제위젯 체크아웃으로 이동 — 선택 회차를 쿼리로 전달 (구 buy.tosspayments 링크 대체, 2026-08-11) */}
               <a
-                href={`${base}/one-day-talk-01/checkout?days=${[...pickedKeys].sort((a, b) => a - b).join("x")}`}
+                href={`${base}/one-day-talk-01/checkout?items=${[...pickedKeys]
+                  .sort((a, b) => a - b)
+                  .map(meetingCode)
+                  .join(",")}`}
                 className={cal.payBtn}
               >
                 토스페이 결제

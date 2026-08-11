@@ -1,11 +1,31 @@
 "use client"
 
-/** 장바구니 — 로그인 DB 도입 전 로컬 카트 (라운드 10). 주문은 결제 연동 전 안내. */
+/** 장바구니 — 로그인 DB 도입 전 로컬 카트 (라운드 10).
+ *  2026-08-11: 주문하기 → 결제위젯 체크아웃 연결. 카트 항목 id(`goods-<slug>` /
+ *  `meeting-<slug>`)를 주문 코드로 옮겨 담는다 (lib/order-catalog 계약). */
 
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { BASE, useToast, WorkroomShell } from "../Shell"
 import { useCart } from "../store"
+import { findMeeting } from "../one-day-config"
+import { goodsCode, meetingCode } from "@/lib/order-catalog"
+import { ONEDAY, sessionKey } from "../../../one-day-talk-01/oneday-shared"
+import { useBasePath } from "@/hooks/use-base-path"
 import styles from "../home.module.css"
+
+/** 카트 항목 id → 주문 코드. 결제 불가 항목(마감·가격 미정)은 null */
+function orderCodeOf(id: string): string | null {
+  if (id.startsWith("goods-")) return goodsCode(id.slice("goods-".length))
+  if (id.startsWith("meeting-")) {
+    // 모임 상세의 slug(brahms 등) → 일정의 회차 키. 작품명으로 대조한다
+    const m = findMeeting(id.slice("meeting-".length))
+    if (!m) return null
+    const work = m.title.match(/『(.+?)』/)?.[1]
+    const s = ONEDAY.sessions.find((x) => x.work === work)
+    return s ? meetingCode(sessionKey(s)) : null
+  }
+  return null
+}
 
 export function CartView() {
   return (
@@ -18,8 +38,12 @@ export function CartView() {
 function CartBody() {
   const { notify } = useToast()
   const cart = useCart()
+  const base = useBasePath()
   const total = cart.items.reduce((sum, i) => sum + (i.price ?? 0), 0)
   const hasUnpriced = cart.items.some((i) => i.price == null)
+  // 결제 가능한 항목만 체크아웃으로 넘긴다 (마감·가격 미정은 서버 검증에서 걸린다)
+  const codes = cart.items.map((i) => orderCodeOf(i.id)).filter((c): c is string => c !== null)
+  const checkoutHref = `${base}/one-day-talk-01/checkout?items=${codes.join(",")}`
 
   return (
     <main className={styles.content}>
@@ -59,17 +83,19 @@ function CartBody() {
             <strong>₩{total.toLocaleString()}</strong>
           </div>
           <div className={styles.productActions}>
-            <button
-              type="button"
-              className={styles.chipBtn}
-              onClick={() =>
-                notify(
-                  "카트 결제는 준비 중입니다. 일회성 모임은 상품 페이지의 '구매하기'에서 신청·결제할 수 있습니다.",
-                )
-              }
-            >
-              주문하기
-            </button>
+            {codes.length > 0 ? (
+              <a href={checkoutHref} className={styles.chipBtn}>
+                주문하기
+              </a>
+            ) : (
+              <button
+                type="button"
+                className={styles.chipBtn}
+                onClick={() => notify("지금 결제할 수 있는 상품이 카트에 없습니다.")}
+              >
+                주문하기
+              </button>
+            )}
             <button type="button" className={styles.chipBtn} onClick={() => cart.clear()}>
               비우기
             </button>

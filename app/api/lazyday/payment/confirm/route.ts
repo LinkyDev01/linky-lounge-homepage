@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { ONEDAY_PRICE, parseOrderKeys } from "@/app/(main)/lazyday/one-day-talk-01/oneday-shared"
+import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 
 /**
  * 토스페이먼츠 결제 승인 (2026-08-11, 결제위젯 연동).
@@ -30,12 +30,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "결제 정보가 누락되었습니다." }, { status: 400 })
   }
 
-  // 금액 검증 — orderId의 회차 키 인코딩에서 기대 금액 재계산
-  const keys = parseOrderKeys(orderId)
-  if (!keys) {
+  // 금액 검증 — orderId의 상품 코드에서 기대 금액 재계산 (lib/order-catalog)
+  const codes = parseOrderCodes(orderId)
+  const items = codes ? resolveItems(codes) : null
+  if (!items || items.length === 0) {
     return NextResponse.json({ success: false, error: "주문번호가 올바르지 않습니다." }, { status: 400 })
   }
-  const expected = keys.length * ONEDAY_PRICE
+  const expected = totalOf(items)
   if (amount !== expected) {
     console.error(`[payment/confirm] 금액 불일치: 요청 ${amount} ≠ 기대 ${expected} (${orderId})`)
     return NextResponse.json({ success: false, error: "결제 금액이 일치하지 않습니다." }, { status: 400 })

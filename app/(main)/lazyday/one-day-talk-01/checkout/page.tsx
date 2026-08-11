@@ -389,7 +389,9 @@ function CheckoutInner() {
       )}
 
       <p className={styles.refundBox}>
-        <LazydayLink href="/policy" className={styles.refundLink}>
+        {/* 통합 약관(/terms — 모임·제품·배송 전부)으로 연결 (2026-08-11 이관).
+            /policy 는 기수제 북클럽 전용이라 굿즈 주문엔 맞지 않았다 */}
+        <LazydayLink href="/terms" className={styles.refundLink}>
           이용약관·환불 규정 전문 보기
         </LazydayLink>
       </p>

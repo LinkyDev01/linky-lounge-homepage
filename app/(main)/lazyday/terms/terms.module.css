@@ -6,6 +6,24 @@
    표준약관 골격) — 합니다체, 장·조 번호 체계.
    ═══════════════════════════════════════════════════════════ */
 
+/* ── 단독 페이지 래퍼 (실사이트 /terms — 셸 없이 문서만) ──
+   워크룸 토큰 그대로: 잉크 #1a1208 · 종이 #f7f3ee · Pretendard 13.2/1.5 */
+.standalonePage {
+  background: #f7f3ee;
+  color: #1a1208;
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 13.2px;
+  line-height: 1.5;
+  word-break: keep-all;
+  min-height: 100vh;
+  padding: 24px 15px 0;
+}
+.standaloneContainer { max-width: 720px; margin: 0 auto; }
+.navRow { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
+.navLink { color: inherit; text-decoration: none; }
+.navLink:hover { text-decoration: underline; text-underline-offset: 4.5px; text-decoration-thickness: 0.8px; }
+.navDivider { width: 1px; height: 10px; background: rgba(26, 18, 8, 0.35); }
+
 .doc {
   max-width: 720px;
   padding: 0 0 90px;

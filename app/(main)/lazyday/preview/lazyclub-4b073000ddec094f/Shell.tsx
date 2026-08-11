@@ -196,7 +196,7 @@ export function WorkroomShell({
                 데스크톱은 종전대로 우측 끝(.contracts)이 담당 — 이 줄은 모바일에서만 보인다 */}
             <ul className={styles.contractsInline}>
               <li>
-                <a href="/policy">이용약관</a>
+                <a href="/terms">이용약관</a>
               </li>
               <li>
                 <a href="/privacy">개인정보처리방침</a>
@@ -224,7 +224,7 @@ export function WorkroomShell({
           {/* 이용약관 — 로고가 좌측 끝에 붙듯 우측 끝에 우측정렬 (라운드 74) */}
           <ul className={styles.contracts}>
             <li>
-              <a href="/policy">이용약관</a>
+              <a href="/terms">이용약관</a>
             </li>
             <li>
               <a href="/privacy">개인정보처리방침</a>

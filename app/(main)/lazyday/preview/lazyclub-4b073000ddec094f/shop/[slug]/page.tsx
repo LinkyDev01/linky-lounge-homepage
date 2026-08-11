@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
 import { findGoods } from "../../goods-config"
 import { ProductDetail } from "../../ProductDetail"
-import { BASE } from "../../Shell"
+// 서버 컴포넌트 — Shell("use client") 경유로 BASE 를 받으면 프록시가 찍힌다 (base-path 직수입)
+import { BASE } from "../../base-path"
 import { goodsCode } from "@/lib/order-catalog"
 
 /** 굿즈 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 2순위).
@@ -45,6 +46,10 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
         { label: "문의", lines: ["contact@linkylounge.com · 010-7444-5790"] },
       ]}
       buyHref={`/one-day-talk-01/checkout?items=${goodsCode(g.slug)}`}
+      options={{
+        colors: g.colors.map((hex, i) => ({ hex, name: g.colorNames[i] ?? hex })),
+        sizes: g.sizes,
+      }}
       price={g.price}
       images={[{ src: g.img, alt: g.name }]}
       cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/shop/${g.slug}`, img: g.img }}

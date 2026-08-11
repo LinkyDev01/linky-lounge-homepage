@@ -1,343 +1,359 @@
-/* 원데이 토크 체크아웃 — 토스 결제위젯 (2026-08-11)
-   팔레트·조판은 §3 디자인 시스템 준수: 섹션 배경 A(#f7f3ee), 카드 #fffdf8, 브랜드 주황 CTA */
+/* ═══════════════════════════════════════════════════════════
+   checkout — 레이지클럽 워크룸 톤 (2026-08-11 재작성, 운영자 지시)
+   신규 CSS. 기존 .module.css import 금지 (§9 오염 방지).
+   토큰은 home.module.css 실측과 동일: 잉크 #1a1208 · 종이 #f7f3ee ·
+   Pretendard 13.2px/1.5 · 라벨 SUIT · 헤더 Gothic A1 600 · 각진 서식.
+   구조: 상품정보·기본정보 = 브라운야드 / 결제 파트 = 노아.
+   ═══════════════════════════════════════════════════════════ */
 
 .page {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --hair: rgba(26, 18, 8, 0.18);
+  --dim: rgba(26, 18, 8, 0.55);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 13.2px;
+  line-height: 1.5;
+  font-weight: 400;
+  word-break: keep-all;
   min-height: 100vh;
-  background: #f7f3ee;
-  padding: 96px 20px 80px;
+  padding: 24px 15px 90px;
+}
+.page a {
+  color: inherit;
+  text-decoration: none;
+}
+.page a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
 }
 
 .container {
-  max-width: 560px;
+  max-width: 620px;
   margin: 0 auto;
 }
 
-/* 상단 내비 — 결제 화면에도 좌측 위 이동 수단이 있어야 한다 (운영자 2026-08-11).
-   호스트별 브랜드가 달라(북클럽/레이지클럽) 로고 대신 중립적인 텍스트 링크로 둔다. */
+/* ── 상단 내비 — 워크룸 내비 문법 (SUIT) ── */
 .navBar {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 40px;
+  font-family: "SUIT", sans-serif;
+  font-size: 12px;
 }
-
 .backLink {
-  font-size: 13px;
-  color: #8a6a50;
-  text-decoration: none;
+  color: var(--ink);
   background: none;
-  border: none;
+  border: 0;
   padding: 0;
   cursor: pointer;
-  font-family: inherit;
+  font: inherit;
 }
 .backLink:hover {
-  color: #d2691e;
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
 }
-
 .navDivider {
   width: 1px;
   height: 11px;
-  background: rgba(74, 58, 42, 0.22);
+  background: var(--hair);
 }
 
+/* ── 섹션 제목 — 워크룸 sectionTitle 문법 (SUIT 소문자) ── */
 .title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #1a1208;
-  margin-bottom: 6px;
-  word-break: keep-all;
+  font-family: "SUIT", sans-serif;
+  font-size: 13.2px;
+  font-weight: 400;
+  margin: 0 0 30px;
+}
+.title::after {
+  content: " ↗";
+}
+
+.sectionLabel {
+  font-family: "SUIT", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
 }
 
 .subtitle {
-  font-size: 13.5px;
-  line-height: 1.85;
-  color: #8a6a50;
-  margin-bottom: 28px;
-  word-break: keep-all;
+  display: none; /* 워크룸 문법 — 보조 문장 없이 섹션으로 바로 */
 }
 
-/* ── 주문 요약 카드 ── */
+/* ── 주문 상품 (브라운야드 상품정보 행) ── */
 .summaryCard {
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 12px;
-  padding: 20px 22px;
-  margin-bottom: 28px;
+  border-top: 1px solid var(--ink);
+  margin-bottom: 34px;
 }
-
 .summaryRow {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  font-size: 14px;
-  color: #4a3020;
-  line-height: 1.85;
-  word-break: keep-all;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hair);
 }
-
+.summaryThumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  flex: none;
+  background: #ece5da;
+}
+.summaryInfo {
+  flex: 1;
+  min-width: 0;
+}
 .summaryBook {
+  display: block;
+  font-family: "Gothic A1", sans-serif;
   font-weight: 600;
-}
-
-.summaryDate {
-  color: #8a7660;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.summaryTotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(74, 58, 42, 0.18);
   font-size: 14px;
-  color: #1a1208;
-  font-weight: 700;
+  line-height: 1.5;
+}
+.summaryDate {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--dim);
+}
+.summaryPrice {
+  flex: none;
+  font-family: "SUIT", sans-serif;
+  font-size: 13.2px;
 }
 
-.summaryTotalValue {
-  font-size: 18px;
-  color: #d2691e;
-}
-
-/* ── 수령 방법·주문자 정보 (굿즈 주문) ── */
+/* ── 기본 정보·수령 방법 (브라운야드 기본정보) ── */
 .optionCard {
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 12px;
-  padding: 18px 20px;
-  margin-bottom: 12px;
+  margin-bottom: 34px;
 }
-
 .optionTitle {
-  font-size: 13px;
-  font-weight: 700;
-  color: #4a3020;
-  margin: 0 0 10px;
-}
-.optionTitle + .optionRow {
-  margin-top: 0;
+  composes: sectionLabel;
+  border-top: 1px solid var(--ink);
+  padding-top: 12px;
 }
 .optionCard > .optionTitle:not(:first-child) {
-  margin-top: 20px;
+  margin-top: 26px;
 }
 
 .optionRow {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 11px 12px;
-  border: 1px solid #eee2d0;
-  border-radius: 10px;
-  margin-bottom: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair);
   cursor: pointer;
 }
 .optionRowOn {
-  border-color: #d2691e;
-  background: rgba(210, 105, 30, 0.05);
+  /* 선택 = 라디오 잉크 채움 + 본문 유지 (유채색·배경 강조 금지) */
 }
 .optionRow input {
-  margin-top: 2px;
-  accent-color: #d2691e;
+  margin-top: 3px;
+  accent-color: var(--ink);
 }
-
 .optionLabel {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: 14px;
-  color: #1a1208;
+  gap: 2px;
+  font-family: "Gothic A1", sans-serif;
   font-weight: 600;
-  word-break: keep-all;
+  font-size: 13.2px;
 }
-
 .optionSub {
-  font-size: 12px;
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
   font-weight: 400;
-  color: #8a7660;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--dim);
 }
 
 .optionInput {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #eee2d0;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #1a1208;
+  padding: 10px 12px;
+  border: 1px solid var(--hair);
+  border-radius: 0;
   background: #fff;
+  font: inherit;
+  color: var(--ink);
   margin-bottom: 8px;
-  font-family: inherit;
 }
 .optionInput::placeholder {
-  color: #a08b70;
+  color: var(--dim);
 }
 .optionInput:focus {
   outline: none;
-  border-color: #d2691e;
+  border-color: var(--ink);
 }
-
 .optionNote {
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 300;
   font-size: 12px;
   line-height: 1.7;
-  color: #8a7660;
+  color: var(--dim);
   margin: 4px 0 0;
-  word-break: keep-all;
 }
 
-/* ── 위젯 영역 — 토스 위젯이 내부를 그린다 (자체 스타일 주입 금지) ── */
+/* ── 결제 파트 (노아) — TOTAL 요약 + 위젯 + 잉크 바 버튼 ── */
+.payBlock {
+  margin-bottom: 34px;
+}
+.totalRows {
+  border-top: 1px solid var(--ink);
+  margin-bottom: 22px;
+}
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair);
+  font-family: "SUIT", sans-serif;
+  font-size: 12px;
+}
+.totalRowGrand {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 0;
+}
+.totalRowGrand span:last-child {
+  font-size: 17px;
+}
+
 .widgetBox {
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 12px;
+  border: 1px solid var(--hair);
+  background: #fff;
   min-height: 200px;
-}
-
-.agreementBox {
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 12px;
+  margin-bottom: 10px;
   overflow: hidden;
-  margin-bottom: 24px;
+}
+.agreementBox {
+  border: 1px solid var(--hair);
+  background: #fff;
+  margin-bottom: 22px;
+  overflow: hidden;
 }
 
+/* 노아 결제 버튼 문법 — 풀폭 잉크 바, 각진 서식 */
 .payButton {
   display: block;
   width: 100%;
   padding: 15px 0;
-  border: none;
-  border-radius: 12px;
-  background: #d2691e;
-  color: #fff;
-  font-size: 15.5px;
-  font-weight: 700;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  border-radius: 0;
+  font-family: "SUIT", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: background 0.2s;
 }
 .payButton:hover {
-  background: #b8571a;
-}
-.payButton:active {
-  background: #a04d16;
+  opacity: 0.85;
 }
 .payButton:disabled {
-  opacity: 0.5;
+  opacity: 0.35;
   cursor: default;
 }
 
 .testNotice {
-  margin-top: 14px;
+  margin-top: 12px;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 300;
   font-size: 11px;
-  color: #9a9590;
+  color: var(--dim);
   text-align: center;
-  word-break: keep-all;
 }
-
 .errorText {
-  margin-top: 14px;
-  font-size: 13px;
-  color: #c0392b;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: #8a2f1d; /* 잉크 계열 경고 브라운 — 유채색 UI 최소화 */
   text-align: center;
-  word-break: keep-all;
 }
 
-/* ── 환불 안내 (결제화면 안내문 — docs/tosspayments-refund-notice.md와 표현 일치 의무) ── */
+/* ── 안내 절 (사업자 정보 문법 — Gothic A1 300) ── */
 .refundBox {
-  margin-top: 36px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(74, 58, 42, 0.18);
+  margin-top: 30px;
 }
-
 .refundTitle {
-  font-size: 13px;
-  font-weight: 700;
-  color: #4a3020;
-  margin-bottom: 8px;
+  composes: sectionLabel;
+  border-top: 1px solid var(--ink);
+  padding-top: 12px;
 }
-
 .refundList {
   list-style: none;
   padding: 0;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
-
 .refundList li {
-  font-size: 12.5px;
-  line-height: 1.85;
-  color: #8a6a50;
-  word-break: keep-all;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--dim);
 }
-
+.refundList strong {
+  font-weight: 600;
+  color: var(--ink);
+}
 .refundLink {
-  font-size: 12.5px;
-  color: #8a6a50;
+  font-family: "SUIT", sans-serif;
+  font-size: 12px;
   text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.refundLink:hover {
-  color: #d2691e;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
 }
 
-/* ── 빈 주문(회차 없음) 안내 ── */
+/* ── 빈 주문·상태 화면 ── */
 .emptyBox {
   text-align: center;
-  padding: 60px 0 40px;
+  padding: 70px 0 40px;
 }
-
 .emptyText {
-  font-size: 14px;
-  line-height: 1.85;
-  color: #4a3020;
-  margin-bottom: 20px;
-  word-break: keep-all;
+  font-size: 13.2px;
+  line-height: 1.8;
+  margin-bottom: 22px;
 }
-
 .emptyLink {
   display: inline-block;
-  padding: 12px 28px;
-  border-radius: 12px;
-  background: #d2691e;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 18px;
+  font-family: "SUIT", sans-serif;
+  font-size: 13px;
 }
-.emptyLink:hover {
-  background: #b8571a;
+.page a.emptyLink {
+  color: var(--paper);
+}
+.page a.emptyLink:hover {
+  text-decoration: none;
+  opacity: 0.85;
 }
 
-/* ── success/fail 공용 상태 화면 ── */
 .stateBox {
   text-align: center;
-  padding: 40px 0;
+  padding: 46px 0;
 }
-
 .stateTitle {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1a1208;
-  margin-bottom: 10px;
-  word-break: keep-all;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0 0 10px;
 }
-
 .stateBody {
-  font-size: 14px;
-  line-height: 1.85;
-  color: #4a3020;
-  margin-bottom: 24px;
-  word-break: keep-all;
+  font-size: 13.2px;
+  line-height: 1.8;
+  margin-bottom: 20px;
 }
-
 .stateDetail {
-  font-size: 12.5px;
-  line-height: 1.85;
-  color: #8a7660;
-  margin-bottom: 24px;
-  word-break: keep-all;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--dim);
+  margin-bottom: 22px;
 }

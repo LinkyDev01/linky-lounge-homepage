@@ -5,6 +5,7 @@
  * 레이아웃은 원문 상세 실측: 이미지 스택 1/8 · 텍스트 11/15 · 제목 36px.
  */
 
+import { useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useCart, useSaved, type CartItem } from "./store"
@@ -26,6 +27,12 @@ export type DetailProps = {
   buyMessage?: string
   images: { src: string; alt: string }[]
   cartItem: CartItem
+  /** 구매 옵션 (2026-08-11) — 색상은 브라운야드 문법(칩), 사이즈는 노아 문법(선택지 나열).
+   *  지정 시 선택해야 구매·카트 담기가 진행된다. 옵션은 가격에 영향 없음 */
+  options?: {
+    colors?: { hex: string; name: string }[]
+    sizes?: string[]
+  }
 }
 
 export function ProductDetail(props: DetailProps) {
@@ -40,6 +47,31 @@ function DetailBody(p: DetailProps) {
   const { notify } = useToast()
   const cart = useCart()
   const saved = useSaved()
+
+  // 옵션 선택 상태 — 색상(브라운야드 칩) / 사이즈(노아 선택지)
+  const [color, setColor] = useState<string | null>(null)
+  const [size, setSize] = useState<string | null>(null)
+  const needColor = (p.options?.colors?.length ?? 0) > 1 // 단일 색은 자동 확정
+  const needSize = (p.options?.sizes?.length ?? 0) > 0
+  const optionParts = [
+    needColor ? color : p.options?.colors?.[0]?.name ?? null,
+    needSize ? size : null,
+  ].filter(Boolean) as string[]
+  const optionLabel = optionParts.join("/")
+  const optionsReady = (!needColor || color !== null) && (!needSize || size !== null)
+
+  /** 옵션 미선택 시 구매·카트를 막고 안내 (브라운야드 필수 옵션 문법) */
+  function requireOptions(): boolean {
+    if (optionsReady) return true
+    notify(needColor && color === null ? "색상을 선택해주세요." : "사이즈를 선택해주세요.")
+    return false
+  }
+
+  /** 옵션이 붙은 구매 링크 — 체크아웃 items 항목에 :옵션 으로 실린다 */
+  const buyHrefWithOpts =
+    p.buyHref && optionLabel
+      ? p.buyHref.replace(/(items=[^&]+)/, (m) => `${m}:${encodeURIComponent(optionLabel)}`)
+      : p.buyHref
 
   const buyMsg =
     p.status === "soldout"
@@ -85,11 +117,56 @@ function DetailBody(p: DetailProps) {
             </div>
           )}
           <p className={styles.productPrice}>{p.price != null ? `₩${p.price.toLocaleString()}` : "가격 미정"}</p>
+
+          {/* 옵션 — 색상: 브라운야드 칩 문법 / 사이즈: 노아 선택지 문법 (운영자 2026-08-11) */}
+          {needColor && p.options?.colors && (
+            <div className={styles.optGroup}>
+              <p className={styles.optLabel}>색상{color ? ` — ${color}` : ""}</p>
+              <div className={styles.optChips}>
+                {p.options.colors.map((c) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    aria-label={c.name}
+                    aria-pressed={color === c.name}
+                    className={`${styles.optChip} ${color === c.name ? styles.optChipOn : ""}`}
+                    style={{ background: c.hex }}
+                    onClick={() => setColor(c.name)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          {needSize && p.options?.sizes && (
+            <div className={styles.optGroup}>
+              <p className={styles.optLabel}>사이즈</p>
+              <div className={styles.optSizes}>
+                {p.options.sizes.map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    aria-pressed={size === sz}
+                    className={`${styles.optSize} ${size === sz ? styles.optSizeOn : ""}`}
+                    onClick={() => setSize(sz)}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className={styles.productActions}>
             {p.status === "open" && p.buyHref ? (
-              <LazydayLink href={p.buyHref} className={styles.chipBtn}>
-                구매하기
-              </LazydayLink>
+              optionsReady ? (
+                <LazydayLink href={buyHrefWithOpts ?? p.buyHref} className={styles.chipBtn}>
+                  구매하기
+                </LazydayLink>
+              ) : (
+                <button type="button" className={styles.chipBtn} onClick={requireOptions}>
+                  구매하기
+                </button>
+              )
             ) : (
               <button type="button" className={styles.chipBtn} onClick={() => notify(buyMsg ?? undefined)}>
                 구매하기
@@ -98,7 +175,14 @@ function DetailBody(p: DetailProps) {
             <button
               type="button"
               className={styles.chipBtn}
-              onClick={() => notify(cart.add(p.cartItem) ? "카트에 담았습니다." : "이미 카트에 담겨 있습니다.")}
+              onClick={() => {
+                if (!requireOptions()) return
+                // 옵션이 다르면 다른 카트 항목 — id 에 #옵션 접미 (주문 코드 변환 시 # 앞만 사용)
+                const item = optionLabel
+                  ? { ...p.cartItem, id: `${p.cartItem.id}#${optionLabel}`, name: `${p.cartItem.name} (${optionLabel})` }
+                  : p.cartItem
+                notify(cart.add(item) ? "카트에 담았습니다." : "이미 카트에 담겨 있습니다.")
+              }}
             >
               카트 담기
             </button>

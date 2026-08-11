@@ -7,36 +7,63 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import { useBasePath } from "@/hooks/use-base-path"
 import { reportClientError } from "../../support"
 import { TOSS_DOCS_TEST_CLIENT_KEY } from "../oneday-shared"
-import { SHIPPING_CODE, SHIPPING_FEE, buildOrderId, orderNameFor, resolveItems, totalOf } from "@/lib/order-catalog"
+import {
+  SHIPPING_CODE,
+  SHIPPING_FEE,
+  buildOrderId,
+  orderNameFor,
+  resolveItems,
+  totalOf,
+  type OrderItem,
+} from "@/lib/order-catalog"
 import styles from "./checkout.module.css"
 
 /**
- * 결제 — 토스페이먼츠 결제위젯 v2 (2026-08-11, PG 심사 대비).
- * 일회성 모임(신청 완료 화면의 [토스페이 결제])과 굿즈(상세 구매하기·카트 주문하기)가
- * 모두 이 페이지로 온다. 주문 항목은 ?items=d823,g-coffee-mug 코드로 받고,
- * orderId에 그대로 인코딩해 서버(confirm)가 금액을 재검증한다 (lib/order-catalog).
- * successUrl/failUrl은 호스트 기준 절대 URL — 3개 도메인 모두 대응.
+ * 결제 — 토스페이먼츠 결제위젯 v2.
+ * 서식은 레이지클럽 워크룸 톤 (2026-08-11 운영자: "기존 톤앤매너와 맞춰서" —
+ * 상품정보·기본정보는 브라운야드, 결제 파트는 노아 주문서 문법).
+ * 일회성 모임(신청 완료 화면)과 굿즈(상세 구매하기·카트 주문하기)가 모두 이 페이지로 온다.
+ * 주문 항목은 ?items=d823,g-coffee-mug:민트 — 코드 뒤 :옵션(색상/사이즈)은 표기 전용
+ * (금액 무관). orderId에는 코드만 인코딩해 서버(confirm)가 금액을 재검증한다.
  */
 
 const CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || TOSS_DOCS_TEST_CLIENT_KEY
 const IS_TEST_KEY = !process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY.startsWith("test_")
 
+type Entry = { item: OrderItem; option: string }
+
+/** ?items= 파싱 — "code:옵션" 항목을 카탈로그와 대조해 확정 (모르는 코드는 버린다) */
+function parseEntries(raw: string): Entry[] {
+  const out: Entry[] = []
+  const seen = new Set<string>()
+  for (const token of raw.split(",").filter(Boolean)) {
+    const [code, opt] = token.split(":")
+    if (code === SHIPPING_CODE || seen.has(code)) continue
+    const item = resolveItems([code])?.[0]
+    if (!item) continue
+    seen.add(code)
+    out.push({ item, option: opt ? decodeURIComponent(opt) : "" })
+  }
+  return out
+}
+
 function CheckoutInner() {
   const params = useSearchParams()
   const base = useBasePath()
   const raw = params.get("items") || ""
-  // 쿼리에는 상품만 실린다 — 배송비는 화면에서 고른 수령 방법에 따라 붙인다
-  const baseCodes = [...new Set(raw.split(",").filter(Boolean))].filter((c) => c !== SHIPPING_CODE)
-  const baseItems = resolveItems(baseCodes) ?? []
+  const entries = parseEntries(raw)
+  const baseItems = entries.map((e) => e.item)
   const hasGoods = baseItems.some((i) => i.kind === "goods")
   const hasMeeting = baseItems.some((i) => i.kind === "meeting")
 
   // 수령 방법 — 굿즈가 있을 때만 노출. 택배면 배송비를 주문 항목으로 더한다 (운영자 2026-08-11)
   const [delivery, setDelivery] = useState<"pickup" | "parcel">("pickup")
   const useParcel = hasGoods && delivery === "parcel"
-  const codes = useParcel ? [...baseCodes, SHIPPING_CODE] : baseCodes
-  const items = useParcel ? [...baseItems, ...(resolveItems([SHIPPING_CODE]) ?? [])] : baseItems
+  const shipping = useParcel ? resolveItems([SHIPPING_CODE]) ?? [] : []
+  const codes = [...entries.map((e) => e.item.code), ...(useParcel ? [SHIPPING_CODE] : [])]
+  const items = [...baseItems, ...shipping]
   const amount = totalOf(items)
+  const goodsSubtotal = totalOf(baseItems)
 
   // 주문자 정보 — 굿즈는 신청 폼을 거치지 않아 연락처가 없다. 결제 정보에 실어
   // 토스 거래 내역에서 확인할 수 있게 한다 (주소는 받지 않고 연락처로 확인 — 티켓형 결제 원칙)
@@ -50,7 +77,7 @@ function CheckoutInner() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    if (items.length === 0) return
+    if (entries.length === 0) return
     let cancelled = false
     ;(async () => {
       try {
@@ -89,12 +116,15 @@ function CheckoutInner() {
     setPaying(true)
     setError("")
     try {
+      // 주문명에는 첫 상품의 옵션을 병기 — 운영자가 토스 내역에서 옵션 확인
+      const firstOpt = entries[0]?.option
+      const name = orderNameFor(items)
       await widgets.requestPayment({
         orderId: buildOrderId(codes),
-        orderName: orderNameFor(items),
+        orderName: firstOpt ? name.replace(/^([^—]+)/, `$1(${firstOpt}) `) : name,
         successUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/success`,
         failUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/fail`,
-        // 굿즈 주문자 — 토스 거래 내역에서 수령 방법 안내에 쓴다
+        // 굿즈 주문자 — 토스 거래 내역에서 수령 안내에 쓴다
         ...(hasGoods
           ? { customerName: buyerName.trim(), customerMobilePhone: buyerPhone.replace(/[^0-9]/g, "") }
           : {}),
@@ -107,7 +137,7 @@ function CheckoutInner() {
     }
   }
 
-  if (items.length === 0) {
+  if (entries.length === 0) {
     return (
       <div className={styles.emptyBox}>
         <p className={styles.emptyText}>
@@ -124,27 +154,33 @@ function CheckoutInner() {
 
   return (
     <>
-      <h1 className={styles.title}>결제하기</h1>
-      <p className={styles.subtitle}>주문 내용을 확인하고 결제 수단을 선택해주세요.</p>
+      <h1 className={styles.title}>checkout</h1>
 
+      {/* 주문 상품 — 브라운야드 상품정보 행 (썸네일·이름·옵션·가격) */}
+      <p className={styles.sectionLabel}>주문 상품</p>
       <div className={styles.summaryCard}>
-        {items.map((i) => (
-          <div key={i.code} className={styles.summaryRow}>
-            <span className={styles.summaryBook}>{i.name}</span>
-            <span className={styles.summaryDate}>{i.note}</span>
+        {entries.map(({ item, option }) => (
+          <div key={item.code} className={styles.summaryRow}>
+            {item.img && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.img} alt="" className={styles.summaryThumb} />
+            )}
+            <span className={styles.summaryInfo}>
+              <span className={styles.summaryBook}>{item.name}</span>
+              <span className={styles.summaryDate}>
+                {[option, item.note].filter(Boolean).join(" · ") || " "}
+              </span>
+            </span>
+            <span className={styles.summaryPrice}>₩{item.price.toLocaleString()}</span>
           </div>
         ))}
-        <div className={styles.summaryTotal}>
-          <span>총 결제 금액</span>
-          <span className={styles.summaryTotalValue}>{amount.toLocaleString("ko-KR")}원</span>
-        </div>
       </div>
 
-      {/* 수령 방법 — 굿즈 주문에만 (운영자 2026-08-11: 현장 수령/택배 선택) */}
+      {/* 기본 정보·수령 방법 — 굿즈 주문에만 (운영자 2026-08-11: 현장 수령/택배 선택) */}
       {hasGoods && (
         <div className={styles.optionCard}>
           <p className={styles.optionTitle}>수령 방법</p>
-          <label className={`${styles.optionRow} ${delivery === "pickup" ? styles.optionRowOn : ""}`}>
+          <label className={styles.optionRow}>
             <input
               type="radio"
               name="delivery"
@@ -156,7 +192,7 @@ function CheckoutInner() {
               <span className={styles.optionSub}>링키라운지(사당역 도보 3분)에서 직접 수령 · 배송비 없음</span>
             </span>
           </label>
-          <label className={`${styles.optionRow} ${delivery === "parcel" ? styles.optionRowOn : ""}`}>
+          <label className={styles.optionRow}>
             <input
               type="radio"
               name="delivery"
@@ -193,28 +229,47 @@ function CheckoutInner() {
         </div>
       )}
 
-      <div id="toss-payment-methods" className={styles.widgetBox} />
-      <div id="toss-agreement" className={styles.agreementBox} />
+      {/* 결제 파트 — 노아 문법: TOTAL 요약 행 → 결제 수단 → 동의 → 잉크 바 버튼 */}
+      <div className={styles.payBlock}>
+        <p className={styles.sectionLabel}>결제</p>
+        <div className={styles.totalRows}>
+          <div className={styles.totalRow}>
+            <span>상품 금액</span>
+            <span>₩{goodsSubtotal.toLocaleString()}</span>
+          </div>
+          <div className={styles.totalRow}>
+            <span>배송비</span>
+            <span>{useParcel ? `₩${SHIPPING_FEE.toLocaleString()}` : "₩0"}</span>
+          </div>
+          <div className={`${styles.totalRow} ${styles.totalRowGrand}`}>
+            <span>TOTAL</span>
+            <span>₩{amount.toLocaleString()}</span>
+          </div>
+        </div>
 
-      <button
-        type="button"
-        className={styles.payButton}
-        onClick={handlePay}
-        disabled={!ready || paying || !buyerReady}
-      >
-        {!ready
-          ? "결제 수단 불러오는 중..."
-          : !buyerReady
-          ? "주문자 정보를 입력해주세요"
-          : `${amount.toLocaleString("ko-KR")}원 결제하기`}
-      </button>
+        <div id="toss-payment-methods" className={styles.widgetBox} />
+        <div id="toss-agreement" className={styles.agreementBox} />
 
-      {IS_TEST_KEY && (
-        <p className={styles.testNotice}>지금은 테스트 결제 환경입니다 — 실제 결제가 이루어지지 않습니다.</p>
-      )}
-      {error && <p className={styles.errorText}>{error}</p>}
+        <button
+          type="button"
+          className={styles.payButton}
+          onClick={handlePay}
+          disabled={!ready || paying || !buyerReady}
+        >
+          {!ready
+            ? "결제 수단 불러오는 중..."
+            : !buyerReady
+            ? "주문자 정보를 입력해주세요"
+            : `₩${amount.toLocaleString()} 결제하기`}
+        </button>
 
-      {/* 굿즈 배송·수령 안내 — 현장 수령 기본 + 택배 병행 (운영자 2026-08-11, 스마트스토어 표준 고지 양식) */}
+        {IS_TEST_KEY && (
+          <p className={styles.testNotice}>지금은 테스트 결제 환경입니다 — 실제 결제가 이루어지지 않습니다.</p>
+        )}
+        {error && <p className={styles.errorText}>{error}</p>}
+      </div>
+
+      {/* 굿즈 수령·배송·교환·반품 안내 — 우체국택배·현장 수령 병행 (운영자 확정 2026-08-11) */}
       {hasGoods && (
         <div className={styles.refundBox}>
           <p className={styles.refundTitle}>배송·수령·교환·반품 안내 (굿즈)</p>
@@ -254,6 +309,13 @@ function CheckoutInner() {
 export default function CheckoutPage() {
   return (
     <main className={styles.page}>
+      {/* 워크룸 서체 — Pretendard·Gothic A1 은 전역 미로드라 페이지에서 로드
+          (레이지클럽 calendar/turtle 페이지와 같은 방식) */}
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+      />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       <div className={styles.container}>
         <CheckoutNav />
         {/* useSearchParams는 Suspense 경계 필요 (Next 정적 프리렌더 규칙) */}

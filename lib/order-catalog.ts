@@ -21,6 +21,8 @@ export type OrderItem = {
   kind: "meeting" | "goods" | "shipping"
   /** 보조 설명 (모임은 일시, 굿즈는 수령 안내) */
   note: string
+  /** 결제 요약 썸네일 (굿즈만 — 모임·배송비는 텍스트 행) */
+  img?: string
 }
 
 /** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-11).
@@ -57,7 +59,8 @@ export function catalog(): OrderItem[] {
     name: g.name,
     price: g.price as number,
     kind: "goods" as const,
-    note: "현장 수령",
+    note: "",
+    img: g.img,
   }))
   return [...meetings, ...goods, SHIPPING_ITEM]
 }

@@ -24,6 +24,9 @@ const TABS = [
   { key: "flow", label: "② 문장이 걸어 들어온다" },
   { key: "breathe", label: "③ 숨 쉬는 포스터 (도착 후 루프)" },
   { key: "touch", label: "④ 만지면 출렁이는 실" },
+  { key: "jamo", label: "⑤ 자모 조립 (포스터 무관)" },
+  { key: "count", label: "⑥ 기수 카운트 (포스터 무관)" },
+  { key: "walkline", label: "⑦ 거북이 개장 (포스터 무관)" },
 ] as const
 
 type TabKey = (typeof TABS)[number]["key"]
@@ -45,6 +48,18 @@ const META: Record<TabKey, { what: string; why: string }> = {
     what: "평소 완전 정적. 실을 만지면(호버·탭) 그 루프가 한 번 출렁이고 스프링으로 잦아든다. 연타해도 출렁임은 한 번에 하나",
     why: "발견형 (M3) — 아무 표시도 없고, 우연히 만진 사람만 안다. ①~③ 어느 안과도 조합 가능",
   },
+  jamo: {
+    what: "제목이 초성만으로 먼저 온다 — 'ㄹㅇㅈㄷㅇ ㅂㅋㄹ'. 잠깐 뒤 글자마다 모음·받침이 들어와 조립된다 (글자당 70ms). 총 ~1.4초 후 정지",
+    why: "포스터 무관 신규안. 한글이라서만 가능한 인트로 — 글자가 만들어지는 과정 자체가 조판. 짧아서 자주 방문에도 부담 없음",
+  },
+  count: {
+    what: "'4기 모집'의 숫자가 1→2→3을 빠르게 지나(180ms씩) 4에서 살짝 찍히며 멈춘다. 총 ~0.9초",
+    why: "포스터 무관 신규안. 가장 짧고 가장 무표정 — 숫자 하나가 네 번의 계절을 요약한다. 모집 기수가 바뀌면 숫자만 교체",
+  },
+  walkline: {
+    what: "진입 1회: 거북이가 화면 하단을 왼쪽에서 오른쪽으로 한 번 걸어 지나가고, 지나간 자리에 주황 괘선이 남는다. 거북이는 화면 밖으로 퇴장, 괘선은 히어로의 밑줄로 남음 (~2.4초)",
+    why: "포스터 무관 신규안. 캘린더·레이지클럽 홈의 거북이를 북클럽 인트로까지 잇는 시그니처 — 괘선이라는 기존 요소를 거북이가 '만들고 간다'",
+  },
 }
 
 export function HeroMotion() {
@@ -52,10 +67,11 @@ export function HeroMotion() {
   return (
     <main className={styles.page}>
       <div className={styles.inner}>
-        <h1 className={styles.title}>히어로 모션 — 포스터 기반 4안</h1>
+        <h1 className={styles.title}>히어로 모션 — 7안 (포스터 기반 4 + 신규 3)</h1>
         <p className={styles.lede}>
-          현행 4기 포스터의 조형(큰 글자 12자 + 문장의 실 루프)을 그대로 재료로 쓴 인트로/포스터
-          대체안입니다. 구도는 축소 재현 — 채택 시 실제 포스터 좌표로 이식합니다.
+          ①~④는 현행 4기 포스터의 조형(큰 글자 12자 + 문장의 실 루프)을 그대로 재료로 쓴
+          안(구도는 축소 재현), ⑤~⑦은 포스터에 얽매이지 않은 신규안입니다. 채택 시 실제
+          좌표·원문으로 정밀 이식합니다.
         </p>
         <div className={styles.tabs} role="tablist">
           {TABS.map((t) => (
@@ -80,6 +96,9 @@ export function HeroMotion() {
         {tab === "flow" && <FlowDemo />}
         {tab === "breathe" && <BreatheDemo />}
         {tab === "touch" && <TouchDemo />}
+        {tab === "jamo" && <JamoDemo />}
+        {tab === "count" && <CountSeasonDemo />}
+        {tab === "walkline" && <TurtleLineDemo />}
       </div>
     </main>
   )
@@ -324,6 +343,157 @@ function TouchDemo() {
         <PosterGlyphs />
       </svg>
       <p className={styles.note}>실을 만져 보세요 (호버·탭).</p>
+    </div>
+  )
+}
+
+/* ── ⑤ 자모 조립 (포스터 무관) ──
+   초성만 먼저 오고, 글자마다 모음·받침이 들어와 조립된다.
+   한글 음절 분해: (code−0xAC00)/588 → 초성 인덱스. */
+const CHO = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"]
+const JAMO_TITLE = "레이지데이 북클럽"
+
+function choseong(ch: string) {
+  const code = ch.charCodeAt(0)
+  if (code < 0xac00 || code > 0xd7a3) return ch
+  return CHO[Math.floor((code - 0xac00) / 588)] ?? ch
+}
+
+function JamoDemo() {
+  const rootRef = useRef<HTMLHeadingElement>(null)
+  const [run, setRun] = useState(0)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const spans = [...root.querySelectorAll<HTMLSpanElement>("span[data-jamo]")]
+    // 1) 초성으로 초기화 후 스태거 등장
+    spans.forEach((s) => {
+      s.textContent = choseong(s.dataset.jamo!)
+    })
+    const inAnim = animate(spans, {
+      opacity: [0, 1],
+      duration: 300,
+      delay: (_el, i) => (i ?? 0) * 40,
+      ease: "out(2)",
+    })
+    // 2) 700ms부터 글자당 70ms 간격으로 완성 음절로 조립 (살짝 눌리는 팝)
+    const timers = spans.map((s, i) =>
+      setTimeout(() => {
+        s.textContent = s.dataset.jamo!
+        animate(s, { scale: [1.12, 1], duration: 320, ease: "out(3)" })
+      }, 700 + i * 70),
+    )
+    return () => {
+      inAnim.cancel()
+      timers.forEach(clearTimeout)
+    }
+  }, [run])
+
+  return (
+    <div className={`${styles.stage} ${styles.stageTall}`}>
+      <h2 className={styles.heroTitle} ref={rootRef} aria-label={JAMO_TITLE}>
+        {JAMO_TITLE.split("").map((c, i) =>
+          c === " " ? (
+            <span key={i} className={styles.heroSpace} />
+          ) : (
+            <span key={i} data-jamo={c} className={styles.heroCh} aria-hidden />
+          ),
+        )}
+      </h2>
+      <button type="button" className={styles.replayBtn} onClick={() => setRun((n) => n + 1)}>
+        처음부터 다시 보기
+      </button>
+    </div>
+  )
+}
+
+/* ── ⑥ 기수 카운트 (포스터 무관) ──
+   숫자가 1→2→3을 지나 4에서 찍히며 멈춘다. 기수 바뀌면 숫자만 교체. */
+function CountSeasonDemo() {
+  const numRef = useRef<HTMLSpanElement>(null)
+  const [run, setRun] = useState(0)
+
+  useEffect(() => {
+    const el = numRef.current
+    if (!el) return
+    el.textContent = "1"
+    const timers: ReturnType<typeof setTimeout>[] = []
+    ;[2, 3].forEach((n, i) =>
+      timers.push(
+        setTimeout(() => {
+          el.textContent = String(n)
+          animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: 160, ease: "out(2)" })
+        }, 300 + i * 180),
+      ),
+    )
+    timers.push(
+      setTimeout(() => {
+        el.textContent = "4"
+        animate(el, { scale: [1.18, 1], duration: 460, ease: createSpring({ stiffness: 240, damping: 12 }) })
+      }, 300 + 2 * 180),
+    )
+    return () => timers.forEach(clearTimeout)
+  }, [run])
+
+  return (
+    <div className={`${styles.stage} ${styles.stageTall}`}>
+      <h2 className={styles.heroTitle}>
+        <span className={styles.heroNum} ref={numRef}>
+          1
+        </span>
+        기 모집
+      </h2>
+      <button type="button" className={styles.replayBtn} onClick={() => setRun((n) => n + 1)}>
+        처음부터 다시 보기
+      </button>
+    </div>
+  )
+}
+
+/* ── ⑦ 거북이 개장(開場) (포스터 무관) ──
+   거북이가 하단을 한 번 횡단하고, 지나간 자리에 주황 괘선이 남는다. */
+function TurtleLineDemo() {
+  const turtleRef = useRef<HTMLDivElement>(null)
+  const ruleRef = useRef<HTMLDivElement>(null)
+  const laneRef = useRef<HTMLDivElement>(null)
+  const [run, setRun] = useState(0)
+
+  useEffect(() => {
+    const turtle = turtleRef.current
+    const rule = ruleRef.current
+    const lane = laneRef.current
+    if (!turtle || !rule || !lane) return
+    const dist = lane.clientWidth + 56 // 화면 밖 퇴장까지
+    turtle.dataset.walking = "true"
+    const ta = animate(turtle, { translateX: [-48, dist], duration: 2400, ease: "inOut(1.4)" })
+    // 괘선은 거북이 뒤꽁무니를 따라 자란다 — 같은 이징, 같은 시간
+    const ra = animate(rule, { scaleX: [0, 1], duration: 2400, ease: "inOut(1.4)" })
+    const t = setTimeout(() => {
+      delete turtle.dataset.walking
+    }, 2450)
+    return () => {
+      ta.cancel()
+      ra.cancel()
+      clearTimeout(t)
+    }
+  }, [run])
+
+  return (
+    <div className={`${styles.stage} ${styles.stageTall}`}>
+      <div className={styles.walkHero}>
+        <h2 className={styles.heroTitleStatic}>레이지데이 북클럽</h2>
+        <p className={styles.heroSubStatic}>4기를 모집합니다.</p>
+        <div className={styles.walkLane} ref={laneRef}>
+          <div className={styles.walkRule} ref={ruleRef} />
+          <div className={styles.walkTurtle} ref={turtleRef} data-walking="true">
+            <div className={styles.walkSprite} />
+          </div>
+        </div>
+      </div>
+      <button type="button" className={styles.replayBtn} onClick={() => setRun((n) => n + 1)}>
+        처음부터 다시 보기
+      </button>
     </div>
   )
 }

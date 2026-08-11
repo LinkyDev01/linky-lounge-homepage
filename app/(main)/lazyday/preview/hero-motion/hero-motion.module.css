@@ -97,3 +97,54 @@
   margin-top: 16px;
   cursor: pointer;
 }
+
+/* ── ⑤⑥⑦ 포스터 무관 신규안 공통 ── */
+.stageTall { min-height: 340px; justify-content: center; }
+
+.heroTitle {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+}
+.heroCh { display: inline-block; opacity: 0; min-width: 0.62em; text-align: center; }
+.heroSpace { display: inline-block; width: 0.34em; }
+.heroNum { display: inline-block; color: #d2691e; min-width: 0.72em; text-align: center; }
+
+/* ⑦ 거북이 개장 */
+.walkHero { width: 100%; max-width: 420px; text-align: center; overflow: hidden; }
+.heroTitleStatic { font-size: 30px; font-weight: 800; margin: 0 0 6px; }
+.heroSubStatic { font-size: 13.5px; color: #4a3020; margin: 0 0 26px; }
+.walkLane { position: relative; height: 34px; }
+.walkRule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: rgba(210, 105, 30, 0.6); /* titleRow 괘선과 같은 값 */
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.walkTurtle { position: absolute; left: 0; bottom: 0; width: 48px; height: 28px; will-change: transform; }
+.walkSprite {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 140px;
+  height: 81px;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 81px no-repeat;
+  transform: scale(0.345);
+  transform-origin: bottom left;
+  animation: gait 2s steps(5) infinite alternate;
+  animation-play-state: paused;
+}
+.walkTurtle[data-walking="true"] .walkSprite { animation-play-state: running; }
+@keyframes gait {
+  to { background-position-x: -700px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .walkSprite { animation: none; }
+}

@@ -35,7 +35,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       }}
       price={g.price}
       policies={GOODS_POLICIES}
-      images={[{ src: g.img, alt: g.name }]}
+      images={(g.gallery ?? [g.img]).map((src, i) => ({ src, alt: i === 0 ? g.name : `${g.name} ${i + 1}` }))}
       cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/shop/${g.slug}`, img: g.img }}
     />
   )

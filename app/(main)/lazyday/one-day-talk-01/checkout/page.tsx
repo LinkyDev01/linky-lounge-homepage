@@ -29,6 +29,10 @@ import styles from "./checkout.module.css"
 
 const CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || TOSS_DOCS_TEST_CLIENT_KEY
 const IS_TEST_KEY = !process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY.startsWith("test_")
+// 위젯 내부 색은 코드로 못 바꾼다(토스 iframe) — 개발자센터 위젯 어드민에서 만든
+// 커스텀 테마의 variantKey 를 env 로 받아 적용 (미설정 시 토스 기본 테마)
+const VARIANT_PAYMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_PAYMENT || "DEFAULT"
+const VARIANT_AGREEMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_AGREEMENT || "AGREEMENT"
 
 type Entry = { item: OrderItem; option: string }
 
@@ -87,8 +91,8 @@ function CheckoutInner() {
         widgetsRef.current = widgets
         await widgets.setAmount({ currency: "KRW", value: amount })
         await Promise.all([
-          widgets.renderPaymentMethods({ selector: "#toss-payment-methods", variantKey: "DEFAULT" }),
-          widgets.renderAgreement({ selector: "#toss-agreement", variantKey: "AGREEMENT" }),
+          widgets.renderPaymentMethods({ selector: "#toss-payment-methods", variantKey: VARIANT_PAYMENT }),
+          widgets.renderAgreement({ selector: "#toss-agreement", variantKey: VARIANT_AGREEMENT }),
         ])
         if (!cancelled) setReady(true)
       } catch (err) {

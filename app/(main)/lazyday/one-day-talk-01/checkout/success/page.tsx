@@ -152,7 +152,7 @@ function SuccessInner() {
             ) : (
               <>
                 <p className={styles.stateDetail}>
-                  카드 승인 문제일 수 있어요. 잠시 후 다시 시도하거나,
+                  카드 승인 문제일 수 있어요. 먼저 <strong>승인 상태 다시 확인</strong>을 눌러보고,
                   <br />
                   문제가 반복되면{" "}
                   <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" className={styles.refundLink}>
@@ -160,6 +160,12 @@ function SuccessInner() {
                   </a>
                   로 문의해주세요.
                 </p>
+                {/* 네트워크 문제로 승인은 됐는데 응답만 유실된 경우가 있다 — 새로고침 재확인이
+                    먼저다 (같은 orderId 재승인은 토스가 멱등 처리). 곧장 '다시 결제'로 가면
+                    이 경우 중복 결제가 된다 (2026-08-11 디버깅) */}
+                <button type="button" className={styles.emptyLink} onClick={() => window.location.reload()}>
+                  승인 상태 다시 확인
+                </button>
                 <LazydayLink href={retryHref} className={styles.emptyLink}>
                   결제 다시 시도하기
                 </LazydayLink>

@@ -4,11 +4,14 @@ import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { KAKAO_CHAT_URL } from "../../../support"
+import { parseOrderCodes } from "@/lib/order-catalog"
 import styles from "../checkout.module.css"
 
 /**
  * 결제 실패 리다이렉트 — 토스가 code/message/orderId 쿼리를 붙여 보낸다.
  * 사용자 취소(PAY_PROCESS_CANCELED)는 오류가 아니라 이탈 — 문구를 구분한다.
+ * 재시도는 실패한 주문 항목 그대로 checkout 으로 (2026-08-11 디버깅 — 종전엔
+ * 굿즈 주문 실패도 '원데이 토크 신청'으로 보내 장바구니가 증발했다)
  */
 
 function FailInner() {
@@ -16,6 +19,9 @@ function FailInner() {
   const code = params.get("code") || ""
   const message = params.get("message") || ""
   const canceled = code === "PAY_PROCESS_CANCELED"
+  // 실패한 주문의 상품 코드 복원 — 같은 항목으로 바로 재시도
+  const codes = parseOrderCodes(params.get("orderId") || "")
+  const retryHref = codes ? `/one-day-talk-01/checkout?items=${codes.join(",")}` : "/one-day-talk-01/apply"
 
   return (
     <div className={styles.stateBox}>
@@ -33,8 +39,8 @@ function FailInner() {
         </a>
         로 문의해주세요.
       </p>
-      <LazydayLink href="/one-day-talk-01/apply" className={styles.emptyLink}>
-        원데이 토크 신청으로 돌아가기
+      <LazydayLink href={retryHref} className={styles.emptyLink}>
+        {codes ? "같은 주문으로 다시 결제하기" : "일회성 모임 신청으로 돌아가기"}
       </LazydayLink>
     </div>
   )

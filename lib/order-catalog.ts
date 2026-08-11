@@ -45,7 +45,10 @@ export function goodsCode(slug: string) {
   return `g-${slug}`
 }
 
-/** 결제 가능한 전 상품 — 마감·오픈예정 상품은 제외한다 (판매 중인 것만 결제) */
+/** 전 상품 카탈로그 — 굿즈는 판매 중(open)만. **모임은 지난 회차도 남겨 둔다**:
+ *  여기는 승인(confirm)의 금액 재계산에도 쓰여서, 결제 도중 시각이 경과한 주문의
+ *  승인까지 막으면 안 된다. 지난·마감 회차의 **진입 차단은 checkout parseEntries 가
+ *  담당** (2026-08-11 디버깅 — 직접 URL 로 종료 모임이 결제되던 구멍) */
 export function catalog(): OrderItem[] {
   const meetings: OrderItem[] = ONEDAY.sessions.map((s) => ({
     code: meetingCode(sessionKey(s)),

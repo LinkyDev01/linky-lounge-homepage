@@ -59,7 +59,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
       "같은 장면을 서로 다르게 통과한 사람들의 감상이 한자리에 모입니다.",
     ],
     price: 35000,
-    place: "링키라운지 (경기도 남양주시 별내3로 322, 404호)",
+    place: "링키라운지 (서울 동작구 동작대로7길 44, 지하 1층)",
     contact: "contact@linkylounge.com",
   },
   {
@@ -78,7 +78,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
       "사랑이라는 감정 뒤에 숨겨진 자기 결정권, 나이에 대한 중압감, 그리고 외로움과 자유 사이의 선택에 대해 솔직한 이야기를 나눕니다.",
     ],
     price: 35000,
-    place: "링키라운지 (경기도 남양주시 별내3로 322, 404호)",
+    place: "링키라운지 (서울 동작구 동작대로7길 44, 지하 1층)",
     contact: "contact@linkylounge.com",
   },
   {
@@ -99,7 +99,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
       "무의미해 보이는 일상의 굴레 속에서 나만의 온전한 주체성을 되찾는 깊이 있는 철학적 대화에 여러분을 초대합니다.",
     ],
     price: 35000,
-    place: "링키라운지 (경기도 남양주시 별내3로 322, 404호)",
+    place: "링키라운지 (서울 동작구 동작대로7길 44, 지하 1층)",
     contact: "contact@linkylounge.com",
   },
 ]

@@ -7,7 +7,7 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { KAKAO_CHAT_URL, reportClientError } from "../../../support"
-import { parseOrderDays } from "../../oneday-shared"
+import { parseOrderKeys } from "../../oneday-shared"
 import applyStyles from "../../../apply/page.module.css"
 import cal from "../../apply/oneday.module.css"
 import styles from "../checkout.module.css"
@@ -30,9 +30,9 @@ function SuccessInner() {
   const paymentKey = params.get("paymentKey") || ""
   const orderId = params.get("orderId") || ""
   const amount = Number(params.get("amount") || 0)
-  // 승인 실패 시 같은 회차로 결제를 다시 시도할 수 있게 orderId에서 회차 복원
-  const days = parseOrderDays(orderId)
-  const retryHref = days ? `/one-day-talk-01/checkout?days=${days.join("x")}` : "/one-day-talk-01/apply"
+  // 승인 실패 시 같은 회차로 결제를 다시 시도할 수 있게 orderId에서 회차 키 복원
+  const keys = parseOrderKeys(orderId)
+  const retryHref = keys ? `/one-day-talk-01/checkout?days=${keys.join("x")}` : "/one-day-talk-01/apply"
 
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {

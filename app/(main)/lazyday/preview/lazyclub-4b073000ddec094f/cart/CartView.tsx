@@ -63,7 +63,9 @@ function CartBody() {
               type="button"
               className={styles.chipBtn}
               onClick={() =>
-                notify("결제 연동은 준비 중입니다. 원데이 토크는 상품 페이지의 '구매하기'에서 바로 접수할 수 있습니다.")
+                notify(
+                  "카트 결제는 준비 중입니다. 일회성 모임은 상품 페이지의 '구매하기'에서 신청·결제할 수 있습니다.",
+                )
               }
             >
               주문하기

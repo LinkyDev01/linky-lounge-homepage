@@ -5,12 +5,14 @@
 // 지금은 프리뷰 트리 안에 두고, 실사이트 이식 시 lazyday 루트로 승격한다.
 // ================================================================
 
-export type OneDayCategory = "booktalk" | "lecture" | "reading" | "documents"
+export type OneDayCategory = "booktalk" | "movie" | "lecture" | "reading" | "documents"
 
 /** 화면 노출용 카테고리 라벨 (라운드 82, 운영자: "booktalk 대신에 원데이토크").
- *  분류 키는 그대로 두고 표기만 한국어로 — 홈·목록·상세가 공유하는 단일 출처 */
+ *  분류 키는 그대로 두고 표기만 한국어로 — 홈·목록·상세가 공유하는 단일 출처.
+ *  movie: 호프 무비토크 상품화로 추가 (운영자 2026-08-11) */
 export const CATEGORY_LABELS: Record<OneDayCategory, string> = {
   booktalk: "원데이토크",
+  movie: "무비토크",
   lecture: "강연",
   reading: "낭독",
   documents: "기록",
@@ -40,14 +42,33 @@ export type OneDayMeeting = {
 }
 
 // 원데이 토크 1차 (운영자 확정 일정 2026-07-24 · 카드뉴스 원문 2026-08-04 수급)
+// 2026-08-11 운영자: 심사 대비 4주 연기 (브람스 8/30·시지프 9/6·호프 8/23) + 전 상품 재고 부활
 export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
+  {
+    slug: "hope",
+    category: "movie",
+    title: "『호프』 무비토크",
+    date: "8.23 (일) 19:00–22:00",
+    host: "레이지데이 북클럽",
+    status: "open",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "호프 무비토크 — 영화 호프 포스터" }],
+    // ⚠ 임시 소개 문구 — 운영자 카드뉴스 원문 수급 시 교체 (브랜드 카피는 운영자 소유)
+    description: [
+      "나홍진 감독의 영화 〈호프〉를 함께 보고 이야기 나누는 하루의 영화 모임입니다.",
+      "같은 장면을 서로 다르게 통과한 사람들의 감상이 한자리에 모입니다.",
+    ],
+    price: 35000,
+    place: "링키라운지 (경기도 남양주시 별내3로 322, 404호)",
+    contact: "contact@linkylounge.com",
+  },
   {
     slug: "brahms",
     category: "booktalk",
     title: "『브람스를 좋아하세요...』 원데이 토크",
-    date: "8.2 (일) 19:00–22:00",
+    date: "8.30 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
-    status: "soldout",
+    status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
     // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만
     images: [{ src: "/linky-lounge/book-club/home-v3/oneday-brahms.webp", alt: "브람스를 좋아하세요... 원데이 토크 카드" }],
@@ -64,10 +85,10 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "sisyphus",
     category: "booktalk",
     title: "『시지프 신화』 원데이 토크",
-    date: "8.9 (일) 19:00–22:00",
+    date: "9.6 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
-    // 라운드 121(운영자): 신청 마감 — 실사이트 one-day-talk-01/apply 의 closed 처리와 같은 날 반영
-    status: "soldout",
+    // 2026-08-11: 4주 연기로 마감 해제 (구 라운드 121 soldout)
+    status: "open",
     // 라운드 78 (운영자): 범용 One Day Talk 포스터 → 책+설명 카드로 교체 (브람스와 같은 문법)
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-sisyphus.webp",
     // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만

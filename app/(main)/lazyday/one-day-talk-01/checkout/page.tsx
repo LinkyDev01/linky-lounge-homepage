@@ -13,6 +13,7 @@ import {
   buildOrderId,
   orderNameFor,
   sessionDateLabel,
+  sessionKey,
 } from "../oneday-shared"
 import styles from "./checkout.module.css"
 
@@ -26,21 +27,22 @@ import styles from "./checkout.module.css"
 const CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || TOSS_DOCS_TEST_CLIENT_KEY
 const IS_TEST_KEY = !process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY.startsWith("test_")
 
+// ?days= 값은 회차 키(month*100+day, 예: 823x906) — oneday-shared 주문번호 계약과 동일
 function parseDaysParam(raw: string | null): number[] {
   if (!raw) return []
-  const valid = new Set(ONEDAY.sessions.map((s) => s.day))
-  const days = raw
+  const valid = new Set(ONEDAY.sessions.map(sessionKey))
+  const keys = raw
     .split(/[x,]/)
     .map((v) => parseInt(v, 10))
-    .filter((d) => valid.has(d))
-  return [...new Set(days)].sort((a, b) => a - b)
+    .filter((k) => valid.has(k))
+  return [...new Set(keys)].sort((a, b) => a - b)
 }
 
 function CheckoutInner() {
   const params = useSearchParams()
   const base = useBasePath()
   const days = parseDaysParam(params.get("days"))
-  const picked = ONEDAY.sessions.filter((s) => days.includes(s.day))
+  const picked = ONEDAY.sessions.filter((s) => days.includes(sessionKey(s)))
   const amount = days.length * ONEDAY_PRICE
 
   const widgetsRef = useRef<TossPaymentsWidgets | null>(null)
@@ -118,12 +120,12 @@ function CheckoutInner() {
 
       <div className={styles.summaryCard}>
         {picked.map((s) => (
-          <div key={s.day} className={styles.summaryRow}>
+          <div key={sessionKey(s)} className={styles.summaryRow}>
             <span className={styles.summaryBook}>
-              원데이 토크 『{s.book}』
+              {s.kind === "movie" ? "무비토크" : "원데이 토크"} 『{s.work}』
             </span>
             <span className={styles.summaryDate}>
-              {sessionDateLabel(s.day)} {s.time}
+              {sessionDateLabel(s)} {s.time}
             </span>
           </div>
         ))}

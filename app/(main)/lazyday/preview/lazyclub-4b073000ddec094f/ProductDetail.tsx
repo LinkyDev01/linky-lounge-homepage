@@ -22,6 +22,8 @@ export type DetailProps = {
   price: number | null
   /** 구매하기 목적지 (open일 때만 링크 — soldout/upcoming은 안내) */
   buyHref?: string
+  /** buyHref 가 없을 때(=결제 미연동 상품) 구매 버튼이 띄울 안내. 없으면 상태별 기본 문구 */
+  buyMessage?: string
   images: { src: string; alt: string }[]
   cartItem: CartItem
 }
@@ -40,7 +42,11 @@ function DetailBody(p: DetailProps) {
   const saved = useSaved()
 
   const buyMsg =
-    p.status === "soldout" ? "마감된 모임입니다." : p.status === "upcoming" ? "오픈 예정입니다. 발매 알림은 준비 중입니다." : null
+    p.status === "soldout"
+      ? "마감된 모임입니다."
+      : p.status === "upcoming"
+      ? "오픈 예정입니다. 발매 알림은 준비 중입니다."
+      : p.buyMessage ?? null
 
   return (
     <main className={styles.content}>

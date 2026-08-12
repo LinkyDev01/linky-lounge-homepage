@@ -63,15 +63,15 @@ const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
 const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 붙인다
 
-/** 내비·푸터·스티키 CTA 가 나타나는 시각.
- *  변천: FLOW_START+0.3s → FLOW_START → **FLOW_START-0.5s** (운영자 2026-08-12
- *  "애니메이션 끝나자마자 노출이잖아 노출시점 0.5초 더 당겨").
- *  이제 **그어지는 도중에** 크롬이 올라온다 — 끝나기를 기다렸다 뜨는 게 아니라
- *  마지막 획과 겹치며 올라오므로 '끝 → 그다음 사건' 이라는 단절이 사라진다.
+/** 내비·푸터·스티키 CTA 가 나타나는 시각. **그어짐 종료(FLOW_START_MS) 기준 오프셋**으로
+ *  잡는다 — 운영자가 늘 "애니메이션 종료 기준"으로 지시하므로 그 축을 그대로 쓴다.
+ *  변천: +300 → 0 → **−500** (2026-08-12 "0.5초 더 당겨") → **−200** (같은 날
+ *  "애니메이션 종료 기준으로 그 푸터와 본문 노출되는 시점을 0.3초 더 늦게").
+ *  여전히 그어지는 도중이라 '끝 → 그다음 사건' 이라는 단절은 생기지 않는다.
  *  ⚠ 0 이하로 내려가지 않게 max 로 막는다 (DRAW_MS 를 줄이는 날을 대비)
  *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다 — 두 곳에 숫자를
  *  따로 두면 히어로 타이밍을 고칠 때마다 어긋난다 */
-export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 500)
+export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
 
 export function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)

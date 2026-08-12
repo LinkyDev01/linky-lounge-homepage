@@ -12,6 +12,14 @@
   word-break: keep-all;
 }
 .title { font-size: 24px; font-weight: 800; margin: 0 0 10px; }
+.h2 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 42px 0 12px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(26, 18, 8, 0.12);
+}
+.h2:first-of-type { margin-top: 26px; }
 .lead { font-size: 13.5px; line-height: 1.8; color: #6a5038; margin: 0 0 22px; }
 
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -27,6 +35,40 @@
   font-family: inherit;
 }
 .tabOn { background: #d2691e; border-color: #d2691e; color: #fff; }
+.tabSm { padding: 6px 11px; font-size: 11.5px; }
+.tab:disabled { opacity: 0.35; cursor: default; }
+.tabHint { align-self: center; font-size: 11.5px; color: #8a6a50; }
+
+/* ── E 다듬기: 아이콘 실제 크기 나열 ── */
+.lineup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.lineupItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 76px;
+  padding: 12px 8px 8px;
+  border: 1px solid #e5d9c8;
+  border-radius: 10px;
+  background: #fffdf8;
+  cursor: pointer;
+  font-family: inherit;
+}
+.lineupOn { border-color: #d2691e; box-shadow: inset 0 0 0 1px #d2691e; }
+.lineupIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  color: #d2691e;
+}
+.lineupItem:nth-child(4) .lineupIcon { color: #ef2b21; } /* ⑤ 하트는 마크와 같은 빨강 */
+.lineupLabel { font-size: 10.5px; color: #6a5038; letter-spacing: -0.02em; }
 
 .desc { font-size: 13px; line-height: 1.75; color: #4a3020; margin: 0 0 16px; }
 .note { color: #8a6a50; }
@@ -64,6 +106,7 @@
   bottom: 0;
   padding: 32px 20px 24px;
   pointer-events: none;
+  text-align: center;
 }
 .cta {
   display: block;
@@ -127,6 +170,68 @@
   border-radius: 0;
 }
 .arrow { color: #d2691e; }
+
+/* ── E 다듬기 프레임: 텍스트 링크 + 아이콘 ── */
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  line-height: 1.2;
+}
+.textLinkLabel { display: inline-block; }
+
+/* 밑줄 범위 — 텍스트만 / 아이콘까지 */
+.textLink[data-rule="text"] .textLinkLabel {
+  border-bottom: 1px solid rgba(26, 18, 8, 0.45);
+  padding-bottom: 4px;
+}
+.textLink[data-rule="all"] {
+  border-bottom: 1px solid rgba(26, 18, 8, 0.45);
+  padding-bottom: 4px;
+}
+
+/* 아이콘 — viewBox 비율대로 높이 기준 확대축소. 색은 브랜드 주황 */
+.icon {
+  display: block;
+  width: auto;
+  height: 12px;
+  color: #d2691e;
+  flex: none;
+}
+.iconGlyph { color: #d2691e; font-size: 15px; line-height: 1; }
+.textLink[data-icon="heart"] .icon { height: 13px; color: #ef2b21; } /* 마크와 같은 하트 빨강 */
+.textLink[data-icon="hand"] .icon { height: 12px; }
+.textLink[data-icon="bookmark"] .icon,
+.textLink[data-icon="door"] .icon { height: 13px; }
+
+/* ⑧ 밑줄이 곧 화살표 — 선을 텍스트 밖으로 흘리고 그 끝을 촉으로 세운다.
+   촉은 선 위에 중심을 얹어야 해서 자기 높이의 절반만큼 아래로 내린다 */
+.textLink[data-icon="underarrow"] {
+  position: relative;
+  align-items: flex-end;
+  gap: 12px;
+}
+.textLink[data-icon="underarrow"] .textLinkLabel { padding-bottom: 4px; }
+.textLink[data-icon="underarrow"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 10px; /* 촉 바로 앞에서 끊는다 */
+  bottom: 0;
+  height: 1px;
+  background: rgba(26, 18, 8, 0.45);
+}
+.underHead {
+  display: block;
+  width: auto;
+  height: 10px;
+  margin-bottom: -5px; /* 선 위에 중심 얹기 */
+  color: #d2691e;
+  flex: none;
+}
 
 .foot { font-size: 12.5px; line-height: 1.8; color: #6a5038; }
 

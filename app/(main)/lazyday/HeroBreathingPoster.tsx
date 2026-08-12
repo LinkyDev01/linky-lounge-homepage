@@ -16,8 +16,7 @@ import styles from "./HeroBreathingPoster.module.css"
  * 4기 모집 텍스트는 처음부터 뜨고", 생기는 절차만 뺀다.
  * ① 실 위 본문만 2.2초에 걸쳐 스스로 그어진다 (붓끝이 닿는 순서 = draw 이징의
  *    역함수로 깐 글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 JS 없이도 동작).
- *    배분은 **경로 안에 보이는 구간(VISIBLE_RATIO)** 기준 — 경로 밖 글자까지 나눠
- *    가지면 화면이 먼저 다 차 버려 뒤가 멈춘 것처럼 보인다
+ *    480자 전부가 경로 위에 렌더된다 (글자 단위 getBBox 실측)
  * ② 실이 다 그어지면(2.4초) **대기 없이 곧바로** 0.3초 등가속 → 정상 속도의 SMIL 무한 흐름
  * 같은 textPath 하나로 진입→흐름을 잇는다 — 첫 벌은 tspan, 이후 벌은 JS가
  * 폰트 로드 후 통짜로 이어붙이고 SMIL(begin=indefinite)을 시각에 맞춰 발화.
@@ -37,20 +36,23 @@ const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (�
 const DRAW_MS = 2200
 const CHAR_DUR_MS = 200 // 그어지는 인상 — 글자 하나의 페이드는 짧게
 
-/** easeInOutQuad(=anime 의 inOut(2))의 역함수 — 진행률 p 에 도달하는 정규화 시각.
- *  선이 그어질 때 위치 p 에 붓끝이 닿는 순간이므로, 그 자리의 글자가 뜰 시각이다.
- *  선형 스태거로 깔면 등속이 되어 ①의 '느리게 시작 → 빨라졌다 → 느리게 끝'이 사라진다. */
+/** 글자 i(위치 p)가 뜨는 정규화 시각 — 붓끝이 그 자리에 닿는 순간.
+ *  기본은 easeInOutQuad(=anime 의 inOut(2))의 역함수지만, 그대로 쓰면 **끝 감속의
+ *  꼬리가 길어** 마지막 10% 가 중간 대비 4배 느리게 떠 "다 안 찼는데 멈춘" 인상을 준다
+ *  (운영자 "조금 대기가 있어 보인다"). 선형과 섞어 그 꼬리만 완화한다 —
+ *  시작의 가속감은 남기고 끝은 등속에 가깝게. */
+const TAIL_BLEND = 0.45
 function drawTimeAt(p: number) {
-  return p < 0.5 ? Math.sqrt(p / 2) : 1 - Math.sqrt((1 - p) / 2)
+  const quad = p < 0.5 ? Math.sqrt(p / 2) : 1 - Math.sqrt((1 - p) / 2)
+  return quad * (1 - TAIL_BLEND) + p * TAIL_BLEND
 }
 
-/** 한 벌(P≈3193) 중 **경로(L≈2612) 안에 놓여 실제로 보이는 비율** — 실측 389/480.
- *  뒤쪽 19% 는 경로를 넘어가 렌더되지 않는다. 이 구간까지 2.2초를 배분하면
- *  화면은 1.52초에 이미 다 차고 **877ms 동안 멈춘 것처럼 보인다**(실측, 운영자 지적:
- *  "보이지 않는 부분까지 생기는 것에 대한 딜레이인 것 같기도"). 그래서 배분을
- *  보이는 구간으로 압축하고, 경로 밖 글자는 끝 시각에 몰아 둔다(어차피 안 보인다).
- *  ⚠ 서체·본문·경로가 바뀌면 이 비율을 다시 재야 한다 (텍스트 길이 ÷ 경로 길이). */
-const VISIBLE_RATIO = 0.81
+/* ⚠ 폐기된 가정 — "한 벌(P) 이 경로(L) 보다 길어 뒤쪽 19% 는 렌더되지 않는다".
+   getComputedTextLength(3193) > getTotalLength(2612) 를 근거로 잡았으나, **글자 단위
+   getBBox 실측 결과 480자 전부 렌더된다**(경로 밖 글자 0). 그 잘못된 가정으로 넣은
+   clamp 가 388번째부터 92자를 2200ms 한 시각에 몰아, 운영자가 지적한
+   "'결국 내 기준이'(411번째) 부근부터 끝이 한 번에 생기는" 현상을 만들었다.
+   → clamp 제거. 길이 비교는 textPath 배치 폭과 일치하지 않으니 근거로 쓰지 말 것. */
 
 const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 그어짐이 곧 진입 전체
 
@@ -157,7 +159,7 @@ export function HeroBreathingPoster() {
                 key={i}
                 className={styles.introChar}
                 style={{
-                  ["--d" as string]: `${(DRAW_MS * drawTimeAt(Math.min(1, i / last / VISIBLE_RATIO))).toFixed(1)}ms`,
+                  ["--d" as string]: `${(DRAW_MS * drawTimeAt(i / last)).toFixed(1)}ms`,
                 }}
               >
                 {c}

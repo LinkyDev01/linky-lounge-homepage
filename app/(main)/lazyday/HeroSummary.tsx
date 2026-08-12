@@ -61,17 +61,16 @@ export function HeroSummary() {
     : d !== null && d < 0
     ? `${SEASON.name} 모집이 마감되었어요`
     : !SEASON.showDeadline || d === null
-    ? `${SEASON.name} 모집 중`
+    ? `레이지데이 북클럽 ${SEASON.name}를 모집합니다.` // 문장형 (운영자 2026-08-12 — 클로징 CTA와 동일 전환)
     : d === 0
     ? `${SEASON.name} 모집 오늘 마감`
     : `${SEASON.name} 모집 마감 D-${d}`
 
   return (
     <div className={styles.heroSummary}>
+      {/* 문장형 킥커 — 괘선·배지 강조 제거, 조용한 안내문으로 (운영자 2026-08-12 "너무 강조할 필요 없어") */}
       <p className={styles.heroKicker}>
-        <span className={styles.kickerRule} aria-hidden />
         <span className={styles.kickerText}>{kicker}</span>
-        <span className={styles.kickerRule} aria-hidden />
       </p>
       <p className={styles.summaryTitle}>오프라인 독서모임</p>
 

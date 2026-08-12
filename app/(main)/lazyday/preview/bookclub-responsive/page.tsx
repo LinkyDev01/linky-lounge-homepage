@@ -12,7 +12,6 @@ import { HowToSection } from "../../HowToSection"
 import { ScheduleSection } from "../../ScheduleSection"
 import { ReviewsSection } from "../../ReviewsSection"
 import { FaqSection } from "../../FaqSection"
-import { SectionIndicator } from "../../SectionIndicator"
 import { DraftSeasonCountCta, DraftBrandClose } from "./DraftClosing"
 import { StickyApplyButton } from "../../sticky-apply-button"
 
@@ -61,7 +60,6 @@ export default function BookclubResponsiveDraftPage() {
         <StickyApplyButton />
         <DraftBrandClose />
       </main>
-      <SectionIndicator />
       <p className={s.draftNote}>
         반응형 초안 — 섹션·애니메이션은 실사이트 그대로, 폭 시스템과 내비·푸터만 레이지클럽 문법
       </p>

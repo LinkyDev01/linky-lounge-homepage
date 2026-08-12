@@ -1,14 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CHROME_REVEAL_MS } from "./HeroBreathingPoster"
 
 /**
- * 진입 홀드 — 처음엔 **포스터만** 보이고, 히어로 텍스트가 정상 속도에 오른 순간
- * 내비·푸터·스티키 CTA 가 나타난다 (운영자 2026-08-12: "레이지 클럽 초기
- * 애니메이션처럼 ... 포스터만 뜨게 하고 클릭 혹은 애니메이션에서 텍스트가 모두
- * 노출(텍스트들이 돌아가기 시작한 순간으로부터 0.3초 후)되었을 때 네비 푸터/CTA
- * 스티키가 뜨도록").
+ * 진입 홀드 — 처음엔 **포스터만** 보이고, 그어짐이 끝나갈 무렵 내비·푸터가,
+ * 그로부터 3초 뒤 스티키 CTA 가 나타난다.
+ *
+ * 운영자 2026-08-12 (순서대로):
+ *  · "레이지 클럽 초기 애니메이션처럼 ... 포스터만 뜨게 하고 클릭 혹은 애니메이션에서
+ *    텍스트가 모두 노출되었을 때 네비 푸터/CTA 스티키가 뜨도록"
+ *  · "4기 신청하기 cta 스티키는 지금보다 3초 지연시켜" → **CTA 만 분리**.
+ *    내비·푸터는 CHROME_REVEAL_MS 그대로, CTA 는 거기서 +3초.
  *
  * 레이지클럽 인트로(ComingSoonMain 라운드 48·57)의 규율을 그대로 따른다:
  *  · **레이아웃 불변** — 감출 때 display 를 건드리지 않는다. opacity 만 0 으로 두어
@@ -17,39 +20,67 @@ import { CHROME_REVEAL_MS } from "./HeroBreathingPoster"
  *  · **입력이 오면 즉시 노출** — 클릭·터치·키·휠·스크롤 어느 것이든 ("클릭 혹은")
  *  · reduced-motion 이면 홀드 없이 처음부터 노출
  *
+ * ⚠ CTA 지연은 **크롬이 뜬 순간 기준 상대값**이다 — 입력으로 일찍 건너뛰어도
+ * 내비가 뜬 뒤 3초가 지나야 CTA 가 온다. 절대 시각으로 잡으면 스킵한 사용자에게
+ * CTA 만 한참 안 뜨거나(또는 즉시 뜨거나) 해서 간격이 들쭉날쭉해진다.
+ *
  * SSR 은 hold 상태로 그려진다 — effect 에서 켜면 첫 페인트에 크롬이 번쩍인다.
  * JS 가 아예 없는 환경을 위해 셸이 `<noscript>` 로 강제 노출 스타일을 함께 둔다.
  */
+
+/** 스티키 CTA 만 내비·푸터보다 늦게 (운영자 2026-08-12 "3초 지연시켜") */
+export const CTA_EXTRA_DELAY_MS = 3000
+
 export function useChromeIntro() {
-  const [shown, setShown] = useState(false)
+  const [chrome, setChrome] = useState(false)
+  const [cta, setCta] = useState(false)
+  // 크롬 노출은 타이머·입력 어느 쪽으로도 올 수 있다 — CTA 예약이 두 번 걸려
+  // 뒤로 밀리지 않게 첫 호출만 유효하게 한다
+  const chromeDone = useRef(false)
 
   useEffect(() => {
+    let ctaTimer: ReturnType<typeof setTimeout> | undefined
+
+    /** 인트로 자체를 건너뛰는 경로 — 크롬·CTA 를 함께 즉시 노출 */
+    const revealAll = () => {
+      chromeDone.current = true
+      setChrome(true)
+      setCta(true)
+    }
+    /** 정상 경로 — 크롬 먼저, CTA 는 3초 뒤 */
+    const revealChrome = () => {
+      if (chromeDone.current) return
+      chromeDone.current = true
+      setChrome(true)
+      ctaTimer = setTimeout(() => setCta(true), CTA_EXTRA_DELAY_MS)
+    }
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setShown(true)
+      revealAll()
       return
     }
     // 이미 스크롤된 채 열린 경우(브라우저 위치 복원·해시 진입) 포스터가 보이지 않으므로
     // 홀드할 이유가 없다
     if (window.scrollY > 0) {
-      setShown(true)
+      revealAll()
       return
     }
 
-    const timer = setTimeout(() => setShown(true), CHROME_REVEAL_MS)
+    const timer = setTimeout(revealChrome, CHROME_REVEAL_MS)
     const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
-    const onInput = () => setShown(true)
-    EVENTS.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }))
+    EVENTS.forEach((ev) => window.addEventListener(ev, revealChrome, { passive: true }))
     return () => {
       clearTimeout(timer)
-      EVENTS.forEach((ev) => window.removeEventListener(ev, onInput))
+      clearTimeout(ctaTimer)
+      EVENTS.forEach((ev) => window.removeEventListener(ev, revealChrome))
     }
   }, [])
 
-  return shown
+  return { chrome, cta }
 }
 
 /** 셸 두 곳(LandingShell·DraftShell)이 같은 마크업을 쓰도록 — JS 없는 환경 대비.
  *  덮개까지 걷어야 한다 (안 그러면 포스터 말고 아무것도 안 보인다) */
 export const CHROME_NOSCRIPT_CSS =
-  '[data-intro="hold"] > header,[data-intro="hold"] > footer,[data-intro="hold"] [data-lz-chrome]{opacity:1!important;pointer-events:auto!important}' +
+  '[data-intro="hold"] > header,[data-intro="hold"] > footer,[data-cta="hold"] [data-lz-chrome]{opacity:1!important;pointer-events:auto!important}' +
   '[data-intro="hold"] [data-lz-mask]{opacity:0!important;pointer-events:none!important}'

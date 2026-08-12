@@ -45,7 +45,10 @@
    해시 클래스라 이름으로 못 잡는다 → `data-lz-chrome` 속성으로 건다 */
 .page[data-intro="hold"] .header,
 .page[data-intro="hold"] .footer,
-.page[data-intro="hold"] [data-lz-chrome] {
+/* ⚠ 스티키 CTA 만 **다른 축**(data-cta)으로 건다 — 내비·푸터보다 3초 늦게 뜬다
+   (운영자 2026-08-12 "4기 신청하기 cta 스티키는 지금보다 3초 지연시켜").
+   지연은 useChromeIntro 가 크롬 노출 시각 기준 상대값으로 잰다 */
+.page[data-cta="hold"] [data-lz-chrome] {
   opacity: 0;
   /* 제 위치보다 10px 아래에서 대기했다가 올라온다 — 페이드만으로는 '툭 나타난다'로
      읽혔다 (운영자 2026-08-12 "살짝 아래서 위로 빠르게 자연스럽게 올라오는") */
@@ -96,7 +99,7 @@
   /* 모션을 끈 사용자에겐 이동 자체가 없어야 한다 */
   .page[data-intro="hold"] .header,
   .page[data-intro="hold"] .footer,
-  .page[data-intro="hold"] [data-lz-chrome] {
+  .page[data-cta="hold"] [data-lz-chrome] {
     transform: none;
   }
 }

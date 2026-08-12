@@ -79,10 +79,10 @@ function KakaoIcon() {
 export function DraftShell({ children }: { children: React.ReactNode }) {
   const activeId = useActiveSection()
   // 실 LandingShell 과 같은 진입 홀드 (TSX 쌍 동기화 — 2026-08-12)
-  const chrome = useChromeIntro()
+  const { chrome, cta } = useChromeIntro()
 
   return (
-    <div className={s.page} data-intro={chrome ? "show" : "hold"}>
+    <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
       {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
       <link
         rel="stylesheet"

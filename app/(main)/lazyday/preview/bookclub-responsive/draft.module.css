@@ -31,7 +31,8 @@
 /* ── 진입 홀드 — 실 landing-shell.module.css 와 같은 값 (쌍 동기화 2026-08-12) ── */
 .page[data-intro="hold"] .header,
 .page[data-intro="hold"] .footer,
-.page[data-intro="hold"] [data-lz-chrome] {
+/* CTA 만 data-cta 축 — 내비·푸터보다 3초 늦게 (실 셸과 같은 값) */
+.page[data-cta="hold"] [data-lz-chrome] {
   opacity: 0;
   transform: translateY(10px);
   pointer-events: none;
@@ -66,7 +67,7 @@
   }
   .page[data-intro="hold"] .header,
   .page[data-intro="hold"] .footer,
-  .page[data-intro="hold"] [data-lz-chrome] {
+  .page[data-cta="hold"] [data-lz-chrome] {
     transform: none;
   }
 }

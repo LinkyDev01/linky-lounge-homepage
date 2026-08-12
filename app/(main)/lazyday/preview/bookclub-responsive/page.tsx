@@ -13,6 +13,7 @@ import { ScheduleSection } from "../../ScheduleSection"
 import { ReviewsSection } from "../../ReviewsSection"
 import { FaqSection } from "../../FaqSection"
 import { DraftSeasonCountCta, DraftBrandClose } from "./DraftClosing"
+import { TurtleProgress } from "./TurtleProgress"
 import { StickyApplyButton } from "../../sticky-apply-button"
 
 /**
@@ -57,7 +58,12 @@ export default function BookclubResponsiveDraftPage() {
         {/* 클로징·로고는 **초안 전용 사본** — 실사이트 컴포넌트를 그대로 쓰면
             제목(기수 카운트)·로고 교체가 실사이트까지 바뀐다 (운영자 2026-08-12) */}
         <DraftSeasonCountCta />
-        <StickyApplyButton />
+        {/* 스크롤 진행률 거북이 — 구 우측 주황 점 대체안 (북클럽 프리뷰 전용) */}
+        <TurtleProgress />
+        {/* 하단 고정 CTA — 거북이 레인만큼 위로 밀어 그 틈을 만든다 (운영자 2026-08-12) */}
+        <div className={s.ctaLift}>
+          <StickyApplyButton />
+        </div>
         <DraftBrandClose />
       </main>
       <p className={s.draftNote}>

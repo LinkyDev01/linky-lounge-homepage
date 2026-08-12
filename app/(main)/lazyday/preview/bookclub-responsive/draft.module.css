@@ -196,6 +196,20 @@
   margin-top: 8px;
 }
 
+/* 하단 고정 CTA 를 거북이 레인 높이만큼 위로 — 그 틈에 진행률 레인이 앉는다
+   (운영자 2026-08-12 "CTA를 살짝 위로 밀어서 그 틈에 거북이용 서식을").
+   StickyApplyButton 은 실사이트 컴포넌트라 직접 고치지 않고 **래퍼의 자식 선택자**로
+   sticky bottom 만 덮는다 — 초안에서만 적용되고 실사이트는 무영향.
+   ⚠ 래퍼는 `display: contents` 여야 한다 — 보통 div 로 감싸면 그 블록이 sticky 의
+   이동 범위가 되어(부모 높이 = 자식 높이) **sticky 가 죽고 문서 흐름 위치에 고정**된다
+   (실측: CTA rect.bottom 이 8080px 로 뷰포트 밖) */
+.ctaLift {
+  display: contents;
+}
+.ctaLift > div {
+  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+}
+
 /* ── 히어로 행 : 데스크톱에서 포스터 + 요약 카드 병치 ─────────────── */
 .heroRow {
   background: #f0e9e0;

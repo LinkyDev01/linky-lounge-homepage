@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { DraftShell } from "./DraftShell"
+import { FeatureVariantZone } from "./FeatureVariantZone"
 import s from "./draft.module.css"
 import pageStyles from "../../page.module.css"
 import { HashScrollOnLoad } from "../../HashScrollOnLoad"
@@ -47,7 +48,10 @@ export default function BookclubResponsiveDraftPage() {
           <HeroSummary />
         </div>
         <BookSection />
-        <FeatureQuietSection />
+        {/* 모임소개 데스크톱 2시안 (운영자: "각각 프리뷰 필요") — A 2×2 그리드 / B 사진 풀블리드 */}
+        <FeatureVariantZone>
+          <FeatureQuietSection />
+        </FeatureVariantZone>
         <HowToSection />
         <ScheduleSection />
         <ReviewsSection />

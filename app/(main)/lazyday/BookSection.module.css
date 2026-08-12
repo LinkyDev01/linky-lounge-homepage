@@ -171,9 +171,12 @@
 /* 카드 캐러셀 — 가운데 큰 활성 카드 + 양옆 축소·흐림 카드 */
 .bookCarousel { position: relative; }
 .bookTrack {
-  display: flex;
+  /* 반응형 초안 훅 (2026-08-12): --lz-carousel-* 변수로 그리드 펼침 모드 —
+     기본값이 현행이라 실사이트 무변경. 그리드일 땐 스냅·오버플로가 자연 무효화 */
+  display: var(--lz-carousel-display, flex);
+  grid-template-columns: repeat(var(--lz-carousel-cols, 1), minmax(0, 1fr));
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--lz-carousel-gap, 8px);
   margin-top: 6px;
   padding: 14px 18px 10px;
   overflow-x: auto;
@@ -191,9 +194,10 @@
   border: 1px solid #eee2d0;
   border-radius: 16px;
   padding: 22px 16px 20px;
-  opacity: 0.45;
-  transform: scale(0.94);
-  filter: blur(1px);
+  /* 비활성 표현도 변수화 — 그리드 모드에선 전 카드 활성처럼 (기본값 현행) */
+  opacity: var(--lz-card-dim, 0.45);
+  transform: scale(var(--lz-card-scale, 0.94));
+  filter: var(--lz-card-blur, blur(1px));
   transform-origin: center top;
   transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease, box-shadow 0.35s ease;
   cursor: pointer;
@@ -211,7 +215,7 @@
   z-index: 5;
   width: 38px;
   height: 38px;
-  display: flex;
+  display: var(--lz-carousel-nav, flex);
   align-items: center;
   justify-content: center;
   background: rgba(255, 253, 248, 0.9);
@@ -226,7 +230,7 @@
 .bookChevronLeft  { left: 6px; }
 .bookChevronRight { right: 6px; }
 .bookDots {
-  display: flex;
+  display: var(--lz-carousel-nav, flex);
   justify-content: center;
   gap: 7px;
   margin-top: 14px;

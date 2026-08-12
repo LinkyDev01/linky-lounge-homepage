@@ -128,9 +128,14 @@
   border-top: 1px solid var(--ink);
   padding: 6px 0 40px;
   position: relative;
+  /* 레이지클럽 푸터와 동일 서체 (운영자 2026-08-12 "폰트도 맞추자") */
+  font-family: "Gothic A1", sans-serif;
   font-size: 12.6px;
   line-height: 1.7;
   font-weight: 600;
+}
+.footerDesc p {
+  margin: 0;
 }
 .footerLogo {
   grid-column: 1 / 2;
@@ -191,6 +196,26 @@
     --lz-cal-display: grid;
     --lz-cal-cols: 3;
     --lz-cal-max: 100%;
+    /* 가로실선(장소 구분선)도 콘텐츠 폭에 비례해 확장 (운영자 2026-08-12) */
+    --lz-rule: 100%;
+  }
+
+  /* 선정도서 4권 / 후기 3장 그리드 펼침 (운영자 2026-08-12 — 캐러셀은 ≤720 전용) */
+  .body {
+    --lz-carousel-display: grid;
+    --lz-carousel-gap: 18px;
+    --lz-carousel-nav: none;
+    --lz-card-dim: 1;
+    --lz-card-scale: 1;
+    --lz-card-blur: none;
+  }
+  .body :global(#book) {
+    --lz-carousel-cols: 4;
+    --lz-card: 100%;
+  }
+  .body :global(#reviews) {
+    --lz-carousel-cols: 3;
+    --lz-card: 100%;
   }
 
   .header {
@@ -280,6 +305,47 @@
   }
   .contractsInline {
     display: none;
+  }
+}
+
+/* ── 모임소개 데스크톱 2시안 (FeatureVariantZone 이 data-variant 로 전환) ── */
+.qtSwitch {
+  display: none;
+}
+@media (min-width: 721px) {
+  .qtSwitch {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 28px var(--lz-gutter, 24px) 0;
+    background: #f7f3ee; /* 모임소개 섹션과 같은 A밴드 — 스위치가 섹션에 붙어 보이게 */
+  }
+  .qtSwitchBtn {
+    font: inherit;
+    font-size: 11.5px;
+    padding: 5px 14px;
+    border: 1px solid rgba(26, 18, 8, 0.25);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--sub);
+    cursor: pointer;
+  }
+  .qtSwitchOn {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #f7f3ee;
+  }
+
+  /* 시안 A — 챕터 2×2 그리드 (사진은 챕터 폭, 구분점 제거) */
+  .qtZone[data-variant="grid"] {
+    --lz-qt-display: grid;
+    --lz-qt-cols: 2;
+    --lz-qt-divider: none;
+    --lz-chapter: 460px;
+  }
+  /* 시안 B — 세로 스택 유지 + 사진만 100vw 풀블리드 (본문은 620px 원고 컬럼) */
+  .qtZone[data-variant="full"] {
+    --lz-qt-photo-max: 100vw;
   }
 }
 

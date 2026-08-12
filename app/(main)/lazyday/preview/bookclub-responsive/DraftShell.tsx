@@ -78,6 +78,11 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={s.page}>
+      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
+      />
       <header className={s.header}>
         <LazydayLink href="/" className={s.navLogo} aria-label="레이지데이 북클럽 홈">
           <Image
@@ -112,38 +117,58 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
 
       {children}
 
+      {/* 푸터 — 운영자 2026-08-12: "레이지클럽과 북클럽은 푸터 정보를 그대로 가고,
+          백그라운드 컬러와 로고, 로고 옆 텍스트만 달라지는 거야."
+          → 구성·문구·서체(Gothic A1)는 레이지클럽 Shell 푸터와 동일. 다른 것은
+          로고(북클럽 mono-ink)와 소개 문단(운영자 지정 원문)뿐 */}
       <footer className={s.footer}>
         <div className={s.footerInner}>
           <figure className={s.footerLogo}>
-            <Image src="/assets/logo/logo-mono-ink.svg" alt="레이지데이" width={88} height={88} />
+            <Image src="/assets/logo/logo-mono-ink.svg" alt="레이지데이 북클럽" width={88} height={88} />
           </figure>
 
           <div className={s.footerDesc}>
-            읽는 사람들의 낮. 레이지데이 북클럽은 서울 사당 링키라운지에서 한 시즌 동안
-            네 권의 책을 함께 읽습니다.
+            {/* 운영자 지정 원문 (2026-08-12) — 임의 수정 금지 */}
+            <p>사유의 불협화음이 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.</p>
           </div>
 
           <div className={s.footerBiz}>
-            주식회사 링키
-            <br />
-            대표 안동민 · 개인정보관리책임자 안동민
-            <br />
-            사업자등록번호 557-81-03588
-            <br />
-            통신판매업신고 2026-별내-0077
-            <br />
-            경기도 남양주시 별내3로 322, 404호
+            <div>
+              <span>주식회사 링키</span>
+              <br />
+              <span>대표: 안동민</span>
+              <br />
+              <span>사업자등록번호 557-81-03588</span>
+              <br />
+              <span>통신판매업신고 2026-별내-0077</span>
+              <br />
+              <span>개인정보관리책임자: 안동민</span>
+              <br />
+              <span>
+                벤처기업확인:{" "}
+                <a
+                  href="https://www.smes.go.kr/venturein/pbntc/searchVntrCmpDtls?vniaSn=1172659&menuId=&cmpNm=%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC%20%EB%A7%81%ED%82%A4&rprsvNm=%EC%95%88%EB%8F%99%EB%AF%BC&bizRNo=5578103588&pageNo=1&areaCd=31&indstyCd=J&captcha=754051"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  제20260303030009호
+                </a>{" "}
+                (혁신성장유형)
+              </span>
+            </div>
           </div>
 
           <div className={s.footerContact}>
-            서울 동작구 동작대로7길 44 지하 1층
-            <br />
-            010-7444-5790
-            <br />
-            contact@linkylounge.com
+            <div>
+              경기도 남양주시 별내3로 322, 404호
+              <br />
+              010-7444-5790
+              <br />
+              contact@linkylounge.com
+            </div>
             <ul className={s.contractsInline}>
               <li>
-                <LazydayLink href="/policy">이용약관</LazydayLink>
+                <LazydayLink href="/terms">이용약관</LazydayLink>
               </li>
               <li>
                 <LazydayLink href="/privacy">개인정보처리방침</LazydayLink>
@@ -153,7 +178,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
               <a href="https://instagram.com/lazyday_bookclub" target="_blank" rel="noopener noreferrer" aria-label="인스타그램">
                 <InstagramIcon />
               </a>
-              <a href="https://pf.kakao.com/_gixaAX" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 채널">
+              <a href="https://pf.kakao.com/_gixaAX/chat" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 채널">
                 <KakaoIcon />
               </a>
             </div>
@@ -161,7 +186,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
 
           <ul className={s.contracts}>
             <li>
-              <LazydayLink href="/policy">이용약관</LazydayLink>
+              <LazydayLink href="/terms">이용약관</LazydayLink>
             </li>
             <li>
               <LazydayLink href="/privacy">개인정보처리방침</LazydayLink>

@@ -208,7 +208,8 @@
   gap: 12px;
   padding-top: 20px;
   /* 폭 420 상한 — 일정 카드·HeroSummary 낱장과 동일 폭 정렬 (운영자 지시 2026-07-10) */
-  max-width: var(--lz-block, 420px);
+  /* 가로실선 — 확장 레이아웃에선 콘텐츠 폭에 비례 (운영자 2026-08-12, 기본값 현행) */
+  max-width: var(--lz-rule, var(--lz-block, 420px));
   margin: 28px auto 0;
   border-top: 1px solid rgba(74, 58, 42, 0.2);
 }

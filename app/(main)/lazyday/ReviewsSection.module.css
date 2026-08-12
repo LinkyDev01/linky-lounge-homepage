@@ -16,9 +16,11 @@
 }
 /* 후기 트랙 — 책 소개와 동일한 지오메트리 (카드 = 화면-36px, 양옆은 살짝만) */
 .reviewTrack {
-  display: flex;
+  /* 반응형 초안 훅 (2026-08-12) — BookSection과 동일 문법, 기본값 현행 */
+  display: var(--lz-carousel-display, flex);
+  grid-template-columns: repeat(var(--lz-carousel-cols, 1), minmax(0, 1fr));
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--lz-carousel-gap, 8px);
   overflow-x: auto;
   padding: 14px 18px 10px;
   scroll-snap-type: x mandatory;
@@ -30,9 +32,9 @@
   flex: 0 0 calc(100% - 36px);
   max-width: var(--lz-card, 560px);
   scroll-snap-align: center;
-  opacity: 0.45;
-  transform: scale(0.94);
-  filter: blur(1px);
+  opacity: var(--lz-card-dim, 0.45);
+  transform: scale(var(--lz-card-scale, 0.94));
+  filter: var(--lz-card-blur, blur(1px));
   transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
   cursor: pointer;
 }
@@ -90,7 +92,7 @@
   z-index: 5;
   width: 38px;
   height: 38px;
-  display: flex;
+  display: var(--lz-carousel-nav, flex);
   align-items: center;
   justify-content: center;
   background: rgba(255, 253, 248, 0.9);
@@ -105,7 +107,7 @@
 .bookChevronLeft  { left: 6px; }
 .bookChevronRight { right: 6px; }
 .bookDots {
-  display: flex;
+  display: var(--lz-carousel-nav, flex);
   justify-content: center;
   gap: 7px;
   margin-top: 14px;

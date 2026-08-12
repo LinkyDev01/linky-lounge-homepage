@@ -208,7 +208,7 @@
   display: contents;
 }
 .ctaLift > div {
-  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ── 히어로 행 : 데스크톱에서 포스터 + 요약 카드 병치 ─────────────── */

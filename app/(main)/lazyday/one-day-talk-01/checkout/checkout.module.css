@@ -384,3 +384,16 @@
   color: var(--dim);
   margin-bottom: 22px;
 }
+
+/* ── 모바일 터치 타깃 (2026-08-11) ──────────────────────────
+   ⚠️ 이 블록은 파일 **맨 끝**에 있어야 한다: .optionInput 의 기본 선언이
+   위쪽에 있어 같은 명시도면 나중 선언이 이긴다 (앞쪽 미디어쿼리에 두었더니
+   `font: inherit` 에 덮여 무효였다).
+   높이 42→44px(권장 최소), font-size 16px 는 iOS Safari 가 포커스 시 화면을
+   확대하지 않는 하한 — 결제 폼에서는 톤보다 실사용을 우선한다 (본문은 13.2px 유지) */
+@media (max-width: 900px) {
+  .optionInput {
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+}

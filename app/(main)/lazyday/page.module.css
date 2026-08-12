@@ -1,6 +1,6 @@
 .container {
     position: relative;
-    max-width: 600px;
+    max-width: var(--lz-max, 600px);
     margin: 0 auto;
     padding: 0;
     /* overflow-x: clip 제거 (2026-08-09) — 조상 overflow 가 있으면 자식 position:sticky 가

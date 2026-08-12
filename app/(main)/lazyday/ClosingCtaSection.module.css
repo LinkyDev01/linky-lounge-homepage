@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 .closingCta {
-  padding: 64px 24px 8px;
+  padding: 64px var(--lz-gutter, 24px) 8px;
   text-align: center;
   /* 배경 플립 (2026-07-06 교차 재배정) */
   background: #f7f3ee;

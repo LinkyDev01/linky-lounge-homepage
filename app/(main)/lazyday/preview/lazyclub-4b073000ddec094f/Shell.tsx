@@ -182,6 +182,20 @@ export function WorkroomShell({
               <span>통신판매업신고 2026-별내-0077</span>
               <br />
               <span>개인정보관리책임자: 안동민</span>
+              <br />
+              {/* 벤처기업확인 — 번호가 중기부 공시 상세 링크 (운영자 2026-08-12 "레이지클럽과
+                  레이지데이 북클럽 모두 넣자". 문구·링크는 기존 북클럽 푸터와 동일 원문) */}
+              <span>
+                벤처기업확인:{" "}
+                <a
+                  href="https://www.smes.go.kr/venturein/pbntc/searchVntrCmpDtls?vniaSn=1172659&menuId=&cmpNm=%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC%20%EB%A7%81%ED%82%A4&rprsvNm=%EC%95%88%EB%8F%99%EB%AF%BC&bizRNo=5578103588&pageNo=1&areaCd=31&indstyCd=J&captcha=754051"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  제20260303030009호
+                </a>{" "}
+                (혁신성장유형)
+              </span>
             </div>
           </div>
           <div className={styles.footerContact}>

@@ -1,7 +1,7 @@
 .section {
   /* 배경 플립 (2026-07-06 교차 재배정) — 실 FAQ·프리뷰 FaqSectionV2 공유 */
   background-color: #f0e9e0;
-  padding: 48px 24px 56px;
+  padding: 48px var(--lz-gutter, 24px) 56px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
@@ -193,7 +193,7 @@
 }
 
 @media (min-width: 768px) {
-  .section { padding: 28px 56px 0; }
+  .section { padding: 28px var(--lz-gutter-lg, 56px) 0; }
 }
 
 /* ═══ 미니멀 라인 스타일 (A안, 2026-07-03 확정) ═══════════════

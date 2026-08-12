@@ -56,22 +56,22 @@
 }
 
 /* 도미노 — 안쪽 요소만 회전시켜 배치 transform 과 충돌하지 않게 (시안 ⑨).
-   딜레이는 낱글자(--i)가 아니라 **세트(--g)** 단위 0.3s — 같은 세트가 동시에
-   넘어가고 세트 사이에만 간격이 생겨 '띠용 띠용' 하는 덩어리 리듬이 된다 */
+   무한 CSS 루프가 아니라 **JS 가 라운드마다 난수 그룹에 .flipGo 를 붙인다**
+   (운영자 2026-08-12: 1~3개 랜덤 조합 → 복귀 → 텀 → 다른 조합 반복) */
 .flip {
   display: inline-block;
   transform-origin: 50% 100%;
-  animation: markDomino 7.2s cubic-bezier(0.5, 0, 0.3, 1.2) calc(var(--g) * 0.3s) infinite;
   will-change: transform;
 }
-/* 한 바퀴는 앞쪽 1.2초(16.7%) 안에 끝나고 **나머지는 완전히 쉰다** — 마지막 세트가
-   복귀하는 2.1초 뒤부터 5.1초의 텀 (운영자 2026-08-12 "도미노 복귀 후 텀이 있어야지
-   끝없이 몰아치는 건 아냐") */
+.flipGo {
+  animation: markDomino 1.05s cubic-bezier(0.5, 0, 0.3, 1.2) both;
+}
+/* 한 라운드 = 한 번 넘어갔다 복귀 (1.05s). 텀은 JS 라운드 사이 딜레이가 담당 */
 @keyframes markDomino {
   0% { transform: rotateX(0deg); }
-  8.3% { transform: rotateX(-62deg); }
-  12.5% { transform: rotateX(12deg); }
-  16.7%, 100% { transform: rotateX(0deg); }
+  50% { transform: rotateX(-62deg); }
+  75% { transform: rotateX(12deg); }
+  100% { transform: rotateX(0deg); }
 }
 
 /* 모바일 — 레이지클럽 내비 로고 실측 51.7px */
@@ -80,5 +80,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flip { animation: none; }
+  .flipGo { animation: none; }
 }

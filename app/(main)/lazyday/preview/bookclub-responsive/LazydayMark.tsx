@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useRef } from "react"
 import m from "./lazyday-mark.module.css"
 
 /**
@@ -16,11 +19,6 @@ import m from "./lazyday-mark.module.css"
  * 글자 크기는 그 높이에서 역산한 배수로 따라간다 — 내비 행 높이가 흔들리지 않게.
  */
 
-/** 도미노 발화 세트 — 요소 순서 I ♥ L A Z Y D A Y 를 1·2·3·3 개씩 묶는다.
- *  운영자 2026-08-12 "1, 2 3, 4 5 6, 7 8 9 10 … 파도타기보다 각 파트가 반복되는
- *  형태. 완전 연속이라기보다 한 세트씩 띠용 띠용" — 같은 세트는 **동시에** 넘어가고,
- *  세트 사이에만 간격이 있어 낱글자 파도가 아니라 덩어리 리듬이 된다. */
-const FLIP_SET = [0, 1, 1, 2, 2, 2, 3, 3, 3]
 
 // 곡선 배치 — **반지름 6em 원호**에 7글자를 정직하게 얹은 값 (∪ = 가운데가 아래로).
 // 운영자 2026-08-12 "라운딩 조금 더 (더 작은 반지름 호 형태로)": 구 값은 반지름 ≈11em
@@ -31,15 +29,16 @@ const ARCH_R = [19.4, 12.8, 6.4, 0, -6.4, -12.8, -19.4]
 
 /** 스텐실로 찍은 하트 (운영자 2026-08-12 정정: "크레파스보다는 스텐실로 입힌 질감").
  *  두 축으로 만든다:
- *  ① **형태** — 손으로 깎아낸 스텐실 판. 하트 파라메트릭 곡선을 26개 짧은 직선으로
- *     근사하고 꼭짓점마다 ±0.9 흔들었다. 완전한 곡선이 아니라 "아주 미세한 직선적
- *     성격"이 남아, 커터로 오려낸 판처럼 보인다 (베지어 곡선 버전은 폐기)
- *  ② **질감** — 스프레이가 판 위로 앉은 반점. 크레파스의 방향성 결(x 저주파·y 고주파)과
- *     달리 **등방성**(0.36)이어야 스텐실이 된다. 가장자리 번짐은 아주 약하게(1.5)
+ *  ① **형태** — 손으로 깎아낸 스텐실 판 (운영자 3차 정정 2026-08-12: 첨부 이모지형
+ *     하트 기준). 큰 볼록 로브 + **뭉툭한 꼬리**(바닥을 한 점이 아니라 짧은 구간
+ *     48–52 로) 베지어를 36개 짧은 직선으로 근사, 지터 ±0.45. **사알짝 비대칭** —
+ *     오른쪽 로브만 1.5% 확대. 구 파라메트릭 하트(꼬리 뾰족·대칭)는 폐기
+ *  ② **질감** — 등방성 반점(0.36), 단 제거는 **면적의 ~1%만 살짝 덜 칠해진** 수준
+ *     (-0.6/1.5 → 최소 alpha 0.9, 대부분 완전 불투명). 가장자리 번짐 1.5
  *  ⚠ 반점·번짐 크기는 viewBox 단위라 **렌더 크기와 함께 축소된다** (내비 20px 기준). */
 function Heart({ className = "" }: { className?: string }) {
   const d =
-    "M49.2 24.6 L51.1 22.5 L54.7 14.4 L63.7 7.9 L74.6 6.0 L87.1 11.1 L93.7 21.0 L93.5 33.8 L87.1 47.0 L75.4 57.2 L63.3 68.4 L53.7 77.2 L50.3 83.5 L50.2 86.2 L49.1 83.2 L44.8 76.1 L37.2 68.1 L25.7 58.6 L12.7 47.2 L5.9 33.4 L5.9 21.2 L12.7 11.7 L25.6 5.8 L36.1 7.3 L45.5 13.8 L49.2 21.3 Z"
+    "M51.6 84.1 L60.1 77.1 L67.8 70.8 L75.3 63.5 L80.9 56.8 L86.1 48.7 L89.3 41.3 L90.4 31.9 L89.7 24.4 L86.8 18.6 L82.6 13.3 L77.5 9.7 L71.9 7.5 L65.5 6.9 L60.9 7.2 L56.8 8.9 L53.6 10.9 L51.7 13.8 L50.0 17.7 L48.6 14.1 L46.1 11.5 L43.5 8.4 L39.2 7.2 L35.0 6.6 L28.6 7.4 L22.7 10.4 L17.3 13.3 L13.7 18.8 L10.8 24.8 L10.3 32.0 L11.3 40.9 L14.4 48.9 L19.3 56.1 L25.7 63.3 L33.0 70.2 L40.2 77.0 Z"
   return (
     <svg viewBox="-4 -4 108 100" className={`${m.heart} ${className}`} aria-hidden focusable="false">
       <filter id="lzCrayon" x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
@@ -56,7 +55,7 @@ function Heart({ className = "" }: { className?: string }) {
         <feColorMatrix
           in="grain"
           type="matrix"
-          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.6 1.36"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.6 1.5"
           result="grainA"
         />
         <feComposite in="rough" in2="grainA" operator="in" />
@@ -67,13 +66,46 @@ function Heart({ className = "" }: { className?: string }) {
 }
 
 export function LazydayMark({ className = "" }: { className?: string }) {
+  const rootRef = useRef<HTMLSpanElement>(null)
+
+  // 도미노 — 고정 세트가 아니라 **난수 그룹** (운영자 2026-08-12 정정):
+  // 9개 요소(I ♥ L A Z Y D A Y)에서 매 라운드 1~3개를 무작위로 골라 동시에
+  // 넘겼다가, 복귀가 끝나면 쉬고(1.8~3.4s 난수) 다른 조합으로 반복.
+  // CSS 무한 루프로는 '랜덤'이 안 되므로 JS 가 라운드마다 .flipGo 를 붙였다 뗀다.
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const flips = [...root.querySelectorAll<HTMLElement>("[data-flip]")]
+    if (flips.length === 0) return
+    let timer: ReturnType<typeof setTimeout> | null = null
+    let cancelled = false
+    const round = () => {
+      if (cancelled) return
+      const k = 1 + Math.floor(Math.random() * 3) // 1~3개
+      const picked = [...flips].sort(() => Math.random() - 0.5).slice(0, k)
+      picked.forEach((el) => {
+        el.classList.remove(m.flipGo)
+        void el.offsetWidth // 재발화를 위한 리플로 강제 (같은 요소 연속 당첨 대비)
+        el.classList.add(m.flipGo)
+      })
+      // 복귀(1.05s) 후 텀을 두고 다음 라운드 — "끝없이 몰아치는 건 아냐"
+      timer = setTimeout(round, 1050 + 1800 + Math.random() * 1600)
+    }
+    timer = setTimeout(round, 900)
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
+  }, [])
+
   return (
-    <span className={`${m.mark} ${className}`} role="img" aria-label="레이지데이 북클럽">
+    <span ref={rootRef} className={`${m.mark} ${className}`} role="img" aria-label="레이지데이 북클럽">
       <span className={m.top}>
-        <span className={`${m.flip} ${m.iChar}`} style={{ "--g": FLIP_SET[0] } as React.CSSProperties}>
+        <span className={`${m.flip} ${m.iChar}`} data-flip>
           I
         </span>
-        <span className={m.flip} style={{ "--g": FLIP_SET[1] } as React.CSSProperties}>
+        <span className={m.flip} data-flip>
           <Heart />
         </span>
       </span>
@@ -84,7 +116,7 @@ export function LazydayMark({ className = "" }: { className?: string }) {
             className={m.slot}
             style={{ "--ay": `${ARCH_Y[i]}em`, "--ar": `${ARCH_R[i]}deg` } as React.CSSProperties}
           >
-            <span className={m.flip} style={{ "--g": FLIP_SET[i + 2] } as React.CSSProperties}>
+            <span className={m.flip} data-flip>
               {ch}
             </span>
           </span>

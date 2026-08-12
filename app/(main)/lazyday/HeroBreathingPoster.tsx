@@ -27,11 +27,13 @@ import styles from "./HeroBreathingPoster.module.css"
 const SAYU_FULL = `${SAYU_P1}   ${SAYU_P2}   ${SAYU_P3}`
 const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (데모 ③ 확정값)
 
-// 진입 타이밍 (시안 ② 실측값 계열) — 실 글자 3.2ms 스태거·260ms, 묶음 300ms 간격·520ms
+// 진입 타이밍 (시안 ② 계열). 묶음은 **겹쳐서** 뜬다 — 간격(140) < 지속(520) 이라
+// 레이지가 아직 올라오는 중에 데이가 시작한다 (운영자 2026-08-12: "순차적으로
+// 뜨기보다 구간이 겹치면서 떠도 돼. 지금은 너무 느려 보여")
 const CHAR_STAGGER_MS = 3.2
 const CHAR_DUR_MS = 260
-const GROUP_BASE_MS = 1300
-const GROUP_GAP_MS = 300
+const GROUP_BASE_MS = 900
+const GROUP_GAP_MS = 140
 const GROUP_DUR_MS = 520
 // 큰 글자 12자 → 묶음 인덱스 (운영자: "레이지/데이/북클럽/4기모집 묶음 단위")
 const GLYPH_GROUP = [0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3]
@@ -65,23 +67,25 @@ export function HeroBreathingPoster() {
       const P = textEl.getComputedTextLength()
       if (!(P > 0)) return
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
-      // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험.
-      // 첫 벌은 진입 애니 중인 tspan 그대로 두고, 나머지 벌만 통짜로 이어붙인다
+      // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
       const K = Math.max(2, Math.ceil((P + L) / P) + 1)
-      tp.appendChild(document.createTextNode(`${SAYU_FULL}   `.repeat(K - 1)))
-      // SMIL — 0 → -P 를 P/SPEED 초에 무한 반복. 진입이 모두 끝나고 0.5초 뒤 발화
-      const a = document.createElementNS("http://www.w3.org/2000/svg", "animate") as SVGAnimateElement
-      a.setAttribute("attributeName", "startOffset")
-      a.setAttribute("from", "0")
-      a.setAttribute("to", String(-P))
-      a.setAttribute("dur", `${P / SPEED}s`)
-      a.setAttribute("repeatCount", "indefinite")
-      a.setAttribute("begin", "indefinite")
-      tp.appendChild(a)
-      anim = a
       const wait = Math.max(0, FLOW_START_MS - (performance.now() - mounted))
       timer = setTimeout(() => {
-        if (!cancelled) a.beginElement()
+        if (cancelled) return
+        // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
+        // 글자마다 경로 재배치가 일어나 **30fps 로 반토막** 난다 (실측 33.3ms/frame,
+        // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
+        // 60fps 회복 — 진입이 끝난 시점이라 시각적으로는 같은 화면이다
+        tp.textContent = `${SAYU_FULL}   `.repeat(K)
+        // SMIL — 0 → -P 를 P/SPEED 초에 무한 반복 (네이티브 타임라인, JS 개입 없음)
+        const a = document.createElementNS("http://www.w3.org/2000/svg", "animate") as SVGAnimateElement
+        a.setAttribute("attributeName", "startOffset")
+        a.setAttribute("from", "0")
+        a.setAttribute("to", String(-P))
+        a.setAttribute("dur", `${P / SPEED}s`)
+        a.setAttribute("repeatCount", "indefinite")
+        tp.appendChild(a)
+        anim = a
       }, wait)
     })
     return () => {

@@ -12,12 +12,11 @@ import styles from "./HeroBreathingPoster.module.css"
  * 글자가 태어나고 반대쪽 끝에서 사라지는 무한 순환 (실이 비는 구간 없음:
  * 본문을 K벌 이어붙여 오프셋을 한 벌 길이로 순환).
  *
- * 2026-08-12 운영자: 진입은 **시안 ①(실선 인트로)의 스펙 그대로**:
- * ① 실 위 본문이 2.2초에 걸쳐 스스로 그어진다 (붓끝이 닿는 순서 = draw 이징의
+ * 2026-08-12 운영자(최종): **큰 글자 12자는 처음부터 떠 있다** — "레이지데이 북클럽
+ * 4기 모집 텍스트는 처음부터 뜨고", 생기는 절차만 뺀다.
+ * ① 실 위 본문만 2.2초에 걸쳐 스스로 그어진다 (붓끝이 닿는 순서 = draw 이징의
  *    역함수로 깐 글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 JS 없이도 동작)
- * ② 실이 **끝나갈 때**(1.72초) 큰 글자 12자가 60ms 간격으로 내려앉아
- *    **총 ~2.9초에 완전 정지** — 지속 520ms 와 겹쳐 한 덩어리로 몰린다
- * ③ 정지 직후 0.5초에 걸쳐 가속해 정상 속도의 SMIL 무한 흐름으로 이어진다
+ * ② 실이 다 그어지면(2.4초) 0.5초에 걸쳐 점진 가속해 정상 속도의 SMIL 무한 흐름
  * 같은 textPath 하나로 진입→흐름을 잇는다 — 첫 벌은 tspan, 이후 벌은 JS가
  * 폰트 로드 후 통짜로 이어붙이고 SMIL(begin=indefinite)을 시각에 맞춰 발화.
  *
@@ -35,14 +34,6 @@ const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (�
 // 520ms·out-expo 로 하나씩 띄운다. 여기선 '선' 대신 '문장'이 같은 리듬으로 그어진다.
 const DRAW_MS = 2200
 const CHAR_DUR_MS = 200 // 그어지는 인상 — 글자 하나의 페이드는 짧게
-// 큰 글자는 실이 **끝나갈 때** 시작해 총 ~2.9초에 완전히 멎는다 (시안 ① 스펙).
-// 1720 = 2900(정지) − 520(지속) − 11×60(간격) → 실 진행 78% 지점에서 시작.
-// 구 1300ms 는 59% 지점이라 이르게 시작했고 총 정지도 2.48초로 스펙보다 빨랐다.
-// 간격 60ms 는 지속 520ms 와 크게 겹쳐, 12자가 660ms 안에 한 덩어리로 몰려 내려앉는다
-// (운영자 2026-08-12 "레이지데이 북클럽 한 번에 나오는 게 낫겠어").
-const GLYPH_BASE_MS = 1720
-const GLYPH_GAP_MS = 60
-const GLYPH_DUR_MS = 520
 
 /** easeInOutQuad(=anime 의 inOut(2))의 역함수 — 진행률 p 에 도달하는 정규화 시각.
  *  선이 그어질 때 위치 p 에 붓끝이 닿는 순간이므로, 그 자리의 글자가 뜰 시각이다.
@@ -51,7 +42,7 @@ function drawTimeAt(p: number) {
   return p < 0.5 ? Math.sqrt(p / 2) : 1 - Math.sqrt((1 - p) / 2)
 }
 
-const INTRO_DONE_MS = Math.max(DRAW_MS + CHAR_DUR_MS, GLYPH_BASE_MS + 11 * GLYPH_GAP_MS + GLYPH_DUR_MS)
+const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 그어짐이 곧 진입 전체
 
 // 흐름 — 정지에서 툭 시작하지 않고 0.5초에 걸쳐 정상 속도까지 가속한다
 // (운영자: "0.5초 뒤 이동 시작 말고, 점진적으로 가속도 붙여서 0.5초에 정상 속도").
@@ -171,9 +162,8 @@ export function HeroBreathingPoster() {
           fontSize={g.s}
           textAnchor="middle"
           dominantBaseline="central"
-          className={`${styles.glyph} ${styles.glyphIn}`}
-          // 시안 ① 스펙 — 1720ms 부터 60ms 간격 (지속 520ms 라 크게 겹쳐 한 덩어리)
-          style={{ ["--gd" as string]: `${GLYPH_BASE_MS + i * GLYPH_GAP_MS}ms` }}
+          // 등장 애니 없음 — 처음부터 완성 상태 (운영자 2026-08-12 최종)
+          className={styles.glyph}
         >
           {g.ch}
         </text>

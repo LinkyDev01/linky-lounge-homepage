@@ -45,27 +45,12 @@
   to { opacity: 1; }
 }
 
-/* 큰 글자 — 시안 ① 그대로 60ms 간격 개별 등장 (딜레이는 인라인 --gd) */
-.glyphIn {
-  opacity: 0;
-  animation: heroGlyphIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--gd, 0ms);
-}
-@keyframes heroGlyphIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px); /* SVG text 속성 y 트윈 불가 — transform 으로 (라운드 133 실측) */
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* 큰 글자 등장 애니는 폐기 — 처음부터 완성 상태 (운영자 2026-08-12 "처음부터 뜨고,
+   생기는 절차만 빠지는 것"). 구 .glyphIn/heroGlyphIn 은 git 이력 참조 */
 
 /* reduced-motion: 진입 스킵 — 즉시 완성 상태 (흐름은 TSX 가드가 미부착) */
 @media (prefers-reduced-motion: reduce) {
-  .introChar,
-  .glyphIn {
+  .introChar {
     animation: none;
     opacity: 1;
     transform: none;

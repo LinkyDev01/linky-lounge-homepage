@@ -14,6 +14,11 @@
 .mark {
   --mark-h: 54.9px;
   height: var(--mark-h);
+  box-sizing: border-box;
+  /* 호의 처짐(최대 0.341em)만큼 글자들이 아래로 내려가 시각 중심이 밑으로 쏠린다.
+     레이아웃은 처짐을 모르므로(translateY 는 시각 이동), 처짐만큼 아래 여백을
+     만들어 중앙 정렬을 그 절반만큼 위로 되돌린다 */
+  padding-bottom: 0.34em;
   font-size: calc(var(--mark-h) * 0.345);
   display: inline-flex;
   flex-direction: column;
@@ -35,7 +40,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.34em;
-  margin-bottom: 0.3em;
+  /* 두 행 간격 — 운영자 2026-08-12 "세로 간격 더 좁혀". 호가 깊어져 가운데가
+     내려앉은 만큼 위 여백이 더 넓어 보이므로 함께 줄인다 */
+  margin-bottom: 0.1em;
 }
 .iChar { font-size: 1.32em; }
 .heart { width: 1.18em; height: 1.09em; display: block; overflow: visible; }

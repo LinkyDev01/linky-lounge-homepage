@@ -23,13 +23,40 @@ const playfair = Playfair_Display({
 export async function generateMetadata(): Promise<Metadata> {
   const host = ((await headers()).get("host") || "").toLowerCase()
   const isBookclub = host.includes("lazyday-bookclub.com")
+  // "lazy-club.com"은 "lazyday-bookclub.com"의 부분 문자열이 아니라 안전 (SEO 3분기 2026-08-12)
+  const isLazyclub = !isBookclub && host.includes("lazy-club.com")
+
+  // 레이지클럽 정본 = www (애펙스가 www로 308, Vercel 도메인 설정 실측 2026-08-12).
+  // 기본 title·description은 자체 metadata 없는 하위 페이지(결제 등)의
+  // "링키라운지" 타이틀 누출을 막는 호스트별 폴백 — 랜딩은 각자 페이지 metadata가 덮는다.
+  if (isLazyclub) {
+    return {
+      metadataBase: new URL("https://www.lazy-club.com"),
+      title: "레이지클럽",
+      description: "책과 영화를 하루의 대화로 만나는 원데이 토크, 그리고 레이지데이의 제품들.",
+      // 네이버 서치어드바이저·구글 서치콘솔 인증 코드는 운영자 발급 대기 (2026-08-12) —
+      // 발급되면 verification: { google, other: { "naver-site-verification" } } 로 추가
+    }
+  }
+
   // 호스트별로 정확한 메타 도메인 인증 코드 하나만 노출 → 다중 태그로 인한 스크래퍼 모호함 제거
   const fbVerification = isBookclub
     ? "bhia7nsomik64va3kxe3q4npohn7xi" // lazyday-bookclub.com
     : "d4x4wq5k1cywer0jeh6fhhclbydhm3" // linkylounge.com
+  if (isBookclub) {
+    return {
+      metadataBase: new URL("https://www.lazyday-bookclub.com"),
+      title: "레이지데이 북클럽",
+      description: "서울 사당역 링키라운지에서 열리는 시즌제 독서모임, 레이지데이 북클럽.",
+      other: {
+        "facebook-domain-verification": fbVerification,
+      },
+      // 네이버·구글 사이트 인증 코드는 운영자 발급 대기 (2026-08-12)
+    }
+  }
+
   return {
-    // 책클럽 도메인에선 OG/canonical이 새 도메인을 가리키게 (이관 후 정본)
-    metadataBase: new URL(isBookclub ? "https://www.lazyday-bookclub.com" : "https://linkylounge.com"),
+    metadataBase: new URL("https://linkylounge.com"),
     title: "링키라운지 | 𝑾𝒉𝒆𝒓𝒆 𝑾𝒆 𝑳𝒊𝒏𝒌",
     description: "덴마크 휘게를 담은 사당의 아늑한 공간",
     openGraph: {

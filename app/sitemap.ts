@@ -16,8 +16,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { url: `${b}/`, changeFrequency: "weekly", priority: 1 },
       { url: `${b}/apply`, changeFrequency: "weekly", priority: 0.8 },
       { url: `${b}/apply/interview/schedule`, changeFrequency: "monthly", priority: 0.5 },
+      { url: `${b}/one-day-talk-01/apply`, changeFrequency: "weekly", priority: 0.7 },
       { url: `${b}/lounge-info`, changeFrequency: "monthly", priority: 0.5 },
       { url: `${b}/policy`, changeFrequency: "yearly", priority: 0.2 },
+      { url: `${b}/terms`, changeFrequency: "yearly", priority: 0.2 },
+      { url: `${b}/privacy`, changeFrequency: "yearly", priority: 0.2 },
+    ]
+  }
+
+  // 레이지클럽 — 공개 경로만 (랜딩 + PG 화이트리스트. /preview 시안 트리는 제외)
+  if (host.includes("lazy-club.com")) {
+    const b = "https://www.lazy-club.com"
+    return [
+      { url: `${b}/`, changeFrequency: "weekly", priority: 1 },
+      { url: `${b}/one-day-talk-01/apply`, changeFrequency: "weekly", priority: 0.8 },
+      { url: `${b}/policy`, changeFrequency: "yearly", priority: 0.2 },
+      { url: `${b}/terms`, changeFrequency: "yearly", priority: 0.2 },
+      { url: `${b}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     ]
   }
 

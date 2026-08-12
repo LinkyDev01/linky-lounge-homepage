@@ -6,6 +6,9 @@ import styles from "./terms.module.css"
 export const metadata: Metadata = {
   title: "이용약관 · 레이지데이",
   description: "레이지데이 통합 이용약관 — 모임(용역)·제품(재화)·배송",
+  // 두 도메인(북클럽·레이지클럽)에서 열리는 중복 콘텐츠 — 상대 canonical은
+  // metadataBase 호스트 분기 덕에 각 도메인 자기 정본으로 해석된다 (SEO 2026-08-12)
+  alternates: { canonical: "/terms" },
 }
 
 /**

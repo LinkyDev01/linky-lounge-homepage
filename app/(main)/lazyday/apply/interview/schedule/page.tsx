@@ -154,18 +154,41 @@ export default function InterviewSchedulePage() {
     // sim 확정 전에는 호출하지 않는다 — 테스트 모드에서 실제 서버를 치면 안 된다
     if (!simReady) return
     // 테스트 모드면 서버 대신 시뮬레이션 응답을 쓴다 (2026-08-06)
-    const load = sim
-      ? simSlots(sim)
-      : fetch("/api/lazyday/interview/slots").then(r => r.json())
-    load
-      .then((d: { bookedSlots?: { start: string; end: string }[] }) => setBookedEvents(
-        (d.bookedSlots ?? []).map((s) => ({ start: s.start, end: s.end }))
-      ))
-      .catch(() => {
-        setSlotsFailed(true)
-        if (!sim) reportClientError("schedule_slots", "예약 가능 시간 조회 실패")
-      })
-      .finally(() => setSlotsLoading(false))
+    if (sim) {
+      simSlots(sim)
+        .then((d: { bookedSlots?: { start: string; end: string }[] }) => setBookedEvents(
+          (d.bookedSlots ?? []).map((s) => ({ start: s.start, end: s.end }))
+        ))
+        .catch(() => setSlotsFailed(true))
+        .finally(() => setSlotsLoading(false))
+      return
+    }
+    // 예약 현황이 실제로 도착할 때까지 로딩을 유지하며 재시도한다 (2026-08-12).
+    // 실패를 빈 배열로 그리면 마감 슬롯이 전부 빈 것처럼 보여 중복 예약이 들어온다.
+    // GAS 콜드 스타트가 80초까지 관측된 적 있어(lib/gas.ts) 재시도 자체가 워밍업을 겸한다.
+    let cancelled = false
+    ;(async () => {
+      const MAX_TRIES = 8
+      for (let i = 0; i < MAX_TRIES; i++) {
+        try {
+          const r = await fetch("/api/lazyday/interview/slots", { cache: "no-store" })
+          const d = (await r.json()) as { success?: boolean; bookedSlots?: { start: string; end: string }[] }
+          if (r.ok && d.success && Array.isArray(d.bookedSlots)) {
+            if (cancelled) return
+            setBookedEvents(d.bookedSlots.map((s) => ({ start: s.start, end: s.end })))
+            setSlotsLoading(false)
+            return
+          }
+        } catch {}
+        if (cancelled) return
+        if (i < MAX_TRIES - 1) await new Promise((res) => setTimeout(res, 3_000 + i * 1_000))
+      }
+      if (cancelled) return
+      setSlotsFailed(true)
+      reportClientError("schedule_slots", "예약 가능 시간 조회 실패")
+      setSlotsLoading(false)
+    })()
+    return () => { cancelled = true }
   }, [sim, simReady])
 
   const nowUTCMs   = useMemo(() => Date.now(), [])
@@ -460,6 +483,10 @@ export default function InterviewSchedulePage() {
                 <div className={styles.calLoading}>
                   <span className={styles.dot} /><span className={styles.dot} /><span className={styles.dot} />
                 </div>
+              ) : slotsFailed ? (
+                /* 조회 실패 상태에서 달력을 그리면 마감 시간이 전부 빈 것처럼 보인다 —
+                   날짜 선택을 막고 우측 안내(카카오채널 문의)로 유도 (2026-08-12) */
+                <p className={styles.timeHint}>예약 현황을 불러오지 못해 날짜 선택을 잠시 닫아두었어요.</p>
               ) : (
                 <div className={styles.dateGrid}>
                   {calDays.map((cell, i) => {

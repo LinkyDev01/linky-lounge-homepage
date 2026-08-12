@@ -32,3 +32,42 @@
   font-weight: 900;
   fill: #1a1208;
 }
+
+/* ── 진입 (2안+3안 조합, 운영자 2026-08-12) ──
+   실 위 글자: 순서대로 안착 (시안 ② 260ms/3.2ms 스태거 — 딜레이는 인라인 --d).
+   CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돌고 완료 상태로 정지 */
+.introChar {
+  opacity: 0;
+  animation: heroCharIn 0.26s ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes heroCharIn {
+  to { opacity: 1; }
+}
+
+/* 큰 글자 — 레이지/데이/북클럽/4기모집 묶음 단위 등장 (딜레이는 인라인 --gd) */
+.glyphIn {
+  opacity: 0;
+  animation: heroGlyphIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--gd, 0ms);
+}
+@keyframes heroGlyphIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px); /* SVG text 속성 y 트윈 불가 — transform 으로 (라운드 133 실측) */
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* reduced-motion: 진입 스킵 — 즉시 완성 상태 (흐름은 TSX 가드가 미부착) */
+@media (prefers-reduced-motion: reduce) {
+  .introChar,
+  .glyphIn {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

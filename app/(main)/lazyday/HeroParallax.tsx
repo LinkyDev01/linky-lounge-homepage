@@ -18,7 +18,7 @@ export function HeroParallax() {
           (checkout·terms 와 같은 CDN 방식, 운영자 원본 스펙 2026-08-12) */}
       <link
         rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
       />
       <HeroBreathingPoster />
       <div className={styles.heroFade} aria-hidden />

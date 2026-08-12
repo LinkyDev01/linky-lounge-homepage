@@ -16,7 +16,7 @@ export default function HeroMotionPage() {
       {/* 포스터 원본 서체 Pretendard — 랜딩 전역(SUIT)엔 없어 여기서 로드 */}
       <link
         rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
       />
       <HeroMotion />
     </>

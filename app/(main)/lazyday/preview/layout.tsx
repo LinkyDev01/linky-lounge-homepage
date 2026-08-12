@@ -25,7 +25,7 @@ export default function PreviewLayout({ children }: { children: React.ReactNode 
       {/* 책 제목용 Pretendard (사이트 전역엔 미로드 상태라 프리뷰에서만 로드) */}
       <link
         rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
       />
       <PreviewBar />
       {children}

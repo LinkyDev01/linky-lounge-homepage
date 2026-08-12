@@ -53,33 +53,29 @@
   row-gap: 7px;
   align-items: center;
   padding: 10px 15px;
-  /* 마크 세로(51.7px, 레이지클럽 내비 로고 실측) + 상하 여백 */
-  min-height: calc(51.7px + 20px);
   border-bottom: 1px solid rgba(26, 18, 8, 0.12);
 }
 
-/* 1행 = 신청하기(우) / 2행 = 섹션 탭. 마크는 **두 행 왼쪽에 걸쳐** 흐름 밖으로
-   (레이지클럽 Shell 과 동일 문법 — 그리드 아이템으로 두면 1행이 마크 높이만큼
-   부풀어 헤더가 105px 까지 두꺼워진다). 헤더 높이는 min-height 로 마크를 감싸고,
-   두 행은 마크 폭(--navLogoSize)만큼 들여쓴다 */
+/* 1행 = 마크 전용 / 2행 = 섹션 탭 + 신청하기 (운영자 2026-08-12 "신청하기도 2행에").
+   신청하기가 2행으로 내려오면서 1행에는 마크만 남으므로, 마크를 흐름 안에 두어
+   1행 높이를 마크가 정하게 한다. 흐름 밖(absolute)으로 두고 두 행을 마크 폭만큼
+   들여쓰면 **모바일 2행에 6항목이 못 들어가 신청하기가 탭과 겹친다**(실측) */
 .navLogo {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
+  grid-area: 1 / 1 / 2 / 5;
   display: flex;
   align-items: center;
 }
 
 .navAll {
-  grid-area: 2 / 1 / 3 / 5;
-  padding-left: calc(var(--navLogoSize) + 12px);
+  grid-area: 2 / 1 / 3 / 4;
   display: flex;
   gap: 10px;
   font-size: 11px;
 }
+/* 신청하기 — 2행 우측 (운영자 2026-08-12 "신청하기도 2행에 있어야 해").
+   1행에는 마크만 남는다 (마크는 흐름 밖이라 헤더 높이는 min-height 가 지탱) */
 .navMenu {
-  grid-area: 1 / 4 / 2 / 5;
+  grid-area: 2 / 4 / 3 / 5;
   justify-self: end;
   display: flex;
   gap: 8px;
@@ -101,9 +97,15 @@
   white-space: nowrap;
 }
 
-/* 본문 — 고정 헤더 + 프리뷰 바만큼 밀어준다 (레이지클럽 .content padding-top 문법) */
-.body {
-  padding-top: calc(72px + var(--preview-bar, 34px));
+/* 본문 — 고정 헤더 + 프리뷰 바만큼 밀어준다 (레이지클럽 .content padding-top 문법).
+   ⚠ 헤더 높이(마크 51.7/54.9 + 두 행)와 **같이 움직여야 한다** — 신청하기를 2행으로
+   내리며 1행이 마크 전용이 되어 헤더가 96.9/104.7px 로 커졌다 (실측).
+   ⚠ 프리뷰 바 높이는 더하지 않는다 — 바가 흐름에 있어 main 자체가 이미 그만큼
+   내려와 있다 (더하면 36px 헛여백). 실사이트 이식 시 바가 없어도 그대로 맞는다.
+   ⚠ `.page` 를 붙여 명시도를 올린 이유: page.module.css 의 `.container { padding: 0 }`
+   과 명시도가 같아 로드 순서에 따라 덮여, 패딩이 **0px 로 죽어 있었다** (실측) */
+.page .body {
+  padding-top: 99px;
 }
 
 /* ── 푸터 : 레이지클럽 15컬럼 문법 ──────────────────────────────── */
@@ -214,22 +216,23 @@
     gap: 15px;
     row-gap: 9px;
     padding: 10px 15px;
-    min-height: calc(54.9px + 20px);
+  }
+  .navLogo {
+    grid-area: 1 / 1 / 2 / 16;
   }
   .navAll {
     grid-area: 2 / 1 / 3 / 11;
-    padding-left: calc(var(--navLogoSize) + 15px);
     gap: 15px;
     font-size: 13.2px;
   }
   .navMenu {
-    grid-area: 1 / 11 / 2 / 16;
+    grid-area: 2 / 11 / 3 / 16;
     gap: 15px;
     font-size: 13.2px;
   }
 
-  .body {
-    padding-top: calc(80px + var(--preview-bar, 34px));
+  .page .body {
+    padding-top: 107px;
   }
 
   /* 히어로 : 포스터(좌) + 요약 카드(우). 포스터가 전폭이면 aspect 4/5 라

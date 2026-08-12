@@ -55,18 +55,23 @@
   transform: translateY(var(--ay)) rotate(var(--ar));
 }
 
-/* 도미노 — 안쪽 요소만 회전시켜 배치 transform 과 충돌하지 않게 (시안 ⑨) */
+/* 도미노 — 안쪽 요소만 회전시켜 배치 transform 과 충돌하지 않게 (시안 ⑨).
+   딜레이는 낱글자(--i)가 아니라 **세트(--g)** 단위 0.3s — 같은 세트가 동시에
+   넘어가고 세트 사이에만 간격이 생겨 '띠용 띠용' 하는 덩어리 리듬이 된다 */
 .flip {
   display: inline-block;
   transform-origin: 50% 100%;
-  animation: markDomino 5.4s cubic-bezier(0.5, 0, 0.3, 1.2) calc(var(--i) * 0.09s) infinite;
+  animation: markDomino 7.2s cubic-bezier(0.5, 0, 0.3, 1.2) calc(var(--g) * 0.3s) infinite;
   will-change: transform;
 }
+/* 한 바퀴는 앞쪽 1.2초(16.7%) 안에 끝나고 **나머지는 완전히 쉰다** — 마지막 세트가
+   복귀하는 2.1초 뒤부터 5.1초의 텀 (운영자 2026-08-12 "도미노 복귀 후 텀이 있어야지
+   끝없이 몰아치는 건 아냐") */
 @keyframes markDomino {
-  0%, 62%, 100% { transform: rotateX(0deg); }
-  70% { transform: rotateX(-62deg); }
-  80% { transform: rotateX(12deg); }
-  88% { transform: rotateX(0deg); }
+  0% { transform: rotateX(0deg); }
+  8.3% { transform: rotateX(-62deg); }
+  12.5% { transform: rotateX(12deg); }
+  16.7%, 100% { transform: rotateX(0deg); }
 }
 
 /* 모바일 — 레이지클럽 내비 로고 실측 51.7px */

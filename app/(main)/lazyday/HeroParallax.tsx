@@ -13,7 +13,7 @@ export function HeroParallax() {
     <div className={styles.heroWrapper}>
       {/* 랜딩 유일 h1 — 히어로가 SVG 포스터라 문서에 제목 텍스트가 없어
           시각 숨김(srOnly)으로 보충 (SEO·접근성, 2026-08-12. 화면 픽셀 무변경) */}
-      <h1 className={styles.srOnly}>레이지데이 북클럽 — 서울 사당 시즌제 독서모임</h1>
+      <h1 className={styles.srOnly}>레이지데이 북클럽</h1>
       {/* 포스터 원본 서체 Pretendard — 랜딩 전역(SUIT)엔 없어 여기서 로드
           (checkout·terms 와 같은 CDN 방식, 운영자 원본 스펙 2026-08-12) */}
       <link

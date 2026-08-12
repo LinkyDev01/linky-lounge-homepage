@@ -34,8 +34,11 @@ export async function generateMetadata(): Promise<Metadata> {
       metadataBase: new URL("https://www.lazy-club.com"),
       title: "레이지클럽",
       description: "책과 영화를 하루의 대화로 만나는 원데이 토크, 그리고 레이지데이의 제품들.",
-      // 네이버 서치어드바이저·구글 서치콘솔 인증 코드는 운영자 발급 대기 (2026-08-12) —
-      // 발급되면 verification: { google, other: { "naver-site-verification" } } 로 추가
+      other: {
+        // 네이버 서치어드바이저 소유 확인 (운영자 발급 2026-08-12, lazy-club.com 전용)
+        "naver-site-verification": "d6efbbbd0995819ae93e919622534e1d5315747c",
+      },
+      // 구글 서치콘솔 인증 코드는 운영자 발급 대기
     }
   }
 
@@ -50,8 +53,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description: "서울 사당역 링키라운지에서 열리는 시즌제 독서모임, 레이지데이 북클럽.",
       other: {
         "facebook-domain-verification": fbVerification,
+        // 네이버 서치어드바이저 소유 확인 (운영자 발급 2026-08-12, lazyday-bookclub.com 전용)
+        "naver-site-verification": "8224ea0b6a1b0673055db2e1c404a1902a827882",
       },
-      // 네이버·구글 사이트 인증 코드는 운영자 발급 대기 (2026-08-12)
+      // 구글 서치콘솔 인증 코드는 운영자 발급 대기
     }
   }
 

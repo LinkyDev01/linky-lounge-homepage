@@ -19,11 +19,12 @@ import { BrandCloseSection } from "./BrandCloseSection"
 import { SEASON } from "./season-config"
 import { JsonLd } from "./JsonLd"
 
-// SEO 개편 (2026-08-12, 대화상점 패턴): title 카테고리 서술형 + description 정보형 +
-// keywords(네이버 계열 참고용). OG는 철학 문구 유지 — 공유 미리보기는 브랜드 톤,
-// 검색 스니펫은 title/description이 담당.
+// SEO 개편 (2026-08-12, 대화상점 패턴): description 정보형 + keywords(네이버 계열 참고용).
+// ⚠ title·OG는 **운영자 지정값 유지** — 임의 문구로 바꾸지 않는다 (운영자 2026-08-12
+// "오픈그래프 타이틀은 유지할건데 임의로 작성한 값 틀어버리면 안돼" — 카테고리 서술형
+// title 시도는 원복. 검색어는 description·keywords·JSON-LD로만).
 export const metadata: Metadata = {
-  title: "레이지데이 북클럽 — 서울 사당 시즌제 독서모임",
+  title: "레이지데이 북클럽",
   description:
     "서울 사당역 링키라운지에서 열리는 시즌제 독서모임, 레이지데이 북클럽. 한 시즌 동안 네 권의 책을 함께 읽고 낮의 대화로 깊게 이야기합니다.",
   keywords: [

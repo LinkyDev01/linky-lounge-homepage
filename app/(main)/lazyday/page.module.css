@@ -103,14 +103,20 @@
    높이 48.5px 이라 탭 타깃 기준도 만족한다.
    ⚠ **색은 잉크가 아니라 브랜드 주황** — 잉크로 갔다가 운영자가 되돌렸다
    ("신청하기 버튼 컬러는 원래대로 주황하는게 어때?", 2026-08-12).
-   치수·모서리는 D안 그대로 두고 색만 원복한 상태다 */
+   치수·모서리는 D안 그대로 두고 색만 원복한 상태다.
+   ⚠ **명도 대비 때문에 한 단계 진한 #b8571a 를 기본으로 쓴다** (운영자 "WCAG 기준
+   그와 관련된 것 의견 따를게", 2026-08-12): #d2691e 위 흰 글자는 3.63:1 로,
+   15px 볼드는 WCAG '큰 글씨'(18.66px 볼드)에 못 미쳐 4.5:1 이 필요한데 미달이었다.
+   #b8571a 는 **4.56:1** 로 AA 통과하면서 눈에 띄게 어두워지지도 않는다.
+   기본이 한 칸 올라간 만큼 hover/active 는 종전 active 값(#a04d16)으로 합쳤다 —
+   새 색을 만들지 않기 위해서다 (§3 팔레트 규율) */
 .applyButton {
     display: block;
     width: fit-content;
     max-width: 100%;
     margin: 0 auto;
     padding: 13px 26px;
-    background-color: #d2691e;
+    background-color: #b8571a;
     color: #ffffff;
     font-size: 15px;
     font-weight: 600;
@@ -122,10 +128,7 @@
     text-decoration: none;
 }
 
-.applyButton:hover {
-    background-color: #b8571a;
-}
-
+.applyButton:hover,
 .applyButton:active {
     background-color: #a04d16;
 }

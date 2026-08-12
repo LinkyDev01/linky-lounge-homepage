@@ -16,7 +16,7 @@ import styles from "./HeroBreathingPoster.module.css"
  * 4기 모집 텍스트는 처음부터 뜨고", 생기는 절차만 뺀다.
  * ① 실 위 본문만 2.2초에 걸쳐 스스로 그어진다 (붓끝이 닿는 순서 = draw 이징의
  *    역함수로 깐 글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 JS 없이도 동작)
- * ② 실이 다 그어지면(2.4초) 0.5초에 걸쳐 점진 가속해 정상 속도의 SMIL 무한 흐름
+ * ② 실이 다 그어지면(2.4초) **대기 없이 곧바로** 0.3초 등가속 → 정상 속도의 SMIL 무한 흐름
  * 같은 textPath 하나로 진입→흐름을 잇는다 — 첫 벌은 tspan, 이후 벌은 JS가
  * 폰트 로드 후 통짜로 이어붙이고 SMIL(begin=indefinite)을 시각에 맞춰 발화.
  *
@@ -44,10 +44,10 @@ function drawTimeAt(p: number) {
 
 const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 그어짐이 곧 진입 전체
 
-// 흐름 — 정지에서 툭 시작하지 않고 0.5초에 걸쳐 정상 속도까지 가속한다
-// (운영자: "0.5초 뒤 이동 시작 말고, 점진적으로 가속도 붙여서 0.5초에 정상 속도").
-// 등가속이면 이동 거리는 평균속도 × 시간 = (SPEED/2) × 0.5.
-const RAMP_MS = 500
+// 흐름 — 정지에서 툭 시작하지 않고 등가속으로 정상 속도까지 올린다.
+// 진입 완료 직후 **대기 0** 이므로(운영자 확인 2026-08-12) 가속 자체를 더 빠르게:
+// 0.5초 → **0.3초**. 등가속이면 이동 거리는 평균속도 × 시간 = (SPEED/2) × 0.3.
+const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
 const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 붙인다
 
@@ -84,7 +84,7 @@ export function HeroBreathingPoster() {
         // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
         // 60fps 회복 — 진입이 끝난 시점이라 시각적으로는 같은 화면이다
         tp.textContent = `${SAYU_FULL}   `.repeat(K)
-        // SMIL 2단 — ① 0.5초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
+        // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
         const mk = (attrs: Record<string, string>) => {

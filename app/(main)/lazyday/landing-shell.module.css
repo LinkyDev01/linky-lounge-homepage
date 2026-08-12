@@ -64,8 +64,10 @@
   opacity: 0;
   pointer-events: none;
   /* 덮개는 크롬보다 조금 느리게 걷힌다 — 커튼이 올라가는 동안 크롬이 먼저 올라와
-     두 동작이 겹치면서, 한 프레임에 전부 나타나는 인상이 사라진다 */
-  transition: opacity 0.6s ease;
+     두 동작이 겹치면서, 한 프레임에 전부 나타나는 인상이 사라진다.
+     0.6s 까지 늘렸다가 0.45s 로 환원 (운영자 2026-08-12 "0.45s도 충분해") —
+     크롬 페이드 0.4s 보다는 여전히 길어 겹침은 유지된다 */
+  transition: opacity 0.45s ease;
 }
 .page[data-intro="hold"] .introMask {
   opacity: 1;

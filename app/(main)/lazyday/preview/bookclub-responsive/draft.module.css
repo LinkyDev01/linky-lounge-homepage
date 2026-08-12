@@ -28,11 +28,16 @@
   overflow-x: clip;
 }
 
-.page a {
+/* ⚠ 범위는 내비·푸터로 한정한다 — 전역 `.page a` 로 두면 명시도(0,1,1)가
+   실사이트 `.applyButton { color: white }`(0,1,0)를 이겨 **CTA 글씨가 잉크로**
+   나온다 (운영자 2026-08-12 "CTA 폰트컬러는 그대로 흰색 맞지?" — 실측 확인) */
+.header a,
+.footer a {
   color: inherit;
   text-decoration: none;
 }
-.page a:hover {
+.header a:hover,
+.footer a:hover {
   text-decoration: underline;
   text-underline-offset: 4.5px;
   text-decoration-thickness: 0.8px;
@@ -67,7 +72,9 @@
 .navLogo {
   position: absolute;
   left: 15px;
-  top: 50%;
+  /* 상하 여백 균등 보정 — 구 정중앙은 9.5/10.5 로 어긋났다. 0.5px 내리면
+     마크 위 10 / 마크 아래 10 (실측). 방향을 반대로 잡으면 9/11 로 더 벌어진다 */
+  top: calc(50% + 0.5px);
   transform: translateY(-50%);
   display: flex;
   align-items: center;
@@ -82,11 +89,10 @@
   align-self: end;
 }
 .navAll::-webkit-scrollbar { display: none; }
-/* 신청하기 — 모바일에선 **상단 내비에서 뺀다** (운영자 2026-08-12 "하단에 있으니까"
-   — 하단 고정 CTA 가 담당). 데스크톱은 **1행 우측** (운영자 "신청하기는 1행으로
-   올리고 메뉴를 2행으로" — 레이지클럽의 아이콘행/링크행 배역과 동일) */
+/* 신청하기 — **1행 우측** (전 뷰포트 공통, 운영자 2026-08-12 정정: "모바일에서도
+   우측 위 네비 1열에 신청하기가 있어야지"). 메뉴는 2행이라 자리 다툼이 없다 */
 .navMenu {
-  display: none;
+  display: flex;
   grid-area: 1 / 4 / 2 / 5;
   align-self: start;
   justify-self: end;
@@ -145,7 +151,9 @@
 .footerLogo {
   grid-column: 1 / 2;
   position: absolute;
-  top: 11px;
+  /* 로고 위 끝선을 문구 첫 줄 위 끝선에 맞춘다 (운영자 2026-08-12
+     "텍스트 위랑 끝선 그리드 맞춰" — 구 11px 은 5px 아래로 어긋나 있었다) */
+  top: 6px;
   margin: 0;
 }
 /* 새 마크는 세로가 긴 박스형(904×1181)이라 폭을 줄여 잡는다 (구 정사각 66/88px) */
@@ -238,7 +246,6 @@
     font-size: 13.2px;
   }
   .navMenu {
-    display: flex;
     grid-area: 1 / 11 / 2 / 16;
     gap: 15px;
     font-size: 13.2px;

@@ -116,17 +116,18 @@ export function DraftSeasonCountCta() {
   )
 }
 
-/** 브랜드 클로즈 — 운영자 제공 새 로고(검정 박스형). 원본 대비 세로가 길어 폭을 줄여 잡는다 */
+/** 브랜드 클로즈 — 실사이트 BrandCloseSection 그대로 (운영자 2026-08-12 정정:
+ *  "기존 하단 레이지데이 로고 원래대로 돌려" — 새 박스 로고는 푸터로 갔다) */
 export function DraftBrandClose() {
   return (
     <section className={c.brand}>
       <BlurReveal duration={1.28} blur={14} fromScale={1.04} finalOpacity={0.8}>
         <div className={c.brandLogo}>
           <Image
-            src="/linky-lounge/book-club/ldbc-logo-box.webp"
+            src="/linky-lounge/book-club/ldbc-logo-text.png"
             alt="레이지데이 북클럽"
-            width={620}
-            height={810}
+            width={417}
+            height={240}
             style={{ objectFit: "contain" }}
           />
         </div>

@@ -54,9 +54,7 @@
   text-decoration-color: #d2691e;
 }
 
-/* 브랜드 클로즈 — 실사이트 BrandCloseSection 여백 그대로.
-   새 로고는 세로가 긴 박스형(904×1181)이라 폭을 168px 로 잡는다
-   (구 가로형 로고 417×240 을 그대로 쓰면 높이가 과해진다) */
+/* 브랜드 클로즈 — 실사이트 BrandCloseSection 여백·크기 그대로 (로고 원복) */
 .brand {
   background-color: #f7f3ee;
   padding: 56px var(--lz-gutter, 24px) 80px;
@@ -66,17 +64,9 @@
   display: flex;
   justify-content: center;
 }
-.brandLogo img {
-  width: 168px;
-  height: auto;
-}
-
 @media (min-width: 768px) {
   .brand {
     padding: 64px var(--lz-gutter-lg, 56px) 96px;
-  }
-  .brandLogo img {
-    width: 196px;
   }
 }
 

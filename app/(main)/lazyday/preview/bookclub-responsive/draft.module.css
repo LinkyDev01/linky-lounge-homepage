@@ -148,8 +148,9 @@
   top: 11px;
   margin: 0;
 }
+/* 새 마크는 세로가 긴 박스형(904×1181)이라 폭을 줄여 잡는다 (구 정사각 66/88px) */
 .footerLogo img {
-  width: 66px;
+  width: 52px;
   height: auto;
 }
 .footerDesc {
@@ -279,7 +280,7 @@
     grid-column: 1 / 2;
   }
   .footerLogo img {
-    width: 88px;
+    width: 64px;
   }
   .footerDesc {
     grid-column: 2 / 8;

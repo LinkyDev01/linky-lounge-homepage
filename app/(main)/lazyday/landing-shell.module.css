@@ -56,7 +56,11 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 99;
+  /* 스티키 4기 CTA(page.module.css .fixedButtonContainer = 100)보다 위 —
+     끝까지 내리면 CTA가 제자리에 내려앉으며 헤더 높이를 지나가는데,
+     99였을 때 CTA가 내비를 덮었다 (운영자 제보 2026-08-12).
+     후기 모달(ReviewsSection .lightbox = 200)보다는 아래를 유지 */
+  z-index: 110;
   background: var(--paper);
   display: grid;
   grid-template-columns: repeat(4, 1fr);

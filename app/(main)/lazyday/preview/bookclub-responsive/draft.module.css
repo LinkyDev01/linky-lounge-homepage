@@ -50,7 +50,8 @@
   top: var(--preview-bar, 34px);
   left: 0;
   right: 0;
-  z-index: 99;
+  /* 실사이트 landing-shell 과 동일 — 스티키 CTA(100) 위, 후기 모달(200) 아래 */
+  z-index: 110;
   background: var(--paper);
   display: grid;
   grid-template-columns: repeat(4, 1fr);

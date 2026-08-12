@@ -52,7 +52,9 @@ try {
   const page = await browser.newPage({
     viewport: { width: Number(opt('width', 390)), height: Number(opt('height', 844)) },
   })
-  await page.goto(url, { waitUntil: 'networkidle' })
+  // 랜딩(/lazyday)은 히어로 모션 때문에 networkidle 이 영영 안 온다 —
+  // 그런 페이지는 `--waituntil domcontentloaded` 로 넘기고 --wait 로 안정화한다 (2026-08-12)
+  await page.goto(url, { waitUntil: opt('waituntil', 'networkidle') })
   await page.waitForTimeout(Number(opt('wait', 900)))
 
   for (const text of optAll('click')) {

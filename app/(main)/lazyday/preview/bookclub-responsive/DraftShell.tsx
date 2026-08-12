@@ -119,8 +119,15 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
           로고(북클럽 mono-ink)와 소개 문단(운영자 지정 원문)뿐 */}
       <footer className={s.footer}>
         <div className={s.footerInner}>
+          {/* 푸터 마크 — 운영자 제공 새 로고(검정 박스 + LAZYDAY BOOKCLUB 세로 라벨).
+              위치는 문구 왼쪽 그대로, 구 mono-ink L 심볼을 여기서 교체 (2026-08-12) */}
           <figure className={s.footerLogo}>
-            <Image src="/assets/logo/logo-mono-ink.svg" alt="레이지데이 북클럽" width={88} height={88} />
+            <Image
+              src="/linky-lounge/book-club/ldbc-logo-box.webp"
+              alt="레이지데이 북클럽"
+              width={620}
+              height={810}
+            />
           </figure>
 
           <div className={s.footerDesc}>

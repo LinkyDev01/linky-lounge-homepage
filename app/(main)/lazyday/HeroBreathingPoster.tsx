@@ -148,6 +148,8 @@ export function HeroBreathingPoster() {
       viewBox="0 0 400 500"
       role="img"
       aria-label="레이지데이 북클럽 4기 모집"
+      // 진입 홀드 동안 덮개 위로 올라오는 유일한 요소 (셸 CSS 가 이 표식을 잡는다)
+      data-lz-poster=""
     >
       <defs>
         <path id="heroSayuThread" d={POSTER_THREAD_D} />

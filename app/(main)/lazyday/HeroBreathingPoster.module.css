@@ -1,0 +1,25 @@
+/* 숨 쉬는 포스터 (채택 히어로, 2026-08-11) — 신규 CSS, 공유 모듈 미임포트.
+   정적 포스터 이미지(4th-poster-typo.webp)와 같은 자리·같은 비례(4:5)·같은 종이색. */
+
+.poster {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  background: #f0e8e2; /* 포스터 원본 종이색 실측 (240,232,226) */
+}
+
+/* 실 위 문장 — 데모 ③과 동일 서식 (SUIT 8px, 잉크) */
+.threadText {
+  font-family: "SUIT", sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.02em;
+  fill: #1a1208;
+}
+
+/* 큰 글자 12자 — 포스터 조판 (SUIT 800, 잉크) */
+.glyph {
+  font-family: "SUIT", sans-serif;
+  font-weight: 800;
+  fill: #1a1208;
+}

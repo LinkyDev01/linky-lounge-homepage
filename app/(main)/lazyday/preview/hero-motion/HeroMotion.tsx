@@ -19,7 +19,7 @@
 import { useEffect, useRef, useState } from "react"
 import { animate, createSpring, svg } from "animejs"
 import styles from "./hero-motion.module.css"
-import { POSTER_THREAD_D, POSTER_GLYPHS } from "./poster-thread"
+import { POSTER_THREAD_D, POSTER_GLYPHS, SAYU_P1, SAYU_P2, SAYU_P3 } from "../../poster-thread"
 
 const TABS = [
   { key: "draw", label: "① 실선 인트로 (실이 먼저 그어진다)" },
@@ -243,12 +243,7 @@ function FlowDemo() {
    길이로 순환시키므로 실이 비는 구간이 없다 (운영자 "초반이나 후반에 너무
    비어지는 걸 원치 않음"). 반복 벌 수는 경로 길이를 실측해 동적으로 정한다. */
 
-const SAYU_P1 =
-  "얄팍한 사교와 지적 허영 사이에서 길을 잃은 시중의 모임들엔 여전히 환멸을 느낀다. 그렇다고 내 안의 관성과 경험이라는 좁은 필터 속만 맴돌기엔, 세상과 텍스트가 가진 깊이가 너무도 아득하다. 차라리 고립을 택하겠다던 오기는 결코 틀리지 않았지만, 타인의 단단한 사유를 통해 내 생각의 맹점을 깨뜨리고 싶다는 갈증마저 속일 수는 없었다."
-const SAYU_P2 =
-  "내가 바란 건 거창한 지식을 겨루는 과시의 장도, 적당한 매너로 서로를 우두망찰 다독이는 사교장도 아니다. 그저 텍스트라는 정교한 지도를 나침반 삼아, 저마다의 삶에서 정직하게 길어 올린 생각의 결들이 치열하게 부딪히는 그런 밀도 높은 공간이었다."
-const SAYU_P3 =
-  "서재의 깊이와 삶의 태도가 맞물려 일어나는 묵직한 진동. 문장 사이에 숨은 맥락을 읽어내고, 눈빛만으로도 논점이 공유되는 그런 단단한 공명. 결국 내 기준이 높았던 게 아니라, 내 사유가 온전히 뿌리내릴 제대로 된 장소를 찾지 못해 길 위에서 서성였을 뿐이다."
+// 〈사유의 기슭〉 원문은 poster-thread.ts 단일 출처 (채택 히어로와 공유)
 
 /* 얽힌 실 경로 — 포스터 실측 한붓 경로 그대로 (라운드 135).
    글자가 태어나는 끝(경로 끝)과 사라지는 끝(경로 시작)이 있는 열린 실이다. */

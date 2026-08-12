@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
+import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "../../useChromeIntro"
 import s from "./draft.module.css"
 
 /**
@@ -77,14 +78,19 @@ function KakaoIcon() {
 
 export function DraftShell({ children }: { children: React.ReactNode }) {
   const activeId = useActiveSection()
+  // 실 LandingShell 과 같은 진입 홀드 (TSX 쌍 동기화 — 2026-08-12)
+  const chrome = useChromeIntro()
 
   return (
-    <div className={s.page}>
+    <div className={s.page} data-intro={chrome ? "show" : "hold"}>
       {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
+      <noscript>
+        <style>{CHROME_NOSCRIPT_CSS}</style>
+      </noscript>
       <header className={s.header}>
         {/* 브랜드 텍스트("레이지데이 북클럽")는 제거 — 동적 마크가 그 역할을 대신한다
             (운영자 2026-08-12: "상단 네비 1행에 레이지데이 북클럽 빼자") */}

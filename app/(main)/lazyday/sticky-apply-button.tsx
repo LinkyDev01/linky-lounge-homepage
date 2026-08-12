@@ -47,7 +47,14 @@ export function StickyApplyButton() {
   }, [])
 
   return (
-    <div ref={ref} className={styles.fixedButtonContainer} data-docked={docked ? "true" : undefined}>
+    // data-lz-chrome: 진입 홀드 동안 셸이 내비·푸터와 함께 감추는 표식
+    // (셸 CSS 는 다른 모듈이라 해시 클래스로 못 잡는다 — useChromeIntro 주석 참고)
+    <div
+      ref={ref}
+      className={styles.fixedButtonContainer}
+      data-docked={docked ? "true" : undefined}
+      data-lz-chrome="cta"
+    >
       <ApplyButton />
     </div>
   )

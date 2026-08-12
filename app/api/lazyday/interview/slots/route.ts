@@ -20,7 +20,8 @@ export async function GET() {
     return NextResponse.json(data)
   } catch (err) {
     console.error("[interview/slots] GAS 호출 실패:", err)
-    // 에러 시에도 빈 슬롯 반환 (페이지가 깨지지 않도록)
-    return NextResponse.json({ success: true, bookedSlots: [] })
+    // 실패를 성공(빈 배열)으로 위장하면 마감 슬롯이 전부 빈 것처럼 그려진다
+    // — 클라이언트가 재시도/안내로 처리하도록 정직하게 실패를 반환 (2026-08-12)
+    return NextResponse.json({ success: false, bookedSlots: [] }, { status: 502 })
   }
 }

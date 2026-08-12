@@ -12,9 +12,8 @@ import { HowToSection } from "../../HowToSection"
 import { ScheduleSection } from "../../ScheduleSection"
 import { ReviewsSection } from "../../ReviewsSection"
 import { FaqSection } from "../../FaqSection"
-import { ClosingCtaSection } from "../../ClosingCtaSection"
-import { BrandCloseSection } from "../../BrandCloseSection"
 import { SectionIndicator } from "../../SectionIndicator"
+import { DraftSeasonCountCta, DraftBrandClose } from "./DraftClosing"
 import { StickyApplyButton } from "../../sticky-apply-button"
 
 /**
@@ -56,9 +55,11 @@ export default function BookclubResponsiveDraftPage() {
         <ScheduleSection />
         <ReviewsSection />
         <FaqSection />
-        <ClosingCtaSection />
+        {/* 클로징·로고는 **초안 전용 사본** — 실사이트 컴포넌트를 그대로 쓰면
+            제목(기수 카운트)·로고 교체가 실사이트까지 바뀐다 (운영자 2026-08-12) */}
+        <DraftSeasonCountCta />
         <StickyApplyButton />
-        <BrandCloseSection />
+        <DraftBrandClose />
       </main>
       <SectionIndicator />
       <p className={s.draftNote}>

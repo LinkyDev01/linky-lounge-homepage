@@ -29,34 +29,34 @@ const FLIP_SET = [0, 1, 1, 2, 2, 2, 3, 3, 3]
 const ARCH_Y = [0, 0.192, 0.304, 0.341, 0.304, 0.192, 0]
 const ARCH_R = [19.4, 12.8, 6.4, 0, -6.4, -12.8, -19.4]
 
-/** 크레파스로 칠한 하트 — 운영자 첨부 굿즈 원본에 맞춘 값 (2026-08-12 2차 조정).
- *  원본은 **꽉 찬 선명한 빨강에 테두리가 또렷**하고 질감은 미세하다. 1차 시도는
- *  파냄(-1.32/1.37)과 가장자리 변형(5.5)이 과해 "크레파스 같지도 않고 칠해지지 않은
- *  부분이 많고 테두리도 모호"했다 — 운영자 지적. 그래서:
- *  ① 파냄을 -0.45/1.3 으로 낮춰 **거의 불투명**(최소 alpha ≈0.85)하게 채우고
- *  ② 가장자리 변형은 2.5 로 줄여 테두리를 또렷하게 두되 완전 매끈하진 않게
- *  결은 x 저주파·y 고주파(0.06 0.18) — 크레파스 획 방향.
- *  ⚠ 결·삐침 크기는 viewBox 단위라 **렌더 크기와 함께 축소된다** (내비 20px 기준). */
+/** 스텐실로 찍은 하트 (운영자 2026-08-12 정정: "크레파스보다는 스텐실로 입힌 질감").
+ *  두 축으로 만든다:
+ *  ① **형태** — 손으로 깎아낸 스텐실 판. 하트 파라메트릭 곡선을 26개 짧은 직선으로
+ *     근사하고 꼭짓점마다 ±0.9 흔들었다. 완전한 곡선이 아니라 "아주 미세한 직선적
+ *     성격"이 남아, 커터로 오려낸 판처럼 보인다 (베지어 곡선 버전은 폐기)
+ *  ② **질감** — 스프레이가 판 위로 앉은 반점. 크레파스의 방향성 결(x 저주파·y 고주파)과
+ *     달리 **등방성**(0.36)이어야 스텐실이 된다. 가장자리 번짐은 아주 약하게(1.5)
+ *  ⚠ 반점·번짐 크기는 viewBox 단위라 **렌더 크기와 함께 축소된다** (내비 20px 기준). */
 function Heart({ className = "" }: { className?: string }) {
   const d =
-    "M50 88 C30 70 6 52 6 32 C6 16 20 6 33 10 C41 12 47 20 50 28 C53 19 60 11 69 9 C83 6 95 17 94 33 C93 53 70 70 50 88 Z"
+    "M49.2 24.6 L51.1 22.5 L54.7 14.4 L63.7 7.9 L74.6 6.0 L87.1 11.1 L93.7 21.0 L93.5 33.8 L87.1 47.0 L75.4 57.2 L63.3 68.4 L53.7 77.2 L50.3 83.5 L50.2 86.2 L49.1 83.2 L44.8 76.1 L37.2 68.1 L25.7 58.6 L12.7 47.2 L5.9 33.4 L5.9 21.2 L12.7 11.7 L25.6 5.8 L36.1 7.3 L45.5 13.8 L49.2 21.3 Z"
   return (
-    <svg viewBox="-8 -8 116 108" className={`${m.heart} ${className}`} aria-hidden focusable="false">
+    <svg viewBox="-4 -4 108 100" className={`${m.heart} ${className}`} aria-hidden focusable="false">
       <filter id="lzCrayon" x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="11" result="edge" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.22" numOctaves="2" seed="13" result="edge" />
         <feDisplacementMap
           in="SourceGraphic"
           in2="edge"
-          scale="2.5"
+          scale="1.5"
           xChannelSelector="R"
           yChannelSelector="G"
           result="rough"
         />
-        <feTurbulence type="fractalNoise" baseFrequency="0.06 0.18" numOctaves="2" seed="5" result="grain" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.36" numOctaves="2" seed="7" result="grain" />
         <feColorMatrix
           in="grain"
           type="matrix"
-          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.45 1.3"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.6 1.36"
           result="grainA"
         />
         <feComposite in="rough" in2="grainA" operator="in" />

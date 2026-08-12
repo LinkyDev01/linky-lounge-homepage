@@ -6,7 +6,7 @@
 }
 
 .content {
-  padding: 48px 24px 44px;
+  padding: 48px var(--lz-gutter, 24px) 44px;
 }
 
 .titleRow {
@@ -54,7 +54,7 @@
 }
 
 @media (min-width: 768px) {
-  .content { padding-left: 56px; padding-right: 56px; padding-top: 28px; }
+  .content { padding-left: var(--lz-gutter-lg, 56px); padding-right: var(--lz-gutter-lg, 56px); padding-top: 28px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -185,7 +185,7 @@
 /* 가운데 스냅 + 양끝에 이전/다음 카드가 ~10px 슬리버로 '존재만' 보임 */
 .bookCard {
   flex: 0 0 calc(100% - 36px);
-  max-width: 560px;
+  max-width: var(--lz-card, 560px);
   scroll-snap-align: center;
   background: #fffdf8;
   border: 1px solid #eee2d0;

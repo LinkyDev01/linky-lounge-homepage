@@ -7,7 +7,7 @@
 .section {
   /* 배경 플립 (2026-07-06 교차 재배정) */
   background-color: #f0e9e0;
-  padding: 56px 24px 64px;
+  padding: 56px var(--lz-gutter, 24px) 64px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }

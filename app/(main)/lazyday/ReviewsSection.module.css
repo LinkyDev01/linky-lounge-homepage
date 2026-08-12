@@ -3,11 +3,11 @@
    원본 확정: DECISIONS 2026-07-04 · 2026-07-07 (폴라로이드 카드 + 슬라이드 연동 인용문 페이드). */
 
 .reviewsSection {
-  padding: 72px 24px;
+  padding: 72px var(--lz-gutter, 24px);
   background: #f0e9e0;
   scroll-margin-top: 52px;
 }
-.reviewsInner { max-width: 560px; margin: 0 auto; }
+.reviewsInner { max-width: var(--lz-card, 560px); margin: 0 auto; }
 .reviewsLead {
   font-size: 14px;
   color: #6b5a48;
@@ -28,7 +28,7 @@
 .reviewTrack::-webkit-scrollbar { display: none; }
 .reviewSlide {
   flex: 0 0 calc(100% - 36px);
-  max-width: 560px;
+  max-width: var(--lz-card, 560px);
   scroll-snap-align: center;
   opacity: 0.45;
   transform: scale(0.94);

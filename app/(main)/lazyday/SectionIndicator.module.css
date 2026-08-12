@@ -32,7 +32,7 @@
 /* PC: content (max-width 600px) 바깥 우측 마진 공간으로 — 본문과 안 겹침 */
 @media (min-width: 760px) {
   .indicator {
-    right: calc(50vw - 300px - 28px);
+    right: calc(50vw - var(--lz-rail, 600px) / 2 - 28px);
   }
 }
 

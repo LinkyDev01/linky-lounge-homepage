@@ -347,6 +347,11 @@
   padding: 8px 18px;
   font-family: "SUIT", sans-serif;
   font-size: 13px;
+  /* button 으로도 쓰인다 ('승인 상태 다시 확인', 2026-08-11) — 기본 보더·커서 정리 */
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  margin-right: 8px;
 }
 .page a.emptyLink {
   color: var(--paper);

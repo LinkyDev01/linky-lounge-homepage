@@ -22,7 +22,7 @@ const LAZYCLUB_COMING_SOON = "/lazyday/preview/lazyclub-4b073000ddec094f/coming-
 // PG(토스 결제위젯) 심사 대비 화이트리스트 (2026-08-11): 심사관이 lazy-club.com에서
 // 상품 → 신청 → 결제위젯 → 약관·개인정보처리방침까지 도달할 수 있어야 한다.
 // 이 프리픽스만 북클럽 도메인과 같은 방식(내부 /lazyday/*)으로 열고, 나머지는 coming-soon 유지.
-const LAZYCLUB_OPEN_PREFIXES = ["/one-day-talk-01", "/policy", "/privacy"]
+const LAZYCLUB_OPEN_PREFIXES = ["/one-day-talk-01", "/policy", "/privacy", "/terms"]
 
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]

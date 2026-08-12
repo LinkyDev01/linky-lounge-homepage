@@ -243,9 +243,11 @@ function handleNotify(d) {
 
 // ── 1회성 모임 신청 → '1회성 모임' 시트 (2026-07-24) ─────────────
 // 프론트 /oneday 폼 (payload: type:"oneday"/name/gender/age/phone/greeting/
-// instagram/meetingDates/marketingConsent/consentAt).
+// instagram/meetingDates/orderId/marketingConsent/consentAt).
 // 시트가 없으면 자동 생성 + 헤더는 ensureColumn으로 보장 (수동 작업 불필요).
-// 접수 후 프론트가 곧장 토스 결제로 이동하므로 알림톡은 보내지 않는다 (관리자 메일만).
+// 선결제→후신청 전환 (2026-08-11): 신청서는 이제 **토스 결제 승인 후** 제출된다 —
+// 이 시트의 모든 행은 결제 완료 건. orderId('주문번호' 컬럼)로 토스 상점관리자의
+// 결제 내역과 매칭한다. 알림톡은 보내지 않는다 (관리자 메일만).
 function handleOnedayApply(d) {
   if (!d.name || !d.phone) {
     return jsonResponse({ success: false, error: "필수 항목 누락" });
@@ -262,6 +264,7 @@ function handleOnedayApply(d) {
   ensureColumn(sheet, "나이");
   ensureColumn(sheet, "전화번호");
   ensureColumn(sheet, "모임 일자");
+  ensureColumn(sheet, "주문번호"); // 토스 orderId — 결제 내역과 매칭 (선결제→후신청, 2026-08-11)
   ensureColumn(sheet, "한 줄 인사");
   ensureColumn(sheet, "인스타그램");
   ensureColumn(sheet, "마케팅 동의");
@@ -274,6 +277,7 @@ function handleOnedayApply(d) {
   row[col["나이"]]        = d.age || "";
   row[col["전화번호"]]    = d.phone || "";
   row[col["모임 일자"]]   = d.meetingDates || "";
+  row[col["주문번호"]]    = d.orderId || "";
   row[col["한 줄 인사"]]  = d.greeting || "";
   row[col["인스타그램"]]  = d.instagram || "";
   row[col["마케팅 동의"]] = d.marketingConsent || "";
@@ -286,12 +290,13 @@ function handleOnedayApply(d) {
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
     subject: "[레이지데이 북클럽] 1회성 모임 신청 — " + (d.name || "?") + "님",
-    body: "1회성 모임 신청이 접수되었습니다. (신청 직후 토스 결제 페이지로 이동함 — 결제 완료 여부는 토스에서 확인)\n\n" +
+    body: "1회성 모임 신청이 접수되었습니다. (토스 결제 완료 후 제출된 신청서 — 주문번호로 토스 결제 내역과 매칭)\n\n" +
           "이름: " + (d.name || "-") + "\n" +
           "성별: " + (d.gender || "-") + "\n" +
           "나이: " + (d.age || "-") + "\n" +
           "연락처: " + (d.phone || "-") + "\n" +
           "모임 일자: " + (d.meetingDates || "-") + "\n" +
+          "주문번호: " + (d.orderId || "-") + "\n" +
           "한 줄 인사: " + (d.greeting || "-") + "\n" +
           "인스타그램: " + (d.instagram || "-") + "\n\n" +
           "📄 스프레드시트('1회성 모임' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID

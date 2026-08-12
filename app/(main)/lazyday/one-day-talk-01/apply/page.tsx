@@ -1,33 +1,27 @@
 "use client"
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react"
-import { trackStandard } from "@/lib/meta-pixel"
-import { trackEvent } from "@/lib/gtag"
+import { useEffect, useState } from "react"
 import { Nanum_Pen_Script } from "next/font/google"
 import { FadeUp } from "@/components/animation/FadeUp"
-import { BlurReveal } from "@/components/animation/BlurReveal"
-import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "../../apply/page.module.css"
-import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../support"
 import { ONEDAY, isPastSession, sessionDateLabel, sessionKey, type OnedaySession } from "../oneday-shared"
 import { useBasePath } from "@/hooks/use-base-path"
 import { meetingCode } from "@/lib/order-catalog"
 import cal from "./oneday.module.css"
 
 /**
- * 원데이 토크 신청 (일회성 모임 — 표기는 한글 "원데이 토크", 운영자 확정 2026-07-24) — /apply 복제 기반.
+ * 원데이 토크 신청 (일회성 모임 — 표기는 한글 "원데이 토크", 운영자 확정 2026-07-24).
  * URL: /one-day-talk-01/apply (북클럽 도메인 기준).
- *  · 상단 프로세스(JourneyStepper)·섹션 인디케이터 없음
- *  · 일정 = 랜딩 14a 달력 문법의 8월 시트 1장 (8/2·8/9 손그림 타원 체크)
- *  · 인터뷰 방식·추천인 문항 제거
- *  · 접수 성공 시 완료 화면 표시 (리다이렉트 아님 — 운영자 지시 2026-07-29)
- *    → 완료 화면에서 결제 방식 선택: 계좌이체(계좌 안내+복사) / 토스페이(결제 링크 이동)
- *  · 데이터는 기존 스프레드시트의 별도 탭('1회성 모임')으로 — GAS handleOnedayApply
- *    (⚠ 배포 순서: GAS 새 버전 반영 확인 후 프론트 병합 — CLAUDE.md §6)
- * 폼 스타일은 ../apply/page.module.css 재사용(수정 금지), 달력은 oneday.module.css 분리 사본.
+ *
+ * 선결제→후신청 전환 (2026-08-11 운영자 확정 여정): 이 페이지는 이제 **회차 선택 →
+ * 결제 진입**만 담당한다. 신청서(이름·성별·나이·연락처·인사·인스타·동의)는 결제
+ * 승인 직후 checkout/success 가 띄운다 — 결제된 사람만 시트에 접수되므로 구 구조의
+ * "미결제 신청 잔존" 문제가 사라진다.
+ * 구 폼(접수 → 완료 화면에서 계좌이체/토스 선택)은 이 커밋에서 제거 — 계좌이체가
+ * 다시 필요하면 git 이력의 이 파일 직전 버전을 참조 (BANK_* 상수 포함).
+ *
+ * 일정 = 랜딩 14a 달력 문법의 월별 시트 (손그림 타원 체크). 달력은 oneday.module.css.
  */
-
-const SUBMIT_URL = "/api/lazyday/apply"
 
 // 손글씨 회차 첨자 — 랜딩 달력과 동일 문법 (Nanum Pen Script)
 const penScript = Nanum_Pen_Script({
@@ -36,11 +30,6 @@ const penScript = Nanum_Pen_Script({
   display: "swap",
   preload: false,
 })
-// 일정·가격은 ../oneday-shared.ts 단일 출처 (checkout·confirm API와 공유, 2026-08-11)
-// 계좌이체 안내 (운영자 지시 2026-07-29 — 우리은행, 예금주 주식회사 링키)
-const BANK_NAME = "우리은행"
-const BANK_ACCOUNT = "1005-104-815136"
-const BANK_HOLDER = "주식회사 링키"
 
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 // 손그림 타원 회전 — 날짜별 제각각 (랜딩 문법). 회차 전역 순서(sessions 배열 인덱스) 기준
@@ -48,46 +37,6 @@ const MARK_ROT = [-6, 4, -3]
 // 회차가 8월·9월에 걸쳐 있어 (4주 연기, 2026-08-11) 월별 시트를 각각 그린다
 const ONEDAY_MONTHS = [...new Set(ONEDAY.sessions.map((s) => s.month))]
 const MONTH_ENG = ["", "JAN.", "FEB.", "MAR.", "APR.", "MAY", "JUN.", "JUL.", "AUG.", "SEP.", "OCT.", "NOV.", "DEC."]
-
-type Errors = Partial<Record<
-  "sessions" | "name" | "gender" | "age" | "phone" | "marketingConsent" | "_form",
-  string
->>
-
-function FormField({
-  label,
-  name,
-  required,
-  optional,
-  error,
-  children,
-}: {
-  label: string
-  name: string
-  required?: boolean
-  optional?: boolean
-  error?: string
-  children: ReactNode
-}) {
-  return (
-    <div className={styles.formGroup}>
-      <label htmlFor={name} className={styles.formLabel}>
-        {label}
-        {required && <span className={styles.required}>*</span>}
-        {optional && <span className={styles.optional}>(선택)</span>}
-      </label>
-      {children}
-      {error && <p className={styles.errorText}>{error}</p>}
-    </div>
-  )
-}
-
-function formatPhone(value: string) {
-  const nums = value.replace(/[^0-9]/g, "")
-  if (nums.length <= 3) return nums
-  if (nums.length <= 7) return nums.slice(0, 3) + "-" + nums.slice(3)
-  return nums.slice(0, 3) + "-" + nums.slice(3, 7) + "-" + nums.slice(7, 11)
-}
 
 /** 월별 달력 시트 한 장 — 랜딩 14a 문법, 모임일은 손그림 타원 체크 */
 function OnedayMonthSheet({ month }: { month: number }) {
@@ -176,39 +125,9 @@ function OnedayCalendar() {
 
 export default function OnedayApplyPage() {
   const base = useBasePath()
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Errors>({})
-  const [marketingConsent, setMarketingConsent] = useState(false)
   // 신청 회차 멀티체크 — 복수 선택 가능 (운영자 지시 2026-07-24). 키 = month*100+day (8·9월 혼재)
   const [pickedKeys, setPickedKeys] = useState<number[]>([])
-  // 접수 완료 화면 + 결제 방식 선택 (운영자 지시 2026-07-29)
-  const [submitted, setSubmitted] = useState(false)
-  const [bankOpen, setBankOpen] = useState(false)
-  const [copied, setCopied] = useState(false)
-  // 접수 실패 시 카카오톡으로 대신 보낼 수 있게 입력 내용을 보관·복사 (운영자 지시 2026-08-06)
-  const [failedText, setFailedText] = useState("")
-  const [failCopied, setFailCopied] = useState(false)
-  async function copyFailed() {
-    if (await copyText(failedText)) {
-      setFailCopied(true)
-      setTimeout(() => setFailCopied(false), 2500)
-    }
-  }
-
-  useEffect(() => {
-    if (submitted) window.scrollTo(0, 0)
-  }, [submitted])
-
-  async function copyAccount() {
-    try {
-      await navigator.clipboard.writeText(BANK_ACCOUNT)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // 클립보드 API 미지원 환경 폴백 — 선택 가능한 프롬프트로 제공
-      window.prompt("계좌번호를 길게 눌러 복사해주세요.", BANK_ACCOUNT)
-    }
-  }
+  const [sessionsError, setSessionsError] = useState("")
 
   // 지난 회차는 선택 자체를 막는다 (마운트 후 계산 — 정적 프리렌더에 시각 박제 방지)
   const [now, setNow] = useState<number | null>(null)
@@ -227,188 +146,24 @@ export default function OnedayApplyPage() {
     setPickedKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     )
-    clearError("sessions")
+    setSessionsError("")
   }
 
-  function clearError(name: keyof Errors) {
-    setErrors((prev) => {
-      if (!prev[name]) return prev
-      const next = { ...prev }
-      delete next[name]
-      return next
-    })
-  }
+  const checkoutHref = `${base}/one-day-talk-01/checkout?items=${[...pickedKeys]
+    .sort((a, b) => a - b)
+    .map(meetingCode)
+    .join(",")}`
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.currentTarget
-    const data = new FormData(form)
-    const newErrors: Errors = {}
-
-    const name = (data.get("name") as string)?.trim() || ""
-    const gender = (data.get("gender") as string) || ""
-    const age = (data.get("age") as string)?.trim() || ""
-    const phone = (data.get("phone") as string)?.trim() || ""
-    const greeting = (data.get("greeting") as string)?.trim() || ""
-    const instagram = (data.get("instagram") as string)?.trim() || ""
-
-    if (pickedKeys.length === 0) newErrors.sessions = "신청할 모임을 한 개 이상 선택해주세요."
-    if (!name) newErrors.name = "이름을 입력해주세요."
-    if (!gender) newErrors.gender = "성별을 선택해주세요."
-    if (!age) newErrors.age = "나이를 입력해주세요."
-    if (!phone) newErrors.phone = "전화번호를 입력해주세요."
-    if (!marketingConsent) newErrors.marketingConsent = "마케팅 활용 및 개인정보 수집 동의가 필요합니다."
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      const firstKey = Object.keys(newErrors)[0]
-      const target =
-        firstKey === "sessions"
-          ? document.getElementById("sessions-group")
-          : firstKey === "marketingConsent"
-          ? document.getElementById("marketingConsent")
-          : document.querySelector(`[name="${firstKey}"]`)
-      target?.scrollIntoView({ behavior: "smooth", block: "center" })
-      return
+  function handleGoCheckout(e: React.MouseEvent) {
+    if (pickedKeys.length === 0) {
+      e.preventDefault()
+      setSessionsError("신청할 모임을 한 개 이상 선택해주세요.")
+      document.getElementById("sessions-group")?.scrollIntoView({ behavior: "smooth", block: "center" })
     }
-
-    setErrors({})
-    setLoading(true)
-    // 선택 회차 → 시트 '모임 일자' 컬럼 기록 문자열 (예: "8/30 브람스를 좋아하세요..., 9/6 시지프 신화")
-    const meetingDates = ONEDAY.sessions
-      .filter((s) => pickedKeys.includes(sessionKey(s)))
-      .map((s) => `${s.month}/${s.day} ${s.work}`)
-      .join(", ")
-    const payload = {
-      type: "oneday",
-      name,
-      gender,
-      age,
-      phone,
-      greeting,
-      instagram,
-      meetingDates,
-      marketingConsent: marketingConsent ? "동의" : "미동의",
-      consentAt: new Date().toISOString(), // 동의 시각 기록 (법적 증빙)
-    }
-
-    // 서버 접수가 확인된 경우에만 결제로 이동한다 (신청 유실 방지)
-    try {
-      const res = await fetch(SUBMIT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      const result = await res.json().catch(() => null)
-      if (!res.ok || !result?.success) throw new Error("submit failed")
-    } catch {
-      setLoading(false)
-      setFailedText(
-        [
-          "[레이지데이 원데이 토크 신청]",
-          `신청 회차: ${meetingDates || "-"}`,
-          `이름: ${name}`,
-          `성별: ${gender}`,
-          `나이: ${age}`,
-          `연락처: ${phone}`,
-          `한 줄 인사: ${greeting || "-"}`,
-          `인스타그램: ${instagram || "-"}`,
-        ].join("\n"),
-      )
-      setErrors({
-        _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '신청 완료하기'를 다시 눌러주세요.",
-      })
-      reportClientError("oneday_submit", "원데이 토크 접수 실패")
-      return
-    }
-
-    trackStandard("Lead", { content_name: "OneDayTalk_신청완료" })
-    trackEvent("oneday_apply_complete", { program: "book_club" })
-
-    // 접수 완료 → 완료 화면에서 결제 방식 선택 (리다이렉트 아님 — 운영자 지시 2026-07-29)
-    setLoading(false)
-    setSubmitted(true)
-  }
-
-  if (submitted) {
-    return (
-      <main className={styles.successPage}>
-        {/* done* 오버라이드 — 랜딩 타이포 위계로 밸런스 축소 (운영자 지시 2026-07-29) */}
-        <div className={`${styles.successInner} ${cal.doneInner}`}>
-          <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
-            <img
-              src="/linky-lounge/book-club/lazyday_logo.png"
-              alt="레이지데이"
-              className={`${styles.successMark} ${cal.doneMark}`}
-            />
-          </BlurReveal>
-          <FadeUp delay={0.15}>
-            <h1 className={`${styles.successTitle} ${cal.doneTitle}`}>신청해주셔서 감사합니다.</h1>
-          </FadeUp>
-          <FadeUp delay={0.3}>
-            <p className={`${styles.successBody} ${cal.doneBody}`}>
-              신청이 완료되었습니다.
-              <br />
-              아래에서 <span className={styles.successAccent}>결제 방식</span>을 선택해주세요.
-            </p>
-          </FadeUp>
-          <FadeUp delay={0.45}>
-            {/* 결제 방식 — 같은 주황 버튼 2개를 1행 가로 배치 (운영자 지시 2026-07-29) */}
-            <div className={cal.payRow}>
-              <button
-                type="button"
-                className={`${cal.payBtn} ${bankOpen ? cal.payBtnOn : ""}`}
-                onClick={() => setBankOpen((v) => !v)}
-                aria-expanded={bankOpen}
-              >
-                계좌이체
-              </button>
-              {/* 결제위젯 체크아웃으로 이동 — 선택 회차를 쿼리로 전달 (구 buy.tosspayments 링크 대체, 2026-08-11) */}
-              <a
-                href={`${base}/one-day-talk-01/checkout?items=${[...pickedKeys]
-                  .sort((a, b) => a - b)
-                  .map(meetingCode)
-                  .join(",")}`}
-                className={cal.payBtn}
-              >
-                토스페이 결제
-              </a>
-            </div>
-            {bankOpen && (
-              <div className={cal.bankPanel}>
-                <p className={cal.bankAccountRow}>
-                  <span className={cal.bankAccount}>{BANK_NAME} {BANK_ACCOUNT}</span>
-                  <button
-                    type="button"
-                    className={cal.bankCopyBtn}
-                    onClick={copyAccount}
-                    aria-label="계좌번호 복사"
-                  >
-                    {copied ? (
-                      "복사됨"
-                    ) : (
-                      <svg viewBox="0 0 16 16" className={cal.bankCopyIcon} aria-hidden>
-                        <rect x="5.5" y="5.5" width="8" height="9" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
-                        <path d="M10.5 3.5v-1a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h1" fill="none" stroke="currentColor" strokeWidth="1.3" />
-                      </svg>
-                    )}
-                  </button>
-                </p>
-                <p className={cal.bankHolder}>예금주 {BANK_HOLDER}</p>
-              </div>
-            )}
-          </FadeUp>
-          <FadeUp delay={0.6}>
-            <p className={`${styles.successCloser} ${cal.doneCloser}`}>레이지데이 북클럽에서 곧 만나요.</p>
-          </FadeUp>
-        </div>
-      </main>
-    )
   }
 
   return (
     <main className={styles.applyPage} data-track-section="bookclub_oneday_apply">
-      {loading && <SubmitOverlay label="신청 접수 중..." />}
       <div className={styles.container}>
         <FadeUp y={12} duration={0.9}>
           <div className={styles.header}>
@@ -448,8 +203,8 @@ export default function OnedayApplyPage() {
           </div>
         </section>
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          {/* 신청 회차 선택 — 캘린더 밑, 일시(날짜·책·시간) 명시 + 복수 선택 (운영자 지시 2026-07-24) */}
+        {/* 선결제→후신청: 여기서는 회차만 고르고 결제로 — 신청서는 결제 완료 직후 이어진다 */}
+        <div className={styles.form}>
           <div id="sessions-group" className={styles.formGroup}>
             <span className={styles.formLabel}>
               신청할 모임
@@ -489,148 +244,22 @@ export default function OnedayApplyPage() {
             ) : (
               <p className={cal.sessionHint}>복수 선택 가능 · 참여할 모임을 모두 선택해주세요.</p>
             )}
-            {errors.sessions && <p className={styles.errorText}>{errors.sessions}</p>}
+            {sessionsError && <p className={styles.errorText}>{sessionsError}</p>}
           </div>
 
-          <FormField label="이름" name="name" required error={errors.name}>
-            <input
-              id="name"
-              type="text"
-              name="name"
-              className={`${styles.input} ${errors.name ? styles.inputError : ""}`}
-              placeholder="성함을 기입해주세요."
-              onChange={() => clearError("name")}
-            />
-          </FormField>
-
-          <div className={styles.formGroup}>
-            <span className={styles.formLabel}>
-              성별
-              <span className={styles.required}>*</span>
-            </span>
-            <div className={styles.radioGroup}>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="남성"
-                  onChange={() => clearError("gender")}
-                />
-                <span className={styles.radioText}>남성</span>
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="여성"
-                  onChange={() => clearError("gender")}
-                />
-                <span className={styles.radioText}>여성</span>
-              </label>
-            </div>
-            {errors.gender && <p className={styles.errorText}>{errors.gender}</p>}
-          </div>
-
-          <FormField label="나이" name="age" required error={errors.age}>
-            <input
-              id="age"
-              type="text"
-              name="age"
-              inputMode="numeric"
-              autoComplete="off"
-              maxLength={3}
-              className={`${styles.input} ${errors.age ? styles.inputError : ""}`}
-              placeholder="만 나이를 입력해주세요."
-              onChange={(e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, "")
-                clearError("age")
-              }}
-            />
-          </FormField>
-
-          <FormField label="전화번호" name="phone" required error={errors.phone}>
-            <input
-              id="phone"
-              type="tel"
-              name="phone"
-              inputMode="numeric"
-              className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
-              placeholder="휴대전화 번호를 입력해주세요."
-              onChange={(e) => {
-                e.target.value = formatPhone(e.target.value)
-                clearError("phone")
-              }}
-            />
-          </FormField>
-
-          <FormField label="한 줄 인사" name="greeting" optional>
-            <input
-              id="greeting"
-              type="text"
-              name="greeting"
-              className={styles.input}
-              placeholder="짧은 인삿말도, 간단한 소개도 모두 좋습니다."
-            />
-          </FormField>
-
-          <FormField label="인스타그램 아이디" name="instagram" optional>
-            <input
-              id="instagram"
-              type="text"
-              name="instagram"
-              className={styles.input}
-              placeholder="@your_instagram"
-            />
-          </FormField>
-
-          <div className={styles.consentBox}>
-            <label htmlFor="marketingConsent" className={styles.consentLabel}>
-              <input
-                id="marketingConsent"
-                type="checkbox"
-                checked={marketingConsent}
-                onChange={(e) => {
-                  setMarketingConsent(e.target.checked)
-                  if (e.target.checked) clearError("marketingConsent")
-                }}
-                className={styles.checkbox}
-              />
-              <span className={styles.consentText}>
-                마케팅 활용 및 개인정보 수집에 동의합니다.{" "}
-                <span className={styles.requiredTag}>(필수)</span>
-              </span>
-            </label>
-            <p className={styles.consentNote}>
-              수집된 개인정보는 레이지데이 북클럽 운영 및 마케팅 목적으로만 활용되며, 관계 법령에 따라 안전하게 보호됩니다.
-            </p>
-            {errors.marketingConsent && (
-              <p className={styles.errorText}>{errors.marketingConsent}</p>
-            )}
-          </div>
-
-          {errors._form && (
-            <div className={styles.rescueBox} role="alert">
-              <p className={styles.formError}>{errors._form}</p>
-              <p className={styles.rescueGuide}>{KAKAO_SUBMIT_GUIDE}</p>
-              <button type="button" className={styles.rescueCopyBtn} onClick={copyFailed}>
-                {failCopied ? "복사됐어요" : "신청 내용 복사"}
-              </button>
-              <a
-                href={KAKAO_CHAT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.rescueLink}
-                onClick={() => reportClientError("oneday_kakao", "원데이 실패 후 카카오톡 제출")}
-              >
-                {KAKAO_SUBMIT_LABEL}
+          {openSessions.length > 0 && (
+            <>
+              <a href={checkoutHref} className={`${styles.submitButton} ${cal.submitLink}`} onClick={handleGoCheckout}>
+                {pickedKeys.length > 1
+                  ? `${pickedKeys.length}개 모임 결제하고 신청하기`
+                  : "결제하고 신청하기"}
               </a>
-            </div>
+              <p className={cal.infoNote}>
+                *결제가 완료되면 이어서 신청서(이름·연락처 등)를 작성하는 화면이 나옵니다.
+              </p>
+            </>
           )}
-
-          <button type="submit" className={styles.submitButton} disabled={loading}>
-            {loading ? "접수 중입니다..." : "신청 완료하기"}
-          </button>
-        </form>
+        </div>
       </div>
     </main>
   )

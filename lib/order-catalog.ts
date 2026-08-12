@@ -25,10 +25,11 @@ export type OrderItem = {
   img?: string
 }
 
-/** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-11).
+/** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-12: 3,000 → 3,500원).
+ *  ⚠ goods-config DELIVERY_RETURNS·terms 제11/13조·checkout 안내와 같은 값이어야 한다.
  *  주문 항목으로 취급해 서버 금액 검증(orderId 재계산)에 자동으로 포함시킨다. */
 export const SHIPPING_CODE = "ship"
-export const SHIPPING_FEE = 3000
+export const SHIPPING_FEE = 3500
 const SHIPPING_ITEM: OrderItem = {
   code: SHIPPING_CODE,
   name: "배송비 (우체국택배)",
@@ -45,7 +46,10 @@ export function goodsCode(slug: string) {
   return `g-${slug}`
 }
 
-/** 결제 가능한 전 상품 — 마감·오픈예정 상품은 제외한다 (판매 중인 것만 결제) */
+/** 전 상품 카탈로그 — 굿즈는 판매 중(open)만. **모임은 지난 회차도 남겨 둔다**:
+ *  여기는 승인(confirm)의 금액 재계산에도 쓰여서, 결제 도중 시각이 경과한 주문의
+ *  승인까지 막으면 안 된다. 지난·마감 회차의 **진입 차단은 checkout parseEntries 가
+ *  담당** (2026-08-11 디버깅 — 직접 URL 로 종료 모임이 결제되던 구멍) */
 export function catalog(): OrderItem[] {
   const meetings: OrderItem[] = ONEDAY.sessions.map((s) => ({
     code: meetingCode(sessionKey(s)),

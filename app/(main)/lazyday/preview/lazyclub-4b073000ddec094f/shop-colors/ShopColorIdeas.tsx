@@ -11,7 +11,8 @@ import { useState } from "react"
 import { WorkroomShell } from "../Shell"
 import styles from "./shop-colors.module.css"
 
-const MUG = "/linky-lounge/book-club/home-v3/goods-mug.webp"
+// 2026-08-11: goods-mug.webp 삭제(드라이브 일괄 갱신) — 신규 메인 컷(옐로)으로 교체
+const MUG = "/linky-lounge/book-club/home-v3/coffee-mug-y.webp"
 const COLORS: Array<{ hex: string; name: string }> = [
   { hex: "#99bbab", name: "민트" },
   { hex: "#c9ad52", name: "옐로" },

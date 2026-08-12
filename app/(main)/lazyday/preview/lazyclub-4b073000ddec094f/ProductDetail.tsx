@@ -5,7 +5,7 @@
  * 레이아웃은 원문 상세 실측: 이미지 스택 1/8 · 텍스트 11/15 · 제목 36px.
  */
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useCart, useSaved, type CartItem } from "./store"
@@ -19,7 +19,8 @@ export type DetailProps = {
   title: string
   sub?: string
   description: string[]
-  fields: { label: string; lines: string[] }[]
+  /** href가 있으면 값 줄을 링크로 (문의의 카카오톡 채널 — 라운드 136) */
+  fields: { label: string; lines: string[]; href?: string }[]
   price: number | null
   /** 구매하기 목적지 (open일 때만 링크 — soldout/upcoming은 안내) */
   buyHref?: string
@@ -28,11 +29,16 @@ export type DetailProps = {
   images: { src: string; alt: string }[]
   cartItem: CartItem
   /** 구매 옵션 (2026-08-11) — 색상은 브라운야드 문법(칩), 사이즈는 노아 문법(선택지 나열).
-   *  지정 시 선택해야 구매·카트 담기가 진행된다. 옵션은 가격에 영향 없음 */
+   *  지정 시 선택해야 구매·카트 담기가 진행된다. 옵션은 가격에 영향 없음.
+   *  색상에 img 가 있으면 칩 클릭 시 **첫 위치의 사진만 교체**된다 (운영자 2026-08-11
+   *  "사진을 1열로 나열하지말고 컬러 클릭할 때만") */
   options?: {
-    colors?: { hex: string; name: string }[]
+    colors?: { hex: string; name: string; img?: string }[]
     sizes?: string[]
   }
+  /** 배송 & 교환/반품 — 브라운야드 "Delievery & Returns" 레이어 문법 (2026-08-12).
+   *  구매 버튼 아래 트리거를 누르면 우측에서 슬라이드로 열린다. 굿즈 전용 */
+  deliveryReturns?: { label: string; lines: string[] }[]
 }
 
 export function ProductDetail(props: DetailProps) {
@@ -80,14 +86,38 @@ function DetailBody(p: DetailProps) {
       ? "오픈 예정입니다. 발매 알림은 준비 중입니다."
       : p.buyMessage ?? null
 
+  // 선택한 색상의 제품컷이 있으면 첫 위치 사진을 그 컷으로 교체 (나열 아님 — 교체)
+  const activeColorImg = color ? p.options?.colors?.find((c) => c.name === color)?.img : undefined
+
+  // 노아식 커머스 배치(가격 상단·설명은 버튼 아래)는 **제품 상세**에만 (운영자 2026-08-12
+  // "제품 상세 페이지는") — 옵션·배송레이어를 받는 페이지가 제품. 모임 상세는 종전 배치 유지
+  const commerce = Boolean(p.options || (p.deliveryReturns && p.deliveryReturns.length > 0))
+
+  // 배송 & 교환/반품 레이어 (브라운야드 문법) — 열려 있으면 배경 스크롤 잠금 + ESC 닫기
+  const [shipOpen, setShipOpen] = useState(false)
+  useEffect(() => {
+    if (!shipOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setShipOpen(false) }
+    window.addEventListener("keydown", onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [shipOpen])
+
   return (
     <main className={styles.content}>
       <section className={`${styles.productHero} ${styles.detailHero}`}>
         <figure className={styles.productFigure}>
-          {p.images.map((img) => (
+          {p.images.map((img, i) => (
             <div key={img.src} className={styles.detailImage}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.src} alt={img.alt} />
+              <img
+                src={i === 0 && activeColorImg ? activeColorImg : img.src}
+                alt={i === 0 && activeColorImg ? `${p.title} — ${color}` : img.alt}
+              />
               {p.status !== "open" && <StatusOverlay status={p.status} />}
             </div>
           ))}
@@ -99,6 +129,10 @@ function DetailBody(p: DetailProps) {
           </div>
           <h1 className={styles.productTitle}>{p.title}</h1>
           {p.sub && <p className={styles.productSub}>{p.sub}</p>}
+
+          {/* 모임(classic): 설명·필드가 종전대로 가격 위에 */}
+          {!commerce && (
+            <>
           <div className={styles.productDesc}>
             {p.description.map((para) => (
               <p key={para.slice(0, 20)}>{para}</p>
@@ -109,32 +143,55 @@ function DetailBody(p: DetailProps) {
               {p.fields.map((f) => (
                 <div key={f.label} className={styles.productField}>
                   <p>{f.label}</p>
-                  {f.lines.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
+                  {f.lines.map((line) =>
+                    f.href ? (
+                      <p key={line}>
+                        <a href={f.href} target="_blank" rel="noopener noreferrer">
+                          {line}
+                        </a>
+                      </p>
+                    ) : (
+                      <p key={line}>{line}</p>
+                    ),
+                  )}
                 </div>
               ))}
             </div>
           )}
+            </>
+          )}
+
+          {/* 가격 — 브라운야드 문법: 작고 담백하게. commerce 는 옵션 바로 위 (운영자 2026-08-12) */}
           <p className={styles.productPrice}>{p.price != null ? `₩${p.price.toLocaleString()}` : "가격 미정"}</p>
 
-          {/* 옵션 — 색상: 브라운야드 칩 문법 / 사이즈: 노아 선택지 문법 (운영자 2026-08-11) */}
+          {/* 색상 옵션 — 노아 문법: 색별 제품컷 썸네일 + 이름·가격 (운영자 2026-08-12).
+              목록·미리보기의 원형 칩과 달리 상세에서는 이미지로 고른다 */}
           {needColor && p.options?.colors && (
             <div className={styles.optGroup}>
-              <p className={styles.optLabel}>색상{color ? ` — ${color}` : ""}</p>
-              <div className={styles.optChips}>
+              <p className={styles.optLabel}>Select Color{color ? ` — ${color}` : ""}</p>
+              <ul className={styles.optThumbs}>
                 {p.options.colors.map((c) => (
-                  <button
-                    key={c.name}
-                    type="button"
-                    aria-label={c.name}
-                    aria-pressed={color === c.name}
-                    className={`${styles.optChip} ${color === c.name ? styles.optChipOn : ""}`}
-                    style={{ background: c.hex }}
-                    onClick={() => setColor(c.name)}
-                  />
+                  <li key={c.name}>
+                    <button
+                      type="button"
+                      aria-pressed={color === c.name}
+                      className={`${styles.optThumb} ${color === c.name ? styles.optThumbOn : ""}`}
+                      onClick={() => setColor(c.name)}
+                    >
+                      <span className={styles.optThumbImg} style={c.img ? undefined : { background: c.hex }}>
+                        {c.img && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={c.img} alt="" />
+                        )}
+                      </span>
+                      <span className={styles.optThumbName}>{c.name}</span>
+                      {p.price != null && (
+                        <span className={styles.optThumbPrice}>₩{p.price.toLocaleString()}</span>
+                      )}
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
           {needSize && p.options?.sizes && (
@@ -195,8 +252,88 @@ function DetailBody(p: DetailProps) {
           >
             <SaveIcon filled={saved.has(p.id)} />
           </button>
+
+          {/* ── 구매 버튼 아래 = 상품 설명·기타 안내 (노아 상세 순서, 운영자 2026-08-12).
+              commerce(제품)에만 — 모임은 위 classic 블록이 담당 ── */}
+          {commerce && (
+          <div className={styles.productBelow}>
+            <div className={styles.productDesc}>
+              {p.description.map((para) => (
+                <p key={para.slice(0, 20)}>{para}</p>
+              ))}
+            </div>
+            {p.fields.length > 0 && (
+              <div className={styles.productFields}>
+                {p.fields.map((f) => (
+                  <div key={f.label} className={styles.productField}>
+                    <p>{f.label}</p>
+                    {f.lines.map((line) =>
+                      f.href ? (
+                        <p key={line}>
+                          <a href={f.href} target="_blank" rel="noopener noreferrer">
+                            {line}
+                          </a>
+                        </p>
+                      ) : (
+                        <p key={line}>{line}</p>
+                      ),
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {p.deliveryReturns && p.deliveryReturns.length > 0 && (
+              <button type="button" className={styles.shipTrigger} onClick={() => setShipOpen(true)}>
+                <span>배송 &amp; 교환/반품</span>
+                <svg viewBox="0 0 12 12" aria-hidden className={styles.shipArrow}>
+                  <path d="M3 1.5 L8 6 L3 10.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                </svg>
+              </button>
+            )}
+          </div>
+          )}
         </div>
       </section>
+
+      {/* 배송 & 교환/반품 레이어 — 브라운야드 실측 이식: 우측 고정 패널이
+          right:-600px → 0 으로 transition ease .5s, 뒤에 rgba(0,0,0,.25) 스크림.
+          라벨은 좌측 140px 고정(모바일은 블록) (2026-08-12) */}
+      {p.deliveryReturns && p.deliveryReturns.length > 0 && (
+        <>
+          <div
+            className={`${styles.shipBack} ${shipOpen ? styles.shipBackOn : ""}`}
+            onClick={() => setShipOpen(false)}
+            aria-hidden
+          />
+          <aside
+            className={`${styles.shipLayer} ${shipOpen ? styles.shipLayerOn : ""}`}
+            aria-hidden={!shipOpen}
+          >
+            <div className={styles.shipInner}>
+              <p className={styles.shipTitle}>
+                Delivery &amp; Returns
+                <button type="button" className={styles.shipClose} onClick={() => setShipOpen(false)} aria-label="닫기">
+                  ✕
+                </button>
+              </p>
+              <div className={styles.shipBoxWrap}>
+                <ul>
+                  {p.deliveryReturns.map((d) => (
+                    <li key={d.label}>
+                      <label>{d.label}</label>
+                      {d.lines.map((line) => (
+                        <span key={line} className={line.startsWith("(") ? styles.shipDim : undefined}>
+                          {line}
+                        </span>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
     </main>
   )
 }

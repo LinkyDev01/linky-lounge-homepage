@@ -6,7 +6,7 @@ import { loadTossPayments, ANONYMOUS, type TossPaymentsWidgets } from "@tosspaym
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { useBasePath } from "@/hooks/use-base-path"
 import { reportClientError } from "../../support"
-import { TOSS_DOCS_TEST_CLIENT_KEY } from "../oneday-shared"
+import { TOSS_DOCS_TEST_CLIENT_KEY, findSession, isPastSession } from "../oneday-shared"
 import {
   SHIPPING_CODE,
   SHIPPING_FEE,
@@ -36,7 +36,19 @@ const VARIANT_AGREEMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_AGREEMENT || "AGR
 
 type Entry = { item: OrderItem; option: string }
 
-/** ?items= 파싱 — "code:옵션" 항목을 카탈로그와 대조해 확정 (모르는 코드는 버린다) */
+/** 010-0000-0000 자동 하이픈 — apply·결제 후 신청서와 동일 문법 (2026-08-11 디버깅:
+ *  checkout 만 미적용이라 알림톡 발송용 번호 오입력이 가장 잦은 지점이 무방비였다) */
+function formatPhone(value: string) {
+  const nums = value.replace(/[^0-9]/g, "")
+  if (nums.length <= 3) return nums
+  if (nums.length <= 7) return nums.slice(0, 3) + "-" + nums.slice(3)
+  return nums.slice(0, 3) + "-" + nums.slice(3, 7) + "-" + nums.slice(7, 11)
+}
+
+/** ?items= 파싱 — "code:옵션" 항목을 카탈로그와 대조해 확정 (모르는 코드는 버린다).
+ *  지난·마감 회차(dNNN)는 여기서 걸러 결제 자체를 막는다 — 서버 catalog()는 승인
+ *  경계(결제 도중 시각 경과)를 위해 그대로 두고, 진입만 차단 (2026-08-11 디버깅:
+ *  apply 는 지난 회차를 막지만 checkout 직접 URL 로는 종료 모임이 결제됐다) */
 function parseEntries(raw: string): Entry[] {
   const out: Entry[] = []
   const seen = new Set<string>()
@@ -45,6 +57,10 @@ function parseEntries(raw: string): Entry[] {
     if (code === SHIPPING_CODE || seen.has(code)) continue
     const item = resolveItems([code])?.[0]
     if (!item) continue
+    if (item.kind === "meeting") {
+      const s = findSession(Number(code.slice(1)))
+      if (!s || s.closed === true || isPastSession(s)) continue
+    }
     seen.add(code)
     out.push({ item, option: opt ? decodeURIComponent(opt) : "" })
   }
@@ -129,8 +145,17 @@ function CheckoutInner() {
       // 주문명에는 첫 상품의 옵션을 병기 — 운영자가 토스 내역에서 옵션 확인
       const firstOpt = entries[0]?.option
       const name = orderNameFor(items)
+      const orderId = buildOrderId(codes)
+      // 선결제→후신청 (2026-08-11): 결제 후 success 신청서에 이름·연락처를 프리필한다.
+      // 토스 리다이렉트는 같은 탭이라 sessionStorage 가 살아 있다 (실패해도 폼은 빈 값으로 동작)
+      try {
+        sessionStorage.setItem(
+          "lz-buyer",
+          JSON.stringify({ orderId, name: buyerName.trim(), phone: buyerPhone.replace(/[^0-9]/g, "") }),
+        )
+      } catch {}
       await widgets.requestPayment({
-        orderId: buildOrderId(codes),
+        orderId,
         orderName: firstOpt ? name.replace(/^([^—]+)/, `$1(${firstOpt}) `) : name,
         successUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/success`,
         failUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/fail`,
@@ -245,7 +270,7 @@ function CheckoutInner() {
           className={styles.optionInput}
           placeholder="연락처 (010-0000-0000)"
           value={buyerPhone}
-          onChange={(e) => setBuyerPhone(e.target.value)}
+          onChange={(e) => setBuyerPhone(formatPhone(e.target.value))}
         />
 
         {/* 배송지 — 택배 선택 시에만 (우편번호·주소·상세) */}
@@ -341,8 +366,8 @@ function CheckoutInner() {
           <p className={styles.refundTitle}>배송·수령·교환·반품 안내 (제품)</p>
           <ul className={styles.refundList}>
             <li>1. 제품은 <strong>링키라운지 현장 수령</strong> 또는 <strong>택배 배송</strong> 중 위에서 선택하실 수 있습니다. 현장 수령은 결제 후 연락처로 수령 일정을 안내드리며, 택배는 입력하신 배송지로 발송합니다.</li>
-            <li>2. 택배 배송: 우체국택배 · 배송비 3,000원(제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 이내 발송합니다.</li>
-            <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(왕복 6,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 링키라운지(서울 동작구 동작대로7길 44, 지하 1층).</li>
+            <li>2. 택배 배송: 우체국택배 · 배송비 3,500원(제주·도서산간 추가) · 결제 확인 후 영업일 2–5일 이내 발송합니다.</li>
+            <li>3. 교환·반품은 수령일(배송 완료일)부터 7일 이내에 신청할 수 있습니다. 단순 변심의 경우 반품 배송비(초기 3,500원 + 반품 3,500원 = 7,000원)는 구매자 부담이며, 현장 반납 시에는 비용이 없습니다. 보내실 곳: 링키라운지(서울 동작구 동작대로7길 44, 지하 1층).</li>
             <li>4. 상품 하자·오배송의 경우 기간과 관계없이 판매자 부담으로 교환 또는 전액 환불해 드립니다.</li>
             <li>5. 사용·훼손되었거나 포장 개봉으로 상품 가치가 훼손된 경우에는 교환·반품이 제한될 수 있습니다.</li>
             <li>환불은 접수일부터 영업일 기준 5일 이내에 처리됩니다.</li>
@@ -364,7 +389,9 @@ function CheckoutInner() {
       )}
 
       <p className={styles.refundBox}>
-        <LazydayLink href="/policy" className={styles.refundLink}>
+        {/* 통합 약관(/terms — 모임·제품·배송 전부)으로 연결 (2026-08-11 이관).
+            /policy 는 기수제 북클럽 전용이라 굿즈 주문엔 맞지 않았다 */}
+        <LazydayLink href="/terms" className={styles.refundLink}>
           이용약관·환불 규정 전문 보기
         </LazydayLink>
       </p>

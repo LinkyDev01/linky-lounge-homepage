@@ -242,7 +242,9 @@
 .productFields { margin-bottom: 22.5px; }
 .productField { margin-bottom: 15px; }
 .productField p { margin: 0; }
-.productPrice { margin: 0 0 22.5px; }
+/* 가격 — 브라운야드 문법: 작고 담백하게 (운영자 2026-08-12 "판매가와 가격은
+   깔끔하고 작게"). 상세는 옵션 바로 위 */
+.productPrice { margin: 0 0 22.5px; font-size: 12px; letter-spacing: -0.01em; }
 
 /* 구매·카트 칩 버튼 (08 원문: bg 잉크·글자 종이·padding 2px 6px·13.2px, cart 아래 30px) */
 .productActions { display: flex; gap: 6px; margin-bottom: 30px; }
@@ -321,6 +323,22 @@
 }
 .itemBottom { display: flex; flex-direction: column; gap: 0; }
 .itemBottom .saveBtn { margin-top: 9px; }
+
+/* 거래 조건(배송·수령 / 교환·반품) — 저장 버튼 아래, 괘선으로 본문과 분리.
+   상품 소개가 아니라 규정이라 본문보다 한 단계 조용하게 (라운드 136, 운영자
+   "위에 있을 필요가 없어"). 라벨은 필드와 같은 문법(라벨 줄 + 값 줄) */
+.productPolicies {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid var(--ink);
+  font-size: 12.5px;
+  line-height: 1.75;
+}
+.productPolicy { margin-bottom: 15px; }
+.productPolicy:last-child { margin-bottom: 0; }
+.productPolicy p { margin: 0; }
+.productPolicy p:first-child { font-family: var(--gothic); font-weight: 600; }
+.productPolicy p:not(:first-child) { opacity: 0.75; text-wrap: pretty; }
 
 /* 미구현 기능 안내 토스트 */
 .toast {
@@ -897,3 +915,127 @@
 /* 색으로 못 숨기는 요소 — 자리는 그대로 차지 */
 .chromeVeiled .footerLogo,
 .chromeVeiled .navLogo { opacity: 0; }
+
+
+/* ── 상세: 노아 문법 이식 (운영자 2026-08-12) ─────────────────────
+   ① 색상 옵션 = 색별 제품컷 썸네일 + 이름·가격 (원형 칩은 목록·미리보기 전용)
+   ② 상품 설명·기타 안내는 구매/카트 **아래**
+   ③ 배송 & 교환/반품 = 브라운야드 슬라이드 레이어 (실측: right -600→0, ease .5s) */
+
+.optThumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;          /* 노아 실측 */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.optThumb {
+  display: block;
+  width: clamp(50px, 5vw, 80px);   /* 노아 실측 .productSet .thumbnail */
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.optThumbImg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--ph-gray);
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+}
+.optThumbImg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.optThumbOn .optThumbImg { outline-color: var(--ink); }
+.optThumbName { display: block; margin-top: 5px; font-size: 11px; line-height: 1.35; }
+.optThumbOn .optThumbName { text-decoration: underline; text-underline-offset: 3px; }
+.optThumbPrice { display: block; font-size: 11px; line-height: 1.35; opacity: 0.55; }
+
+/* 구매 버튼 아래 — 상품 설명·기타 안내 (노아 순서) */
+.productBelow { margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--ink); }
+.productBelow .productDesc { margin-bottom: 18px; }
+.productBelow .productFields { margin-bottom: 18px; }
+
+/* 배송 & 교환/반품 트리거 — 브라운야드 .shipping-trigger (회색 라벨 + 화살표) */
+.shipTrigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 0 0;
+  border: 0;
+  border-top: 1px solid #e1e1e1;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: #7c7171;
+  cursor: pointer;
+}
+.shipArrow { width: 10px; height: 10px; flex: none; }
+
+/* 스크림 — 브라운야드 .shipping-back 실측 (rgba(0,0,0,.25), z 87) */
+.shipBack {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 87;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.shipBackOn { opacity: 1; pointer-events: auto; }
+
+/* 패널 — 브라운야드 .shipping-layer 실측 (width 50% / max 600, right -600 → 0, ease .5s) */
+.shipLayer {
+  position: fixed;
+  right: -600px;
+  bottom: 0;
+  width: 50%;
+  max-width: 600px;
+  height: calc(100% - 70px);
+  background: #fff;
+  z-index: 88;
+  transition: right 0.5s ease;
+  color: var(--ink);
+}
+.shipLayerOn { right: 0; }
+.shipInner { padding: 15px; height: 100%; }
+.shipTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 30px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #e1e1e1;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.shipClose { background: none; border: 0; padding: 0 2px; font: inherit; cursor: pointer; color: inherit; }
+.shipBoxWrap { height: calc(100% - 50px); overflow-y: auto; }
+.shipBoxWrap ul {
+  margin: 0 0 40px;
+  padding: 0;
+  list-style: none;
+  letter-spacing: -0.015em;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.shipBoxWrap ul li { position: relative; padding-left: 140px; margin: 0 0 15px; }
+.shipBoxWrap ul li label { position: absolute; left: 0; color: #7c7171; }
+.shipBoxWrap ul li span { display: block; }
+.shipDim { opacity: 0.45; }
+
+/* 모바일 — 브라운야드 780px 이하 실측: 폭 calc(100% - 80px), 라벨은 블록 */
+@media (max-width: 780px) {
+  .shipLayer { width: calc(100% - 80px); height: 100%; }
+  .shipBoxWrap ul li { padding-left: 0; margin: 0 0 35px; }
+  .shipBoxWrap ul li label { position: relative; display: block; margin: 0 0 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shipLayer, .shipBack { transition: none; }
+}

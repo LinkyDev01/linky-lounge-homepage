@@ -69,18 +69,21 @@
 }
 .touchGroup { cursor: pointer; transform-origin: center; transform-box: fill-box; }
 
-/* 실 위 문장 (②·③) — 실측 경로는 평행 실 간격이 좁아 포스터 비례(~7px)에 가깝게 */
+/* 실 위 문장 (②·③) — 포스터 원본 스펙 (2026-08-12): Pretendard Regular,
+   큰 글자 em 36 × 비율 0.2274 ≈ 8.2 (채택 히어로와 동일값) */
 .threadText {
-  font-family: "SUIT", sans-serif;
-  font-size: 8px;
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-weight: 400;
+  font-size: 8.2px;
   letter-spacing: 0.02em;
   fill: #1a1208;
 }
 
-/* 큰 글자 12자 */
+/* 큰 글자 12자 — 포스터 원본 서체 Pretendard Black (2026-08-12).
+   크기는 poster-thread.ts 의 s=36 (Pretendard 잉크비 기준 재교정) */
 .glyph {
-  font-family: "SUIT", sans-serif;
-  font-weight: 800;
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-weight: 900;
   fill: #1a1208;
 }
 

@@ -83,12 +83,12 @@
 }
 .navAll::-webkit-scrollbar { display: none; }
 /* 신청하기 — 모바일에선 **상단 내비에서 뺀다** (운영자 2026-08-12 "하단에 있으니까"
-   — 하단 고정 CTA 가 담당. 구 우측 페이드+탭 스크롤 폐기: 신청하기가 빠지면
-   6→5항목이라 탭이 마크 옆에 그대로 들어간다). 데스크톱만 하단 행 우측 노출 */
+   — 하단 고정 CTA 가 담당). 데스크톱은 **1행 우측** (운영자 "신청하기는 1행으로
+   올리고 메뉴를 2행으로" — 레이지클럽의 아이콘행/링크행 배역과 동일) */
 .navMenu {
   display: none;
-  grid-area: 2 / 4 / 3 / 5;
-  align-self: end;
+  grid-area: 1 / 4 / 2 / 5;
+  align-self: start;
   justify-self: end;
   gap: 8px;
   font-size: 11.5px;
@@ -238,7 +238,7 @@
   }
   .navMenu {
     display: flex;
-    grid-area: 2 / 11 / 3 / 16;
+    grid-area: 1 / 11 / 2 / 16;
     gap: 15px;
     font-size: 13.2px;
   }

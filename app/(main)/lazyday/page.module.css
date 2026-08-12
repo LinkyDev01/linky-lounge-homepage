@@ -52,6 +52,15 @@
     z-index: 100;
     pointer-events: auto;
 }
+/* 거북이 레인만큼 CTA 를 들어올려 그 틈을 만든다 (프리뷰 `.ctaLift` 와 값 동일 —
+   레인 16px 위에 2px 숨). display:contents 라 래퍼 자체는 레이아웃에 없다 */
+.ctaLift {
+    display: contents;
+}
+.ctaLift > div {
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+}
+
 /* 내려앉은 상태 — 스크림을 걷고 종이색으로 (로고 위에 갈색 띠가 남지 않게) */
 .fixedButtonContainer[data-docked="true"] {
     background: #f7f3ee;
@@ -59,13 +68,13 @@
     padding-bottom: 40px;
 }
 
-/* 조기마감 모드 — 버튼 안 둘째 줄 (2026-08-12 D안: 잉크 위 종이색으로) */
+/* 조기마감 모드 — 버튼 안 둘째 줄 (흰색, 운영자 지시 2026-07-13 가독성) */
 .applyBtnSub {
     display: block;
     margin-top: 3px;
     font-size: 11px;
     font-weight: 600;
-    color: #f7f3ee;
+    color: #ffffff;
     opacity: 0.92;
     line-height: 1.4;
     word-break: keep-all;
@@ -81,37 +90,39 @@
     word-break: keep-all;
 }
 
-/* ── CTA D안 (잉크) — 운영자 2026-08-12 ──
+/* ── CTA D안 — 운영자 2026-08-12 ──
    "D 시안으로 잉크형태로 갈건데 조금 더 작게, 라운딩없이 / 레이지클럽 구매하기
     버튼과 같은 느낌 / 그것보단 커야지"
-   레이지클럽 `.chipBtn` 실측(잉크 바탕·종이 글자·radius 0·padding 2/6·13.2px)의
-   **문법을 그대로 쓰고 치수만 모바일 CTA 로 키운 것**. 전폭 바를 버리고 글자폭에
-   맞춘 잉크 블록으로 — 높이 44px 이 나와 탭 타깃 기준도 만족한다 */
+   레이지클럽 `.chipBtn` 실측(radius 0 · padding 2/6 · 13.2px)의 **문법을 그대로
+   쓰고 치수만 모바일 CTA 로 키운 것**. 전폭 바를 버리고 글자폭에 맞춘 블록으로 —
+   높이 48.5px 이라 탭 타깃 기준도 만족한다.
+   ⚠ **색은 잉크가 아니라 브랜드 주황** — 잉크로 갔다가 운영자가 되돌렸다
+   ("신청하기 버튼 컬러는 원래대로 주황하는게 어때?", 2026-08-12).
+   치수·모서리는 D안 그대로 두고 색만 원복한 상태다 */
 .applyButton {
     display: block;
     width: fit-content;
     max-width: 100%;
     margin: 0 auto;
     padding: 13px 26px;
-    background-color: #1a1208;
-    color: #f7f3ee;
+    background-color: #d2691e;
+    color: #ffffff;
     font-size: 15px;
     font-weight: 600;
     border: none;
     border-radius: 0;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: background-color 0.2s ease;
     text-align: center;
     text-decoration: none;
 }
 
-/* 잉크는 명도를 바꾸면 탁해진다 — 레이지클럽 chipBtn 과 같이 투명도로 (opacity .85) */
 .applyButton:hover {
-    opacity: 0.85;
+    background-color: #b8571a;
 }
 
 .applyButton:active {
-    opacity: 0.72;
+    background-color: #a04d16;
 }
 
 /* ── 가로 2버튼 CTA (4기 | One Day Talk) — 운영자 지시 2026-07-24 ──

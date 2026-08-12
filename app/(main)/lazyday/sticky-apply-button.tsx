@@ -32,8 +32,12 @@ export function StickyApplyButton() {
     const check = () => {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
-        // 스티키가 풀려 제 자리에 앉으면 바닥에서 떨어진다 (1px 허용 오차)
-        setDocked(el.getBoundingClientRect().bottom < window.innerHeight - 1)
+        // 스티키가 풀려 제 자리에 앉으면 바닥에서 떨어진다 (1px 허용 오차).
+        // ⚠ 거북이 레인 때문에 CTA 가 `bottom: 18px` 만큼 들려 있으므로(.ctaLift)
+        //   기준선도 그만큼 올려야 한다 — 안 그러면 떠 있는 내내 docked 로 오판해
+        //   스크림이 사라지고 하단 패딩이 40px 로 벌어진다 (2026-08-12 실측 확인)
+        const lift = parseFloat(getComputedStyle(el).bottom) || 0
+        setDocked(el.getBoundingClientRect().bottom < window.innerHeight - lift - 1)
       })
     }
     check()

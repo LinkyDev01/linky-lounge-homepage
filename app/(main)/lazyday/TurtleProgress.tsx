@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react"
 import t from "./turtle-progress.module.css"
 
 /**
- * 거북이 진행률 — 우측 주황 점(SectionIndicator) 대체안. 이 파일이 **승인 원본**이고,
- * 2026-08-12 실사이트로 이식됐다 → 쌍: `lazyday/TurtleProgress.tsx` (분리 사본,
- * 값 동일). 한쪽을 고치면 반대쪽도 같은 값으로.
+ * 거북이 진행률 — 우측 주황 점(SectionIndicator) 대체안.
+ * 2026-08-12 실사이트 이식 (운영자 "밑에 여백 너무 넓지 않게 거북이 이식해").
+ * 원본: preview/bookclub-responsive/TurtleProgress.tsx — 로직·값 동일한 **분리 사본**
+ * (실사이트가 preview/ 하위를 import 하지 않는다는 이식 규칙). 한쪽 수정 시 쌍도 같이.
  *
  * · 하단 고정 CTA 바로 위 얇은 레인에 살고, 스크롤 진행률을 따라 좌→우로 달린다
  *   ("구간별로 달려가도록" — 섹션 경계에서 잠깐 숨을 고르고 다음 구간으로 달린다)

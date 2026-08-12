@@ -15,7 +15,9 @@ import styles from "./HeroBreathingPoster.module.css"
  * 2026-08-12 운영자(최종): **큰 글자 12자는 처음부터 떠 있다** — "레이지데이 북클럽
  * 4기 모집 텍스트는 처음부터 뜨고", 생기는 절차만 뺀다.
  * ① 실 위 본문만 2.2초에 걸쳐 스스로 그어진다 (붓끝이 닿는 순서 = draw 이징의
- *    역함수로 깐 글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 JS 없이도 동작)
+ *    역함수로 깐 글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 JS 없이도 동작).
+ *    배분은 **경로 안에 보이는 구간(VISIBLE_RATIO)** 기준 — 경로 밖 글자까지 나눠
+ *    가지면 화면이 먼저 다 차 버려 뒤가 멈춘 것처럼 보인다
  * ② 실이 다 그어지면(2.4초) **대기 없이 곧바로** 0.3초 등가속 → 정상 속도의 SMIL 무한 흐름
  * 같은 textPath 하나로 진입→흐름을 잇는다 — 첫 벌은 tspan, 이후 벌은 JS가
  * 폰트 로드 후 통짜로 이어붙이고 SMIL(begin=indefinite)을 시각에 맞춰 발화.
@@ -41,6 +43,14 @@ const CHAR_DUR_MS = 200 // 그어지는 인상 — 글자 하나의 페이드는
 function drawTimeAt(p: number) {
   return p < 0.5 ? Math.sqrt(p / 2) : 1 - Math.sqrt((1 - p) / 2)
 }
+
+/** 한 벌(P≈3193) 중 **경로(L≈2612) 안에 놓여 실제로 보이는 비율** — 실측 389/480.
+ *  뒤쪽 19% 는 경로를 넘어가 렌더되지 않는다. 이 구간까지 2.2초를 배분하면
+ *  화면은 1.52초에 이미 다 차고 **877ms 동안 멈춘 것처럼 보인다**(실측, 운영자 지적:
+ *  "보이지 않는 부분까지 생기는 것에 대한 딜레이인 것 같기도"). 그래서 배분을
+ *  보이는 구간으로 압축하고, 경로 밖 글자는 끝 시각에 몰아 둔다(어차피 안 보인다).
+ *  ⚠ 서체·본문·경로가 바뀌면 이 비율을 다시 재야 한다 (텍스트 길이 ÷ 경로 길이). */
+const VISIBLE_RATIO = 0.81
 
 const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 그어짐이 곧 진입 전체
 
@@ -146,7 +156,9 @@ export function HeroBreathingPoster() {
               <tspan
                 key={i}
                 className={styles.introChar}
-                style={{ ["--d" as string]: `${(DRAW_MS * drawTimeAt(i / last)).toFixed(1)}ms` }}
+                style={{
+                  ["--d" as string]: `${(DRAW_MS * drawTimeAt(Math.min(1, i / last / VISIBLE_RATIO))).toFixed(1)}ms`,
+                }}
               >
                 {c}
               </tspan>

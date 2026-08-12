@@ -15,7 +15,8 @@ export async function GET() {
 
   try {
     // 조회는 부작용이 없어 자유롭게 재시도 (GAS 간헐 404·HTML 응답 대응)
-    const data = await gasGetJson(GAS_URL, 3, 7_000, 10_000, 60) // 60초 캐시 복원
+    // 시그니처: (url, attempts, timeoutMs, revalidateSec, totalBudgetMs) — 캐시 60초 · 예산 10초
+    const data = await gasGetJson(GAS_URL, 3, 7_000, 60, 10_000)
     return NextResponse.json(data)
   } catch (err) {
     console.error("[interview/slots] GAS 호출 실패:", err)

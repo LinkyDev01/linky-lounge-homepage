@@ -23,23 +23,38 @@ import m from "./lazyday-mark.module.css"
 const ARCH_Y = [0, 0.192, 0.304, 0.341, 0.304, 0.192, 0]
 const ARCH_R = [19.4, 12.8, 6.4, 0, -6.4, -12.8, -19.4]
 
+/** 크레파스로 칠한 하트 (운영자 2026-08-12 첨부 굿즈 원본 — 빗금 스크리블 폐기).
+ *  꽉 채운 빨강 + ① 가장자리를 밀어 삐죽하게(feDisplacementMap) ② 칠이 성긴 결을
+ *  가로로 길게 파냄(feTurbulence 를 x 저주파·y 고주파로 = 크레파스 획 방향).
+ *  ⚠ 결·삐침의 크기는 viewBox 단위라 **렌더 크기와 함께 축소된다** — 내비에서는
+ *  20px 남짓으로 그려지므로 결을 굵게(y 0.21) 잡아야 작은 화면에서도 보인다
+ *  (운영자 "작은 화면으로 보는 만큼 조금 더 질감과 결을 살려서 거칠게").
+ *  제거율은 낮게(-1.32/1.37) — 대부분 불투명해야 크레파스처럼 진하게 칠한 느낌이 난다. */
 function Heart({ className = "" }: { className?: string }) {
   const d =
-    "M50 83 C26 64 8 46 11.5 29.5 C14 16.5 29 10.5 38.5 17.5 C44 21.5 47.8 26.5 50 32 C52.5 26 56.5 21 62 17 C71.5 10 86.5 16 88.8 29 C91.8 45.5 75 63.5 50 83 Z"
+    "M50 88 C30 70 6 52 6 32 C6 16 20 6 33 10 C41 12 47 20 50 28 C53 19 60 11 69 9 C83 6 95 17 94 33 C93 53 70 70 50 88 Z"
   return (
-    <svg viewBox="0 0 100 92" className={`${m.heart} ${className}`} aria-hidden focusable="false">
-      <clipPath id="lzMarkHeartClip">
-        <path d={d} />
-      </clipPath>
-      <g clipPath="url(#lzMarkHeartClip)" className={m.heartScribble}>
-        <path d="M6 47 L84 14" />
-        <path d="M4 60 L92 24" />
-        <path d="M14 70 L94 37" />
-        <path d="M26 79 L92 51" />
-        <path d="M38 87 L88 65" />
-        <path d="M20 30 L54 15" />
-      </g>
-      <path className={m.heartOutline} d={d} />
+    <svg viewBox="-8 -8 116 108" className={`${m.heart} ${className}`} aria-hidden focusable="false">
+      <filter id="lzCrayon" x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.14" numOctaves="3" seed="11" result="edge" />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="edge"
+          scale="5.5"
+          xChannelSelector="R"
+          yChannelSelector="G"
+          result="rough"
+        />
+        <feTurbulence type="fractalNoise" baseFrequency="0.05 0.21" numOctaves="3" seed="5" result="grain" />
+        <feColorMatrix
+          in="grain"
+          type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.32 1.37"
+          result="grainA"
+        />
+        <feComposite in="rough" in2="grainA" operator="in" />
+      </filter>
+      <path className={m.heartFill} d={d} filter="url(#lzCrayon)" />
     </svg>
   )
 }

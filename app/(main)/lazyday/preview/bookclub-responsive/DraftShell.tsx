@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazydayMark } from "./LazydayMark"
 import s from "./draft.module.css"
 
 /**
@@ -13,7 +14,8 @@ import s from "./draft.module.css"
  *  - 전폭(컨테이너 max-width 없음) + 좌우 거터 하나로만 폭을 만든다
  *  - **햄버거 금지** — 데스크톱·모바일 동일한 2행 구조, 크기·간격만 축소
  *  - 로고는 grid item 이 아니라 absolute (그리드 아이템+height:100% 는 행 높이를
- *    되먹임해 헤더가 부푸는 버그가 있었다) + `--navLogoSize` 만큼 2행을 들여쓴다
+ *    되먹임해 헤더가 부푸는 버그가 있었다 — 2026-08-12 브랜드 텍스트 제거로
+ *    마크가 1행 높이를 정하게 되면서 흐름 안 배치로 전환)
  *  - 푸터 15컬럼 → 720px 이하 4컬럼, 블록은 전부 2/5 로 스택
  *  - 이용약관은 이중 DOM + display 토글 (데스크톱 코너 / 모바일 SNS 윗줄)
  * 북클럽으로 바꾼 것: 색(잉크 #1a1208·종이 #f7f3ee·주황 #d2691e), 서체(SUIT),
@@ -84,17 +86,11 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
       <header className={s.header}>
+        {/* 브랜드 텍스트("레이지데이 북클럽")는 제거 — 동적 마크가 그 역할을 대신한다
+            (운영자 2026-08-12: "상단 네비 1행에 레이지데이 북클럽 빼자") */}
         <LazydayLink href="/" className={s.navLogo} aria-label="레이지데이 북클럽 홈">
-          <Image
-            src="/assets/logo/logo-mono-ink.svg"
-            alt=""
-            width={45}
-            height={45}
-            className={s.navLogoImg}
-          />
+          <LazydayMark />
         </LazydayLink>
-
-        <div className={s.navBrand}>레이지데이 북클럽</div>
 
         <nav className={s.navAll} aria-label="섹션">
           {NAV_ITEMS.map((it) => (

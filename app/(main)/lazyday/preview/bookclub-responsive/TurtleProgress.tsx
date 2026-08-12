@@ -88,7 +88,8 @@ export function TurtleProgress() {
   }, [])
 
   return (
-    <div className={t.lane} ref={rootRef} data-dir="fwd" aria-hidden>
+    // 진입 홀드 동안엔 CTA 와 함께 숨는다 — 레인만 남으면 바닥에 선 하나가 뜬다
+    <div className={t.lane} ref={rootRef} data-dir="fwd" data-lz-chrome="turtle" aria-hidden>
       <div className={t.track} />
       <div className={t.fill} />
       <div className={t.turtle}>

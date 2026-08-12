@@ -63,6 +63,12 @@ const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
 const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 붙인다
 
+/** 내비·푸터·스티키 CTA 가 나타나는 시각 (운영자 2026-08-12: "텍스트들이 돌아가기
+ *  시작한 순간으로부터 0.3초 후"). 흐름 시작 + 램프 = 정상 속도에 도달하는 순간이다.
+ *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다 — 두 곳에 숫자를
+ *  따로 두면 히어로 타이밍을 고칠 때마다 어긋난다 */
+export const CHROME_REVEAL_MS = FLOW_START_MS + RAMP_MS
+
 export function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)
 

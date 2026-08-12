@@ -35,6 +35,31 @@
   overflow-x: clip;
 }
 
+/* ── 진입 홀드 (운영자 2026-08-12) ─────────────────────────────────
+   처음엔 포스터만. 히어로 텍스트가 정상 속도에 오른 순간(=흐름 시작 +0.3s)
+   또는 아무 입력이 들어온 순간 내비·푸터·스티키 CTA 가 나타난다.
+   ⚠ 레이지클럽 인트로 규율: **display 로 감추지 않는다** — 레이아웃이 1px도
+   움직이지 않아야 하므로 opacity 만 0. 스티키 CTA 는 다른 모듈(page.module.css)의
+   해시 클래스라 이름으로 못 잡는다 → `data-lz-chrome` 속성으로 건다 */
+.page[data-intro="hold"] .header,
+.page[data-intro="hold"] .footer,
+.page[data-intro="hold"] [data-lz-chrome] {
+  opacity: 0;
+  pointer-events: none;
+}
+.header,
+.footer,
+.page [data-lz-chrome] {
+  transition: opacity 0.45s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .footer,
+  .page [data-lz-chrome] {
+    transition: none;
+  }
+}
+
 /* ⚠ 범위는 내비·푸터로 한정한다 — 전역 `.page a` 로 두면 명시도(0,1,1)가
    실사이트 `.applyButton { color: white }`(0,1,0)를 이겨 **CTA 글씨가 잉크로**
    나온다 (운영자 2026-08-12 "CTA 폰트컬러는 그대로 흰색 맞지?" — 실측 확인) */

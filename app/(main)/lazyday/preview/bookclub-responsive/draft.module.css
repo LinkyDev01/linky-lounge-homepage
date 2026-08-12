@@ -28,6 +28,26 @@
   overflow-x: clip;
 }
 
+/* ── 진입 홀드 — 실 landing-shell.module.css 와 같은 값 (쌍 동기화 2026-08-12) ── */
+.page[data-intro="hold"] .header,
+.page[data-intro="hold"] .footer,
+.page[data-intro="hold"] [data-lz-chrome] {
+  opacity: 0;
+  pointer-events: none;
+}
+.header,
+.footer,
+.page [data-lz-chrome] {
+  transition: opacity 0.45s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .footer,
+  .page [data-lz-chrome] {
+    transition: none;
+  }
+}
+
 /* ⚠ 범위는 내비·푸터로 한정한다 — 전역 `.page a` 로 두면 명시도(0,1,1)가
    실사이트 `.applyButton { color: white }`(0,1,0)를 이겨 **CTA 글씨가 잉크로**
    나온다 (운영자 2026-08-12 "CTA 폰트컬러는 그대로 흰색 맞지?" — 실측 확인) */

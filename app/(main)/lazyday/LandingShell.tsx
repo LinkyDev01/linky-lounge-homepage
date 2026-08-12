@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
+import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "./useChromeIntro"
 import s from "./landing-shell.module.css"
 
 /**
@@ -81,14 +82,21 @@ function KakaoIcon() {
 
 export function LandingShell({ children }: { children: React.ReactNode }) {
   const activeId = useActiveSection()
+  // 진입 홀드 — 포스터만 뜨고, 히어로 텍스트가 정상 속도에 오르면(또는 아무 입력에)
+  // 내비·푸터·스티키 CTA 가 나타난다 (운영자 2026-08-12, 레이지클럽 인트로 문법)
+  const chrome = useChromeIntro()
 
   return (
-    <div className={s.page}>
+    <div className={s.page} data-intro={chrome ? "show" : "hold"}>
       {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
       />
+      {/* JS 가 없으면 홀드가 풀리지 않는다 — 그 경우엔 처음부터 다 보이게 */}
+      <noscript>
+        <style>{CHROME_NOSCRIPT_CSS}</style>
+      </noscript>
       <header className={s.header}>
         {/* 브랜드 텍스트("레이지데이 북클럽")는 제거 — 동적 마크가 그 역할을 대신한다
             (운영자 2026-08-12: "상단 네비 1행에 레이지데이 북클럽 빼자") */}

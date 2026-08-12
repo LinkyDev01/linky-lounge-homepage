@@ -44,7 +44,10 @@
     padding: 16px 20px;
     /* iPhone notch/home-bar 회피용 safe-area 추가 */
     padding-bottom: max(48px, calc(env(safe-area-inset-bottom, 0px) + 48px));
-    background: linear-gradient(to top, #b8a38ac2 80%, rgba(239, 173, 112, 0));
+    /* 2026-08-12 D안 채택 (운영자 "너무 노골적이라" → 시안 D 잉크형):
+       갈색 스크림(#b8a38ac2)을 걷고 **종이색 그라데이션**으로. 지금 강렬함의 절반은
+       버튼이 아니라 이 갈색 띠에서 왔다 */
+    background: linear-gradient(to top, #f7f3ee 72%, rgba(247, 243, 238, 0));
     padding-top: 32px;
     z-index: 100;
     pointer-events: auto;
@@ -56,13 +59,13 @@
     padding-bottom: 40px;
 }
 
-/* 조기마감 모드 — 버튼 안 둘째 줄 (흰색, 운영자 지시 2026-07-13 가독성) */
+/* 조기마감 모드 — 버튼 안 둘째 줄 (2026-08-12 D안: 잉크 위 종이색으로) */
 .applyBtnSub {
     display: block;
     margin-top: 3px;
     font-size: 11px;
     font-weight: 600;
-    color: #ffffff;
+    color: #f7f3ee;
     opacity: 0.92;
     line-height: 1.4;
     word-break: keep-all;
@@ -78,30 +81,37 @@
     word-break: keep-all;
 }
 
+/* ── CTA D안 (잉크) — 운영자 2026-08-12 ──
+   "D 시안으로 잉크형태로 갈건데 조금 더 작게, 라운딩없이 / 레이지클럽 구매하기
+    버튼과 같은 느낌 / 그것보단 커야지"
+   레이지클럽 `.chipBtn` 실측(잉크 바탕·종이 글자·radius 0·padding 2/6·13.2px)의
+   **문법을 그대로 쓰고 치수만 모바일 CTA 로 키운 것**. 전폭 바를 버리고 글자폭에
+   맞춘 잉크 블록으로 — 높이 44px 이 나와 탭 타깃 기준도 만족한다 */
 .applyButton {
     display: block;
-    width: 100%;
-    max-width: 400px;
+    width: fit-content;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 18px 32px;
-    background-color: #D2691E;
-    color: white;
-    font-size: 18px;
+    padding: 13px 26px;
+    background-color: #1a1208;
+    color: #f7f3ee;
+    font-size: 15px;
     font-weight: 600;
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: opacity 0.2s ease;
     text-align: center;
     text-decoration: none;
 }
 
+/* 잉크는 명도를 바꾸면 탁해진다 — 레이지클럽 chipBtn 과 같이 투명도로 (opacity .85) */
 .applyButton:hover {
-    background-color: #B8571A;
+    opacity: 0.85;
 }
 
 .applyButton:active {
-    background-color: #A04D16;
+    opacity: 0.72;
 }
 
 /* ── 가로 2버튼 CTA (4기 | One Day Talk) — 운영자 지시 2026-07-24 ──
@@ -146,19 +156,19 @@
 }
 
 
-/* 모집 마감 상태 버튼 */
+/* 모집 마감 상태 버튼 — 살아있는 버튼(D안)과 같은 치수·모서리, 색만 회색 */
 .applyButtonClosed {
     display: block;
-    width: 100%;
-    max-width: 400px;
+    width: fit-content;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 18px 32px;
+    padding: 13px 26px;
     background-color: #8C8580;
     color: rgba(255, 255, 255, 0.65);
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     cursor: default;
     text-align: center;
     text-decoration: none;
@@ -183,9 +193,10 @@
         padding-top: 24px;
     }
 
+    /* D안은 모바일·데스크톱 동일 치수 — 라운딩 0, 패딩 13/26 (운영자 2026-08-12) */
     .applyButton {
-        border-radius: 8px;
-        padding: 16px 24px;
+        border-radius: 0;
+        padding: 13px 26px;
     }
 
     .applyButtonTwoLine {
@@ -194,8 +205,8 @@
     }
 
     .applyButtonClosed {
-        border-radius: 8px;
-        padding: 16px 24px;
+        border-radius: 0;
+        padding: 13px 26px;
     }
 }
 /* 시각 숨김 (스크린리더·검색엔진 전용) — 랜딩 h1 보충용 (SEO 2026-08-12).

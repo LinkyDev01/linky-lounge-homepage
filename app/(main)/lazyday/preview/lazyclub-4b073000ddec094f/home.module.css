@@ -695,6 +695,14 @@
 
 /* ═══ 반응형 해제 (08: 단일 720px — 768은 데스크톱 구성 유지) ═══ */
 @media all and (max-width: 720px) {
+  /* 구매 옵션 터치 타깃 (2026-08-11) — PC 치수(칩 18 / 사이즈 34×27)는 손가락엔 작다.
+     디자인 언어(원형 칩·각진 박스·잉크 선택 표시)는 그대로 두고 히트 영역만 키운다.
+     칩 24 + 간격 10 → 실효 타깃 34px, 사이즈 박스는 권장 최소 44×36 확보 */
+  .optChips { gap: 10px; }
+  .optChip { width: 24px; height: 24px; }
+  .optSizes { gap: 8px; }
+  .optSize { min-width: 44px; min-height: 36px; padding: 6px 10px; font-size: 12.5px; }
+
   .content { padding-top: 92px; }
   .header { grid-template-columns: repeat(4, 1fr); gap: 10px; row-gap: 7px; }
   .headerLeft { grid-column: 1 / 3; }

@@ -82,12 +82,12 @@ function KakaoIcon() {
 
 export function LandingShell({ children }: { children: React.ReactNode }) {
   const activeId = useActiveSection()
-  // 진입 홀드 — 포스터만 뜨고, 히어로 텍스트가 정상 속도에 오르면(또는 아무 입력에)
-  // 내비·푸터·스티키 CTA 가 나타난다 (운영자 2026-08-12, 레이지클럽 인트로 문법)
-  const chrome = useChromeIntro()
+  // 진입 홀드 — 포스터만 뜨고, 그어짐이 끝나갈 무렵(또는 아무 입력에) 내비·푸터가,
+  // 그로부터 3초 뒤 스티키 CTA 가 나타난다 (운영자 2026-08-12, 레이지클럽 인트로 문법)
+  const { chrome, cta } = useChromeIntro()
 
   return (
-    <div className={s.page} data-intro={chrome ? "show" : "hold"}>
+    <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
       {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
       <link
         rel="stylesheet"

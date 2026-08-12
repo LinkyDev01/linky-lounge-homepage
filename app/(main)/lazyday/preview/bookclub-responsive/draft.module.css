@@ -249,8 +249,8 @@
 .ctaLift {
   display: contents;
 }
-/* 실 page.module.css `.ctaLift` 와 같은 값 — bottom 으로 띄우면 CTA 와 거북이
-   사이로 본문이 비친다. 바닥에 붙인 채 하단 패딩으로 밀어 올린다 (2026-08-12) */
+/* (고아 보존 — 레인 제거로 미사용, 운영자 2026-08-12 "b, 레인 지우고".
+   실 page.module.css `.ctaLift` 와 같은 값. 재점등 시 그대로 산다) */
 .ctaLift > div {
   bottom: 0;
   padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));

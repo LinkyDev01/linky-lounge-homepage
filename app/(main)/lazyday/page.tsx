@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import styles from "./page.module.css"
 import { StickyApplyButton } from "./sticky-apply-button"
-import { TurtleProgress } from "./TurtleProgress"
 import { LandingShell } from "./LandingShell"
 import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
@@ -78,14 +77,11 @@ export default function StudyForeignPage() {
         <SeasonCountCta />
         {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 B밴드 (A/B 교차 유지, 운영자 확정 2026-07-13) */}
         {SEASON.status === "closedEarly" && <NextSeasonNotify />}
-        {/* 스크롤 진행률 거북이 — 구 우측 주황 점 대체안. 프리뷰 승인본 이식 (2026-08-12) */}
-        <TurtleProgress />
+        {/* 거북이 레인은 제거 — 캐릭터는 로더(레이지클럽 turtle 트랙) 전용으로 아껴둔다
+            (운영자 2026-08-12 "b, 레인 지우고". TurtleProgress 컴포넌트는 고아 보존) */}
         {/* 하단 CTA — sticky 라 **문서 흐름상 이 자리**(클로징 CTA 와 로고 사이)에 내려앉는다.
-            스크롤 중에는 뷰포트 바닥에 붙어 종전과 같이 보인다 (운영자 2026-08-09).
-            거북이 레인만큼 위로 밀어 그 틈을 만든다 — 프리뷰와 같은 `ctaLift` */}
-        <div className={styles.ctaLift}>
-          <StickyApplyButton />
-        </div>
+            스크롤 중에는 뷰포트 바닥에 붙어 종전과 같이 보인다 (운영자 2026-08-09) */}
+        <StickyApplyButton />
         <BrandCloseV2 />
       </main>
       </LandingShell>

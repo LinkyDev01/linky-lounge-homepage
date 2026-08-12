@@ -91,6 +91,8 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>
       </noscript>
+      <div className={s.introMask} data-lz-mask aria-hidden />
+
       <header className={s.header}>
         {/* 브랜드 텍스트("레이지데이 북클럽")는 제거 — 동적 마크가 그 역할을 대신한다
             (운영자 2026-08-12: "상단 네비 1행에 레이지데이 북클럽 빼자") */}

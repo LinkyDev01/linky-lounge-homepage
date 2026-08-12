@@ -35,6 +35,23 @@
   opacity: 0;
   pointer-events: none;
 }
+.introMask {
+  position: fixed;
+  inset: 0;
+  background: #f0e8e2; /* = HeroBreathingPoster.module.css .poster 바탕 */
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+.page[data-intro="hold"] .introMask {
+  opacity: 1;
+  pointer-events: auto;
+}
+.page[data-intro="hold"] [data-lz-poster] {
+  position: relative;
+  z-index: 201;
+}
 .header,
 .footer,
 .page [data-lz-chrome] {

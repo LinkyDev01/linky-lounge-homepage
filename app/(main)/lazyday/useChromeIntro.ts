@@ -48,6 +48,8 @@ export function useChromeIntro() {
   return shown
 }
 
-/** 셸 두 곳(LandingShell·DraftShell)이 같은 마크업을 쓰도록 — JS 없는 환경 대비 */
+/** 셸 두 곳(LandingShell·DraftShell)이 같은 마크업을 쓰도록 — JS 없는 환경 대비.
+ *  덮개까지 걷어야 한다 (안 그러면 포스터 말고 아무것도 안 보인다) */
 export const CHROME_NOSCRIPT_CSS =
-  '[data-intro="hold"] > header,[data-intro="hold"] > footer,[data-intro="hold"] [data-lz-chrome]{opacity:1!important;pointer-events:auto!important}'
+  '[data-intro="hold"] > header,[data-intro="hold"] > footer,[data-intro="hold"] [data-lz-chrome]{opacity:1!important;pointer-events:auto!important}' +
+  '[data-intro="hold"] [data-lz-mask]{opacity:0!important;pointer-events:none!important}'

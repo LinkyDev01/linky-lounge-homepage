@@ -1,5 +1,6 @@
 /* 거북이 진행률 — 하단 고정 CTA 위 얇은 레인 (북클럽 프리뷰 전용, 2026-08-12).
-   세로를 거의 먹지 않는 것이 조건이라(운영자) 레인 22px · 트랙 3px · 거북이 30×17.5. */
+   세로를 거의 먹지 않는 것이 조건이라(운영자) 레인 16px · 트랙 3px · 거북이 26×15.2.
+   2026-08-12 2차: CTA 와의 여백이 많다 → 레인 22→16, CTA 들어올림 26→18px. */
 
 .lane {
   --p: 0; /* 진행률 0~1 — JS 가 rAF 로 갱신 (리렌더 없음) */
@@ -8,7 +9,7 @@
   right: 0;
   /* 바닥에 붙는다 — CTA 가 레인 높이(26px)만큼 위로 밀려 그 틈이 비어 있다 */
   bottom: env(safe-area-inset-bottom, 0px);
-  height: 22px;
+  height: 16px;
   z-index: 60;
   pointer-events: none;
 }
@@ -31,6 +32,9 @@
   background: #d2691e;
   transform: scaleX(var(--p));
   transform-origin: left center;
+  /* 스크롤 이벤트는 띄엄띄엄 들어와 그대로 반영하면 계단처럼 끊긴다 —
+     짧은 보간으로 이어 준다 (운영자 2026-08-12 "너무 딱딱하게 끊겨서") */
+  transition: transform 0.18s cubic-bezier(0.22, 0.8, 0.36, 1);
 }
 
 /* 거북이 — 트랙 위에 올라 서고, 진행률만큼 좌→우로 이동.
@@ -39,15 +43,21 @@
   position: absolute;
   bottom: 2px;
   left: 15px;
-  width: 30px;
-  height: 17.5px;
-  transform: translateX(calc((100vw - 30px - 30px) * var(--p)));
+  width: 26px;
+  height: 15.2px;
+  /* 거북이 중심이 '채워진 끝'을 타고 간다 — 자기 폭의 절반(13px)을 당기고,
+     양끝에서는 트랙 밖으로 나가지 않게 clamp (구 식은 중간에서만 맞았다) */
+  transform: translateX(clamp(0px, calc((100vw - 30px) * var(--p) - 13px), calc(100vw - 56px)));
+  transition: transform 0.18s cubic-bezier(0.22, 0.8, 0.36, 1);
   will-change: transform;
 }
-/* 역방향 — 좌우 대칭 (운영자: "역방향일 땐 좌우대칭 시켜서 이동하도록") */
-.lane[data-dir="back"] .turtle .sprite {
-  transform: scale(0.216) scaleX(-1);
-  transform-origin: bottom center;
+/* 역방향 — 좌우 대칭 (운영자: "역방향일 땐 좌우대칭 시켜서 이동하도록").
+   ⚠ 스프라이트는 `transform-origin: bottom left` + scale 로 축소돼 있어서, 여기서
+   origin 을 바꾸면 **축소 기준점까지 바뀌어 거북이가 트랙 밖으로 밀린다**
+   (운영자 2026-08-12 "역방향일 때 거북이가 채워진 위치에 못 맞추고 우측에 떨어져있네").
+   origin 은 그대로 두고, 뒤집힌 만큼 자기 폭(140px)을 되돌려 제자리에서만 반전시킨다 */
+.lane[data-dir="back"] .sprite {
+  transform: scale(0.188) translateX(140px) scaleX(-1);
 }
 
 /* 스프라이트 — 데모(hero-motion ⑦)와 같은 시트, 배율만 0.345 → 0.216 으로 축소
@@ -59,7 +69,7 @@
   width: 140px;
   height: 81px;
   background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 81px no-repeat;
-  transform: scale(0.216);
+  transform: scale(0.188);
   transform-origin: bottom left;
   animation: turtleGait 1.4s steps(5) infinite alternate;
   animation-play-state: paused;
@@ -81,7 +91,9 @@
   }
   .turtle {
     left: max(40px, calc((100vw - 1100px) / 2));
-    transform: translateX(calc((min(1100px, 100vw - 80px) - 30px) * var(--p)));
+    transform: translateX(
+      clamp(0px, calc(min(1100px, 100vw - 80px) * var(--p) - 13px), calc(min(1100px, 100vw - 80px) - 26px))
+    );
   }
 }
 

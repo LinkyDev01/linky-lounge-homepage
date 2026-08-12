@@ -25,10 +25,11 @@ export type OrderItem = {
   img?: string
 }
 
-/** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-11).
+/** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-12: 3,000 → 3,500원).
+ *  ⚠ goods-config DELIVERY_RETURNS·terms 제11/13조·checkout 안내와 같은 값이어야 한다.
  *  주문 항목으로 취급해 서버 금액 검증(orderId 재계산)에 자동으로 포함시킨다. */
 export const SHIPPING_CODE = "ship"
-export const SHIPPING_FEE = 3000
+export const SHIPPING_FEE = 3500
 const SHIPPING_ITEM: OrderItem = {
   code: SHIPPING_CODE,
   name: "배송비 (우체국택배)",

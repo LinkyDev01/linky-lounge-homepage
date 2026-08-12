@@ -5,7 +5,6 @@ import { LandingShell } from "./LandingShell"
 import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
 import { HeroSummary } from "./HeroSummary"
-import { SectionIndicator } from "./SectionIndicator"
 import { HowToSection } from "./HowToSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { ReviewsSection } from "./ReviewsSection"
@@ -83,8 +82,6 @@ export default function StudyForeignPage() {
         <StickyApplyButton />
         <BrandCloseV2 />
       </main>
-
-      <SectionIndicator />
       </LandingShell>
     </>
   )

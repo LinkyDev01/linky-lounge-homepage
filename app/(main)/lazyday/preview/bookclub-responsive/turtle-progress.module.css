@@ -1,0 +1,92 @@
+/* 거북이 진행률 — 하단 고정 CTA 위 얇은 레인 (북클럽 프리뷰 전용, 2026-08-12).
+   세로를 거의 먹지 않는 것이 조건이라(운영자) 레인 22px · 트랙 3px · 거북이 30×17.5. */
+
+.lane {
+  --p: 0; /* 진행률 0~1 — JS 가 rAF 로 갱신 (리렌더 없음) */
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* 바닥에 붙는다 — CTA 가 레인 높이(26px)만큼 위로 밀려 그 틈이 비어 있다 */
+  bottom: env(safe-area-inset-bottom, 0px);
+  height: 22px;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* 지나갈 길 — 옅은 잉크 선 */
+.track,
+.fill {
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px;
+}
+.track {
+  background: rgba(26, 18, 8, 0.12);
+}
+/* 지나온 길 — 팔레트 주황 (데모의 그린 폐기, 운영자) */
+.fill {
+  background: #d2691e;
+  transform: scaleX(var(--p));
+  transform-origin: left center;
+}
+
+/* 거북이 — 트랙 위에 올라 서고, 진행률만큼 좌→우로 이동.
+   left/right 15px 거터를 뺀 폭 안에서 움직이도록 calc 로 잡는다 */
+.turtle {
+  position: absolute;
+  bottom: 2px;
+  left: 15px;
+  width: 30px;
+  height: 17.5px;
+  transform: translateX(calc((100vw - 30px - 30px) * var(--p)));
+  will-change: transform;
+}
+/* 역방향 — 좌우 대칭 (운영자: "역방향일 땐 좌우대칭 시켜서 이동하도록") */
+.lane[data-dir="back"] .turtle .sprite {
+  transform: scale(0.216) scaleX(-1);
+  transform-origin: bottom center;
+}
+
+/* 스프라이트 — 데모(hero-motion ⑦)와 같은 시트, 배율만 0.345 → 0.216 으로 축소
+   (48×28 → 30×17.5). 걷는 애니는 **움직이는 동안만** 돈다 */
+.sprite {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 140px;
+  height: 81px;
+  background: url("/linky-lounge/book-club/home-v3/turtle-sprite.png") 0 0 / 700px 81px no-repeat;
+  transform: scale(0.216);
+  transform-origin: bottom left;
+  animation: turtleGait 1.4s steps(5) infinite alternate;
+  animation-play-state: paused;
+}
+.lane[data-walking="true"] .sprite {
+  animation-play-state: running;
+}
+@keyframes turtleGait {
+  to {
+    background-position-x: -700px;
+  }
+}
+
+@media (min-width: 721px) {
+  .track,
+  .fill {
+    left: max(40px, calc((100vw - 1100px) / 2));
+    right: max(40px, calc((100vw - 1100px) / 2));
+  }
+  .turtle {
+    left: max(40px, calc((100vw - 1100px) / 2));
+    transform: translateX(calc((min(1100px, 100vw - 80px) - 30px) * var(--p)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprite {
+    animation: none;
+  }
+}

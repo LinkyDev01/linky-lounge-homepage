@@ -84,11 +84,20 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+        {/* SUIT — 셀프호스트 가변폰트 preload (2026-08-12 콜드 로드 다이어트:
+            구 CDN 정적판 weight 7종 ~1.19MB → 가변 1파일 610KB·1요청.
+            @font-face 정의는 globals.css) */}
+        <link
+          rel="preload"
+          href="/fonts/SUIT-Variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         {/* 책 소개 카드 제목용 Pretendard (레이지데이 북클럽 전용) */}
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
         {/* 책 소개 본문용 명조 — 빌드 타임 의존 없이 Google Fonts CSS 직접 로드 */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

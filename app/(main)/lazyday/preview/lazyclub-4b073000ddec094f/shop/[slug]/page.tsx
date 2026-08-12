@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { KAKAO_CHAT_URL } from "@/app/(main)/lazyday/support"
-import { findGoods, GOODS_POLICIES } from "../../goods-config"
+import { findGoods, DELIVERY_RETURNS } from "../../goods-config"
 import { ProductDetail } from "../../ProductDetail"
 // 서버 컴포넌트 — Shell("use client") 경유로 BASE 를 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../../base-path"
@@ -35,7 +35,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
         sizes: g.sizes,
       }}
       price={g.price}
-      policies={GOODS_POLICIES}
+      deliveryReturns={DELIVERY_RETURNS}
       images={[{ src: g.img, alt: g.name }]}
       cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/shop/${g.slug}`, img: g.img }}
     />

@@ -1,0 +1,165 @@
+/* ═══════════════════════════════════════════════════════════
+   bookclub-shell — 북클럽 랜딩 × 레이지클럽 셸 초안 (2026-08-12)
+   운영자: "네비/푸터 등은 레이지클럽 레퍼런스 최대한 살리고, 북클럽도
+   모바일/웹 반응형 최적화 초안. 현재 애니메이션 베이스는 유지"
+   신규 CSS — 기존 .module.css import 금지 (§9). 내비·푸터 수치는
+   레이지클럽 home.module.css 실측 문법(고정 헤더 padding 10px 15px,
+   SUIT, Gothic A1 300 사업자 정보)을 북클럽 팔레트(§3)로 옮긴 것.
+   본문 섹션은 실사이트 컴포넌트 그대로 — 애니메이션 베이스 유지.
+   ═══════════════════════════════════════════════════════════ */
+
+.shell {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --hair: rgba(74, 58, 42, 0.18);
+  --dim: #8a6a50;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── 고정 상단 내비 — 레이지클럽 2행 문법 (로고+아이콘 / 링크 행) ── */
+.header {
+  position: fixed;
+  /* 프리뷰 전용 보정: PreviewBar(fixed 34px) 아래로. 실사이트 이식 시 top: 0 */
+  top: 34px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: var(--paper);
+  border-bottom: 1px solid var(--hair);
+  padding: 10px 15px 8px;
+  font-family: "SUIT", sans-serif;
+}
+.headerInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  display: flex;
+  align-items: center;
+}
+.logo img {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+.applyLink {
+  font-size: 12px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.applyLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+/* 링크 행 — 모바일은 가로 스크롤 (레이지클럽 모바일 내비 문법: 햄버거 금지) */
+.navRow {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  font-size: 12px;
+}
+.navRow::-webkit-scrollbar {
+  display: none;
+}
+.navRow a {
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.navRow a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* 본문 — 고정 헤더 회피. 섹션은 실사이트 그대로(자체 배경 밴드·애니메이션 유지) */
+.body {
+  /* 고정 헤더(2행 ~64px) 회피 — PreviewBar 스페이서는 프리뷰 레이아웃이 이미 넣는다 */
+  padding-top: 64px;
+}
+
+/* ── 푸터 — 레이지클럽 워크룸 푸터 문법을 북클럽 팔레트로 ── */
+.footer {
+  border-top: 1px solid var(--hair);
+  padding: 40px 15px 60px;
+  background: var(--paper);
+}
+.footerInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 180px 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+.footerLogo img {
+  width: 120px;
+  height: auto;
+  display: block;
+}
+/* 브랜드 문단 — 명조 (푸터 브랜드 문단은 명조 유지 — 레이지클럽 확정 문법) */
+.footerDesc {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: #4a3020;
+  word-break: keep-all;
+  margin: 0;
+}
+/* 사업자 정보 — Gothic A1 300 (레이지클럽 문법) */
+.footerBiz {
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 300;
+  font-size: 11.5px;
+  line-height: 1.9;
+  color: var(--dim);
+}
+.footerLinks {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-family: "SUIT", sans-serif;
+  font-size: 11.5px;
+}
+.footerLinks a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.footerLinks a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+.footerSns {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--ink);
+}
+.footerSns a {
+  color: inherit;
+  display: flex;
+}
+
+/* ── 반응형 — 모바일: 푸터 스택 ── */
+@media (max-width: 720px) {
+  .footerInner {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .body {
+    padding-top: 62px;
+  }
+}

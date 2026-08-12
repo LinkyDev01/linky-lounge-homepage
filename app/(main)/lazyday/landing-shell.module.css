@@ -47,6 +47,9 @@
 .page[data-intro="hold"] .footer,
 .page[data-intro="hold"] [data-lz-chrome] {
   opacity: 0;
+  /* 제 위치보다 10px 아래에서 대기했다가 올라온다 — 페이드만으로는 '툭 나타난다'로
+     읽혔다 (운영자 2026-08-12 "살짝 아래서 위로 빠르게 자연스럽게 올라오는") */
+  transform: translateY(10px);
   pointer-events: none;
 }
 
@@ -60,7 +63,9 @@
   z-index: 200;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.45s ease;
+  /* 덮개는 크롬보다 조금 느리게 걷힌다 — 커튼이 올라가는 동안 크롬이 먼저 올라와
+     두 동작이 겹치면서, 한 프레임에 전부 나타나는 인상이 사라진다 */
+  transition: opacity 0.6s ease;
 }
 .page[data-intro="hold"] .introMask {
   opacity: 1;
@@ -73,16 +78,24 @@
   position: relative;
   z-index: 201;
 }
+/* 등장 — 페이드는 짧게(0.4s), 올라오는 궤적은 조금 길게(0.55s) 잡아 감속 꼬리를
+   남긴다. 이징은 §3 등장 리빌과 같은 cubic-bezier(0.22,1,0.36,1) */
 .header,
 .footer,
 .page [data-lz-chrome] {
-  transition: opacity 0.45s ease;
+  transition: opacity 0.4s ease-out, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 @media (prefers-reduced-motion: reduce) {
   .header,
   .footer,
   .page [data-lz-chrome] {
     transition: none;
+  }
+  /* 모션을 끈 사용자에겐 이동 자체가 없어야 한다 */
+  .page[data-intro="hold"] .header,
+  .page[data-intro="hold"] .footer,
+  .page[data-intro="hold"] [data-lz-chrome] {
+    transform: none;
   }
 }
 

@@ -45,15 +45,8 @@
   margin-bottom: 0.1em;
 }
 .iChar { font-size: 1.32em; }
-.heart { width: 1.18em; height: 1.09em; display: block; overflow: visible; }
-.heartOutline {
-  fill: none;
-  stroke: var(--heart);
-  stroke-width: 6;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-.heartScribble path { fill: none; stroke: var(--heart); stroke-width: 9; stroke-linecap: round; }
+.heart { width: 1.32em; height: 1.22em; display: block; overflow: visible; }
+.heartFill { fill: var(--heart); }
 
 /* 곡선 배열 — 바깥 슬롯이 위치·기울기를 잡는다 (정적) */
 .arch { display: inline-flex; gap: 0.045em; }

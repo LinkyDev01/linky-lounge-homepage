@@ -342,6 +342,9 @@
     --lz-qt-cols: 2;
     --lz-qt-divider: none;
     --lz-chapter: 460px;
+    /* 세로 이웃 간격 — 구분점(·)이 없으므로 실사이트의 divider 여백(102.5px)에
+       맞춰 준다 (운영자: "접기 다음 아래가 붙어 있어, 펼친 이후 기준으로도") */
+    --lz-qt-row-gap: 96px;
   }
   /* 시안 B — 세로 스택 유지 + 사진만 100vw 풀블리드 (본문은 620px 원고 컬럼) */
   .qtZone[data-variant="full"] {

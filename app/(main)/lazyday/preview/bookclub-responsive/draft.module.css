@@ -19,8 +19,8 @@
   --brand: #d2691e;
   --sub: #8a7660;
   --suit: "SUIT", sans-serif;
-  --navLogoSize: 82px; /* 동적 마크 실측 폭 (구 로고 41px) */
-  --draft-nav-h: 61px;
+  --navLogoSize: 78px; /* 동적 마크 실측 폭 (마크 높이 49.5 × 종횡비 1.58) */
+  --draft-nav-h: 59.5px;
 
   background: var(--paper);
   color: var(--ink);
@@ -57,9 +57,14 @@
   gap: 10px;
   row-gap: 7px;
   align-items: center;
-  padding: 10px 15px;
-  /* 마크(51.7px) + 상하 여백 — 1행은 비어 있고 메뉴는 하단 행 */
-  min-height: calc(51.7px + 20px);
+  /* 아래 패딩만 1px 적게 — 레이지클럽 헤더에는 border 가 없어(실측 0px) 우리 1px
+     테두리를 그대로 얹으면 총 높이가 1px 더 커진다 */
+  padding: 10px 15px 9px;
+  /* 헤더 높이 = **레이지클럽 실측 그대로** (모바일 59.5 / 데스크톱 64.8).
+     마크는 흐름 밖이라 헤더를 밀지 않으므로 여기서 높이를 정한다 — 구 값
+     (마크+20)은 레이지클럽보다 10px 두꺼웠다 (운영자 2026-08-12 "네비바 높이를
+     레이지클럽이랑 맞춰서") */
+  min-height: 58.5px;
   border-bottom: 1px solid rgba(26, 18, 8, 0.12);
 }
 
@@ -85,7 +90,8 @@
   padding-left: calc(var(--navLogoSize) + 10px);
   display: flex;
   gap: 8px;
-  font-size: 10.5px;
+  /* 레이지클럽 링크행 실측 — 11px(높이 16.5) / 데스크톱 13.2px(높이 19.8) */
+  font-size: 11px;
   align-self: end;
 }
 .navAll::-webkit-scrollbar { display: none; }
@@ -97,7 +103,11 @@
   align-self: start;
   justify-self: end;
   gap: 8px;
-  font-size: 11.5px;
+  /* 레이지클럽 1행(아이콘 16px·중심 y18)과 **세로 위치를 맞춘다** — 텍스트라
+     그대로 두면 19.8px 로 3.8px 두꺼워져 헤더가 커진다 (운영자 2026-08-12
+     "신청하기도 레이지클럽 아이콘들의 세로위치와 맞아야지") */
+  font-size: 13.2px;
+  line-height: 16px;
 }
 
 .navItem {
@@ -123,7 +133,7 @@
    ⚠ `.page` 를 붙여 명시도를 올린 이유: page.module.css 의 `.container { padding: 0 }`
    과 명시도가 같아 로드 순서에 따라 덮여, 패딩이 **0px 로 죽어 있었다** (실측) */
 .page .body {
-  padding-top: 76px;
+  padding-top: 62px;
 }
 
 /* ── 푸터 : 레이지클럽 15컬럼 문법 ──────────────────────────────── */
@@ -194,8 +204,8 @@
 /* ══ 데스크톱 (레이지클럽과 동일하게 단일 브레이크포인트) ══════════ */
 @media (min-width: 721px) {
   .page {
-    --navLogoSize: 87px;
-    --draft-nav-h: 65px;
+    --navLogoSize: 90px;
+    --draft-nav-h: 64.8px;
 
     /* 폭 시스템 교체 — 밴드는 전폭, 콘텐츠는 1100px 컬럼으로 가운데.
        거터가 곧 중앙 정렬 장치라 섹션마다 컨테이너를 새로 만들 필요가 없다 */
@@ -236,8 +246,8 @@
     grid-template-columns: repeat(15, 1fr);
     gap: 15px;
     row-gap: 9px;
-    padding: 10px 15px;
-    min-height: calc(54.9px + 20px);
+    padding: 10px 15px 9px;
+    min-height: 63.8px;
   }
   .navAll {
     grid-area: 2 / 1 / 3 / 11;
@@ -252,7 +262,7 @@
   }
 
   .page .body {
-    padding-top: 80px;
+    padding-top: 68px;
   }
 
   /* 히어로 : 포스터(좌) + 요약 카드(우). 포스터가 전폭이면 aspect 4/5 라

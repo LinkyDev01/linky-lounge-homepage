@@ -34,18 +34,18 @@
 }
 
 /* ── 진입 (2안+3안 조합, 운영자 2026-08-12) ──
-   실 위 글자: 순서대로 안착 (시안 ② 260ms/3.2ms 스태거 — 딜레이는 인라인 --d).
+   실 위 글자: 붓끝이 닿는 순서대로 안착 (시안 ① draw 리듬 — 딜레이는 인라인 --d).
    CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돌고 완료 상태로 정지 */
 .introChar {
   opacity: 0;
-  animation: heroCharIn 0.26s ease-out both;
+  animation: heroCharIn 0.2s ease-out both;
   animation-delay: var(--d, 0ms);
 }
 @keyframes heroCharIn {
   to { opacity: 1; }
 }
 
-/* 큰 글자 — 레이지/데이/북클럽/4기모집 묶음 단위 등장 (딜레이는 인라인 --gd) */
+/* 큰 글자 — 시안 ① 그대로 60ms 간격 개별 등장 (딜레이는 인라인 --gd) */
 .glyphIn {
   opacity: 0;
   animation: heroGlyphIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;

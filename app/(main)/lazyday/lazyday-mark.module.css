@@ -1,0 +1,84 @@
+/* 레이지데이 북클럽 동적 마크 — 시안 ① 조형 + ⑨ 도미노 (운영자 채택 2026-08-12).
+   초안 전용 CSS (§9: 기존 .module.css 미참조). 서체는 자체 호스팅 냥이체. */
+
+@font-face {
+  font-family: "Cafe24NyangiW";
+  src: url("/fonts/Cafe24Nyangi-W.woff2") format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+
+/* 마크 전체 — 세로 길이는 레이지클럽 내비 로고 실측(54.9px)에 맞춘다.
+   글자 크기는 그 높이에서 역산(측정 기반 계수 0.345)해 따라가므로,
+   높이만 바꾸면 비율이 유지된 채 통째로 스케일된다 */
+.mark {
+  --mark-h: 54.9px;
+  height: var(--mark-h);
+  box-sizing: border-box;
+  /* 호의 처짐(최대 0.341em)만큼 글자들이 아래로 내려가 시각 중심이 밑으로 쏠린다.
+     레이아웃은 처짐을 모르므로(translateY 는 시각 이동), 처짐만큼 아래 여백을
+     만들어 중앙 정렬을 그 절반만큼 위로 되돌린다 */
+  padding-bottom: 0.34em;
+  font-size: calc(var(--mark-h) * 0.345);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cafe24NyangiW", "SUIT", sans-serif;
+  line-height: 1;
+  color: #1a1208;
+  /* 하트 — 새빨강(#ff0000)에서 형광기만 걷어낸 빨강 (운영자 2026-08-12
+     "아주 약간 톤다운된 하트"). 글자는 잉크 유지 — 하트만 색을 갖는다.
+     팔레트 신규 색이라 마크 밖으로 번지지 않게 여기서만 정의 */
+  --heart: #ef2b21;
+  user-select: none;
+  /* 도미노는 Y축이 아니라 X축 회전이라 원근이 있어야 넘어가는 맛이 산다 */
+  perspective: 420px;
+}
+
+.top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34em;
+  /* 두 행 간격 — 운영자 2026-08-12 "세로 간격 더 좁혀". 호가 깊어져 가운데가
+     내려앉은 만큼 위 여백이 더 넓어 보이므로 함께 줄인다 */
+  margin-bottom: 0.1em;
+}
+.iChar { font-size: 1.32em; }
+.heart { width: 1.32em; height: 1.22em; display: block; overflow: visible; }
+.heartFill { fill: var(--heart); }
+
+/* 곡선 배열 — 바깥 슬롯이 위치·기울기를 잡는다 (정적) */
+.arch { display: inline-flex; gap: 0.045em; }
+.slot {
+  display: inline-block;
+  transform: translateY(var(--ay)) rotate(var(--ar));
+}
+
+/* 도미노 — 안쪽 요소만 회전시켜 배치 transform 과 충돌하지 않게 (시안 ⑨).
+   무한 CSS 루프가 아니라 **JS 가 라운드마다 난수 그룹에 .flipGo 를 붙인다**
+   (운영자 2026-08-12: 1~3개 랜덤 조합 → 복귀 → 텀 → 다른 조합 반복) */
+.flip {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.flipGo {
+  animation: markDomino 1.05s cubic-bezier(0.5, 0, 0.3, 1.2) both;
+}
+/* 한 라운드 = 한 번 넘어갔다 복귀 (1.05s). 텀은 JS 라운드 사이 딜레이가 담당 */
+@keyframes markDomino {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(-62deg); }
+  75% { transform: rotateX(12deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+/* 모바일 — 레이지클럽 내비 로고 실측 51.7px */
+@media (max-width: 720px) {
+  .mark { --mark-h: 51.7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flipGo { animation: none; }
+}

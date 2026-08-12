@@ -17,12 +17,14 @@
   gap: 12px;
   margin: 0 0 18px;
 }
+/* 문장형 전환 (운영자 2026-08-12 "너무 강조할 필요 없어") — 배지 자간(0.22em)·괘선을
+   걷어내고 조용한 안내문으로. 색은 보조 텍스트 위계 유지 */
 .kickerText {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   color: #a08b70;
-  white-space: nowrap;
+  word-break: keep-all;
 }
 .kickerRule {
   display: inline-block;

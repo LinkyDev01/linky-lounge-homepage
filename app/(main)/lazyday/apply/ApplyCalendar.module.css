@@ -145,7 +145,8 @@
 
 /* 시트 아래 — 시간 요약(중앙) + 각주(좌) */
 .calTimeFoot {
-  text-align: center;
+  /* 좌측정렬 — 랜딩 캘린더 3벌 동기화 (운영자 2026-08-12) */
+  text-align: left;
   font-size: 11px;
   color: #8a6a50;
   font-variant-numeric: tabular-nums;

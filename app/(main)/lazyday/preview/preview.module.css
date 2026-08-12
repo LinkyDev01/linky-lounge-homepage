@@ -58,12 +58,13 @@
   gap: 14px;
   margin: 0 0 18px;
 }
+/* 문장형 전환 (운영자 2026-08-12) — 실사이트 HeroSummary.module.css 와 쌍 동기화 */
 .kickerText {
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   color: #8a7660;
-  white-space: nowrap;
+  word-break: keep-all;
 }
 .kickerRule {
   display: inline-block;

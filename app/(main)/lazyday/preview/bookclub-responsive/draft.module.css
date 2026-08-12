@@ -33,7 +33,13 @@
 .page[data-intro="hold"] .footer,
 .page[data-intro="hold"] [data-lz-chrome] {
   opacity: 0;
+  transform: translateY(10px);
   pointer-events: none;
+}
+.header,
+.footer,
+.page [data-lz-chrome] {
+  transition: opacity 0.4s ease-out, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .introMask {
   position: fixed;
@@ -42,7 +48,7 @@
   z-index: 200;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.45s ease;
+  transition: opacity 0.6s ease;
 }
 .page[data-intro="hold"] .introMask {
   opacity: 1;
@@ -52,16 +58,16 @@
   position: relative;
   z-index: 201;
 }
-.header,
-.footer,
-.page [data-lz-chrome] {
-  transition: opacity 0.45s ease;
-}
 @media (prefers-reduced-motion: reduce) {
   .header,
   .footer,
   .page [data-lz-chrome] {
     transition: none;
+  }
+  .page[data-intro="hold"] .header,
+  .page[data-intro="hold"] .footer,
+  .page[data-intro="hold"] [data-lz-chrome] {
+    transform: none;
   }
 }
 

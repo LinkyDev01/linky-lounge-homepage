@@ -63,13 +63,15 @@ const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
 const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 붙인다
 
-/** 내비·푸터·스티키 CTA 가 나타나는 시각 = **텍스트가 움직이기 시작하는 바로 그 순간**.
- *  처음엔 +RAMP_MS(0.3s) 뒤였는데, 그 짧은 정적이 "종료 후 텀이 길고 갑자기 뜬다"로
- *  읽혔다 (운영자 2026-08-12: "텍스트 이동 시작하는 동시에 그것들이 노출되도록").
- *  움직임이 시작될 때 함께 올라오면 두 모션이 한 동작으로 이어진다.
+/** 내비·푸터·스티키 CTA 가 나타나는 시각.
+ *  변천: FLOW_START+0.3s → FLOW_START → **FLOW_START-0.5s** (운영자 2026-08-12
+ *  "애니메이션 끝나자마자 노출이잖아 노출시점 0.5초 더 당겨").
+ *  이제 **그어지는 도중에** 크롬이 올라온다 — 끝나기를 기다렸다 뜨는 게 아니라
+ *  마지막 획과 겹치며 올라오므로 '끝 → 그다음 사건' 이라는 단절이 사라진다.
+ *  ⚠ 0 이하로 내려가지 않게 max 로 막는다 (DRAW_MS 를 줄이는 날을 대비)
  *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다 — 두 곳에 숫자를
  *  따로 두면 히어로 타이밍을 고칠 때마다 어긋난다 */
-export const CHROME_REVEAL_MS = FLOW_START_MS
+export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 500)
 
 export function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)

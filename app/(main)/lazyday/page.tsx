@@ -17,10 +17,26 @@ import { ClosingCtaSection } from "./ClosingCtaSection"
 import { NextSeasonNotify } from "./NextSeasonNotify"
 import { BrandCloseSection } from "./BrandCloseSection"
 import { SEASON } from "./season-config"
+import { JsonLd } from "./JsonLd"
 
+// SEO 개편 (2026-08-12, 대화상점 패턴): title 카테고리 서술형 + description 정보형 +
+// keywords(네이버 계열 참고용). OG는 철학 문구 유지 — 공유 미리보기는 브랜드 톤,
+// 검색 스니펫은 title/description이 담당.
 export const metadata: Metadata = {
-  title: "레이지데이 북클럽",
-  description: "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.",
+  title: "레이지데이 북클럽 — 서울 사당 시즌제 독서모임",
+  description:
+    "서울 사당역 링키라운지에서 열리는 시즌제 독서모임, 레이지데이 북클럽. 한 시즌 동안 네 권의 책을 함께 읽고 낮의 대화로 깊게 이야기합니다.",
+  keywords: [
+    "독서모임",
+    "북클럽",
+    "책모임",
+    "서울 독서모임",
+    "사당 독서모임",
+    "동작구 독서모임",
+    "직장인 독서모임",
+    "소규모 독서모임",
+    "레이지데이 북클럽",
+  ],
   // 정본 URL 고정 — lazyday-bookclub.com/lazyday(직접 접근분)와 중복 신호를 / 로 통합
   alternates: {
     canonical: "https://www.lazyday-bookclub.com/",
@@ -37,6 +53,7 @@ export default function StudyForeignPage() {
   return (
     <>
       <HashScrollOnLoad />
+      <JsonLd brand="bookclub" />
       <NavBar />
       <main className={styles.container} data-track-section="bookclub_home">
         {/* '복잡함 속에서 찾는 단순함'(AboutSection)은 보류 — 컴포넌트는 보존 (운영자 결정 2026-07-03) */}

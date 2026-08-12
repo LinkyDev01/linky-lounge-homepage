@@ -19,7 +19,13 @@ import c from "./season-count-cta.module.css"
  * 시안 ⑥ 타이밍 원본: 300ms 에 2, 480ms 에 3 (translateY 6→0 · opacity .4→1 · 160ms
  * · out(2)), 660ms 에 4 (scale 1.18→1 · 460ms · spring 240/12).
  * 다만 이 자리는 첫 화면이 아니라 **끝까지 내려야 보이는 곳**이라, 마운트가 아니라
- * 화면에 들어올 때 한 번 재생한다 (진입 1회 = 모션 원칙 M2).
+ * 화면에 들어올 때 재생한다.
+ *
+ * 2026-08-12 (운영자 "1 2 3 4 넘어가는 애니메이션 누락되었어 다시 반영해"):
+ * 종전 '평생 1회'(done 플래그)는 60% 보이는 순간 — 대개 아직 스크롤 중일 때 —
+ * 발사돼 ~1.1초 만에 끝나, 사용자가 도착했을 땐 이미 4 로 앉아 있어 없는 것처럼
+ * 보였다. → **화면에 들어올 때마다 재생**으로 변경 (나갔다 들어오면 다시 1부터).
+ * 재생 중 재진입은 무시, 나가면 타이머를 걷어 어중간한 숫자로 멈추지 않게 한다.
  */
 
 const TARGET = Number((SEASON.name.match(/\d+/) ?? ["4"])[0]) // "4기" → 4
@@ -43,47 +49,60 @@ export function SeasonCountCta() {
       el.textContent = String(TARGET)
       return
     }
-    let done = false
-    const timers: ReturnType<typeof setTimeout>[] = []
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (done || !entries.some((e) => e.isIntersecting)) return
-        done = true
-        io.disconnect()
-        el.textContent = "1"
-        // 1 → 2 → 3 (짧게 튀어 오르며 교체)
-        for (let n = 2; n < TARGET; n++) {
-          timers.push(
-            setTimeout(
-              () => {
-                el.textContent = String(n)
-                animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: 160, ease: "out(2)" })
-              },
-              300 + (n - 2) * 180,
-            ),
-          )
-        }
-        // 마지막 기수 — 스프링으로 한 번 크게 앉는다
+    let playing = false
+    let timers: ReturnType<typeof setTimeout>[] = []
+    const stop = () => {
+      timers.forEach(clearTimeout)
+      timers = []
+      playing = false
+    }
+    const play = () => {
+      playing = true
+      el.textContent = "1"
+      // 1 → 2 → 3 (짧게 튀어 오르며 교체)
+      for (let n = 2; n < TARGET; n++) {
         timers.push(
           setTimeout(
             () => {
-              el.textContent = String(TARGET)
-              animate(el, {
-                scale: [1.18, 1],
-                duration: 460,
-                ease: createSpring({ stiffness: 240, damping: 12 }),
-              })
+              el.textContent = String(n)
+              animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: 160, ease: "out(2)" })
             },
-            300 + (TARGET - 2) * 180,
+            300 + (n - 2) * 180,
           ),
         )
+      }
+      // 마지막 기수 — 스프링으로 한 번 크게 앉는다
+      timers.push(
+        setTimeout(
+          () => {
+            el.textContent = String(TARGET)
+            animate(el, {
+              scale: [1.18, 1],
+              duration: 460,
+              ease: createSpring({ stiffness: 240, damping: 12 }),
+            })
+            playing = false
+          },
+          300 + (TARGET - 2) * 180,
+        ),
+      )
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.some((e) => e.isIntersecting)
+        if (visible && !playing) play()
+        if (!visible) {
+          // 나가면 정리 — 어중간한 숫자로 멈추지 않게 최종값으로
+          stop()
+          el.textContent = String(TARGET)
+        }
       },
       { threshold: 0.6 },
     )
     io.observe(root)
     return () => {
       io.disconnect()
-      timers.forEach(clearTimeout)
+      stop()
     }
   }, [counting])
 

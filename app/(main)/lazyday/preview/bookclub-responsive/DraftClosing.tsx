@@ -43,47 +43,61 @@ export function DraftSeasonCountCta() {
       el.textContent = String(TARGET)
       return
     }
-    let done = false
-    const timers: ReturnType<typeof setTimeout>[] = []
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (done || !entries.some((e) => e.isIntersecting)) return
-        done = true
-        io.disconnect()
-        el.textContent = "1"
-        // 1 → 2 → 3 (짧게 튀어 오르며 교체)
-        for (let n = 2; n < TARGET; n++) {
-          timers.push(
-            setTimeout(
-              () => {
-                el.textContent = String(n)
-                animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: 160, ease: "out(2)" })
-              },
-              300 + (n - 2) * 180,
-            ),
-          )
-        }
-        // 마지막 기수 — 스프링으로 한 번 크게 앉는다
+    // 화면에 들어올 때마다 재생 — 실 SeasonCountCta 와 같은 값 (쌍 동기화 2026-08-12,
+    // 운영자 "1 2 3 4 넘어가는 애니메이션 누락되었어": 평생 1회는 스크롤 중에 발사돼 놓친다)
+    let playing = false
+    let timers: ReturnType<typeof setTimeout>[] = []
+    const stop = () => {
+      timers.forEach(clearTimeout)
+      timers = []
+      playing = false
+    }
+    const play = () => {
+      playing = true
+      el.textContent = "1"
+      // 1 → 2 → 3 (짧게 튀어 오르며 교체)
+      for (let n = 2; n < TARGET; n++) {
         timers.push(
           setTimeout(
             () => {
-              el.textContent = String(TARGET)
-              animate(el, {
-                scale: [1.18, 1],
-                duration: 460,
-                ease: createSpring({ stiffness: 240, damping: 12 }),
-              })
+              el.textContent = String(n)
+              animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: 160, ease: "out(2)" })
             },
-            300 + (TARGET - 2) * 180,
+            300 + (n - 2) * 180,
           ),
         )
+      }
+      // 마지막 기수 — 스프링으로 한 번 크게 앉는다
+      timers.push(
+        setTimeout(
+          () => {
+            el.textContent = String(TARGET)
+            animate(el, {
+              scale: [1.18, 1],
+              duration: 460,
+              ease: createSpring({ stiffness: 240, damping: 12 }),
+            })
+            playing = false
+          },
+          300 + (TARGET - 2) * 180,
+        ),
+      )
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.some((e) => e.isIntersecting)
+        if (visible && !playing) play()
+        if (!visible) {
+          stop()
+          el.textContent = String(TARGET)
+        }
       },
       { threshold: 0.6 },
     )
     io.observe(root)
     return () => {
       io.disconnect()
-      timers.forEach(clearTimeout)
+      stop()
     }
   }, [counting])
 

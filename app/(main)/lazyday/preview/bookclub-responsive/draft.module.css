@@ -162,9 +162,8 @@
 .footerLogo {
   grid-column: 1 / 2;
   position: absolute;
-  /* 로고 위 끝선을 문구 첫 줄 위 끝선에 맞춘다 (운영자 2026-08-12
-     "텍스트 위랑 끝선 그리드 맞춰" — 구 11px 은 5px 아래로 어긋나 있었다) */
-  top: 6px;
+  /* 로고 위 끝선을 문구 첫 줄 **글자 윗선**에 맞춘다 (실사이트 landing-shell 과 동일 값) */
+  top: 23px;
   margin: 0;
 }
 /* 새 마크는 세로가 긴 박스형(904×1181)이라 폭을 줄여 잡는다 (구 정사각 66/88px) */
@@ -310,6 +309,8 @@
   }
   .footerLogo {
     grid-column: 1 / 2;
+    /* 데스크톱은 .footerDesc padding-top 이 0 이라 텍스트가 3px 만 내려가 있다 */
+    top: 9px;
   }
   .footerLogo img {
     width: 64px;

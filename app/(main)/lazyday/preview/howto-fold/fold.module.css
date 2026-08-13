@@ -1,0 +1,55 @@
+/* ═══════════════════════════════════════════════════════════
+   시안 A 배치 보조 — 모임소개 밴드 흡수 + 배경 재배정 (2026-08-13)
+   실사이트 섹션 CSS 는 건드리지 않고, 프리뷰에서만 감싸서 덮는다.
+   (자손 선택자 `.bandB > section` = 명시도 (0,1,1) 이 섹션 자신의
+    `.section` (0,1,0) 을 이기므로 !important 없이 적용된다)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── ① 모임소개 밴드: 섹션 + 진행순서 요약을 한 배경(A)으로 묶는다 ── */
+.featureBand {
+  background: #f7f3ee;
+}
+
+/* 요약 블록이 이어 붙으므로 섹션 자체의 아래 여백은 줄인다 (원본 72px) */
+.featureBand > section {
+  padding-bottom: 0;
+}
+
+/* 요약 블록 — 섹션과 같은 좌우 거터를 쓰고, 밴드의 아래 숨구멍만 담당 */
+.briefWrap {
+  padding: 0 var(--lz-gutter, 24px) 56px;
+}
+
+@media (min-width: 768px) {
+  .briefWrap {
+    padding-left: var(--lz-gutter-lg, 56px);
+    padding-right: var(--lz-gutter-lg, 56px);
+  }
+}
+
+/* 데스크톱 — 모임소개 2×2 그리드 (실사이트 landing-shell 확정값 그대로).
+   초안 셸은 이 변수를 `.qtZone[data-variant="grid"]` 에 걸어두는데 이 시안은
+   그 존을 쓰지 않으므로, 밴드에서 직접 준다. 값을 안 주면 챕터가 세로 스택으로
+   떨어져 데스크톱 모임소개가 1213px → 2376px 로 부푼다 (실측). */
+@media (min-width: 721px) {
+  .featureBand {
+    --lz-chapter: 460px;
+    --lz-qt-display: grid;
+    --lz-qt-cols: 2;
+    --lz-qt-divider: none;
+    --lz-qt-row-gap: 96px;
+  }
+  .briefWrap {
+    padding-bottom: 64px;
+  }
+}
+
+/* ── ③ 배경 재배정 (프리뷰 한정) ────────────────────────────── */
+.bandB > section {
+  background-color: #f0e9e0;
+  background: #f0e9e0;
+}
+.bandA > section {
+  background-color: #f7f3ee;
+  background: #f7f3ee;
+}

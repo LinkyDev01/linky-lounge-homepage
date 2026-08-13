@@ -23,7 +23,9 @@ import s from "./draft.module.css"
  * 내비 항목(랜딩 섹션 앵커 5개 — NavBar.tsx 와 동일 구성·라벨).
  */
 
-const NAV_ITEMS = [
+export type NavItem = { id: string; label: string }
+
+const NAV_ITEMS: NavItem[] = [
   { id: "book", label: "선정도서" },
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행방식" },
@@ -31,8 +33,10 @@ const NAV_ITEMS = [
   { id: "reviews", label: "후기·FAQ" },
 ]
 
-function useActiveSection() {
-  const [activeId, setActiveId] = useState(NAV_ITEMS[0].id)
+// 시안별로 내비 구성을 갈아끼울 수 있게 주입 가능 (기본값은 현행 5탭 — 기존 호출부 무영향).
+// preview/howto-fold 가 '진행방식'을 뺀 4탭으로 쓴다 (2026-08-13)
+function useActiveSection(items: NavItem[]) {
+  const [activeId, setActiveId] = useState(items[0].id)
   useEffect(() => {
     // 실 NavBar 의 offsetTop 방식(컨테이너 기준이라 어긋남) 대신 뷰포트 기준으로.
     // 헤더 실높이를 CSS 변수에서 읽어 브레이크포인트마다 달라지는 값을 그대로 쓴다.
@@ -40,8 +44,8 @@ function useActiveSection() {
       const navH = parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue("--draft-nav-h") || "0",
       ) || 64
-      let current = NAV_ITEMS[0].id
-      for (const { id } of NAV_ITEMS) {
+      let current = items[0].id
+      for (const { id } of items) {
         const el = document.getElementById(id)
         if (el && el.getBoundingClientRect().top - navH - 8 <= 0) current = id
       }
@@ -54,7 +58,7 @@ function useActiveSection() {
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("resize", onScroll)
     }
-  }, [])
+  }, [items])
   return activeId
 }
 
@@ -76,8 +80,8 @@ function KakaoIcon() {
   )
 }
 
-export function DraftShell({ children }: { children: React.ReactNode }) {
-  const activeId = useActiveSection()
+export function DraftShell({ children, navItems = NAV_ITEMS }: { children: React.ReactNode; navItems?: NavItem[] }) {
+  const activeId = useActiveSection(navItems)
   // 실 LandingShell 과 같은 진입 홀드 (TSX 쌍 동기화 — 2026-08-12)
   const { chrome, cta } = useChromeIntro()
 
@@ -101,7 +105,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
         </LazydayLink>
 
         <nav className={s.navAll} aria-label="섹션">
-          {NAV_ITEMS.map((it) => (
+          {navItems.map((it) => (
             <a
               key={it.id}
               href={`#${it.id}`}

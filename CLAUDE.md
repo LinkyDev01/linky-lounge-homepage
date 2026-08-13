@@ -102,13 +102,15 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 
 ## 6. GAS (Google Apps Script) 계약
 
-- `gas/linkyincdev-main.gs` = **실배포 미러(문서)**. 레포 수정 ≠ 실반영. 실반영은 운영자가 GAS 편집기에 붙여넣고 **"배포 관리 → 기존 배포 편집 → 새 버전"** (⚠️ '새 배포' 아님 — URL이 바뀌면 프론트가 끊긴다).
-- ⚠️ **실배포본이 레포 미러보다 최신일 수 있다** — 전체 교체를 안내하기 전에 운영자에게 배포본 원문을 받아 대조하거나, 바뀐 함수(예: handleApply)만 교체하도록 안내한다.
+- **자동 배포 파이프라인 (2026-08-13 신설 — 절차서 `docs/gas-automation.md`)**: `scripts/gas-sync.mjs` + `.github/workflows/gas-deploy.yml` 이 Apps Script REST API 로 소스 반영·새 버전·**기존 배포 갱신**까지 한다. 설정(GitHub Secrets `GAS_SCRIPT_ID`/`GAS_REFRESH_TOKEN`/`GAS_WEBAPP_URL`)이 끝나면 **`gas/` 변경을 main 에 병합하는 것만으로 실반영**된다. 매핑은 `gas/project.json`, 매니페스트 미러는 `gas/appsscript.json`.
+  - **설정 전에는 종전 수작업** — 운영자가 편집기에 붙여넣고 **"배포 관리 → 기존 배포 편집 → 새 버전"** (⚠️ '새 배포' 아님 — URL이 바뀌면 프론트가 끊긴다). 스크립트도 `deployments.create` 를 아예 구현하지 않아 같은 규율을 강제한다.
+  - 대조·회수는 언제든 `node scripts/gas-sync.mjs check` / `pull`. Claude 는 Google 자격증명을 갖지 않는다 (Secrets 는 Actions 에만).
+- ⚠️ **실배포본이 레포 미러보다 최신일 수 있다** — 이제 `check` 로 실측한다(주 1회 자동 점검도 있음). push 전 기준선 검사가 걸리면 **덮어쓰지 말고 `pull` 로 회수해 커밋**하는 게 먼저다. API 를 못 쓰는 상황이면 종전대로 운영자에게 배포본 원문을 받아 대조하거나, 바뀐 함수(예: handleApply)만 교체하도록 안내한다. (2026-08-13 실측 드리프트: 주석 2군데뿐, 기능 동일)
 - 비밀값(ADMIN_TOKEN, SOLAPI_KEY/SEC)은 코드가 아닌 **스크립트 속성** — 레포 사본에 절대 하드코딩하지 않는다. (2026-07-13: `interview-booking.gs`의 구식 평문 키도 속성 방식으로 정리·솔라피 키 재발급 완료 — 새 코드에서 평문 패턴 금지)
 - 신청 payload 계약 (`handleApply`): name/gender/age/phone/interviewType/greeting/instagram/referral/marketingConsent/**consentAt**(항상 — 필수 개인정보 동의 시각)/**preferredDays**(현재 `SHOW_PREFERRED_DAYS=false`로 빈 값)/**unavailableDays**('참여 불가 요일' 복수 선택 — 슬롯은 season-config `unavailableDaySlots`, 미선택 시 `"없음"`, 시트 헤더 '불가 요일'). **동의 분리(2026-07-27)**: 폼은 개인정보 수집·이용(필수, `privacyConsent`는 프론트 검증만 — payload 미전송)과 마케팅 수신(선택) 2박스. `marketingConsent`("동의"/"미동의")는 이제 **선택 마케팅 수신 동의**를 뜻함 — 시트 '마케팅 동의' 컬럼 재사용, GAS 무변경. 선택 동의를 필수화하거나 운영 연락(인터뷰 결과 등)을 마케팅 동의 조건으로 거는 것 금지(개인정보 보호법 제22조). 시트는 **헤더 이름 매핑** — 열 순서 무관, 새 필드는 `ensureColumn`으로 자동 생성. 헤더는 한국어 관례 ('희망 요일', '동의 시각' 패턴).
 - 프론트 화면 변경은 GAS와 무관. GAS를 "건드려야 하나?"는 payload 계약이 바뀌었는지로 판단.
 - **INTERVIEW_GAS_URL은 통합 스크립트(`gas/linkyincdev-main.gs`, 시트 바인딩) 배포를 가리킨다** — apply·oneday·notify·인터뷰·admin_block 전 계약이 통합본 하나에 있음. `gas/interview-booking.gs`는 레거시 미러(참고용) — 여기 고치면 실배포와 무관 (2026-07-29 오진 사례). admin 차단 관리가 "연동 안 됨"으로 보이면 **GAS 스크립트 속성 ADMIN_TOKEN ↔ Vercel ADMIN_SECRET 값 일치**부터 확인 (불일치 시 doGet이 id·title 없는 공개 응답으로 조용히 강등).
-- **폼 필드 추가 표준 절차**: ① 실 `apply/page.tsx` ② `preview/apply/page.tsx` (TSX 쌍 동기화) ③ `gas/linkyincdev-main.gs` handleApply: `ensureColumn('한국어 헤더')` + row 기록 + 관리자 메일 본문 ④ 시트 수동 컬럼 추가 불필요함을 안내 ⑤ 운영자에게 handleApply 교체 + '배포 관리 → 새 버전' 안내. **⚠️ 순서: GAS 새 버전 완료 확인 후에 프론트 main 병합** — 뒤집히면 그 사이 제출분의 새 필드 값이 조용히 유실된다.
+- **폼 필드 추가 표준 절차**: ① 실 `apply/page.tsx` ② `preview/apply/page.tsx` (TSX 쌍 동기화) ③ `gas/linkyincdev-main.gs` handleApply: `ensureColumn('한국어 헤더')` + row 기록 + 관리자 메일 본문 ④ 시트 수동 컬럼 추가 불필요함을 안내 ⑤ 배포 — 자동 파이프라인 설정 후에는 `gas/` 변경을 병합하면 끝(Actions 결과 확인), 설정 전이면 운영자에게 handleApply 교체 + '배포 관리 → 새 버전' 안내. **⚠️ 순서: GAS 새 버전 완료 확인 후에 프론트 main 병합** — 뒤집히면 그 사이 제출분의 새 필드 값이 조용히 유실된다. 계약 변경이 크면 `gas/` 만 먼저 병합해 워크플로 성공을 확인한 뒤 프론트를 병합한다.
 
 ## 7. 운영자 커뮤니케이션 규약
 

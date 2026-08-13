@@ -22,8 +22,10 @@ const BRANDS = {
     alternateName: ["lazyday bookclub", "레이지데이"],
     url: "https://www.lazyday-bookclub.com",
     logo: "https://www.lazyday-bookclub.com/linky-lounge/book-club/og-lazyday-heart-v5.png",
+    // 사실형 유지 자리 — 검색 스니펫(meta description)은 브랜드 한 줄로 갔고,
+    // 지역·주제 신호는 여기와 keywords 가 든다 (운영자 2026-08-12 문구 지정)
     description:
-      "서울 사당역 링키라운지에서 열리는 시즌제 독서모임. 한 시즌 동안 네 권의 책을 함께 읽고 낮의 대화로 깊게 이야기합니다.",
+      "고전과 철학을 다루는 서울 사당 독서모임. 한 시즌 동안 네 권의 책을 함께 읽고 낮의 대화로 깊게 이야기합니다.",
   },
   lazyclub: {
     name: "레이지클럽",

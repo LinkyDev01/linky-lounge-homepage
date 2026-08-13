@@ -28,9 +28,13 @@
 
 ### ② 리프레시 토큰 발급 (로컬 PC에서)
 ```bash
-node scripts/gas-sync.mjs auth
+node scripts/gas-sync.mjs auth --account linkyincdev@gmail.com
 ```
 브라우저가 열리는 PC에서 실행한다. 출력된 URL 을 소유 계정으로 승인하면 터미널에 리프레시 토큰이 찍힌다.
+
+- `--account` 는 계정 선택 화면을 미리 좁히는 힌트다. **스크립트 소유 계정이 아닌 계정으로 승인하면**
+  권한이 없어 나중에 404 로 실패하므로, 승인 화면의 계정을 반드시 눈으로 확인할 것.
+- "Google에서 확인하지 않은 앱" 경고는 정상 — clasp 의 클라이언트다. 고급 → 이동으로 진행한다.
 
 - 요청 권한은 **두 개뿐**이다 — `script.projects`(소스), `script.deployments`(배포).
   clasp 기본 로그인은 `cloud-platform` 까지 10종을 한꺼번에 받아 두는데, 토큰이 새면 피해가 그만큼 넓다.

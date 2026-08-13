@@ -575,6 +575,10 @@ function authUrl(challenge) {
     code_challenge: challenge,
     code_challenge_method: 'S256',
   })
+  // 스크립트 소유 계정이 아닌 계정으로 승인하면 권한이 없어 나중에 404 가 난다.
+  // --account 로 계정 선택 화면을 미리 좁힌다 (구글의 힌트라 강제는 아님)
+  const account = readOpt('--account')
+  if (account) p.set('login_hint', account)
   return `${AUTH_ENDPOINT}?${p}`
 }
 

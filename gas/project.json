@@ -1,0 +1,14 @@
+{
+  "$comment": [
+    "scripts/gas-sync.mjs 가 읽는 레포↔실배포 파일 매핑. (2026-08-13)",
+    "remote = Apps Script 편집기의 파일 이름 (확장자 없음), type = SERVER_JS | HTML | JSON,",
+    "local = 이 레포 gas/ 아래 경로.",
+    "⚠ Apps Script API 의 updateContent 는 파일 전체를 치환한다 —",
+    "  편집기에 파일을 새로 추가했다면 여기에도 반드시 추가해야 push 때 삭제되지 않는다.",
+    "⚠ 프로젝트 ID·배포 ID·토큰은 여기 두지 않는다 (이 레포는 공개) — 환경변수/GitHub Secrets."
+  ],
+  "files": [
+    { "remote": "appsscript", "type": "JSON", "local": "appsscript.json" },
+    { "remote": "Code", "type": "SERVER_JS", "local": "linkyincdev-main.gs" }
+  ]
+}

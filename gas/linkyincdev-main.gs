@@ -1,8 +1,15 @@
 // ============================================================
 // 레이지데이 북클럽 — 통합 접수 스크립트 (완성본)
 // ============================================================
-// 이 파일 하나가 기존 운영 스크립트(접수 doPost/doGet + 반배정)를
-// 전부 대체합니다. 시트에 바인딩된 Apps Script 프로젝트에 붙여넣으세요.
+// 이 파일 하나가 기존 운영 스크립트(접수 doPost/doGet + 반배정)를 전부 대체합니다.
+//
+// ⚠ 원본은 이 편집기가 아니라 GitHub 레포입니다 (2026-08-13~).
+//   LinkyDev01/linky-lounge-homepage 의 gas/linkyincdev-main.gs 를 고쳐 main 에
+//   병합하면 GitHub Actions 가 이 프로젝트에 반영하고 기존 배포를 새 버전으로 갱신합니다.
+//   여기서 직접 고쳐도 동작은 하지만, 다음 자동 배포 때 레포 내용으로 덮여 사라집니다.
+//   (안전장치가 있어 조용히 덮이지는 않습니다 — 어긋난 것을 감지하면 배포가 멈춥니다.
+//    급히 편집기에서 고쳤다면 반드시 알려 주세요. 레포로 회수한 뒤 다시 굴려야 합니다.)
+//   절차서: docs/gas-automation.md
 //
 // (2026-08-06 정리) 1회용·미사용 코드를 제거한 정리본.
 //   삭제: restoreMigratedOriginals / migratePhoneBookingRows / cleanupTestData
@@ -164,7 +171,10 @@ function doGet(e) {
     var cal = CalendarApp.getCalendarById(CALENDAR_ID);
     if (!cal) return jsonResponse({ success: true, bookedSlots: [] });
 
-    var isAdmin = e && e.parameter && e.parameter.adminToken === ADMIN_TOKEN;
+    // ⚠️ ADMIN_TOKEN 속성이 비어 있으면 `"" === ""`가 성립해, 누구든 `?adminToken=`(빈 값)만
+    //    붙이면 관리자 응답(이벤트 제목 = 신청자 이름·전화번호)을 받아갈 수 있었다.
+    //    웹앱은 '모든 사용자' 공개라 프론트의 쿠키 가드로는 이 경로를 막지 못한다. (2026-08-13)
+    var isAdmin = !!ADMIN_TOKEN && e && e.parameter && e.parameter.adminToken === ADMIN_TOKEN;
     var now = new Date();
     var limit = new Date(now.getTime() + (isAdmin ? 60 : 28) * 24 * 60 * 60 * 1000);
     var events = cal.getEvents(now, limit);
@@ -184,15 +194,20 @@ function doGet(e) {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    var type = data.type ? String(data.type) : "";
 
-    if (data.type === "written")         return handleWritten(data);
-    if (data.type === "phone_interview") return handlePhoneBooking(data);
-    if (data.type === "admin_block")     return handleAdminBlock(data);
-    if (data.type === "admin_delete")    return handleAdminDelete(data);
-    if (data.type === "notify")          return handleNotify(data);
-    if (data.type === "oneday")          return handleOnedayApply(data);
+    if (type === "written")         return handleWritten(data);
+    if (type === "phone_interview") return handlePhoneBooking(data);
+    if (type === "admin_block")     return handleAdminBlock(data);
+    if (type === "admin_delete")    return handleAdminDelete(data);
+    if (type === "notify")          return handleNotify(data);
+    if (type === "oneday")          return handleOnedayApply(data);
+    if (type === "" || type === "apply") return handleApply(data); // type 없음 = 신청 폼(기존 계약)
 
-    return handleApply(data); // type 없음 = 신청 폼
+    // ⚠️ 예전엔 모르는 type이 전부 handleApply로 흘러들어, 오타나 구버전 GAS가 모르는
+    //    새 type(예: 임시저장 apply_draft)이 신청현황에 엉뚱한 행을 쌓고 알림톡까지
+    //    오발송했다. 화이트리스트 밖은 명시적으로 거절한다. (2026-08-13)
+    return jsonResponse({ success: false, error: "지원하지 않는 요청 형식입니다: " + type });
   } catch (err) {
     return jsonResponse({ success: false, error: err.message });
   }
@@ -310,13 +325,29 @@ function handleOnedayApply(d) {
 //  두 컬럼이 없으면 맨 뒤에 자동 생성되므로 시트 수동 작업 불필요.
 // (2026-07-27) '불가 요일'(unavailableDays) 추가 — 참여 불가 요일 복수 선택,
 //  미선택 시 "없음"(모든 요일 가능). 희망 요일 문항은 꺼진 상태 유지(항상 빈 값).
+// handleApply가 기록하는 컬럼 전체. 하나라도 시트에 없으면 col[헤더]가 undefined가 되어
+// `row[undefined] = 값`으로 새어나가고, **행은 기록되는데 그 칸만 조용히 빈다** — 에러도 안 난다.
+// 그래서 쓰기 전에 전부 ensureColumn으로 보장한다. (2026-08-13)
+var APPLY_COLUMNS = [
+  "신청일자", "이름", "성별", "나이", "전화번호", "인터뷰 방식",
+  "한 줄 인사", "인스타그램", "추천인", "마케팅 동의",
+  "희망 요일", "동의 시각", "불가 요일",
+];
+
 function handleApply(d) {
+  if (!d.name || !d.phone) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
   var sheet = ss().getSheetByName(MAIN_SHEET);
+  if (!sheet) {
+    sheet = ss().insertSheet(MAIN_SHEET);
+    // 빈 시트는 getLastColumn()이 0이라 ensureColumn이 못 읽음 — 첫 헤더 셀 선시드
+    sheet.getRange(1, 1).setValue(APPLY_COLUMNS[0])
+      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
+  }
 
   // 새 컬럼 보장 후 인덱스 계산 (row 배열 길이에 새 컬럼이 포함되도록 순서 중요)
-  ensureColumn(sheet, "희망 요일");
-  ensureColumn(sheet, "동의 시각");
-  ensureColumn(sheet, "불가 요일");
+  APPLY_COLUMNS.forEach(function (h) { ensureColumn(sheet, h); });
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
 
@@ -479,7 +510,8 @@ function handleWritten(d) {
 
 // ── 관리자: 시간 차단 / 이벤트 삭제 ─────────────────────────
 function handleAdminBlock(d) {
-  if (d.adminToken !== ADMIN_TOKEN) return jsonResponse({ success: false, error: "Unauthorized" });
+  // ADMIN_TOKEN 미설정 시 빈 토큰으로 통과되던 것 차단 (2026-08-13, doGet과 동일 사유)
+  if (!ADMIN_TOKEN || d.adminToken !== ADMIN_TOKEN) return jsonResponse({ success: false, error: "Unauthorized" });
   var cal = CalendarApp.getCalendarById(CALENDAR_ID);
   if (!cal) return jsonResponse({ success: false, error: "캘린더 없음" });
   cal.createEvent("[BLOCK] " + (d.title || "차단"), new Date(d.start), new Date(d.end));
@@ -487,7 +519,8 @@ function handleAdminBlock(d) {
 }
 
 function handleAdminDelete(d) {
-  if (d.adminToken !== ADMIN_TOKEN) return jsonResponse({ success: false, error: "Unauthorized" });
+  // ADMIN_TOKEN 미설정 시 빈 토큰으로 통과되던 것 차단 (2026-08-13, doGet과 동일 사유)
+  if (!ADMIN_TOKEN || d.adminToken !== ADMIN_TOKEN) return jsonResponse({ success: false, error: "Unauthorized" });
   var cal = CalendarApp.getCalendarById(CALENDAR_ID);
   if (!cal) return jsonResponse({ success: false, error: "캘린더 없음" });
   var ev = cal.getEventById(d.id);

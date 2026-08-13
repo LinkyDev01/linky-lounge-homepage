@@ -24,7 +24,7 @@ import shell from "./landing-shell.module.css"
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
   description:
-    "서울 사당역 링키라운지에서 열리는 시즌제 독서모임, 레이지데이 북클럽. 한 시즌 동안 네 권의 책을 함께 읽고 낮의 대화로 깊게 이야기합니다.",
+    "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
   keywords: [
     "독서모임",
     "북클럽",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "사유의 불협화음이 본질을 관통하는 선율이 되는 순간을 믿습니다.",
+    description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
     images: ["/linky-lounge/book-club/og-lazyday-heart-v5.png"],
     type: "website",
   },

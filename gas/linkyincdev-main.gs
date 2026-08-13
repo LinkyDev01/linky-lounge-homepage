@@ -817,7 +817,15 @@ function enableDailyBackup() {
 // ═══════════════════════════════════════════════════════════════════
 
 var DIGEST_EMAIL = "contact@linkylounge.com"; // 운영자 수신 (ADMIN_EMAIL 과 별개 — 수신처가 다르다)
-var REMIND_AFTER_H = 24;                      // 신청 후 이 시간이 지나야 대상
+var REMIND_AFTER_H = 24;                      // 신청 후 이 시간이 지나야 대상 (하한)
+// 상한 — "하루 기준"이라는 건 하한만이 아니라 상한도 하루 남짓이라는 뜻이다
+// (운영자 2026-08-13 "하루 기준 아니야?"). 이게 없으면 지난 기수에 신청하고
+// 예약 안 한 사람이 전원 한꺼번에 잡혀, 몇 달 전 신청자에게 "금일은 아래 시간에
+// 가능합니다" 초안이 만들어진다.
+// ⚠ 24 가 아니라 48 인 이유: 점검 창이 15:30~22:00 이라 22:01 에 24시간을 넘긴
+//   사람은 다음날 15:30 에 처음 잡힌다(그때 경과 약 41.5시간). 24 로 조이면
+//   창 밖에서 24시간을 넘긴 사람이 영구히 누락된다.
+var REMIND_MAX_AGE_H = 48;
 var REMIND_DONE_HEADER = "리마인드 발송";       // 신청현황에 자동 생성되는 플래그 칼럼
 var REMIND_AGE_MIN = 20;                      // 나이 허용 범위 (운영자 확정: 20~55)
 var REMIND_AGE_MAX = 55;
@@ -872,6 +880,16 @@ function remindPhoneOk(raw) {
   if ("0123456789012345678".indexOf(tail) !== -1) return "연속 번호";
   if ("9876543210987654321".indexOf(tail) !== -1) return "연속 번호";
   return "";
+}
+
+// 경과 시간 창 — 신청 후 24~48시간 사이만 대상 ("하루 기준").
+// 루프 안 조건이 아니라 함수로 뺀 이유: 이 판정이 대상 선정의 핵심인데
+// 경계(23h/24h/48h/49h)를 눈으로만 확인하면 놓친다 — node 로 검증하려고.
+function remindAgeWindowOk(appliedMs, nowMs) {
+  var elapsed = nowMs - appliedMs;
+  if (elapsed < REMIND_AFTER_H * 3600000) return false;    // 아직 하루 안 됨
+  if (elapsed > REMIND_MAX_AGE_H * 3600000) return false;  // 하루 기준을 넘겨 지난 건
+  return true;
 }
 
 // 호칭 — 한글 3자면 성을 뗀다(안동민 → 동민). 2자·4자 이상·영문은 전체 그대로.
@@ -995,7 +1013,6 @@ function remindPendingScan(nowMs) {
   // '전화 인터뷰' 시트에 번호가 있으면 이미 예약한 사람 — 신청현황 역매핑이
   // 실패(다른 번호로 예약)했을 때의 위양성을 여기서 막는다
   var booked = presenceSet(PHONE_SHEET, "전화번호", 2);
-  var cutoff = nowMs - REMIND_AFTER_H * 3600 * 1000;
 
   var targets = [], excluded = [];
   for (var i = 1; i < data.length; i++) {
@@ -1006,7 +1023,9 @@ function remindPendingScan(nowMs) {
 
     var applied = r[col["신청일자"]];
     if (!(applied instanceof Date)) continue;      // 날짜값이 아니면 판정 불가 — 건너뜀
-    if (applied.getTime() > cutoff) continue;      // 아직 24시간 안 지남
+    // 24~48시간 창 밖은 건너뛴다. ⚠ 상한 초과분에는 플래그를 찍지 않는다 —
+    // 찍으면 나중에 기준을 넓혀도 되살릴 수 없다 (안 찍으면 기준을 바꾸는 즉시 살아난다)
+    if (!remindAgeWindowOk(applied.getTime(), nowMs)) continue;
 
     var phone = String(r[phoneIdx] || "");
     if (booked[normPhone(phone)]) continue;

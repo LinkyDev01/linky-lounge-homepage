@@ -17,7 +17,7 @@ import { JsonLd } from "@/app/(main)/lazyday/JsonLd"
 // canonical "/"는 metadataBase(호스트 분기) 기준 — lazy-club.com에선 자기 정본.
 export const metadata: Metadata = {
   description:
-    "책과 영화를 하루의 대화로 만나는 원데이 토크, 그리고 레이지데이의 제품들. 서울 사당 링키라운지에서 열립니다.",
+    "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.",
   keywords: ["원데이 토크", "북토크", "무비토크", "소셜클럽", "독서모임", "영화 모임", "사당 모임", "레이지클럽", "레이지데이"],
   alternates: { canonical: "/" },
 }

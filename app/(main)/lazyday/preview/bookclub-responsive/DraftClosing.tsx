@@ -20,9 +20,21 @@ import c from "./draft-closing.module.css"
  * · out(2)), 660ms 에 4 (scale 1.18→1 · 460ms · spring 240/12).
  * 다만 이 자리는 첫 화면이 아니라 **끝까지 내려야 보이는 곳**이라, 마운트가 아니라
  * 화면에 들어올 때 한 번 재생한다 (진입 1회 = 모션 원칙 M2).
+ *
+ * 2026-08-13 리타이밍 — 실 SeasonCountCta 와 같은 값 (쌍 동기화). 균일 180ms 간격을
+ * 등비수열로 바꿔 앞이 가장 느리고 뒤로 갈수록 빨라진다: 210 → 139 → 91ms.
+ * 총 1120ms → 780ms (−30.4%).
  */
 
 const TARGET = Number((SEASON.name.match(/\d+/) ?? ["4"])[0]) // "4기" → 4
+
+/** 간격이 매 단계 STEP_RATIO 배로 줄어든다 = 뒤로 갈수록 가속 */
+const STEP_HOLD = 210 // "1" → "2" 첫 간격 (가장 길다)
+const STEP_RATIO = 0.66 // 이후 간격 배율
+const SETTLE_MS = 340 // 마지막 기수 스프링
+const SWAP_MS = 120 // 중간 숫자 교체 모션
+/** k 번째 교체 시각 (k=1 → "2" 노출). 등비수열 부분합 */
+const stepAt = (k: number) => Math.round((STEP_HOLD * (1 - Math.pow(STEP_RATIO, k))) / (1 - STEP_RATIO))
 
 export function DraftSeasonCountCta() {
   const numRef = useRef<HTMLSpanElement>(null)
@@ -55,32 +67,26 @@ export function DraftSeasonCountCta() {
     const play = () => {
       playing = true
       el.textContent = "1"
-      // 1 → 2 → 3 (짧게 튀어 오르며 교체)
+      // 1 → 2 → 3 (짧게 튀어 오르며 교체 — 간격이 점점 좁아진다)
       for (let n = 2; n < TARGET; n++) {
         timers.push(
-          setTimeout(
-            () => {
-              el.textContent = String(n)
-              animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: 160, ease: "out(2)" })
-            },
-            300 + (n - 2) * 180,
-          ),
+          setTimeout(() => {
+            el.textContent = String(n)
+            animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: SWAP_MS, ease: "out(2)" })
+          }, stepAt(n - 1)),
         )
       }
       // 마지막 기수 — 스프링으로 한 번 크게 앉는다
       timers.push(
-        setTimeout(
-          () => {
-            el.textContent = String(TARGET)
-            animate(el, {
-              scale: [1.18, 1],
-              duration: 460,
-              ease: createSpring({ stiffness: 240, damping: 12 }),
-            })
-            playing = false
-          },
-          300 + (TARGET - 2) * 180,
-        ),
+        setTimeout(() => {
+          el.textContent = String(TARGET)
+          animate(el, {
+            scale: [1.18, 1],
+            duration: SETTLE_MS,
+            ease: createSpring({ stiffness: 240, damping: 12 }),
+          })
+          playing = false
+        }, stepAt(TARGET - 1)),
       )
     }
     const io = new IntersectionObserver(

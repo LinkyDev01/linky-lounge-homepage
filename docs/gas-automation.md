@@ -50,6 +50,11 @@ Settings → Secrets and variables → Actions → New repository secret
 | `GAS_REFRESH_TOKEN` | ②에서 받은 값 |
 | `GAS_WEBAPP_URL` | Vercel `INTERVIEW_GAS_URL` 과 같은 값. 배포 ID 추출 + 배포 후 스모크 테스트에 쓴다 |
 
+⚠️ **이 프로젝트에는 배포가 둘이다** (2026-08-13 실측). 짧은 ID 쪽은 Apps Script 가 자동으로 두는
+`@HEAD`(개발용)로 **공개 호출이 로그인 페이지로 튄다** — 여기에 배포하면 프론트가 죽는다.
+운영 배포는 **버전 번호가 붙은 긴 ID 쪽**(`status` 출력에서 `v24` 처럼 표시되는 것)이다.
+`GAS_WEBAPP_URL` 에는 반드시 그쪽 URL 을 넣고, `status` 의 `▶` 표시가 그 배포를 가리키는지 확인할 것.
+
 `GAS_CLIENT_ID`/`GAS_CLIENT_SECRET` 은 자체 GCP OAuth 클라이언트를 쓸 때만 추가한다(선택).
 기본값은 clasp 가 공개 배포물에 담아 둔 데스크톱 클라이언트다 — 데스크톱 클라이언트의 secret 은
 설계상 비밀이 아니고(RFC 8252), 이미 '게시됨' 상태라 **리프레시 토큰이 7일 만에 만료되지 않는다**

@@ -468,7 +468,20 @@ async function cmdDeploy() {
   const beforeUrl = before.entryPoints?.find((e) => e.entryPointType === 'WEB_APP')?.webApp?.url
   const beforeVersion = before.deploymentConfig?.versionNumber
 
-  await cmdPush()
+  const pushed = (await cmdPush())?.pushed
+
+  // 소스가 그대로면, 지금 **서비스 중인 버전**이 이미 그 내용인지 보고 같으면 배포를 생략한다.
+  // (워크플로는 scripts/·워크플로 파일 변경에도 도는데, 그건 GAS 내용과 무관하다 —
+  //  이 가드가 없으면 도구를 손볼 때마다 의미 없는 새 버전이 운영 배포에 얹힌다)
+  if (!pushed && !flags.dryRun && beforeVersion) {
+    const served = await api('GET', `/projects/${scriptId()}/content?versionNumber=${beforeVersion}`)
+    const config = loadConfig()
+    if (compare(served.files ?? [], buildLocal(config), config).same) {
+      log(`✔ 이미 v${beforeVersion} 로 최신 — 배포 생략`)
+      return
+    }
+    log(`ℹ 소스는 그대로지만 서비스 중인 v${beforeVersion} 가 뒤처져 있습니다 — 배포를 진행합니다`)
+  }
 
   const description = flags.message ?? `auto: ${gitDescribe()}`
 

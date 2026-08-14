@@ -66,12 +66,20 @@ export function HeroCheck() {
       setMarks([...log])
     }
     push("0.00초 — 포스터만 (내비·푸터·본문 가림)")
+    // ⚠ 중복 방지는 문자열 검색이 아니라 플래그로 — 첫 항목("…내비·푸터·본문 가림")에
+    //   같은 낱말이 들어 있어 includes 검사가 내비 노출 기록을 영영 막았다 (실측)
+    let navLogged = false
+    let ctaLogged = false
     const mo = new MutationObserver(() => {
-      const intro = root.getAttribute("data-intro")
-      const cta = root.getAttribute("data-cta")
       const at = ((performance.now() - t0) / 1000).toFixed(2)
-      if (intro === "show" && !log.some((l) => l.includes("내비·푸터"))) push(`${at}초 — 내비·푸터·본문 노출`)
-      if (cta === "show" && !log.some((l) => l.includes("스티키"))) push(`${at}초 — 스티키 CTA 노출`)
+      if (root.getAttribute("data-intro") === "show" && !navLogged) {
+        navLogged = true
+        push(`${at}초 — 내비·푸터·본문 노출`)
+      }
+      if (root.getAttribute("data-cta") === "show" && !ctaLogged) {
+        ctaLogged = true
+        push(`${at}초 — 스티키 CTA 노출`)
+      }
     })
     mo.observe(root, { attributes: true, attributeFilter: ["data-intro", "data-cta"] })
     return () => mo.disconnect()

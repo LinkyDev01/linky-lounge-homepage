@@ -130,7 +130,18 @@ export function HeroBreathingPoster() {
     const clock = chars[chars.length - 1]?.getAnimations?.()[0]
     const played = () => (typeof clock?.currentTime === "number" ? Math.max(0, clock.currentTime) : 0)
     const playedAtPause = played()
-    const resume = () => root.style.setProperty("--lz-play", "running")
+    const resume = () => {
+      root.style.setProperty("--lz-play", "running")
+      // 셸(내비·푸터) 시계 동기화 — 셸의 리빌 타이머는 마운트 기준 벽시계라, 서체
+      // 대기·이음매 튜닝으로 그어짐이 늦게 시작하면 **그어짐이 8% 인 채 내비가 뜬다**
+      // (엄격 검토에서 발견 — 콜드 폰트 실측). 실제 (재)시작 시각과 남은 시간을
+      // 알려 셸이 타이머를 다시 건다. 셸이 없는 화면(검수 단독 뷰 등)에선 무해.
+      window.dispatchEvent(
+        new CustomEvent("lz:hero-draw-start", {
+          detail: { revealInMs: Math.max(0, CHROME_REVEAL_MS - played()) },
+        }),
+      )
+    }
     root.style.setProperty("--lz-play", "paused")
     // ⚠ **정지에는 반드시 되풀이 못 할 안전핀이 붙어야 한다.** 아래 어느 단계에서 막히든
     //   `--lz-play` 가 paused 로 남으면 실 위 본문이 **영원히 안 보인다**(큰 글자만 뜬
@@ -171,18 +182,18 @@ export function HeroBreathingPoster() {
       }
     }
 
-    /** 본문 한 벌이 실을 **정확히 한 바퀴** 채우도록 글자 크기를 미세 보정한다.
-     *  서체 버전이 다르거나 끝내 폴백으로 남더라도 전문이 잘리거나 남지 않는다.
-     *  목표 길이는 L − SEAM_SLACK — 이음매에 여유를 남겨야 글자가 깜빡이지 않는다
-     *  (구멍 대신 미세 중첩. poster-thread.ts 주석 참조). */
+    /** 폴백 서체 **구제 전용** — 본문이 경로에서 1% 넘게 어긋난 비상시에만 글자
+     *  크기를 보정해 전문이 잘리지 않게 한다. 1% 안쪽의 미세 정합은 tuneSeam(경로
+     *  길이)의 몫 — 크롬의 font-size 양자화(1/64px = 474자 기준 7.4u) 때문에 크기로는
+     *  미세 조정이 원리적으로 불가능하다.
+     *  ⚠ 목표 길이는 반드시 **살아 있는 경로 길이**로 잰다. 마운트 시점의 L 을 쓰면
+     *    tuneSeam 이 경로를 조정한 **뒤에** 이 함수가 "1% 초과"로 오판해 글자 크기를
+     *    되돌리고, 방금 맞춘 이음매를 파괴한다 (엄격 검토에서 발견 — ±0.02em 엔진
+     *    시뮬레이션이 이 경로로 δ ±50u 를 만들었다). */
     const fitToPath = (el: SVGTextElement, unitCount: number) => {
       const w = unitWidth(unitCount)
       if (!(w > 0)) return
-      const goal = L - SEAM_MARGIN
-      // ⚠ **제 서체로 잘 앉아 있으면 손대지 않는다.** 크롬의 font-size 양자화(1/64px =
-      //   474자 기준 7.4u) 때문에 미세 보정은 무효이거나 되레 이음매를 7.4u 어긋나게
-      //   한다 — 경로 길이 쪽이 이미 P 에 맞춰져 있으므로 그대로 두는 게 정답이다.
-      //   1% 넘게 어긋난 때(= 폴백 서체가 남은 비상시)만 크기로 구제한다.
+      const goal = pathEl0.getTotalLength() - SEAM_MARGIN
       if (Math.abs(w - goal) / goal < 0.01) return
       const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
       const size = `${((base * goal) / w).toFixed(4)}px`
@@ -247,7 +258,10 @@ export function HeroBreathingPoster() {
         return (lo + hi) / 2
       }
 
-      const P = seam.getComputedTextLength() / 2
+      // ⚠ 웹킷은 `<textPath>` 를 품은 `<text>` 의 폭을 0 으로 돌려준다 — seam 이 정확히
+      //   그 구조라, textPath 자체로 한 번 더 재야 iOS·사파리에서 튜닝이 돌아간다
+      //   (엄격 검토에서 발견: 이 폴백이 없으면 튜닝이 가장 필요한 엔진에서 시작도 못 한다)
+      const P = (seam.getComputedTextLength() || stp.getComputedTextLength()) / 2
       if (!(P > 0)) return
       // 한 번이면 이론상 끝나지만, 이분 탐색 정밀도(0.003u)와 경로 스케일의 비선형성이
       // 0.02u 쯤 잔차를 남긴다 — 그만큼도 위상의 0.3% 에서 글자 하나를 흔든다. 2회.
@@ -266,30 +280,35 @@ export function HeroBreathingPoster() {
 
     fontSettled().then(async () => {
       if (cancelled) return
-      // ⚠ **이음매 보정은 그어짐을 재개하기 전에 끝낸다.** 경로 `d` 를 다시 쓰면
-      //   textPath 전체가 재배치돼 한 프레임이 0.2~0.4초까지 늘어난다(실측). 흐름
-      //   중이나 그어짐 중에 하면 그 순간 툭 끊겨 보이지만, 아직 정지 상태라
-      //   화면에서는 아무것도 움직이지 않아 티가 나지 않는다 — 진입 시작만
-      //   그만큼 늦어질 뿐이다. (안전핀 3초가 이 대기의 상한을 겸한다)
-      await tuneSeam()
-      if (cancelled) return
-      // ⚠ **무엇보다 먼저 재개한다.** 아래 어느 계산이 실패해 빠져나가더라도 본문은
-      //   보여야 한다 — 예전엔 폭 측정이 0 인 브라우저에서 여기서 return 해 버려
-      //   실이 영영 정지 상태로 남았다 (운영자 "애니메이션이 안 보이는데?").
-      clearTimeout(failsafe)
-      resume()
       const tp = tp0
       const textEl = textEl0
-      fitToPath(textEl, 1)
-      // 크기를 맞췄으므로 한 벌 = L − SEAM_SLACK 이다. 폭을 못 재는 브라우저에선
-      // 이 설계값을 그대로 쓴다(측정 불가 = 보정도 없었다는 뜻이라 오차는 서체 차이뿐)
-      const P0 = unitWidth(1) || L - SEAM_MARGIN
+      // 보정 2단 — 둘 다 **재개 전 정지 상태**에서 끝낸다. 순서가 규율이다:
+      //   ① fitToPath(크기) = 거친 손잡이. 폴백 서체(38% 이탈)를 1% 안쪽으로 구제.
+      //   ② tuneSeam(경로) = 고운 손잡이. 최종 서체·크기의 실제 피치에 δ = 0 으로 정합.
+      //   ①이 ②보다 뒤에 오면 방금 맞춘 이음매를 크기 변경이 도로 부순다 (엄격 검토).
+      //   경로 `d` 재작성은 한 프레임을 0.2초까지 늘리므로(실측) 아무것도 안 움직이는
+      //   지금 치러야 티가 안 난다. 실패해도 본문은 보여야 하니 try 로 감싼다 —
+      //   재개는 아래에서 무조건 실행되고, 여기가 멈춰도 3초 안전핀이 있다.
+      try {
+        fitToPath(textEl, 1)
+        await tuneSeam()
+      } catch {
+        /* 보정 실패 = 이음매가 미세하게 어긋날 뿐 — 본문 노출이 우선이다 */
+      }
+      if (cancelled) return
+      clearTimeout(failsafe)
+      resume()
+      // 폭을 못 재는 브라우저에선 설계값(경로 − 여백)을 그대로 쓴다. ⚠ 경로 길이는
+      // tuneSeam 이 방금 바꿨을 수 있다 — 마운트 때의 L 이 아니라 **지금** 값으로.
+      const Lnow = pathEl0.getTotalLength()
+      const P0 = unitWidth(1) || Lnow - SEAM_MARGIN
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
       // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
-      const K = Math.max(2, Math.ceil((P0 + L) / P0) + 1)
-      // 남은 진입 시간 = 전체 − (정지 시점까지 재생된 양). 정지 중에는 시계가 멈추므로
-      // 재개 직후의 played() 도 같은 값이다 — 어느 쪽으로 읽어도 어긋나지 않는다.
-      const wait = Math.max(0, FLOW_START_MS - Math.min(playedAtPause, FLOW_START_MS))
+      const K = Math.max(2, Math.ceil((P0 + Lnow) / P0) + 1)
+      // 남은 진입 시간 = 전체 − 이미 재생된 양. ⚠ 마운트 때 잰 playedAtPause 가 아니라
+      // **지금** 읽는다 — 백그라운드 탭에서는 rAF 가 멈춰 tuneSeam 이 안전핀(3초) 뒤에야
+      // 풀리는데, 그 사이 그어짐은 이미 돌았으므로 옛 값을 쓰면 흐름이 2.4초 늦는다.
+      const wait = Math.max(0, FLOW_START_MS - Math.min(played() || playedAtPause, FLOW_START_MS))
       timer = setTimeout(() => {
         if (cancelled) return
         // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
@@ -331,8 +350,18 @@ export function HeroBreathingPoster() {
           repeatCount: "indefinite",
           begin: `${rampId}.end`,
         })
-        ramp.beginElement()
         anim = ramp
+        // ⚠ **램프는 깨끗한 프레임에서 발화한다.** 위 통짜 교체 + 강제 리플로우가 한
+        //   프레임을 0.4초까지 늘리는데(실측 395ms — 흐름 시작 프레임과 정확히 일치),
+        //   같은 블록에서 beginElement 하면 가속 300ms 가 그 멈춘 화면 안에서 소모돼
+        //   "가속이 없어 보인다"(운영자 2026-08-14). 더블 rAF 로 재배치·페인트가 끝난
+        //   다음 프레임에 시작해야 가속이 실제로 보인다 — 지연은 2프레임(33ms)뿐이고
+        //   그동안 화면은 진입 완료 상태(offset 0) 그대로라 어떤 단절도 없다.
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            if (!cancelled) ramp.beginElement()
+          }),
+        )
       }, wait)
     })
     return () => {

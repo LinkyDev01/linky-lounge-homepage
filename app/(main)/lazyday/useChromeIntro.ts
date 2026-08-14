@@ -31,6 +31,14 @@ import { CHROME_REVEAL_MS } from "./HeroBreathingPoster"
 /** 스티키 CTA 만 내비·푸터보다 늦게 (운영자 2026-08-12 "3초 지연시켜") */
 export const CTA_EXTRA_DELAY_MS = 3000
 
+/**
+ * 이 홀드는 히어로가 **모션 포스터**일 때만 의미가 있다(그어짐이 끝나갈 무렵에
+ * 맞춰 네비·CTA 를 띄우는 안무). 2026-08-14 정적 이미지 임시 복귀 중엔 기다릴
+ * 대상이 없으니 네비·본문(마스크)·CTA 를 즉시 노출 — 홀드 로직 자체는 지우지
+ * 않고 꺼만 둔다. 모션 재점등 시 true 로 되돌리면 원래 동작이 복원된다.
+ */
+const HOLD_ENABLED = false
+
 export function useChromeIntro() {
   const [chrome, setChrome] = useState(false)
   const [cta, setCta] = useState(false)
@@ -53,6 +61,11 @@ export function useChromeIntro() {
       chromeDone.current = true
       setChrome(true)
       ctaTimer = setTimeout(() => setCta(true), CTA_EXTRA_DELAY_MS)
+    }
+
+    if (!HOLD_ENABLED) {
+      revealAll()
+      return
     }
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

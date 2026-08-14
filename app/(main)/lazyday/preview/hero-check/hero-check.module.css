@@ -65,6 +65,20 @@
   pointer-events: none;
 }
 
+/* 진단 한 줄 — "안 보인다"가 브라우저별 문제일 때 원인을 화면에서 읽는다 */
+.diag {
+  margin: 10px 16px 0;
+  padding: 7px 10px;
+  border: 1px dashed #e5d9c8;
+  border-radius: 6px;
+  background: #fffdf8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: #8a6a50;
+  word-break: break-all;
+}
+
 .note {
   margin: 14px 16px 0;
   font-family: "SUIT Variable", sans-serif;

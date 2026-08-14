@@ -82,3 +82,27 @@ node scripts/poster-pdf/diag3.mjs              # 이음매 누락 프레임
 ⚠ **재개 대기시간을 `performance.now()` 로 재지 말 것.** 내비게이션 기준이라 번들 로드가
 느리면 "진입이 끝났다"고 오판해 12% 에서 통짜로 넘어간다. CSS 애니의 `currentTime` 을 쓰되
 **마지막 글자**의 애니여야 한다 — 첫 글자는 지연 0·길이 0.2s 라 200ms 에서 멈춘다.
+
+### ⚠ 정지에는 반드시 무조건 실행되는 재개 경로를
+
+진입을 정지시켜 두고 재개를 계산 뒤에 두면, **계산이 실패하는 브라우저에서 본문이
+영원히 안 보인다.** 실제로 웹킷(iOS·사파리)은 `<text>` 의 글이 `<textPath>` 안에
+있으면 `getComputedTextLength()` 가 **0** 이라 이 사고가 났다.
+
+지금 코드는 3겹으로 막는다 — ① 재개가 계산보다 **먼저** ② 3초 안전핀 타이머
+③ 폭 측정 3단계 폴백(`<text>` → `<textPath>` → 화면 밖 평문 프로브 `data-probe`).
+프로브로 쟀을 때는 이음매 여유를 2.0u → 6.0u 로 넓힌다(프로브 값이 경로 배치 폭과
+0.4% 어긋나 여유를 먹을 수 있다).
+
+세 단계를 각각 재현해서 확인할 것:
+
+```js
+// Playwright addInitScript — <text> 만 0 / textPath 까지 0
+SVGTextContentElement.prototype.getComputedTextLength = function () {
+  if (this.tagName === "text" && this.querySelector("textPath")) return 0
+  if (MODE === "probe" && this.tagName === "textPath") return 0
+  return orig.call(this)
+}
+```
+
+셋 다 `--lz-play` 가 **running**, 여유가 **1.44u 초과**, 렌더 자수가 한 벌 전부여야 한다.

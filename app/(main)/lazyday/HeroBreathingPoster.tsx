@@ -113,7 +113,12 @@ export function HeroBreathingPoster() {
     const clock = chars[chars.length - 1]?.getAnimations?.()[0]
     const played = () => (typeof clock?.currentTime === "number" ? Math.max(0, clock.currentTime) : 0)
     const playedAtPause = played()
+    const resume = () => root.style.setProperty("--lz-play", "running")
     root.style.setProperty("--lz-play", "paused")
+    // ⚠ **정지에는 반드시 되풀이 못 할 안전핀이 붙어야 한다.** 아래 어느 단계에서 막히든
+    //   `--lz-play` 가 paused 로 남으면 실 위 본문이 **영원히 안 보인다**(큰 글자만 뜬
+    //   포스터 = 운영자 "애니메이션이 안 보이는데?"). 3초면 어떤 서체 로드보다 길다.
+    const failsafe = setTimeout(resume, 3000)
 
     /** 본문이 **제 서체로, 실 길이에 맞게** 앉을 때까지 기다린다.
      *  ⚠ `document.fonts.ready` 는 못 믿는다 — 동적 서브셋 CSS 는 글리프가 필요할 때
@@ -123,14 +128,35 @@ export function HeroBreathingPoster() {
      *  (운영자 "'서성였을 뿐이다'까지가 전체 길이에 해당하지 않는 건가?"). 게다가 폭이
      *  넓으니 이웃한 줄끼리 겹쳐 보인다. → **길이가 실 길이의 ±4% 안에 들어올 때**
      *  까지(= 진짜 서체가 붙을 때까지) 기다린다. */
+    /** 본문 **한 벌**의 실제 폭(u)을 세 단계로 잰다. ⚠ 크롬은 `<text>` 가 자식
+     *  `<textPath>` 안에 글을 담고 있어도 배치 폭을 돌려주지만 **웹킷(iOS·사파리)은
+     *  0 을 돌려준다** — 그 0 을 그대로 믿으면 아래 로직이 통째로 불발하고, 실 위
+     *  본문이 영원히 안 보인다. 순서: ① `<text>` ② `<textPath>` 자체(둘 다 경로 위
+     *  실측이라 정확) ③ 화면 밖 평문 프로브(경로 배치 폭과 0.4% 쯤 다르지만 서체
+     *  판별·크기 보정에는 충분). `exact` 는 ①② 로 쟀는지 = 이음매 여유를 최소로
+     *  잡아도 되는지를 뜻한다. */
+    const probe = root.querySelector<SVGTextElement>("text[data-probe]")
+    let exact = true
+    const unitWidth = (unitCount: number) => {
+      const w = textEl0.getComputedTextLength() || tp0.getComputedTextLength()
+      if (w > 0) {
+        exact = true
+        return w / unitCount
+      }
+      const pw = probe?.getComputedTextLength() ?? 0
+      exact = false
+      return pw > 0 ? pw : 0
+    }
+
     const fontSettled = async () => {
       try {
         await (document as Document).fonts.load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
       } catch {
         /* 조각 로드가 실패해도 아래 루프의 상한까지 기다린 뒤 크기 보정으로 살린다 */
       }
-      for (let i = 0; i < 50 && !cancelled; i++) {
-        const w = textEl0.getComputedTextLength()
+      // 상한 2.4초 — 이보다 오래 기다리면 실이 빈 포스터가 눈에 띄게 오래 남는다
+      for (let i = 0; i < 20 && !cancelled; i++) {
+        const w = unitWidth(1)
         if (w > 0 && Math.abs(w - L) / L < 0.04) return
         await new Promise((r) => setTimeout(r, 120))
       }
@@ -141,24 +167,33 @@ export function HeroBreathingPoster() {
      *  목표 길이는 L − SEAM_SLACK — 이음매에 여유를 남겨야 글자가 깜빡이지 않는다
      *  (구멍 대신 미세 중첩. poster-thread.ts 주석 참조). */
     const fitToPath = (el: SVGTextElement, unitCount: number) => {
-      const w = el.getComputedTextLength() / unitCount
+      const w = unitWidth(unitCount)
       if (!(w > 0)) return
       const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
-      el.style.fontSize = `${((base * (L - SEAM_SLACK)) / w).toFixed(4)}px`
+      // 프로브로 잰 값은 경로 배치 폭과 0.4% 쯤 어긋난다 — 그 오차가 여유 2.0u 를
+      // 먹으면 이음매가 다시 구멍이 되므로(가시 한계 1.44u), 그때만 여유를 넉넉히.
+      const slack = exact ? SEAM_SLACK : SEAM_SLACK * 3
+      const size = `${((base * (L - slack)) / w).toFixed(4)}px`
+      el.style.fontSize = size
+      if (probe) probe.style.fontSize = size // 프로브도 같이 — 다음 측정이 어긋나지 않게
     }
 
     fontSettled().then(() => {
       if (cancelled) return
+      // ⚠ **무엇보다 먼저 재개한다.** 아래 어느 계산이 실패해 빠져나가더라도 본문은
+      //   보여야 한다 — 예전엔 폭 측정이 0 인 브라우저에서 여기서 return 해 버려
+      //   실이 영영 정지 상태로 남았다 (운영자 "애니메이션이 안 보이는데?").
+      clearTimeout(failsafe)
+      resume()
       const tp = tp0
       const textEl = textEl0
       fitToPath(textEl, 1)
-      const P0 = textEl.getComputedTextLength()
-      if (!(P0 > 0)) return
+      // 크기를 맞췄으므로 한 벌 = L − SEAM_SLACK 이다. 폭을 못 재는 브라우저에선
+      // 이 설계값을 그대로 쓴다(측정 불가 = 보정도 없었다는 뜻이라 오차는 서체 차이뿐)
+      const P0 = unitWidth(1) || L - SEAM_SLACK
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
       // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
       const K = Math.max(2, Math.ceil((P0 + L) / P0) + 1)
-      // 정지시켰던 그어짐을 **이어서** 재생 (진행분은 그대로 두므로 되감기가 없다)
-      root.style.setProperty("--lz-play", "running")
       // 남은 진입 시간 = 전체 − (정지 시점까지 재생된 양). 정지 중에는 시계가 멈추므로
       // 재개 직후의 played() 도 같은 값이다 — 어느 쪽으로 읽어도 어긋나지 않는다.
       const wait = Math.max(0, FLOW_START_MS - Math.min(playedAtPause, FLOW_START_MS))
@@ -174,7 +209,7 @@ export function HeroBreathingPoster() {
         //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
         //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
         fitToPath(textEl, K) // 통짜 기준으로 한 번 더 맞춘다 (tspan 보정분 흡수)
-        const P = textEl.getComputedTextLength() / K
+        const P = unitWidth(K) || L - SEAM_SLACK
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
@@ -209,6 +244,7 @@ export function HeroBreathingPoster() {
     })
     return () => {
       cancelled = true
+      clearTimeout(failsafe)
       if (timer) clearTimeout(timer)
       anim?.remove()
     }
@@ -227,6 +263,12 @@ export function HeroBreathingPoster() {
       <defs>
         <path id="heroSayuThread" d={POSTER_THREAD_D} />
       </defs>
+      {/* 폭 측정용 프로브 — 화면 밖 평문 한 벌. 웹킷(iOS·사파리)은 `<text>` 의 글이
+          `<textPath>` 안에 있으면 getComputedTextLength() 가 **0** 이라, 이 프로브가
+          없으면 서체 판별·크기 보정이 통째로 불발한다. 렌더 비용은 한 줄뿐 */}
+      <text className={styles.threadText} data-probe x={0} y={-999} visibility="hidden" aria-hidden xmlSpace="preserve">
+        {SAYU_FULL}{" "}
+      </text>
       <text className={styles.threadText} xmlSpace="preserve">
         {/* dominantBaseline="central" — 경로는 원본 **글자줄의 중심**(잉크 능선)에 맞춰
             추출돼 있는데 textPath 기본값은 글자를 **베이스라인**에 얹는다. 그대로 두면

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { HeroBreathingPoster } from "../../HeroBreathingPoster"
 import styles from "./hero-check.module.css"
 
@@ -11,8 +11,35 @@ import styles from "./hero-check.module.css"
  *  되돌리는 한 줄뿐이다. */
 export function HeroCheck() {
   const [runId, setRunId] = useState(0)
-  const [overlay, setOverlay] = useState(true)
+  // ⚠ 겹쳐 보기는 **꺼진 채로 시작**한다. 켠 채 열면 반투명 원본이 실 위에 얹혀
+  //   그어짐이 묻혀 "애니메이션이 안 보인다"로 읽힌다 (운영자 2026-08-14).
+  const [overlay, setOverlay] = useState(false)
   const [alpha, setAlpha] = useState(0.45)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [diag, setDiag] = useState("")
+
+  // 진단 — "안 보인다"가 브라우저별 문제일 때 원인을 화면에서 바로 읽는다
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const svg = stageRef.current?.querySelector("svg[data-lz-poster]")
+      if (!svg) return setDiag("SVG 없음")
+      // ⚠ `querySelector("text")` 는 앞에 놓인 측정 프로브를 집는다 — 실 위 본문은
+      //   textPath 를 품은 <text> 다
+      const textEl = (svg.querySelector("textPath")?.closest("text") ?? null) as SVGTextElement | null
+      const probe = svg.querySelector("text[data-probe]") as SVGTextElement | null
+      const path = svg.querySelector("#heroSayuThread") as SVGPathElement | null
+      const play = getComputedStyle(svg).getPropertyValue("--lz-play").trim() || "(미설정=running)"
+      const w = textEl?.getComputedTextLength?.() ?? -1
+      const pw = probe?.getComputedTextLength?.() ?? -1
+      const L = path?.getTotalLength?.() ?? -1
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      setDiag(
+        `--lz-play ${play} · 본문폭 ${w.toFixed(0)} · 프로브 ${pw.toFixed(0)} · 경로 ${L.toFixed(0)} · ` +
+          `크기 ${textEl ? getComputedStyle(textEl).fontSize : "?"} · 모션최소화 ${reduce ? "켜짐" : "꺼짐"}`,
+      )
+    }, 5000)
+    return () => clearTimeout(t)
+  }, [runId])
 
   return (
     <div className={styles.wrap}>
@@ -39,7 +66,7 @@ export function HeroCheck() {
         </label>
       </div>
 
-      <div className={styles.stage}>
+      <div className={styles.stage} ref={stageRef}>
         {/* key 로 통째 remount — 진입(그어짐)부터 다시 관찰한다 */}
         <HeroBreathingPoster key={runId} />
         {overlay && (
@@ -54,6 +81,8 @@ export function HeroCheck() {
           />
         )}
       </div>
+
+      {diag && <p className={styles.diag}>{diag}</p>}
 
       <p className={styles.note}>
         검수 항목 — ① 진입 중 <b>초기화·되감기</b>가 보이지 않을 것 ② 전문이 「서성였을

@@ -58,6 +58,9 @@
   opacity: 0;
   animation: heroCharIn 0.2s ease-out both;
   animation-delay: var(--d, 0ms);
+  /* 서체가 확정될 때까지 TSX 가 --lz-play: paused 로 세워 둔다. 기본값이 running 이라
+     JS 가 죽어도 진입은 그대로 돈다 (SSR 페인트부터 동작하는 성질 유지). */
+  animation-play-state: var(--lz-play, running);
 }
 @keyframes heroCharIn {
   to { opacity: 1; }

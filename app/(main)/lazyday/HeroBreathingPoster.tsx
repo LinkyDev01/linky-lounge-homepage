@@ -62,6 +62,11 @@ const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 �
 // 흐름 — 정지에서 툭 시작하지 않고 등가속으로 정상 속도까지 올린다.
 // 진입 완료 직후 **대기 0** 이므로(운영자 확인 2026-08-12) 가속 자체를 더 빠르게:
 // 0.5초 → **0.3초**. 등가속이면 이동 거리는 평균속도 × 시간 = (SPEED/2) × 0.3.
+/** 실이 반복 피치보다 길어야 하는 여유(u). 크롬은 글리프가 경로 끝에서 1.44u 안쪽에
+ *  들어와야 그리므로, 피치 == L 이면 이음매에 구멍이 생겨 글자가 한 자씩 깜빡인다.
+ *  경로를 이만큼 길게 두어 구멍 대신 미세 중첩을 만든다 (poster-thread.ts 주석). */
+const SEAM_SLACK = 2.0
+
 const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
 const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 붙인다
@@ -87,54 +92,76 @@ export function HeroBreathingPoster() {
     let anim: SVGAnimateElement | null = null
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    /** 본문 글리프가 **실제로** Pretendard 로 그려질 때까지 기다린다.
-     *  ⚠ `document.fonts.ready` 만으로는 부족하다 — 동적 서브셋 CSS 는 글리프가 필요할 때
-     *  조각을 늦게 받아오므로, 로딩이 잠깐 비는 순간 ready 가 먼저 resolve 된다. 그 상태로
-     *  진행하면 **폴백 서체 폭(실측 9.8u, Pretendard 7.1u)** 으로 P 를 재게 되고,
-     *  본문이 경로보다 38% 길어져 뒤쪽 28% 가 경로 밖으로 밀려 안 보인다. 나중에 진짜
-     *  서체가 붙는 순간 그 뭉텅이가 **한꺼번에 나타난다**(운영자 2026-08-14 "애니메이션이
-     *  완료되기도 전에 갑자기 하단부터 일괄 생성"). → 실제 글자 폭이 **연속 두 번 같을 때**
-     *  까지 폴링해서 스왑 완료를 확인한다. */
+    const tp0 = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
+    const pathEl0 = root.querySelector<SVGPathElement>("#heroSayuThread")
+    if (!tp0 || !pathEl0) return
+    const textEl0 = tp0.closest("text") as SVGTextElement
+    const L = pathEl0.getTotalLength()
+
+    // 서체가 확정될 때까지 그어짐을 **일시정지**한다 (재시작이 아니라 정지 → 재개라
+    // 화면에는 "중간에 초기화"가 보이지 않는다. 운영자 2026-08-14 "중간에 한 번
+    // 초기화되고 다시 시작되는 부분이 있어"). CSS 는 기본 running 이라 JS 가 죽어도
+    // 진입은 그대로 돈다.
+    // ⚠ 이미 재생된 양은 **CSS 애니의 currentTime** 으로 읽는다. performance.now() 로
+    //   대신하면 안 된다 — 그건 내비게이션 기준이라 번들 로드가 느린 순간(dev 실측
+    //   14.5초) 진입이 다 끝난 것으로 오판해 흐름이 **12% 에서 곧장 통짜로 전환**된다
+    //   (= 운영자 "완결을 향해가다 갑자기 완성돼").
+    // ⚠ **마지막** 글자의 애니를 시계로 쓴다 — currentTime 은 지연(delay) 구간까지 포함해
+    //   재는데, 첫 글자는 지연 0·길이 0.2s 라 200ms 에서 멈춰 진입 전체를 못 잰다.
+    //   마지막 글자는 지연이 DRAW_MS 라 currentTime 이 곧 '진입 경과 시간'이다.
+    const chars = root.querySelectorAll<SVGElement>("textPath[data-stream] > *")
+    const clock = chars[chars.length - 1]?.getAnimations?.()[0]
+    const played = () => (typeof clock?.currentTime === "number" ? Math.max(0, clock.currentTime) : 0)
+    const playedAtPause = played()
+    root.style.setProperty("--lz-play", "paused")
+
+    /** 본문이 **제 서체로, 실 길이에 맞게** 앉을 때까지 기다린다.
+     *  ⚠ `document.fonts.ready` 는 못 믿는다 — 동적 서브셋 CSS 는 글리프가 필요할 때
+     *  조각을 늦게 받아오므로 로딩이 잠깐 비는 순간 먼저 resolve 된다. 그 상태의 폭은
+     *  **폴백 서체(실측 9.8u, Pretendard 7.1u)** 라, 본문이 실보다 38% 길어져 뒤쪽
+     *  28%(「문장 사이에」 이후 전부)가 경로 밖으로 밀려 **아예 안 그려진다**
+     *  (운영자 "'서성였을 뿐이다'까지가 전체 길이에 해당하지 않는 건가?"). 게다가 폭이
+     *  넓으니 이웃한 줄끼리 겹쳐 보인다. → **길이가 실 길이의 ±4% 안에 들어올 때**
+     *  까지(= 진짜 서체가 붙을 때까지) 기다린다. */
     const fontSettled = async () => {
       try {
         await (document as Document).fonts.load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
       } catch {
-        /* 서브셋 조각 로드 실패해도 아래 폴링이 폴백 폭으로 안정화되면 진행한다 */
+        /* 조각 로드가 실패해도 아래 루프의 상한까지 기다린 뒤 크기 보정으로 살린다 */
       }
-      await document.fonts.ready
-      const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
-      const textEl = tp?.closest("text") as SVGTextElement | null
-      if (!textEl) return
-      let prev = -1
-      for (let i = 0; i < 40 && !cancelled; i++) {
-        const w = textEl.getComputedTextLength()
-        if (w > 0 && Math.abs(w - prev) < 0.05) return
-        prev = w
+      for (let i = 0; i < 50 && !cancelled; i++) {
+        const w = textEl0.getComputedTextLength()
+        if (w > 0 && Math.abs(w - L) / L < 0.04) return
         await new Promise((r) => setTimeout(r, 120))
       }
     }
 
+    /** 본문 한 벌이 실을 **정확히 한 바퀴** 채우도록 글자 크기를 미세 보정한다.
+     *  서체 버전이 다르거나 끝내 폴백으로 남더라도 전문이 잘리거나 남지 않는다.
+     *  목표 길이는 L − SEAM_SLACK — 이음매에 여유를 남겨야 글자가 깜빡이지 않는다
+     *  (구멍 대신 미세 중첩. poster-thread.ts 주석 참조). */
+    const fitToPath = (el: SVGTextElement, unitCount: number) => {
+      const w = el.getComputedTextLength() / unitCount
+      if (!(w > 0)) return
+      const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
+      el.style.fontSize = `${((base * (L - SEAM_SLACK)) / w).toFixed(4)}px`
+    }
+
     fontSettled().then(() => {
       if (cancelled) return
-      const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
-      const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
-      if (!tp || !pathEl) return
-      const L = pathEl.getTotalLength()
-      const textEl = tp.closest("text") as SVGTextElement
-      // 첫 벌(tspan들)만 놓인 상태에서 진행 길이 실측 (K 산정용 어림값)
+      const tp = tp0
+      const textEl = textEl0
+      fitToPath(textEl, 1)
       const P0 = textEl.getComputedTextLength()
       if (!(P0 > 0)) return
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
       // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
       const K = Math.max(2, Math.ceil((P0 + L) / P0) + 1)
-      // 폰트가 늦게 붙었다면 진입 스태거는 이미 폴백으로 흘러가 버렸다 —
-      // **지금부터 다시 시작**해 제 서체로 한 번만 곱게 그어지게 한다.
-      // (웜 캐시면 수십 ms 안에 도달하므로 눈에 띄지 않는다)
-      const chars = root.querySelectorAll<SVGElement>(`.${styles.introChar}`)
-      for (const el of chars) el.style.animation = "none"
-      void root.getBoundingClientRect()
-      for (const el of chars) el.style.animation = ""
-      const wait = FLOW_START_MS
+      // 정지시켰던 그어짐을 **이어서** 재생 (진행분은 그대로 두므로 되감기가 없다)
+      root.style.setProperty("--lz-play", "running")
+      // 남은 진입 시간 = 전체 − (정지 시점까지 재생된 양). 정지 중에는 시계가 멈추므로
+      // 재개 직후의 played() 도 같은 값이다 — 어느 쪽으로 읽어도 어긋나지 않는다.
+      const wait = Math.max(0, FLOW_START_MS - Math.min(playedAtPause, FLOW_START_MS))
       timer = setTimeout(() => {
         if (cancelled) return
         // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
@@ -146,6 +173,7 @@ export function HeroBreathingPoster() {
         //   실제 advance 는 tspan 경계마다 생기는 반올림 때문에 다르다(실측 차 0.008u,
         //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
         //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
+        fitToPath(textEl, K) // 통짜 기준으로 한 번 더 맞춘다 (tspan 보정분 흡수)
         const P = textEl.getComputedTextLength() / K
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아

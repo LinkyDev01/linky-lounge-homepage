@@ -1,0 +1,80 @@
+/* 히어로 검수대 — 프리뷰 전용. 실사이트 CSS 를 import 하지 않는다 (공유 지도 오염 방지) */
+
+.wrap {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 12px 0 48px;
+  background: #ffffff;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 10px 16px;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12.5px;
+  color: #4a3020;
+}
+
+.btn {
+  border: 1px solid #d2691e;
+  background: #d2691e;
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #b8571a;
+  border-color: #b8571a;
+}
+
+.check,
+.range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.range input[type="range"] {
+  width: 92px;
+  accent-color: #d2691e;
+}
+
+.num {
+  color: #8a6a50;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 무대 — 랜딩 히어로와 같은 폭·비례로 두어야 검수 결과가 그대로 옮겨간다 */
+.stage {
+  position: relative;
+}
+
+.ghost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill; /* 같은 4:5 라 왜곡 없음 — 픽셀 대 픽셀로 포갠다 */
+  pointer-events: none;
+}
+
+.note {
+  margin: 14px 16px 0;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.85;
+  color: #8a6a50;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.note b {
+  color: #4a3020;
+  font-weight: 700;
+}

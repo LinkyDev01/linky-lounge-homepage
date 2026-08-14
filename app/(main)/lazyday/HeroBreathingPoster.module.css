@@ -19,7 +19,7 @@
    ⚠ 2026-08-14 — 자간 **-0.009em**. 경로가 **닫힌 루프**가 되면서(poster-thread.ts)
    무이음 회전 조건이 생겼다: 흐름의 반복 단위 `${SAYU_FULL}   ` 의 advance 가
    **경로 길이와 정확히 같아야** 이음매에서 사라지는 글자와 나타나는 글자가
-   동일해져 생성·소멸점이 사라진다. 루프 2701.35u ↔ 런타임 P 2701.35u.
+   동일해져 생성·소멸점이 사라진다. 루프 2709.04u ↔ 런타임 P 2709.04u.
    ⚠ **평문 <text> 의 getComputedTextLength 는 textPath 배치 폭과 다르다** —
    반드시 컴포넌트가 실제로 쓰는 **런타임 P(SMIL values)** 로 대조할 것.
    ⚠ 경로 길이가 바뀌면 이 자간을 반드시 다시 맞출 것.
@@ -35,12 +35,12 @@
   background: #f0e8e2; /* 포스터 원본 종이색 실측 (240,232,226) */
 }
 
-/* 실 위 문장 — Pretendard Regular. 반복 단위가 닫힌 루프(2701.35u)를 정확히 채우는 값 (위 주석) */
+/* 실 위 문장 — Pretendard Regular. 반복 단위가 닫힌 루프(2709.04u)를 정확히 채우는 값 (위 주석) */
 .threadText {
   font-family: "Pretendard Variable", Pretendard, sans-serif;
   font-weight: 400;
   font-size: 7.2px;
-  letter-spacing: -0.009em;
+  letter-spacing: -0.007em;
   fill: #1a1208;
 }
 

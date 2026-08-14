@@ -62,10 +62,19 @@ const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 �
 // 흐름 — 정지에서 툭 시작하지 않고 등가속으로 정상 속도까지 올린다.
 // 진입 완료 직후 **대기 0** 이므로(운영자 확인 2026-08-12) 가속 자체를 더 빠르게:
 // 0.5초 → **0.3초**. 등가속이면 이동 거리는 평균속도 × 시간 = (SPEED/2) × 0.3.
-/** 실이 반복 피치보다 길어야 하는 여유(u). 크롬은 글리프가 경로 끝에서 1.44u 안쪽에
- *  들어와야 그리므로, 피치 == L 이면 이음매에 구멍이 생겨 글자가 한 자씩 깜빡인다.
- *  경로를 이만큼 길게 두어 구멍 대신 미세 중첩을 만든다 (poster-thread.ts 주석). */
-const SEAM_SLACK = 2.0
+/** 크롬이 경로 양 끝에서 글리프를 안 그리는 **가장자리 여백의 합**(u, 실측 1.46).
+ *  이음매가 안 보이려면 **한 벌의 advance(피치 P) = L − SEAM_MARGIN 이 정확히** 맞아야
+ *  한다 — 그래야 끝에서 사라지는 글자와 시작에서 나타나는 글자가 늘 같은 글자라
+ *  화면에서는 아무 일도 일어나지 않는다.
+ *  ⚠ 중첩(여유 > 여백)은 구멍만큼이나 나쁘다: 남는 만큼 **같은 글자가 두 곳에 동시에**
+ *  그려져 이음매에서 겹쳐 찍힌다. 종전 여유 2.042u 는 δ = 0.583u 초과라 글자가 지날
+ *  때마다 58ms 씩(0.77초 주기 ≈ 1.3Hz) 겹쳐 — 운영자가 본 "중간중간 깜빡".
+ *  ⚠ **P 는 런타임에 미세 조정할 수 없다.** 크롬은 font-size 를 1/64px 로 양자화해서
+ *  474자 기준 한 칸이 7.4u 다 — 0.6u 를 맞추려는 크기 보정은 아무 효과가 없거나
+ *  7.4u 를 통째로 넘긴다. 그래서 맞추는 쪽은 **경로 길이**다(poster-thread.ts 에서
+ *  오프라인 스케일). 여기 상수는 그 목표를 적어 둔 것이고, 아래 fitToPath 는
+ *  **폴백 서체 구제용**으로만 동작한다. */
+const SEAM_MARGIN = 1.46
 
 const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
@@ -120,6 +129,18 @@ export function HeroBreathingPoster() {
     //   포스터 = 운영자 "애니메이션이 안 보이는데?"). 3초면 어떤 서체 로드보다 길다.
     const failsafe = setTimeout(resume, 3000)
 
+    /** 본문 **한 벌**의 실제 폭(u)을 세 단계로 잰다. ⚠ 크롬은 `<text>` 가 자식
+     *  `<textPath>` 안에 글을 담고 있어도 배치 폭을 돌려주지만 **웹킷(iOS·사파리)은
+     *  0 을 돌려준다** — 그 0 을 그대로 믿으면 아래 로직이 통째로 불발하고, 실 위
+     *  본문이 영원히 안 보인다. 순서: ① `<text>` ② `<textPath>` 자체(둘 다 경로 위
+     *  실측이라 정확) ③ 화면 밖 평문 프로브(경로 배치 폭과 0.4% 쯤 다르다). */
+    const probe = root.querySelector<SVGTextElement>("text[data-probe]")
+    const unitWidth = (unitCount: number) => {
+      const w = textEl0.getComputedTextLength() || tp0.getComputedTextLength()
+      if (w > 0) return w / unitCount
+      return probe?.getComputedTextLength() ?? 0
+    }
+
     /** 본문이 **제 서체로, 실 길이에 맞게** 앉을 때까지 기다린다.
      *  ⚠ `document.fonts.ready` 는 못 믿는다 — 동적 서브셋 CSS 는 글리프가 필요할 때
      *  조각을 늦게 받아오므로 로딩이 잠깐 비는 순간 먼저 resolve 된다. 그 상태의 폭은
@@ -128,26 +149,6 @@ export function HeroBreathingPoster() {
      *  (운영자 "'서성였을 뿐이다'까지가 전체 길이에 해당하지 않는 건가?"). 게다가 폭이
      *  넓으니 이웃한 줄끼리 겹쳐 보인다. → **길이가 실 길이의 ±4% 안에 들어올 때**
      *  까지(= 진짜 서체가 붙을 때까지) 기다린다. */
-    /** 본문 **한 벌**의 실제 폭(u)을 세 단계로 잰다. ⚠ 크롬은 `<text>` 가 자식
-     *  `<textPath>` 안에 글을 담고 있어도 배치 폭을 돌려주지만 **웹킷(iOS·사파리)은
-     *  0 을 돌려준다** — 그 0 을 그대로 믿으면 아래 로직이 통째로 불발하고, 실 위
-     *  본문이 영원히 안 보인다. 순서: ① `<text>` ② `<textPath>` 자체(둘 다 경로 위
-     *  실측이라 정확) ③ 화면 밖 평문 프로브(경로 배치 폭과 0.4% 쯤 다르지만 서체
-     *  판별·크기 보정에는 충분). `exact` 는 ①② 로 쟀는지 = 이음매 여유를 최소로
-     *  잡아도 되는지를 뜻한다. */
-    const probe = root.querySelector<SVGTextElement>("text[data-probe]")
-    let exact = true
-    const unitWidth = (unitCount: number) => {
-      const w = textEl0.getComputedTextLength() || tp0.getComputedTextLength()
-      if (w > 0) {
-        exact = true
-        return w / unitCount
-      }
-      const pw = probe?.getComputedTextLength() ?? 0
-      exact = false
-      return pw > 0 ? pw : 0
-    }
-
     const fontSettled = async () => {
       try {
         await (document as Document).fonts.load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
@@ -169,11 +170,14 @@ export function HeroBreathingPoster() {
     const fitToPath = (el: SVGTextElement, unitCount: number) => {
       const w = unitWidth(unitCount)
       if (!(w > 0)) return
+      const goal = L - SEAM_MARGIN
+      // ⚠ **제 서체로 잘 앉아 있으면 손대지 않는다.** 크롬의 font-size 양자화(1/64px =
+      //   474자 기준 7.4u) 때문에 미세 보정은 무효이거나 되레 이음매를 7.4u 어긋나게
+      //   한다 — 경로 길이 쪽이 이미 P 에 맞춰져 있으므로 그대로 두는 게 정답이다.
+      //   1% 넘게 어긋난 때(= 폴백 서체가 남은 비상시)만 크기로 구제한다.
+      if (Math.abs(w - goal) / goal < 0.01) return
       const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
-      // 프로브로 잰 값은 경로 배치 폭과 0.4% 쯤 어긋난다 — 그 오차가 여유 2.0u 를
-      // 먹으면 이음매가 다시 구멍이 되므로(가시 한계 1.44u), 그때만 여유를 넉넉히.
-      const slack = exact ? SEAM_SLACK : SEAM_SLACK * 3
-      const size = `${((base * (L - slack)) / w).toFixed(4)}px`
+      const size = `${((base * goal) / w).toFixed(4)}px`
       el.style.fontSize = size
       if (probe) probe.style.fontSize = size // 프로브도 같이 — 다음 측정이 어긋나지 않게
     }
@@ -190,7 +194,7 @@ export function HeroBreathingPoster() {
       fitToPath(textEl, 1)
       // 크기를 맞췄으므로 한 벌 = L − SEAM_SLACK 이다. 폭을 못 재는 브라우저에선
       // 이 설계값을 그대로 쓴다(측정 불가 = 보정도 없었다는 뜻이라 오차는 서체 차이뿐)
-      const P0 = unitWidth(1) || L - SEAM_SLACK
+      const P0 = unitWidth(1) || L - SEAM_MARGIN
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
       // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
       const K = Math.max(2, Math.ceil((P0 + L) / P0) + 1)
@@ -209,7 +213,7 @@ export function HeroBreathingPoster() {
         //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
         //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
         fitToPath(textEl, K) // 통짜 기준으로 한 번 더 맞춘다 (tspan 보정분 흡수)
-        const P = unitWidth(K) || L - SEAM_SLACK
+        const P = unitWidth(K) || L - SEAM_MARGIN
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).

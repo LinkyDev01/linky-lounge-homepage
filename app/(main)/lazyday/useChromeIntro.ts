@@ -39,7 +39,11 @@ export const CTA_EXTRA_DELAY_MS = 3000
  */
 const HOLD_ENABLED = false
 
-export function useChromeIntro() {
+/** @param force `true` 면 HOLD_ENABLED 와 무관하게 홀드를 켠다 — **검수 페이지
+ *  (`preview/hero-check`) 전용**. 랜딩이 정적 이미지인 동안에도 모션 히어로의
+ *  안무(내비·푸터 → 3초 뒤 CTA)를 그대로 볼 수 있어야 하기 때문 (운영자 2026-08-14
+ *  "네비와 푸터 숨겼다가 노출되는 그 모든 과정까지 프리뷰에 다 실어"). */
+export function useChromeIntro(force = false) {
   const [chrome, setChrome] = useState(false)
   const [cta, setCta] = useState(false)
   // 크롬 노출은 타이머·입력 어느 쪽으로도 올 수 있다 — CTA 예약이 두 번 걸려
@@ -63,7 +67,7 @@ export function useChromeIntro() {
       ctaTimer = setTimeout(() => setCta(true), CTA_EXTRA_DELAY_MS)
     }
 
-    if (!HOLD_ENABLED) {
+    if (!HOLD_ENABLED && !force) {
       revealAll()
       return
     }
@@ -87,7 +91,7 @@ export function useChromeIntro() {
       clearTimeout(ctaTimer)
       EVENTS.forEach((ev) => window.removeEventListener(ev, revealChrome))
     }
-  }, [])
+  }, [force])
 
   return { chrome, cta }
 }

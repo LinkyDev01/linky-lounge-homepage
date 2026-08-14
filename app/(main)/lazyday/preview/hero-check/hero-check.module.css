@@ -1,10 +1,40 @@
 /* 히어로 검수대 — 프리뷰 전용. 실사이트 CSS 를 import 하지 않는다 (공유 지도 오염 방지) */
 
 .wrap {
-  max-width: 430px;
-  margin: 0 auto;
   padding: 12px 0 48px;
   background: #ffffff;
+}
+
+/* 셸을 통째로 담는 틀 — 랜딩과 같은 전폭 구조라 max-width 를 씌우지 않는다
+   (씌우면 내비 거터·푸터 15컬럼이 랜딩과 다르게 접힌다) */
+.shellFrame {
+  position: relative;
+}
+
+.hint {
+  margin: 0 16px 10px;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #8a6a50;
+  word-break: keep-all;
+}
+.hint b {
+  color: #d2691e;
+  font-weight: 700;
+}
+
+/* 안무 시각 기록 */
+.marks {
+  margin: 14px 16px 0;
+  padding: 10px 14px 10px 30px;
+  border: 1px solid #eee2d0;
+  border-radius: 8px;
+  background: #fffdf8;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #4a3020;
 }
 
 .bar {

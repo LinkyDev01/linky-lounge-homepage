@@ -80,11 +80,20 @@ function KakaoIcon() {
   )
 }
 
-export function LandingShell({ children }: { children: React.ReactNode }) {
+export function LandingShell({
+  children,
+  holdIntro = false,
+}: {
+  children: React.ReactNode
+  /** 진입 홀드를 강제로 켠다 — 검수 페이지(`preview/hero-check`) 전용.
+   *  랜딩이 정적 이미지인 동안엔 홀드가 꺼져 있어서(useChromeIntro 의 HOLD_ENABLED),
+   *  안무를 확인하려면 이 플래그가 필요하다. 랜딩은 이 값을 넘기지 않는다. */
+  holdIntro?: boolean
+}) {
   const activeId = useActiveSection()
   // 진입 홀드 — 포스터만 뜨고, 그어짐이 끝나갈 무렵(또는 아무 입력에) 내비·푸터가,
   // 그로부터 3초 뒤 스티키 CTA 가 나타난다 (운영자 2026-08-12, 레이지클럽 인트로 문법)
-  const { chrome, cta } = useChromeIntro()
+  const { chrome, cta } = useChromeIntro(holdIntro)
 
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>

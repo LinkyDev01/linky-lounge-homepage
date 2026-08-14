@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { POSTER_THREAD_D, POSTER_GLYPHS, SAYU_P1, SAYU_P2, SAYU_P3 } from "./poster-thread"
+import { POSTER_THREAD_D, POSTER_GLYPHS, POSTER_GLYPH_DY, SAYU_P1, SAYU_P2, SAYU_P3 } from "./poster-thread"
 import styles from "./HeroBreathingPoster.module.css"
 
 /**
@@ -83,25 +83,58 @@ export function HeroBreathingPoster() {
     const root = rootRef.current
     if (!root) return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const mounted = performance.now()
     let cancelled = false
     let anim: SVGAnimateElement | null = null
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    document.fonts.ready.then(() => {
+    /** 본문 글리프가 **실제로** Pretendard 로 그려질 때까지 기다린다.
+     *  ⚠ `document.fonts.ready` 만으로는 부족하다 — 동적 서브셋 CSS 는 글리프가 필요할 때
+     *  조각을 늦게 받아오므로, 로딩이 잠깐 비는 순간 ready 가 먼저 resolve 된다. 그 상태로
+     *  진행하면 **폴백 서체 폭(실측 9.8u, Pretendard 7.1u)** 으로 P 를 재게 되고,
+     *  본문이 경로보다 38% 길어져 뒤쪽 28% 가 경로 밖으로 밀려 안 보인다. 나중에 진짜
+     *  서체가 붙는 순간 그 뭉텅이가 **한꺼번에 나타난다**(운영자 2026-08-14 "애니메이션이
+     *  완료되기도 전에 갑자기 하단부터 일괄 생성"). → 실제 글자 폭이 **연속 두 번 같을 때**
+     *  까지 폴링해서 스왑 완료를 확인한다. */
+    const fontSettled = async () => {
+      try {
+        await (document as Document).fonts.load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
+      } catch {
+        /* 서브셋 조각 로드 실패해도 아래 폴링이 폴백 폭으로 안정화되면 진행한다 */
+      }
+      await document.fonts.ready
+      const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
+      const textEl = tp?.closest("text") as SVGTextElement | null
+      if (!textEl) return
+      let prev = -1
+      for (let i = 0; i < 40 && !cancelled; i++) {
+        const w = textEl.getComputedTextLength()
+        if (w > 0 && Math.abs(w - prev) < 0.05) return
+        prev = w
+        await new Promise((r) => setTimeout(r, 120))
+      }
+    }
+
+    fontSettled().then(() => {
       if (cancelled) return
       const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
       const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
       if (!tp || !pathEl) return
       const L = pathEl.getTotalLength()
       const textEl = tp.closest("text") as SVGTextElement
-      // 첫 벌(tspan들)만 놓인 상태에서 진행 길이 실측
-      const P = textEl.getComputedTextLength()
-      if (!(P > 0)) return
+      // 첫 벌(tspan들)만 놓인 상태에서 진행 길이 실측 (K 산정용 어림값)
+      const P0 = textEl.getComputedTextLength()
+      if (!(P0 > 0)) return
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
       // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
-      const K = Math.max(2, Math.ceil((P + L) / P) + 1)
-      const wait = Math.max(0, FLOW_START_MS - (performance.now() - mounted))
+      const K = Math.max(2, Math.ceil((P0 + L) / P0) + 1)
+      // 폰트가 늦게 붙었다면 진입 스태거는 이미 폴백으로 흘러가 버렸다 —
+      // **지금부터 다시 시작**해 제 서체로 한 번만 곱게 그어지게 한다.
+      // (웜 캐시면 수십 ms 안에 도달하므로 눈에 띄지 않는다)
+      const chars = root.querySelectorAll<SVGElement>(`.${styles.introChar}`)
+      for (const el of chars) el.style.animation = "none"
+      void root.getBoundingClientRect()
+      for (const el of chars) el.style.animation = ""
+      const wait = FLOW_START_MS
       timer = setTimeout(() => {
         if (cancelled) return
         // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
@@ -109,6 +142,11 @@ export function HeroBreathingPoster() {
         // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
         // 60fps 회복 — 진입이 끝난 시점이라 시각적으로는 같은 화면이다
         tp.textContent = `${SAYU_FULL} `.repeat(K)
+        // ⚠ **반복 피치는 통짜로 바꾼 뒤에 다시 잰다.** tspan 474개로 잰 값과 통짜 텍스트의
+        //   실제 advance 는 tspan 경계마다 생기는 반올림 때문에 다르다(실측 차 0.008u,
+        //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
+        //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
+        const P = textEl.getComputedTextLength() / K
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
@@ -193,7 +231,7 @@ export function HeroBreathingPoster() {
         <text
           key={i}
           x={g.x}
-          y={g.y}
+          y={g.y + POSTER_GLYPH_DY}
           fontSize={g.s}
           textAnchor="middle"
           dominantBaseline="central"

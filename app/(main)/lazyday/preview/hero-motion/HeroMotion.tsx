@@ -19,7 +19,7 @@
 import { useEffect, useRef, useState } from "react"
 import { animate, createSpring, svg } from "animejs"
 import styles from "./hero-motion.module.css"
-import { POSTER_THREAD_D, POSTER_GLYPHS, SAYU_P1, SAYU_P2, SAYU_P3 } from "../../poster-thread"
+import { POSTER_THREAD_D, POSTER_GLYPHS, POSTER_GLYPH_DY, SAYU_P1, SAYU_P2, SAYU_P3 } from "../../poster-thread"
 
 const TABS = [
   { key: "draw", label: "① 실선 인트로 (실이 먼저 그어진다)" },
@@ -120,7 +120,7 @@ function PosterGlyphs({ hidden }: { hidden?: boolean }) {
         <text
           key={i}
           x={g.x}
-          y={g.y}
+          y={g.y + POSTER_GLYPH_DY}
           fontSize={g.s}
           textAnchor="middle"
           dominantBaseline="central"

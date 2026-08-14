@@ -1,7 +1,15 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { POSTER_THREAD_D, POSTER_GLYPHS, POSTER_GLYPH_DY, SAYU_P1, SAYU_P2, SAYU_P3 } from "./poster-thread"
+import {
+  POSTER_THREAD_D,
+  POSTER_GLYPHS,
+  POSTER_GLYPH_DY,
+  scalePosterThreadD,
+  SAYU_P1,
+  SAYU_P2,
+  SAYU_P3,
+} from "./poster-thread"
 import styles from "./HeroBreathingPoster.module.css"
 
 /**
@@ -62,18 +70,18 @@ const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 �
 // 흐름 — 정지에서 툭 시작하지 않고 등가속으로 정상 속도까지 올린다.
 // 진입 완료 직후 **대기 0** 이므로(운영자 확인 2026-08-12) 가속 자체를 더 빠르게:
 // 0.5초 → **0.3초**. 등가속이면 이동 거리는 평균속도 × 시간 = (SPEED/2) × 0.3.
-/** 크롬이 경로 양 끝에서 글리프를 안 그리는 **가장자리 여백의 합**(u, 실측 1.46).
- *  이음매가 안 보이려면 **한 벌의 advance(피치 P) = L − SEAM_MARGIN 이 정확히** 맞아야
- *  한다 — 그래야 끝에서 사라지는 글자와 시작에서 나타나는 글자가 늘 같은 글자라
- *  화면에서는 아무 일도 일어나지 않는다.
- *  ⚠ 중첩(여유 > 여백)은 구멍만큼이나 나쁘다: 남는 만큼 **같은 글자가 두 곳에 동시에**
- *  그려져 이음매에서 겹쳐 찍힌다. 종전 여유 2.042u 는 δ = 0.583u 초과라 글자가 지날
- *  때마다 58ms 씩(0.77초 주기 ≈ 1.3Hz) 겹쳐 — 운영자가 본 "중간중간 깜빡".
- *  ⚠ **P 는 런타임에 미세 조정할 수 없다.** 크롬은 font-size 를 1/64px 로 양자화해서
- *  474자 기준 한 칸이 7.4u 다 — 0.6u 를 맞추려는 크기 보정은 아무 효과가 없거나
- *  7.4u 를 통째로 넘긴다. 그래서 맞추는 쪽은 **경로 길이**다(poster-thread.ts 에서
- *  오프라인 스케일). 여기 상수는 그 목표를 적어 둔 것이고, 아래 fitToPath 는
- *  **폴백 서체 구제용**으로만 동작한다. */
+/** 이음매 여유의 **설계 기준값**(u) — 크롬이 경로 양 끝에서 글리프를 안 그리는
+ *  가장자리 여백의 합. 이음매가 안 보이려면 한 벌의 advance(피치 P)가
+ *  `경로길이 − 이 값` 과 **정확히** 같아야 한다. 그래야 끝에서 사라지는 글자와
+ *  시작에서 나타나는 글자가 늘 같은 글자라 화면에서는 아무 일도 일어나지 않는다.
+ *  δ = (L − 여백) − P 가 어긋난 양이고, δ<0 이면 **구멍**(글자가 한 자씩 사라진다),
+ *  δ>0 이면 **중첩**(같은 글자가 양 끝에 동시에 그려진다). 둘 다 깜빡임으로 보인다.
+ *  ⚠ 이 상수는 **폭을 못 재는 브라우저용 폴백**일 뿐이다. 실제 값은 엔진마다 다르고,
+ *  피치 P 도 엔진마다 다르므로(같은 서체·크기라도 advance 를 다르게 눌러 담는다)
+ *  런타임에 `tuneSeam` 이 δ 를 직접 재서 **경로 길이**로 0 을 맞춘다.
+ *  ⚠ CSS 로는 못 맞춘다 — font-size·letter-spacing·word-spacing 이 전부 1/64px 로
+ *  양자화돼 474자 기준 최소 조정 폭이 5~7u 다(실측). `textLength` 는 크롬이 textPath
+ *  에서 무시한다(실측). 그래서 아래 fitToPath 는 **폴백 서체 구제용**으로만 돈다. */
 const SEAM_MARGIN = 1.46
 
 const RAMP_MS = 300
@@ -182,7 +190,88 @@ export function HeroBreathingPoster() {
       if (probe) probe.style.fontSize = size // 프로브도 같이 — 다음 측정이 어긋나지 않게
     }
 
-    fontSettled().then(() => {
+    /** 이음매를 **엔진에 맞춰 스스로** 맞춘다. 통짜 텍스트가 들어간 뒤 한 번 돈다.
+     *
+     *  δ = (같은 글자가 경로 끝에서 사라지는 오프셋) − (경로 시작에서 나타나는 오프셋).
+     *  δ > 0 이면 그 구간만큼 **두 곳에 동시에** 그려지고(겹쳐 찍힘), δ < 0 이면
+     *  **아무 데도 없다**(글자가 한 자씩 사라진다 — 운영자 2026-08-14). δ 는 곧
+     *  `(L − 2m) − P` 이므로 **경로를 δ 만큼 줄이면** 0 이 된다.
+     *
+     *  ⚠ 이 자동 보정이 필요한 이유: 피치 P 는 엔진마다 다른데(같은 서체·크기라도
+     *    advance 를 다르게 눌러 담는다) **CSS 로는 P 를 못 고친다** — font-size·
+     *    letter-spacing·word-spacing 이 전부 1/64px 로 양자화돼 474자 기준 최소
+     *    조정 폭이 5~7u 다(실측). 그래서 **경로 쪽**을 움직인다.
+     *
+     *  ⚠ **측정은 화면에 없는 사본(`text[data-seam]`, 2벌)으로 한다.** 보이는 본문의
+     *    startOffset 을 흔들면 그어짐 도중 글자가 튄다. 게다가 사본이 짧아(950자 대
+     *    1900자) 재배치 비용도 절반이다.
+     *  ⚠ **프레임을 나눠 쓴다.** 한 번의 재배치가 ~2.6ms 라, 40회를 한 프레임에 몰면
+     *    **417ms 짜리 멈춤**이 생겨 흐름이 시작하는 순간 툭 끊긴다(실측). 4회마다
+     *    rAF 로 양보하면 어떤 프레임도 16ms 를 넘지 않는다.
+     *  ⚠ 한 번이면 수학적으로 충분하다 — 경로를 (L−δ)/L 로 줄이면 L 이 정확히 δ 만큼
+     *    줄고 P 는 그대로라 δ 가 0 이 된다. 잔차는 이분 탐색 정밀도(0.003u)뿐. */
+    const tuneSeam = async (): Promise<void> => {
+      const seam = root.querySelector<SVGTextElement>("text[data-seam]")
+      const stp = seam?.querySelector("textPath") as SVGTextPathElement | null
+      if (!seam || !stp) return
+      const txt = stp.textContent ?? ""
+      const per = Math.round(txt.length / 2)
+      if (per < 10) return
+      let j = per + 10
+      while (j < txt.length && txt[j] === " ") j++
+      const jj = j - per
+      if (jj < 0 || j >= txt.length) return
+      // 보이는 본문과 같은 조판이어야 같은 피치가 나온다 (fitToPath 가 크기를 바꿨을 수도)
+      seam.style.fontSize = getComputedStyle(textEl0).fontSize
+
+      let budget = 0
+      const frame = () => new Promise((r) => requestAnimationFrame(r))
+      const visible = async (i: number, off: number) => {
+        stp.setAttribute("startOffset", String(off))
+        let v = false
+        try {
+          v = stp.getExtentOfChar(i).width > 0.01
+        } catch {
+          v = false
+        }
+        if (++budget % 4 === 0) await frame() // 한 프레임에 4회까지만
+        return v
+      }
+      /** 보임 → 안 보임 경계. 20회면 P/2^20 ≈ 0.003u 까지 좁혀진다 */
+      const edge = async (i: number, lo: number, hi: number) => {
+        for (let n = 0; n < 20 && !cancelled; n++) {
+          const mid = (lo + hi) / 2
+          if (await visible(i, mid)) lo = mid
+          else hi = mid
+        }
+        return (lo + hi) / 2
+      }
+
+      const P = seam.getComputedTextLength() / 2
+      if (!(P > 0)) return
+      // 한 번이면 이론상 끝나지만, 이분 탐색 정밀도(0.003u)와 경로 스케일의 비선형성이
+      // 0.02u 쯤 잔차를 남긴다 — 그만큼도 위상의 0.3% 에서 글자 하나를 흔든다. 2회.
+      for (let pass = 0; pass < 2 && !cancelled; pass++) {
+        const Lnow = pathEl0.getTotalLength()
+        const delta = (await edge(j, -P, 0)) - (await edge(jj, 0, -P))
+        if (cancelled || Math.abs(delta) < 0.005 || Math.abs(delta) > Lnow * 0.05) break
+        // scalePosterThreadD 는 **원본 d** 를 기준으로 배율을 매기므로, 이미 보정된
+        // 상태(2회차·개발 중 이펙트 재실행)에서는 그 배율에 곱해야 한다
+        const applied = Number(pathEl0.dataset.lzScale || 1) || 1
+        const next = applied * ((Lnow - delta) / Lnow)
+        pathEl0.dataset.lzScale = String(next)
+        pathEl0.setAttribute("d", scalePosterThreadD(next))
+      }
+    }
+
+    fontSettled().then(async () => {
+      if (cancelled) return
+      // ⚠ **이음매 보정은 그어짐을 재개하기 전에 끝낸다.** 경로 `d` 를 다시 쓰면
+      //   textPath 전체가 재배치돼 한 프레임이 0.2~0.4초까지 늘어난다(실측). 흐름
+      //   중이나 그어짐 중에 하면 그 순간 툭 끊겨 보이지만, 아직 정지 상태라
+      //   화면에서는 아무것도 움직이지 않아 티가 나지 않는다 — 진입 시작만
+      //   그만큼 늦어질 뿐이다. (안전핀 3초가 이 대기의 상한을 겸한다)
+      await tuneSeam()
       if (cancelled) return
       // ⚠ **무엇보다 먼저 재개한다.** 아래 어느 계산이 실패해 빠져나가더라도 본문은
       //   보여야 한다 — 예전엔 폭 측정이 0 인 브라우저에서 여기서 return 해 버려
@@ -213,7 +302,7 @@ export function HeroBreathingPoster() {
         //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
         //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
         fitToPath(textEl, K) // 통짜 기준으로 한 번 더 맞춘다 (tspan 보정분 흡수)
-        const P = unitWidth(K) || L - SEAM_MARGIN
+        const P = unitWidth(K) || pathEl0.getTotalLength() - SEAM_MARGIN
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
@@ -267,12 +356,6 @@ export function HeroBreathingPoster() {
       <defs>
         <path id="heroSayuThread" d={POSTER_THREAD_D} />
       </defs>
-      {/* 폭 측정용 프로브 — 화면 밖 평문 한 벌. 웹킷(iOS·사파리)은 `<text>` 의 글이
-          `<textPath>` 안에 있으면 getComputedTextLength() 가 **0** 이라, 이 프로브가
-          없으면 서체 판별·크기 보정이 통째로 불발한다. 렌더 비용은 한 줄뿐 */}
-      <text className={styles.threadText} data-probe x={0} y={-999} visibility="hidden" aria-hidden xmlSpace="preserve">
-        {SAYU_FULL}{" "}
-      </text>
       <text className={styles.threadText} xmlSpace="preserve">
         {/* dominantBaseline="central" — 경로는 원본 **글자줄의 중심**(잉크 능선)에 맞춰
             추출돼 있는데 textPath 기본값은 글자를 **베이스라인**에 얹는다. 그대로 두면
@@ -315,6 +398,20 @@ export function HeroBreathingPoster() {
           {g.ch}
         </text>
       ))}
+      {/* 폭 측정용 프로브 — 화면 밖 평문 한 벌. 웹킷(iOS·사파리)은 `<text>` 의 글이
+          `<textPath>` 안에 있으면 getComputedTextLength() 가 **0** 이라, 이 프로브가
+          없으면 서체 판별·크기 보정이 통째로 불발한다. 렌더 비용은 한 줄뿐 */}
+      <text className={styles.threadText} data-probe x={0} y={-999} visibility="hidden" aria-hidden xmlSpace="preserve">
+        {SAYU_FULL}{" "}
+      </text>
+      {/* 이음매 측정용 사본 — 같은 경로 위에 **2벌**만. 보이는 본문의 startOffset 을
+          흔들면 그어짐 도중 글자가 튀므로 측정은 여기서만 한다. 2벌이면 '한 벌 떨어진
+          같은 글자' 쌍을 만들 수 있고, 길이가 절반이라 재배치 비용도 절반이다. */}
+      <text className={styles.threadText} data-seam visibility="hidden" aria-hidden xmlSpace="preserve">
+        <textPath href="#heroSayuThread" dominantBaseline="central">
+          {`${SAYU_FULL} `.repeat(2)}
+        </textPath>
+      </text>
     </svg>
   )
 }

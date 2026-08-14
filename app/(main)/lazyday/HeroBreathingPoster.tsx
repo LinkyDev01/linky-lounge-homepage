@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { memo, useEffect, useRef } from "react"
 import {
   POSTER_THREAD_D,
   POSTER_GLYPHS,
@@ -48,14 +48,13 @@ const DRAW_MS = 2200
 const CHAR_DUR_MS = 200 // 그어지는 인상 — 글자 하나의 페이드는 짧게
 
 /** 글자 i(위치 p)가 뜨는 정규화 시각 — 붓끝이 그 자리에 닿는 순간.
- *  기본은 easeInOutQuad(=anime 의 inOut(2))의 역함수지만, 그대로 쓰면 **끝 감속의
- *  꼬리가 길어** 마지막 10% 가 중간 대비 4배 느리게 떠 "다 안 찼는데 멈춘" 인상을 준다
- *  (운영자 "조금 대기가 있어 보인다"). 선형과 섞어 그 꼬리만 완화한다 —
- *  시작의 가속감은 남기고 끝은 등속에 가깝게. */
-const TAIL_BLEND = 0.45
+ *  **등속** (운영자 2026-08-14 "글자 생성(표시)시 … 등속이 아니네").
+ *  변천: 시안 ① 의 easeInOutQuad 역함수 → 끝 꼬리 완화(TAIL_BLEND 0.45,
+ *  "다 안 찼는데 멈춘" 인상) → **선형** — 남아 있던 가감속 곡선(구간별 증가
+ *  1→9→29→…→7, 실측)이 구간별로 빨라졌다 느려지는 것으로 보였다.
+ *  구간별 새 글자 수가 일정한 것이 판정 기준 (scripts/poster-pdf/README.md). */
 function drawTimeAt(p: number) {
-  const quad = p < 0.5 ? Math.sqrt(p / 2) : 1 - Math.sqrt((1 - p) / 2)
-  return quad * (1 - TAIL_BLEND) + p * TAIL_BLEND
+  return p
 }
 
 /* ⚠ 폐기된 가정 — "한 벌(P) 이 경로(L) 보다 길어 뒤쪽 19% 는 렌더되지 않는다".
@@ -98,7 +97,11 @@ const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 
  *  따로 두면 히어로 타이밍을 고칠 때마다 어긋난다 */
 export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
 
-export function HeroBreathingPoster() {
+/** ⚠ memo 는 장식이 아니다 — 셸의 내비 리빌(state 전환)이 **그리기 끝 200ms 전**에
+ *  일어나는데, 그때 포스터까지 리렌더되면 474개 tspan 재조정이 프레임을 ~300ms
+ *  블록해 마지막 글자 ~100자가 뭉텅이로 나타난다(실측, 구간별 증가 …,18,3,105).
+ *  props 가 없으므로 memo 로 부모 리렌더에서 완전히 격리된다. */
+export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -108,6 +111,7 @@ export function HeroBreathingPoster() {
     let cancelled = false
     let anim: SVGAnimateElement | null = null
     let timer: ReturnType<typeof setTimeout> | null = null
+    let recal: ReturnType<typeof setTimeout> | null = null
 
     const tp0 = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
     const pathEl0 = root.querySelector<SVGPathElement>("#heroSayuThread")
@@ -115,10 +119,10 @@ export function HeroBreathingPoster() {
     const textEl0 = tp0.closest("text") as SVGTextElement
     const L = pathEl0.getTotalLength()
 
-    // 서체가 확정될 때까지 그어짐을 **일시정지**한다 (재시작이 아니라 정지 → 재개라
-    // 화면에는 "중간에 초기화"가 보이지 않는다. 운영자 2026-08-14 "중간에 한 번
-    // 초기화되고 다시 시작되는 부분이 있어"). CSS 는 기본 running 이라 JS 가 죽어도
-    // 진입은 그대로 돈다.
+    // 그어짐은 SSR 인라인 --lz-play: paused 로 **태어날 때부터 정지**다 — 하이드레이션
+    // 동안 그리기가 시작됐다가 서체 대기에 멈추는 끊김(운영자 "구간별 툭툭")을 없앤다.
+    // 준비(서체·크기·이음매)가 다 끝난 뒤 resume 이 한 번에 풀어 처음부터 끝까지
+    // 이어 그린다. JS 가 죽으면 noscript 스타일이 !important 로 정지를 뒤집는다.
     // ⚠ 이미 재생된 양은 **CSS 애니의 currentTime** 으로 읽는다. performance.now() 로
     //   대신하면 안 된다 — 그건 내비게이션 기준이라 번들 로드가 느린 순간(dev 실측
     //   14.5초) 진입이 다 끝난 것으로 오판해 흐름이 **12% 에서 곧장 통짜로 전환**된다
@@ -136,11 +140,19 @@ export function HeroBreathingPoster() {
       // 대기·이음매 튜닝으로 그어짐이 늦게 시작하면 **그어짐이 8% 인 채 내비가 뜬다**
       // (엄격 검토에서 발견 — 콜드 폰트 실측). 실제 (재)시작 시각과 남은 시간을
       // 알려 셸이 타이머를 다시 건다. 셸이 없는 화면(검수 단독 뷰 등)에선 무해.
-      window.dispatchEvent(
-        new CustomEvent("lz:hero-draw-start", {
-          detail: { revealInMs: Math.max(0, CHROME_REVEAL_MS - played()) },
-        }),
-      )
+      const tell = () =>
+        window.dispatchEvent(
+          new CustomEvent("lz:hero-draw-start", {
+            detail: { revealInMs: Math.max(0, CHROME_REVEAL_MS - played()) },
+          }),
+        )
+      tell()
+      // ⚠ 한 번 더 보정한다 — 재개 직후엔 애니 시계가 아직 0 이라(스타일 재계산이
+      //   끝나야 돈다, 실측 ~150-370ms 지연) 첫 통보가 그만큼 이르다. 350ms 뒤
+      //   시계 실측값으로 다시 알리면 셸이 타이머를 정확한 시각으로 재조정한다.
+      recal = setTimeout(() => {
+        if (!cancelled) tell()
+      }, 350)
     }
     root.style.setProperty("--lz-play", "paused")
     // ⚠ **정지에는 반드시 되풀이 못 할 안전핀이 붙어야 한다.** 아래 어느 단계에서 막히든
@@ -174,10 +186,15 @@ export function HeroBreathingPoster() {
       } catch {
         /* 조각 로드가 실패해도 아래 루프의 상한까지 기다린 뒤 크기 보정으로 살린다 */
       }
-      // 상한 2.4초 — 이보다 오래 기다리면 실이 빈 포스터가 눈에 띄게 오래 남는다
+      // 상한 2.4초 — 이보다 오래 기다리면 실이 빈 포스터가 눈에 띄게 오래 남는다.
+      // ⚠ 폭이 범위 안이어도 **직전 측정과 정확히 같아질 때까지** 기다린다 — 동적
+      //   서브셋은 조각 단위로 오므로, 몇 글자 조각이 아직 안 온 상태(폭 변화 중)에서
+      //   출발하면 그리는 도중 그 글자들이 뒤늦게 서체가 갈려 구간별로 튄다.
+      let prev = -1
       for (let i = 0; i < 20 && !cancelled; i++) {
         const w = unitWidth(1)
-        if (w > 0 && Math.abs(w - L) / L < 0.04) return
+        if (w > 0 && Math.abs(w - L) / L < 0.04 && w === prev) return
+        prev = w
         await new Promise((r) => setTimeout(r, 120))
       }
     }
@@ -296,8 +313,6 @@ export function HeroBreathingPoster() {
         /* 보정 실패 = 이음매가 미세하게 어긋날 뿐 — 본문 노출이 우선이다 */
       }
       if (cancelled) return
-      clearTimeout(failsafe)
-      resume()
       // 폭을 못 재는 브라우저에선 설계값(경로 − 여백)을 그대로 쓴다. ⚠ 경로 길이는
       // tuneSeam 이 방금 바꿨을 수 있다 — 마운트 때의 L 이 아니라 **지금** 값으로.
       const Lnow = pathEl0.getTotalLength()
@@ -305,12 +320,28 @@ export function HeroBreathingPoster() {
       // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
       // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
       const K = Math.max(2, Math.ceil((P0 + Lnow) / P0) + 1)
-      // 남은 진입 시간 = 전체 − 이미 재생된 양. ⚠ 마운트 때 잰 playedAtPause 가 아니라
-      // **지금** 읽는다 — 백그라운드 탭에서는 rAF 가 멈춰 tuneSeam 이 안전핀(3초) 뒤에야
-      // 풀리는데, 그 사이 그어짐은 이미 돌았으므로 옛 값을 쓰면 흐름이 2.4초 늦는다.
-      const wait = Math.max(0, FLOW_START_MS - Math.min(played() || playedAtPause, FLOW_START_MS))
-      timer = setTimeout(() => {
+      // ⚠ 재개는 **모든 측정·계산이 끝난 다음, 마지막 동기 행위**로 한다. 재개 직후에
+      //   강제 리플로우가 남아 있으면 그 블록 프레임(실측 147ms)만큼 애니 시계 시작이
+      //   늦어져, 재개하고도 화면이 잠깐 죽어 보인다.
+      clearTimeout(failsafe)
+      resume()
+      const resumedAt = performance.now()
+      // ⚠ 흐름 전환(통짜 교체)은 **벽시계가 아니라 그어짐 시계**로 잡는다. 벽시계로
+      //   FLOW_START_MS 뒤에 오면, 재개 지연·블록 프레임만큼 그리기가 밀린 상태에서
+      //   교체가 먼저 도착해 **아직 안 그어진 마지막 수십 자를 페이드 없이 통째로
+      //   덮는다** (실측: 430/474 에서 교체 = 끝부분 44자가 툭 나타남 — 운영자
+      //   "구간별 툭툭"의 마지막 조각). played() ≥ FLOW_START_MS 가 될 때까지
+      //   남은 만큼 재예약한다. 시계를 못 읽는 브라우저(항상 0)는 벽시계 상한
+      //   (+1초)이 끊어 준다 — 그때는 그리기가 이미 끝난 지 오래라 안전하다.
+      const scheduleFlow = () => {
         if (cancelled) return
+        const byClock = FLOW_START_MS - played()
+        const byWall = FLOW_START_MS + 1000 - (performance.now() - resumedAt)
+        const remaining = Math.min(byClock, byWall)
+        if (remaining > 30) {
+          timer = setTimeout(scheduleFlow, remaining)
+          return
+        }
         // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
         // 글자마다 경로 재배치가 일어나 **30fps 로 반토막** 난다 (실측 33.3ms/frame,
         // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
@@ -362,17 +393,25 @@ export function HeroBreathingPoster() {
             if (!cancelled) ramp.beginElement()
           }),
         )
-      }, wait)
+      }
+      timer = setTimeout(scheduleFlow, FLOW_START_MS)
     })
     return () => {
       cancelled = true
       clearTimeout(failsafe)
+      if (recal) clearTimeout(recal)
       if (timer) clearTimeout(timer)
       anim?.remove()
     }
   }, [])
 
   return (
+    <>
+      {/* JS 가 없으면 아래 인라인 paused 를 풀 수 없다 — 그 경우 처음부터 그어진다.
+          (스타일시트 !important 는 인라인 값을 이기므로 noscript 로 확실히 뒤집힌다) */}
+      <noscript>
+        <style>{`svg[data-lz-poster]{--lz-play:running!important}`}</style>
+      </noscript>
     <svg
       ref={rootRef}
       className={styles.poster}
@@ -381,6 +420,13 @@ export function HeroBreathingPoster() {
       aria-label="레이지데이 북클럽 4기 모집"
       // 진입 홀드 동안 덮개 위로 올라오는 유일한 요소 (셸 CSS 가 이 표식을 잡는다)
       data-lz-poster=""
+      // ⚠ 그어짐은 **SSR 부터 정지 상태로 태어난다** — 종전엔 CSS 기본값(running)이라
+      //   하이드레이션 동안 그리기가 시작됐다가 effect 의 정지(서체 대기·튜닝)에
+      //   **그리다 멈추는 끊김**이 생겼다 (운영자 "구간별 툭툭 끊기면서", 실측 구간별
+      //   증가 1→0→0→…). 준비가 다 끝난 뒤 resume 이 한 번에 풀어 처음부터 끝까지
+      //   이어 그린다. reduced-motion 은 CSS 가 animation 자체를 꺼 즉시 노출이므로
+      //   이 값과 무관하다.
+      style={{ ["--lz-play" as string]: "paused" }}
     >
       <defs>
         <path id="heroSayuThread" d={POSTER_THREAD_D} />
@@ -393,9 +439,8 @@ export function HeroBreathingPoster() {
             ⚠ textPath 의 dy 는 크롬에서 무시되고, CSS `.class{dominant-baseline}` 도
             <text> 에만 걸려 안 먹는다 — **textPath 요소의 속성**이어야 한다. */}
         <textPath href="#heroSayuThread" dominantBaseline="central" data-stream>
-          {/* 첫 벌 — 글자별 tspan. 딜레이를 draw 이징의 역함수로 깔아, 붓끝이 그
-              자리에 닿는 순간 글자가 뜬다 = 시안 ①의 선 긋기와 같은 리듬·속도.
-              CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돈다 */}
+          {/* 첫 벌 — 글자별 tspan. 딜레이 = 등속(선형) 스태거. SSR 인라인 paused 로
+              태어나 resume 때 한 번에 이어 그려진다 (JS 실패 시엔 noscript 가 품) */}
           {(() => {
             const chars = `${SAYU_FULL} `.split("")
             const last = chars.length - 1
@@ -442,5 +487,6 @@ export function HeroBreathingPoster() {
         </textPath>
       </text>
     </svg>
+    </>
   )
-}
+})

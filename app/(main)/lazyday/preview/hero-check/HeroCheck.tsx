@@ -61,10 +61,11 @@ export function HeroCheck() {
     if (!root) return
     const t0 = performance.now()
     const log: string[] = []
-    const push = (s: string) => {
-      log.push(s)
-      setMarks([...log])
-    }
+    // ⚠ 기록은 모아 뒀다가 **안무가 다 끝난 뒤 한 번에** 그린다 — 내비 리빌 순간에
+    //   setState 를 치면 이 페이지 전체가 리렌더되며 그리기 마지막 구간이 뭉텅이로
+    //   보인다(측정이 화면을 오염). 랜딩에는 없는 검수 페이지 전용 비용이다.
+    const push = (s: string) => log.push(s)
+    const flush = setTimeout(() => setMarks([...log]), 7000)
     push("0.00초 — 포스터만 (내비·푸터·본문 가림)")
     // ⚠ 중복 방지는 문자열 검색이 아니라 플래그로 — 첫 항목("…내비·푸터·본문 가림")에
     //   같은 낱말이 들어 있어 includes 검사가 내비 노출 기록을 영영 막았다 (실측)
@@ -82,7 +83,10 @@ export function HeroCheck() {
       }
     })
     mo.observe(root, { attributes: true, attributeFilter: ["data-intro", "data-cta"] })
-    return () => mo.disconnect()
+    return () => {
+      clearTimeout(flush)
+      mo.disconnect()
+    }
   }, [runId])
 
   return (

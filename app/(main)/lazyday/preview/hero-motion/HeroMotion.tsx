@@ -248,7 +248,7 @@ function FlowDemo() {
 /* 얽힌 실 경로 — 포스터 실측 한붓 경로 그대로 (라운드 135).
    글자가 태어나는 끝(경로 끝)과 사라지는 끝(경로 시작)이 있는 열린 실이다. */
 const STREAMS = [
-  { id: "sayuStr", d: POSTER_THREAD_D, text: `${SAYU_P1}   ${SAYU_P2}   ${SAYU_P3}`, speed: 10 },
+  { id: "sayuStr", d: POSTER_THREAD_D, text: `${SAYU_P1} ${SAYU_P2} ${SAYU_P3}`, speed: 10 },
 ]
 
 function BreatheDemo() {
@@ -303,7 +303,7 @@ function BreatheDemo() {
         </defs>
         {STREAMS.map((s) => (
           <text key={s.id} className={styles.threadText}>
-            <textPath href={`#${s.id}`} data-stream>
+            <textPath href={`#${s.id}`} dominantBaseline="central" data-stream>
               {`${s.text}   `}
             </textPath>
           </text>

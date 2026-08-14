@@ -71,13 +71,13 @@
 
 /* 실 위 문장 (②·③) — 채택 히어로(HeroBreathingPoster.module.css)와 **같은 값의 별도 사본**.
    한쪽만 바꾸면 시안 쇼케이스와 실사이트가 어긋난다.
-   2026-08-14: 7.2px / -0.007em — 반복 단위 advance 가 닫힌 루프(2709.04u)를 정확히
+   2026-08-14: 7.2px / -0.0045em — 반복 단위 advance 가 닫힌 루프(2704.91u)를 정확히
    채우는 값. 유도와 함정은 히어로 CSS 상단 주석 참조 */
 .threadText {
   font-family: "Pretendard Variable", Pretendard, sans-serif;
   font-weight: 400;
   font-size: 7.2px;
-  letter-spacing: -0.007em;
+  letter-spacing: -0.0045em;
   fill: #1a1208;
 }
 

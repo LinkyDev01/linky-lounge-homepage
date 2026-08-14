@@ -25,7 +25,10 @@ import styles from "./HeroBreathingPoster.module.css"
  * 진입 스킵(즉시 노출)·흐름 없음 — 한 벌이 경로보다 길어 정지여도 실이 가득 차 보인다.
  */
 
-const SAYU_FULL = `${SAYU_P1}   ${SAYU_P2}   ${SAYU_P3}`
+/** 문단 사이는 **한 칸**. 종전 세 칸(`   `)이었는데, 그 13.5u 짜리 빈 구간이 루프를 돌며
+ *  이음매에서 "글자가 사라졌다 생긴다"로 보였다 (운영자 2026-08-14). 원본 실측: 경로 위
+ *  잉크 공백은 전 구간 최대 4.75u(=보통 낱말 사이)뿐이고 이음매에도 큰 틈이 없다. */
+const SAYU_FULL = `${SAYU_P1} ${SAYU_P2} ${SAYU_P3}`
 const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (데모 ③ 확정값)
 
 // ── 진입 타이밍 = hero-motion 시안 ①(실선 인트로)의 값 그대로 ────────────────
@@ -105,7 +108,7 @@ export function HeroBreathingPoster() {
         // 글자마다 경로 재배치가 일어나 **30fps 로 반토막** 난다 (실측 33.3ms/frame,
         // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
         // 60fps 회복 — 진입이 끝난 시점이라 시각적으로는 같은 화면이다
-        tp.textContent = `${SAYU_FULL}   `.repeat(K)
+        tp.textContent = `${SAYU_FULL} `.repeat(K)
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
@@ -159,12 +162,18 @@ export function HeroBreathingPoster() {
         <path id="heroSayuThread" d={POSTER_THREAD_D} />
       </defs>
       <text className={styles.threadText} xmlSpace="preserve">
-        <textPath href="#heroSayuThread" data-stream>
+        {/* dominantBaseline="central" — 경로는 원본 **글자줄의 중심**(잉크 능선)에 맞춰
+            추출돼 있는데 textPath 기본값은 글자를 **베이스라인**에 얹는다. 그대로 두면
+            글자가 경로 한쪽으로 2.5u 치우쳐, 원본 대비 전 구간이 그만큼 어긋난다
+            (창 226개 상호상관 실측: 수직 편차 평균 +2.53u → central 적용 후 −0.10u).
+            ⚠ textPath 의 dy 는 크롬에서 무시되고, CSS `.class{dominant-baseline}` 도
+            <text> 에만 걸려 안 먹는다 — **textPath 요소의 속성**이어야 한다. */}
+        <textPath href="#heroSayuThread" dominantBaseline="central" data-stream>
           {/* 첫 벌 — 글자별 tspan. 딜레이를 draw 이징의 역함수로 깔아, 붓끝이 그
               자리에 닿는 순간 글자가 뜬다 = 시안 ①의 선 긋기와 같은 리듬·속도.
               CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돈다 */}
           {(() => {
-            const chars = `${SAYU_FULL}   `.split("")
+            const chars = `${SAYU_FULL} `.split("")
             const last = chars.length - 1
             return chars.map((c, i) => (
               <tspan

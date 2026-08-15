@@ -83,25 +83,15 @@ export function useChromeIntro(force = false) {
       return
     }
 
-    // 기본 타이머는 마운트 기준 벽시계 — 포스터가 서체 대기·이음매 튜닝으로 그어짐을
-    // 늦게 시작하면 이 시계와 어긋난다(그어짐 8% 에 내비가 뜨는 실측). 포스터가
-    // `lz:hero-draw-start` 로 실제 (재)시작 시각과 남은 시간을 알려 오면 타이머를
-    // 다시 건다. 이벤트가 안 오는 화면(정적 히어로·JS 일부 실패)에선 기본 타이머가
-    // 종전과 똑같이 동작한다 — 동기화는 개선일 뿐 의존이 아니다.
-    let timer = setTimeout(revealChrome, CHROME_REVEAL_MS)
-    const onDrawStart = (e: Event) => {
-      const ms = (e as CustomEvent<{ revealInMs?: number }>).detail?.revealInMs
-      if (typeof ms !== "number" || chromeDone.current) return
-      clearTimeout(timer)
-      timer = setTimeout(revealChrome, ms)
-    }
-    window.addEventListener("lz:hero-draw-start", onDrawStart)
+    // 채택 원형 그대로 — 마운트 기준 타이머 (스태거도 페인트부터 돌므로 어긋남 미미).
+    // 한때 포스터가 정지·재개하며 이벤트로 재보정했으나, 정지 자체가 철회되며 함께
+    // 제거됐다 (2026-08-14 "이전처럼 애니메이션 살려야").
+    const timer = setTimeout(revealChrome, CHROME_REVEAL_MS)
     const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
     EVENTS.forEach((ev) => window.addEventListener(ev, revealChrome, { passive: true }))
     return () => {
       clearTimeout(timer)
       clearTimeout(ctaTimer)
-      window.removeEventListener("lz:hero-draw-start", onDrawStart)
       EVENTS.forEach((ev) => window.removeEventListener(ev, revealChrome))
     }
   }, [force])

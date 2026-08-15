@@ -41,13 +41,12 @@ export function HeroCheck() {
       const textEl = (svg.querySelector("textPath")?.closest("text") ?? null) as SVGTextElement | null
       const probe = svg.querySelector("text[data-probe]") as SVGTextElement | null
       const path = svg.querySelector("#heroSayuThread") as SVGPathElement | null
-      const play = getComputedStyle(svg).getPropertyValue("--lz-play").trim() || "(미설정=running)"
       const w = textEl?.getComputedTextLength?.() ?? -1
       const pw = probe?.getComputedTextLength?.() ?? -1
       const L = path?.getTotalLength?.() ?? -1
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
       setDiag(
-        `--lz-play ${play} · 본문폭 ${w.toFixed(0)} · 프로브 ${pw.toFixed(0)} · 경로 ${L.toFixed(0)} · ` +
+        `본문폭 ${w.toFixed(0)} · 프로브 ${pw.toFixed(0)} · 경로 ${L.toFixed(0)} · ` +
           `크기 ${textEl ? getComputedStyle(textEl).fontSize : "?"} · 모션최소화 ${reduce ? "켜짐" : "꺼짐"}`,
       )
     }, 5000)

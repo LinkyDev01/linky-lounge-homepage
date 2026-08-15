@@ -109,15 +109,27 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
      *  ±4% 안에 들고 **직전 측정과 동일**할 때(조각 수신 완료)를 안정으로 본다.
      *  스태거는 이 대기와 무관하게 페인트부터 돌고 있다 (원형 유지). */
     const fontSettled = async () => {
-      try {
-        await (document as Document).fonts.load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
-      } catch {
-        /* 로드 실패면 아래 상한까지 기다린 뒤 fitToPath 가 구제한다 */
-      }
+      let loaded = false
+      ;(document as Document).fonts
+        .load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
+        .then(() => {
+          loaded = true
+        })
+        .catch(() => {
+          loaded = true /* 로드 실패 확정도 '더 기다릴 것 없음' — 구제로 넘어간다 */
+        })
+      // ⚠ 폭이 **안정될 때마다 즉시 구제**한다 (fitToPath 는 1% 안이면 no-op라 공짜).
+      //   구제를 흐름 시작까지 미루면, 서체 폭이 경로와 다른 기기(실기기 iOS)에서
+      //   **그어지는 2.2초 내내 본문이 경로에 모자라거나 넘친 채**로 보인다
+      //   (운영자 "원본은 딱 맞춰 길이가 세팅되는데 넌 많이 모잘라").
+      //   진짜 서체가 늦게 오면 폭이 다시 움직이고, 다음 안정 때 재구제된다.
       let prev = -1
       for (let i = 0; i < 20 && !cancelled; i++) {
         const w = unitWidth(1)
-        if (w > 0 && Math.abs(w - L0) / L0 < 0.04 && w === prev) return
+        if (w > 0 && w === prev) {
+          fitToPath(textEl, 1)
+          if (loaded) return
+        }
         prev = w
         await new Promise((r) => setTimeout(r, 120))
       }
@@ -132,11 +144,12 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       const goal = pathEl.getTotalLength() - SEAM_MARGIN
       if (Math.abs(w - goal) / goal < 0.01) return
       const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
-      // ⚠ **절대 상하한** — 측정이 어떤 방식으로 틀리더라도 크기 폭발은 막는다.
-      //   구제의 존재 이유는 "넓은 폴백 서체를 줄이는 것"뿐: 7.2px 를 넘겨 키울
-      //   일은 설계상 없고(+2% 는 엔진 오차 허용), 4.5px 밑은 어떤 폴백에도 없다.
-      //   (실기기 iOS 에서 측정 오해가 21.6px 를 만든 사고의 마지막 방어선)
-      const size = Math.min(7.35, Math.max(4.5, (base * goal) / w))
+      // ⚠ **절대 상하한 [5.0, 9.6]px** — 측정이 어떤 방식으로 틀려도 크기 폭발
+      //   (실기기 iOS ×3 사고)은 막되, 정당한 구제는 양방향 다 허용한다.
+      //   종전 상한 7.35 는 "폴백은 넓다"는 가정이었는데 **iOS 의 서체 폭은 좁아서**
+      //   늘려야 했고, 상한이 그걸 막아 한 벌이 경로에 못 미쳤다 (운영자 "많이
+      //   모잘라"). ±33% 면 어떤 정당한 서체 편차도 담고 ×3 폭발은 여전히 불가능.
+      const size = Math.min(9.6, Math.max(5.0, (base * goal) / w))
       el.style.fontSize = `${size.toFixed(4)}px`
       if (probe) probe.style.fontSize = el.style.fontSize
     }
@@ -209,14 +222,16 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
      *  비용은 SMIL 과 동일 — 어차피 둘 다 textPath 재배치가 지배한다(크롬 60fps 실측). */
     const fireFlow = async () => {
       if (cancelled) return
-      await tuneSeam()
-      if (cancelled) return
       // ⚠ 성능: 진입용 tspan(474개)을 남긴 채 startOffset 을 굴리면 30fps 로
       // 반토막 난다 — 흐름 직전에 통짜 텍스트로 되돌린다 (원형 그대로)
       const P0 = unitWidth(1) || pathEl.getTotalLength() - SEAM_MARGIN
       const K = Math.max(2, Math.ceil((P0 + pathEl.getTotalLength()) / P0) + 1)
       tp.textContent = `${SAYU_FULL} `.repeat(K)
-      fitToPath(textEl, K) // 통짜 기준 재확인 (제 서체면 no-op)
+      // 순서 규율: **크기(거친 손잡이) → 이음매(고운 손잡이)** — 반대로 하면 크기
+      // 변경이 방금 맞춘 이음매를 도로 부순다 (엄격 검토 라운드의 교훈 재적용)
+      fitToPath(textEl, K)
+      await tuneSeam()
+      if (cancelled) return
       const P = unitWidth(K) || pathEl.getTotalLength() - SEAM_MARGIN
       /** 경과 t(ms) → 이동 거리(u). 등가속 ½at² (a = SPEED/tr) 로 300ms 에 SPEED 도달
        *  — 종전 SMIL keySplines 등가속과 같은 곡선, 이후 등속. */

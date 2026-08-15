@@ -89,11 +89,17 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     const textEl = tp.closest("text") as SVGTextElement
     const L0 = pathEl.getTotalLength()
 
-    /** 본문 한 벌의 실제 폭(u). ⚠ 웹킷은 `<textPath>` 를 품은 `<text>` 의 폭을 0 으로
-     *  돌려준다 — ① <text> ② <textPath> ③ 화면 밖 평문 프로브 순으로 폴백. */
+    /** 본문 **한 벌**의 실제 폭(u). ⚠ 실기기 iOS 검증(2026-08-14 스크린샷)으로 확정된
+     *  웹킷 반환값: `<text>` 는 **0**, `<textPath>` 는 **경로에 실린 글자만**의 폭
+     *  (≈ 경로 길이 — 벌 수와 무관!). 종전 코드가 textPath 폭을 "K벌 전체 폭"으로
+     *  오해해 한 벌 폭을 1/K 로 잘못 재고 **글자를 K배로 키웠다**(운영자 "폰트가
+     *  깨졌어 사이즈와 폰트, 굵기 모든 게" — 실기기에서 3배 폭발).
+     *  → textPath 는 측정원에서 **제외**한다. ① <text>(크롬 — 전체 advance 를 벌
+     *  수로 나눔) ② 화면 밖 평문 프로브(웹킷 — 딱 한 벌이라 나누지 않음, 경로 배치와
+     *  0.4% 차이는 fitToPath 1% 가드 안). */
     const probe = root.querySelector<SVGTextElement>("text[data-probe]")
     const unitWidth = (unitCount: number) => {
-      const w = textEl.getComputedTextLength() || tp.getComputedTextLength()
+      const w = textEl.getComputedTextLength()
       if (w > 0) return w / unitCount
       return probe?.getComputedTextLength() ?? 0
     }
@@ -126,9 +132,13 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       const goal = pathEl.getTotalLength() - SEAM_MARGIN
       if (Math.abs(w - goal) / goal < 0.01) return
       const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
-      const size = `${((base * goal) / w).toFixed(4)}px`
-      el.style.fontSize = size
-      if (probe) probe.style.fontSize = size
+      // ⚠ **절대 상하한** — 측정이 어떤 방식으로 틀리더라도 크기 폭발은 막는다.
+      //   구제의 존재 이유는 "넓은 폴백 서체를 줄이는 것"뿐: 7.2px 를 넘겨 키울
+      //   일은 설계상 없고(+2% 는 엔진 오차 허용), 4.5px 밑은 어떤 폴백에도 없다.
+      //   (실기기 iOS 에서 측정 오해가 21.6px 를 만든 사고의 마지막 방어선)
+      const size = Math.min(7.35, Math.max(4.5, (base * goal) / w))
+      el.style.fontSize = `${size.toFixed(4)}px`
+      if (probe) probe.style.fontSize = el.style.fontSize
     }
 
     /** 이음매 런타임 튜닝 (교정 ⓑ) — δ = (경로에서 사라지는 오프셋) − (나타나는
@@ -170,7 +180,10 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         return (lo + hi) / 2
       }
 
-      const P = (seam.getComputedTextLength() || stp.getComputedTextLength()) / 2
+      // ⚠ 사본의 textPath 폭도 웹킷에선 "경로에 실린 만큼"이라 2벌 폭이 아니다 —
+      //   <text> 가 0 이면 프로브(딱 한 벌)로 잰다
+      const seamW = seam.getComputedTextLength()
+      const P = seamW > 0 ? seamW / 2 : (probe?.getComputedTextLength() ?? 0)
       if (!(P > 0)) return
       for (let pass = 0; pass < 2 && !cancelled; pass++) {
         const Lnow = pathEl.getTotalLength()

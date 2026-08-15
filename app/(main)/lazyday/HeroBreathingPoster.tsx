@@ -1,10 +1,11 @@
 "use client"
 
-import { memo, useEffect, useRef } from "react"
+import { memo, useEffect, useLayoutEffect, useRef } from "react"
 import {
   POSTER_THREAD_D,
   POSTER_GLYPHS,
   POSTER_GLYPH_DY,
+  POSTER_GLYPH_FIT,
   scalePosterThreadD,
   SAYU_P1,
   SAYU_P2,
@@ -74,6 +75,35 @@ export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
 export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)
 
+  /** 크기 보정은 **첫 페인트 전에 끝내거나, 흐름 전환까지 미루거나** 둘 중 하나다 —
+   *  그어지는 도중에 바꾸면 글자 크기가 화면에서 바뀌는 게 보인다 (운영자 2026-08-14
+   *  "폰트 바뀌는 것 봐봐 왜그래?"). 여기(useLayoutEffect)는 페인트 전에 도는 유일한
+   *  지점: 서체가 **이미 준비돼 있으면**(웜 캐시·재방문) 그 자리에서 맞춰 아무도 못 본다.
+   *  아직이면 손대지 않고, 흐름 전환(통짜 교체로 어차피 전면 재배치되는 순간)에 맡긴다. */
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
+    const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
+    const probe = root.querySelector<SVGTextElement>("text[data-probe]")
+    if (!tp || !pathEl) return
+    const textEl = tp.closest("text") as SVGTextElement
+    let ready = false
+    try {
+      ready = (document as Document).fonts.check(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
+    } catch {
+      ready = false
+    }
+    if (!ready) return
+    const w = textEl.getComputedTextLength() || probe?.getComputedTextLength() || 0
+    const goal = pathEl.getTotalLength() - SEAM_MARGIN
+    if (!(w > 0) || Math.abs(w - goal) / goal < 0.01) return
+    const base = parseFloat(getComputedStyle(textEl).fontSize) || 7.2
+    const size = `${Math.min(9.6, Math.max(5.0, (base * goal) / w)).toFixed(4)}px`
+    textEl.style.fontSize = size
+    if (probe) probe.style.fontSize = size
+  }, [])
+
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
@@ -118,18 +148,16 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         .catch(() => {
           loaded = true /* 로드 실패 확정도 '더 기다릴 것 없음' — 구제로 넘어간다 */
         })
-      // ⚠ 폭이 **안정될 때마다 즉시 구제**한다 (fitToPath 는 1% 안이면 no-op라 공짜).
-      //   구제를 흐름 시작까지 미루면, 서체 폭이 경로와 다른 기기(실기기 iOS)에서
-      //   **그어지는 2.2초 내내 본문이 경로에 모자라거나 넘친 채**로 보인다
-      //   (운영자 "원본은 딱 맞춰 길이가 세팅되는데 넌 많이 모잘라").
-      //   진짜 서체가 늦게 오면 폭이 다시 움직이고, 다음 안정 때 재구제된다.
+      // ⚠ **크기 보정은 그어짐이 눈에 보이기 전에, 최대 한 번만** 한다.
+      //   그어지는 도중에 바꾸면 글자 크기가 화면에서 바뀌는 게 보인다
+      //   (운영자 2026-08-14 "폰트 바뀌는 것 봐봐 왜그래?" — 실기기 iOS 는 서체 폭이
+      //   달라 보정이 실제로 일어나므로 그 점프가 눈에 띈다). 이미 그어지기 시작했으면
+      //   **미루고**, 흐름 전환(통짜 교체로 어차피 전면 재배치되는 순간)에 맞춘다.
+      //   웜 캐시(재방문)면 첫 프레임 전에 끝나 아무도 못 본다.
       let prev = -1
       for (let i = 0; i < 20 && !cancelled; i++) {
         const w = unitWidth(1)
-        if (w > 0 && w === prev) {
-          fitToPath(textEl, 1)
-          if (loaded) return
-        }
+        if (w > 0 && w === prev && loaded) return
         prev = w
         await new Promise((r) => setTimeout(r, 120))
       }
@@ -325,8 +353,10 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       {POSTER_GLYPHS.map((g, i) => (
         <text
           key={i}
-          x={g.x}
-          y={g.y + POSTER_GLYPH_DY}
+          // 글자별 미세 보정 fx/fy — 원본 서체와 Pretendard Black 의 좌우 여백 차이를
+          // 겹쳐 보기 실측으로 상쇄한다 (poster-thread.ts 의 POSTER_GLYPH_FIT 주석)
+          x={g.x + (POSTER_GLYPH_FIT[i]?.fx ?? 0)}
+          y={g.y + POSTER_GLYPH_DY + (POSTER_GLYPH_FIT[i]?.fy ?? 0)}
           fontSize={g.s}
           textAnchor="middle"
           dominantBaseline="central"
@@ -338,11 +368,26 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       ))}
       {/* 폭 측정용 프로브 — 화면 밖 평문 한 벌 (웹킷의 <text> 폭 0 대비, 교정 ⓒ).
           ⚠ 보이는 본문 **뒤**에 둘 것 — 앞에 두면 검사 도구의 querySelector 가 집는다 */}
-      <text className={styles.threadText} data-probe x={0} y={-999} visibility="hidden" aria-hidden xmlSpace="preserve">
+      {/* ⚠ 두 측정 사본은 `visibility:hidden` 이 아니라 **opacity 0 + 화면 밖**이다.
+          웹킷은 visibility:hidden 요소의 텍스트 측정 API 를 신뢰할 수 없게 만들 수
+          있어(레이아웃 생략), 그러면 iOS 에서 이음매 튜닝이 통째로 불발한다 —
+          경로 시작점이 「레」 왼쪽이라 그 실패가 곧 "레 왼쪽 텍스트 겹침"으로 보인다
+          (운영자 2026-08-14). opacity 0 은 레이아웃이 반드시 돌아 어느 엔진에서든 잰다. */}
+      <text
+        className={styles.threadText}
+        data-probe
+        x={0}
+        y={-999}
+        opacity={0}
+        pointerEvents="none"
+        aria-hidden
+        xmlSpace="preserve"
+      >
         {SAYU_FULL}{" "}
       </text>
-      {/* 이음매 측정용 사본 — 같은 경로 위 2벌, 화면 밖 (교정 ⓑ 전용) */}
-      <text className={styles.threadText} data-seam visibility="hidden" aria-hidden xmlSpace="preserve">
+      {/* 이음매 측정용 사본 — 같은 경로 위 2벌 (교정 ⓑ 전용). 경로 위라 화면 밖으로
+          뺄 수 없어 opacity 0 으로만 감춘다 */}
+      <text className={styles.threadText} data-seam opacity={0} pointerEvents="none" aria-hidden xmlSpace="preserve">
         <textPath href="#heroSayuThread" dominantBaseline="central">
           {`${SAYU_FULL} `.repeat(2)}
         </textPath>

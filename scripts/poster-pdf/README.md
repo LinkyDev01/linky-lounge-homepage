@@ -233,3 +233,38 @@ rAF 가 매 프레임 startOffset 을 덮어쓴다.
 만큼"(크기 3배 폭발), "SMIL freeze 우선순위"(오프셋 비약) 둘 다 흉내 통과 후
 실기기에서 터졌다. 웹킷에 닿는 변경은 운영자 아이폰 스크린샷으로 확증하는 것이
 가장 빠르다. 방어선: 크기 절대 상하한 [4.5, 7.35]px · 엔진 의존 API(SMIL) 회피.
+
+### 글자별 보정 (POSTER_GLYPH_FIT) — 2026-08-14
+
+POSTER_GLYPHS 좌표는 원본 PDF 의 **잉크 bbox 중심**인데 렌더는 `textAnchor="middle"`
+= **advance 폭 중심**에 놓는다. 원본 서체와 Pretendard Black 의 좌우 여백이 달라
+오른쪽 세로모음 글자(레·이·지·데·기·집·럽)가 최대 2.3u 왼쪽으로 치우쳤다
+(대칭 글자 북·클·모 는 0.0u — 이 패턴이 원인 증거다).
+
+```bash
+node scripts/poster-pdf/capture.mjs          # 렌더만 / 원본 겹침 두 장 (상태 assert 포함)
+python3 scripts/poster-pdf/glyph-fit.py /tmp/cap-render.png   # 글자별 Δ 출력
+```
+출력 Δ 의 **부호를 뒤집어** poster-thread.ts 의 `POSTER_GLYPH_FIT` 에 넣는다.
+실측 결과 평균 1.61u → **0.09u**, 최대 2.79 → **0.15u** 로 수렴 (재현오차 0.000u).
+
+⚠ **캡처 순서 주의**: 검수 페이지의 겹쳐 보기는 **기본 OFF** 다. 예전 스크립트는
+"기본 ON" 을 가정해 두 장이 뒤바뀌었고, 그 오염된 이미지로 잰 값이 실제보다 좋게
+나왔다(0.83u ← 실제 1.61u). `capture.mjs` 는 체크박스 상태를 assert 한다.
+
+### 경로 기하 QC
+
+```bash
+python3 scripts/poster-pdf/geom-qc.py    # 자기교차 개수·좌표
+```
+합격: **9곳** (「클」 하단 X_L 204.6 · X_R 274.8 포함) · 총회전 2270°± · 폐합 0.
+
+### 진입 중 글자 크기 안정성
+
+```bash
+node scripts/poster-pdf/size-watch.mjs 1600 -0.05em   # 폰트지연ms, 자간(폭 흉내)
+```
+합격: 크기 변경이 **보임 0/474 시점**에서만 일어날 것. 그어짐이 시작된 뒤 바뀌면
+화면에서 글자 크기가 변하는 게 보인다 (운영자 "폰트 바뀌는 것 봐봐 왜그래?").
+구조상 보정 지점은 둘뿐 — useLayoutEffect(첫 페인트 전) 또는 흐름 전환(통짜 교체로
+어차피 전면 재배치되는 순간).

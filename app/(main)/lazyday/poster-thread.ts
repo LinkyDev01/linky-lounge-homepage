@@ -170,12 +170,35 @@ export function scalePosterThreadD(k: number): string {
  *  Pretendard Black 잉크 비율로 나눈 값이 9자 모두 35.6~37.1 로 수렴 → **일률 36**
  *  (포스터는 굵은 글자 전체를 한 크기 75.2pt 로 조판했다). 서체를 바꾸면 이 값도
  *  다시 교정해야 한다. */
-/** 큰 글자를 그릴 때 y 에 더할 보정. POSTER_GLYPHS 의 y 는 원본 PDF 의 **잉크 bbox 중심**인데
- *  SVG `dominant-baseline="central"` 은 서체의 ascender~descender 중점에 맞춘다. Pretendard
- *  Black 한글은 그 둘이 어긋나 s=36 에서 **2.0u** 아래로 그려진다 (원본↔렌더 잉크 상호상관
- *  실측: 큰 글자 dy −2.00u / 본문 dy −0.25u — 본문은 맞고 큰 글자만 틀렸다).
- *  ⚠ 서체나 s 를 바꾸면 이 값도 다시 재야 한다. */
+/** 큰 글자를 그릴 때 y 에 더할 **공통** 보정. POSTER_GLYPHS 의 y 는 원본 PDF 의 잉크 bbox
+ *  중심인데 SVG `dominant-baseline="central"` 은 서체의 ascender~descender 중점에 맞춘다 —
+ *  Pretendard Black 한글은 그 둘이 어긋나 s=36 에서 2.0u 아래로 그려진다.
+ *  ⚠ 서체나 s 를 바꾸면 이 값도, 아래 글자별 fx/fy 도 다시 재야 한다. */
 export const POSTER_GLYPH_DY = -2.0
+
+/* ── 글자별 미세 보정 fx/fy (2026-08-14) ───────────────────────────────────────
+   운영자 "레 큰 글자 왼쪽 왜저래?" 에서 출발한 실측. POSTER_GLYPHS 좌표는 원본 PDF 의
+   **잉크 bbox 중심**이고 렌더는 `textAnchor="middle"` = **advance 폭의 중심**에 놓는다.
+   두 기준은 서체의 좌우 여백(side bearing)이 다르면 어긋나는데, 원본 포스터의 서체와
+   Pretendard Black 은 실제로 다르다(잉크량 0.64~0.84 배 = 원본이 더 굵다).
+   그래서 **오른쪽 세로모음이 있는 글자**(레·이·지·데·기·집·럽)만 최대 2.3u 왼쪽으로
+   치우쳤다 — 대칭 글자(북·클·모)는 0.0u 로 멀쩡했던 이유가 이것이다.
+   아래 값은 원본↔렌더 겹쳐 보기에서 글자별 잉크 중심 차를 잰 것(독립 캡처 2회
+   재현오차 0.000u)의 부호 반전. 검증 ⑧ 이 이 표의 합격 판정이다. */
+export const POSTER_GLYPH_FIT: Array<{ fx: number; fy: number }> = [
+  { fx: +2.11, fy: +0.35 }, // 레
+  { fx: +1.27, fy: +0.07 }, // 이
+  { fx: +1.95, fy: +0.43 }, // 지
+  { fx: +1.52, fy: +0.94 }, // 데
+  { fx: +1.36, fy: +0.47 }, // 이
+  { fx: -0.03, fy: +0.71 }, // 북
+  { fx: +0.01, fy: +0.51 }, // 클
+  { fx: +1.25, fy: +0.04 }, // 럽
+  { fx: -0.25, fy: +2.78 }, // 4
+  { fx: +2.26, fy: +1.43 }, // 기
+  { fx: -0.04, fy: +1.00 }, // 모
+  { fx: +1.80, fy: +0.22 }, // 집
+]
 
 export const POSTER_GLYPHS: Array<{ ch: string; x: number; y: number; s: number }> = [
   { ch: "레", x: 123.3, y: 128.1, s: 36 },

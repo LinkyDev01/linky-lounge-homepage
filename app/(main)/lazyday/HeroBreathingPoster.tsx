@@ -47,15 +47,16 @@ const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (�
 const DRAW_MS = 2200
 const CHAR_DUR_MS = 200 // 그어지는 인상 — 글자 하나의 페이드는 짧게
 
-/** 글자 i(위치 p)가 뜨는 정규화 시각 — 붓끝이 그 자리에 닿는 순간.
- *  **등속** (운영자 2026-08-14 "글자 생성(표시)시 … 등속이 아니네").
- *  변천: 시안 ① 의 easeInOutQuad 역함수 → 끝 꼬리 완화(TAIL_BLEND 0.45,
- *  "다 안 찼는데 멈춘" 인상) → **선형** — 남아 있던 가감속 곡선(구간별 증가
- *  1→9→29→…→7, 실측)이 구간별로 빨라졌다 느려지는 것으로 보였다.
- *  구간별 새 글자 수가 일정한 것이 판정 기준 (scripts/poster-pdf/README.md). */
-function drawTimeAt(p: number) {
-  return p
-}
+/** 진입 = **마스크 스윕** (2026-08-14 최종 — 운영자 "구간 단위로 딱 딱 생성돼?
+ *  이전처럼 한 줄로 쭉 생성되게 할 수는 없어?").
+ *  글자별 페이드 스태거(474개 CSS 애니)는 프레임이 조금만 밀려도 여러 자가 한꺼번에
+ *  떠 "딱딱" 끊긴다 — 글자가 이산적이라 원리적 한계다. 시안 ① 의 선 긋기 그대로,
+ *  경로 사본에 stroke-dashoffset 을 흘려 **마스크**로 문장을 드러낸다: 픽셀 단위
+ *  연속이라 끊길 수 없고, 본문 <text> 는 처음부터 통짜 K벌이라
+ *  ▸ tspan→통짜 교체가 사라져 흐름 시작의 395ms 재배치 히치도,
+ *  ▸ 교체 순간 자간이 미세하게 갈리던 것("회전할 때 서식이 깨져"의 유력 원인)도
+ *  함께 사라진다. 스윕 시간·타이밍은 종전 값 그대로 (DRAW_MS, 아래 CSS 2.2s 동기). */
+const REPEAT = 4 // 본문 벌 수 — 3P ≥ L 이면 충분한데 넉넉히 (SSR 고정, 흐름 travel 도 이 값)
 
 /* ⚠ 폐기된 가정 — "한 벌(P) 이 경로(L) 보다 길어 뒤쪽 19% 는 렌더되지 않는다".
    getComputedTextLength(3193) > getTotalLength(2612) 를 근거로 잡았으나, **글자 단위
@@ -127,11 +128,9 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     //   대신하면 안 된다 — 그건 내비게이션 기준이라 번들 로드가 느린 순간(dev 실측
     //   14.5초) 진입이 다 끝난 것으로 오판해 흐름이 **12% 에서 곧장 통짜로 전환**된다
     //   (= 운영자 "완결을 향해가다 갑자기 완성돼").
-    // ⚠ **마지막** 글자의 애니를 시계로 쓴다 — currentTime 은 지연(delay) 구간까지 포함해
-    //   재는데, 첫 글자는 지연 0·길이 0.2s 라 200ms 에서 멈춰 진입 전체를 못 잰다.
-    //   마지막 글자는 지연이 DRAW_MS 라 currentTime 이 곧 '진입 경과 시간'이다.
-    const chars = root.querySelectorAll<SVGElement>("textPath[data-stream] > *")
-    const clock = chars[chars.length - 1]?.getAnimations?.()[0]
+    // 시계 = 마스크 스윕 애니 하나 (지연 0·길이 DRAW_MS 라 currentTime = 진입 경과 시간)
+    const stroke = root.querySelector<SVGElement>("[data-draw]")
+    const clock = stroke?.getAnimations?.()[0]
     const played = () => (typeof clock?.currentTime === "number" ? Math.max(0, clock.currentTime) : 0)
     const playedAtPause = played()
     const resume = () => {
@@ -192,7 +191,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       //   출발하면 그리는 도중 그 글자들이 뒤늦게 서체가 갈려 구간별로 튄다.
       let prev = -1
       for (let i = 0; i < 20 && !cancelled; i++) {
-        const w = unitWidth(1)
+        const w = unitWidth(REPEAT)
         if (w > 0 && Math.abs(w - L) / L < 0.04 && w === prev) return
         prev = w
         await new Promise((r) => setTimeout(r, 120))
@@ -307,7 +306,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       //   지금 치러야 티가 안 난다. 실패해도 본문은 보여야 하니 try 로 감싼다 —
       //   재개는 아래에서 무조건 실행되고, 여기가 멈춰도 3초 안전핀이 있다.
       try {
-        fitToPath(textEl, 1)
+        fitToPath(textEl, REPEAT)
         await tuneSeam()
       } catch {
         /* 보정 실패 = 이음매가 미세하게 어긋날 뿐 — 본문 노출이 우선이다 */
@@ -315,11 +314,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       if (cancelled) return
       // 폭을 못 재는 브라우저에선 설계값(경로 − 여백)을 그대로 쓴다. ⚠ 경로 길이는
       // tuneSeam 이 방금 바꿨을 수 있다 — 마운트 때의 L 이 아니라 **지금** 값으로.
-      const Lnow = pathEl0.getTotalLength()
-      const P0 = unitWidth(1) || Lnow - SEAM_MARGIN
-      // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
-      // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
-      const K = Math.max(2, Math.ceil((P0 + Lnow) / P0) + 1)
+      // (REPEAT 벌이 SSR 부터 통짜로 실려 있다 — 커버리지: REPEAT×P ≥ P + L ⇔ 3P ≥ L, 여유 3배)
       // ⚠ 재개는 **모든 측정·계산이 끝난 다음, 마지막 동기 행위**로 한다. 재개 직후에
       //   강제 리플로우가 남아 있으면 그 블록 프레임(실측 147ms)만큼 애니 시계 시작이
       //   늦어져, 재개하고도 화면이 잠깐 죽어 보인다.
@@ -342,17 +337,8 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
           timer = setTimeout(scheduleFlow, remaining)
           return
         }
-        // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
-        // 글자마다 경로 재배치가 일어나 **30fps 로 반토막** 난다 (실측 33.3ms/frame,
-        // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
-        // 60fps 회복 — 진입이 끝난 시점이라 시각적으로는 같은 화면이다
-        tp.textContent = `${SAYU_FULL} `.repeat(K)
-        // ⚠ **반복 피치는 통짜로 바꾼 뒤에 다시 잰다.** tspan 474개로 잰 값과 통짜 텍스트의
-        //   실제 advance 는 tspan 경계마다 생기는 반올림 때문에 다르다(실측 차 0.008u,
-        //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
-        //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
-        fitToPath(textEl, K) // 통짜 기준으로 한 번 더 맞춘다 (tspan 보정분 흡수)
-        const P = unitWidth(K) || pathEl0.getTotalLength() - SEAM_MARGIN
+        // 본문은 처음부터 통짜 K벌 — 교체·재측정 없이 피치만 읽는다
+        const P = unitWidth(REPEAT) || pathEl0.getTotalLength() - SEAM_MARGIN
         // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
         // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
         // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
@@ -430,8 +416,16 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     >
       <defs>
         <path id="heroSayuThread" d={POSTER_THREAD_D} />
+        {/* 진입 마스크 — 경로 사본의 굵은 획(폭 16u, 글자키 ~10u 를 여유 있게 덮음)이
+            stroke-dashoffset 스윕으로 문장을 경로 순서대로 드러낸다. 시안 ① 의 선
+            긋기와 동일한 리듬·속도(2.2s 선형, CSS 동기). 스윕이 끝나면 dashoffset 0
+            = 완전 개방 — 흐름 중엔 정적이라 비용이 없다.
+            dasharray/offset 2800 은 경로 길이(±튜닝)보다 넉넉한 상수다. */}
+        <mask id="lzDrawMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="500">
+          <use href="#heroSayuThread" className={styles.drawStroke} data-draw />
+        </mask>
       </defs>
-      <text className={styles.threadText} xmlSpace="preserve">
+      <text className={styles.threadText} xmlSpace="preserve" mask="url(#lzDrawMask)">
         {/* dominantBaseline="central" — 경로는 원본 **글자줄의 중심**(잉크 능선)에 맞춰
             추출돼 있는데 textPath 기본값은 글자를 **베이스라인**에 얹는다. 그대로 두면
             글자가 경로 한쪽으로 2.5u 치우쳐, 원본 대비 전 구간이 그만큼 어긋난다
@@ -439,23 +433,9 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
             ⚠ textPath 의 dy 는 크롬에서 무시되고, CSS `.class{dominant-baseline}` 도
             <text> 에만 걸려 안 먹는다 — **textPath 요소의 속성**이어야 한다. */}
         <textPath href="#heroSayuThread" dominantBaseline="central" data-stream>
-          {/* 첫 벌 — 글자별 tspan. 딜레이 = 등속(선형) 스태거. SSR 인라인 paused 로
-              태어나 resume 때 한 번에 이어 그려진다 (JS 실패 시엔 noscript 가 품) */}
-          {(() => {
-            const chars = `${SAYU_FULL} `.split("")
-            const last = chars.length - 1
-            return chars.map((c, i) => (
-              <tspan
-                key={i}
-                className={styles.introChar}
-                style={{
-                  ["--d" as string]: `${(DRAW_MS * drawTimeAt(i / last)).toFixed(1)}ms`,
-                }}
-              >
-                {c}
-              </tspan>
-            ))
-          })()}
+          {/* 본문은 **처음부터 통짜 REPEAT 벌** — 진입·흐름이 같은 노드를 쓴다.
+              (구 tspan 스태거·통짜 교체는 폐기 — 파일 상단 마스크 스윕 주석 참조) */}
+          {`${SAYU_FULL} `.repeat(REPEAT)}
         </textPath>
       </text>
       {POSTER_GLYPHS.map((g, i) => (

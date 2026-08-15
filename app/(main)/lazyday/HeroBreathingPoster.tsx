@@ -97,11 +97,15 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     if (!ready) return
     const w = textEl.getComputedTextLength() || probe?.getComputedTextLength() || 0
     const goal = pathEl.getTotalLength() - SEAM_MARGIN
-    if (!(w > 0) || Math.abs(w - goal) / goal < 0.01) return
-    const base = parseFloat(getComputedStyle(textEl).fontSize) || 7.2
-    const size = `${Math.min(9.6, Math.max(5.0, (base * goal) / w)).toFixed(4)}px`
-    textEl.style.fontSize = size
-    if (probe) probe.style.fontSize = size
+    if (w > 0 && Math.abs(w - goal) / goal >= 0.01) {
+      const base = parseFloat(getComputedStyle(textEl).fontSize) || 7.2
+      const size = `${Math.min(9.6, Math.max(5.0, (base * goal) / w)).toFixed(4)}px`
+      textEl.style.fontSize = size
+      if (probe) probe.style.fontSize = size
+    }
+    // 크기 확정 — 이 프레임(첫 페인트 전)에 바로 노출한다. 스태거는 방금 시작했으므로
+    // 사용자에겐 종전과 완전히 같은 화면이다.
+    textEl.removeAttribute("data-hold")
   }, [])
 
   useEffect(() => {
@@ -155,7 +159,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       //   **미루고**, 흐름 전환(통짜 교체로 어차피 전면 재배치되는 순간)에 맞춘다.
       //   웜 캐시(재방문)면 첫 프레임 전에 끝나 아무도 못 본다.
       let prev = -1
-      for (let i = 0; i < 20 && !cancelled; i++) {
+      for (let i = 0; i < 12 && !cancelled; i++) {
         const w = unitWidth(1)
         if (w > 0 && w === prev && loaded) return
         prev = w
@@ -255,9 +259,9 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       const P0 = unitWidth(1) || pathEl.getTotalLength() - SEAM_MARGIN
       const K = Math.max(2, Math.ceil((P0 + pathEl.getTotalLength()) / P0) + 1)
       tp.textContent = `${SAYU_FULL} `.repeat(K)
-      // 순서 규율: **크기(거친 손잡이) → 이음매(고운 손잡이)** — 반대로 하면 크기
-      // 변경이 방금 맞춘 이음매를 도로 부순다 (엄격 검토 라운드의 교훈 재적용)
-      fitToPath(textEl, K)
+      // ⚠ **여기서 크기를 바꾸지 않는다.** 통짜 교체는 첫 벌 글자를 같은 자리에 그대로
+      //   두므로, 이때 크기를 바꾸면 "글자가 커졌다/작아졌다"가 그대로 보인다
+      //   (운영자 2026-08-14 "이번에도 바뀌어"). 크기는 노출 전에 이미 확정돼 있다.
       await tuneSeam()
       if (cancelled) return
       const P = unitWidth(K) || pathEl.getTotalLength() - SEAM_MARGIN
@@ -284,9 +288,29 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       )
     }
 
+    /** 크기를 확정하고 **한 번만** 노출한다. 아무것도 안 보이던 상태에서 스태거를
+     *  처음부터 다시 걸므로 화면에는 '한 번의 깨끗한 그어짐'만 보인다 — 되감기가
+     *  아니다(되감기는 이미 보이던 글자가 사라질 때 생긴다).
+     *  @returns 그어짐이 실제로 시작한 시각 */
+    const revealOnce = () => {
+      if (!textEl.hasAttribute("data-hold")) return mounted
+      fitToPath(textEl, 1)
+      textEl.classList.add(styles.restart)
+      void textEl.getBoundingClientRect() // 강제 리플로우 — 애니를 처음부터 다시 건다
+      textEl.classList.remove(styles.restart)
+      textEl.removeAttribute("data-hold")
+      // 셸(내비·푸터)은 마운트 기준 벽시계로 도는데 그어짐이 늦게 시작했으므로,
+      // 실제 시작 시각을 알려 리빌 타이머를 다시 걸게 한다 (없으면 내비가 먼저 뜬다)
+      window.dispatchEvent(
+        new CustomEvent("lz:hero-draw-start", { detail: { revealInMs: CHROME_REVEAL_MS } }),
+      )
+      return performance.now()
+    }
+
     fontSettled().then(() => {
       if (cancelled) return
-      const wait = Math.max(0, FLOW_START_MS - (performance.now() - mounted))
+      const drawFrom = revealOnce()
+      const wait = Math.max(0, FLOW_START_MS - (performance.now() - drawFrom))
       timer = setTimeout(() => {
         if (cancelled) return
         // ⚠ 그어짐이 아직 덜 끝났으면 남은 만큼 더 기다린다 — 스태거가 벽시계보다
@@ -311,6 +335,11 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
   }, [])
 
   return (
+    <>
+      {/* JS 가 없으면 data-hold 를 뗄 수 없다 — 그 경우 기본 크기로라도 보이게 */}
+      <noscript>
+        <style>{`svg[data-lz-poster] text[data-hold]{opacity:1!important}`}</style>
+      </noscript>
     <svg
       ref={rootRef}
       className={styles.poster}
@@ -323,7 +352,9 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       <defs>
         <path id="heroSayuThread" d={POSTER_THREAD_D} />
       </defs>
-      <text className={styles.threadText} xmlSpace="preserve">
+      {/* data-hold — 크기 확정 전까지 안 보인다 (CSS). 확정 즉시 TSX 가 떼고, 그때
+          스태거를 처음부터 한 번 건다. JS 가 죽으면? 아래 noscript 가 걷어 준다. */}
+      <text className={styles.threadText} data-hold="1" xmlSpace="preserve">
         {/* dominantBaseline="central" — 경로는 원본 **글자줄의 중심**(잉크 능선)에 맞춰
             추출돼 있는데 textPath 기본값은 글자를 **베이스라인**에 얹는다. 그대로 두면
             글자가 경로 한쪽으로 2.5u 치우친다 (창 226개 상호상관 실측).
@@ -393,5 +424,6 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         </textPath>
       </text>
     </svg>
+    </>
   )
 })

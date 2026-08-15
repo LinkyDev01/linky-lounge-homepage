@@ -83,15 +83,25 @@ export function useChromeIntro(force = false) {
       return
     }
 
-    // 채택 원형 그대로 — 마운트 기준 타이머 (스태거도 페인트부터 돌므로 어긋남 미미).
-    // 한때 포스터가 정지·재개하며 이벤트로 재보정했으나, 정지 자체가 철회되며 함께
-    // 제거됐다 (2026-08-14 "이전처럼 애니메이션 살려야").
-    const timer = setTimeout(revealChrome, CHROME_REVEAL_MS)
+    // 기본은 마운트 기준 타이머. 다만 포스터는 **글자 크기가 확정될 때까지** 실 위
+    // 본문을 감춰 두므로(서체 대기), 그어짐이 늦게 시작할 수 있다 — 그러면 이 시계와
+    // 어긋나 내비가 그어짐 도중에 뜬다. 포스터가 실제 시작 시각을 `lz:hero-draw-start`
+    // 로 알려 오면 타이머를 다시 건다. 이벤트가 없는 화면(정적 히어로 등)에선 종전과
+    // 똑같이 동작한다 — 동기화는 개선일 뿐 의존이 아니다.
+    let timer = setTimeout(revealChrome, CHROME_REVEAL_MS)
+    const onDrawStart = (e: Event) => {
+      const ms = (e as CustomEvent<{ revealInMs?: number }>).detail?.revealInMs
+      if (typeof ms !== "number" || chromeDone.current) return
+      clearTimeout(timer)
+      timer = setTimeout(revealChrome, ms)
+    }
+    window.addEventListener("lz:hero-draw-start", onDrawStart)
     const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
     EVENTS.forEach((ev) => window.addEventListener(ev, revealChrome, { passive: true }))
     return () => {
       clearTimeout(timer)
       clearTimeout(ctaTimer)
+      window.removeEventListener("lz:hero-draw-start", onDrawStart)
       EVENTS.forEach((ev) => window.removeEventListener(ev, revealChrome))
     }
   }, [force])

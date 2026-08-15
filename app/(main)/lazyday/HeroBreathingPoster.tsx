@@ -80,7 +80,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     const mounted = performance.now()
     let cancelled = false
-    let anim: SVGAnimateElement | null = null
+    let raf = 0
     let timer: ReturnType<typeof setTimeout> | null = null
 
     const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
@@ -196,9 +196,17 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       }
     }
 
-    /** 흐름 개시 — 이음매 튜닝 → 통짜 교체 → SMIL. 전부 그어짐이 끝난 **정적인
+    /** 흐름 개시 — 이음매 튜닝 → 통짜 교체 → rAF 구동. 전부 그어짐이 끝난 **정적인
      *  순간**에 치른다 (경로 d 재작성·통짜 재배치의 리플로우가 스태거 중에 오면
-     *  끊겨 보인다). */
+     *  끊겨 보인다).
+     *
+     *  ⚠ **SMIL 을 버리고 rAF 로 직접 구동한다 (2026-08-14, 실기기 iOS "텍스트의
+     *  비약" — 오프셋이 순간이동).** 종전엔 <animate> 2개(램프 freeze → 루프
+     *  syncbase 연결)였는데, 이 freeze·syncbase 의 우선순위 처리가 엔진마다 달라
+     *  사파리에서 오프셋이 두 애니 사이를 튀었다. rAF 는 어느 엔진에서든 같은 수식
+     *  하나로 돈다: offset(t) = −(이동거리(t) mod P) — 모듈러라 루프 재시작 스냅도
+     *  원리적으로 없다(피치 측정이 살짝 틀려도 매끄럽게 위상만 밀린다). 프레임당
+     *  비용은 SMIL 과 동일 — 어차피 둘 다 textPath 재배치가 지배한다(크롬 60fps 실측). */
     const fireFlow = async () => {
       if (cancelled) return
       await tuneSeam()
@@ -210,38 +218,25 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       tp.textContent = `${SAYU_FULL} `.repeat(K)
       fitToPath(textEl, K) // 통짜 기준 재확인 (제 서체면 no-op)
       const P = unitWidth(K) || pathEl.getTotalLength() - SEAM_MARGIN
-      // SMIL 2단 — ① 0.3초 등가속 램프 ② 등속 무한 반복. 램프 끝 속도 = 등속 속도.
-      const mk = (attrs: Record<string, string>) => {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "animate") as SVGAnimateElement
-        el.setAttribute("attributeName", "startOffset")
-        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v)
-        tp.appendChild(el)
-        return el
+      /** 경과 t(ms) → 이동 거리(u). 등가속 ½at² (a = SPEED/tr) 로 300ms 에 SPEED 도달
+       *  — 종전 SMIL keySplines 등가속과 같은 곡선, 이후 등속. */
+      const dist = (tMs: number) => {
+        const t = tMs / 1000
+        const tr = RAMP_MS / 1000
+        return t < tr ? (SPEED / (2 * tr)) * t * t : RAMP_DIST + SPEED * (t - tr)
       }
-      const rampId = "lzHeroRamp"
-      // keySplines "0.333 0 0.667 0.333" = s ∝ t² 의 정확한 3차 베지어 표현 (등가속)
-      const ramp = mk({
-        id: rampId,
-        values: `0;${-RAMP_DIST}`,
-        dur: `${RAMP_MS / 1000}s`,
-        calcMode: "spline",
-        keyTimes: "0;1",
-        keySplines: "0.333 0 0.667 0.333",
-        fill: "freeze",
-        begin: "indefinite",
-      })
-      mk({
-        values: `${-RAMP_DIST};${-(RAMP_DIST + P)}`,
-        dur: `${P / SPEED}s`,
-        repeatCount: "indefinite",
-        begin: `${rampId}.end`,
-      })
-      anim = ramp
-      // 램프는 통짜 교체 리플로우가 끝난 다음 프레임에 발화 (교정 ⓓ) — 같은 블록에서
+      // 흐름 시작은 통짜 교체 리플로우가 끝난 다음 프레임 (교정 ⓓ) — 같은 블록에서
       // 시작하면 가속 300ms 가 멈춘 프레임 안에서 소모돼 "가속이 없어" 보인다
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
-          if (!cancelled) ramp.beginElement()
+          if (cancelled) return
+          const t0 = performance.now()
+          const step = (now: number) => {
+            if (cancelled) return
+            tp.setAttribute("startOffset", (-(dist(now - t0) % P)).toFixed(3))
+            raf = requestAnimationFrame(step)
+          }
+          raf = requestAnimationFrame(step)
         }),
       )
     }
@@ -268,7 +263,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     return () => {
       cancelled = true
       if (timer) clearTimeout(timer)
-      anim?.remove()
+      if (raf) cancelAnimationFrame(raf)
     }
   }, [])
 

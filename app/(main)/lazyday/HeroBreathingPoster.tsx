@@ -335,7 +335,12 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         tp.textContent = TWICE.slice(m, m + c)
       }
       setRot(0, N)
-      tuneSeam()
+      // ⚠ **여기서 경로를 건드리지 않는다.** tuneSeam 은 경로를 0.5% 안팎으로 스케일하는데,
+      //   그러면 실 위 글자가 **전부 조금씩 움직인다** — 흐름이 시작되는 순간 글자가
+      //   커졌다/자리가 바뀐 것처럼 보인다 (운영자 "폰트사이즈도 변경이 되어보여 …
+      //   정확히 말하면 폰트사이즈인지 위치와 간격인지 모르겠어"). 크롬은 배율이 1 에
+      //   가까워 티가 안 나고 iOS 는 0.994 라 보였다 — "어떨 땐 변경되고 어떨 땐 안 돼"의
+      //   정체. 크기도 경로도 **노출 전에 이미 확정**돼 있다(revealOnce).
       if (cancelled) return
 
       /** 글자별 누적 진행거리 — **평문 프로브의 누적치를 경로 실측 피치에 맞춰 환산**한다.
@@ -418,7 +423,14 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
      *  @returns 그어짐이 실제로 시작한 시각 */
     const revealOnce = () => {
       if (!textEl.hasAttribute("data-hold")) return mounted
+      // 크기(글자)와 둘레(경로)를 **여기서 다 확정**한다. 둘은 서로를 바꾸므로 두 번
+      // 번갈아 돌린다. 노출 후에는 어느 쪽도 다시 건드리지 않는다 — 흐름이 시작될 때
+      // 경로를 스케일하면 글자가 전부 조금씩 움직여 "크기가 바뀐 것처럼" 보인다
+      // (운영자 2026-08-15 "폰트사이즈도 변경이 되어보여 … 어떨 땐 변경되고 어떨 땐 안 돼").
       fitToPath(textEl)
+      tuneSeam()
+      fitToPath(textEl)
+      tuneSeam()
       textEl.removeAttribute("data-hold")
       // 셸(내비·푸터)은 마운트 기준 벽시계로 도는데 그어짐이 늦게 시작했으므로,
       // 실제 시작 시각을 알려 리빌 타이머를 다시 걸게 한다 (없으면 내비가 먼저 뜬다)

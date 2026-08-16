@@ -66,6 +66,11 @@ const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 
  *  **폭을 못 재는 브라우저용 폴백**. 실제 정합은 tuneSeam 이 δ 를 직접 재서 맞춘다. */
 const SEAM_MARGIN = 1.46
 
+/** 이음매를 **겹침이 아니라 빈틈 쪽으로** 밀어 두는 여유(u, 반 글자).
+ *  운영자는 겹침을 결함으로 본다("아이폰으로 보니 겹쳐") — 같은 크기의 빈틈보다
+ *  겹침이 훨씬 눈에 띄기 때문. 0 으로 두면 엔진 컷오프 차이로 둘 사이를 진동한다. */
+const SEAM_BIAS = 0.5
+
 /** 내비·푸터·스티키 CTA 가 나타나는 시각 — 그어짐 종료(FLOW_START_MS) 기준 −200ms.
  *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다. */
 export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
@@ -218,7 +223,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       }
       let a = best - 0.5
       let b = best + 0.5
-      for (let n = 0; n < 20; n++) {
+      for (let n = 0; n < 16; n++) {
         const m1 = a + (b - a) / 3
         const m2 = b - (b - a) / 3
         if (d2(m1) < d2(m2)) b = m2
@@ -243,7 +248,10 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       if (!seamEl || !seamTp || PER < 10) return 0
       seamEl.style.fontSize = getComputedStyle(textEl).fontSize
       seamTp.setAttribute("startOffset", "0")
-      const j = PER - 2
+      // ⚠ 끝에서 12번째 글자를 쓴다 — 마지막 글자는 경로 끝에 걸쳐 있어, 정합이 조금만
+      //   어긋나도 경로 밖으로 떨어져 좌표가 못 나온다(그러면 측정이 아래로 발산해
+      //   경로가 계속 줄어든다: 실측 L 2736 → 2720, 이음매에 글자 2자 구멍).
+      const j = Math.max(1, PER - 12)
       let pt: { x: number; y: number } | null = null
       try {
         pt = seamTp.getStartPositionOfChar(j)
@@ -252,9 +260,18 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       }
       if (!pt || (pt.x === 0 && pt.y === 0)) return 0
       const L = pathEl.getTotalLength()
-      const arc = arcOf(pt, Math.max(0, L - 90), L)
-      const tail = probeX(PER) - probeX(j)
-      const A = arc + tail
+      // 창은 **평문 비율로 예측한 지점 ±25u** 만 — `getPointAtLength` 가 호출당 0.5ms 라
+      // 220u 창(440 표본)을 두 번 돌면 전환 프레임이 1.1초로 늘어난다(크롬 실측).
+      const guessPlain = probeX(j) - probeX(0)
+      const guessTotal = unitWidth() || 1
+      const guess = (guessPlain / guessTotal) * L
+      const arc = arcOf(pt, Math.max(0, guess - 25), Math.min(L, guess + 25))
+      // ⚠ 평문 폭과 경로 폭을 **더하지 않는다**(웹킷에선 단위가 다르다) — j 까지의 비로
+      //   전체를 외삽한다. 비례식이라 두 단위가 섞이지 않는다.
+      const plainJ = probeX(j) - probeX(0)
+      const plainTotal = unitWidth()
+      if (!(plainJ > 0 && plainTotal > 0)) return 0
+      const A = (arc * plainTotal) / plainJ
       return A > L * 0.85 && A < L * 1.15 ? A : 0
     }
 
@@ -269,9 +286,15 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         const A = measurePitch()
         if (!(A > 0)) return
         const L = pathEl.getTotalLength()
-        if (Math.abs(A - L) < 0.05) return
+        // ⚠ 루프를 한 벌보다 **반 글자만큼 길게** 잡는다. 딱 맞추면 엔진의 가장자리
+        //   컷오프가 위상에 따라 오락가락해 이음매가 **겹침 ↔ 빈틈을 번갈아** 한다
+        //   (실제 WebKit 실측 −7.6u ~ +6.8u 진동 = 운영자 "아이폰으로 보니 겹쳐").
+        //   살짝 여유를 두면 겹침 쪽으로는 절대 넘어가지 않고 항상 작은 빈틈만 남는다
+        //   — 크롬이 원래 보이던 상태(빈틈 9~14u)와 같은 성격이다.
+        const goal = A + SEAM_BIAS
+        if (Math.abs(goal - L) < 0.05) return
         const applied = Number(pathEl.dataset.lzScale || 1) || 1
-        const next = applied * (A / L)
+        const next = applied * (goal / L)
         if (!(next > 0.9 && next < 1.1)) return
         pathEl.dataset.lzScale = String(next)
         pathEl.setAttribute("d", scalePosterThreadD(next))
@@ -296,17 +319,22 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       if (cancelled) return
       const UNIT = `${SAYU_FULL} `
       const N = UNIT.length
-      const TWICE = UNIT + UNIT
-      const TAIL = 3 // 꼬리 여유 — 오프셋이 한 칸 밀린 동안 경로 끝을 채운다
+      const TWICE = UNIT + UNIT + UNIT
       // ⚠ 성능: 진입용 tspan(474개)을 남긴 채 굴리면 30fps 로 반토막 난다 — 통짜로 되돌린다.
       // ⚠ **여기서 크기를 바꾸지 않는다** (운영자 2026-08-14 "이번에도 바뀌어").
-      let rot = -1
-      const setRot = (k: number) => {
-        if (k === rot) return
-        rot = k
-        tp.textContent = TWICE.slice(k, k + N + TAIL)
+      // ⚠ **경로 밖으로 나가는 글자를 아예 주지 않는다.** 웹킷은 경로를 벗어난 글자를
+      //   버리지 않고 **양 끝에 눌러 쌓아** 글자가 포개진다 (실제 WebKit 확대 캡처로 확인
+      //   — 운영자 "아이폰으로 보니 겹쳐"). 크롬은 버린다. 그래서 매 프레임 **실을
+      //   채우는 만큼만** 잘라 넘긴다: 시작 글자 m 과 글자 수 c 를 누적표에서 바로 계산.
+      let rotM = -1
+      let rotC = -1
+      const setRot = (m: number, c: number) => {
+        if (m === rotM && c === rotC) return
+        rotM = m
+        rotC = c
+        tp.textContent = TWICE.slice(m, m + c)
       }
-      setRot(0)
+      setRot(0, N)
       tuneSeam()
       if (cancelled) return
 
@@ -329,6 +357,8 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       }
       const total = cum[N]
       const usable = total > 0 && cum[1] > 0
+      /** 누적표를 한 바퀴 넘어서까지 이어 읽는다 (회전한 문자열의 꼬리 계산용) */
+      const cumAt = (i: number) => (i <= N ? cum[i] : total + cum[i - N])
 
       /** 경과 t(ms) → 이동 거리(u). 등가속 ½at² (a = SPEED/tr) 로 300ms 에 SPEED 도달
        *  — 종전 SMIL keySplines 등가속과 같은 곡선, 이후 등속. */
@@ -344,6 +374,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
           if (cancelled) return
           const t0 = performance.now()
           let k = 0
+          let c = N
           let last = 0
           const step = (now: number) => {
             if (cancelled) return
@@ -351,8 +382,25 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
             if (d < last) k = 0 // 한 바퀴 돌았다
             last = d
             while (k + 1 < N && cum[k + 1] <= d) k++
-            setRot(k)
-            tp.setAttribute("startOffset", (-(d - cum[k])).toFixed(3))
+            // ⚠ **오프셋을 음수로 두지 않는다.** 크롬은 경로 앞으로 밀려난 글자를 버리지만
+            //   **웹킷은 경로 시작에 그대로 쌓아** 두 글자가 포개진다 (실제 WebKit 확대
+            //   캡처로 확인 — 운영자 "아이폰으로 보니 겹쳐"). 그래서 한 글자 더 회전시켜
+            //   **양수 오프셋**(0 ~ 한 글자)으로 같은 위치를 표현한다: 글자 m 은 어차피
+            //   arc = cum[m] − d 에 놓여야 하고, 그 값이 양수가 되도록 m = k+1 을 쓴다.
+            //   결과는 크롬과 같은 성격 — 이음매에 한 글자 이하의 작은 빈틈만 남는다.
+            const m = k + 1
+            const off = Math.max(0, cum[m] - d)
+            // 이 오프셋에서 실에 **완전히** 들어가는 글자 수만 넘긴다 (위 주석)
+            // 직전 값에서 ±1 만 조정한다 — 0 부터 세면 매 프레임 수백 번 도는 데다,
+            // 그 결과가 한 글자라도 달라지면 474자 재배치가 다시 걸린다
+            //   ⚠ 여유 한 글자를 더 뺀다 — 엔진은 advance 가 아니라 **글리프 상자**가
+            //   경로 안에 들어와야 그리는데, 그 상자는 advance 보다 클 수 있다. 딱 맞춰
+            //   넘기면 마지막 글자가 경로 끝에 눌려 앞 글자와 포개진다(웹킷 확대 캡처).
+            const room = total - off - total / N
+            while (c > 1 && cumAt(m + c) - cum[m] > room) c--
+            while (c < N && cumAt(m + c + 1) - cum[m] <= room) c++
+            setRot(m, c)
+            tp.setAttribute("startOffset", off.toFixed(3))
             raf = requestAnimationFrame(step)
           }
           raf = requestAnimationFrame(step)

@@ -88,6 +88,8 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 ## 5. 환경 함정 (원격 실행 환경)
 
 - **Playwright**: `import('playwright')` 실패 시 `/opt/node22/lib/node_modules/playwright`, 브라우저 `/opt/pw-browsers/chromium`, `--no-sandbox` 필수. **외부 HTTPS 불가**(프록시 미설정) — localhost 전용. 배포 URL 검증은 `curl -c jar -b jar` 쿠키자로.
+- **실제 WebKit(사파리 엔진) 검증 가능** (2026-08-15 신설): `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npx playwright@latest install webkit` → `apt-get update && npx playwright@latest install-deps webkit` (우분투 계열이라 됨). 드라이버는 **npx 로 받은 playwright-core** 를 쓴다 (`/opt/node22` 의 playwright 는 webkit 리비전이 달라 못 붙는다). ⚠ **웹킷 '흉내'로 검증하지 말 것** — 흉내가 틀린 가정 위에 서 있어 iOS 전용 결함 3건을 통과시킨 사고가 있었다(DECISIONS 2026-08-15). 웹킷 특이점: ① **경로 용량을 넘는 글자는 아예 렌더하지 않는다**(textPath 에 여러 벌을 이어 붙이고 음수 startOffset 으로 미는 기법이 성립하지 않음) ② `<text>`·`<textPath>` 의 `getComputedTextLength` 는 **둘 다 '경로에 실린 만큼'** ③ CSS 애니 리스타트 수법(`animation:none` 붙였다 떼기)이 안 먹는다. 헤드리스 웹킷은 소프트웨어 렌더라 프레임 시간(중앙 ~85ms)은 실기기 지표로 쓰지 말 것.
+- **`getPointAtLength` 는 비싸다** — 421 세그먼트 경로에서 호출당 ~0.5ms. 글자마다 부르면 크롬이 8.8초 블록한다. 좁은 창만 훑을 것.
 - **스크린샷은 `node scripts/shot.mjs`** 로 통일 (boilerplate 재작성 금지). `--eval`로 computed style 수치 검증 가능.
 - **dev 서버는 턴 사이에 자주 죽는다**: `(npm run dev > /tmp/dev.log 2>&1 &)` 후 curl 200 폴링. `pkill` 후 exit 144는 무해.
 - **`next-env.d.ts`**: dev 서버가 재생성 — **모든 커밋 전 `git checkout -- next-env.d.ts`**.

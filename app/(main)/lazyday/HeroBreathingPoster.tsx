@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useEffect, useLayoutEffect, useRef } from "react"
+import { memo, useEffect, useRef } from "react"
 import {
   POSTER_THREAD_D,
   POSTER_GLYPHS,
@@ -75,43 +75,14 @@ export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
 export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)
 
-  /** 크기 보정은 **첫 페인트 전에 끝내거나, 흐름 전환까지 미루거나** 둘 중 하나다 —
-   *  그어지는 도중에 바꾸면 글자 크기가 화면에서 바뀌는 게 보인다 (운영자 2026-08-14
-   *  "폰트 바뀌는 것 봐봐 왜그래?"). 여기(useLayoutEffect)는 페인트 전에 도는 유일한
-   *  지점: 서체가 **이미 준비돼 있으면**(웜 캐시·재방문) 그 자리에서 맞춰 아무도 못 본다.
-   *  아직이면 손대지 않고, 흐름 전환(통짜 교체로 어차피 전면 재배치되는 순간)에 맡긴다. */
-  useLayoutEffect(() => {
-    const root = rootRef.current
-    if (!root) return
-    const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
-    const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
-    const probe = root.querySelector<SVGTextElement>("text[data-probe]")
-    if (!tp || !pathEl) return
-    const textEl = tp.closest("text") as SVGTextElement
-    let ready = false
-    try {
-      ready = (document as Document).fonts.check(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
-    } catch {
-      ready = false
-    }
-    if (!ready) return
-    const w = textEl.getComputedTextLength() || probe?.getComputedTextLength() || 0
-    const goal = pathEl.getTotalLength() - SEAM_MARGIN
-    if (w > 0 && Math.abs(w - goal) / goal >= 0.01) {
-      const base = parseFloat(getComputedStyle(textEl).fontSize) || 7.2
-      const size = `${Math.min(9.6, Math.max(5.0, (base * goal) / w)).toFixed(4)}px`
-      textEl.style.fontSize = size
-      if (probe) probe.style.fontSize = size
-    }
-    // 크기 확정 — 이 프레임(첫 페인트 전)에 바로 노출한다. 스태거는 방금 시작했으므로
-    // 사용자에겐 종전과 완전히 같은 화면이다.
-    textEl.removeAttribute("data-hold")
-  }, [])
-
+  /** ⚠ 크기 확정·노출 경로는 **아래 useEffect 하나뿐이다.**
+   *  종전엔 "서체가 이미 준비됐으면 첫 페인트 전에 맞추고 바로 노출"하는 지름길을
+   *  useLayoutEffect 에 뒀는데, 그 길은 **평문 폭으로만** 재서 웹킷에서 1.5% 큰 값을
+   *  확정하고 그대로 노출해 버렸다(이음매에 글자 7자 구멍). 홀드 중에는 어차피 아무것도
+   *  안 보이므로 지름길의 이득이 없다 — 경로 위 실측을 거치는 한 길로 합쳤다. */
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     const mounted = performance.now()
     let cancelled = false
     let raf = 0
@@ -122,21 +93,24 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     if (!tp || !pathEl) return
     const textEl = tp.closest("text") as SVGTextElement
     const L0 = pathEl.getTotalLength()
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-    /** 본문 **한 벌**의 실제 폭(u). ⚠ 실기기 iOS 검증(2026-08-14 스크린샷)으로 확정된
-     *  웹킷 반환값: `<text>` 는 **0**, `<textPath>` 는 **경로에 실린 글자만**의 폭
-     *  (≈ 경로 길이 — 벌 수와 무관!). 종전 코드가 textPath 폭을 "K벌 전체 폭"으로
-     *  오해해 한 벌 폭을 1/K 로 잘못 재고 **글자를 K배로 키웠다**(운영자 "폰트가
-     *  깨졌어 사이즈와 폰트, 굵기 모든 게" — 실기기에서 3배 폭발).
-     *  → textPath 는 측정원에서 **제외**한다. ① <text>(크롬 — 전체 advance 를 벌
-     *  수로 나눔) ② 화면 밖 평문 프로브(웹킷 — 딱 한 벌이라 나누지 않음, 경로 배치와
-     *  0.4% 차이는 fitToPath 1% 가드 안). */
+    /** 본문 **한 벌**의 실제 폭(u) — **화면 밖 평문 프로브 한 곳에서만** 잰다.
+     *
+     *  ⚠ **경로를 품은 요소의 폭은 엔진마다 뜻이 다르다** (2026-08-15 실제 WebKit
+     *  으로 확정. 그전까지는 크롬 흉내로 추정만 했다):
+     *    · 크롬  `<text>` = K벌 **전체 advance**  / `<textPath>` = 경로에 실린 만큼
+     *    · 웹킷  `<text>`·`<textPath>` **둘 다 경로에 실린 만큼** (벌 수와 무관)
+     *  그래서 "0 이면 폴백" 식의 분기가 웹킷에서 **조용히 틀린 값을 통과시켰다** —
+     *  4벌 전체로 알고 4로 나눠 한 벌 폭을 1/4 로 재고(흐름 피치가 1/4 → 되감김이
+     *  4배 자주 = 운영자가 본 "텍스트의 비약"), 크기 구제는 16% 확대로 오작동했다.
+     *
+     *  → 경로를 품은 요소는 **측정원에서 통째로 뺀다.** 프로브는 딱 한 벌짜리
+     *  평문이라 어느 엔진에서든 뜻이 하나뿐이다(= advance 합). 경로 배치와의
+     *  0.03~0.4% 차이는 fitToPath 1% 가드 안이고, 남은 오차는 tuneSeam 이 경로
+     *  길이로 턴다. */
     const probe = root.querySelector<SVGTextElement>("text[data-probe]")
-    const unitWidth = (unitCount: number) => {
-      const w = textEl.getComputedTextLength()
-      if (w > 0) return w / unitCount
-      return probe?.getComputedTextLength() ?? 0
-    }
+    const unitWidth = () => probe?.getComputedTextLength() ?? 0
 
     /** 서체가 **제 폭으로 안정**될 때까지 기다린다 (교정 ⓐ). fonts.ready 는 동적
      *  서브셋에서 조각 로드가 비는 순간 먼저 resolve 되어 못 믿는다 — 폭이 경로의
@@ -160,111 +134,202 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       //   웜 캐시(재방문)면 첫 프레임 전에 끝나 아무도 못 본다.
       let prev = -1
       for (let i = 0; i < 12 && !cancelled; i++) {
-        const w = unitWidth(1)
+        const w = unitWidth()
         if (w > 0 && w === prev && loaded) return
         prev = w
         await new Promise((r) => setTimeout(r, 120))
       }
     }
 
-    /** 폴백 서체 **구제 전용** (교정 ⓒ) — 1% 넘게 어긋난 비상시에만 크기 보정.
-     *  1% 안쪽 정합은 tuneSeam(경로) 몫: font-size 는 1/64px 양자화라 미세 조정 불능.
-     *  ⚠ 목표는 **살아 있는 경로 길이** — 옛 값을 쓰면 튜닝을 도로 부순다. */
-    const fitToPath = (el: SVGTextElement, unitCount: number) => {
-      const w = unitWidth(unitCount)
-      if (!(w > 0)) return
-      const goal = pathEl.getTotalLength() - SEAM_MARGIN
-      if (Math.abs(w - goal) / goal < 0.01) return
-      const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
-      // ⚠ **절대 상하한 [5.0, 9.6]px** — 측정이 어떤 방식으로 틀려도 크기 폭발
-      //   (실기기 iOS ×3 사고)은 막되, 정당한 구제는 양방향 다 허용한다.
-      //   종전 상한 7.35 는 "폴백은 넓다"는 가정이었는데 **iOS 의 서체 폭은 좁아서**
-      //   늘려야 했고, 상한이 그걸 막아 한 벌이 경로에 못 미쳤다 (운영자 "많이
-      //   모잘라"). ±33% 면 어떤 정당한 서체 편차도 담고 ×3 폭발은 여전히 불가능.
-      const size = Math.min(9.6, Math.max(5.0, (base * goal) / w))
-      el.style.fontSize = `${size.toFixed(4)}px`
-      if (probe) probe.style.fontSize = el.style.fontSize
+    const seamEl = root.querySelector<SVGTextElement>("text[data-seam]")
+    const seamTp = (seamEl?.querySelector("textPath") ?? null) as SVGTextPathElement | null
+    const seamText = seamTp?.textContent ?? ""
+    const PER = Math.round(seamText.length / 2) // 한 벌의 글자 수 (474)
+    /** 공백은 extent 폭이 0 이라 렌더 판정에 못 쓴다 — 비공백 인덱스만 걸러 둔다 */
+    const seamIdx: number[] = []
+    for (let i = 0; i < seamText.length; i++) if (seamText[i] !== " ") seamIdx.push(i)
+
+    /** **경로에 실제로 얹히는 글자 수.** 폭이 아니라 개수로 재는 이유:
+     *  폭 반환값은 엔진마다 뜻이 달라(크롬=전체 advance, 웹킷=경로에 실린 만큼) 그
+     *  해석을 한 번이라도 틀리면 조용히 통과한 채 화면이 깨진다 — 이번 라운드에만
+     *  같은 함정에 두 번 빠졌다(1/4 피치, 1.5% 과대). **개수는 해석의 여지가 없다.**
+     *  글자는 앞에서부터 순서대로 얹히다 경로 끝에서 잘리므로 "그려짐"은 접두사
+     *  성질을 갖는다 → 이분 탐색 10여 회면 끝난다(재배치 1회 + extent 호출 십여 번). */
+    const countOnPath = () => {
+      if (!seamEl || !seamTp || PER < 10 || seamIdx.length < 20) return 0
+      seamEl.style.fontSize = getComputedStyle(textEl).fontSize
+      seamTp.setAttribute("startOffset", "0")
+      const drawn = (k: number) => {
+        try {
+          return seamTp.getExtentOfChar(seamIdx[k]).width > 0.01
+        } catch {
+          return false
+        }
+      }
+      if (!drawn(0)) return 0
+      let lo = 0
+      let hi = seamIdx.length - 1
+      if (drawn(hi)) return seamText.length
+      while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1
+        if (drawn(mid)) lo = mid
+        else hi = mid
+      }
+      return seamIdx[lo] + 1
     }
 
-    /** 이음매 런타임 튜닝 (교정 ⓑ) — δ = (경로에서 사라지는 오프셋) − (나타나는
-     *  오프셋). δ>0 이면 같은 글자가 양 끝에 겹치고, δ<0 이면 한 자씩 사라진다.
-     *  피치는 엔진마다 달라 CSS 로는 못 맞추고(전부 1/64px 양자화) **경로 길이**를
-     *  δ 만큼 스케일한다. 측정은 화면 밖 2벌 사본으로, 4회마다 rAF 양보. */
-    const tuneSeam = async (): Promise<void> => {
-      const seam = root.querySelector<SVGTextElement>("text[data-seam]")
-      const stp = seam?.querySelector("textPath") as SVGTextPathElement | null
-      if (!seam || !stp) return
-      const txt = stp.textContent ?? ""
-      const per = Math.round(txt.length / 2)
-      if (per < 10) return
-      let j = per + 10
-      while (j < txt.length && txt[j] === " ") j++
-      const jj = j - per
-      if (jj < 0 || j >= txt.length) return
-      seam.style.fontSize = getComputedStyle(textEl).fontSize
-
-      let budget = 0
-      const frame = () => new Promise((r) => requestAnimationFrame(r))
-      const visible = async (i: number, off: number) => {
-        stp.setAttribute("startOffset", String(off))
-        let v = false
-        try {
-          v = stp.getExtentOfChar(i).width > 0.01
-        } catch {
-          v = false
-        }
-        if (++budget % 4 === 0) await frame()
-        return v
+    /** 크기 구제 — **한 벌이 경로를 정확히 한 바퀴 채우도록** 맞춘다.
+     *  얹힌 글자 수 N 과 한 벌 PER 의 비가 곧 필요한 배율이다(advance ∝ font-size).
+     *  잔차(글자 1자 = 0.21%)는 font-size 가 1/64px 양자화라 어차피 못 잡고,
+     *  tuneSeam 이 경로 길이로 턴다. */
+    const fitToPath = (el: SVGTextElement) => {
+      for (let pass = 0; pass < 3; pass++) {
+        const n = countOnPath()
+        if (!n) return
+        const ratio = n / PER
+        if (Math.abs(ratio - 1) < 0.004) return // 글자 2자 이내면 충분
+        const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
+        // ⚠ **절대 상하한 [5.0, 9.6]px** — 측정이 어떤 방식으로 틀려도 크기 폭발
+        //   (실기기 iOS ×3 사고)은 막되, 정당한 구제는 양방향 다 허용한다.
+        const size = Math.min(9.6, Math.max(5.0, base * ratio))
+        if (Math.abs(size - base) < 0.0005) return
+        el.style.fontSize = `${size.toFixed(4)}px`
+        if (probe) probe.style.fontSize = el.style.fontSize
       }
-      const edge = async (i: number, lo: number, hi: number) => {
-        for (let n = 0; n < 20 && !cancelled; n++) {
-          const mid = (lo + hi) / 2
-          if (await visible(i, mid)) lo = mid
-          else hi = mid
-        }
-        return (lo + hi) / 2
-      }
+    }
 
-      // ⚠ 사본의 textPath 폭도 웹킷에선 "경로에 실린 만큼"이라 2벌 폭이 아니다 —
-      //   <text> 가 0 이면 프로브(딱 한 벌)로 잰다
-      const seamW = seam.getComputedTextLength()
-      const P = seamW > 0 ? seamW / 2 : (probe?.getComputedTextLength() ?? 0)
-      if (!(P > 0)) return
-      for (let pass = 0; pass < 2 && !cancelled; pass++) {
-        const Lnow = pathEl.getTotalLength()
-        const delta = (await edge(j, -P, 0)) - (await edge(jj, 0, -P))
-        if (cancelled || Math.abs(delta) < 0.005 || Math.abs(delta) > Lnow * 0.05) break
+    /** 경로 위 점 → 호길이. **반드시 좁은 창**(수십 u)만 준다 —
+     *  ① 경로가 9곳에서 자기교차하므로 넓게 주면 엉뚱한 곳을 짚고
+     *  ② `getPointAtLength` 는 421 세그먼트 경로에서 호출당 0.5ms 라 넓게 훑으면
+     *     메인스레드를 통째로 잡는다 (실측: 전 구간 표본표 3벌 = 크롬 8.8초 블록). */
+    const arcOf = (pt: { x: number; y: number }, lo: number, hi: number) => {
+      const d2 = (t: number) => {
+        const q = pathEl.getPointAtLength(t)
+        return (q.x - pt.x) ** 2 + (q.y - pt.y) ** 2
+      }
+      let best = lo
+      let bd = Infinity
+      for (let t = lo; t <= hi; t += 0.5) {
+        const d = d2(t)
+        if (d < bd) {
+          bd = d
+          best = t
+        }
+      }
+      let a = best - 0.5
+      let b = best + 0.5
+      for (let n = 0; n < 20; n++) {
+        const m1 = a + (b - a) / 3
+        const m2 = b - (b - a) / 3
+        if (d2(m1) < d2(m2)) b = m2
+        else a = m1
+      }
+      return (a + b) / 2
+    }
+
+    /** 평문 프로브의 누적 advance — 회전 구동이 "지금 몇 번째 글자인가"를 알아야 한다 */
+    const probeX = (i: number) => {
+      try {
+        return probe ? probe.getStartPositionOfChar(i).x : 0
+      } catch {
+        return 0
+      }
+    }
+
+    /** **경로 위 한 벌의 진행거리 A(u)** — 마지막 글자의 시작점을 호길이로 환산하고,
+     *  남은 꼬리(2자)만 평문 advance 로 더한다. 경로에 실린 글자만 좌표가 나오므로
+     *  끝에서 두 번째 글자를 쓴다. */
+    const measurePitch = () => {
+      if (!seamEl || !seamTp || PER < 10) return 0
+      seamEl.style.fontSize = getComputedStyle(textEl).fontSize
+      seamTp.setAttribute("startOffset", "0")
+      const j = PER - 2
+      let pt: { x: number; y: number } | null = null
+      try {
+        pt = seamTp.getStartPositionOfChar(j)
+      } catch {
+        return 0
+      }
+      if (!pt || (pt.x === 0 && pt.y === 0)) return 0
+      const L = pathEl.getTotalLength()
+      const arc = arcOf(pt, Math.max(0, L - 90), L)
+      const tail = probeX(PER) - probeX(j)
+      const A = arc + tail
+      return A > L * 0.85 && A < L * 1.15 ? A : 0
+    }
+
+    /** 이음매 정합 — **경로 길이를 한 벌의 진행거리에 맞춘다.** 회전 구동에서 이음매가
+     *  안 보일 조건은 단순하다: 닫힌 루프의 둘레 L 과 한 벌의 진행거리 A 가 같을 것.
+     *  font-size 는 1/64px 양자화라 A 를 미세 조정할 수 없으니, 손잡이는 경로 쪽이다.
+     *  ⚠ 종전 구현(음수 오프셋 이분 탐색으로 δ 측정)은 **웹킷에서 원리적으로 불가**했다
+     *  — 웹킷은 경로 용량을 넘는 글자를 아예 렌더하지 않아 음수 오프셋을 주면 글자가
+     *  사라지기만 한다. 좌표 기반 측정은 두 엔진에서 같은 뜻이다. */
+    const tuneSeam = () => {
+      for (let pass = 0; pass < 2; pass++) {
+        const A = measurePitch()
+        if (!(A > 0)) return
+        const L = pathEl.getTotalLength()
+        if (Math.abs(A - L) < 0.05) return
         const applied = Number(pathEl.dataset.lzScale || 1) || 1
-        const next = applied * ((Lnow - delta) / Lnow)
+        const next = applied * (A / L)
+        if (!(next > 0.9 && next < 1.1)) return
         pathEl.dataset.lzScale = String(next)
         pathEl.setAttribute("d", scalePosterThreadD(next))
       }
     }
 
-    /** 흐름 개시 — 이음매 튜닝 → 통짜 교체 → rAF 구동. 전부 그어짐이 끝난 **정적인
-     *  순간**에 치른다 (경로 d 재작성·통짜 재배치의 리플로우가 스태거 중에 오면
-     *  끊겨 보인다).
+    /** 흐름 개시 — 이음매 정합 → 통짜 교체 → rAF 구동. 전부 그어짐이 끝난 **정적인
+     *  순간**에 치른다 (경로 d 재작성·통짜 재배치의 리플로우가 스태거 중에 오면 끊겨 보인다).
      *
-     *  ⚠ **SMIL 을 버리고 rAF 로 직접 구동한다 (2026-08-14, 실기기 iOS "텍스트의
-     *  비약" — 오프셋이 순간이동).** 종전엔 <animate> 2개(램프 freeze → 루프
-     *  syncbase 연결)였는데, 이 freeze·syncbase 의 우선순위 처리가 엔진마다 달라
-     *  사파리에서 오프셋이 두 애니 사이를 튀었다. rAF 는 어느 엔진에서든 같은 수식
-     *  하나로 돈다: offset(t) = −(이동거리(t) mod P) — 모듈러라 루프 재시작 스냅도
-     *  원리적으로 없다(피치 측정이 살짝 틀려도 매끄럽게 위상만 밀린다). 프레임당
-     *  비용은 SMIL 과 동일 — 어차피 둘 다 textPath 재배치가 지배한다(크롬 60fps 실측). */
-    const fireFlow = async () => {
+     *  ⚠ **구동 방식 전환 (2026-08-15, 실제 WebKit 실측).** 종전엔 본문을 K벌 이어
+     *  붙여 두고 `startOffset` 을 음수로 계속 밀었다. 크롬에선 앞 벌이 빠진 만큼 뒷 벌이
+     *  들어와 늘 474자가 유지되지만, **웹킷은 경로 용량을 넘는 글자를 아예 렌더하지
+     *  않는다** — 뒷 벌이 영영 안 들어와 실이 앞에서부터 비어 간다
+     *  (실측: +20초 450자 → +40초 412자 → +70초 359자, 시작점인 「레」 왼쪽부터 사라짐).
+     *  운영자 "ios 미리보기에선 이상하고 크롬은 괜찮아" 의 정체다.
+     *
+     *  → **오프셋 대신 글자열을 회전시킨다.** 표시 문자열은 늘 한 벌 + 꼬리 3자이고,
+     *  `startOffset` 은 **글자 한 칸 안(−6u ~ 0)** 에서만 논다. 한 칸을 넘어가면 문자열을
+     *  한 글자 돌리고 오프셋을 되돌린다 — 화면상 움직임은 완전히 동일한 등속 흐름이고,
+     *  두 엔진 모두 경로가 늘 꽉 찬다. 회전은 0.58초에 한 번(10u/s ÷ 5.8u)뿐이다. */
+    const fireFlow = () => {
       if (cancelled) return
-      // ⚠ 성능: 진입용 tspan(474개)을 남긴 채 startOffset 을 굴리면 30fps 로
-      // 반토막 난다 — 흐름 직전에 통짜 텍스트로 되돌린다 (원형 그대로)
-      const P0 = unitWidth(1) || pathEl.getTotalLength() - SEAM_MARGIN
-      const K = Math.max(2, Math.ceil((P0 + pathEl.getTotalLength()) / P0) + 1)
-      tp.textContent = `${SAYU_FULL} `.repeat(K)
-      // ⚠ **여기서 크기를 바꾸지 않는다.** 통짜 교체는 첫 벌 글자를 같은 자리에 그대로
-      //   두므로, 이때 크기를 바꾸면 "글자가 커졌다/작아졌다"가 그대로 보인다
-      //   (운영자 2026-08-14 "이번에도 바뀌어"). 크기는 노출 전에 이미 확정돼 있다.
-      await tuneSeam()
+      const UNIT = `${SAYU_FULL} `
+      const N = UNIT.length
+      const TWICE = UNIT + UNIT
+      const TAIL = 3 // 꼬리 여유 — 오프셋이 한 칸 밀린 동안 경로 끝을 채운다
+      // ⚠ 성능: 진입용 tspan(474개)을 남긴 채 굴리면 30fps 로 반토막 난다 — 통짜로 되돌린다.
+      // ⚠ **여기서 크기를 바꾸지 않는다** (운영자 2026-08-14 "이번에도 바뀌어").
+      let rot = -1
+      const setRot = (k: number) => {
+        if (k === rot) return
+        rot = k
+        tp.textContent = TWICE.slice(k, k + N + TAIL)
+      }
+      setRot(0)
+      tuneSeam()
       if (cancelled) return
-      const P = unitWidth(K) || pathEl.getTotalLength() - SEAM_MARGIN
+
+      /** 글자별 누적 진행거리 — **평문 프로브의 누적치를 경로 실측 피치에 맞춰 환산**한다.
+       *  회전 보정이 정확하려면 자의 전체 길이가 경로와 같아야 한다: 평문 advance 를 그냥
+       *  쓰면 웹킷에서 1.5% 씩 어긋나 한 바퀴에 40u 를 밀렸다가 되돌아오는 미끄러짐이 생긴다.
+       *  전체 배율만 맞추면 남는 건 글자별 커닝 차이(0.1% 미만)뿐이고, 그건 한 바퀴 내내
+       *  고르게 퍼져 눈에 띄지 않는다.
+       *  ⚠ 글자마다 경로 좌표를 호길이로 환산하는 정공법은 **크롬에서 8.8초를 블록**했다
+       *  (경로 질의가 호출당 0.5ms). 환산은 곱셈 한 번이다. */
+      const cum: number[] = []
+      {
+        const raw: number[] = []
+        for (let i = 0; i < N; i++) raw.push(probeX(i) - probeX(0))
+        const rawTotal = unitWidth() || raw[N - 1]
+        const L = pathEl.getTotalLength()
+        const k = rawTotal > 0 ? L / rawTotal : 1
+        for (let i = 0; i < N; i++) cum.push(raw[i] * k)
+        cum.push(L)
+      }
+      const total = cum[N]
+      const usable = total > 0 && cum[1] > 0
+
       /** 경과 t(ms) → 이동 거리(u). 등가속 ½at² (a = SPEED/tr) 로 300ms 에 SPEED 도달
        *  — 종전 SMIL keySplines 등가속과 같은 곡선, 이후 등속. */
       const dist = (tMs: number) => {
@@ -278,9 +343,16 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         requestAnimationFrame(() => {
           if (cancelled) return
           const t0 = performance.now()
+          let k = 0
+          let last = 0
           const step = (now: number) => {
             if (cancelled) return
-            tp.setAttribute("startOffset", (-(dist(now - t0) % P)).toFixed(3))
+            const d = usable ? dist(now - t0) % total : 0
+            if (d < last) k = 0 // 한 바퀴 돌았다
+            last = d
+            while (k + 1 < N && cum[k + 1] <= d) k++
+            setRot(k)
+            tp.setAttribute("startOffset", (-(d - cum[k])).toFixed(3))
             raf = requestAnimationFrame(step)
           }
           raf = requestAnimationFrame(step)
@@ -288,16 +360,17 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       )
     }
 
-    /** 크기를 확정하고 **한 번만** 노출한다. 아무것도 안 보이던 상태에서 스태거를
-     *  처음부터 다시 걸므로 화면에는 '한 번의 깨끗한 그어짐'만 보인다 — 되감기가
-     *  아니다(되감기는 이미 보이던 글자가 사라질 때 생긴다).
+    /** 크기를 확정하고 **한 번만** 노출한다. 홀드 중에는 CSS 가 스태거를
+     *  `animation-play-state: paused` 로 **시각 0 에 세워 두므로**, 속성을 떼는
+     *  순간 처음부터 그어진다.
+     *  ⚠ 종전엔 `animation: none` 클래스를 붙였다 떼는 리스타트 수법을 썼는데
+     *  **웹킷에서 안 먹었다** (실제 WebKit 실측: 노출 시점에 이미 458/474 가 떠
+     *  있어 그어짐 없이 통짜로 나타났다 — 운영자 "ios 미리보기에선 이상하고").
+     *  일시정지는 어느 엔진에서든 규격대로 동작한다.
      *  @returns 그어짐이 실제로 시작한 시각 */
     const revealOnce = () => {
       if (!textEl.hasAttribute("data-hold")) return mounted
-      fitToPath(textEl, 1)
-      textEl.classList.add(styles.restart)
-      void textEl.getBoundingClientRect() // 강제 리플로우 — 애니를 처음부터 다시 건다
-      textEl.classList.remove(styles.restart)
+      fitToPath(textEl)
       textEl.removeAttribute("data-hold")
       // 셸(내비·푸터)은 마운트 기준 벽시계로 도는데 그어짐이 늦게 시작했으므로,
       // 실제 시작 시각을 알려 리빌 타이머를 다시 걸게 한다 (없으면 내비가 먼저 뜬다)
@@ -305,6 +378,23 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         new CustomEvent("lz:hero-draw-start", { detail: { revealInMs: CHROME_REVEAL_MS } }),
       )
       return performance.now()
+    }
+
+    // ⚠ **안전핀.** 홀드는 "확정될 때까지 안 보인다"는 약속이라, 확정 경로가 어디서든
+    //   막히면 본문이 **영영 안 보인다** (2026-08-14 정지 사고와 같은 부류). 무슨 일이
+    //   있어도 3초 뒤에는 노출한다 — revealOnce 는 멱등이라 정상 경로와 충돌하지 않는다.
+    const pin = setTimeout(() => {
+      if (!cancelled) revealOnce()
+    }, 3000)
+
+    // 모션 최소화: 흐름·서체 대기 없이 그 자리에서 노출 (CSS 가 스태거를 끈다).
+    // ⚠ 종전엔 여기서 그냥 return 해 **data-hold 가 남아 본문이 통째로 안 보였다.**
+    if (reduced) {
+      revealOnce()
+      return () => {
+        cancelled = true
+        clearTimeout(pin)
+      }
     }
 
     fontSettled().then(() => {
@@ -329,6 +419,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     })
     return () => {
       cancelled = true
+      clearTimeout(pin)
       if (timer) clearTimeout(timer)
       if (raf) cancelAnimationFrame(raf)
     }

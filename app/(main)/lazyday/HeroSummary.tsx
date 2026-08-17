@@ -37,9 +37,13 @@ function dayScheduleGroups() {
   })
 }
 
-// "링키라운지 (사당역 도보 3분)" → "링키라운지 · 사당역 도보 3분"
-// (낱장 카드용 압축 표기 — season-config location.short 단일 출처)
-const locationLine = SEASON.location.short.replace(" (", " · ").replace(")", "")
+// 장소 표기는 **season-config 원문 그대로** — "링키라운지 (사당역 도보 3분)".
+// ⚠ 종전엔 낱장 카드용이라며 괄호를 점으로 풀어 "링키라운지 · 사당역 도보 3분" 으로
+//   썼는데, 그러면 **동격 정보를 나열한 것처럼** 읽힌다. 뒤에 오는 건 장소의 부연이라
+//   괄호가 맞고, 사이트의 다른 모든 화면(모임소개·FAQ·인터뷰 확인·원데이 신청·결제)도
+//   이미 괄호 표기다 — 이 카드만 예외였다 (운영자 2026-08-17 "링키라운지는 점으로
+//   우측 정보를 나열하는 게 아니라 뒷내용은 소괄호로 짜야지").
+const locationLine = SEASON.location.short
 
 // SEASON.deadline("2026-07-16") → "7/16 (목) 23:59까지" — 요일은 날짜에서 계산. null이면 미표기
 function deadlineLine() {

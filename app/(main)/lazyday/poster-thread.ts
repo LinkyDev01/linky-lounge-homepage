@@ -193,6 +193,30 @@ export function rotatePosterThreadD(seg: number, scale = 1): string {
   return out.join(" ")
 }
 
+/** **오버런 경로** — 닫힌 루프를 한 바퀴 다 돈 뒤 **앞부분 세그먼트를 다시 이어 붙인** `d`.
+ *
+ *  `<textPath>` 에는 루프 개념이 없어 경로 끝을 넘어가는 글자는 크롬은 버리고 웹킷은
+ *  **양 끝에 눌러 쌓는다**. 그래서 실이 닫혀 있어도 시작점 자리에서 글자가 사라지거나
+ *  겹쳤다 (운영자 2026-08-15 "종료위치에서 삭제되고 시작 위치에서 새로이 생성되는 느낌…
+ *  이게 루프로 회전해야 하잖아").
+ *
+ *  → **경계를 글자가 닿지 않는 곳으로 밀어낸다.** 경로를 한 바퀴(L)보다 Δ 만큼 길게 만들면,
+ *  한 벌(진행거리 ≈ L)을 오프셋 s ∈ [0, Δ] 로 얹었을 때 마지막 글자가 s+L ≤ L+Δ 안에
+ *  들어와 **잘리는 글자가 하나도 없다**. 덧붙인 구간은 루프 앞부분과 같은 곡선을 지나므로
+ *  거기 얹힌 글자는 시작 구간 제자리에 그려진다 — 화면에는 이음매가 없다.
+ *  Δ 는 글자 한 칸(≈6u)만 넘으면 충분하다. 두 번째 경로도, 정렬 보정도 필요 없다. */
+export function overrunPosterThreadD(extraSegs: number, scale = 1): string {
+  const P = scaledPoints(scale)
+  const n = THREAD_SEG_COUNT
+  const extra = Math.max(0, Math.min(n - 1, extraSegs))
+  const C = (i: number) => `C ${P[1 + 3 * i]} ${P[2 + 3 * i]} ${P[3 + 3 * i]}`
+  const out = [`M ${P[0]}`]
+  for (let i = 0; i < n; i++) out.push(C(i))
+  // ⚠ Z 를 붙이지 않는다 — 이미 시작점으로 돌아온 상태에서 앞부분을 **이어서** 더 그린다
+  for (let i = 0; i < extra; i++) out.push(C(i))
+  return out.join(" ")
+}
+
 /** 세그먼트 0..seg-1 만의 `d` — 그 지점까지의 **호길이**를 재려고 쓴다
  *  (회전 경로의 시작이 원래 경로에서 몇 u 지점인지 = 두 경로의 오프셋). */
 export function partialPosterThreadD(seg: number, scale = 1): string {

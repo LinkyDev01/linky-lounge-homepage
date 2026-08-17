@@ -7,9 +7,7 @@ import {
   POSTER_GLYPH_DY,
   POSTER_GLYPH_FIT,
   scalePosterThreadD,
-  rotatePosterThreadD,
-  partialPosterThreadD,
-  THREAD_SEG_COUNT,
+  overrunPosterThreadD,
   SAYU_P1,
   SAYU_P2,
   SAYU_P3,
@@ -74,6 +72,10 @@ const SEAM_MARGIN = 1.46
  *  겹침이 훨씬 눈에 띄기 때문. 0 으로 두면 엔진 컷오프 차이로 둘 사이를 진동한다. */
 const SEAM_BIAS = 0.5
 
+/** 오버런 세그먼트 수 — 경로를 루프보다 이만큼 더 길게 만든다(≈8세그먼트 ≈ 52u ≈ 9글자).
+ *  글자 한 칸(≈6u)만 넘으면 충분하지만, 서체가 달라 한 벌이 조금 길어져도 버티도록 넉넉히. */
+const OVERRUN_SEGS = 8
+
 /** 내비·푸터·스티키 CTA 가 나타나는 시각 — 그어짐 종료(FLOW_START_MS) 기준 −200ms.
  *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다. */
 export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
@@ -120,23 +122,16 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     const probe = root.querySelector<SVGTextElement>("text[data-probe]")
     const unitWidth = () => probe?.getComputedTextLength() ?? 0
 
-    // ── 이음매 덮개 경로 (시작점이 반 바퀴 돌아간 같은 실) ────────────────────
-    const pathB = root.querySelector<SVGPathElement>("#heroSayuThreadB")
-    const pathTmp = root.querySelector<SVGPathElement>("#heroSayuThreadTmp")
-    const tpB = root.querySelector<SVGTextPathElement>("textPath[data-stream-b]")
-    const textB = (tpB?.closest("text") ?? null) as SVGTextElement | null
-    /** 회전 지점 — 세그먼트 목록의 한가운데(≈ 반 바퀴). 첫 경로의 경계가 여기 한복판에 온다 */
-    const SEG_B = Math.floor(THREAD_SEG_COUNT / 2)
-    /** 두 경로의 오프셋(u): 원래 경로에서 B 의 시작이 놓인 호길이 */
-    let offB = 0
-    /** 첫 경로가 스케일될 때마다 B 도 같은 배율로 다시 만든다 */
-    const syncPathB = () => {
-      if (!pathB || !pathTmp) return
-      const scale = Number(pathEl.dataset.lzScale || 1) || 1
-      pathB.setAttribute("d", rotatePosterThreadD(SEG_B, scale))
-      pathTmp.setAttribute("d", partialPosterThreadD(SEG_B, scale))
-      offB = pathTmp.getTotalLength()
-      if (textB) textB.style.fontSize = getComputedStyle(textEl).fontSize
+    /** 측정 전용 **순수 루프** — 크기·이음매 정합은 여기서만 잰다.
+     *  보이는 경로(#heroSayuThread)는 오버런이 붙어 루프보다 길어서 기준이 못 된다. */
+    const loopEl = root.querySelector<SVGPathElement>("#heroSayuLoop")
+    /** 실의 둘레(u) — 흐름의 주기이자 한 벌이 채워야 할 길이 */
+    const loopLen = () => loopEl?.getTotalLength() ?? pathEl.getTotalLength()
+    /** 경로 스케일은 **보이는 경로와 측정용 루프에 같이** 걸어야 한다 */
+    const setScale = (k: number) => {
+      pathEl.dataset.lzScale = String(k)
+      pathEl.setAttribute("d", overrunPosterThreadD(OVERRUN_SEGS, k))
+      loopEl?.setAttribute("d", scalePosterThreadD(k))
     }
 
     /** 서체가 **제 폭으로 안정**될 때까지 기다린다 (교정 ⓐ). fonts.ready 는 동적
@@ -253,7 +248,8 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       }
       return (a + b) / 2
     }
-    const arcOf = (pt: { x: number; y: number }, lo: number, hi: number) => arcOfOn(pathEl, pt, lo, hi)
+    const arcOf = (pt: { x: number; y: number }, lo: number, hi: number) =>
+      arcOfOn(loopEl ?? pathEl, pt, lo, hi)
 
     /** 평문 프로브의 누적 advance — 회전 구동이 "지금 몇 번째 글자인가"를 알아야 한다 */
     const probeX = (i: number) => {
@@ -264,38 +260,37 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       }
     }
 
-    /** **경로 위 한 벌의 진행거리 A(u)** — 마지막 글자의 시작점을 호길이로 환산하고,
-     *  남은 꼬리(2자)만 평문 advance 로 더한다. 경로에 실린 글자만 좌표가 나오므로
-     *  끝에서 두 번째 글자를 쓴다. */
+    /** **한 벌의 경로상 진행거리 A(u) — 직접 측정.**
+     *  오버런 경로 덕분에 마지막 글자까지 경로 위에 얹히므로, 그 **끝점**을 호길이로
+     *  환산하면 그게 곧 A 다 (추정·외삽 없음).
+     *  ⚠ 종전의 비례 외삽은 과대 평가돼 **경로를 키우고 → 글자를 키우고 → 다시 경로를
+     *  키우는 되먹임**을 만들었다 — 실측에서 실이 원본보다 4% 커졌다. */
     const measurePitch = () => {
-      if (!seamEl || !seamTp || PER < 10) return 0
-      seamEl.style.fontSize = getComputedStyle(textEl).fontSize
-      seamTp.setAttribute("startOffset", "0")
-      // ⚠ 끝에서 12번째 글자를 쓴다 — 마지막 글자는 경로 끝에 걸쳐 있어, 정합이 조금만
-      //   어긋나도 경로 밖으로 떨어져 좌표가 못 나온다(그러면 측정이 아래로 발산해
-      //   경로가 계속 줄어든다: 실측 L 2736 → 2720, 이음매에 글자 2자 구멍).
-      const j = Math.max(1, PER - 12)
-      let pt: { x: number; y: number } | null = null
-      try {
-        pt = seamTp.getStartPositionOfChar(j)
-      } catch {
-        return 0
+      if (PER < 10) return 0
+      const txt = tp.textContent ?? ""
+      if (txt.length < PER) return 0
+      const prevOff = tp.getAttribute("startOffset")
+      tp.setAttribute("startOffset", "0")
+      let end: { x: number; y: number } | null = null
+      let tailPlain = 0
+      for (let t = PER - 1; t >= PER - 6; t--) {
+        try {
+          const e = tp.getExtentOfChar(t)
+          if (e.width > 0.01) {
+            end = { x: e.x + e.width, y: e.y + e.height / 2 }
+            tailPlain = (unitWidth() || 0) - (probeX(t) - probeX(0)) - e.width
+            break
+          }
+        } catch {
+          /* 다음 글자 */
+        }
       }
-      if (!pt || (pt.x === 0 && pt.y === 0)) return 0
-      const L = pathEl.getTotalLength()
-      // 창은 **평문 비율로 예측한 지점 ±25u** 만 — `getPointAtLength` 가 호출당 0.5ms 라
-      // 220u 창(440 표본)을 두 번 돌면 전환 프레임이 1.1초로 늘어난다(크롬 실측).
-      const guessPlain = probeX(j) - probeX(0)
-      const guessTotal = unitWidth() || 1
-      const guess = (guessPlain / guessTotal) * L
-      const arc = arcOf(pt, Math.max(0, guess - 25), Math.min(L, guess + 25))
-      // ⚠ 평문 폭과 경로 폭을 **더하지 않는다**(웹킷에선 단위가 다르다) — j 까지의 비로
-      //   전체를 외삽한다. 비례식이라 두 단위가 섞이지 않는다.
-      const plainJ = probeX(j) - probeX(0)
-      const plainTotal = unitWidth()
-      if (!(plainJ > 0 && plainTotal > 0)) return 0
-      const A = (arc * plainTotal) / plainJ
-      return A > L * 0.85 && A < L * 1.15 ? A : 0
+      if (prevOff !== null) tp.setAttribute("startOffset", prevOff)
+      else tp.removeAttribute("startOffset")
+      if (!end) return 0
+      const L = loopLen()
+      const A = arcOfOn(pathEl, end, Math.max(0, L - 60), L + 60) + Math.max(0, tailPlain)
+      return A > L * 0.9 && A < L * 1.1 ? A : 0
     }
 
     /** 이음매 정합 — **경로 길이를 한 벌의 진행거리에 맞춘다.** 회전 구동에서 이음매가
@@ -305,10 +300,14 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
      *  — 웹킷은 경로 용량을 넘는 글자를 아예 렌더하지 않아 음수 오프셋을 주면 글자가
      *  사라지기만 한다. 좌표 기반 측정은 두 엔진에서 같은 뜻이다. */
     const tuneSeam = () => {
-      for (let pass = 0; pass < 2; pass++) {
+      // ⚠ **한 번만**, 그리고 **±1% 안에서만**. 크기 맞춤(글자)과 둘레 맞춤(경로)은 같은
+      //   등식을 서로 다른 손잡이로 좇기 때문에, 번갈아 여러 번 돌리면 **서로를 밀어
+      //   올린다** — 실측에서 경로가 4% 커져 실 자체가 원본보다 커졌다. 오버런 경로가
+      //   들어온 뒤로는 경계에서 글자가 잘리지 않으므로 경로 보정은 잔차 흡수용일 뿐이다.
+      for (let pass = 0; pass < 1; pass++) {
         const A = measurePitch()
         if (!(A > 0)) return
-        const L = pathEl.getTotalLength()
+        const L = loopLen()
         // ⚠ 루프를 한 벌보다 **반 글자만큼 길게** 잡는다. 딱 맞추면 엔진의 가장자리
         //   컷오프가 위상에 따라 오락가락해 이음매가 **겹침 ↔ 빈틈을 번갈아** 한다
         //   (실제 WebKit 실측 −7.6u ~ +6.8u 진동 = 운영자 "아이폰으로 보니 겹쳐").
@@ -318,9 +317,8 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         if (Math.abs(goal - L) < 0.05) return
         const applied = Number(pathEl.dataset.lzScale || 1) || 1
         const next = applied * (goal / L)
-        if (!(next > 0.9 && next < 1.1)) return
-        pathEl.dataset.lzScale = String(next)
-        pathEl.setAttribute("d", scalePosterThreadD(next))
+        if (!(next > 0.97 && next < 1.03)) return
+        setScale(next)
       }
     }
 
@@ -342,42 +340,19 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       if (cancelled) return
       const UNIT = `${SAYU_FULL} `
       const N = UNIT.length
-      const TWICE = UNIT + UNIT + UNIT
+      const TWICE = UNIT + UNIT
       // ⚠ 성능: 진입용 tspan(474개)을 남긴 채 굴리면 30fps 로 반토막 난다 — 통짜로 되돌린다.
-      // ⚠ **여기서 크기를 바꾸지 않는다** (운영자 2026-08-14 "이번에도 바뀌어").
-      // ⚠ **경로 밖으로 나가는 글자를 아예 주지 않는다.** 웹킷은 경로를 벗어난 글자를
-      //   버리지 않고 **양 끝에 눌러 쌓아** 글자가 포개진다 (실제 WebKit 확대 캡처로 확인
-      //   — 운영자 "아이폰으로 보니 겹쳐"). 크롬은 버린다. 그래서 매 프레임 **실을
-      //   채우는 만큼만** 잘라 넘긴다: 시작 글자 m 과 글자 수 c 를 누적표에서 바로 계산.
+      // ⚠ **여기서 크기도 경로도 건드리지 않는다** — 둘 다 노출 전에 확정돼 있다
+      //   (운영자 "이번에도 바뀌어" / "폰트사이즈도 변경이 되어보여").
       let rotM = -1
-      let rotC = -1
-      let rotBM = -1
-      let rotBC = -1
-      let offBFix = 0
-      const setRotB = (m: number, c: number) => {
-        if (m === rotBM && c === rotBC) return
-        rotBM = m
-        rotBC = c
-        if (tpB) tpB.textContent = TWICE.slice(m, m + c)
-      }
-      const setRot = (m: number, c: number) => {
-        if (m === rotM && c === rotC) return
+      const setRot = (m: number) => {
+        if (m === rotM) return
         rotM = m
-        rotC = c
-        tp.textContent = TWICE.slice(m, m + c)
+        tp.textContent = TWICE.slice(m, m + N)
       }
-      setRot(0, N)
-      // ⚠ **여기서 경로를 건드리지 않는다.** tuneSeam 은 경로를 0.5% 안팎으로 스케일하는데,
-      //   그러면 실 위 글자가 **전부 조금씩 움직인다** — 흐름이 시작되는 순간 글자가
-      //   커졌다/자리가 바뀐 것처럼 보인다 (운영자 "폰트사이즈도 변경이 되어보여 …
-      //   정확히 말하면 폰트사이즈인지 위치와 간격인지 모르겠어"). 크롬은 배율이 1 에
-      //   가까워 티가 안 나고 iOS 는 0.994 라 보였다 — "어떨 땐 변경되고 어떨 땐 안 돼"의
-      //   정체. 크기도 경로도 **노출 전에 이미 확정**돼 있다(revealOnce).
-      if (cancelled) return
+      setRot(0)
 
-      /** 글자별 누적 진행거리 — **평문 프로브의 누적치를 경로 실측 피치에 맞춰 환산**한다.
-       *  회전 보정이 정확하려면 자의 전체 길이가 경로와 같아야 한다: 평문 advance 를 그냥
-       *  쓰면 웹킷에서 1.5% 씩 어긋나 한 바퀴에 40u 를 밀렸다가 되돌아오는 미끄러짐이 생긴다.
+      /** 글자별 누적 진행거리 — 평문 프로브의 누적치를 **실 둘레**에 맞춰 환산한다.
        *  전체 배율만 맞추면 남는 건 글자별 커닝 차이(0.1% 미만)뿐이고, 그건 한 바퀴 내내
        *  고르게 퍼져 눈에 띄지 않는다.
        *  ⚠ 글자마다 경로 좌표를 호길이로 환산하는 정공법은 **크롬에서 8.8초를 블록**했다
@@ -387,15 +362,13 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         const raw: number[] = []
         for (let i = 0; i < N; i++) raw.push(probeX(i) - probeX(0))
         const rawTotal = unitWidth() || raw[N - 1]
-        const L = pathEl.getTotalLength()
+        const L = loopLen()
         const k = rawTotal > 0 ? L / rawTotal : 1
         for (let i = 0; i < N; i++) cum.push(raw[i] * k)
         cum.push(L)
       }
       const total = cum[N]
       const usable = total > 0 && cum[1] > 0
-      /** 누적표를 한 바퀴 넘어서까지 이어 읽는다 (회전한 문자열의 꼬리 계산용) */
-      const cumAt = (i: number) => (i <= N ? cum[i] : total + cum[i - N])
 
       /** 경과 t(ms) → 이동 거리(u). 등가속 ½at² (a = SPEED/tr) 로 300ms 에 SPEED 도달
        *  — 종전 SMIL keySplines 등가속과 같은 곡선, 이후 등속. */
@@ -410,92 +383,23 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         requestAnimationFrame(() => {
           if (cancelled) return
           const t0 = performance.now()
-          let k = 0
-          let c = N
+          let m = 0
           let last = 0
           const step = (now: number) => {
             if (cancelled) return
             const d = usable ? dist(now - t0) % total : 0
-            if (d < last) k = 0 // 한 바퀴 돌았다
+            if (d < last) m = 0 // 한 바퀴 돌았다
             last = d
-            while (k + 1 < N && cum[k + 1] <= d) k++
-            // ⚠ **오프셋을 음수로 두지 않는다.** 크롬은 경로 앞으로 밀려난 글자를 버리지만
-            //   **웹킷은 경로 시작에 그대로 쌓아** 두 글자가 포개진다 (실제 WebKit 확대
-            //   캡처로 확인 — 운영자 "아이폰으로 보니 겹쳐"). 그래서 한 글자 더 회전시켜
-            //   **양수 오프셋**(0 ~ 한 글자)으로 같은 위치를 표현한다: 글자 m 은 어차피
-            //   arc = cum[m] − d 에 놓여야 하고, 그 값이 양수가 되도록 m = k+1 을 쓴다.
-            //   결과는 크롬과 같은 성격 — 이음매에 한 글자 이하의 작은 빈틈만 남는다.
-            const m = k + 1
-            const off = Math.max(0, cum[m] - d)
-            // 이 오프셋에서 실에 **완전히** 들어가는 글자 수만 넘긴다 (위 주석)
-            // 직전 값에서 ±1 만 조정한다 — 0 부터 세면 매 프레임 수백 번 도는 데다,
-            // 그 결과가 한 글자라도 달라지면 474자 재배치가 다시 걸린다
-            //   ⚠ 여유 한 글자를 더 뺀다 — 엔진은 advance 가 아니라 **글리프 상자**가
-            //   경로 안에 들어와야 그리는데, 그 상자는 advance 보다 클 수 있다. 딱 맞춰
-            //   넘기면 마지막 글자가 경로 끝에 눌려 앞 글자와 포개진다(웹킷 확대 캡처).
-            //   ⚠ 여유는 **두 글자 반**. 엔진의 경로상 advance 는 누적표(평문 기준)와
-            //   미세하게 달라, 딱 맞춰 넘기면 웹킷이 마지막 한두 글자를 경로 끝에 눌러
-            //   쌓는다(확대 캡처로 확인). 넉넉히 잘라도 **잘린 몫은 덮개 경로가 그대로
-            //   이어 그리므로** 화면에는 아무 차이가 없다 — 안전한 쪽으로 크게 잡는다.
-            const room = total - off - (3.5 * total) / N
-            while (c > 1 && cumAt(m + c) - cum[m] > room) c--
-            while (c < N && cumAt(m + c + 1) - cum[m] <= room) c++
-            setRot(m, c)
-            tp.setAttribute("startOffset", off.toFixed(3))
-            // 첫 경로 끝에서 잘려 나간 글자들을 **덮개 경로**에 얹는다 — 이게 있어야
-            // 실이 진짜 한 바퀴 도는 것처럼 보인다 (경계가 상대 경로 한복판에 숨는다)
-            if (tpB) {
-              const bCount = N - c
-              if (bCount > 0 && offB > 0) {
-                // 덮개는 **A 와 두 글자를 겹쳐서** 시작한다. 같은 글자가 같은 자리에
-                // 포개지므로 화면상 차이가 없고, 그 두 글자가 곧 **정렬 기준자**가 된다.
-                const OVER = 2
-                const bStartIdx = m + c - OVER
-                const arcS = off + (cumAt(bStartIdx) - cum[m])
-                setRotB(bStartIdx, bCount + OVER)
-                const base = Math.max(0, arcS - offB)
-                tpB.setAttribute("startOffset", Math.max(0, base + offBFix).toFixed(3))
-                // ⚠ 두 경로의 오프셋은 **계산이 아니라 실측**으로, 그것도 **매 프레임**
-                //   맞춘다. 세그먼트를 돌려 만든 경로라 이론상 오차가 없어야 하고 크롬은
-                //   실제로 맞았지만, 웹킷의 호길이 계산은 근사라 한 글자 가까이 어긋났고
-                //   그 오차가 위치마다 조금씩 달라 **한 번 맞춘 상수로는 유지되지 않았다**.
-                //   → 겹쳐 놓은 기준 글자가 A 쪽 같은 글자에 포개지도록, 어긋난 양을
-                //   경로 접선 방향으로 투영해 그만큼 되민다(1스텝 뉴턴, 한 프레임에 수렴).
-                //   비용은 프레임당 getExtentOfChar 세 번뿐이다.
-                //   ⚠ **한 프레임에 최대 3스텝**. 회전(문자열 교체)이 일어난 프레임에는
-                //   기준점이 한 글자만큼 튀는데, 1스텝만 돌리면 그 프레임이 어긋난 채로
-                //   그려진다 — 웹킷은 프레임이 길어(헤드리스 ~85ms) 그 한 프레임이
-                //   눈에 띈다. 수렴하면 즉시 빠져나오므로 평상시 비용은 그대로다.
-                for (let step2 = 0; step2 < 3; step2++) {
-                  let moved = false
-                  for (let k2 = 0; k2 < OVER + 2; k2++) {
-                    try {
-                      const ae = tp.getExtentOfChar(c - OVER + k2)
-                      const be = tpB.getExtentOfChar(k2)
-                      const be2 = tpB.getExtentOfChar(k2 + 1)
-                      if (!(ae.width > 0.01 && be.width > 0.01 && be2.width > 0.01)) continue
-                      const tx = be2.x - be.x
-                      const ty = be2.y - be.y
-                      const tl = Math.hypot(tx, ty)
-                      if (!(tl > 0.1)) continue
-                      const delta = ((ae.x - be.x) * tx + (ae.y - be.y) * ty) / tl
-                      if (Math.abs(delta) > 0.03 && Math.abs(delta) < 20) {
-                        offBFix += delta
-                        tpB.setAttribute("startOffset", Math.max(0, base + offBFix).toFixed(3))
-                        moved = true
-                      }
-                      break
-                    } catch {
-                      /* 다음 후보 글자 */
-                    }
-                  }
-                  if (!moved) break
-                }
-              } else if (rotBM !== -1) {
-                rotBM = -1
-                tpB.textContent = ""
-              }
-            }
+            // 실 위 글자 i 는 호길이 (cum[i] − d) 에 놓인다. 그 값이 음수가 되는 글자들은
+            // **한 바퀴 뒤로 돌아가** 문자열 끝에 붙는다 — 그래서 표시 문자열은 원문을
+            // m 글자 회전시킨 한 벌이고, 오프셋은 첫 글자의 호길이 하나면 된다.
+            while (m + 1 < N && cum[m] < d) m++
+            setRot(m)
+            // ⚠ 오프셋은 **항상 0 이상, 글자 한 칸 이하**다. 음수로 두면 웹킷이 밀려난
+            //   글자를 버리지 않고 경로 시작에 쌓아 겹친다(실제 WebKit 확대 캡처).
+            //   그리고 마지막 글자는 s + 한 벌 ≤ 둘레 + 오버런 안에 들어와 **잘리지 않는다**
+            //   — 경로 끝이 글자가 닿지 않는 곳에 있기 때문이다(오버런 경로).
+            tp.setAttribute("startOffset", Math.max(0, cum[m] - d).toFixed(3))
             raf = requestAnimationFrame(step)
           }
           raf = requestAnimationFrame(step)
@@ -519,9 +423,6 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       // (운영자 2026-08-15 "폰트사이즈도 변경이 되어보여 … 어떨 땐 변경되고 어떨 땐 안 돼").
       fitToPath(textEl)
       tuneSeam()
-      fitToPath(textEl)
-      tuneSeam()
-      syncPathB()
       textEl.removeAttribute("data-hold")
       watchLateFont()
       // 셸(내비·푸터)은 마운트 기준 벽시계로 도는데 그어짐이 늦게 시작했으므로,
@@ -558,10 +459,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         lateWatch = null
         fitToPath(textEl)
         tuneSeam()
-        fitToPath(textEl)
-        tuneSeam()
-        syncPathB()
-      }, 500)
+        }, 500)
     }
 
     // ⚠ **안전핀.** 홀드는 "확정될 때까지 안 보인다"는 약속이라, 확정 경로가 어디서든
@@ -630,16 +528,12 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       data-lz-poster=""
     >
       <defs>
-        <path id="heroSayuThread" d={POSTER_THREAD_D} />
-        {/* **이음매를 덮는 두 번째 경로** — 같은 실인데 시작점만 반 바퀴 돌아가 있다.
-            `<textPath>` 에는 루프 개념이 없어 경로 끝에서 글자가 잘리고 시작에서 다시
-            얹히는데(= "종료 위치에서 삭제되고 시작 위치에서 생성"), 그 경계를 없앨 수는
-            없어도 **다른 데로 옮길 수는 있다**. 이 경로의 한복판이 곧 첫 경로의 경계라,
-            거기서 잘려 나간 두어 글자를 여기에 얹으면 화면엔 경계가 남지 않는다.
-            d 는 런타임에 채운다(첫 경로가 스케일될 때마다 같이 갱신). */}
-        <path id="heroSayuThreadB" data-thread-b d="" />
-        {/* 두 경로의 오프셋(= 회전 지점까지의 호길이)을 재는 용도 */}
-        <path id="heroSayuThreadTmp" data-thread-tmp d="" />
+        {/* **오버런 경로** — 닫힌 루프 + 앞부분 8세그먼트를 다시 이어 붙였다. 글자가 경로
+            끝에 닿을 일이 없어 잘림·쌓임이 원리적으로 사라진다 (poster-thread.ts 주석). */}
+        <path id="heroSayuThread" d={overrunPosterThreadD(OVERRUN_SEGS)} />
+        {/* 측정 전용 **순수 루프** — 크기·이음매 정합은 반드시 여기서 잰다.
+            오버런 경로에서 재면 한 벌보다 더 들어가 기준이 통째로 틀어진다. */}
+        <path id="heroSayuLoop" d={POSTER_THREAD_D} />
       </defs>
       {/* data-hold — 크기 확정 전까지 안 보인다 (CSS). 확정 즉시 TSX 가 떼고, 그때
           스태거를 처음부터 한 번 건다. JS 가 죽으면? 아래 noscript 가 걷어 준다. */}
@@ -669,10 +563,6 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
             ))
           })()}
         </textPath>
-      </text>
-      {/* 이음매 덮개 본문 — 첫 경로 끝에서 잘린 두어 글자만 여기에 얹힌다 (위 defs 주석) */}
-      <text className={styles.threadText} data-seam-cover xmlSpace="preserve">
-        <textPath href="#heroSayuThreadB" dominantBaseline="central" data-stream-b />
       </text>
       {POSTER_GLYPHS.map((g, i) => (
         <text
@@ -712,7 +602,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       {/* 이음매 측정용 사본 — 같은 경로 위 2벌 (교정 ⓑ 전용). 경로 위라 화면 밖으로
           뺄 수 없어 opacity 0 으로만 감춘다 */}
       <text className={styles.threadText} data-seam opacity={0} pointerEvents="none" aria-hidden xmlSpace="preserve">
-        <textPath href="#heroSayuThread" dominantBaseline="central">
+        <textPath href="#heroSayuLoop" dominantBaseline="central">
           {`${SAYU_FULL} `.repeat(2)}
         </textPath>
       </text>

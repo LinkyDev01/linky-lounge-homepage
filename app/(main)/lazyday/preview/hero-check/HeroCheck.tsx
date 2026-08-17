@@ -36,18 +36,19 @@ export function HeroCheck() {
     const t = setTimeout(() => {
       const svg = stageRef.current?.querySelector("svg[data-lz-poster]")
       if (!svg) return setDiag("SVG 없음")
-      // ⚠ `querySelector("text")` 는 앞에 놓인 측정 프로브를 집는다 — 실 위 본문은
-      //   textPath 를 품은 <text> 다
-      const textEl = (svg.querySelector("textPath")?.closest("text") ?? null) as SVGTextElement | null
-      const probe = svg.querySelector("text[data-probe]") as SVGTextElement | null
-      const path = svg.querySelector("#heroSayuThread") as SVGPathElement | null
-      const w = textEl?.getComputedTextLength?.() ?? -1
-      const pw = probe?.getComputedTextLength?.() ?? -1
-      const L = path?.getTotalLength?.() ?? -1
+      // 2026-08-17 배치 전환 이후 — 실 위 본문은 `text[data-stream]` 하나뿐이고,
+      // 측정 프로브·이음매 사본·경로 요소는 전부 사라졌다(빌드 타임 배치표로 대체).
+      const textEl = svg.querySelector("text[data-stream]") as SVGTextElement | null
+      const n = (textEl?.textContent ?? "").length
+      const tspans = textEl?.querySelectorAll("tspan").length ?? 0
+      const xs = (textEl?.getAttribute("x") ?? "").split(" ").length
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
       setDiag(
-        `본문폭 ${w.toFixed(0)} · 프로브 ${pw.toFixed(0)} · 경로 ${L.toFixed(0)} · ` +
-          `크기 ${textEl ? getComputedStyle(textEl).fontSize : "?"} · 모션최소화 ${reduce ? "켜짐" : "꺼짐"}`,
+        `글자 ${n} · 좌표 ${xs} · 진입tspan ${tspans} · 크기 ${
+          textEl ? getComputedStyle(textEl).fontSize : "?"
+        } · 서체 ${
+          document.fonts.check('400 8.3px "Pretendard Poster"', "레이지") ? "붙음" : "대기"
+        } · 모션최소화 ${reduce ? "켜짐" : "꺼짐"}`,
       )
     }, 5000)
     return () => clearTimeout(t)

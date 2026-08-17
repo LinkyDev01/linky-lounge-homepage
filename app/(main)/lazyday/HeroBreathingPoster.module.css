@@ -59,20 +59,20 @@
   font-display: block; /* 폴백으로 먼저 그렸다가 바꾸지 않는다 — 홀드가 어차피 가린다 */
 }
 
-/* 실 위 문장 — Pretendard Regular. 반복 단위가 닫힌 루프를 정확히 채우는 값 (위 주석)
+/* 실 위 문장 — Pretendard Regular.
 
-   ⚠ 2026-08-17 — **7.2 → 8.28px.** 7.2 는 루프가 2668u 이던 시절의 값인데, 그 뒤
-   경로가 2785u 로 자라(오버런 경로·이음매 스케일) 한 벌이 실을 다 못 채우게 됐다.
-   실제로는 런타임 정합(TSX fitToPath)이 **매 로드마다 15%를 키워** 8.28~8.29 로
-   맞추고 있었다 — 노출 전이라 안 보였을 뿐, 기준값이 15% 틀린 채로 있었던 것이다.
-   그 상태가 위험한 이유: 측정이 한 번이라도 실패하면 그 15% 작은 글자가 그대로
-   화면에 남아 실 끝에 큰 공백이 생긴다. 실측 수렴값(크롬 8.2785 · 웹킷 8.2937)의
-   가운데로 옮겨, 정상 경로에서는 정합이 **0.1% 안**으로 끝나게 한다. */
+   ⚠ 2026-08-17 — 크기가 **빌드 산출물**로 옮겨갔다 (`poster-metrics.ts` 의
+   POSTER_FONT_SIZE = 8.30373px). 한 벌 474자가 실 둘레 2736.73u 를 정확히 한 바퀴
+   채우는 값을 서브셋 서체의 advance 실측에서 역산한 것이다. 종전의 7.2px 는 루프가
+   2668u 이던 시절 값이라 실제로는 런타임이 매 로드 15%씩 키우고 있었다.
+   ⚠ **자간도 배치표에 들어갔다** — 글자 좌표를 우리가 직접 주므로 CSS 자간은 아무
+   효과가 없다(글자마다 x 가 지정되면 현재 텍스트 위치가 매번 초기화된다). 값을
+   바꾸려면 gen_poster_layout.py 의 LETTER_SPACING_EM 을 고치고 다시 굽는다. */
 .threadText {
   font-family: "Pretendard Poster", "Pretendard Variable", Pretendard, sans-serif;
   font-weight: 400;
-  font-size: 8.28px;
-  letter-spacing: 0.003em;
+  font-size: 8.30373px;
+  letter-spacing: 0;
   fill: #1a1208;
 }
 
@@ -96,18 +96,6 @@
    통짜로 나타났다 — 운영자 "ios 미리보기에선 이상하고 크롬은 괜찮아").
    일시정지는 규격이라 엔진을 안 탄다. */
 .threadText[data-hold="1"] {
-  opacity: 0;
-}
-
-/* 늦게 온 서체 구제(watchLateFont)가 크기를 다시 잡아야 할 때 — **보이는 채로 바꾸지
-   않는다.** 잠깐 지웠다가 고친 뒤 되살린다 (운영자 2026-08-17 "각각 텍스트가 또 확
-   튀어 위치가" — 제자리에서 크기·간격만 바뀌면 그게 점프로 보인다).
-   ⚠ transition 을 `.threadText` 에 그냥 걸면 **첫 노출도 통째로 페이드**되어 글자별
-   그어짐이 뭉개진다. 속성이 붙은 동안에만 걸리도록 선택자를 좁혔다. */
-.threadText[data-settling] {
-  transition: opacity 0.16s linear;
-}
-.threadText[data-settling="1"] {
   opacity: 0;
 }
 .threadText[data-hold="1"] .introChar {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { SEASON, daysUntilDeadline } from "./season-config"
 import styles from "./HeroSummary.module.css"
 
@@ -12,9 +12,14 @@ import styles from "./HeroSummary.module.css"
  * ⚠ 프리뷰 쌍: preview/HeroSummary.tsx — 한쪽 수정 시 동기화 (TSX 쌍 동기화).
  */
 
-// 요일을 시간대별로 묶어 "수·화 19:30–22:30 / 일 10:30–13:30, 14:30–17:30" 형태로
+// 요일을 시간대별로 묶어 ["화·수 19:30–22:30", "일 10:30–13:30, 14:30–17:30"] 로.
 // (수·일·화처럼 같은 시간이 떨어져 있어도 묶는다 — 등장 순서 유지)
-function dayScheduleLine() {
+// ⚠ **한 문자열로 잇지 않는다** (2026-08-17). 모바일에서 자연 줄바꿈이 일요일 그룹
+//   **안쪽**을 잘라 "일 10:30–13:30," 까지만 첫 줄에 남기고 "14:30–17:30" 을 다음 줄로
+//   보냈다 — 일요일에 오전 한 타임만 있는 것처럼 읽힌다 (운영자 "모바일에서는 일요일
+//   통째로 줄바꿈해서 착오가 없게끔 해"). 그룹 단위로 넘겨 오전·오후가 늘 같은 줄에
+//   붙어 있게 한다 (렌더에서 그룹마다 white-space: nowrap).
+function dayScheduleGroups() {
   const groups: { labels: string[]; time: string }[] = []
   for (const d of SEASON.days) {
     const g = groups.find((x) => x.time === d.time)
@@ -22,16 +27,14 @@ function dayScheduleLine() {
     else groups.push({ labels: [d.label], time: d.time })
   }
   const DOW = ["일", "월", "화", "수", "목", "금", "토"]
-  return groups
-    .map((g) => {
-      // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
-      const names = g.labels
-        .map((l) => l.replace("요일", ""))
-        .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
-        .join("·")
-      return `${names} ${g.time}`
-    })
-    .join(" / ")
+  return groups.map((g) => {
+    // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
+    const names = g.labels
+      .map((l) => l.replace("요일", ""))
+      .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
+      .join("·")
+    return `${names} ${g.time}`
+  })
 }
 
 // "링키라운지 (사당역 도보 3분)" → "링키라운지 · 사당역 도보 3분"
@@ -88,7 +91,19 @@ export function HeroSummary() {
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>일정</span>
           <span className={styles.summaryValue}>
-            {dayScheduleLine()}
+            {/* 그룹 하나가 통째로 다음 줄로 — 구분자 '/'는 **앞 그룹에 붙여** 줄 끝에
+                남기고, 그룹 사이 공백에서만 줄바꿈이 일어나게 한다 */}
+            {dayScheduleGroups().map((g, i, all) => (
+              <Fragment key={g}>
+                {/* ⚠ 줄바꿈 기회가 되는 공백은 nowrap 그룹 **바깥**에 둔다 —
+                    안에 넣으면 그 공백까지 안 끊겨 두 그룹이 한 줄로 붙는다 */}
+                {i > 0 ? " " : null}
+                <span className={styles.schedGroup}>
+                  {g}
+                  {i < all.length - 1 ? " /" : ""}
+                </span>
+              </Fragment>
+            ))}
           </span>
         </div>
         <div className={styles.summaryRow}>

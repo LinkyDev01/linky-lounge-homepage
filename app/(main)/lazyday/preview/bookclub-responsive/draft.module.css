@@ -86,6 +86,12 @@
   text-underline-offset: 4.5px;
   text-decoration-thickness: 0.8px;
 }
+/* 브랜드 마크는 예외 — 밑줄 금지 (실사이트 셸과 같은 값, 운영자 2026-08-17).
+   마크는 실제로 글자로 조판돼 있어 링크 밑줄이 글자 밑에 그어진다. */
+.header a.navLogo:hover {
+  text-decoration: none;
+}
+
 
 /* ── 헤더 : 레이지클럽 2행 고정 내비 (햄버거 없음) ───────────────── */
 .header {

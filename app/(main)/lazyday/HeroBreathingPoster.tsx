@@ -43,6 +43,8 @@ import styles from "./HeroBreathingPoster.module.css"
 
 /** 문단 사이는 **한 칸** (세 칸의 13.5u 빈 구간이 이음매에서 생성/소멸로 보였다) */
 const SAYU_FULL = `${SAYU_P1} ${SAYU_P2} ${SAYU_P3}`
+/** 큰 글자 12자 — 서체 로드 대기에 같이 건다 (같은 서브셋 파일의 900 굵기) */
+const POSTER_GLYPH_TEXT = POSTER_GLYPHS.map((g) => g.ch).join("")
 const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (데모 ③ 확정값)
 
 // ── 진입 타이밍 = hero-motion 시안 ①(실선 인트로)의 값 그대로 ────────────────
@@ -97,6 +99,8 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     let cancelled = false
     let raf = 0
     let timer: ReturnType<typeof setTimeout> | null = null
+    /** 늦은 서체 구제 전용 타이머 — 흐름 예약(timer)과 겹치면 서로의 손잡이를 잃는다 */
+    let settleTimer: ReturnType<typeof setTimeout> | null = null
 
     const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
     const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
@@ -139,8 +143,14 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
      *  스태거는 이 대기와 무관하게 페인트부터 돌고 있다 (원형 유지). */
     const fontSettled = async () => {
       let loaded = false
-      ;(document as Document).fonts
-        .load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
+      // 실 위 본문(400)과 큰 글자(900)가 **같은 서브셋 파일**에서 나온다 — 둘 다 건다.
+      // ⚠ 대상은 자체 호스팅 서브셋(`Pretendard Poster`)이다. 종전엔 CDN 동적 서브셋
+      //   (`Pretendard Variable`)을 기다렸는데, 조각이 수십 개라 실기기에서 언제 끝날지
+      //   알 수 없었다 (module.css @font-face 주석 — 로드별 크기 편차의 원인).
+      Promise.all([
+        (document as Document).fonts.load(`400 8.28px "Pretendard Poster"`, SAYU_FULL),
+        (document as Document).fonts.load(`900 36px "Pretendard Poster"`, POSTER_GLYPH_TEXT),
+      ])
         .then(() => {
           loaded = true
         })
@@ -158,10 +168,21 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       //   watchLateFont 가 고치느라 **보이는 보정**이 한 번 생긴다. 홀드 중에는 아무것도
       //   안 보이므로 더 기다리는 비용이 없다 — 40회(4.8초)로 늘려 정상 경로에서
       //   보정이 아예 일어나지 않게 한다.
+      // ⚠ 폭이 두 번 같다고 다 온 게 아니다 — CDN 동적 서브셋 시절엔 조각 도착 사이의
+      //   **잠깐의 소강**이 그대로 '안정'으로 읽혀, 절반만 온 서체로 크기가 굳고 나머지
+      //   조각이 뒤늦게 오면 watchLateFont 가 화면에서 크기를 고쳤다(= 로드마다 다른
+      //   결과 + 한 번의 점프). 서체 자체의 준비 여부를 함께 묻는다.
+      const faceReady = () => {
+        try {
+          return (document as Document).fonts.check(`400 8.28px "Pretendard Poster"`, SAYU_FULL)
+        } catch {
+          return true
+        }
+      }
       let prev = -1
       for (let i = 0; i < 40 && !cancelled; i++) {
         const w = unitWidth()
-        if (w > 0 && w === prev && loaded) return
+        if (w > 0 && w === prev && loaded && faceReady()) return
         prev = w
         await new Promise((r) => setTimeout(r, 120))
       }
@@ -214,7 +235,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         if (!n) return
         const ratio = n / PER
         if (Math.abs(ratio - 1) < 0.004) return // 글자 2자 이내면 충분
-        const base = parseFloat(getComputedStyle(el).fontSize) || 7.2
+        const base = parseFloat(getComputedStyle(el).fontSize) || 8.28
         // ⚠ **절대 상하한 [5.0, 9.6]px** — 측정이 어떤 방식으로 틀려도 크기 폭발
         //   (실기기 iOS ×3 사고)은 막되, 정당한 구제는 양방향 다 허용한다.
         const size = Math.min(9.6, Math.max(5.0, base * ratio))
@@ -468,9 +489,19 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         if (!(now > 0) || Math.abs(now - base) / base < 0.02) return
         if (lateWatch) clearInterval(lateWatch)
         lateWatch = null
-        fitToPath(textEl)
-        tuneSeam()
-        }, 500)
+        // ⚠ **보이는 채로 고치지 않는다.** 그러면 글자가 제자리에서 크기·간격만 바뀌어
+        //   화면에서 한 번 확 튄다 (운영자 2026-08-17 "각각 텍스트가 또 확 튀어 위치가").
+        //   짧게 지웠다가(0.16s 페이드) 고친 뒤 되살리면 '자리를 잡는' 것으로 읽힌다.
+        //   자체 호스팅 전환(2026-08-17) 뒤로는 사실상 도달하지 않는 경로다 — 서체가
+        //   같은 오리진 35KB 한 개라 프리로드로 첫 페인트 전후에 붙는다.
+        textEl.dataset.settling = "1"
+        settleTimer = setTimeout(() => {
+          if (cancelled) return
+          fitToPath(textEl)
+          tuneSeam()
+          textEl.dataset.settling = "0"
+        }, 180)
+      }, 500)
     }
 
     // ⚠ **안전핀.** 홀드는 "확정될 때까지 안 보인다"는 약속이라, 확정 경로가 어디서든
@@ -491,6 +522,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
         cancelled = true
         clearTimeout(pin)
         if (lateWatch) clearInterval(lateWatch)
+        if (settleTimer) clearTimeout(settleTimer)
       }
     }
 
@@ -518,6 +550,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       cancelled = true
       clearTimeout(pin)
       if (lateWatch) clearInterval(lateWatch)
+      if (settleTimer) clearTimeout(settleTimer)
       if (timer) clearTimeout(timer)
       if (raf) cancelAnimationFrame(raf)
     }
@@ -525,6 +558,19 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
 
   return (
     <>
+      {/* 포스터 전용 서브셋 서체 — **가장 먼저** 받게 한다 (module.css 의 @font-face 주석).
+          글자 크기가 이 서체의 폭으로 확정되므로, 도착이 늦으면 로드마다 크기가 달라진다
+          (운영자 2026-08-17 "각각 텍스트가 또 확 튀어 위치가"). 같은 오리진 35KB 한 개라
+          프리로드 한 줄이면 첫 페인트 전후로 붙는다.
+          ⚠ 동일 오리진이어도 서체 프리로드는 `crossOrigin` 없이는 재사용되지 않고 두 번
+          받는다 (CORS 모드가 달라 캐시 항목이 갈린다). */}
+      <link
+        rel="preload"
+        as="font"
+        type="font/woff2"
+        href="/fonts/pretendard-poster-subset.woff2"
+        crossOrigin="anonymous"
+      />
       {/* JS 가 없으면 data-hold 를 뗄 수 없다 — 그 경우 기본 크기로라도 보이게 */}
       <noscript>
         <style>{`svg[data-lz-poster] text[data-hold]{opacity:1!important}`}</style>

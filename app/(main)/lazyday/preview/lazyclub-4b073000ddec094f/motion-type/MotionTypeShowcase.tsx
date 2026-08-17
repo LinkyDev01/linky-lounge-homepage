@@ -13,6 +13,11 @@
  * 난수 규율 (ComingSoonMain 선례): 시드 하나에서 해시로만 유도 — 프레임/렌더마다
  * Math.random() 금지. 시드는 클라이언트 effect에서 1회 생성(SSR 첫 페인트는 정지
  * 워드마크 → 하이드레이션 불일치 없음), 재생마다 run 카운터로 파생 시드를 바꾼다.
+ *
+ * 라운드 2 (운영자):
+ * ① 정렬(완성) 후에도 셀별 난수 3색을 유지한다 — 잉크 통일 폐기. 완성 마크 = 3색 모자이크.
+ * ② 릴의 "무수한 텍스트" 밀도 재현 — F 워드서치 필드 신설 (21×13 = 273자 셔플 필드
+ *    속에 브랜드 마크 기하 그대로 LAZY 가로·CLUB 세로, L 공유 + 캡슐). 추천안 교체.
  */
 
 import { useEffect, useMemo, useReducer, useState } from "react"
@@ -73,32 +78,38 @@ const VARIANTS = [
   {
     key: "asm",
     name: "A. 조립 스윕",
-    desc: "셀이 브랜드 3색으로 튀어 오르며 대각선 스윕으로 글자를 조립하고, 도착하는 순간 잉크색으로 가라앉습니다. 한 방향으로 흐르는 가장 단정한 등장 — 인트로·섹션 헤더처럼 '한 번 드러나면 끝'인 자리의 기본형.",
+    desc: "셀이 브랜드 3색으로 튀어 오르며 대각선 스윕으로 글자를 조립합니다. 도착한 뒤에도 셀마다의 색을 그대로 유지해, 완성된 마크가 3색 모자이크로 남습니다. 인트로·섹션 헤더처럼 '한 번 드러나면 끝'인 자리의 기본형.",
     reco: "차분한 리빌이 필요하면 이 안. 루프 없이 정지 상태로 끝나는 유일한 안입니다 (시안에서는 비교를 위해 자동 반복).",
   },
   {
     key: "noise",
     name: "B. 노이즈 리졸브",
-    desc: "화면을 가득 채운 3색 노이즈(지직임)가 좌→우 스캔으로 걷히며 LAZY CLUB만 남습니다. '무질서한 패턴 속에서 글자가 수신된다'는 전파 감성 — 릴의 밀도감에 가장 가까운 안.",
-    reco: "임팩트 최우선이면 이 안. 노이즈 밀도(셀 368개)가 커서 여백이 많은 화면에 놓아야 삽니다.",
+    desc: "화면을 가득 채운 3색 노이즈(지직임)가 좌→우 스캔으로 걷히며 LAZY CLUB만 남습니다. 확정된 글자는 지직이던 그 순간의 색 그대로 굳습니다 — '무질서한 패턴 속에서 글자가 수신된다'는 전파 감성.",
+    reco: "임팩트를 원하면 이 안. 노이즈 밀도(셀 368개)가 커서 여백이 많은 화면에 놓아야 삽니다.",
   },
   {
     key: "reorg",
-    name: "C. 셀 재배열 (추천)",
-    desc: "무작위로 쌓인 3색 블록 덩어리가 셀 단위로 미끄러져 이동하며 글자로 재조립되고, 완성을 한동안 유지한 뒤 다시 흩어졌다 모이기를 반복합니다. 도형이 재배열되어 타이포가 되는 릴의 핵심 문법을 그대로 옮긴 안.",
-    reco: "추천안 — 릴과 문법이 같고, '흩어진 조각이 하나의 클럽으로 모인다'는 브랜드 서사로도 읽힙니다. 랜딩 4×4 셔플 인트로와 정서가 이어지면서 겹치지는 않습니다.",
+    name: "C. 셀 재배열",
+    desc: "무작위로 쌓인 3색 블록 덩어리가 셀 단위로 미끄러져 이동하며 글자로 재조립되고, 완성을 한동안 유지한 뒤 다시 흩어졌다 모이기를 반복합니다. 색은 처음부터 끝까지 셀 고유의 3색 — 도형이 재배열되어 타이포가 되는 릴의 핵심 문법.",
+    reco: "차선 — '흩어진 조각이 하나의 클럽으로 모인다'는 브랜드 서사로 읽히고, 랜딩 4×4 셔플 인트로와 정서가 이어집니다.",
   },
   {
     key: "flip",
     name: "D. 플립닷 웨이브",
-    desc: "공항 전광판(플립닷)처럼 셀이 앞뒤로 뒤집히며 잉크↔3색을 오가는 무한 루프. 대각선 파도가 주기적으로 마크를 훑고 지나갑니다. 등장 후에도 계속 살아 있어야 하는 자리(대기 화면·히어로 상주)용.",
-    reco: "정지 없이 계속 도는 유일한 안 — 시선을 오래 붙잡지만, 본문 곁에 두면 산만할 수 있습니다.",
+    desc: "공항 전광판(플립닷)처럼 셀이 앞뒤로 뒤집히는 무한 루프 — 뒤집힐 때마다 앞·뒷면의 난수 3색이 서로 교대합니다. 대각선 파도가 주기적으로 마크를 훑고 지나갑니다. 등장 후에도 계속 살아 있어야 하는 자리(대기 화면·히어로 상주)용.",
+    reco: "정지 없이 계속 도는 안 — 시선을 오래 붙잡지만, 본문 곁에 두면 산만할 수 있습니다.",
   },
   {
     key: "cuts",
     name: "E. 자이언트 컷",
-    desc: "L·A·Z·Y·C·L·U·B 여덟 글자가 한 글자씩 화면을 가득 채우며 빠르게 컷 전환된 뒤, 전체 마크로 착지합니다. 릴 특유의 비트감·리듬감이 가장 강한 안 — 소리 없는 웹에서도 시선을 세게 잡습니다.",
+    desc: "L·A·Z·Y·C·L·U·B 여덟 글자가 한 글자씩 화면을 가득 채우며 빠르게 컷 전환된 뒤, 전체 마크가 3색 모자이크로 착지합니다. 릴 특유의 비트감·리듬감이 가장 강한 안 — 소리 없는 웹에서도 시선을 세게 잡습니다.",
     reco: "SNS 영상 문법 그대로라 짧은 캠페인·오프닝에 어울립니다. 매 방문 반복되면 피로할 수 있어 1회성 연출에 권장.",
+  },
+  {
+    key: "dense",
+    name: "F. 워드서치 필드 (추천)",
+    desc: "화면을 가득 채운 무수한 글자(273자)가 쉼 없이 색과 글자를 뒤섞다가, 스윕이 지나가면 그 속에 숨어 있던 LAZY(가로)·CLUB(세로, L 공유)만 또렷해지고 주변은 흐려진 채 계속 웅성입니다. 잠시 뒤 단어 찾기 동그라미가 짠·짠 그려지고, 다시 전체가 뒤섞이는 무한 루프.",
+    reco: "추천안 — 릴의 '무수한 텍스트' 밀도에 가장 가깝고, 랜딩 4×4 워드서치 마크의 문법(숨은 단어+동그라미)을 그대로 큰 밀도로 확장한 것이라 브랜드 정체성 연결이 가장 강합니다.",
   },
 ] as const
 
@@ -189,46 +200,48 @@ function ReorgStage({ seed, reduced }: { seed: number; reduced: boolean }) {
 
   return (
     <div className={`${styles.board} ${formed ? styles.formed : ""}`} aria-label="LAZY CLUB">
-      {ON_CELLS.map((p, k) => {
-        const td = p.gcol * 12 + rnd(seed, p.i, 71) * 280
+      {ON_CELLS.map((p, k) => (
+        <i
+          key={p.i}
+          className={styles.mg}
+          style={
+            {
+              ...area(p),
+              "--c": pick(seed, p.i, 5),
+              "--sx": String(packed[k].sx),
+              "--sy": String(packed[k].sy),
+              "--td": `${(p.gcol * 12 + rnd(seed, p.i, 71) * 280).toFixed(0)}ms`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ── D. 플립닷 웨이브 — 등장 후 대각선 파도로 무한 반전 (사이클 없음).
+      앞면 --c ↔ 뒷면 --c2, 서로 다른 난수 색 (라운드 2: 잉크 면 폐기) ── */
+function FlipStage({ seed }: { seed: number }) {
+  return (
+    <div className={styles.board} aria-label="LAZY CLUB">
+      {ON_CELLS.map((p) => {
+        const ci = Math.floor(rnd(seed, p.i, 9) * 3)
+        const c2 = PALETTE[(ci + 1 + Math.floor(rnd(seed, p.i, 19) * 2)) % 3]
         return (
           <i
             key={p.i}
-            className={styles.mg}
+            className={styles.fd}
             style={
               {
                 ...area(p),
-                "--c": pick(seed, p.i, 5),
-                "--sx": String(packed[k].sx),
-                "--sy": String(packed[k].sy),
-                "--td": `${td.toFixed(0)}ms`,
-                "--tc": `${(td + 380).toFixed(0)}ms`,
+                "--c": PALETTE[ci],
+                "--c2": c2,
+                "--d": `${((p.gcol + p.grow) * 34 + rnd(seed, p.i, 17) * 60).toFixed(0)}ms`,
               } as React.CSSProperties
             }
           />
         )
       })}
-    </div>
-  )
-}
-
-/* ── D. 플립닷 웨이브 — 등장 후 대각선 파도로 무한 반전 (사이클 없음) ── */
-function FlipStage({ seed }: { seed: number }) {
-  return (
-    <div className={styles.board} aria-label="LAZY CLUB">
-      {ON_CELLS.map((p) => (
-        <i
-          key={p.i}
-          className={styles.fd}
-          style={
-            {
-              ...area(p),
-              "--c": pick(seed, p.i, 9),
-              "--d": `${((p.gcol + p.grow) * 34 + rnd(seed, p.i, 17) * 60).toFixed(0)}ms`,
-            } as React.CSSProperties
-          }
-        />
-      ))}
     </div>
   )
 }
@@ -292,19 +305,103 @@ function CutsStage({ seed, reduced, onCycle }: StageProps) {
   )
 }
 
-/** 시드 확정 전(SSR 포함) 정지 워드마크 — 배치가 이후와 동일해 화면이 튀지 않는다 */
+/* ── F. 워드서치 필드 — 릴의 "무수한 텍스트" 밀도 (라운드 2 신설).
+      21×13 = 273자 필드가 쉼 없이 글자·색을 뒤섞고, 잠금 스윕이 지나가면 그 속의
+      LAZY(가로)·CLUB(세로, L 공유 — 브랜드 마크 기하 그대로)만 또렷해진다.
+      주변 글자는 흐려진 채 계속 웅성이고, 캡슐 두 개가 짠·짠 그려진 뒤 전체가
+      다시 뒤섞이는 무한 루프. 셔플은 rAF 클록(50ms 양자화 — 이산 교체라 충분)이
+      구동하고 stateless 해시로만 읽는다. ── */
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const D_COLS = 21
+const D_ROWS = 13
+// 워드서치 배치 — LAZY 4행(가로) · CLUB 8열(세로), (4,8)의 L 공유
+const D_WORD: Record<string, string> = {
+  "3-8": "C",
+  "4-8": "L",
+  "5-8": "U",
+  "6-8": "B",
+  "4-9": "A",
+  "4-10": "Z",
+  "4-11": "Y",
+}
+const DT = { SCRAMBLE: 1300, SWEEP: 900, CAP1: 2900, CAP2: 3200, RESET: 6600, CYCLE: 7200 }
+// 캡슐 자리 (그리드 % — 칸 폭 100/21, 칸 높이 100/13에서 반 칸쯤 확장)
+const D_CAP_LAZY = { left: "35.9%", top: "29.1%", width: "23.4%", height: "11%" }
+const D_CAP_CLUB = { left: "37%", top: "21.2%", width: "7.1%", height: "34.6%" }
+
+function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
+  // 모션 최소화면 잠금+캡슐이 완성된 정지 화면에 고정
+  const [clock, setClock] = useState(reduced ? 4000 : 0)
+  useEffect(() => {
+    if (reduced) return
+    let raf = 0
+    const start = performance.now()
+    const tick = (now: number) => {
+      // 50ms 양자화 — 셔플은 이산 교체라 20fps면 충분하고 리렌더 비용이 1/3로 준다
+      const q = Math.floor((now - start) / 50) * 50
+      setClock((p) => (p === q ? p : q))
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [reduced])
+
+  const phase = reduced ? 4000 : clock % DT.CYCLE
+  const cycle = reduced ? 0 : Math.floor(clock / DT.CYCLE)
+  const cells = []
+  for (let r = 0; r < D_ROWS; r++) {
+    for (let c = 0; c < D_COLS; c++) {
+      const i = r * D_COLS + c
+      const word = D_WORD[`${r}-${c}`]
+      // 잠금 스윕: 좌→우로 열 단위 전진
+      const locked = phase >= DT.SCRAMBLE + (c / D_COLS) * DT.SWEEP && phase < DT.RESET
+      const interval = 90 + rnd(seed, i, 41) * 90
+      const tick = Math.floor(clock / interval) // 절대 시계 — 흐려진 뒤에도 계속 진화
+      const ch = word && locked ? word : ALPHABET[Math.floor(rnd(seed, i, tick) * 26)]
+      const color =
+        word && locked
+          ? PALETTE[Math.floor(rnd(seed ^ Math.imul(cycle + 1, 40503), i, 4242) * 3)]
+          : PALETTE[Math.floor(rnd(seed, i, tick + 7) * 3)]
+      cells.push(
+        <span
+          key={i}
+          className={word && locked ? styles.dLock : locked ? styles.dDim : styles.dCell}
+          style={{ color }}
+        >
+          {ch}
+        </span>,
+      )
+    }
+  }
+  const capLazy = phase >= DT.CAP1 && phase < DT.RESET
+  const capClub = phase >= DT.CAP2 && phase < DT.RESET
+  return (
+    <div className={styles.dense} aria-label="LAZY CLUB 워드서치 필드">
+      {cells}
+      {capLazy && <div className={styles.dCap} style={D_CAP_LAZY} aria-hidden />}
+      {capClub && <div className={styles.dCap} style={D_CAP_CLUB} aria-hidden />}
+    </div>
+  )
+}
+
+/** 시드 확정 전(SSR 포함) 정지 워드마크 — 배치가 이후와 동일해 화면이 튀지 않는다.
+    색은 고정 시드 3색 모자이크: 상수라 서버·클라이언트 렌더가 같다 (라운드 2) */
 function PreBoard() {
   return (
     <div className={styles.board} aria-label="LAZY CLUB">
       {ON_CELLS.map((p) => (
-        <i key={p.i} className={styles.preCell} style={area(p)} />
+        <i
+          key={p.i}
+          className={styles.preCell}
+          style={{ ...area(p), "--c": pick(7, p.i, 11) } as React.CSSProperties}
+        />
       ))}
     </div>
   )
 }
 
 export function MotionTypeShowcase() {
-  const [active, setActive] = useState<VariantKey>("reorg")
+  const [active, setActive] = useState<VariantKey>("dense")
   const [run, bump] = useReducer((x: number) => x + 1, 0)
   const [salt, setSalt] = useState<number | null>(null)
   const [reduced, setReduced] = useState(false)
@@ -338,7 +435,7 @@ export function MotionTypeShowcase() {
     <div className={styles.page}>
       <div className={styles.head}>LAZY CLUB 모션 타이포그래피 시안 — 픽셀 키네틱</div>
       <p className={styles.sub}>
-        탭으로 5가지 모션 문법을 비교하세요. 모든 안이 같은 23×16 셀 격자 위에서 움직입니다.
+        탭으로 6가지 모션 문법을 비교하세요. A–E는 23×16 픽셀 격자, F는 21×13 글자 필드입니다.
       </p>
 
       <div className={styles.stageWrap}>
@@ -352,6 +449,8 @@ export function MotionTypeShowcase() {
           <ReorgStage key={stageKey} seed={seed} reduced={reduced} />
         ) : active === "flip" ? (
           <FlipStage key={stageKey} seed={seed} />
+        ) : active === "dense" ? (
+          <DenseStage key={stageKey} seed={seed} reduced={reduced} />
         ) : (
           <CutsStage key={stageKey} seed={seed} reduced={reduced} onCycle={bump} />
         )}

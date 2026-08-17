@@ -85,9 +85,10 @@ export function LandingShell({
   holdIntro = false,
 }: {
   children: React.ReactNode
-  /** 진입 홀드를 강제로 켠다 — 검수 페이지(`preview/hero-check`) 전용.
-   *  랜딩이 정적 이미지인 동안엔 홀드가 꺼져 있어서(useChromeIntro 의 HOLD_ENABLED),
-   *  안무를 확인하려면 이 플래그가 필요하다. 랜딩은 이 값을 넘기지 않는다. */
+  /** 진입 홀드를 강제로 켠다 — 검수 페이지(`preview/hero-check`) 전용 우회로.
+   *  2026-08-17 모션 재점등으로 랜딩도 홀드가 켜졌으므로(HOLD_ENABLED=true) 이제는
+   *  둘의 동작이 같다. 히어로가 다시 정적으로 내려가는 일이 생겨도 검수 페이지만은
+   *  안무를 볼 수 있어야 하므로 플래그는 남긴다. 랜딩은 이 값을 넘기지 않는다. */
   holdIntro?: boolean
 }) {
   const activeId = useActiveSection()

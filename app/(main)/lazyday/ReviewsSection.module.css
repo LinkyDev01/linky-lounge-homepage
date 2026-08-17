@@ -4,7 +4,9 @@
 
 .reviewsSection {
   padding: 72px var(--lz-gutter, 24px);
-  background: #f0e9e0;
+  /* 2026-08-17 B → A 재배정 (일정 섹션이 B 를 받은 데 따른 연쇄).
+     덤으로 2026-07-22 부터 예외로 두던 후기–FAQ 의 B–B 인접이 해소됐다 */
+  background: #f7f3ee;
   scroll-margin-top: 52px;
 }
 .reviewsInner { max-width: var(--lz-card, 560px); margin: 0 auto; }

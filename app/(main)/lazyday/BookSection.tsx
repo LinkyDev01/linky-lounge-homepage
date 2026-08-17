@@ -85,7 +85,9 @@ export function BookSection() {
       <div className={styles.content}>
         <FadeUp y={12} duration={0.9}>
           <div className={styles.titleRow}>
-            <h2 className={styles.sectionTitle}>선정도서</h2>
+            {/* 운영자 2026-08-17: '선정도서'는 뜻은 맞으나 공고문 어투라 안 붙는다 →
+                행위형으로. 내비 탭은 짧게 '읽는 책' (LandingShell NAV_ITEMS) */}
+            <h2 className={styles.sectionTitle}>함께 읽는 책</h2>
           </div>
           <p className={styles.bookLead}>
             {season.upcoming ? (

@@ -27,10 +27,15 @@ import s from "./landing-shell.module.css"
  * 내비 항목(랜딩 섹션 앵커 5개 — NavBar.tsx 와 동일 구성·라벨).
  */
 
+/**
+ * 운영자 2026-08-17 두 건:
+ *  · '선정도서' → 행위형으로. 섹션 제목은 '함께 읽는 책'(BookSection), 탭은 짧게 '읽는 책'
+ *  · '진행방식' 탭 제거 — 진행 순서가 모임소개 하단으로 접혀 들어가 독립 섹션이 아니다
+ *    ("별도로 상단 네비 메뉴까지 있을 정도로 중요해보이진 않아서")
+ */
 const NAV_ITEMS = [
-  { id: "book", label: "선정도서" },
+  { id: "book", label: "읽는 책" },
   { id: "feature", label: "모임소개" },
-  { id: "howto", label: "진행방식" },
   { id: "schedule", label: "일정·장소" },
   { id: "reviews", label: "후기·FAQ" },
 ]

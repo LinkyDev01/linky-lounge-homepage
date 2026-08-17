@@ -127,7 +127,14 @@
 .seasonSlideRight { animation: seasonInRight 0.4s cubic-bezier(0.22, 0.8, 0.36, 1); }
 .seasonSlideLeft  { animation: seasonInLeft  0.4s cubic-bezier(0.22, 0.8, 0.36, 1); }
 
-/* 커버 레일 — 네 권 한눈에 + 탭하면 해당 카드로 */
+/* 커버 레일 — 네 권 한눈에 + 탭하면 해당 카드로.
+   ⚠ **선택 표시는 캐러셀(한 번에 한 권)일 때만 뜻이 있다** (운영자 2026-08-17
+   "웹버전에서는 동시노출이니만큼 모두 주황표시가 불필요해"). 데스크톱(≥721px)은
+   네 권이 그리드로 전부 펼쳐지므로, 레일에서 한 권만 주황 테두리·볼드로 세워 두면
+   정보가 아니라 **"1회차만 유효"라는 오독**을 만든다. 노출된 것만 표시한다는 규칙을
+   그대로 적용해도 데스크톱은 넷 다 노출이라 넷 다 표시 = 정보량 0 이다.
+   → 아래 `--lz-cover-*` 로 변수화해 데스크톱에서만 중립(넷 다 동등)으로 만든다.
+   기본값은 현행 그대로라 모바일·프리뷰는 무변경 (landing-shell.module.css 에서 주입). */
 .coverRail {
   display: flex;
   gap: 14px;
@@ -142,7 +149,8 @@
   background: none;
   border: none;
   padding: 0;
-  cursor: pointer;
+  /* 그리드 모드에선 눌러도 옮겨 갈 곳이 없다 — 손가락 커서만 남으면 고장으로 읽힌다 */
+  cursor: var(--lz-cover-cursor, pointer);
   text-align: center;
 }
 .coverThumb {
@@ -151,14 +159,14 @@
   object-fit: cover;
   border-radius: 3px;
   border: 2px solid transparent;
-  opacity: 0.55;
+  opacity: var(--lz-cover-dim, 0.55);
   box-shadow: 0 2px 8px rgba(74, 58, 42, 0.12);
   transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 .coverCellActive .coverThumb {
   opacity: 1;
-  transform: translateY(-3px);
-  border-color: #d2691e;
+  transform: translateY(var(--lz-cover-lift, -3px));
+  border-color: var(--lz-cover-mark, #d2691e);
 }
 .coverWeek {
   display: block;
@@ -166,7 +174,10 @@
   font-size: 11.5px;
   color: #a08b70;
 }
-.coverCellActive .coverWeek { color: #b8571a; font-weight: 700; }
+.coverCellActive .coverWeek {
+  color: var(--lz-cover-week, #b8571a);
+  font-weight: var(--lz-cover-week-weight, 700);
+}
 
 /* 카드 캐러셀 — 가운데 큰 활성 카드 + 양옆 축소·흐림 카드 */
 .bookCarousel { position: relative; }

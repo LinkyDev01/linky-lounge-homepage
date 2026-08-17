@@ -334,6 +334,18 @@
   .body :global(#book) {
     --lz-carousel-cols: 4;
     --lz-card: 100%;
+    /* 커버 레일의 선택 표시를 끈다 — 네 권이 아래에 전부 펼쳐져 있으므로 한 권만
+       주황으로 세워 두면 "1회차만 유효"로 오독된다 (운영자 2026-08-17
+       "웹버전에서는 동시노출이니만큼 모두 주황표시가 불필요해").
+       레일은 선택 UI 가 아니라 **네 권 한눈 목록**으로만 남는다.
+       ⚠ 캐러셀(≤720px)에서는 종전 그대로 — 거기선 한 번에 한 권만 보이므로
+         "지금 어느 권인지"가 실제 정보다. BookSection.module.css 의 기본값이 그것. */
+    --lz-cover-dim: 1;
+    --lz-cover-lift: 0px;
+    --lz-cover-mark: transparent;
+    --lz-cover-week: #a08b70;
+    --lz-cover-week-weight: 400;
+    --lz-cover-cursor: default;
   }
   .body :global(#reviews) {
     --lz-carousel-cols: 3;

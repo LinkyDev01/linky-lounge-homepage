@@ -5,7 +5,7 @@ import { LandingShell } from "./LandingShell"
 import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
 import { HeroSummary } from "./HeroSummary"
-import { HowToSection } from "./HowToSection"
+import { HowToBrief } from "./HowToBrief"
 import { ScheduleSection } from "./ScheduleSection"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSection } from "./BookSection"
@@ -67,9 +67,16 @@ export default function StudyForeignPage() {
         </div>
         <BookSection />
         {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ '5회차 자유 독서모임' 문항으로 이관, 컴포넌트는 고아 보존 (운영자 결정 2026-07-06) */}
-        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기' + 보완 원고 (2026-07-06 배포 승인) — FeatureBoxSection은 고아 보존 */}
-        <FeatureQuietSection />
-        <HowToSection />
+        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기' + 보완 원고 (2026-07-06 배포 승인) — FeatureBoxSection은 고아 보존.
+            2026-08-17: 진행방식(HowToSection)이 **독립 섹션에서 이 밴드 하단 요약으로 접혀** 들어왔다
+            (운영자 "별도로 상단 네비 메뉴까지 있을 정도로 중요해보이진 않아서 모임 소개 하단에 간략히").
+            HowToSection 은 삭제하지 않고 고아 보존 — 되돌릴 땐 이 밴드를 풀고 다시 렌더하면 된다 */}
+        <div className={shell.featureBand}>
+          <FeatureQuietSection />
+          <div className={shell.briefWrap}>
+            <HowToBrief />
+          </div>
+        </div>
         <ScheduleSection />
         {/* 후기(멤버들이 남긴 문장) — 프리뷰 확정 디자인 이식, FAQ 바로 위 (운영자 지시 2026-07-21). 실물 사진 업로드 대기 */}
         <ReviewsSection />

@@ -153,6 +153,57 @@ export function scalePosterThreadD(k: number): string {
   return out.join(" ")
 }
 
+/** 세그먼트(3차 베지어) 개수 — 421 */
+export const THREAD_SEG_COUNT = (THREAD_NUMS.length / 2 - 1) / 3
+
+/** 배율 적용한 점 목록 (내부용) */
+function scaledPoints(k: number): string[] {
+  const P: string[] = []
+  for (let i = 0; i < THREAD_NUMS.length; i += 2) {
+    P.push(
+      `${((THREAD_NUMS[i] - THREAD_CX) * k + THREAD_CX).toFixed(3)} ${(
+        (THREAD_NUMS[i + 1] - THREAD_CY) * k +
+        THREAD_CY
+      ).toFixed(3)}`,
+    )
+  }
+  return P
+}
+
+/** **닫힌 루프의 시작점을 세그먼트 s 로 옮긴 `d`** — 곡선은 완전히 같고 시작만 다르다.
+ *
+ *  왜 필요한가: `<textPath>` 는 **시작과 끝이 있는 선**이라, 실이 기하학적으로 닫힌
+ *  루프여도 글자는 경로 끝에서 잘리고 시작에서 다시 얹힌다 — 그 자리가 곧 "종료
+ *  위치에서 지워지고 시작 위치에서 새로 생기는" 지점이다 (운영자 2026-08-15
+ *  "이게 루프로 회전해야 하잖아. 그게 안 되니까 계속 문제가 생겨"). 엔진에 루프
+ *  개념이 없으니 **경계를 없앨 수는 없고, 다른 데로 옮길 수는 있다.** 시작점이
+ *  반 바퀴 돌아간 두 번째 경로를 겹쳐 두면, 각자의 경계가 상대의 한복판에 놓여
+ *  서로를 덮는다 — 화면에는 경계가 하나도 남지 않는다.
+ *
+ *  절대 좌표 3차 베지어만 쓰는 경로라 **세그먼트 목록을 돌려 붙이면 끝**이다
+ *  (베지어 분할 불필요). */
+export function rotatePosterThreadD(seg: number, scale = 1): string {
+  const P = scaledPoints(scale)
+  const n = THREAD_SEG_COUNT
+  const s = ((seg % n) + n) % n
+  const C = (i: number) => `C ${P[1 + 3 * i]} ${P[2 + 3 * i]} ${P[3 + 3 * i]}`
+  const out = [`M ${P[3 * s]}`]
+  for (let i = 0; i < n; i++) out.push(C((s + i) % n))
+  out.push("Z")
+  return out.join(" ")
+}
+
+/** 세그먼트 0..seg-1 만의 `d` — 그 지점까지의 **호길이**를 재려고 쓴다
+ *  (회전 경로의 시작이 원래 경로에서 몇 u 지점인지 = 두 경로의 오프셋). */
+export function partialPosterThreadD(seg: number, scale = 1): string {
+  const P = scaledPoints(scale)
+  const n = THREAD_SEG_COUNT
+  const s = Math.max(0, Math.min(n, seg))
+  const out = [`M ${P[0]}`]
+  for (let i = 0; i < s; i++) out.push(`C ${P[1 + 3 * i]} ${P[2 + 3 * i]} ${P[3 + 3 * i]}`)
+  return out.join(" ")
+}
+
 /** 큰 글자 12자 — 포스터 실측 중심 좌표(연결성분 bbox), textAnchor=middle + central 기준.
  *
  *  ⚠ 2026-08-14 — 럽·집은 종전에 "실과 맞닿아 자동 추출이 어긋난다"며 **손으로 넣었고,

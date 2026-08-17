@@ -297,6 +297,14 @@
   .body :global(#book) {
     --lz-carousel-cols: 4;
     --lz-card: 100%;
+    /* 실사이트 셸(landing-shell.module.css)과 같은 값 — 초안 쌍 동기화.
+       그리드에서는 커버 레일의 선택 표시를 끈다 (운영자 2026-08-17) */
+    --lz-cover-dim: 1;
+    --lz-cover-lift: 0px;
+    --lz-cover-mark: transparent;
+    --lz-cover-week: #a08b70;
+    --lz-cover-week-weight: 400;
+    --lz-cover-cursor: default;
   }
   .body :global(#reviews) {
     --lz-carousel-cols: 3;

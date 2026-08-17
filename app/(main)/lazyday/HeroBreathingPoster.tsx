@@ -432,6 +432,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       fitToPath(textEl)
       tuneSeam()
       textEl.removeAttribute("data-hold")
+      watchLateFont()
       // 셸(내비·푸터)은 마운트 기준 벽시계로 도는데 그어짐이 늦게 시작했으므로,
       // 실제 시작 시각을 알려 리빌 타이머를 다시 걸게 한다 (없으면 내비가 먼저 뜬다)
       window.dispatchEvent(
@@ -440,12 +441,46 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       return performance.now()
     }
 
+    /** **늦게 도착한 서체 구제** (2026-08-15, 운영자 실기기 "이음부분 누락").
+     *  안전핀이 먼저 터지면 폴백 서체 기준으로 크기가 확정된 채 노출되는데, 그 뒤에
+     *  진짜 서체(Pretendard, 폴백보다 14% 좁다)가 들어오면 한 벌이 실보다 **훨씬 짧아져
+     *  실 끝에 수십 글자 길이의 빈 구간**이 남는다 — 실기기 스크린샷의 그 공백이다.
+     *  로컬(localhost)에서는 서체가 1초 안에 와서 재현되지 않았다.
+     *  ⚠ 노출 뒤 크기를 바꾸는 건 원칙적으로 금지지만(운영자 "이번에도 바뀌어"),
+     *  **실이 통째로 비는 것보다는 한 번의 보정이 낫다.** 그래서 **2% 넘게 어긋난
+     *  경우에만** 한 번 고치고 감시를 끝낸다. 정상 경로(서체가 제때 도착)에서는
+     *  폭이 그대로라 아무 일도 일어나지 않는다. */
+    let lateWatch: ReturnType<typeof setInterval> | null = null
+    const watchLateFont = () => {
+      const base = unitWidth()
+      if (!(base > 0) || lateWatch) return
+      let ticks = 0
+      lateWatch = setInterval(() => {
+        if (cancelled || ++ticks > 30) {
+          if (lateWatch) clearInterval(lateWatch)
+          lateWatch = null
+          return
+        }
+        const now = unitWidth()
+        if (!(now > 0) || Math.abs(now - base) / base < 0.02) return
+        if (lateWatch) clearInterval(lateWatch)
+        lateWatch = null
+        fitToPath(textEl)
+        tuneSeam()
+        fitToPath(textEl)
+        tuneSeam()
+      }, 500)
+    }
+
     // ⚠ **안전핀.** 홀드는 "확정될 때까지 안 보인다"는 약속이라, 확정 경로가 어디서든
     //   막히면 본문이 **영영 안 보인다** (2026-08-14 정지 사고와 같은 부류). 무슨 일이
-    //   있어도 3초 뒤에는 노출한다 — revealOnce 는 멱등이라 정상 경로와 충돌하지 않는다.
+    //   있어도 이 시각엔 노출한다 — revealOnce 는 멱등이라 정상 경로와 충돌하지 않는다.
+    //   ⚠ 3초는 **실기기 모바일 회선에 짧았다** — Pretendard 동적 서브셋은 요청이 수십
+    //   개라 3초를 넘기기 쉽고, 그러면 폴백 기준으로 크기가 굳는다(위 watchLateFont).
+    //   6초로 늘려 정상 도착 확률을 높이고, 그래도 늦으면 구제가 받는다.
     const pin = setTimeout(() => {
       if (!cancelled) revealOnce()
-    }, 3000)
+    }, 6000)
 
     // 모션 최소화: 흐름·서체 대기 없이 그 자리에서 노출 (CSS 가 스태거를 끈다).
     // ⚠ 종전엔 여기서 그냥 return 해 **data-hold 가 남아 본문이 통째로 안 보였다.**
@@ -454,6 +489,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       return () => {
         cancelled = true
         clearTimeout(pin)
+        if (lateWatch) clearInterval(lateWatch)
       }
     }
 
@@ -480,6 +516,7 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     return () => {
       cancelled = true
       clearTimeout(pin)
+      if (lateWatch) clearInterval(lateWatch)
       if (timer) clearTimeout(timer)
       if (raf) cancelAnimationFrame(raf)
     }

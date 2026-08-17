@@ -1,0 +1,130 @@
+/* 히어로 검수대 — 프리뷰 전용. 실사이트 CSS 를 import 하지 않는다 (공유 지도 오염 방지) */
+
+.wrap {
+  padding: 12px 0 48px;
+  background: #ffffff;
+}
+
+/* 셸을 통째로 담는 틀 — 랜딩과 같은 전폭 구조라 max-width 를 씌우지 않는다
+   (씌우면 내비 거터·푸터 15컬럼이 랜딩과 다르게 접힌다).
+   ⚠ transform 이 핵심이다: 셸의 내비·진입 덮개는 `position: fixed` 라 그냥 담으면
+   **프레임을 탈출해 뷰포트 상단의 PREVIEW 바와 겹친다** (마크·내비가 반쯤 잘리는
+   서식 붕괴 — 운영자 2026-08-14 "서식도 깨졌어"). transform 이 걸린 조상은 fixed
+   자손의 기준이 되므로(containing block), 이 한 줄로 내비·덮개가 **프레임 안**에
+   갇힌다. 차이는 스크롤 시 내비가 따라오지 않는 것뿐 — 검수 목적엔 무해. */
+.shellFrame {
+  position: relative;
+  transform: translate(0);
+}
+
+.hint {
+  margin: 0 16px 10px;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #8a6a50;
+  word-break: keep-all;
+}
+.hint b {
+  color: #d2691e;
+  font-weight: 700;
+}
+
+/* 안무 시각 기록 */
+.marks {
+  margin: 14px 16px 0;
+  padding: 10px 14px 10px 30px;
+  border: 1px solid #eee2d0;
+  border-radius: 8px;
+  background: #fffdf8;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #4a3020;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 10px 16px;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12.5px;
+  color: #4a3020;
+}
+
+.btn {
+  border: 1px solid #d2691e;
+  background: #d2691e;
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #b8571a;
+  border-color: #b8571a;
+}
+
+.check,
+.range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.range input[type="range"] {
+  width: 92px;
+  accent-color: #d2691e;
+}
+
+.num {
+  color: #8a6a50;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 무대 — 랜딩 히어로와 같은 폭·비례로 두어야 검수 결과가 그대로 옮겨간다 */
+.stage {
+  position: relative;
+}
+
+.ghost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill; /* 같은 4:5 라 왜곡 없음 — 픽셀 대 픽셀로 포갠다 */
+  pointer-events: none;
+}
+
+/* 진단 한 줄 — "안 보인다"가 브라우저별 문제일 때 원인을 화면에서 읽는다 */
+.diag {
+  margin: 10px 16px 0;
+  padding: 7px 10px;
+  border: 1px dashed #e5d9c8;
+  border-radius: 6px;
+  background: #fffdf8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: #8a6a50;
+  word-break: break-all;
+}
+
+.note {
+  margin: 14px 16px 0;
+  font-family: "SUIT Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.85;
+  color: #8a6a50;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.note b {
+  color: #4a3020;
+  font-weight: 700;
+}

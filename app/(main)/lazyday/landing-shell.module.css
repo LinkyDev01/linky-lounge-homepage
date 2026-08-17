@@ -78,10 +78,21 @@
      이벤트는 window 까지 버블링되어 그대로 '입력 = 노출' 트리거가 된다 */
   pointer-events: auto;
 }
-/* 포스터만 덮개 위로 (조상에 stacking context 가 없어 루트에서 비교된다 — 실측 확인) */
-.page[data-intro="hold"] [data-lz-poster] {
+/* 포스터만 덮개 위로 (조상에 stacking context 가 없어 루트에서 비교된다 — 실측 확인).
+   ⚠ **덮개가 다 걷힌 뒤에 내려온다.** 홀드가 풀리는 순간 바로 내려오면, 아직
+   0.45s 동안 걷히는 중인 덮개(같은 종이색)가 포스터를 덮어 **실 위 글자가 흐려졌다
+   돌아온다** (2026-08-14 프레임 캡처로 확인 — 흐름 전환 시점과 겹쳐 "전환에서 뭔가
+   깜빡인다"로 읽힌다). z-index 는 정수라 transition 이 걸리고, duration 0s + delay
+   0.45s 면 덮개가 사라진 뒤에 한 번에 내려온다. 전환이 안 먹는 엔진에서도 종전과
+   같은 동작으로 떨어질 뿐이라 회귀 위험이 없다. */
+.page [data-lz-poster] {
   position: relative;
   z-index: 201;
+  transition: z-index 0s linear 0.45s;
+}
+/* 덮개가 걷힌 뒤 — 고정 내비(z 110)보다 아래로 돌아간다 */
+.page[data-intro="show"] [data-lz-poster] {
+  z-index: 0;
 }
 /* 등장 — 페이드는 짧게(0.4s), 올라오는 궤적은 조금 길게(0.55s) 잡아 감속 꼬리를
    남긴다. 이징은 §3 등장 리빌과 같은 cubic-bezier(0.22,1,0.36,1) */

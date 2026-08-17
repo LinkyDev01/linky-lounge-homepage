@@ -33,13 +33,19 @@ export const CTA_EXTRA_DELAY_MS = 3000
 
 /**
  * 이 홀드는 히어로가 **모션 포스터**일 때만 의미가 있다(그어짐이 끝나갈 무렵에
- * 맞춰 네비·CTA 를 띄우는 안무). 2026-08-14 정적 이미지 임시 복귀 중엔 기다릴
- * 대상이 없으니 네비·본문(마스크)·CTA 를 즉시 노출 — 홀드 로직 자체는 지우지
- * 않고 꺼만 둔다. 모션 재점등 시 true 로 되돌리면 원래 동작이 복원된다.
+ * 맞춰 네비·CTA 를 띄우는 안무). 2026-08-14~17 정적 이미지 임시 복귀 중엔 기다릴
+ * 대상이 없어 꺼 두었다가, 모션 재점등과 함께 **되켰다** (운영자 2026-08-17
+ * "네비 푸터 본문 노출시점도 예전 규칙 살려서 해").
+ * ⚠ 히어로를 다시 정적 이미지로 되돌리는 일이 생기면 이 값도 false 로 함께 내려야
+ *   한다 — 기다릴 그어짐이 없는데 홀드만 켜져 있으면 내비·본문이 2.2초 늦게 뜬다.
  */
-const HOLD_ENABLED = false
+const HOLD_ENABLED = true
 
-export function useChromeIntro() {
+/** @param force `true` 면 HOLD_ENABLED 와 무관하게 홀드를 켠다 — **검수 페이지
+ *  (`preview/hero-check`) 전용**. 랜딩이 정적 이미지인 동안에도 모션 히어로의
+ *  안무(내비·푸터 → 3초 뒤 CTA)를 그대로 볼 수 있어야 하기 때문 (운영자 2026-08-14
+ *  "네비와 푸터 숨겼다가 노출되는 그 모든 과정까지 프리뷰에 다 실어"). */
+export function useChromeIntro(force = false) {
   const [chrome, setChrome] = useState(false)
   const [cta, setCta] = useState(false)
   // 크롬 노출은 타이머·입력 어느 쪽으로도 올 수 있다 — CTA 예약이 두 번 걸려
@@ -47,7 +53,7 @@ export function useChromeIntro() {
   const chromeDone = useRef(false)
 
   useEffect(() => {
-    let ctaTimer: ReturnType<typeof setTimeout> | undefined
+    let raf = 0
 
     /** 인트로 자체를 건너뛰는 경로 — 크롬·CTA 를 함께 즉시 노출 */
     const revealAll = () => {
@@ -55,15 +61,27 @@ export function useChromeIntro() {
       setChrome(true)
       setCta(true)
     }
-    /** 정상 경로 — 크롬 먼저, CTA 는 3초 뒤 */
+    /** 정상 경로 — 크롬 먼저, CTA 는 3초 뒤.
+     *  ⚠ CTA 지연을 `setTimeout` 으로 재면 **밀린다.** 이 시점엔 포스터의 흐름이
+     *  돌기 시작해 매 프레임 474자를 재배치하는데, 프레임이 긴 기기에서는 타이머가
+     *  그만큼 늦게 깨어난다 (실제 WebKit 실측: 3.0초 지시가 **4.4초**로 실행).
+     *  프레임마다 벽시계를 확인하는 방식이면 **늦어도 한 프레임 이내**로 정확하다. */
     const revealChrome = () => {
       if (chromeDone.current) return
       chromeDone.current = true
       setChrome(true)
-      ctaTimer = setTimeout(() => setCta(true), CTA_EXTRA_DELAY_MS)
+      const due = performance.now() + CTA_EXTRA_DELAY_MS
+      const wait = () => {
+        if (performance.now() >= due) {
+          setCta(true)
+          return
+        }
+        raf = requestAnimationFrame(wait)
+      }
+      raf = requestAnimationFrame(wait)
     }
 
-    if (!HOLD_ENABLED) {
+    if (!HOLD_ENABLED && !force) {
       revealAll()
       return
     }
@@ -79,15 +97,39 @@ export function useChromeIntro() {
       return
     }
 
-    const timer = setTimeout(revealChrome, CHROME_REVEAL_MS)
+    // 기본은 마운트 기준 타이머. 다만 포스터는 **글자 크기가 확정될 때까지** 실 위
+    // 본문을 감춰 두므로(서체 대기), 그어짐이 늦게 시작할 수 있다 — 그러면 이 시계와
+    // 어긋나 내비가 그어짐 도중에 뜬다. 포스터가 실제 시작 시각을 `lz:hero-draw-start`
+    // 로 알려 오면 타이머를 다시 건다. 이벤트가 없는 화면(정적 히어로 등)에선 종전과
+    // 똑같이 동작한다 — 동기화는 개선일 뿐 의존이 아니다.
+    // ⚠ 크롬 노출 시각도 **프레임 기준**이다 (CTA 와 같은 이유 — 실제 WebKit 에서
+    //   setTimeout 이 1초 넘게 밀려 내비가 그어짐보다 한참 뒤에 떴다).
+    let due = performance.now() + CHROME_REVEAL_MS
+    let chromeRaf = 0
+    const tick = () => {
+      if (chromeDone.current) return
+      if (performance.now() >= due) {
+        revealChrome()
+        return
+      }
+      chromeRaf = requestAnimationFrame(tick)
+    }
+    chromeRaf = requestAnimationFrame(tick)
+    const onDrawStart = (e: Event) => {
+      const ms = (e as CustomEvent<{ revealInMs?: number }>).detail?.revealInMs
+      if (typeof ms !== "number" || chromeDone.current) return
+      due = performance.now() + ms
+    }
+    window.addEventListener("lz:hero-draw-start", onDrawStart)
     const EVENTS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const
     EVENTS.forEach((ev) => window.addEventListener(ev, revealChrome, { passive: true }))
     return () => {
-      clearTimeout(timer)
-      clearTimeout(ctaTimer)
+      if (chromeRaf) cancelAnimationFrame(chromeRaf)
+      if (raf) cancelAnimationFrame(raf)
+      window.removeEventListener("lz:hero-draw-start", onDrawStart)
       EVENTS.forEach((ev) => window.removeEventListener(ev, revealChrome))
     }
-  }, [])
+  }, [force])
 
   return { chrome, cta }
 }

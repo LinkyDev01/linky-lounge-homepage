@@ -26,6 +26,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 ## 2. 프로젝트 지도
 
 - **도메인**: `lazyday-bookclub.com` → middleware가 내부 `/lazyday/*`로 rewrite (`middleware.ts`). `/apply/interview`는 `/apply/interview/schedule`로 redirect. `linkylounge.com/lazyday/*`는 북클럽 도메인으로 301. `/lazyday/admin*`은 `lazyday_admin` 쿠키(=ADMIN_SECRET) 필요.
+- **히어로** = `HeroBreathingPoster`(숨 쉬는 포스터, 모션). 2026-08-13~17 정적 이미지 임시 복귀 기간이 있었으나 **2026-08-17 재점등** — `HeroParallax` 가 이 컴포넌트를 렌더하고 `useChromeIntro.HOLD_ENABLED=true`. 진입 안무: 포스터만 → 그어짐 종료 무렵(−200ms) 내비·푸터·본문 → +3초 스티키 CTA. 검수대는 `preview/hero-check`.
 - **실사이트 랜딩** `app/(main)/lazyday/page.tsx` — **2026-08-12 반응형 개편 이식**: 페이지 전체가 `LandingShell`(레이지클럽 문법 내비+푸터, landing-shell.module.css)로 감싸이고, 내비는 동적 마크 `LazydayMark`(I♥LAZYDAY, 냥이체+난수 도미노), 폭 시스템은 CSS 변수(--lz-*)로 데스크톱(≥721px) 확장 — **≤720px 는 종전과 픽셀 동일**. 클로징은 `SeasonCountCta`(기수 카운트)+`BrandCloseV2`. 구 NavBar·Footer(랜딩에서만)·ClosingCtaSection·BrandCloseSection 은 **고아 보존**. 모임소개 데스크톱 = 2×2 그리드(시안 A 확정). 섹션 순서·배경(**오트 톤 저대비 교차 — 짙은 쪽부터**): Hero(+HeroSummary 병치 heroRow) → **선정도서(B#f0e9e0, 종이책 조판, 기수 세그 4기·3기·2기·1기 — 4기 upcoming 리드)** → 모임소개(A#f7f3ee, **FeatureQuietSection** 콰이어트 페이드 이어 읽기) → 진행방식(B, 콰이어트 리스트) → 일정·장소(A, **6b 괘선 박스+7b 점선 5회차+6c 손그림 장소**, 7b '자유 독서모임'은 #gathering FAQ 딥링크) → **후기(B, ReviewsSection — 캐러셀+모달 갤러리, FAQ와 B–B 인접 예외는 운영자 수용 2026-07-22)** → FAQ(B) → **ClosingCta+BrandClose(A)**. 5회차 섹션은 삭제되고 내용은 FAQ 문항으로 이관. About/Closing/Rules/Vibe/**FeatureBoxSection·FifthSessionSection** 은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
 - **프리뷰 트리** `app/(main)/lazyday/preview/` : noindex + PreviewBar + 자체 폰트 로드(layout.tsx). 실사이트 컴포넌트의 V2 대응물 + 프리뷰 전용(HeroSummary, PhilosophySectionV2, ReviewsSection, faq-designs). HeroParallax·FifthSession·Footer는 실사이트 것을 그대로 import (V2 없음). HowTo·Schedule·모임소개·클로징CTA는 실↔프리뷰 **분리 사본 쌍** (§4 참조 — 한쪽 수정 시 쌍도 같은 값으로). FifthSession은 섹션 삭제로 실·프리뷰 모두 미렌더(고아 보존).
 - **단일 출처 컨피그** (여기만 고치면 전체 반영):
@@ -88,9 +89,17 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 ## 5. 환경 함정 (원격 실행 환경)
 
 - **Playwright**: `import('playwright')` 실패 시 `/opt/node22/lib/node_modules/playwright`, 브라우저 `/opt/pw-browsers/chromium`, `--no-sandbox` 필수. **외부 HTTPS 불가**(프록시 미설정) — localhost 전용. 배포 URL 검증은 `curl -c jar -b jar` 쿠키자로.
+- **실제 WebKit(사파리 엔진) 검증 가능** (2026-08-15 신설): `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npx playwright@latest install webkit` → `apt-get update && npx playwright@latest install-deps webkit` (우분투 계열이라 됨). 드라이버는 **npx 로 받은 playwright-core** 를 쓴다 (`/opt/node22` 의 playwright 는 webkit 리비전이 달라 못 붙는다). ⚠ **웹킷 '흉내'로 검증하지 말 것** — 흉내가 틀린 가정 위에 서 있어 iOS 전용 결함 3건을 통과시킨 사고가 있었다(DECISIONS 2026-08-15). 웹킷 특이점: ① **경로 용량을 넘는 글자는 아예 렌더하지 않는다**(textPath 에 여러 벌을 이어 붙이고 음수 startOffset 으로 미는 기법이 성립하지 않음) ② `<text>`·`<textPath>` 의 `getComputedTextLength` 는 **둘 다 '경로에 실린 만큼'** ③ CSS 애니 리스타트 수법(`animation:none` 붙였다 떼기)이 안 먹는다. 헤드리스 웹킷은 소프트웨어 렌더라 프레임 시간(중앙 ~85ms)은 실기기 지표로 쓰지 말 것.
+- **`getPointAtLength` 는 비싸다** — 421 세그먼트 경로에서 호출당 ~0.5ms. 글자마다 부르면 크롬이 8.8초 블록한다. 좁은 창만 훑을 것.
+- **히어로 포스터(숨 쉬는 포스터)의 글자 배치는 "브라우저에 묻지 않는다"** (2026-08-17 전환). 실 위 474자의 좌표·각도·크기는 **빌드 타임 산출물** `poster-metrics.ts`(생성기 `scripts/gen_poster_layout.py`)와 순수 계산 모듈 `poster-place.ts` 가 정한다. `<textPath>`·`startOffset`·폭 측정·경로 스케일은 전부 **폐기**됐다 — 되살리지 말 것. 그 구조가 iOS 겹침·고갈·이음매 구멍·로드별 크기 편차의 공통 원인이었다.
+  - 포스터 **문구·경로·자간**이 바뀌면 ⓐ 서브셋 서체 재생성(`pyftsubset pv.woff2 --text-file=… --flavor=woff2 --layout-features='*'`) ⓑ `python3 scripts/gen_poster_layout.py` ⓒ 산출물 커밋. 이 순서를 건너뛰면 글자가 실을 못 채우거나 넘친다.
+  - `dominant-baseline` 은 **쓰지 않는다** — 엔진마다 적용 지점이 다르다(실측: 크롬은 `<text>` 에서 무시, 웹킷은 자식 tspan 유무로 갈림). 수직 정렬은 좌표에 직접 넣는다.
+  - `<text>` 의 **x/y/rotate 리스트는 자식 tspan 안의 글자까지 순서대로 소비**된다(두 엔진 실측) — 진입 스태거용 tspan 분해와 공존한다.
+  - `getExtentOfChar` 는 **회전된 글자에서 축정렬 상자를 준다** — 그 중심으로 경로와의 거리를 재면 3u 쯤 편향된다. 배치 검증은 픽셀 대조나 이웃 간격 통계로 할 것.
 - **스크린샷은 `node scripts/shot.mjs`** 로 통일 (boilerplate 재작성 금지). `--eval`로 computed style 수치 검증 가능.
 - **dev 서버는 턴 사이에 자주 죽는다**: `(npm run dev > /tmp/dev.log 2>&1 &)` 후 curl 200 폴링. `pkill` 후 exit 144는 무해.
 - **`next-env.d.ts`**: dev 서버가 재생성 — **모든 커밋 전 `git checkout -- next-env.d.ts`**.
+- **포스터 서체는 자체 호스팅 서브셋** `public/fonts/pretendard-poster-subset.woff2` (Pretendard v1.3.9 에서 180자만, 가변축 wght 45~930 보존, 35KB, OFL 사본 동봉). CDN 동적 서브셋은 조각이 수십 개라 실기기에서 도착 시각이 흔들려 **로드마다 다른 화면**을 만들었다 — 포스터에는 다시 쓰지 말 것 (다른 화면의 책 제목 등은 종전 CDN 유지).
 - **Vercel**: 프로젝트 `prj_iKxnwjdJoHtlXtEIBqxJ8uVjAmcy` / 팀 `team_Unc0jNsuK26xtE7mYRh09nRa`. 브랜치 별칭 `linky-lounge-homepage-git-<branch>-dmahns-projects.vercel.app`. 배포 보호 때문에 `mcp__Vercel__get_access_to_vercel_url`로 `_vercel_share` 토큰 발급 — **토큰은 배포 단위·~23h 만료, 새 푸시마다 재발급**, 운영자에게 만료 시각 명시.
 - **배포 확인**: `mcp__Vercel__list_deployments`에서 SHA가 READY인지 (콘텐츠 grep 워처는 클라이언트 전용 문자열엔 부정확). 프로덕션은 `www.lazyday-bookclub.com`을 백그라운드 폴링 (~60초 내 반영).
 - **sed 광역 치환 금지** — 과거 `font-weight` 전역 치환으로 무관한 5곳이 바뀐 사고. 반드시 고유 컨텍스트 포함 치환 or 라인 앵커.

@@ -1,246 +1,286 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import { POSTER_THREAD_D, POSTER_GLYPHS, POSTER_GLYPH_DY, SAYU_P1, SAYU_P2, SAYU_P3 } from "./poster-thread"
+import { memo, useEffect, useRef } from "react"
+import {
+  POSTER_GLYPHS,
+  POSTER_GLYPH_DY,
+  POSTER_GLYPH_FIT,
+  SAYU_P1,
+  SAYU_P2,
+  SAYU_P3,
+} from "./poster-thread"
+import { POSTER_CHAR_ADV, POSTER_FONT_SIZE, POSTER_LOOP_LEN } from "./poster-metrics"
+import { fillLists, listStr } from "./poster-place"
 import styles from "./HeroBreathingPoster.module.css"
 
 /**
  * 숨 쉬는 포스터 — 히어로 채택본 (2026-08-11, hero-motion 시안 ③ 이식).
  *
- * 실 = 4기 포스터에서 골격 추출한 실측 한붓 경로(poster-thread.ts), 큰 글자 12자는
- * 실측 좌표에 정적. 〈사유의 기슭〉 전문이 실을 따라 흐른다 — 한쪽 끝에서
- * 글자가 태어나고 반대쪽 끝에서 사라지는 무한 순환 (실이 비는 구간 없음:
- * 본문을 K벌 이어붙여 오프셋을 한 벌 길이로 순환).
+ * 실 = 원본 디자인 PDF 좌표의 한붓 경로(poster-thread.ts), 큰 글자 12자는 실측
+ * 좌표에 정적. 〈사유의 기슭〉 전문이 실을 따라 흐른다.
+ * ① 실 위 본문이 2.2초에 걸쳐 스스로 그어진다 (붓끝 순서 = draw 이징 역함수의
+ *    글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 페인트부터 돈다)
+ * ② 다 그어지면 0.3초 등가속 → 정상 속도의 무한 흐름
  *
- * 2026-08-12 운영자(최종): **큰 글자 12자는 처음부터 떠 있다** — "레이지데이 북클럽
- * 4기 모집 텍스트는 처음부터 뜨고", 생기는 절차만 뺀다.
- * ① 실 위 본문만 2.2초에 걸쳐 스스로 그어진다 (붓끝이 닿는 순서 = draw 이징의
- *    역함수로 깐 글자별 딜레이. 첫 벌만 tspan 분해, CSS 스태거라 JS 없이도 동작).
- *    480자 전부가 경로 위에 렌더된다 (글자 단위 getBBox 실측)
- * ② 실이 다 그어지면(2.4초) **대기 없이 곧바로** 0.3초 등가속 → 정상 속도의 SMIL 무한 흐름
- * 같은 textPath 하나로 진입→흐름을 잇는다 — 첫 벌은 tspan, 이후 벌은 JS가
- * 폰트 로드 후 통짜로 이어붙이고 SMIL(begin=indefinite)을 시각에 맞춰 발화.
+ * ⚠ **2026-08-17 — 글자 배치를 빌드 타임으로 옮겼다 (운영자 "각각 텍스트가 또 확
+ *    튀어 위치가"). 이 파일에서 사라진 것들:**
+ *      fitToPath · tuneSeam · countOnPath · measurePitch · watchLateFont ·
+ *      arcOf(경로 질의) · 폭 프로브 · 이음매 측정 사본 · 오버런 경로 · `<textPath>`
+ *    전부 "브라우저에게 물어서 맞추는" 코드였고, 답이 엔진·회선·서체 도착 시각마다
+ *    달라 그동안의 결함(로드별 크기 편차·iOS 겹침·고갈·이음매 구멍)을 만들었다.
+ *    이제 글자 좌표는 `poster-metrics.ts`(빌드 산출물) + `poster-place.ts`(순수 계산)
+ *    가 정한다. 엔진은 **지정한 자리에 글자 하나 그리기**만 한다.
+ *    · 경로에 시작·끝이 없으니 잘림·쌓임·이음매가 **존재할 수 없다**
+ *    · 호길이를 둘레로 나머지 연산하므로 실이 **진짜 루프**로 돈다
+ *    · 서체가 늦게 와도 자리는 그대로다 (글자 모양만 뒤늦게 바뀔 뿐이고,
+ *      그마저 font-display: block + 프리로드 + 진입 홀드가 가린다)
  *
- * 모션 원칙 M2의 허용 유형(존재만 하는 배경 루프 + 진입 1회). reduced-motion 이면
- * 진입 스킵(즉시 노출)·흐름 없음 — 한 벌이 경로보다 길어 정지여도 실이 가득 차 보인다.
+ * 진입 애니메이션은 채택 당시 구조(글자별 tspan 스태거, 페인트부터 재생, 정지·재개
+ * 없음) 그대로다. 모션 원칙 M2의 허용 유형. reduced-motion 이면 진입 스킵·흐름 없음.
  */
 
-/** 문단 사이는 **한 칸**. 종전 세 칸(`   `)이었는데, 그 13.5u 짜리 빈 구간이 루프를 돌며
- *  이음매에서 "글자가 사라졌다 생긴다"로 보였다 (운영자 2026-08-14). 원본 실측: 경로 위
- *  잉크 공백은 전 구간 최대 4.75u(=보통 낱말 사이)뿐이고 이음매에도 큰 틈이 없다. */
+/** 문단 사이는 **한 칸** (세 칸의 13.5u 빈 구간이 이음매에서 생성/소멸로 보였다) */
 const SAYU_FULL = `${SAYU_P1} ${SAYU_P2} ${SAYU_P3}`
+/** 흐름의 반복 단위 — 마지막 한 칸이 전문 끝과 처음 사이의 숨이다.
+ *  ⚠ 이 문자열이 곧 배치표의 기준이다 (gen_poster_layout.py 의 `unit` 과 같아야 한다). */
+const UNIT = `${SAYU_FULL} `
+const CHARS = UNIT.split("")
+const N = CHARS.length
+/** 큰 글자 12자 — 서체 로드 대기에 같이 건다 (같은 서브셋 파일의 900 굵기) */
+const POSTER_GLYPH_TEXT = POSTER_GLYPHS.map((g) => g.ch).join("")
 const SPEED = 10 // px/s (viewBox 단위) — 존재만 하는 배경 속도 (데모 ③ 확정값)
 
+/** 글자별 진행거리(u)와 그 누적 — 배치표에서 바로 나온다 (측정 없음) */
+const ADV = new Float64Array(N)
+const CUM = new Float64Array(N)
+{
+  let acc = 0
+  for (let i = 0; i < N; i++) {
+    ADV[i] = POSTER_CHAR_ADV[CHARS[i]] ?? 0
+    CUM[i] = acc
+    acc += ADV[i]
+  }
+}
+
+/** 첫 화면(위상 0)의 좌표 — 모듈 로드 때 한 번. SSR 마크업이 이 값을 그대로 싣는다.
+ *  덕분에 서버가 그린 첫 페인트부터 글자가 제자리에 있다 (하이드레이션 대기 없음). */
+const PHASE0 = (() => {
+  const xs = new Float64Array(N)
+  const ys = new Float64Array(N)
+  const rs = new Float64Array(N)
+  fillLists(CUM, ADV, N, 0, xs, ys, rs)
+  return { x: listStr(xs, N), y: listStr(ys, N), r: listStr(rs, N, 1) }
+})()
+
 // ── 진입 타이밍 = hero-motion 시안 ①(실선 인트로)의 값 그대로 ────────────────
-// 운영자 2026-08-12: "1번 시안처럼 그 속도와 애니메이션으로… 꼬불꼬불 선 대신
-// 꼬불꼬불 텍스트가 같은 애니메이션과 속도로 반응하면 되겠어."
-// ①은 실을 draw(2200ms, ease inOut(2))로 긋고, 1300ms 부터 큰 글자를 60ms 간격·
-// 520ms·out-expo 로 하나씩 띄운다. 여기선 '선' 대신 '문장'이 같은 리듬으로 그어진다.
 const DRAW_MS = 2200
 const CHAR_DUR_MS = 200 // 그어지는 인상 — 글자 하나의 페이드는 짧게
 
 /** 글자 i(위치 p)가 뜨는 정규화 시각 — 붓끝이 그 자리에 닿는 순간.
- *  기본은 easeInOutQuad(=anime 의 inOut(2))의 역함수지만, 그대로 쓰면 **끝 감속의
- *  꼬리가 길어** 마지막 10% 가 중간 대비 4배 느리게 떠 "다 안 찼는데 멈춘" 인상을 준다
- *  (운영자 "조금 대기가 있어 보인다"). 선형과 섞어 그 꼬리만 완화한다 —
- *  시작의 가속감은 남기고 끝은 등속에 가깝게. */
+ *  easeInOutQuad 역함수를 선형과 섞어 끝 꼬리만 완화한 채택본 원형. */
 const TAIL_BLEND = 0.45
 function drawTimeAt(p: number) {
   const quad = p < 0.5 ? Math.sqrt(p / 2) : 1 - Math.sqrt((1 - p) / 2)
   return quad * (1 - TAIL_BLEND) + p * TAIL_BLEND
 }
 
-/* ⚠ 폐기된 가정 — "한 벌(P) 이 경로(L) 보다 길어 뒤쪽 19% 는 렌더되지 않는다".
-   getComputedTextLength(3193) > getTotalLength(2612) 를 근거로 잡았으나, **글자 단위
-   getBBox 실측 결과 480자 전부 렌더된다**(경로 밖 글자 0). 그 잘못된 가정으로 넣은
-   clamp 가 388번째부터 92자를 2200ms 한 시각에 몰아, 운영자가 지적한
-   "'결국 내 기준이'(411번째) 부근부터 끝이 한 번에 생기는" 현상을 만들었다.
-   → clamp 제거. 길이 비교는 textPath 배치 폭과 일치하지 않으니 근거로 쓰지 말 것. */
-
 const INTRO_DONE_MS = DRAW_MS + CHAR_DUR_MS // 큰 글자는 정적이라 실 그어짐이 곧 진입 전체
 
-// 흐름 — 정지에서 툭 시작하지 않고 등가속으로 정상 속도까지 올린다.
-// 진입 완료 직후 **대기 0** 이므로(운영자 확인 2026-08-12) 가속 자체를 더 빠르게:
-// 0.5초 → **0.3초**. 등가속이면 이동 거리는 평균속도 × 시간 = (SPEED/2) × 0.3.
 const RAMP_MS = 300
 const RAMP_DIST = (SPEED * (RAMP_MS / 1000)) / 2
 const FLOW_START_MS = INTRO_DONE_MS // 대기 없이 가속 구간으로 이어 붙인다
 
-/** 내비·푸터·스티키 CTA 가 나타나는 시각. **그어짐 종료(FLOW_START_MS) 기준 오프셋**으로
- *  잡는다 — 운영자가 늘 "애니메이션 종료 기준"으로 지시하므로 그 축을 그대로 쓴다.
- *  변천: +300 → 0 → **−500** (2026-08-12 "0.5초 더 당겨") → **−200** (같은 날
- *  "애니메이션 종료 기준으로 그 푸터와 본문 노출되는 시점을 0.3초 더 늦게").
- *  여전히 그어지는 도중이라 '끝 → 그다음 사건' 이라는 단절은 생기지 않는다.
- *  ⚠ 0 이하로 내려가지 않게 max 로 막는다 (DRAW_MS 를 줄이는 날을 대비)
- *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다 — 두 곳에 숫자를
- *  따로 두면 히어로 타이밍을 고칠 때마다 어긋난다 */
+/** 내비·푸터·스티키 CTA 가 나타나는 시각 — 그어짐 종료(FLOW_START_MS) 기준 −200ms.
+ *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다. */
 export const CHROME_REVEAL_MS = Math.max(0, FLOW_START_MS - 200)
 
-export function HeroBreathingPoster() {
+/** memo — 셸 리빌(내비·푸터 노출)의 리렌더가 그리기 끝 무렵에 오는데, 포스터까지
+ *  리렌더되면 474개 tspan 재조정이 프레임을 블록해 마지막 글자들이 뭉텅이로 뜬다. */
+export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
   const rootRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     let cancelled = false
-    let anim: SVGAnimateElement | null = null
+    let raf = 0
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    /** 본문 글리프가 **실제로** Pretendard 로 그려질 때까지 기다린다.
-     *  ⚠ `document.fonts.ready` 만으로는 부족하다 — 동적 서브셋 CSS 는 글리프가 필요할 때
-     *  조각을 늦게 받아오므로, 로딩이 잠깐 비는 순간 ready 가 먼저 resolve 된다. 그 상태로
-     *  진행하면 **폴백 서체 폭(실측 9.8u, Pretendard 7.1u)** 으로 P 를 재게 되고,
-     *  본문이 경로보다 38% 길어져 뒤쪽 28% 가 경로 밖으로 밀려 안 보인다. 나중에 진짜
-     *  서체가 붙는 순간 그 뭉텅이가 **한꺼번에 나타난다**(운영자 2026-08-14 "애니메이션이
-     *  완료되기도 전에 갑자기 하단부터 일괄 생성"). → 실제 글자 폭이 **연속 두 번 같을 때**
-     *  까지 폴링해서 스왑 완료를 확인한다. */
-    const fontSettled = async () => {
-      try {
-        await (document as Document).fonts.load(`400 7.2px "Pretendard Variable"`, SAYU_FULL)
-      } catch {
-        /* 서브셋 조각 로드 실패해도 아래 폴링이 폴백 폭으로 안정화되면 진행한다 */
-      }
-      await document.fonts.ready
-      const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
-      const textEl = tp?.closest("text") as SVGTextElement | null
-      if (!textEl) return
-      let prev = -1
-      for (let i = 0; i < 40 && !cancelled; i++) {
-        const w = textEl.getComputedTextLength()
-        if (w > 0 && Math.abs(w - prev) < 0.05) return
-        prev = w
-        await new Promise((r) => setTimeout(r, 120))
-      }
+    const textEl = root.querySelector<SVGTextElement>("text[data-stream]")
+    if (!textEl) return
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+    const xs = new Float64Array(N)
+    const ys = new Float64Array(N)
+    const rs = new Float64Array(N)
+    /** 위상(u) → 474자 재배치. 이 함수가 이 컴포넌트의 유일한 '레이아웃' 이다. */
+    const place = (phase: number) => {
+      fillLists(CUM, ADV, N, phase, xs, ys, rs)
+      textEl.setAttribute("x", listStr(xs, N))
+      textEl.setAttribute("y", listStr(ys, N))
+      textEl.setAttribute("rotate", listStr(rs, N, 1))
     }
 
-    fontSettled().then(() => {
+    /** 서체를 기다린다 — **크기를 정하려는 게 아니라**(이젠 상수다) 폴백 글자가
+     *  잠깐 보였다 바뀌는 걸 막으려는 것뿐이다. 실패해도 자리는 옳다. */
+    const fontReady = () =>
+      Promise.all([
+        (document as Document).fonts.load(`400 ${POSTER_FONT_SIZE}px "Pretendard Poster"`, SAYU_FULL),
+        (document as Document).fonts.load(`900 36px "Pretendard Poster"`, POSTER_GLYPH_TEXT),
+      ]).catch(() => undefined)
+
+    /** 흐름 개시 — 통짜 교체 후 rAF 구동.
+     *  ⚠ 진입용 tspan(474개)을 남긴 채 굴리면 30fps 로 반토막 난다 — 통짜로 되돌린다. */
+    const fireFlow = () => {
       if (cancelled) return
-      const tp = root.querySelector<SVGTextPathElement>("textPath[data-stream]")
-      const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
-      if (!tp || !pathEl) return
-      const L = pathEl.getTotalLength()
-      const textEl = tp.closest("text") as SVGTextElement
-      // 첫 벌(tspan들)만 놓인 상태에서 진행 길이 실측 (K 산정용 어림값)
-      const P0 = textEl.getComputedTextLength()
-      if (!(P0 > 0)) return
-      // 오프셋이 [-P, 0] 사이를 돌 때 경로 [0, L]이 항상 덮이도록: K×P ≥ P + L.
-      // +1벌은 폰트 스왑으로 실측치가 미세하게 달라져도 끝이 비지 않게 하는 보험
-      const K = Math.max(2, Math.ceil((P0 + L) / P0) + 1)
-      // 폰트가 늦게 붙었다면 진입 스태거는 이미 폴백으로 흘러가 버렸다 —
-      // **지금부터 다시 시작**해 제 서체로 한 번만 곱게 그어지게 한다.
-      // (웜 캐시면 수십 ms 안에 도달하므로 눈에 띄지 않는다)
-      const chars = root.querySelectorAll<SVGElement>(`.${styles.introChar}`)
-      for (const el of chars) el.style.animation = "none"
-      void root.getBoundingClientRect()
-      for (const el of chars) el.style.animation = ""
-      const wait = FLOW_START_MS
+      textEl.textContent = UNIT
+
+      /** 경과 t(ms) → 이동 거리(u). 등가속 ½at² (a = SPEED/tr) 로 300ms 에 SPEED 도달
+       *  — 종전 SMIL keySplines 등가속과 같은 곡선, 이후 등속. */
+      const dist = (tMs: number) => {
+        const t = tMs / 1000
+        const tr = RAMP_MS / 1000
+        return t < tr ? (SPEED / (2 * tr)) * t * t : RAMP_DIST + SPEED * (t - tr)
+      }
+      // 통짜 교체 리플로우가 끝난 다음 프레임에 시작 (같은 블록에서 시작하면 가속
+      // 300ms 가 멈춘 프레임 안에서 소모돼 "가속이 없어" 보인다)
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          if (cancelled) return
+          const t0 = performance.now()
+          const step = (now: number) => {
+            if (cancelled) return
+            // ⚠ 나머지 연산 하나가 이음매를 대신한다 — 둘레를 넘은 글자는 그냥
+            //   경로 앞쪽으로 돌아간다. 사라지지도, 쌓이지도 않는다.
+            place(dist(now - t0) % POSTER_LOOP_LEN)
+            raf = requestAnimationFrame(step)
+          }
+          raf = requestAnimationFrame(step)
+        }),
+      )
+    }
+
+    /** 노출 — 홀드를 떼고 스태거를 처음부터 한 번 건다.
+     *  ⚠ 홀드 중 CSS 가 스태거를 `animation-play-state: paused` 로 시각 0 에 세워
+     *  두므로, 속성을 떼는 순간 처음부터 그어진다 (웹킷에서 `animation:none`
+     *  리스타트 수법이 안 먹어 일시정지 방식으로 바꾼 것). */
+    const revealOnce = () => {
+      if (!textEl.hasAttribute("data-hold")) return
+      textEl.removeAttribute("data-hold")
+      // 셸(내비·푸터)은 마운트 기준 벽시계로 도는데 그어짐이 늦게 시작할 수 있으므로
+      // 실제 시작 시각을 알려 리빌 타이머를 다시 걸게 한다
+      window.dispatchEvent(
+        new CustomEvent("lz:hero-draw-start", { detail: { revealInMs: CHROME_REVEAL_MS } }),
+      )
+      if (reduced) return // 모션 최소화: 흐름 없이 완성 상태로 둔다
       timer = setTimeout(() => {
         if (cancelled) return
-        // ⚠ 성능: 진입용 tspan(480개)을 남긴 채 startOffset 을 굴리면 매 프레임
-        // 글자마다 경로 재배치가 일어나 **30fps 로 반토막** 난다 (실측 33.3ms/frame,
-        // 운영자 "뻣뻣해 보여"). 흐름 직전에 통짜 텍스트 노드 한 개로 되돌리면
-        // 60fps 회복 — 진입이 끝난 시점이라 시각적으로는 같은 화면이다
-        tp.textContent = `${SAYU_FULL} `.repeat(K)
-        // ⚠ **반복 피치는 통짜로 바꾼 뒤에 다시 잰다.** tspan 474개로 잰 값과 통짜 텍스트의
-        //   실제 advance 는 tspan 경계마다 생기는 반올림 때문에 다르다(실측 차 0.008u,
-        //   폴백 서체가 끼면 수 u). SMIL 이동량이 실제 피치와 어긋나면 이음매에서
-        //   무늬가 매 주기 밀린다 — 반드시 통짜 실측값으로 돌린다.
-        const P = textEl.getComputedTextLength() / K
-        // SMIL 2단 — ① 0.3초 가속 램프 ② 등속 무한 반복. 둘 다 네이티브 타임라인이라
-        // 메인 스레드와 무관하게 이어지고, 램프 끝 속도와 등속 속도가 정확히 같아
-        // 이음매가 보이지 않는다 (t² 곡선의 끝 기울기 2 × 평균속도 = SPEED).
-        const mk = (attrs: Record<string, string>) => {
-          const el = document.createElementNS("http://www.w3.org/2000/svg", "animate") as SVGAnimateElement
-          el.setAttribute("attributeName", "startOffset")
-          for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v)
-          tp.appendChild(el)
-          return el
+        // 그어짐이 아직 덜 끝났으면 남은 만큼 더 기다린다 — 스태거가 늦게 시작한
+        // 경우(느린 하이드레이션) 벽시계로 자르면 마지막 글자들이 페이드 없이 덮인다
+        const lastChar = textEl.querySelector<SVGElement>("tspan:last-of-type")
+        const a = lastChar?.getAnimations?.()[0]
+        const played =
+          typeof a?.currentTime === "number" ? Math.max(0, a.currentTime as number) : FLOW_START_MS
+        const remain = FLOW_START_MS - played
+        if (remain > 30) {
+          timer = setTimeout(fireFlow, remain)
+          return
         }
-        const rampId = "lzHeroRamp"
-        // keySplines "0.333 0 0.667 0.333" = s ∝ t² 의 정확한 3차 베지어 표현 (등가속)
-        const ramp = mk({
-          id: rampId,
-          values: `0;${-RAMP_DIST}`,
-          dur: `${RAMP_MS / 1000}s`,
-          calcMode: "spline",
-          keyTimes: "0;1",
-          keySplines: "0.333 0 0.667 0.333",
-          fill: "freeze",
-          begin: "indefinite",
-        })
-        mk({
-          values: `${-RAMP_DIST};${-(RAMP_DIST + P)}`,
-          dur: `${P / SPEED}s`,
-          repeatCount: "indefinite",
-          begin: `${rampId}.end`,
-        })
-        ramp.beginElement()
-        anim = ramp
-      }, wait)
+        fireFlow()
+      }, FLOW_START_MS)
+    }
+
+    // ⚠ **안전핀.** 홀드는 "서체가 붙을 때까지 안 보인다"는 약속이라, 대기가 어디서든
+    //   막히면 본문이 영영 안 보인다. 무슨 일이 있어도 이 시각엔 노출한다
+    //   (revealOnce 는 멱등이라 정상 경로와 충돌하지 않는다).
+    //   ⚠ 종전 6초에서 **2초로 줄였다** — 기다릴 대상이 같은 오리진 35KB 한 개뿐이라
+    //   그보다 늦으면 사실상 실패한 것이고, 그 경우 폴백 글자로라도 제자리에 그리는
+    //   편이 낫다 (자리는 서체와 무관하게 옳다).
+    const pin = setTimeout(revealOnce, 2000)
+    void fontReady().then(() => {
+      if (!cancelled) revealOnce()
     })
+
     return () => {
       cancelled = true
+      clearTimeout(pin)
       if (timer) clearTimeout(timer)
-      anim?.remove()
+      if (raf) cancelAnimationFrame(raf)
     }
   }, [])
 
   return (
-    <svg
-      ref={rootRef}
-      className={styles.poster}
-      viewBox="0 0 400 500"
-      role="img"
-      aria-label="레이지데이 북클럽 4기 모집"
-      // 진입 홀드 동안 덮개 위로 올라오는 유일한 요소 (셸 CSS 가 이 표식을 잡는다)
-      data-lz-poster=""
-    >
-      <defs>
-        <path id="heroSayuThread" d={POSTER_THREAD_D} />
-      </defs>
-      <text className={styles.threadText} xmlSpace="preserve">
-        {/* dominantBaseline="central" — 경로는 원본 **글자줄의 중심**(잉크 능선)에 맞춰
-            추출돼 있는데 textPath 기본값은 글자를 **베이스라인**에 얹는다. 그대로 두면
-            글자가 경로 한쪽으로 2.5u 치우쳐, 원본 대비 전 구간이 그만큼 어긋난다
-            (창 226개 상호상관 실측: 수직 편차 평균 +2.53u → central 적용 후 −0.10u).
-            ⚠ textPath 의 dy 는 크롬에서 무시되고, CSS `.class{dominant-baseline}` 도
-            <text> 에만 걸려 안 먹는다 — **textPath 요소의 속성**이어야 한다. */}
-        <textPath href="#heroSayuThread" dominantBaseline="central" data-stream>
+    <>
+      {/* 포스터 전용 서브셋 서체 — **가장 먼저** 받게 한다 (module.css 의 @font-face 주석).
+          ⚠ 동일 오리진이어도 서체 프리로드는 `crossOrigin` 없이는 재사용되지 않고 두 번
+          받는다 (CORS 모드가 달라 캐시 항목이 갈린다). */}
+      <link
+        rel="preload"
+        as="font"
+        type="font/woff2"
+        href="/fonts/pretendard-poster-subset.woff2"
+        crossOrigin="anonymous"
+      />
+      {/* JS 가 없으면 data-hold 를 뗄 수 없다 — 그 경우 그대로 보이게 (좌표는 SSR 이
+          이미 심어 두었으므로 JS 없이도 글자가 제자리에 있다) */}
+      <noscript>
+        <style>{`svg[data-lz-poster] text[data-hold]{opacity:1!important}`}</style>
+      </noscript>
+      <svg
+        ref={rootRef}
+        className={styles.poster}
+        viewBox="0 0 400 500"
+        role="img"
+        aria-label="레이지데이 북클럽 4기 모집"
+        // 진입 홀드 동안 덮개 위로 올라오는 유일한 요소 (셸 CSS 가 이 표식을 잡는다)
+        data-lz-poster=""
+      >
+        {/* 실 위 본문 — 글자마다 좌표·각도를 **직접** 준다.
+            x/y 는 글자의 베이스라인 원점, rotate 는 그 자리에서의 접선 각도(도).
+            ⚠ `dominant-baseline` 은 쓰지 않는다 — 엔진마다 적용 지점이 다르다
+            (실측: 크롬은 <text> 에서 무시, 웹킷은 자식 tspan 유무로 갈림).
+            중심 정렬은 poster-place 가 법선 방향으로 직접 밀어 넣는다.
+            ⚠ 리스트는 **부모 <text> 에 붙인다** — 자식 tspan 들의 글자가 순서대로
+            소비한다(두 엔진 실측 확인). 그래서 스태거용 tspan 분해와 공존한다. */}
+        <text
+          className={styles.threadText}
+          data-stream
+          data-hold="1"
+          xmlSpace="preserve"
+          x={PHASE0.x}
+          y={PHASE0.y}
+          rotate={PHASE0.r}
+        >
           {/* 첫 벌 — 글자별 tspan. 딜레이를 draw 이징의 역함수로 깔아, 붓끝이 그
               자리에 닿는 순간 글자가 뜬다 = 시안 ①의 선 긋기와 같은 리듬·속도.
               CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돈다 */}
-          {(() => {
-            const chars = `${SAYU_FULL} `.split("")
-            const last = chars.length - 1
-            return chars.map((c, i) => (
-              <tspan
-                key={i}
-                className={styles.introChar}
-                style={{
-                  ["--d" as string]: `${(DRAW_MS * drawTimeAt(i / last)).toFixed(1)}ms`,
-                }}
-              >
-                {c}
-              </tspan>
-            ))
-          })()}
-        </textPath>
-      </text>
-      {POSTER_GLYPHS.map((g, i) => (
-        <text
-          key={i}
-          x={g.x}
-          y={g.y + POSTER_GLYPH_DY}
-          fontSize={g.s}
-          textAnchor="middle"
-          dominantBaseline="central"
-          // 등장 애니 없음 — 처음부터 완성 상태 (운영자 2026-08-12 최종)
-          className={styles.glyph}
-        >
-          {g.ch}
+          {CHARS.map((c, i) => (
+            <tspan
+              key={i}
+              className={styles.introChar}
+              style={{ ["--d" as string]: `${(DRAW_MS * drawTimeAt(i / (N - 1))).toFixed(1)}ms` }}
+            >
+              {c}
+            </tspan>
+          ))}
         </text>
-      ))}
-    </svg>
+        {POSTER_GLYPHS.map((g, i) => (
+          <text
+            key={i}
+            // 글자별 미세 보정 fx/fy — 원본 서체와 Pretendard Black 의 좌우 여백 차이를
+            // 겹쳐 보기 실측으로 상쇄한다 (poster-thread.ts 의 POSTER_GLYPH_FIT 주석)
+            x={g.x + (POSTER_GLYPH_FIT[i]?.fx ?? 0)}
+            y={g.y + POSTER_GLYPH_DY + (POSTER_GLYPH_FIT[i]?.fy ?? 0)}
+            fontSize={g.s}
+            textAnchor="middle"
+            dominantBaseline="central"
+            // 등장 애니 없음 — 처음부터 완성 상태 (운영자 2026-08-12 최종)
+            className={styles.glyph}
+          >
+            {g.ch}
+          </text>
+        ))}
+      </svg>
+    </>
   )
-}
+})

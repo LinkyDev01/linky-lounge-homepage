@@ -74,7 +74,7 @@ const SEAM_BIAS = 0.5
 
 /** 오버런 세그먼트 수 — 경로를 루프보다 이만큼 더 길게 만든다(≈8세그먼트 ≈ 52u ≈ 9글자).
  *  글자 한 칸(≈6u)만 넘으면 충분하지만, 서체가 달라 한 벌이 조금 길어져도 버티도록 넉넉히. */
-const OVERRUN_SEGS = 8
+const OVERRUN_SEGS = 8 // = 52.0u (노드 간격 6.5u 기준). 필요량 ≈ 7.2u 이므로 7배 여유
 
 /** 내비·푸터·스티키 CTA 가 나타나는 시각 — 그어짐 종료(FLOW_START_MS) 기준 −200ms.
  *  LandingShell/DraftShell 이 이 값을 읽어 같은 시계로 움직인다. */
@@ -102,7 +102,6 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
     const pathEl = root.querySelector<SVGPathElement>("#heroSayuThread")
     if (!tp || !pathEl) return
     const textEl = tp.closest("text") as SVGTextElement
-    const L0 = pathEl.getTotalLength()
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
     /** 본문 **한 벌**의 실제 폭(u) — **화면 밖 평문 프로브 한 곳에서만** 잰다.
@@ -154,8 +153,13 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
       //   달라 보정이 실제로 일어나므로 그 점프가 눈에 띈다). 이미 그어지기 시작했으면
       //   **미루고**, 흐름 전환(통짜 교체로 어차피 전면 재배치되는 순간)에 맞춘다.
       //   웜 캐시(재방문)면 첫 프레임 전에 끝나 아무도 못 본다.
+      // ⚠ 상한은 **안전핀(6초)보다 짧되 충분히** 길어야 한다. 12회(1.44초)로는 모바일
+      //   회선에서 사실상 항상 폴백 폭으로 크기가 굳고, 뒤늦게 온 진짜 서체를
+      //   watchLateFont 가 고치느라 **보이는 보정**이 한 번 생긴다. 홀드 중에는 아무것도
+      //   안 보이므로 더 기다리는 비용이 없다 — 40회(4.8초)로 늘려 정상 경로에서
+      //   보정이 아예 일어나지 않게 한다.
       let prev = -1
-      for (let i = 0; i < 12 && !cancelled; i++) {
+      for (let i = 0; i < 40 && !cancelled; i++) {
         const w = unitWidth()
         if (w > 0 && w === prev && loaded) return
         prev = w
@@ -393,12 +397,19 @@ export const HeroBreathingPoster = memo(function HeroBreathingPoster() {
             // 실 위 글자 i 는 호길이 (cum[i] − d) 에 놓인다. 그 값이 음수가 되는 글자들은
             // **한 바퀴 뒤로 돌아가** 문자열 끝에 붙는다 — 그래서 표시 문자열은 원문을
             // m 글자 회전시킨 한 벌이고, 오프셋은 첫 글자의 호길이 하나면 된다.
-            while (m + 1 < N && cum[m] < d) m++
+            // ⚠ 상한은 **N**(N−1 아님). N−1 에 묶으면 마지막 글자(후행 공백 2.1u)를
+            //   소비하지 못해 랩 끝에서 s 가 음수→0 으로 클램프되고, 실이 잠깐 멈췄다
+            //   2.1u 뒤로 튄다(랩 주기 ≈ 4분 34초). cum[N]=total 이 이미 있고
+            //   TWICE.slice(N, 2N) 도 정확히 한 벌이라 안전하다.
+            while (m < N && cum[m] < d) m++
             setRot(m)
             // ⚠ 오프셋은 **항상 0 이상, 글자 한 칸 이하**다. 음수로 두면 웹킷이 밀려난
             //   글자를 버리지 않고 경로 시작에 쌓아 겹친다(실제 WebKit 확대 캡처).
             //   그리고 마지막 글자는 s + 한 벌 ≤ 둘레 + 오버런 안에 들어와 **잘리지 않는다**
             //   — 경로 끝이 글자가 닿지 않는 곳에 있기 때문이다(오버런 경로).
+            //   ⚠ 이 `max(0, …)` 은 **시작단의 유일한 방어선**이다. 오버런은 경로
+            //   **끝단** 전용이라, 음수 오프셋을 주면 웹킷이 밀려난 글자를 버리지 않고
+            //   경로 시작에 쌓는 성질은 그대로다 — 걷어내면 즉시 겹침이 재발한다.
             tp.setAttribute("startOffset", Math.max(0, cum[m] - d).toFixed(3))
             raf = requestAnimationFrame(step)
           }

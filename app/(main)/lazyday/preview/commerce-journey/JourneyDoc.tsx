@@ -35,6 +35,8 @@ type Stage = {
   data: string
   /** 빈틈 — 설계·구축이 필요한 것 (없으면 생략) */
   gap?: string
+  /** 이탈 위험 — 이 단계에서 고객이 새는 지점 (여정 지도에 표시) */
+  leak?: string
   /** 연결되는 로드맵 단계 번호 */
   roadmap?: number[]
 }
@@ -54,6 +56,7 @@ const TRACKS: Track[] = [
         touch: "lazy-club.com (인트로 애니메이션 → 마크 클릭 시 홈)",
         status: "done",
         now: "인트로·홈(워크룸 문법) 완성. 홈 리스트에서 모임·굿즈가 한 눈에 보인다.",
+        leak: "인트로만 보고 이탈 — 홈으로 이끄는 것이 마크 클릭 하나뿐이다.",
         data: "-",
       },
       {
@@ -63,6 +66,7 @@ const TRACKS: Track[] = [
         touch: "/meetings (카테고리 필터) · /meetings/[slug] 상세",
         status: "done",
         now: "목록·상세·related 완성. 상태 3단계(open/soldout/upcoming) 오버레이.",
+        leak: "일정이 안 맞으면 그대로 끝 — '다음 모임 알림 받기'가 없다.",
         data: "one-day-config.ts (정적 단일 출처)",
       },
       {
@@ -72,6 +76,7 @@ const TRACKS: Track[] = [
         touch: "/cart · 상세의 구매하기/카트 담기/저장",
         status: "temp",
         now: "카트·저장은 로그인 없이 실동작 — 단 이 기기 브라우저에만 남는다.",
+        leak: "담아 두고 떠나면 다른 기기에선 빈 카트 — 이어 볼 길이 없다.",
         data: "localStorage (lazyday_cart · lazyday_saved) — 서버 없음",
         gap: "기기를 바꾸면 카트·저장이 사라진다. 회원 도입 시 서버 승격(로드맵 5).",
         roadmap: [5],
@@ -83,6 +88,7 @@ const TRACKS: Track[] = [
         touch: "/one-day-talk-01/apply → checkout (토스 위젯) → success에서 신청폼",
         status: "temp",
         now: "토스페이먼츠 위젯·금액 재검증(confirm)까지 구현돼 있으나 PG 신청 심사 대기 중 — 승인 전까지는 실결제가 열리지 않는다.",
+        leak: "지금은 실결제 불가 — 여정이 여기서 끊긴다 (PG 심사 대기).",
         data: "결제 승인 후 GAS 시트에 주문 기록 (서버 DB 없음)",
         gap: "주문의 정본이 시트뿐 — 취소·환불·정원 관리가 수작업. 주문 DB(로드맵 2)는 토스 승인과 무관하게 먼저 만들 수 있다.",
         roadmap: [2, 3],
@@ -94,6 +100,7 @@ const TRACKS: Track[] = [
         touch: "결제 완료 화면 안내 + (수동) 연락",
         status: "temp",
         now: "자동 안내는 결제 완료 화면뿐. 리마인드·변경 안내는 운영자 수동.",
+        leak: "전날 리마인드가 없어 노쇼 위험이 온전히 남는다.",
         data: "GAS 시트",
         gap: "참가 확정·전날 리마인드 알림 자동화 (기수제의 리마인드 GAS 문법 재사용 가능).",
         roadmap: [2],
@@ -105,6 +112,7 @@ const TRACKS: Track[] = [
         touch: "카카오 채널 · 인스타",
         status: "none",
         now: "재방문 동선이 없다 — 참가 이력도, 관심 알림도 남지 않는다.",
+        leak: "여정의 종점이 막다른 길 — 다시 오려면 처음(발견)부터.",
         data: "-",
         gap: "회원(카카오 로그인) + 참가 이력·알림 수신 동의. 북클럽 커뮤니티 명세 7건과 접점 — 계정을 하나로 볼지 결정 필요.",
         roadmap: [5],
@@ -123,6 +131,7 @@ const TRACKS: Track[] = [
         touch: "/shop · /shop/[slug] (사진 스택·sold out/coming soon)",
         status: "done",
         now: "상세 3종 완성. 가격·구매 문법 유지 (워크룸식).",
+        leak: "sold out 이면 재입고 알림 없이 끝.",
         data: "goods-config.ts",
       },
       {
@@ -132,6 +141,7 @@ const TRACKS: Track[] = [
         touch: "/cart",
         status: "temp",
         now: "카트 실동작 (localStorage).",
+        leak: "기기 밖에선 카트가 없다.",
         data: "localStorage",
         roadmap: [5],
       },
@@ -142,6 +152,7 @@ const TRACKS: Track[] = [
         touch: "카트 '주문하기' → 티켓형(이름·전화)",
         status: "temp",
         now: "굿즈 전용 결제 흐름은 미완 — 원데이 흐름의 재사용 설계만 있다. PG 심사 대기와 겹친다.",
+        leak: "결제로 이어지는 길 자체가 아직 없다.",
         data: "-",
         gap: "굿즈 주문·재고 차감·결제 연동 (로드맵 3~4).",
         roadmap: [3, 4],
@@ -153,6 +164,7 @@ const TRACKS: Track[] = [
         touch: "현장 수령 (배송 없음 — 주소를 수집하지 않는 원칙과 맞물림)",
         status: "none",
         now: "수령 안내 흐름이 없다.",
+        leak: "사고도 어떻게 받는지 모른다 — 문의로만 해결.",
         data: "-",
         gap: "⚠ 결정 필요: 배송을 열 것인가? 열면 주소 수집이 필요해져 '주소 등 불필요 정보 미수집' 원칙(라운드 7)을 재검토해야 한다. 현장 수령 유지면 수령 안내만 설계하면 된다.",
         roadmap: [4],
@@ -171,6 +183,7 @@ const TRACKS: Track[] = [
         touch: "/login (현재 안내 토스트 = 6순위 목업)",
         status: "none",
         now: "화면 자리만 있다. 인증 없음.",
+        leak: "회원이 될 방법이 없다 — 트랙 전체가 미개통.",
         data: "-",
         gap: "카카오 소셜 우선 (기획 확정) — 인증 제공자·세션 방식 결정 필요.",
         roadmap: [5],
@@ -182,6 +195,7 @@ const TRACKS: Track[] = [
         touch: "(없음)",
         status: "none",
         now: "카트·저장이 기기 안에 갇혀 있다.",
+        leak: "기기를 바꾸는 순간 이어 하기가 끊긴다.",
         data: "localStorage → 서버 승격 대상",
         gap: "회원 DB 스키마 (회원·주문·카트·저장) + localStorage 이관 설계.",
         roadmap: [2, 5],
@@ -193,6 +207,7 @@ const TRACKS: Track[] = [
         touch: "(없음)",
         status: "none",
         now: "이력이라는 개념 자체가 없다.",
+        leak: "재참여를 권할 근거 데이터가 없다.",
         data: "-",
         gap: "주문 DB(로드맵 2)가 먼저 있어야 이력이 생긴다. 북클럽 기수제 이력과 통합할지 결정 필요.",
         roadmap: [2, 5],
@@ -284,19 +299,33 @@ export function JourneyDoc() {
       </nav>
       <p className={s.persona}>{track.persona}</p>
 
-      <div className={s.stepper} role="tablist" aria-label="여정 단계">
+      {/* ── 여정 지도 — 전 단계가 한눈에 보이고, 각 단계의 이탈점(고객이 새는 곳)이
+          우측 가지로 붙는다 (운영자 2026-08-18 "고객여정도 그려야지. 그래야 우리가
+          누락된 부분을 파악할 수 있어"). 노드를 누르면 아래 상세가 바뀐다. */}
+      <div className={s.map} role="tablist" aria-label="여정 지도">
         {track.stages.map((st, i) => (
-          <button
-            key={st.key}
-            role="tab"
-            aria-selected={st.key === stage.key}
-            className={`${s.step} ${st.key === stage.key ? s.stepOn : ""}`}
-            onClick={() => setStageKey(st.key)}
-          >
-            <i className={`${s.dot} ${s[st.status]}`} />
-            <span className={s.stepNum}>{i + 1}</span>
-            <span className={s.stepName}>{st.name}</span>
-          </button>
+          <div key={st.key} className={s.mapRow}>
+            <div className={s.mapRail}>
+              <i className={`${s.mapNode} ${s[st.status]}`} aria-hidden />
+              {i < track.stages.length - 1 && <i className={s.mapLine} aria-hidden />}
+            </div>
+            <div className={s.mapBody}>
+              <button
+                role="tab"
+                aria-selected={st.key === stage.key}
+                className={`${s.mapBtn} ${st.key === stage.key ? s.mapBtnOn : ""}`}
+                onClick={() => setStageKey(st.key)}
+              >
+                <span className={s.mapName}>{i + 1}. {st.name}</span>
+                <span className={s.mapAction}>{st.action}</span>
+              </button>
+              {st.leak && (
+                <p className={s.mapLeak}>
+                  <span className={s.leakMark} aria-hidden>↘</span> {st.leak}
+                </p>
+              )}
+            </div>
+          </div>
         ))}
       </div>
 

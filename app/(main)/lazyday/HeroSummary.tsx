@@ -114,20 +114,6 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>장소</span>
           <span className={styles.summaryValue}>{locationLine}</span>
         </div>
-        {/* 참가비 — 2026-08-18 부활. 2026-07-02 상시 원칙("가격은 인터뷰 페이지에서만")을
-            운영자가 뒤집은 것: 통신판매 가격 고지 의무, 원데이·굿즈는 이미 확정가 노출 중,
-            그리고 광고에 전환 가치(value 150000)를 넘기면서 사이트엔 금액이 없던 모순.
-            취소선 정가는 2기 실판매 20만원이 근거 (2026-07-02 확정) — 임의 변경 금지.
-            값은 season-config 단일 출처라 기수 전환 시 자동 반영된다. */}
-        <div className={styles.summaryRow}>
-          <span className={styles.summaryLabel}>참가비</span>
-          <span className={styles.summaryValue}>
-            {SEASON.priceWas && (
-              <span className={styles.summaryPriceWas}>{SEASON.priceWas}</span>
-            )}
-            {SEASON.price}
-          </span>
-        </div>
         {/* 마감 행 — deadline이 있고 노출 허용일 때만 (showDeadline=false면 미표기, 운영자 지시 2026-07-23) */}
         {SEASON.deadline && SEASON.showDeadline && (
           <div className={styles.summaryRow}>

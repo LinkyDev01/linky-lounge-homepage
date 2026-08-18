@@ -5,6 +5,7 @@ import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "./useChromeIntro"
+import { trackApplyCtaClick } from "@/lib/meta-pixel"
 import s from "./landing-shell.module.css"
 
 /**
@@ -135,7 +136,7 @@ export function LandingShell({
         </nav>
 
         <nav className={s.navMenu} aria-label="바로가기">
-          <LazydayLink href="/apply" className={s.navApply}>
+          <LazydayLink href="/apply" className={s.navApply} onClick={() => trackApplyCtaClick()}>
             신청하기
           </LazydayLink>
         </nav>

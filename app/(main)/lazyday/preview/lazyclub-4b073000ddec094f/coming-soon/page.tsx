@@ -17,7 +17,7 @@ import { JsonLd } from "@/app/(main)/lazyday/JsonLd"
 // canonical "/"는 metadataBase(호스트 분기) 기준 — lazy-club.com에선 자기 정본.
 export const metadata: Metadata = {
   description:
-    "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.",
+    "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 기대합니다.",
   keywords: ["원데이 토크", "북토크", "무비토크", "소셜클럽", "독서모임", "영화 모임", "사당 모임", "레이지클럽", "레이지데이"],
   alternates: { canonical: "/" },
 }

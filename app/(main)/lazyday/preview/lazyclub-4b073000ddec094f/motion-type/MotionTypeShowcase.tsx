@@ -354,7 +354,7 @@ function capBox(c0: number, cols: number, r0: number, rows: number, horizontal: 
 const D_CAP_LAZY = capBox(8, 4, 4, 1, true)
 const D_CAP_CLUB = capBox(8, 1, 3, 4, false)
 
-function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
+export function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
   // 모션 최소화면 잠금+캡슐이 완성된 정지 화면에 고정
   const [clock, setClock] = useState(reduced ? 4000 : 0)
   useEffect(() => {
@@ -378,8 +378,14 @@ function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
     for (let c = 0; c < D_COLS; c++) {
       const i = r * D_COLS + c
       const word = D_WORD[`${r}-${c}`]
-      // 잠금 스윕: 좌→우로 열 단위 전진
-      const locked = phase >= DT.SCRAMBLE + (c / D_COLS) * DT.SWEEP && phase < DT.RESET
+      /* 잠금 스윕 (라운드 3 — 운영자 "뻣뻣해보이는 건 기분탓?"):
+         종전은 열 좌표만 봐서 **같은 열 13칸이 한 프레임에 통째로** 넘어갔다 —
+         계단이 눈에 보여 딱딱했다. 열이 주도하되 행·난수를 섞어 대각선 물결로 흩는다. */
+      const lockAt =
+        DT.SCRAMBLE + ((c / D_COLS) * 0.78 + (r / D_ROWS) * 0.14 + rnd(seed, i, 61) * 0.08) * DT.SWEEP
+      // 해제도 한꺼번에가 아니라 반대 방향(우→좌)으로 풀린다
+      const unlockAt = DT.RESET + (1 - c / D_COLS) * 420
+      const locked = phase >= lockAt && phase < unlockAt
       const interval = 90 + rnd(seed, i, 41) * 90
       const tick = Math.floor(clock / interval) // 절대 시계 — 흐려진 뒤에도 계속 진화
       const ch = word && locked ? word : ALPHABET[Math.floor(rnd(seed, i, tick) * 26)]
@@ -403,8 +409,11 @@ function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
   return (
     <div className={styles.dense} aria-label="LAZY CLUB 워드서치 필드">
       {cells}
-      {capLazy && <div className={styles.dCap} style={D_CAP_LAZY} aria-hidden />}
-      {capClub && <div className={styles.dCap} style={D_CAP_CLUB} aria-hidden />}
+      {/* 캡슐은 clip-path 로 한쪽 끝에서부터 그어진다 (라운드 3) — 손으로 동그라미를
+          치는 워드서치의 몸짓. 스타디움 모양이라 SVG 대신 clip-path 를 쓴다
+          (SVG stroke 그리기는 늘린 타원이 되어 방금 맞춘 캡슐 비율이 깨진다) */}
+      {capLazy && <div className={`${styles.dCap} ${styles.dCapRow}`} style={D_CAP_LAZY} aria-hidden />}
+      {capClub && <div className={`${styles.dCap} ${styles.dCapCol}`} style={D_CAP_CLUB} aria-hidden />}
     </div>
   )
 }

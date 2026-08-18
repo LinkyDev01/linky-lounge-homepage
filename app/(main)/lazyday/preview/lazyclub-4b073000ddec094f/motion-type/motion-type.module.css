@@ -180,12 +180,23 @@
   line-height: calc(var(--dcell) * 1.24);
   text-align: center;
   user-select: none;
-  transition: opacity 0.5s ease;
+  /* 라운드 3: 0.5s ease → 감속 꼬리가 긴 이징 (§3 등장 리빌과 같은 곡선) */
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .dCell { opacity: 1; }
 /* 잠금 스윕이 지나가면 단어 밖 글자는 흐려진 채 계속 웅성인다 */
 .dDim { opacity: 0.18; }
-.dLock { opacity: 1; }
+/* 확정되는 순간 한 번 튕긴다 (라운드 3) — 종전엔 글자가 그저 멈춰 있어 뻣뻣했다.
+   클래스가 dCell/dDim → dLock 으로 바뀔 때만 발화하므로 잠금 1회당 한 번 */
+.dLock {
+  opacity: 1;
+  animation: lockPop 0.44s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes lockPop {
+  0% { transform: scale(1); }
+  38% { transform: scale(1.24); }
+  100% { transform: scale(1); }
+}
 /* 단어 찾기 동그라미 — coming-soon 캡슐 문법(한 번에 짠, 전환 없음).
    라운드 3 (운영자 "굵고 여백이 넓어 보여"): 획 굵기도 기존 마크 실측 비율로.
    기존은 획 3px / 캡슐 높이 91.7px = 0.0327 (행 높이 대비 0.0275) — 이 필드에 그대로
@@ -196,6 +207,20 @@
   border: max(1px, calc(var(--dcell) * 0.034)) solid var(--ink);
   border-radius: 999px;
   pointer-events: none;
+}
+/* 라운드 3: 한쪽 끝에서부터 그어진다 — 워드서치에 손으로 동그라미 치는 몸짓.
+   clip-path 를 쓰는 이유는 스타디움 모양을 지키기 위해서다 (SVG stroke 그리기로 바꾸면
+   늘린 타원이 되어 방금 맞춘 기존 마크 비율이 깨진다). 끝값은 요소 밖으로 1px 넘겨
+   테두리가 경계에서 잘리지 않게 한다. */
+.dCapRow { animation: capDrawRow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes capDrawRow {
+  from { clip-path: inset(-1px 100% -1px -1px); }
+  to { clip-path: inset(-1px); }
+}
+.dCapCol { animation: capDrawCol 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes capDrawCol {
+  from { clip-path: inset(-1px -1px 100% -1px); }
+  to { clip-path: inset(-1px); }
 }
 
 /* ── 탭·설명 ── */
@@ -260,4 +285,7 @@
   .nzOff { animation: none !important; opacity: 0; }
   .mg { transition: none !important; }
   .dense span { transition: none !important; }
+  .dLock,
+  .dCapRow,
+  .dCapCol { animation: none !important; }
 }

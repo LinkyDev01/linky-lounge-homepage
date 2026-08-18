@@ -1,0 +1,25 @@
+/* F 워드서치 필드 영상 캡처 화면 — 인스타 세로 규격 (4:5 · 9:16).
+   시안 CSS(../motion-type.module.css)는 DenseStage 가 자체적으로 들고 오므로 여기서는
+   캔버스와 --dcell 만 정의한다. 시안 페이지의 --dcell 상한 24px 는 쓰지 않는다 —
+   1080 폭 캔버스에서는 글자가 화면 대비 너무 작아진다. */
+
+.canvas {
+  --paper: #f8f3ef;
+  --ink: #1a1208;
+  /* 21열이 --fieldW 를 꽉 채운다 (기본 78vw → 좌우 여백 각 11%) */
+  --dcell: calc(var(--fieldW) / 21);
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 프리뷰 이동 바 — JS 가 붙기 전 첫 페인트에도 캡처에 걸리지 않게 CSS 로 먼저 숨긴다
+   (coming-soon 라운드 49 와 같은 사고 방지) */
+:global(div[class*="previewBar"]) {
+  display: none !important;
+}

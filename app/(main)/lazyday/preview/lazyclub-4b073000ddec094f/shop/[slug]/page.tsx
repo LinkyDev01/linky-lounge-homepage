@@ -17,15 +17,17 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
   const g = findGoods(slug)
   if (!g) notFound()
 
-  const badge = g.status === "open" ? "판매중" : g.status === "soldout" ? "품절" : "오픈 예정"
+  // 운영자 2026-08-18: 상단 배지의 "· 판매중"은 뺀다 — 품절·오픈예정은 이미지 위
+  // StatusOverlay(상태 !== open일 때만 렌더)가 별도로 신호하므로 텍스트 중복이 없다.
+  // sub 도 "레이지데이 제품"(한글) 대신 카테고리 태그(g.cat="제품")와 겹치지 않게
+  // 영어 한 줄 "Product" 로.
   return (
     <ProductDetail
       id={`goods-${g.slug}`}
       category={g.cat}
-      badgeText={badge}
       status={g.status}
       title={g.name}
-      sub="레이지데이 제품"
+      sub="Product"
       description={g.description}
       fields={[{ label: "문의", lines: ["카카오톡 채널"], href: KAKAO_CHAT_URL }]}
       buyHref={`/one-day-talk-01/checkout?items=${goodsCode(g.slug)}`}

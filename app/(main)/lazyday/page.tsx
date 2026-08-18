@@ -24,7 +24,7 @@ import shell from "./landing-shell.module.css"
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
   description:
-    "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
+    "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 기대합니다.",
   keywords: [
     "독서모임",
     "북클럽",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
+    description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 기대합니다.",
     images: ["/linky-lounge/book-club/og-lazyday-heart-v5.png"],
     type: "website",
   },

@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       metadataBase: new URL("https://www.lazy-club.com"),
       title: "레이지클럽",
-      description: "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 믿습니다.",
+      description: "저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 기대합니다.",
       other: {
         // 네이버 서치어드바이저 소유 확인 (운영자 발급 2026-08-12, lazy-club.com 전용)
         "naver-site-verification": "d6efbbbd0995819ae93e919622534e1d5315747c",
@@ -51,7 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       metadataBase: new URL("https://www.lazyday-bookclub.com"),
       title: "레이지데이 북클럽",
-      description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
+      description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 기대합니다.",
       other: {
         "facebook-domain-verification": fbVerification,
         // 네이버 서치어드바이저 소유 확인 (운영자 발급 2026-08-12, lazyday-bookclub.com 전용)

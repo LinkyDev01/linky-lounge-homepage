@@ -186,10 +186,14 @@
 /* 잠금 스윕이 지나가면 단어 밖 글자는 흐려진 채 계속 웅성인다 */
 .dDim { opacity: 0.18; }
 .dLock { opacity: 1; }
-/* 단어 찾기 동그라미 — coming-soon 캡슐 문법(한 번에 짠, 전환 없음) */
+/* 단어 찾기 동그라미 — coming-soon 캡슐 문법(한 번에 짠, 전환 없음).
+   라운드 3 (운영자 "굵고 여백이 넓어 보여"): 획 굵기도 기존 마크 실측 비율로.
+   기존은 획 3px / 캡슐 높이 91.7px = 0.0327 (행 높이 대비 0.0275) — 이 필드에 그대로
+   적용하면 0.58px 라 서브픽셀로 흐려지므로 렌더 가능한 최소치 1px 로 바닥을 둔다.
+   종전 2.5px 는 같은 기준으로 0.082 (기존의 2.5배) 라 굵어 보였다. */
 .dCap {
   position: absolute;
-  border: 2.5px solid var(--ink);
+  border: max(1px, calc(var(--dcell) * 0.034)) solid var(--ink);
   border-radius: 999px;
   pointer-events: none;
 }

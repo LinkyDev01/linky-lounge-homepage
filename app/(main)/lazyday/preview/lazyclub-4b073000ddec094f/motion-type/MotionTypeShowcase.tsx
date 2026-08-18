@@ -325,9 +325,34 @@ const D_WORD: Record<string, string> = {
   "4-11": "Y",
 }
 const DT = { SCRAMBLE: 1300, SWEEP: 900, CAP1: 2900, CAP2: 3200, RESET: 6600, CYCLE: 7200 }
-// 캡슐 자리 (그리드 % — 칸 폭 100/21, 칸 높이 100/13에서 반 칸쯤 확장)
-const D_CAP_LAZY = { left: "35.9%", top: "29.1%", width: "23.4%", height: "11%" }
-const D_CAP_CLUB = { left: "37%", top: "21.2%", width: "7.1%", height: "34.6%" }
+
+/* ── 캡슐 기하 — 기존 레이지클럽 마크(coming-soon)에서 실측한 비율 그대로 (라운드 3, 운영자
+   "레이지와 클럽을 감싼 테두리 길쭉한 동그라미 … 굵고 여백이 넓어 보여").
+   실측: 글자가 흐르는 방향으로는 살짝 넘치고(가로 1.04 / 세로 1.03), 직교 방향으로는
+   칸보다 **좁다**(가로캡슐 높이 0.84행 / 세로캡슐 폭 0.88열) — 글자에 딱 붙는 문법이다.
+   라운드 2는 직교로 1.23~1.49배 부풀어 있어 여백이 넓어 보였다. */
+const CAP_ALONG_ROW = 1.04
+const CAP_ACROSS_ROW = 0.84
+const CAP_ALONG_COL = 1.03
+const CAP_ACROSS_COL = 0.88
+const D_COL_W = 100 / D_COLS
+const D_ROW_H = 100 / D_ROWS
+const pct = (v: number) => `${v.toFixed(3)}%`
+
+/** 글자 칸 범위(열 c0부터 cols칸 · 행 r0부터 rows칸)를 감싸는 캡슐 상자 — 중심은 유지하고
+    진행 방향(along)·직교 방향(across)에 실측 배율만 적용한다 */
+function capBox(c0: number, cols: number, r0: number, rows: number, horizontal: boolean) {
+  const x0 = c0 * D_COL_W
+  const w0 = cols * D_COL_W
+  const y0 = r0 * D_ROW_H
+  const h0 = rows * D_ROW_H
+  const w = w0 * (horizontal ? CAP_ALONG_ROW : CAP_ACROSS_COL)
+  const h = h0 * (horizontal ? CAP_ACROSS_ROW : CAP_ALONG_COL)
+  return { left: pct(x0 - (w - w0) / 2), top: pct(y0 - (h - h0) / 2), width: pct(w), height: pct(h) }
+}
+// LAZY = 4행 8~11열(가로) · CLUB = 8열 3~6행(세로) — D_WORD 배치와 같은 좌표
+const D_CAP_LAZY = capBox(8, 4, 4, 1, true)
+const D_CAP_CLUB = capBox(8, 1, 3, 4, false)
 
 function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
   // 모션 최소화면 잠금+캡슐이 완성된 정지 화면에 고정

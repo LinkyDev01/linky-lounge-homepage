@@ -39,6 +39,14 @@ import styles from "../checkout.module.css"
 
 type Phase = "confirming" | "form" | "done" | "error"
 
+/** checkout 이 결제 직전 sessionStorage("lz-buyer")에 보관하는 값 */
+type SavedBuyer = {
+  orderId?: string
+  name?: string
+  phone?: string
+  shipping?: { method: "pickup" | "parcel"; zip?: string; addr1?: string; addr2?: string }
+}
+
 /** 주문 코드(dNNN) → 신청 회차 목록. 모임이 없으면 빈 배열 */
 function meetingSessionsOf(codes: string[] | null) {
   if (!codes) return []
@@ -99,10 +107,20 @@ function SuccessInner() {
     calledRef.current = true
     ;(async () => {
       try {
+        // 주문 원장(2026-08-18)용 구매자·배송지 — checkout 이 결제 직전 보관한 값.
+        // 금액과 달리 **검증 대상이 아니다** (접수용 정보). 없으면 그냥 빠진 채 기록된다.
+        let ledger: { buyer?: { name?: string; phone?: string }; shipping?: unknown } = {}
+        try {
+          const raw = sessionStorage.getItem("lz-buyer")
+          const saved = raw ? (JSON.parse(raw) as SavedBuyer) : null
+          if (saved && saved.orderId === orderId) {
+            ledger = { buyer: { name: saved.name, phone: saved.phone }, shipping: saved.shipping }
+          }
+        } catch {}
         const res = await fetch("/api/lazyday/payment/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentKey, orderId, amount }),
+          body: JSON.stringify({ paymentKey, orderId, amount, ...ledger }),
         })
         const result = await res.json().catch(() => null)
         if (!res.ok || !result?.success) {
@@ -286,7 +304,7 @@ function PostPayApplyForm({
     try {
       const raw = sessionStorage.getItem("lz-buyer")
       if (!raw) return
-      const saved = JSON.parse(raw) as { orderId?: string; name?: string; phone?: string }
+      const saved = JSON.parse(raw) as SavedBuyer
       if (saved.orderId === orderId) {
         setPrefill({ name: saved.name || "", phone: formatPhone(saved.phone || "") })
       }

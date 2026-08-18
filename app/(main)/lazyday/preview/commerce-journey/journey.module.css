@@ -263,3 +263,49 @@
 .schemaList dt { font-weight: 700; font-size: 12.5px; color: var(--ink); font-family: ui-monospace, monospace; }
 .schemaList dd { margin: 0; color: #4a3a2a; }
 .schemaList strong { color: var(--brand); font-weight: 600; }
+
+/* ── 규칙층 */
+.subTitle {
+  font-size: 14.5px;
+  font-weight: 800;
+  margin: 26px 0 4px;
+  color: var(--ink);
+}
+.termNote { color: var(--sub); }
+.ruleList { list-style: none; margin: 12px 0 0; padding: 0; }
+.ruleItem {
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffdf8;
+  margin-bottom: 8px;
+}
+.ruleBad { border-color: rgba(192, 74, 58, 0.55); background: #fffaf8; }
+.ruleHead { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ruleId {
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--brand);
+  flex-shrink: 0;
+}
+.ruleText { flex: 1; min-width: 200px; font-size: 13.5px; font-weight: 600; line-height: 1.6; }
+.ruleOk {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fffdf8;
+  flex-shrink: 0;
+}
+.ruleOk.done { background: #4a8f5c; }
+.ruleOk.none { background: #c04a3a; }
+.ruleSrc { font-size: 11.5px; color: var(--sub); margin: 6px 0 0; }
+.ruleImpact { font-size: 12.5px; color: #4a3a2a; margin: 3px 0 0; }
+.designNote code {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  background: rgba(26, 18, 8, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}

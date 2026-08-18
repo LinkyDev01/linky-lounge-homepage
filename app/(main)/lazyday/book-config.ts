@@ -95,7 +95,7 @@ export const season1Config: SeasonConfig = {
       quotes: ["어른들이란 그렇다. 그렇다고 그런 걸로 어른들을 탓해서는 안 된다. 어린이들은 어른들에게 너그러워야 한다."],
       paragraphs: ["어린 왕자가 만난 소유욕 강한 사업가, 박수받길 원하는 허영쟁이, 명령만 내리는 왕. 어릴 땐 그저 풍자적인 캐릭터였지만, 사회생활을 하며 다시 펼친 이 책 속에는 인지하지 못했던 나의 모습이 투영되어 있습니다."],
       curatorNote: "어린 왕자의 시선에서 바라보는 세상을 통해 어쩌면 낯설지도 모르는 나의 내면을 발견하게 됩니다.",
-      imagePath: "/linky-lounge/book-club/books/1기-1-어린 왕자.jpg",
+      imagePath: "/linky-lounge/book-club/books/1기-1-어린 왕자.webp",
     },
     {
       week: 2,
@@ -105,7 +105,7 @@ export const season1Config: SeasonConfig = {
       quotes: ["마음은 언제든 바뀔 수 있고, 언젠가는 바뀌기 마련이라는 사실을 기억해야 한다."],
       paragraphs: ["정신과 의사가 쓴 이 책은 종교 서적이 아니라, 마음의 고통을 다루는 '임상 매뉴얼'에 가깝습니다. 정답을 강요하지 않고 선택지를 제안하죠."],
       curatorNote: "막연한 위로보다 내 삶에 바로 대입해 볼 수 있는 구체적인 기준이 필요했습니다. 저자가 제시한 방법을 따라가며 나에게 맞는 것이 있는지, 각각의 멤버들마다 '이것'을 어떻게 생각하는지 이야기를 나눠볼 수 있습니다.",
-      imagePath: "/linky-lounge/book-club/books/1기-2-부처님 말씀대로 살아보니.jpg",
+      imagePath: "/linky-lounge/book-club/books/1기-2-부처님 말씀대로 살아보니.webp",
     },
     {
       week: 3,
@@ -115,7 +115,7 @@ export const season1Config: SeasonConfig = {
       quotes: ["사람을 불안하게 만드는 것은 사건 자체가 아니라, 사건에 대한 우리의 판단이다."],
       paragraphs: ["2,000년 전 노예였던 에픽테토스는 우리에게 묻습니다. \"그게 네 마음대로 할 수 있는 일이야?\" 이 짧은 고전은 우리가 휘둘렸던 수많은 관계와 성과들이 사실 '내 소관'이 아니었음을 깨닫게 합니다."],
       curatorNote: "퇴근 후에도 일과 사람 생각에 잠 못 드는 우리에게 가장 필요한 책일지도 모릅니다. 내려놓지 못하는 것, 어느새 바뀌게 된 나의 관점들을 모임에서 털어놓아 봅니다.",
-      imagePath: "/linky-lounge/book-club/books/1기-3-엥케이리디온.jpg",
+      imagePath: "/linky-lounge/book-club/books/1기-3-엥케이리디온.webp",
     },
     {
       week: 4,
@@ -125,7 +125,7 @@ export const season1Config: SeasonConfig = {
       quotes: ["그럼에도, 남김없이 살아갈 것이다."],
       paragraphs: ["매일 돌을 굴려 올리는 시지프의 삶은 어쩌면 매일 출근하고 퇴근하는 우리의 일상과 닮아 있습니다. 카뮈는 이 허무함 속에서 비로소 '자유'와 '열정'을 찾으라고 말합니다."],
       curatorNote: "1기 모임의 마침표를 찍으며, \"그래서 우리는 왜 계속 살아가야 하는가\"라는 묵직한 질문에 각자의 답을 내리기 위해서입니다. 마지막 회차가 끝날 때, 우리는 조금 더 가벼워진 마음으로 돌을 굴릴 수 있게 됩니다.",
-      imagePath: "/linky-lounge/book-club/books/1기-4-시지프 신화.jpg",
+      imagePath: "/linky-lounge/book-club/books/1기-4-시지프 신화.webp",
     },
   ],
 }
@@ -147,7 +147,7 @@ export const season3Config: SeasonConfig = {
       ],
       paragraphs: [],
       curatorNote: "",
-      imagePath: "/linky-lounge/book-club/books/3기-1-포스트맨은 벨을 두 번 울린다.jpg",
+      imagePath: "/linky-lounge/book-club/books/3기-1-포스트맨은 벨을 두 번 울린다.webp",
     },
     {
       week: 2,
@@ -160,7 +160,7 @@ export const season3Config: SeasonConfig = {
       ],
       paragraphs: [],
       curatorNote: "",
-      imagePath: "/linky-lounge/book-club/books/3기-2-폭풍의 언덕.jpg",
+      imagePath: "/linky-lounge/book-club/books/3기-2-폭풍의 언덕.webp",
     },
     {
       week: 3,
@@ -173,7 +173,7 @@ export const season3Config: SeasonConfig = {
       ],
       paragraphs: [],
       curatorNote: "",
-      imagePath: "/linky-lounge/book-club/books/3기-3-자유로부터의 도피.jpg",
+      imagePath: "/linky-lounge/book-club/books/3기-3-자유로부터의 도피.webp",
     },
     {
       week: 4,
@@ -186,7 +186,7 @@ export const season3Config: SeasonConfig = {
       ],
       paragraphs: [],
       curatorNote: "",
-      imagePath: "/linky-lounge/book-club/books/3기-4-싯다르타.jpg",
+      imagePath: "/linky-lounge/book-club/books/3기-4-싯다르타.webp",
     },
   ],
 }
@@ -204,7 +204,7 @@ export const season2Config: SeasonConfig = {
       quotes: ["'나의 길'이라는 독자적 가능성이 존재하며, 매 순간이 고유하다는 사실을 분명히 인지해야 합니다."],
       paragraphs: ["지금의 사회는 한 가지 길만 강요합니다. 표준에 맞춰 남들과 똑같이 살아야 한다고 압박하죠. 그러다 보니 그 길이 아니면 안 될 것 같고, 내 모든 에너지를 소진하면서까지 그 길을 좇아야만 할 것 같습니다. 당연히 삶은 고난스럽고 공허해집니다. 이런 비인간적인 방황을 겪지 않으려면 시야를 넓혀야 합니다."],
       curatorNote: "누구에게나 자기만의 생각의 방식이 필요하고, 그것이 철학의 시작입니다. 이 책을 통해 철학자들의 사상을 생각을 확장시킬 도구로 삼아, 흔들릴 때 돌아올 수 있는 자기만의 기반을 다져봅니다.",
-      imagePath: "/linky-lounge/book-club/books/2기-1-가장 젊은 날의 철학.jpg",
+      imagePath: "/linky-lounge/book-club/books/2기-1-가장 젊은 날의 철학.webp",
     },
     {
       week: 2,
@@ -214,7 +214,7 @@ export const season2Config: SeasonConfig = {
       quotes: ["누군가를 좋아한다는 건 아주 힘든 일이에요. 하지만 누군가를 좋아하지 않는 건 더 힘든 일이죠."],
       paragraphs: ["서른아홉의 폴은 익숙한 연인 로제 곁에 머문다. 그가 다른 여자들을 만나러 다닌다는 걸 알면서도. 어느 날 스물다섯 시몽이 나타나 묻는다. 브람스를 좋아하세요? 음악 취향을 묻는 게 아니라, 새로운 것에 마음을 열 수 있느냐고 묻는 질문이다. 폴은 잠시 흔들리고, 결국 익숙한 자리로 돌아간다."],
       curatorNote: "사강은 누구의 손도 들어주지 않습니다. 폴이 익숙한 자리로 돌아가는 결정 앞에서, 보이는 건 결국 자기 자신입니다. 떠나지 못한 자리가 두려움이었는지 선택이었는지. 모임 가운데 천천히 흐르도록 두는 책입니다.",
-      imagePath: "/linky-lounge/book-club/books/2기-2-브람스를 좋아하세요.jpg",
+      imagePath: "/linky-lounge/book-club/books/2기-2-브람스를 좋아하세요.webp",
     },
     {
       week: 3,
@@ -224,7 +224,7 @@ export const season2Config: SeasonConfig = {
       quotes: ["안전을 먼저 확인하려는 사람은 믿음을 가질 수 없다. 사랑은 믿음의 행위이고, 믿음이 적은 자는 사랑도 적다."],
       paragraphs: ["프롬은 사랑을 '빠지는 것'이 아니라 '기술'이라고 씁니다. 감정이 아니라 결정이고, 빠지는 것이 아니라 서서 행하는 것. 그런데 한 걸음 더 들어가면, 가장 어려운 건 상대가 아니라 나 자신이라는 게 이 책의 결론입니다. 혼자 있을 수 있는 사람만이 사랑할 수 있다."],
       curatorNote: "확신이 생기면 시작하겠다는 사람은 시작하지 못합니다. 프롬은 사랑·관계·일에서 한 발 떼지 못하는 일상의 망설임을 같은 구조로 풀어 놓습니다. 깊이가 관계로, 관계에서 다시 일·돈·시간 같은 삶 전체로 번지는 자리입니다.",
-      imagePath: "/linky-lounge/book-club/books/2기-3-사랑의 기술.jpg",
+      imagePath: "/linky-lounge/book-club/books/2기-3-사랑의 기술.webp",
     },
     {
       week: 4,
@@ -234,7 +234,7 @@ export const season2Config: SeasonConfig = {
       quotes: ["별들이 박힌 그 밤 앞에서, 나는 처음으로 세계의 다정한 무관심에 마음을 열었다."],
       paragraphs: ["엄마의 장례식에서 뫼르소는 울지 않는다. 며칠 뒤 우발적으로 사람을 죽이고, 법정은 그가 감정이 없다는 이유로 사형을 선고한다. 사형 전야, 뫼르소는 처음으로 자기 입으로 말한다. 나는 행복했고, 지금도 행복하다고. 카뮈는 누가 이상한지 말하지 않은 채 책을 닫는다."],
       curatorNote: "정리되던 언어가 4회차에서 한 번 흔들립니다. 뫼르소가 마지막에 도달한 '다정한 무관심'은 또 다른 자리를 엽니다. 답이 아닌 자기 자세를 들고 일상으로 돌아가는 시즌의 마무리입니다.",
-      imagePath: "/linky-lounge/book-club/books/2기-4-이방인.jpg",
+      imagePath: "/linky-lounge/book-club/books/2기-4-이방인.webp",
     },
   ],
 }

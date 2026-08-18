@@ -19,39 +19,52 @@ import { FadeUp } from "@/components/animation/FadeUp"
 type ReviewCard = {
   id: string
   caption: string
+  /** 모달(확대 보기)용 원본 — 세로 1440px */
   photo?: string
+  /**
+   * 카드(캐러셀)용 축소본 — 가로 700px. 카드는 최대 322px 로 그려지므로 레티나에서도
+   * 충분하고, 원본(1005~1029px)보다 절반 이하다 (운영자 2026-08-17 "카드용 축소본을
+   * 따로 두고 모달만 원본"). 없으면 photo 로 폴백한다.
+   */
+  photoCard?: string
 }
 
 const photoCards: ReviewCard[] = [
   {
     id: "r1",
     photo: "/linky-lounge/book-club/reviews/review-01.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-01-card.webp",
     caption: "2026. 7. 15의 기록",
   },
   {
     id: "r2",
     photo: "/linky-lounge/book-club/reviews/review-02.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-02-card.webp",
     caption: "2026. 7. 12의 기록",
   },
   {
     id: "r3",
     photo: "/linky-lounge/book-club/reviews/review-03.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-03-card.webp",
     caption: "2026. 7. 12의 기록",
   },
   {
     id: "r4",
     photo: "/linky-lounge/book-club/reviews/review-04.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-04-card.webp",
     caption: "2026. 7. 12의 기록",
   },
   // 2026-08-09 추가분 (운영자 제공 원본 JPG → 세로 1440px webp q82, 기존 4장과 같은 규격)
   {
     id: "r5",
     photo: "/linky-lounge/book-club/reviews/review-05.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-05-card.webp",
     caption: "2026. 8. 9의 기록",
   },
   {
     id: "r6",
     photo: "/linky-lounge/book-club/reviews/review-06.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-06-card.webp",
     caption: "2026. 8. 9의 기록",
   },
 ]
@@ -264,7 +277,8 @@ export function ReviewsSection() {
                       aria-label={`${c.caption} 크게 보기`}
                     >
                       <Image
-                        src={c.photo}
+                        /* 카드는 축소본 — 모달만 원본을 쓴다 (2026-08-17) */
+                        src={c.photoCard ?? c.photo}
                         alt={c.caption}
                         fill
                         sizes="(max-width: 600px) 92vw, 560px"

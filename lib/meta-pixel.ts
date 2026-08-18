@@ -34,15 +34,69 @@ function newEventId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 }
 
+/** 픽셀·CAPI 를 켜는 도메인 — layout.tsx 의 인라인 스니펫 게이트와 같은 목록 */
+const PIXEL_HOSTS = ["lazyday-bookclub.com", "lazy-club.com"]
+
+/** 서버로도 중계하는 이벤트 — 전환 3종만 (라우트의 ALLOWED_EVENTS 와 같아야 한다) */
+const CAPI_EVENTS = new Set<FbqStandard>(["Lead", "CompleteRegistration", "InitiateCheckout"])
+
+function onPixelHost(): boolean {
+  if (typeof window === "undefined") return false
+  const h = window.location.hostname
+  return PIXEL_HOSTS.some((d) => h === d || h.endsWith(`.${d}`))
+}
+
+function readCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined
+  const hit = document.cookie.split("; ").find((c) => c.startsWith(`${name}=`))
+  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : undefined
+}
+
+/**
+ * 전환 API 중계 — 브라우저 발화와 **같은 eventID** 로 서버에도 보낸다.
+ * Meta 가 그 값으로 둘을 합치므로 이중 집계가 되지 않는다.
+ *
+ * ⚠ 픽셀이 차단당해 fbq 가 없어도 이건 나간다 — 그 구간을 메우는 게 목적이다.
+ * ⚠ `_fbc` 는 fbevents.js 가 심는 쿠키라 차단 시 없다. 그래서 우리가 직접 심은
+ *   1st-party 사본(`lz_fbc`, meta-pixel-tracker.tsx)을 폴백으로 본다 — 광고 클릭
+ *   유입이면 URL 의 fbclid 에서 만들어 둔 값이다.
+ * ⚠ keepalive — CTA 클릭은 곧바로 /apply 로 이동하므로, 없으면 전송이 잘린다.
+ */
+function relayToCapi(event: FbqStandard, params: PixelParams | undefined, eventID: string) {
+  if (!onPixelHost()) return
+  try {
+    void fetch("/api/lazyday/meta/capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        event,
+        eventID,
+        params: params ?? {},
+        url: window.location.href,
+        fbp: readCookie("_fbp"),
+        fbc: readCookie("_fbc") ?? readCookie("lz_fbc"),
+      }),
+    }).catch(() => {
+      /* 전환 추적 실패가 화면에 영향을 주면 안 된다 */
+    })
+  } catch {
+    /* 위와 같음 */
+  }
+}
+
 /**
  * 표준 이벤트. 발화하면 그 이벤트의 eventID 를 돌려준다 —
- * 호출부가 서버로 같이 넘겨야 할 때 쓴다. 픽셀이 없으면(=이 도메인에서 미로드)
- * 아무 일도 하지 않고 null.
+ * 호출부가 서버로 같이 넘겨야 할 때 쓴다. 브라우저 밖(SSR)에서는 null.
+ *
+ * ⚠ 픽셀이 없어도(차단·미로드) **서버 중계는 계속한다** — 종전에는 여기서 곧장
+ *   null 로 빠져나갔는데, 그러면 정작 유실이 일어나는 구간에서 CAPI 가 침묵한다.
  */
 export function trackStandard(event: FbqStandard, params?: PixelParams): string | null {
-  if (typeof window === "undefined" || !window.fbq) return null
+  if (typeof window === "undefined") return null
   const eventID = newEventId()
-  window.fbq("track", event, params ?? {}, { eventID })
+  if (window.fbq) window.fbq("track", event, params ?? {}, { eventID })
+  if (CAPI_EVENTS.has(event)) relayToCapi(event, params, eventID)
   return eventID
 }
 

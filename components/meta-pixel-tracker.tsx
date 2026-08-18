@@ -11,6 +11,29 @@ export function MetaPixelTracker() {
   // 여기서 또 쏘면 첫 로드가 두 번 집계된다 — 두 번째 경로부터만 담당한다.
   const skipFirst = useRef(true)
 
+  /**
+   * 광고 클릭 ID 를 1st-party 쿠키로 보존 (2026-08-18, 전환 API 준비).
+   *
+   * 평소엔 fbevents.js 가 URL 의 `fbclid` 를 읽어 `_fbc` 쿠키를 심는다. 그런데
+   * 차단기·추적 방지가 있으면 그 스크립트가 아예 안 뜨고, 그러면 서버 전송에도
+   * "어느 광고에서 왔나"가 빠진다 — CAPI 로 메우려던 바로 그 구간이 무의미해진다.
+   * 우리 코드는 차단당하지 않으므로 여기서 같은 형식(`fb.1.<ms>.<fbclid>`)으로
+   * 사본을 남긴다. lib/meta-pixel.ts 가 `_fbc` 가 없을 때 이걸 폴백으로 쓴다.
+   *
+   * ⚠ Meta 의 클릭 ID 유효기간과 맞춰 90일. `_fbc` 가 이미 있으면 건드리지 않는다.
+   */
+  useEffect(() => {
+    try {
+      const fbclid = new URLSearchParams(window.location.search).get("fbclid")
+      if (!fbclid) return
+      if (document.cookie.includes("_fbc=")) return
+      const value = `fb.1.${Date.now()}.${fbclid}`
+      document.cookie = `lz_fbc=${encodeURIComponent(value)}; path=/; max-age=${90 * 24 * 60 * 60}; SameSite=Lax`
+    } catch {
+      /* 추적 보조 기능이라 실패해도 화면에 영향을 주지 않는다 */
+    }
+  }, [pathname])
+
   // SPA 라우트 변경 시 PageView 이벤트 발송 (첫 로드분은 스니펫이 담당)
   useEffect(() => {
     if (skipFirst.current) {

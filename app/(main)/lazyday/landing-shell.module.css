@@ -250,8 +250,11 @@
   border-top: 1px solid var(--ink);
   padding: 6px 0 40px;
   position: relative;
-  /* 레이지클럽 푸터와 동일 서체 (운영자 2026-08-12 "폰트도 맞추자") */
-  font-family: "Gothic A1", sans-serif;
+  /* 서체는 SUIT (2026-08-17). 종전 Gothic A1(레이지클럽과 통일, 2026-08-12)은
+     이 56자짜리 사업자정보 한 블록 때문에 구글 폰트에서 **138KB**(조각 14개 112KB
+     + CSS 26KB)를 끌어왔다 — 랜딩 전송량의 9%. 운영자 2026-08-17 "부담이면 suit하고"
+     → 북클럽만 SUIT 로. 레이지클럽 쪽 Gothic A1 은 운영자가 별도로 다룬다. */
+  font-family: var(--suit);
   font-size: 12.6px;
   line-height: 1.7;
   font-weight: 600;

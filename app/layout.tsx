@@ -114,11 +114,28 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* ⚠ **beforeInteractive** — afterInteractive 로 두면 스니펫이 하이드레이션
+            뒤에 실행돼, 첫 로드 PageView 가 실기기에서 4.0~4.6초까지 밀린다(실측
+            2026-08-18: CPU 4~6배 감속 + 3G). 광고 클릭 후 그 전에 이탈하면 방문이
+            아예 기록되지 않았다 — 픽셀 헬퍼의 "설치됐지만 실행되지 않음"이 이것.
+            PageView 는 이제 이 인라인 스니펫이 파싱 시점에 딱 한 번 쏜다.
+            ⚠ MetaPixelTracker 는 **첫 경로에서 발화하지 않는다** — 여기서 이미
+              쐈기 때문. SPA 경로 전환분만 담당한다 (한쪽만 고치면 이중 집계). */}
         <Script
           id="meta-pixel"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
+              // ── 이 픽셀은 **매출 도메인에서만** 로드한다 (운영자 2026-08-18).
+              //    linkylounge.com 에서 28일간 248건이 섞여 들어와 이벤트가 오염됐다.
+              //    ⚠ lazy-club.com 을 함께 허용하는 이유: PG 심사 화이트리스트로
+              //      /one-day-talk-01 결제 플로우가 그 도메인에서도 열려 있고,
+              //      결제 완료 Lead 가 거기서 발화한다. 북클럽만 남기면 그 매출이 사라진다.
+              var __lzH = location.hostname;
+              if (__lzH.endsWith('lazyday-bookclub.com') || __lzH.endsWith('lazy-club.com')) {
+              // 이벤트 단위 고유 ID — 나중에 전환 API 를 붙일 때 중복 제거 키가 된다
+              function __lzEid(){try{if(crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}
+                return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
               !function(f,b,e,v,n,t,s)
               {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
               n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -128,6 +145,8 @@ export default function RootLayout({
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
               fbq('init', '${META_PIXEL_ID}');
+              fbq('track', 'PageView', {}, { eventID: __lzEid() });
+              }
             `,
           }}
         />

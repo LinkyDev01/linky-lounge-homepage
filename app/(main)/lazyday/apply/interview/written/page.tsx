@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
-import { trackCustom } from "@/lib/meta-pixel"
+import { trackCustom, trackStandard } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -229,6 +229,20 @@ export default function WrittenInterviewPage() {
     setSlowSubmit(false)
     setLoading(false)
     track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
+    // 표준 이벤트 병행 발화 (운영자 2026-08-18) — 커스텀을 대체하는 게 아니라 나란히.
+    //  · 여기는 **마지막 단계(LAST_PAGE)의 제출이 서버에서 성공한 뒤** 단 한 곳이다.
+    //    step 이벤트 쪽에서는 절대 쏘지 않는다 (중간 단계 이탈이 전환으로 잡힌다).
+    //  · 실패하면 위 catch 에서 return 하므로 여기까지 오지 않는다.
+    //  ⚠ 시뮬레이션(/lazyday/admin/simulate)은 실제 접수가 없으므로 제외한다 —
+    //    안 막으면 테스트할 때마다 가짜 전환이 광고 최적화에 학습된다.
+    if (!sim) {
+      trackStandard("CompleteRegistration", {
+        content_name: "lazyday_bookclub_4",
+        status: true,
+        value: 150000, // season-config 의 4기 참가비 150,000원과 일치
+        currency: "KRW",
+      })
+    }
     try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
     setSubmitted(true)
     window.scrollTo(0, 0)

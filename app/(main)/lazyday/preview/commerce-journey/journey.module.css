@@ -237,3 +237,29 @@
   .title { font-size: 32px; }
   .row { grid-template-columns: 92px 1fr; }
 }
+
+/* ── 흐름도 컨테이너 — 페이지 가로 스크롤 금지, 도표만 스크롤 */
+.diagram { margin: 26px 0 6px; }
+.diagramScroll {
+  overflow-x: auto;
+  background: rgba(255, 253, 248, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 10px;
+  margin-top: 14px;
+}
+.designSec { margin-top: 46px; }
+.designNote { font-size: 13.5px; color: #4a3a2a; margin: 12px 0 0; }
+.designNote strong { color: var(--brand); }
+.schemaList { margin: 18px 0 0; }
+.schemaList > div {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.schemaList > div + div { border-top: 1px solid rgba(74, 58, 42, 0.09); }
+.schemaList dt { font-weight: 700; font-size: 12.5px; color: var(--ink); font-family: ui-monospace, monospace; }
+.schemaList dd { margin: 0; color: #4a3a2a; }
+.schemaList strong { color: var(--brand); font-weight: 600; }

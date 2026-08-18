@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { CATEGORY_LABELS, findMeeting, meetingOrderCode } from "../../one-day-config"
+import { findMeeting, meetingOrderCode } from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
 // 서버 컴포넌트 — Shell("use client") 경유로 BASE 를 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../../base-path"
@@ -18,7 +18,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   return (
     <ProductDetail
       id={`meeting-${m.slug}`}
-      category={CATEGORY_LABELS[m.category]}
+      category={m.host} // 카테고리 대신 진행 주체 노출 (운영자 2026-08-18)
       badgeText={badge}
       status={m.status}
       title={m.title}

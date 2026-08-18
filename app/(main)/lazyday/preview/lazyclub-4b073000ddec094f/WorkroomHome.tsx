@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { season1Config, season2Config, season3Config, season4Config } from "../../book-config"
 import { SEASON } from "../../season-config"
-import { CATEGORY_LABELS, ONE_DAY_MEETINGS } from "./one-day-config"
+import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { ScrollTurtle } from "./ScrollTurtle"
@@ -200,8 +200,10 @@ function HomeContent() {
   // 지난 기수는 라운드 24에서 우측 '레이지데이 북클럽' 섹션으로 이동
   const items = booktalks.map((m) => ({
     id: `meeting-${m.slug}`,
-    // 태그는 한국어 라벨로 (라운드 82: "booktalk 대신에 원데이토크")
-    category: CATEGORY_LABELS[m.category],
+    // 작은 글씨 = 카테고리가 아니라 진행 주체 (운영자 2026-08-18: 지금은 전부 우리가
+    // 진행하니 "레이지데이 북클럽" — 외부 모임장이 생기면 그 모임장명이 뜨도록
+    // one-day-config 의 host 필드를 그대로 노출한다)
+    category: m.host,
     status: m.status,
     title: m.title,
     link: `${BASE}/meetings/${m.slug}`,

@@ -342,6 +342,32 @@ export default function ApplyPage() {
               <a
                 href={withSim(isPhone ? `${base}/apply/interview/schedule` : `${base}/apply/interview/written`, sim)}
                 className={styles.successPrimaryLink}
+                onClick={() => {
+                  // 결제 시작 — **코드로 심는다** (운영자 2026-08-18).
+                  //
+                  // 이 이벤트는 지금까지 코드에 없었고(991커밋 전수 0건), 메타의
+                  // '코드 없이 자동 추적' 또는 이벤트 설정 도구 규칙이 추측해서
+                  // 발화시키고 있었다. B3 광고 세트가 이 이벤트를 최적화 기준으로
+                  // 물고 있어, 코드 발화를 먼저 확인한 뒤에 그 무코드 소스를 꺼야
+                  // 학습이 끊기지 않는다 — 그래서 순서가 '심기 → 확인 → 끄기'다.
+                  //
+                  // 발화 지점은 무코드 소스가 잡던 것과 **같은 지점**(신청 완료 후
+                  // 인터뷰로 넘어가는 버튼 클릭)으로 맞췄다. 지점이 어긋나면 광고
+                  // 세트가 보던 신호의 성격이 바뀌어 학습이 흔들린다.
+                  //
+                  // ⚠ 의미상으로는 여기서 결제가 일어나지 않는다(북클럽은 인터뷰
+                  //   통과 후 사이트 밖에서 결제). '결제 시작'은 광고 세트 호환을
+                  //   위한 이름이고, 실제로는 '인터뷰 착수'에 해당한다.
+                  // ⚠ 시뮬레이션에서는 쏘지 않는다.
+                  if (!sim) {
+                    trackStandard("InitiateCheckout", {
+                      content_name: "lazyday_bookclub_4",
+                      value: 150000,
+                      currency: "KRW",
+                      num_items: 1,
+                    })
+                  }
+                }}
               >
                 {isPhone ? "전화 인터뷰 일정 잡기" : "서면 인터뷰 작성하기"}
               </a>

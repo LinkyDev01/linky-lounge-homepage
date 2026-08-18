@@ -4,6 +4,7 @@ type FbqStandard =
   | "ViewContent"
   | "Contact"
   | "CompleteRegistration"
+  | "InitiateCheckout"
 
 /** 픽셀 파라미터 — status 처럼 불리언을 받는 표준 파라미터가 있어 boolean 을 포함한다 */
 export type PixelParams = Record<string, string | number | boolean>

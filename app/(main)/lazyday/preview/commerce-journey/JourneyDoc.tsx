@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import s from "./journey.module.css"
+import { JourneyFlow, ErdDiagram, AuthFlow, CheckoutFlow } from "./Diagrams"
 
 /**
  * 레이지클럽 커머스 — 고객여정 인터랙티브 설계 문서.
@@ -228,7 +229,7 @@ const ROADMAP = [
     n: 2,
     name: "주문 서버화",
     state: "none" as Status,
-    desc: "주문 DB + 어드민 조회. 정본을 시트에서 DB로. ⚠ 토스 심사와 무관하게 지금 착수 가능 — 심사 대기 기간의 최적 작업.",
+    desc: "주문 DB(Supabase 확정) + 어드민 조회. 정본을 시트에서 DB로. ⚠ 토스 심사와 무관하게 지금 착수 가능 — 심사 대기 기간의 최적 작업.",
   },
   {
     n: 3,
@@ -240,22 +241,22 @@ const ROADMAP = [
     n: 4,
     name: "굿즈 주문·수령",
     state: "none" as Status,
-    desc: "재고 차감·수령(또는 배송 — 주소 수집 원칙 재검토 필요) 흐름.",
+    desc: "재고 차감 + 배송 개방(확정) — 배송형 상품 포함 주문에만 주소 스텝. 모임만이면 종전대로 주소 없음.",
   },
   {
     n: 5,
     name: "회원",
     state: "none" as Status,
-    desc: "카카오 로그인 + 카트·저장 서버 승격 + 참가 이력. 북클럽 커뮤니티 명세와 계정 통합 여부 결정 필요.",
+    desc: "소셜 로그인(카카오·구글 → 네이버 후속) + 카트·저장 서버 승격 + 참가 이력. 북클럽 회원과 계정 통합 확정 — profiles 하나로.",
   },
 ]
 
-/** 운영자 결정이 필요한 항목 — 설계를 진행하려면 이 답들이 먼저 필요하다 */
+/** 운영자 결정 4건 — 2026-08-18 전부 확정 */
 const DECISIONS = [
-  { q: "북클럽 회원과 레이지클럽 계정을 하나로 보나?", why: "DB 스키마·로그인 동선·커뮤니티 명세 7건이 전부 여기 걸린다" },
-  { q: "인증은 카카오 소셜 단독으로 시작하나?", why: "기획은 카카오 우선 — 단독이면 구현이 절반으로 준다" },
-  { q: "DB 호스팅 (Supabase / Vercel Postgres / 기타)", why: "로드맵 2의 첫 삽. 어드민 화면 방식도 따라온다" },
-  { q: "굿즈에 배송을 여나, 현장 수령을 유지하나?", why: "'주소 미수집' 원칙(라운드 7)의 재검토 여부가 갈린다" },
+  { q: "북클럽 회원과 레이지클럽 계정을 하나로 보나?", a: "하나로 본다. profiles 가 두 사업의 공통 회원 원장 — 기존 북클럽 신청(GAS 시트)은 전화번호 매칭으로 연결하고 이관은 후속." },
+  { q: "인증 제공자", a: "네이버·카카오·구글 3사. 단 네이버는 Supabase 기본 제공자가 아니라 커스텀 연동 — 어려우면 카카오·구글 먼저 열고 네이버 후속. DB 세팅이 우선." },
+  { q: "DB 호스팅", a: "Supabase 확정. Vercel(호스팅)과 배타가 아니라 함께 쓰는 조합이고, Vercel Postgres 는 DB만 주는 반면 Supabase 는 DB+인증+스토리지+행 단위 권한(RLS)을 한 번에 줘 소셜 3사 로그인까지 가는 우리 경로에 정확히 맞다." },
+  { q: "굿즈 배송", a: "연다. 단 배송형 상품이 포함된 주문에서만 그 시점에 주소를 묻는다 — '불필요 정보 미수집' 원칙은 그대로, 필요해진 주문에만 필요한 만큼." },
 ]
 
 export function JourneyDoc() {
@@ -285,6 +286,13 @@ export function JourneyDoc() {
           <span><i className={`${s.dot} ${s.none}`} />없음 (설계 필요)</span>
         </div>
       </header>
+
+      {/* ── 전체 여정 흐름도 (운영자 "그릴 수 있는 건 좀 그려줘") — 레인·화살표로
+          흐름이 보이게. 붉은 점선 = 지금 끊겨 있는 연결. */}
+      <section className={s.diagram}>
+        <h2 className={s.secTitle}>전체 여정 한 장</h2>
+        <div className={s.diagramScroll}><JourneyFlow /></div>
+      </section>
 
       <nav className={s.tracks} aria-label="여정 트랙">
         {TRACKS.map((t) => (
@@ -374,18 +382,48 @@ export function JourneyDoc() {
       </section>
 
       <section className={s.decisions}>
-        <h2 className={s.secTitle}>진행 전 운영자 결정 필요 4건</h2>
+        <h2 className={s.secTitle}>운영자 결정 4건 — 확정 (2026-08-18)</h2>
         <ol className={s.dcList}>
           {DECISIONS.map((d, i) => (
             <li key={i} className={s.dcItem}>
               <p className={s.dcQ}>{d.q}</p>
-              <p className={s.dcWhy}>{d.why}</p>
+              <p className={s.dcWhy}>{d.a}</p>
             </li>
           ))}
         </ol>
+      </section>
+
+      {/* ── 로드맵 2 상세 설계 — 확정 결정 반영 (v2, 2026-08-18) ── */}
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>설계 ① DB 스키마 (Supabase)</h2>
+        <p className={s.designNote}>
+          모임·굿즈를 <strong>products 한 테이블</strong>(type 구분)로 두어 카트·주문이 종류를
+          몰라도 되게 한다. 주문은 <strong>비회원도 가능</strong>(이름·전화) — 로그인은 여정을
+          이어 주는 것이지 가로막는 문이 아니다. 배송 주소는 별도 테이블로 분리해
+          굿즈 포함 주문에만 생긴다.
+        </p>
+        <div className={s.diagramScroll}><ErdDiagram /></div>
+        <dl className={s.schemaList}>
+          <div><dt>profiles</dt><dd>id(=auth.users) · 이름 · 전화 · 마케팅 동의 · 가입 경로. 두 사업 공통 회원 원장.</dd></div>
+          <div><dt>products</dt><dd>type(oneday·goods) · slug · 제목 · 가격 · 재고 · 상태(open/soldout/upcoming). one-day-config·goods-config 를 이관.</dd></div>
+          <div><dt>orders</dt><dd>user_id(비회원 null) · 이름 · 전화 · 상태(대기/결제완료/취소/환불) · 합계 · 토스 paymentKey.</dd></div>
+          <div><dt>order_items</dt><dd>주문-상품 연결 · 수량 · <strong>결제 시점 가격 스냅샷</strong>(가격 변경이 과거 주문을 못 건드리게).</dd></div>
+          <div><dt>order_shipping</dt><dd>조건부 1건 — 배송형 상품 포함 주문만. 주소·수령인·운송장.</dd></div>
+          <div><dt>carts · saved</dt><dd>user_id + product_id. 로그인 직후 localStorage 에서 한 번 이관.</dd></div>
+        </dl>
+      </section>
+
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>설계 ② 인증 흐름</h2>
+        <div className={s.diagramScroll}><AuthFlow /></div>
+      </section>
+
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>설계 ③ 주문·결제 흐름 — 주소는 필요할 때만</h2>
+        <div className={s.diagramScroll}><CheckoutFlow /></div>
         <p className={s.foot}>
-          이 문서는 기획 초안입니다 — 결정이 내려지면 해당 칸을 갱신하고, 로드맵 2(주문 서버화)의
-          상세 설계(DB 스키마·어드민)로 넘어갑니다.
+          다음 단계: 이 설계대로 Supabase 프로젝트 생성 → products·orders 스키마 반영 →
+          원데이 주문부터 DB 기록(토스 심사와 무관하게 선행) → 심사 승인 시 결제 스위치 온.
         </p>
       </section>
     </div>

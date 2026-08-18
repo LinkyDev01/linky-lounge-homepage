@@ -114,6 +114,16 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>장소</span>
           <span className={styles.summaryValue}>{locationLine}</span>
         </div>
+        {/* 참가비 — 실 HeroSummary 와 동기 (2026-08-18 부활) */}
+        <div className={styles.summaryRow}>
+          <span className={styles.summaryLabel}>참가비</span>
+          <span className={styles.summaryValue}>
+            {SEASON.priceWas && (
+              <span className={styles.summaryPriceWas}>{SEASON.priceWas}</span>
+            )}
+            {SEASON.price}
+          </span>
+        </div>
         {/* 마감 행 — deadline이 있고 노출 허용일 때만 (showDeadline=false면 미표기, 운영자 지시 2026-07-23) */}
         {SEASON.deadline && SEASON.showDeadline && (
           <div className={styles.summaryRow}>

@@ -33,14 +33,11 @@ export const GOODS: Goods[] = [
   {
     slug: "printed-t-shirt",
     cat: "제품",
-    name: "Printed T-shirt",
+    name: "티셔츠",
     img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp",
     // 2026-08-11: 재고 부활 (구 라운드 127 soldout 표기 샘플 해제)
     status: "open",
-    description: [
-      "I ♥ LAZYDAY. 레이지데이의 마음을 가슴에 얹은 프린티드 티셔츠입니다.",
-      "책과 함께하는 하루에 어울리는 무게로, 일상에서 편하게 입도록 만들었습니다.",
-    ],
+    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
     price: 24900, // 운영자 확정가 2026-08-11
     // 화이트·블랙·더스티 블루·카멜·더스티 핑크·다크브라운 (운영자 제공 사진 실측)
     colors: ["#f0f0f2", "#1a191f", "#8488c0", "#b17335", "#d29e8f", "#543021"],
@@ -51,15 +48,12 @@ export const GOODS: Goods[] = [
   {
     slug: "acrylic-coaster",
     cat: "제품",
-    name: "Acrylic Coaster",
+    name: "코스터",
     // 2026-08-11 드라이브 일괄 갱신 (운영자 "기존 것 날리고 영문 파일명들만") —
     // 구 goods-coaster.webp 삭제, 드라이브 원본 3240×4050 → 800×1000 webp q88
     img: "/linky-lounge/book-club/home-v3/coaster.webp",
     status: "open",
-    description: [
-      "책 옆의 잔을 받치는 아크릴 코스터입니다.",
-      "라운지의 테이블 위, 대화가 무르익는 자리에 함께 놓입니다.",
-    ],
+    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
     price: 12900, // 운영자 확정가 2026-08-11
     // I ♥ LAZYDAY 하우스 — 단일 색 (2026-08-11 신규 제품컷 실측 #e6d6c5)
     colors: ["#e6d6c5"],
@@ -68,15 +62,12 @@ export const GOODS: Goods[] = [
   {
     slug: "coffee-mug",
     cat: "제품",
-    name: "Coffee Mug (5-color)",
+    name: "머그컵",
     // 2026-08-11 드라이브 일괄 갱신 (운영자 "기존 것 날리고 영문 파일명들만") —
     // 구 goods-mug.webp 삭제. 메인(목록 카드·갤러리 첫 장) = y 옐로 (운영자 지정)
     img: "/linky-lounge/book-club/home-v3/coffee-mug-y.webp",
     status: "open",
-    description: [
-      "다섯 가지 색으로 만든 레이지데이 머그입니다.",
-      "각인된 I ♥ LAZYDAY와 함께, 읽는 시간의 온도를 지켜 줍니다.",
-    ],
+    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
     price: 18900, // 운영자 확정가 2026-08-11
     // 옐로·민트·핑크·블루·그레이 — 2026-08-11 신규 제품컷 실측 (옐로가 메인이라 첫 번째)
     colors: ["#e7b131", "#a5bca8", "#bfa196", "#8b98a1", "#61615f"],

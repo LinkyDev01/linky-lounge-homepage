@@ -404,6 +404,9 @@ function handlePhoneBooking(d) {
   if (!d.name || !d.phone || !d.slotStart || !d.slotEnd) {
     return jsonResponse({ success: false, error: "필수 항목 누락" });
   }
+  // 전환 재발화 여부 — 예약을 **만들기 전에** 본다 (지금 넣을 행에 걸리면 안 된다)
+  var alreadyConverted = hasInterviewAlready(d.phone);
+
   var start = new Date(d.slotStart);
   var end   = new Date(d.slotEnd);
 
@@ -469,16 +472,77 @@ function handlePhoneBooking(d) {
     } catch (err) { Logger.log("리마인더 예약 오류: " + err.message); }
   }
 
-  return jsonResponse({ success: true });
+  // duplicate=true 면 프론트가 CompleteRegistration 을 쏘지 않는다.
+  // 시간 변경 재예약, 그리고 서면 이력이 있는 사람의 예약이 여기 걸린다.
+  // 예약·알림톡은 정상 처리된다 — 바뀐 시간은 안내해야 하므로.
+  return jsonResponse({ success: true, duplicate: alreadyConverted });
 }
 
 // ── 서면 인터뷰 → 서면 인터뷰 시트 + 신청현황 O 표시 ────────
+/**
+ * 이 번호가 **이미 인터뷰를 확정했는지** — 서면·전화 시트를 함께 본다.
+ *
+ * 운영자 2026-08-18: "전화/서면 모두 같은 거고 방식만 다른 거지."
+ * 실제로 "전화 예약했다가 시간이 안 맞아 서면으로 가는" 경로가 종종 있는데,
+ * 시트를 따로 보면 전화에서 한 번·서면에서 또 한 번 전환이 잡혀 **한 사람이
+ * 2건**으로 집계된다. 한 사람은 한 번만 세야 광고 최적화가 왜곡되지 않는다.
+ *
+ * ⚠ 접수·알림톡 같은 실제 처리는 막지 않는다 — 이 값은 **전환 재발화 여부**만
+ *   정한다. 시간을 바꿔 다시 잡는 사람에게 새 시간 안내는 나가야 한다.
+ */
+function hasInterviewAlready(phone) {
+  var np = normPhone(phone);
+  if (!np) return false;
+  var sheets = [WRITTEN_SHEET, PHONE_SHEET];
+  for (var si = 0; si < sheets.length; si++) {
+    var sh = ss().getSheetByName(sheets[si]);
+    if (!sh) continue;
+    var rows = sh.getDataRange().getValues();
+    if (rows.length < 2) continue;
+    var col = colIndexMap(sh);
+    // 서면은 '연락처', 전화는 '전화번호' 로 헤더가 다르다
+    var idx = (col["연락처"] !== undefined) ? col["연락처"] : col["전화번호"];
+    if (idx === undefined) continue;
+    for (var ri = 1; ri < rows.length; ri++) {
+      if (normPhone(rows[ri][idx]) === np) return true;
+    }
+  }
+  return false;
+}
+
 function handleWritten(d) {
   var a = d.answers || {};
   var sheet = getOrCreateSheet(WRITTEN_SHEET,
     ["제출일시", "이름", "연락처", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6"]);
-  prependRow(sheet, [new Date(), d.name || "", d.phone || "",
-    a.q1 || "", a.q2 || "", a.q3 || "", a.q4 || "", a.q5 || "", a.q6 || ""]);
+
+  // ── 중복 제출 차단 (운영자 2026-08-18 "똑같은 사람이 제출하기 2번 누르는 게 문제네.
+  //    한 번만 받아올 수 있나?").
+  //    프론트 버튼은 disabled 로 연타를 막지만, 그것으로는 못 막는 경로가 있다:
+  //      · 응답이 유실된 뒤 '다시 제출하기' (서버는 이미 접수했는데 화면은 실패)
+  //      · 완료 후 뒤로가기·새로고침해서 다시 제출
+  //    막지 않으면 시트 행·관리자 메일이 겹치고, **신청자에게 알림톡이 두 번** 나간다.
+  //    같은 번호가 이미 있으면 그 행을 덮어쓴다(=재제출은 수정으로 취급).
+  // 전환 재발화 여부는 **두 시트를 함께** 본다 (전화 → 서면 전환자 포함).
+  // 행 덮어쓰기·알림톡 판단에 쓰는 existingRow 와는 별개다.
+  var alreadyConverted = hasInterviewAlready(d.phone);
+
+  var np = normPhone(d.phone);
+  var existingRow = 0;
+  if (np) {
+    var rows = sheet.getDataRange().getValues();
+    var wcol = colIndexMap(sheet);
+    for (var wi = 1; wi < rows.length; wi++) {
+      if (normPhone(rows[wi][wcol["연락처"]]) === np) { existingRow = wi + 1; break; }
+    }
+  }
+
+  var rowValues = [new Date(), d.name || "", d.phone || "",
+    a.q1 || "", a.q2 || "", a.q3 || "", a.q4 || "", a.q5 || "", a.q6 || ""];
+  if (existingRow) {
+    sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    prependRow(sheet, rowValues);
+  }
 
   updateMainStatus(d.phone, { "인터뷰 상태": "O" });
 
@@ -491,21 +555,24 @@ function handleWritten(d) {
 
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
-    subject: "[레이지데이 북클럽] 서면 인터뷰 제출 — " + (d.name || "?") + "님",
+    subject: "[레이지데이 북클럽] 서면 인터뷰 " + (existingRow ? "재제출(수정)" : "제출") + " — " + (d.name || "?") + "님",
     body: "서면 인터뷰 답변이 접수되었습니다.\n\n이름: " + (d.name || "-") + "\n연락처: " + (d.phone || "-") +
           "\n\n📄 스프레드시트:\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID +
           "\n\n═════════════════════════════\n\n" + qaBlocks
   });
 
-  // 신청자에게 카카오 알림톡 (실패 시 SMS fallback)
+  // 신청자에게 카카오 알림톡 (실패 시 SMS fallback).
+  // ⚠ 재제출(수정)이면 보내지 않는다 — 같은 안내가 두 번 가고 발송 비용도 이중이다.
   var npWritten = normPhone(d.phone);
-  if (npWritten) {
+  if (npWritten && !existingRow) {
     var okWritten = sendKakaoAlimtalk(npWritten, KAKAO_TEMPLATE_WRITTEN, { "#{이름}": d.name || "" });
     if (!okWritten) sendSMS(npWritten,
       "[레이지데이 북클럽]\n" + (d.name || "") + "님, 서면 인터뷰가 제출되었습니다.\n소중한 답변 감사드려요. 검토 후 개별 연락드리겠습니다.");
   }
 
-  return jsonResponse({ success: true });
+  // duplicate=true 면 프론트가 CompleteRegistration 을 다시 쏘지 않는다
+  // (한 사람의 인터뷰 확정이 전환 2건으로 잡히는 것을 막는다)
+  return jsonResponse({ success: true, duplicate: alreadyConverted });
 }
 
 // ── 관리자: 시간 차단 / 이벤트 삭제 ─────────────────────────

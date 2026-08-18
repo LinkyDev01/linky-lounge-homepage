@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import s from "./journey.module.css"
-import { JourneyFlow, ErdDiagram, AuthFlow, CheckoutFlow } from "./Diagrams"
+import { JourneyFlow, AuthFlow, CheckoutFlow, OrderStateMachine, SeasonFlow, ErdV3 } from "./Diagrams"
+import { RULES, GLOSSARY } from "./Rules"
 
 /**
  * 레이지클럽 커머스 — 고객여정 인터랙티브 설계 문서.
@@ -54,7 +55,7 @@ const TRACKS: Track[] = [
         key: "discover",
         name: "발견",
         action: "인스타그램·소개 링크로 진입해 인트로(코밍순)를 만난다",
-        touch: "lazy-club.com (인트로 애니메이션 → 마크 클릭 시 홈)",
+        touch: "lazy-club.com (인트로 애니메이션, 마크 클릭 시 홈)",
         status: "done",
         now: "인트로·홈(워크룸 문법) 완성. 홈 리스트에서 모임·굿즈가 한 눈에 보인다.",
         leak: "인트로만 보고 이탈 — 홈으로 이끄는 것이 마크 클릭 하나뿐이다.",
@@ -86,7 +87,7 @@ const TRACKS: Track[] = [
         key: "pay",
         name: "결제",
         action: "이름·전화만 넣고 결제한다 (주소 없음 — 라운드 7 원칙)",
-        touch: "/one-day-talk-01/apply → checkout (토스 위젯) → success에서 신청폼",
+        touch: "/one-day-talk-01/apply · checkout (토스 위젯) · success에서 신청폼",
         status: "temp",
         now: "토스페이먼츠 위젯·금액 재검증(confirm)까지 구현돼 있으나 PG 신청 심사 대기 중 — 승인 전까지는 실결제가 열리지 않는다.",
         leak: "지금은 실결제 불가 — 여정이 여기서 끊긴다 (PG 심사 대기).",
@@ -150,7 +151,7 @@ const TRACKS: Track[] = [
         key: "pay",
         name: "결제",
         action: "주문·결제한다",
-        touch: "카트 '주문하기' → 티켓형(이름·전화)",
+        touch: "카트 '주문하기', 티켓형(이름·전화)",
         status: "temp",
         now: "굿즈 전용 결제 흐름은 미완 — 원데이 흐름의 재사용 설계만 있다. PG 심사 대기와 겹친다.",
         leak: "결제로 이어지는 길 자체가 아직 없다.",
@@ -197,7 +198,7 @@ const TRACKS: Track[] = [
         status: "none",
         now: "카트·저장이 기기 안에 갇혀 있다.",
         leak: "기기를 바꾸는 순간 이어 하기가 끊긴다.",
-        data: "localStorage → 서버 승격 대상",
+        data: "localStorage — 서버 승격 대상",
         gap: "회원 DB 스키마 (회원·주문·카트·저장) + localStorage 이관 설계.",
         roadmap: [2, 5],
       },
@@ -247,7 +248,7 @@ const ROADMAP = [
     n: 5,
     name: "회원",
     state: "none" as Status,
-    desc: "소셜 로그인(카카오·구글 → 네이버 후속) + 카트·저장 서버 승격 + 참가 이력. 북클럽 회원과 계정 통합 확정 — profiles 하나로.",
+    desc: "소셜 로그인(카카오·구글 먼저, 네이버 후속) + 카트·저장 서버 승격 + 참가 이력. 북클럽 회원과 계정 통합 확정 — profiles 하나로.",
   },
 ]
 
@@ -394,36 +395,140 @@ export function JourneyDoc() {
       </section>
 
       {/* ── 로드맵 2 상세 설계 — 확정 결정 반영 (v2, 2026-08-18) ── */}
+      {/* ── 설계 0 — 근본 규칙층. ERD 앞에 온다 (운영자 2026-08-18 지적) ── */}
       <section className={s.designSec}>
-        <h2 className={s.secTitle}>설계 ① DB 스키마 (Supabase)</h2>
+        <h2 className={s.secTitle}>설계 ⓪ 근본 규칙 — ERD는 이것의 결과다</h2>
         <p className={s.designNote}>
-          모임·굿즈를 <strong>products 한 테이블</strong>(type 구분)로 두어 카트·주문이 종류를
-          몰라도 되게 한다. 주문은 <strong>비회원도 가능</strong>(이름·전화) — 로그인은 여정을
-          이어 주는 것이지 가로막는 문이 아니다. 배송 주소는 별도 테이블로 분리해
-          굿즈 포함 주문에만 생긴다.
+          <strong>규칙을 새로 만들지 않았다.</strong> 우리는 이미 <strong>이용약관 26개조</strong>와
+          <strong> 개인정보처리방침</strong>을 게시해 두었고, 그것이 곧 도메인 규칙이다. 아래는 그
+          조항들을 <em>스키마가 지킬 수 있는 형태의 불변식</em>으로 옮겨 적고, 각 규칙이 어떤
+          테이블 결정을 강제하는지 연결한 것이다. <strong>&lsquo;v2 위반&rsquo;</strong> 표시는 직전 ERD가 그 규칙을 지키지 못했음을 뜻한다 — 규칙층 없이 그린 대가다.
         </p>
-        <div className={s.diagramScroll}><ErdDiagram /></div>
+
+        <h3 className={s.subTitle}>용어 — 화면·코드·DB가 같은 말을 쓴다 (약관 제2조)</h3>
         <dl className={s.schemaList}>
-          <div><dt>profiles</dt><dd>id(=auth.users) · 이름 · 전화 · 마케팅 동의 · 가입 경로. 두 사업 공통 회원 원장.</dd></div>
-          <div><dt>products</dt><dd>type(oneday·goods) · slug · 제목 · 가격 · 재고 · 상태(open/soldout/upcoming). one-day-config·goods-config 를 이관.</dd></div>
-          <div><dt>orders</dt><dd>user_id(비회원 null) · 이름 · 전화 · 상태(대기/결제완료/취소/환불) · 합계 · 토스 paymentKey.</dd></div>
-          <div><dt>order_items</dt><dd>주문-상품 연결 · 수량 · <strong>결제 시점 가격 스냅샷</strong>(가격 변경이 과거 주문을 못 건드리게).</dd></div>
-          <div><dt>order_shipping</dt><dd>조건부 1건 — 배송형 상품 포함 주문만. 주소·수령인·운송장.</dd></div>
-          <div><dt>carts · saved</dt><dd>user_id + product_id. 로그인 직후 localStorage 에서 한 번 이관.</dd></div>
+          {GLOSSARY.map((g) => (
+            <div key={g.term}>
+              <dt>{g.term}</dt>
+              <dd>{g.def}{g.note && <span className={s.termNote}> — {g.note}</span>}</dd>
+            </div>
+          ))}
         </dl>
+
+        <h3 className={s.subTitle}>불변식 13개 — 시스템이 항상 참으로 유지할 것</h3>
+        <ol className={s.ruleList}>
+          {RULES.map((r) => (
+            <li key={r.id} className={`${s.ruleItem} ${r.ok ? "" : s.ruleBad}`}>
+              <div className={s.ruleHead}>
+                <span className={s.ruleId}>{r.id}</span>
+                <span className={s.ruleText}>{r.text}</span>
+                <span className={`${s.ruleOk} ${r.ok ? s.done : s.none}`}>{r.ok ? "v2 충족" : "v2 위반"}</span>
+              </div>
+              <p className={s.ruleSrc}>근거 · {r.src}</p>
+              <p className={s.ruleImpact}>귀결 · {r.impact}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className={s.designSec}>
-        <h2 className={s.secTitle}>설계 ② 인증 흐름</h2>
+        <h2 className={s.secTitle}>설계 ① 주문 상태 머신 (약관 제15·16조)</h2>
+        <p className={s.designNote}>
+          환불액은 <strong>상태가 아니라 시각의 함수</strong>다 — 그래서 상태 필드 하나로는 못
+          담고 <code>refunds</code> 행이 필요하다는 것이 여기서 드러난다.
+        </p>
+        <div className={s.diagramScroll}><OrderStateMachine /></div>
+      </section>
+
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>설계 ② 기수제는 다른 규칙 (약관 제4조)</h2>
+        <div className={s.diagramScroll}><SeasonFlow /></div>
+      </section>
+
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>설계 ③ DB 스키마 v3 — 규칙에서 도출 (Supabase)</h2>
+        <p className={s.designNote}>
+          점선 구획은 <strong>보존기간</strong>이다. 참가자 개인정보를 <code>orders</code>에서
+          떼어낸 것이 R9의 직접 결과 — 붙여 두면 <strong>5년 법정 보존과 1년 파기가 한 행에서
+          충돌</strong>해 어느 쪽도 못 지킨다. v2에서 없던 <code>refunds · participants ·
+          holds · applications</code>가 규칙 R3~R7의 결과로 들어왔다.
+        </p>
+        <div className={s.diagramScroll}><ErdV3 /></div>
+        <dl className={s.schemaList}>
+          <div><dt>profiles</dt><dd>id(=auth.users) · 이름 · 전화 · 마케팅 동의 시각. 북클럽·레이지클럽 <strong>공통 회원 원장</strong>.</dd></div>
+          <div><dt>products</dt><dd>type(모임·제품) · slug · 제목 · 가격 · 정원/재고 · 상태. 개인정보가 아니라 파기 대상도 아니다.</dd></div>
+          <div><dt>orders</dt><dd><strong>order_no</strong>(R1) · user_id nullable(R11) · 결제자 연락처 · 합계 · 토스 paymentKey · 상태. <strong>법정 5년</strong>.</dd></div>
+          <div><dt>order_items</dt><dd>수량 + <strong>결제 시점 가격·상품명 스냅샷</strong>(R2).</dd></div>
+          <div><dt>refunds</dt><dd><strong>신청 시각</strong> · 사유 코드(고객/회사/이월) · 산정 근거 · 확정 금액(R4·R5).</dd></div>
+          <div><dt>participants</dt><dd>주문당 N명 — 실제 참가자 본인(R3). <strong>모임 종료 후 1년 파기</strong>.</dd></div>
+          <div><dt>holds</dt><dd>결제 중 정원·재고 선점 + 만료 시각(R7). 만료되면 자리를 놓아준다.</dd></div>
+          <div><dt>applications</dt><dd>기수제 신청·인터뷰(R6). 결제 시 orders와 연결. 지금은 GAS 시트 — 이관은 후속.</dd></div>
+          <div><dt>order_shipping</dt><dd>배송형 상품 포함 주문에만 생기는 0..1 행.</dd></div>
+        </dl>
+      </section>
+
+      {/* ── 시공 — 규칙층·ERD 를 실제 마이그레이션으로 옮긴 첫 조각 (2026-08-18) ── */}
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>시공 ① 주문 원장 — 배포됨 (2026-08-18)</h2>
+        <p className={s.designNote}>
+          설계 ③ 의 <code>orders · order_items · order_shipping · participants</code> 를
+          실제 마이그레이션으로 옮겨 배포했다. <strong>환경변수가 없으면 조용히 꺼진 채
+          결제·신청이 종전대로 동작한다</strong> — 운영자가 Supabase 프로젝트를 만들고 키를
+          넣는 순간 켜진다. 절차: <code>supabase/README.md</code>.
+        </p>
+        <dl className={s.schemaList}>
+          <div><dt>해소 — 기록 0</dt><dd>결제 승인 즉시 <code>orders</code> 행이 남는다. <code>application_submitted_at</code> 이 NULL 인 주문이 곧 <strong>결제만 하고 신청서를 안 낸 손님</strong> — 종전엔 토스 상점관리자에만 존재했다.</dd></div>
+          <div><dt>해소 — 금액 소급 변조</dt><dd><code>order_items</code> 에 단가·상품명을 <strong>복사해 박는다</strong>(R2). 카탈로그 가격을 바꿔도 과거 주문의 금액 근거가 흔들리지 않는다.</dd></div>
+          <div><dt>해소 — 배송지 실종</dt><dd>종전엔 토스 결제 metadata 에만 있었다. 이제 <code>order_shipping</code> 에 남는다.</dd></div>
+          <div><dt>R9 파기</dt><dd><code>participants</code> 는 모임 종료일+1년(<code>purge_after</code>)이 지나면 <code>purge_expired_participants()</code> 가 지운다. 주문(법정 5년)은 그대로 남는다.</dd></div>
+        </dl>
+
+        <h3 className={s.subTitle}>되돌리기 어려운 결정 6건 — 테이블을 만들기 전에 못박았다</h3>
+        <ol className={s.dcList}>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>보존기간이 다르면 테이블을 나눈다</p>
+            <p className={s.dcWhy}>판단기준: “이 값이 5년 남아야 할 <strong>법정 근거</strong>가 있나?” 있으면 orders 쪽, 없으면 participants 쪽. 데이터가 쌓인 뒤에는 분리가 사실상 불가능하다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>금액·상품명은 주문 시점 스냅샷</p>
+            <p className={s.dcWhy}>판단기준: “주문 한 행만 보고 조인 없이 당시 금액이 완결되는가?” 환불 산정(R4)·영수증 재발급·분쟁 대응이 전부 이 성질에 의존한다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>order_no 는 결제사 orderId 원문, 발급 후 불변</p>
+            <p className={s.dcWhy}>판단기준: “금액의 진실원이 어디인가?” DB 도입 후에는 DB 다. 원문을 그대로 담아 구형 <code>lz-…</code>·<code>oneday-…</code> 도 들어오므로 전환 시 호환이 끊기지 않는다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>전화번호는 키가 아니다</p>
+            <p className={s.dcWhy}>판단기준: “번호가 바뀌어도 같은 사람이라고 답해야 하는가?” 회원 통합(운영자 확정)이 성립하려면 답은 예다. PK 는 uuid, 전화는 정규화된 조회용 속성.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>RLS 전면 거부 — 정책을 만들지 않는다</p>
+            <p className={s.dcWhy}>판단기준: “anon 키로 할 수 있는 일이 0인가?” anon 키는 브라우저에 실리므로 어떤 정책이든 곧 공개다. 로컬 재현에서 구 <code>with check (true)</code> 는 anon 이 그대로 행을 넣었고, 신 스키마는 <code>permission denied</code> 로 막았다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>마이그레이션 파일 + dev/prod 분리</p>
+            <p className={s.dcWhy}>판단기준: “지금 스키마가 왜 이 모양인지 파일 순서로 재생되는가?” <code>supabase/migrations/</code> append-only. 적용된 파일은 고치지 않고 새 파일을 더한다.</p>
+          </li>
+        </ol>
+        <p className={s.foot}>
+          다음 시공 순서: 신청·인터뷰(applications)를 GAS 시트에서 이관하고, 이어서
+          환불 원장(refunds, R4·R5), 정원·재고 선점(holds, R7), 마지막으로
+          회원(profiles·소셜 로그인). 각 단계는 앞 단계가 실제 데이터로 검증된 뒤에 붙인다.
+        </p>
+      </section>
+
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>설계 ④ 인증 흐름</h2>
         <div className={s.diagramScroll}><AuthFlow /></div>
       </section>
 
       <section className={s.designSec}>
-        <h2 className={s.secTitle}>설계 ③ 주문·결제 흐름 — 주소는 필요할 때만</h2>
+        <h2 className={s.secTitle}>설계 ⑤ 주문·결제 흐름 — 주소는 필요할 때만</h2>
         <div className={s.diagramScroll}><CheckoutFlow /></div>
         <p className={s.foot}>
-          다음 단계: 이 설계대로 Supabase 프로젝트 생성 → products·orders 스키마 반영 →
-          원데이 주문부터 DB 기록(토스 심사와 무관하게 선행) → 심사 승인 시 결제 스위치 온.
+          주문 원장은 <strong>시공 ① 에서 배포됐다</strong>(위 절). 남은 것은 운영자의
+          Supabase 프로젝트 생성 + 환경변수 두 개 — 그때까지는 기록이 꺼진 채 결제가
+          종전대로 동작한다.
         </p>
       </section>
     </div>

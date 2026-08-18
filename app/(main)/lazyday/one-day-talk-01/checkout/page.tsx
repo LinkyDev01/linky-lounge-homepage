@@ -149,10 +149,25 @@ function CheckoutInner() {
       const orderId = buildOrderId(codes)
       // 선결제→후신청 (2026-08-11): 결제 후 success 신청서에 이름·연락처를 프리필한다.
       // 토스 리다이렉트는 같은 탭이라 sessionStorage 가 살아 있다 (실패해도 폼은 빈 값으로 동작)
+      // 2026-08-18: 수령 방법·배송지도 함께 보관한다 — success 가 승인 요청에 실어 보내
+      // **주문 원장**에 기록된다. 종전에는 토스 결제 metadata 에만 있어 우리 DB 로는
+      // 배송지를 알 수 없었다 (주문 DB 부재의 부작용).
       try {
         sessionStorage.setItem(
           "lz-buyer",
-          JSON.stringify({ orderId, name: buyerName.trim(), phone: buyerPhone.replace(/[^0-9]/g, "") }),
+          JSON.stringify({
+            orderId,
+            name: buyerName.trim(),
+            phone: buyerPhone.replace(/[^0-9]/g, ""),
+            ...(hasGoods
+              ? {
+                  shipping: {
+                    method: useParcel ? "parcel" : "pickup",
+                    ...(useParcel ? { zip: zip.trim(), addr1: addr1.trim(), addr2: addr2.trim() } : {}),
+                  },
+                }
+              : {}),
+          }),
         )
       } catch {}
       await widgets.requestPayment({

@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../../support"
 import { readSim, simSubmit, simSlots, type SimMode } from "../../../sim"
 import { SimBanner } from "../../../SimBanner"
+import { trackStandard } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -191,6 +192,43 @@ export default function InterviewSchedulePage() {
     return () => { cancelled = true }
   }, [sim, simReady])
 
+  // ── 예약 현황 갱신 (운영자 2026-08-18 "예약 완료된 시간 실시간 반영 안 되는 것 같아")
+  //
+  // 위 effect 는 **진입 시 한 번만** 조회한다. 그래서 페이지를 열어둔 채 시간이 지나면
+  // 목록이 그때로 멈춰 있고, 그 사이 남이 잡은 시간이 계속 비어 보인다.
+  // (예약 자체는 GAS 캘린더 중복 검사가 막아주므로 이중 예약이 되지는 않지만,
+  //  끝까지 입력하고 나서 "이미 예약된 시간입니다"로 튕기는 최악의 순간에 알게 된다.)
+  //
+  // → 탭으로 돌아왔을 때와 열어둔 동안 주기적으로 다시 읽는다.
+  //   서버 캐시가 짧게 걸려 있어(slots route) 여러 탭이 열려도 GAS 호출은 뭉쳐진다.
+  //   ⚠ 첫 조회가 끝나기 전(slotsLoading)·시뮬레이션·완료 화면에서는 돌지 않는다.
+  const refreshSlots = useCallback(async () => {
+    if (sim || !simReady) return
+    try {
+      const r = await fetch("/api/lazyday/interview/slots", { cache: "no-store" })
+      const d = (await r.json()) as { success?: boolean; bookedSlots?: { start: string; end: string }[] }
+      if (r.ok && d.success && Array.isArray(d.bookedSlots)) {
+        setBookedEvents(d.bookedSlots.map((x) => ({ start: x.start, end: x.end })))
+        setSlotsFailed(false)
+      }
+    } catch {
+      /* 갱신 실패는 조용히 넘긴다 — 이미 그려진 목록을 지우면 더 나쁘다 */
+    }
+  }, [sim, simReady])
+
+  useEffect(() => {
+    if (sim || !simReady || slotsLoading || submitted) return
+    const onVisible = () => { if (document.visibilityState === "visible") refreshSlots() }
+    document.addEventListener("visibilitychange", onVisible)
+    window.addEventListener("focus", refreshSlots)
+    const timer = setInterval(refreshSlots, 45_000)
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible)
+      window.removeEventListener("focus", refreshSlots)
+      clearInterval(timer)
+    }
+  }, [sim, simReady, slotsLoading, submitted, refreshSlots])
+
   const nowUTCMs   = useMemo(() => Date.now(), [])
   // KST 기준 당일 포함 DAYS_AHEAD일째의 자정 UTC (= 예약 마감 기준)
   const maxBookingUTCMs = useMemo(() => {
@@ -356,6 +394,25 @@ export default function InterviewSchedulePage() {
       })
       const data = await res.json()
       if (data.success) {
+        // 이 번호가 이미 인터뷰를 확정했으면(시간 변경 재예약, 또는 서면 이력)
+        // GAS 가 duplicate=true 로 알려준다 — 전환을 다시 쏘지 않는다.
+        // 운영자 2026-08-18: "전화/서면 모두 같은 거고 방식만 다른 거지."
+        const isRebooking = !!data.duplicate
+        // 표준 전환 — 서면 제출과 **같은 지점**이다 (운영자 2026-08-18 "2. written 제출 =
+        // 3. schedule 예약 제출 동일해. 그러므로 동일하게 붙여야해").
+        // 인터뷰 방식만 다를 뿐 둘 다 '인터뷰 확정'이 마지막 단계라, 전화를 고른 사람의
+        // 전환이 통째로 누락되고 있었다.
+        //  · GAS 가 같은 슬롯 재예약을 거부하므로(handlePhoneBooking 캘린더 중복 검사)
+        //    연타로 두 번 잡히지 않는다 — 두 번째는 success:false 로 떨어져 여기 못 온다.
+        //  ⚠ 시뮬레이션은 위에서 먼저 return 하므로 여기 도달하지 않는다.
+        if (!isRebooking) {
+          trackStandard("CompleteRegistration", {
+            content_name: "lazyday_bookclub_4",
+            status: true,
+            value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
+            currency: "KRW",
+          })
+        }
         setConfirmed(selectedSlot)
         setSubmitted(true)
         window.scrollTo(0, 0)
@@ -363,6 +420,9 @@ export default function InterviewSchedulePage() {
         setErrors({ _form: data.error ?? "일시적인 오류로 예약이 완료되지 않았어요. 잠시 후 다시 시도해주세요." })
         keepFailed(name, phone)
         reportClientError("schedule_book", String(data.error ?? "예약 실패"))
+        // 그 사이 남이 먼저 잡았을 수 있다 — 목록을 바로 새로 읽어 그 시간이
+        // '마감'으로 보이게 한다. 안 하면 같은 시간을 계속 다시 누르게 된다.
+        refreshSlots()
       }
     } catch {
       setErrors({ _form: "연결이 잠시 불안정했어요. 선택하신 시간은 그대로니, 잠시 후 다시 시도해주세요." })

@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../../support"
 import { readSim, simSubmit, simSlots, type SimMode } from "../../../sim"
 import { SimBanner } from "../../../SimBanner"
+import { trackStandard } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -356,6 +357,19 @@ export default function InterviewSchedulePage() {
       })
       const data = await res.json()
       if (data.success) {
+        // 표준 전환 — 서면 제출과 **같은 지점**이다 (운영자 2026-08-18 "2. written 제출 =
+        // 3. schedule 예약 제출 동일해. 그러므로 동일하게 붙여야해").
+        // 인터뷰 방식만 다를 뿐 둘 다 '인터뷰 확정'이 마지막 단계라, 전화를 고른 사람의
+        // 전환이 통째로 누락되고 있었다.
+        //  · GAS 가 같은 슬롯 재예약을 거부하므로(handlePhoneBooking 캘린더 중복 검사)
+        //    연타로 두 번 잡히지 않는다 — 두 번째는 success:false 로 떨어져 여기 못 온다.
+        //  ⚠ 시뮬레이션은 위에서 먼저 return 하므로 여기 도달하지 않는다.
+        trackStandard("CompleteRegistration", {
+          content_name: "lazyday_bookclub_4",
+          status: true,
+          value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
+          currency: "KRW",
+        })
         setConfirmed(selectedSlot)
         setSubmitted(true)
         window.scrollTo(0, 0)

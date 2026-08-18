@@ -91,6 +91,9 @@ export default function WrittenInterviewPage() {
   // 제출이 오래 걸릴 때(응답 지연) 답변을 잃지 않도록 복사 안내를 띄운다 (운영자 지시 2026-08-06)
   const [slowSubmit, setSlowSubmit] = useState(false)
   const [copied, setCopied] = useState(false)
+  const submitting = useRef(false)
+  // 서버가 "이미 접수된 번호"라고 알려주면 전환을 다시 쏘지 않는다
+  const duplicateRef = useRef(false)
   const slowTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -192,6 +195,11 @@ export default function WrittenInterviewPage() {
   // 서버 접수가 확인된 경우에만 완료 처리한다 (답변 유실 방지).
   // 실패 시 답변은 localStorage에 그대로 남고, 재시도 배너를 보여준다.
   async function doSubmit() {
+    // 재진입 가드 — 버튼 disabled 는 리렌더 뒤에야 걸리므로, 그 사이의 두 번째
+    // 클릭(빠른 연타·엔터 중복)까지 여기서 막는다. 서버에도 중복 차단이 있지만
+    // 요청 자체를 안 보내는 게 낫다.
+    if (submitting.current) return
+    submitting.current = true
     setConfirmOpen(false)
     setSubmitError(false)
     setSlowSubmit(false)
@@ -216,9 +224,12 @@ export default function WrittenInterviewPage() {
       })
       const data = await res.json().catch(() => null)
       if (!res.ok || !data?.success) throw new Error(data?.error || "submit failed")
+      // GAS 가 같은 번호의 기존 제출을 찾아 덮어썼다는 신호 (재제출 = 수정)
+      duplicateRef.current = !!data?.duplicate
       }
     } catch {
       if (slowTimer.current) clearTimeout(slowTimer.current)
+      submitting.current = false // 실패했으니 '다시 제출하기'가 가능해야 한다
       setLoading(false)
       setSubmitError(true)
       track("written_interview_submit_error", { program: "book_club" })
@@ -235,7 +246,9 @@ export default function WrittenInterviewPage() {
     //  · 실패하면 위 catch 에서 return 하므로 여기까지 오지 않는다.
     //  ⚠ 시뮬레이션(/lazyday/admin/simulate)은 실제 접수가 없으므로 제외한다 —
     //    안 막으면 테스트할 때마다 가짜 전환이 광고 최적화에 학습된다.
-    if (!sim) {
+    //  ⚠ 재제출(서버가 duplicate 로 응답)이면 쏘지 않는다 — 한 사람의 인터뷰 확정이
+    //    전환 2건으로 잡히면 광고 최적화가 왜곡된다.
+    if (!sim && !duplicateRef.current) {
       trackStandard("CompleteRegistration", {
         content_name: "lazyday_bookclub_4",
         status: true,

@@ -394,6 +394,10 @@ export default function InterviewSchedulePage() {
       })
       const data = await res.json()
       if (data.success) {
+        // 이 번호가 이미 인터뷰를 확정했으면(시간 변경 재예약, 또는 서면 이력)
+        // GAS 가 duplicate=true 로 알려준다 — 전환을 다시 쏘지 않는다.
+        // 운영자 2026-08-18: "전화/서면 모두 같은 거고 방식만 다른 거지."
+        const isRebooking = !!data.duplicate
         // 표준 전환 — 서면 제출과 **같은 지점**이다 (운영자 2026-08-18 "2. written 제출 =
         // 3. schedule 예약 제출 동일해. 그러므로 동일하게 붙여야해").
         // 인터뷰 방식만 다를 뿐 둘 다 '인터뷰 확정'이 마지막 단계라, 전화를 고른 사람의
@@ -401,12 +405,14 @@ export default function InterviewSchedulePage() {
         //  · GAS 가 같은 슬롯 재예약을 거부하므로(handlePhoneBooking 캘린더 중복 검사)
         //    연타로 두 번 잡히지 않는다 — 두 번째는 success:false 로 떨어져 여기 못 온다.
         //  ⚠ 시뮬레이션은 위에서 먼저 return 하므로 여기 도달하지 않는다.
-        trackStandard("CompleteRegistration", {
-          content_name: "lazyday_bookclub_4",
-          status: true,
-          value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
-          currency: "KRW",
-        })
+        if (!isRebooking) {
+          trackStandard("CompleteRegistration", {
+            content_name: "lazyday_bookclub_4",
+            status: true,
+            value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
+            currency: "KRW",
+          })
+        }
         setConfirmed(selectedSlot)
         setSubmitted(true)
         window.scrollTo(0, 0)

@@ -5,6 +5,7 @@ import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "./useChromeIntro"
+import { DeferredCss } from "@/components/common/DeferredCss"
 import s from "./landing-shell.module.css"
 
 /**
@@ -103,11 +104,9 @@ export function LandingShell({
 
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
-      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
-      />
+      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음).
+          비차단 로드 (2026-08-17, DeferredCss 주석 — 첫 페인트를 막지 않는다) */}
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       {/* JS 가 없으면 홀드가 풀리지 않는다 — 그 경우엔 처음부터 다 보이게 */}
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>

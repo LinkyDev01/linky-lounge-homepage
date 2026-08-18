@@ -100,6 +100,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 - **dev 서버는 턴 사이에 자주 죽는다**: `(npm run dev > /tmp/dev.log 2>&1 &)` 후 curl 200 폴링. `pkill` 후 exit 144는 무해.
 - **`next-env.d.ts`**: dev 서버가 재생성 — **모든 커밋 전 `git checkout -- next-env.d.ts`**.
 - **포스터 서체는 자체 호스팅 서브셋** `public/fonts/pretendard-poster-subset.woff2` (Pretendard v1.3.9 에서 180자만, 가변축 wght 45~930 보존, 35KB, OFL 사본 동봉). CDN 동적 서브셋은 조각이 수십 개라 실기기에서 도착 시각이 흔들려 **로드마다 다른 화면**을 만들었다 — 포스터에는 다시 쓰지 말 것 (다른 화면의 책 제목 등은 종전 CDN 유지).
+- **외부 서체 CSS 는 `DeferredCss` 로만** (2026-08-18): `<link rel="stylesheet">` 를 JSX 에 직접 쓰면 그 CDN 이 느릴 때 **첫 페인트 전체가 인질**로 잡힌다(실측 26초). `components/common/DeferredCss` 가 비차단 로드 표준. ⚠ **SUIT 수동 preload 금지** — Next 가 globals.css @font-face 에서 자동 preload 를 심어 수동분과 **610KB 이중 다운로드**가 된다. ⚠ `/fonts/*` 는 next.config headers() 로 1년 immutable — **서체 파일 내용을 바꾸면 파일명도 바꿀 것**(포스터 서브셋 재생성 포함). `next start` 는 이 헤더를 덮어써 로컬 검증 불가(Vercel 엣지에서만 적용).
 - **Vercel**: 프로젝트 `prj_iKxnwjdJoHtlXtEIBqxJ8uVjAmcy` / 팀 `team_Unc0jNsuK26xtE7mYRh09nRa`. 브랜치 별칭 `linky-lounge-homepage-git-<branch>-dmahns-projects.vercel.app`. 배포 보호 때문에 `mcp__Vercel__get_access_to_vercel_url`로 `_vercel_share` 토큰 발급 — **토큰은 배포 단위·~23h 만료, 새 푸시마다 재발급**, 운영자에게 만료 시각 명시.
 - **배포 확인**: `mcp__Vercel__list_deployments`에서 SHA가 READY인지 (콘텐츠 grep 워처는 클라이언트 전용 문자열엔 부정확). 프로덕션은 `www.lazyday-bookclub.com`을 백그라운드 폴링 (~60초 내 반영).
 - **sed 광역 치환 금지** — 과거 `font-weight` 전역 치환으로 무관한 5곳이 바뀐 사고. 반드시 고유 컨텍스트 포함 치환 or 라인 앵커.

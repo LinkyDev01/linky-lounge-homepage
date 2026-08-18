@@ -6,6 +6,7 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "../../useChromeIntro"
 import s from "./draft.module.css"
+import { DeferredCss } from "@/components/common/DeferredCss"
 
 /**
  * 반응형 초안 셸 — 레이지클럽(워크룸) 셸 문법을 **북클럽 팔레트로 이식**한 사본.
@@ -84,10 +85,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
       {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
-      />
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>
       </noscript>

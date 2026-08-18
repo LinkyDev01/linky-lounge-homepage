@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { TermsBody } from "./TermsBody"
 import styles from "./terms.module.css"
+import { DeferredCss } from "@/components/common/DeferredCss"
 
 export const metadata: Metadata = {
   title: "이용약관 · 레이지데이",
@@ -28,11 +29,8 @@ export default function TermsPage() {
   return (
     <main className={styles.standalonePage}>
       {/* 워크룸 서체 — 전역 미로드라 페이지에서 로드 (checkout과 같은 방식) */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      <DeferredCss href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       <div className={styles.standaloneContainer}>
         <div className={styles.navRow}>
           <LazydayLink href="/" className={styles.navLink}>

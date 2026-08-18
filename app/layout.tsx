@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Script from "next/script"
+import { DeferredCss } from "@/components/common/DeferredCss"
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { MetaPixelTracker } from "@/components/meta-pixel-tracker"
@@ -84,27 +85,19 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        {/* SUIT — 셀프호스트 가변폰트 preload (2026-08-12 콜드 로드 다이어트:
-            구 CDN 정적판 weight 7종 ~1.19MB → 가변 1파일 610KB·1요청.
-            @font-face 정의는 globals.css) */}
-        <link
-          rel="preload"
-          href="/fonts/SUIT-Variable.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        {/* 책 소개 카드 제목용 Pretendard (레이지데이 북클럽 전용) */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-        />
-        {/* 책 소개 본문용 명조 — 빌드 타임 의존 없이 Google Fonts CSS 직접 로드 */}
+        {/* ⚠ SUIT 의 **수동 preload 를 두지 말 것** (2026-08-17). Next 16 이
+            globals.css 의 @font-face 를 보고 **자동 preload**(Flight :HL 힌트)를 이미
+            심는다 — 여기 JSX 로 preload 를 한 벌 더 쓰면 둘의 캐시가 합쳐지지 않아
+            **610KB 가 두 번** 내려간다 (실측: 33ms·727ms 두 차례 전송, 자동+수동 중복.
+            수동을 걷어내면 1회 — 인라인 스크립트 주입으로도 재현되는 브라우저 수준
+            중복이라, 해법은 '심지 않기'뿐이다). */}
+        {/* 서체 CDN 미리 연결 — 비차단 로드(DeferredCss)와 짝: 다운로드 시작을 앞당긴다 */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&display=swap"
-        />
+        {/* 책 소개 카드 제목용 Pretendard + 본문용 명조 (레이지데이 북클럽 전용).
+            ⚠ 렌더를 막지 않는 로드 (2026-08-17, DeferredCss 주석) — 서체 CSS 가
+            첫 페인트를 인질로 잡지 않는다. 도착 전엔 폴백 서체로 먼저 그려진다. */}
+        <DeferredCss href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+        <DeferredCss href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&display=swap" />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"

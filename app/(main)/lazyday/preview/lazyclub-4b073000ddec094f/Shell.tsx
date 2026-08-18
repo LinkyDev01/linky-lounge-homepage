@@ -14,6 +14,7 @@ import styles from "./home.module.css"
 // BASE 는 서버 컴포넌트도 쓰므로 지시어 없는 base-path.ts 로 분리 (2026-08-11 —
 // "use client" 모듈의 상수를 서버에서 보간하면 프록시가 찍히는 버그). 기존 소비자용 re-export.
 import { BASE } from "./base-path"
+import { DeferredCss } from "@/components/common/DeferredCss"
 export { BASE }
 
 // 라운드 30 (운영자 2026-08-06): coming soon은 lazy-club.com 전용 페이지(/coming-soon)로 분리 —
@@ -105,10 +106,7 @@ export function WorkroomShell({
       style={paper ? ({ ["--paper"]: paper } as React.CSSProperties) : undefined}
     >
       {/* 모임 설명 헤더용 Gothic A1 (눈누 #891, OFL) — 550 지시 → 정적 9굵기 중 300/600 로드 */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&family=Space+Grotesk:wght@500&display=swap"
-      />
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&family=Space+Grotesk:wght@500&display=swap" />
       {/* ── 내비 (라운드 75) — 2행. 1행: 로고 + 계정·카트·검색 / 2행: 전체상품 + 링크 3개 ── */}
       <header className={styles.header}>
         {/* 1행 좌: 로고 → 랜딩(애니메이션) 페이지 */}

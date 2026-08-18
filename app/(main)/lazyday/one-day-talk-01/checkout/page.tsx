@@ -17,6 +17,7 @@ import {
   type OrderItem,
 } from "@/lib/order-catalog"
 import styles from "./checkout.module.css"
+import { DeferredCss } from "@/components/common/DeferredCss"
 
 /**
  * 결제 — 토스페이먼츠 결제위젯 v2.
@@ -404,11 +405,8 @@ export default function CheckoutPage() {
     <main className={styles.page}>
       {/* 워크룸 서체 — Pretendard·Gothic A1 은 전역 미로드라 페이지에서 로드
           (레이지클럽 calendar/turtle 페이지와 같은 방식) */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      <DeferredCss href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       <div className={styles.container}>
         <CheckoutNav />
         {/* useSearchParams는 Suspense 경계 필요 (Next 정적 프리렌더 규칙) */}

@@ -19,13 +19,10 @@ export function HeroParallax() {
       {/* 랜딩 유일 h1 — 히어로가 SVG 포스터라 문서에 제목 텍스트가 없어
           시각 숨김(srOnly)으로 보충 (SEO·접근성, 2026-08-12. 화면 픽셀 무변경) */}
       <h1 className={styles.srOnly}>레이지데이 북클럽</h1>
-      {/* Pretendard CDN — **포스터는 더 이상 여기 기대지 않는다**(자체 호스팅 서브셋,
-          2026-08-17). 책 제목(BookSection)·모임소개·진행순서 라벨
-          (FeatureQuietSection·HowToSection)이 이 로드에 기대고 있어 유지한다. */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      />
+      {/* Pretendard CDN 링크는 제거 (2026-08-17) — **루트 레이아웃이 같은 URL 을
+          이미 전역 로드**하고 있어 순수 중복이었고, 여기 있던 사본은 렌더 블로킹이라
+          첫 페인트만 늦췄다. 책 제목·모임소개 라벨은 루트 로드(DeferredCss, 비차단)가
+          공급한다. 포스터는 애초에 자체 호스팅 서브셋이라 무관. */}
       <HeroBreathingPoster />
       <div className={styles.heroFade} aria-hidden />
     </div>

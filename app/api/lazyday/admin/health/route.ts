@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { supabaseAdmin } from "@/lib/supabase-server"
 
 /**
  * 운영 상태 진단 (2026-08-06) — /lazyday/admin/status 에서 호출.
@@ -46,6 +47,49 @@ export async function GET(req: NextRequest) {
     detail: `GAS 주소 ${GAS_URL ? "설정됨" : "없음"} · 관리자 시크릿 ${ADMIN_SECRET ? "설정됨" : "없음"}`,
     hint: !GAS_URL || !ADMIN_SECRET ? "Vercel 환경변수(INTERVIEW_GAS_URL / ADMIN_SECRET)를 확인하세요." : undefined,
   })
+
+  // 0.5) 주문 원장 (Supabase, 2026-08-18) — 환경변수가 살아 있고 DB 에 닿는지.
+  //      원장은 부가 기능이라 여기 실패해도 결제·신청은 정상 (ok:false 는 "기록만 꺼짐").
+  const sb = supabaseAdmin()
+  if (!sb) {
+    checks.push({
+      key: "ledger",
+      label: "주문 원장 (Supabase)",
+      ok: false,
+      detail: "환경변수 미설정 — 원장 꺼짐 (결제·신청은 정상 동작)",
+      hint: "Vercel 환경변수 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 를 넣고 재배포하세요 (supabase/README.md §3).",
+    })
+  } else {
+    const [led, ledMs, ledErr] = await timed(async () => {
+      const { count, error } = await sb
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+      if (error) throw new Error(error.message)
+      return count ?? 0
+    })
+    const [unsub] = led === null ? [null] : await timed(async () => {
+      const { count, error } = await sb
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .is("application_submitted_at", null)
+      if (error) throw new Error(error.message)
+      return count ?? 0
+    })
+    checks.push({
+      key: "ledger",
+      label: "주문 원장 (Supabase)",
+      ok: led !== null,
+      ms: ledMs,
+      detail:
+        led !== null
+          ? `정상 · 기록된 주문 ${led}건${(unsub ?? 0) > 0 ? ` · 신청서 미제출 ${unsub}건 (구제 대상)` : ""}`
+          : `연결 실패 — ${ledErr} (결제·신청은 정상 동작)`,
+      hint:
+        led === null
+          ? "SUPABASE_URL 이 lazyday-prod 프로젝트를 가리키는지, service_role 키가 맞는지 확인하세요."
+          : undefined,
+    })
+  }
 
   if (!GAS_URL) return NextResponse.json({ checkedAt: new Date().toISOString(), checks })
 

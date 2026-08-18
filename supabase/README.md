@@ -28,16 +28,17 @@
 
 ## 3. 운영자가 해야 할 일 (딱 두 가지)
 
-### ① Supabase 프로젝트 2개 만들기
+### ① Supabase 프로젝트 — ✔ 완료 (2026-08-18, MCP 로 생성·적용)
 
-[supabase.com](https://supabase.com) → New project 를 **두 번**.
+| 이름 | ref | 용도 | 상태 |
+|---|---|---|---|
+| `lazyday-dev` | `kfqtzxxtwokouvoqpebq` | 마이그레이션 선적용·검증 | 마이그레이션 2건 적용, 스모크 통과 |
+| `lazyday-prod` | `qdxnxdfebkgoxeqzfmji` | 실제 손님 주문 원장 | 마이그레이션 2건 적용, 테이블 4개 · 행 0 |
 
-| 이름 | 용도 |
-|---|---|
-| `lazyday-dev` | 마이그레이션을 먼저 적용해 확인하는 곳 |
-| `lazyday-prod` | 실제 손님 주문이 쌓이는 곳 |
-
-리전은 **Northeast Asia (Seoul)** 를 고른다. 데이터베이스 비밀번호는 어딘가 적어 둔다.
+둘 다 서울(ap-northeast-2)·무료. 같은 조직에 5월에 만든 구 프로젝트(INACTIVE, 도쿄)가
+하나 더 있는데 이 체계와 무관하다 — 삭제 여부는 운영자 판단.
+⚠ 다른 Supabase 계정(조직 wacnihxjkusgpxgsfupw)에 같은 이름의 lazyday-prod 가 하나
+만들어졌다가 계정을 바꾸며 버려졌다 — 그 계정 대시보드에서 지우면 된다 (빈 프로젝트).
 
 ### ② Vercel 에 환경변수 2개 넣기
 
@@ -45,8 +46,11 @@ Vercel → 프로젝트 `linky-lounge-homepage` → Settings → Environment Var
 
 | 이름 | 값 | 넣을 환경 |
 |---|---|---|
-| `SUPABASE_URL` | Supabase → Project Settings → API → **Project URL** | Production = prod / Preview·Development = dev |
-| `SUPABASE_SERVICE_ROLE_KEY` | 같은 화면 → **service_role** (secret) | 위와 같이 |
+| `SUPABASE_URL` | `https://qdxnxdfebkgoxeqzfmji.supabase.co` (prod) | Production |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase 대시보드 → lazyday-prod → Project Settings → API → **service_role** (secret) | Production |
+| (선택) 같은 두 변수 | dev 값: `https://kfqtzxxtwokouvoqpebq.supabase.co` + lazyday-dev 의 service_role | Preview |
+
+service_role 키는 대시보드에서만 복사할 수 있다 (MCP 는 secret 키를 주지 않는다 — 의도된 제한).
 
 > ⚠ **`NEXT_PUBLIC_` 을 붙이지 않는다.** 붙이면 Next 가 이 키를 브라우저 번들에
 > 인라인하고, service_role 키는 RLS 를 통째로 우회한다. 즉 DB 전체가 공개된다.
@@ -71,9 +75,10 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 
 ### 적용된 마이그레이션
 
-| 파일 | 내용 |
-|---|---|
-| `20260818090000_core_orders.sql` | orders · order_items · order_shipping · participants + RLS + R9 파기 함수 |
+| 파일 | 내용 | dev | prod |
+|---|---|---|---|
+| `20260818090000_core_orders.sql` | orders · order_items · order_shipping · participants + RLS + R9 파기 함수 | ✔ | ✔ |
+| `20260818120000_harden_functions.sql` | 파기 함수 EXECUTE 를 service_role 만으로 회수 + set_updated_at search_path 고정 (dev 어드바이저 지적) | ✔ | ✔ |
 
 ## 5. 운영 조회
 

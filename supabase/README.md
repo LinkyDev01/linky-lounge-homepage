@@ -79,6 +79,7 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 |---|---|---|---|
 | `20260818090000_core_orders.sql` | orders · order_items · order_shipping · participants + RLS + R9 파기 함수 | ✔ | ✔ |
 | `20260818120000_harden_functions.sql` | 파기 함수 EXECUTE 를 service_role 만으로 회수 + set_updated_at search_path 고정 (dev 어드바이저 지적) | ✔ | ✔ |
+| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ⏳ MCP 재연결 시 적용 |
 
 ## 5. 운영 조회
 
@@ -94,7 +95,7 @@ select i.name_snapshot, i.kind, i.unit_price
   from order_items i join orders o on o.id = i.order_id
  where o.order_no = 'lz-...';
 
--- R9 파기 — 모임 종료 후 1년이 지난 참가자 개인정보 삭제 (주문은 그대로 남는다)
+-- R9 파기 — pg_cron 이 매일 03:30 KST 자동 실행한다 (0003). 수동으로 당길 때만:
 select purge_expired_participants();
 ```
 

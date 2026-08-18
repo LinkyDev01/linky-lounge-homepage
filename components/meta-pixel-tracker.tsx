@@ -7,9 +7,16 @@ import { trackStandard, trackCustom } from "@/lib/meta-pixel"
 export function MetaPixelTracker() {
   const pathname = usePathname()
   const firedDepths = useRef(new Set<number>())
+  // 첫 경로는 layout.tsx 의 인라인 스니펫이 파싱 시점에 이미 쐈다.
+  // 여기서 또 쏘면 첫 로드가 두 번 집계된다 — 두 번째 경로부터만 담당한다.
+  const skipFirst = useRef(true)
 
-  // SPA 라우트 변경 시 PageView 이벤트 발송
+  // SPA 라우트 변경 시 PageView 이벤트 발송 (첫 로드분은 스니펫이 담당)
   useEffect(() => {
+    if (skipFirst.current) {
+      skipFirst.current = false
+      return
+    }
     trackStandard("PageView")
   }, [pathname])
 

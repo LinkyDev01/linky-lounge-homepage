@@ -24,7 +24,7 @@ import s from "./draft.module.css"
  */
 
 const NAV_ITEMS = [
-  { id: "book", label: "선정도서" },
+  { id: "book", label: "읽는 책" },
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행방식" },
   { id: "schedule", label: "일정·장소" },

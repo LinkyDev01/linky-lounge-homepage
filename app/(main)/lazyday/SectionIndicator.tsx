@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import styles from "./SectionIndicator.module.css"
 
 const sections = [
-  { id: "book", label: "선정도서" },
+  { id: "book", label: "읽는 책" },
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행" },
   { id: "schedule", label: "일정" },

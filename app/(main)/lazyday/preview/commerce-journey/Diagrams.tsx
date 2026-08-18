@@ -143,7 +143,7 @@ export function AuthFlow() {
       <Arrow d="M 150 151 C 200 151, 210 104, 244 101" />
       <Arrow d="M 420 98 H 514" />
       <Arrow d="M 690 98 H 774" />
-      <Arrow d="M 860 120 V 150 H 606" dashed red label="로그인 직후: localStorage 카트·저장 → 서버 이관 (한 번)" lx={600} ly={172} />
+      <Arrow d="M 860 120 V 150 H 606" dashed red label="로그인 직후: localStorage 카트·저장을 서버로 이관 (한 번)" lx={600} ly={172} />
       <text x={30} y={180} fontSize={10.5} fill={C.sub}>* 네이버는 Supabase 기본 제공자가 아니라 커스텀 OIDC 연동 — 셋 중 가장 손이 간다. 어려우면 카카오·구글 먼저 열고 네이버 후속 (운영자 "어려우면 고민해보자")</text>
     </svg>
   )
@@ -176,6 +176,92 @@ export function CheckoutFlow() {
       <Arrow d="M 170 192 H 224" />
       <Arrow d="M 370 192 H 424" />
       <text x={20} y={238} fontSize={10.5} fill={C.sub}>* 모임만 있는 주문은 종전 그대로 주소를 묻지 않는다 — "불필요 정보 미수집" 원칙은 그대로, 필요해진 주문에만 필요한 만큼 (운영자 확정 2026-08-18)</text>
+    </svg>
+  )
+}
+
+/** 5. 주문 상태 머신 — 약관 제15·16조가 정의하는 전이만 존재한다 */
+export function OrderStateMachine() {
+  return (
+    <svg viewBox="0 0 960 300" width="100%" role="img" aria-label="주문 상태 머신" style={{ minWidth: 720, display: "block" }}>
+      <Defs />
+      <Box x={20} y={110} w={120} h={44} label="장바구니" sub="주문 아님" status="plain" dashed />
+      <Box x={190} y={110} w={130} h={44} label="결제 대기" sub="선점 만료 있음" status="temp" />
+      <Box x={390} y={110} w={130} h={44} label="결제 완료" sub="계약 성립" status="done" />
+      <Box x={600} y={40} w={140} h={44} label="참가 완료" sub="모임 개최됨" status="done" />
+      <Box x={600} y={180} w={140} h={44} label="환불 신청" sub="신청 시각 기록" status="temp" />
+      <Box x={800} y={180} w={140} h={44} label="환불 완료" sub="금액 산정 확정" status="done" />
+      <Box x={390} y={210} w={130} h={40} label="자동 취소" sub="선점 만료" status="none" />
+      <Arrow d="M 140 132 H 184" label="주문하기" lx={162} ly={124} />
+      <Arrow d="M 320 132 H 384" label="결제 승인" lx={352} ly={124} />
+      <Arrow d="M 520 124 C 560 118, 570 70, 594 66" label="개최" lx={556} ly={92} />
+      <Arrow d="M 520 146 C 560 158, 570 196, 594 200" label="신청" lx={556} ly={182} />
+      <Arrow d="M 740 202 H 794" />
+      <Arrow d="M 255 154 V 230 H 384" red label="만료" lx={300} ly={224} />
+      <text x={20} y={272} fontSize={10.5} fill={C.sub}>* 환불 금액은 상태가 아니라 &lsquo;신청 시각과 모임 시작일&rsquo; 로 계산된다 (약관 §15). 그래서 상태 필드가 아니라 refunds 행이 필요하다.</text>
+      <text x={20} y={288} fontSize={10.5} fill={C.sub}>* 개최된 모임과 무단 불참은 환불 신청 자체가 성립하지 않는다. 회사 사정 취소는 이 경로를 건너뛰고 전액 환불 또는 이월.</text>
+    </svg>
+  )
+}
+
+/** 6. 기수제 모임 흐름 — 일회성과 규칙이 다르다 (약관 제4조 개별약관 우선) */
+export function SeasonFlow() {
+  return (
+    <svg viewBox="0 0 960 200" width="100%" role="img" aria-label="기수제 모임 흐름" style={{ minWidth: 720, display: "block" }}>
+      <Defs />
+      <Box x={20} y={70} w={120} h={44} label="신청" sub="폼 제출" status="done" />
+      <Box x={190} y={70} w={130} h={44} label="인터뷰" sub="서면·전화" status="done" />
+      <Box x={370} y={70} w={130} h={44} label="합격 안내" sub="운영자 판단" status="temp" />
+      <Box x={550} y={70} w={130} h={44} label="결제" sub="여기서 주문 생성" status="temp" />
+      <Box x={730} y={70} w={140} h={44} label="기수 참가 확정" sub="회차 5회" status="temp" />
+      <Arrow d="M 140 92 H 184" />
+      <Arrow d="M 320 92 H 364" />
+      <Arrow d="M 500 92 H 544" />
+      <Arrow d="M 680 92 H 724" />
+      <text x={20} y={150} fontSize={10.5} fill={C.sub}>* 신청·인터뷰는 결제 이전이라 &lsquo;주문&rsquo;이 아니다. applications 로 분리하고, 결제 시점에 비로소 orders 가 생겨 둘이 연결된다.</text>
+      <text x={20} y={168} fontSize={10.5} fill={C.sub}>* 현재 이 흐름 전체가 GAS 시트에 있다. DB 이관은 원데이 주문이 자리 잡은 뒤 후속 — 지금은 전화번호로 회원과 매칭만.</text>
+      <text x={20} y={186} fontSize={10.5} fill={C.none}>* 일회성 모임의 &lsquo;바로 결제&rsquo; 와 달리 승인 단계가 있다. 같은 테이블에 억지로 넣으면 두 규칙이 서로를 오염시킨다.</text>
+    </svg>
+  )
+}
+
+/** 7. ERD v3 — 규칙에서 도출. 보존기간이 다른 것을 같은 행에 두지 않는다(R9) */
+export function ErdV3() {
+  const zone = (x: number, y: number, w: number, h: number, label: string, color: string) => (
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx={12} fill="none" stroke={color} strokeWidth={1} strokeDasharray="6 5" opacity={0.85} />
+      <text x={x + 10} y={y + 16} fontSize={10.5} fill={color} fontWeight={700}>{label}</text>
+    </g>
+  )
+  return (
+    <svg viewBox="0 0 960 470" width="100%" role="img" aria-label="DB 스키마 관계도 v3" style={{ minWidth: 760, display: "block" }}>
+      <Defs />
+      {zone(14, 30, 250, 250, "회원 — 탈퇴 시 파기", C.done)}
+      {zone(300, 30, 380, 300, "법정 보존 5년 — 삭제 요청으로도 못 지움", C.none)}
+      {zone(300, 350, 380, 98, "모임 종료 후 1년 뒤 파기", C.temp)}
+      {zone(716, 30, 232, 300, "카탈로그 — 개인정보 아님", C.sub)}
+      <Box x={40} y={52} w={190} h={46} label="auth.users" sub="Supabase Auth" status="plain" />
+      <Box x={40} y={130} w={190} h={46} label="profiles" sub="이름·전화·동의(R10)" status="done" />
+      <Box x={40} y={208} w={190} h={46} label="carts · saved" sub="로그인 시 이관" status="done" />
+      <Box x={330} y={52} w={190} h={46} label="orders" sub="order_no(R1)·비회원 가능(R11)" status="none" />
+      <Box x={330} y={130} w={190} h={46} label="order_items" sub="가격 스냅샷(R2)" status="none" />
+      <Box x={330} y={208} w={190} h={46} label="refunds" sub="신청 시각·사유·산정(R4·R5)" status="none" />
+      <Box x={330} y={270} w={190} h={44} label="order_shipping" sub="배송형 포함 시에만" status="none" dashed />
+      <Box x={330} y={378} w={190} h={46} label="participants" sub="참가자 본인(R3) — 양도 불가" status="temp" />
+      <Box x={740} y={52} w={190} h={46} label="products" sub="모임·제품 통합(type)" status="plain" />
+      <Box x={740} y={130} w={190} h={46} label="holds" sub="결제 중 선점·만료(R7)" status="plain" />
+      <Box x={740} y={208} w={190} h={46} label="applications" sub="기수제 신청·인터뷰(R6)" status="plain" dashed />
+      <Arrow d="M 135 98 V 124" label="1:1" lx={148} ly={114} />
+      <Arrow d="M 135 176 V 202" />
+      <Arrow d="M 230 153 H 324" label="1:N · nullable" lx={277} ly={146} />
+      <Arrow d="M 425 98 V 124" label="1:N" lx={438} ly={114} />
+      <Arrow d="M 425 176 V 202" label="0:N" lx={438} ly={192} />
+      <Arrow d="M 425 254 V 266" />
+      <Arrow d="M 380 176 C 250 250, 250 330, 356 372" label="주문당 참가자 N" lx={238} ly={352} />
+      <Arrow d="M 520 68 H 734" label="order_items 가 products 를 참조" lx={628} ly={60} />
+      <Arrow d="M 734 153 C 640 153, 560 120, 520 105" dashed label="선점" lx={640} ly={140} />
+      <Arrow d="M 740 231 C 640 231, 560 120, 524 100" dashed label="결제 시 연결" lx={648} ly={216} />
+      <text x={14} y={462} fontSize={10.5} fill={C.sub}>* 구획(점선)은 보존기간이다. 참가자 개인정보를 orders 에서 떼어낸 것이 R9 의 직접 결과 — 붙여 두면 5년 보존과 1년 파기가 한 행에서 충돌해 어느 쪽도 못 지킨다.</text>
     </svg>
   )
 }

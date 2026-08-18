@@ -22,7 +22,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       badgeText={badge}
       status={m.status}
       title={m.title}
-      sub="원데이 토크 · 하루의 독서모임"
+      sub="One Day Talk" // 운영자 2026-08-18: 작은 글씨는 영어로만
       description={m.description}
       fields={[
         { label: "일시", lines: [m.date] },

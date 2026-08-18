@@ -153,3 +153,71 @@
   color: #6a5038;
 }
 .noteText:last-child { margin-bottom: 0; }
+
+/* ── 구제 대상 (신청서 미제출 주문, 2026-08-18 주문 원장) ── */
+.rescue {
+  margin-top: 22px;
+  padding: 18px 18px 14px;
+  background: #fff7ee;
+  border: 1px solid #f0d9bd;
+  border-radius: 12px;
+}
+.rescueTitle {
+  margin: 0 0 12px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #a04d16;
+}
+.rescueList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rescueItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fffdf8;
+  border: 1px solid #eee2d0;
+  border-radius: 10px;
+}
+.rescueBody { min-width: 0; }
+.rescueName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1208;
+}
+.rescuePhone { font-weight: 400; color: #8a6a50; }
+.rescueMeta {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #8a7660;
+  word-break: keep-all;
+}
+.rescueCopy {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  background: #d2691e;
+  color: #fffdf8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rescueCopy:hover { background: #b8571a; }
+.rescueNote {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #9a9590;
+}
+@media (max-width: 480px) {
+  .rescueItem { flex-direction: column; align-items: stretch; }
+  .rescueCopy { width: 100%; }
+}

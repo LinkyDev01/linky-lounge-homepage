@@ -67,10 +67,12 @@ export async function GET(req: NextRequest) {
       if (error) throw new Error(error.message)
       return count ?? 0
     })
+    // ⚠ 미제출 = 모임 항목이 있는 주문만 (굿즈만 산 주문은 신청서 단계가 원래 없다)
     const [unsub] = led === null ? [null] : await timed(async () => {
       const { count, error } = await sb
         .from("orders")
-        .select("*", { count: "exact", head: true })
+        .select("*, order_items!inner(kind)", { count: "exact", head: true })
+        .eq("order_items.kind", "meeting")
         .is("application_submitted_at", null)
       if (error) throw new Error(error.message)
       return count ?? 0

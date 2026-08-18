@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
+import { recordOrder, type ShippingInput } from "@/lib/orders"
 
 /**
  * 토스페이먼츠 결제 승인 (2026-08-11, 결제위젯 연동).
@@ -10,6 +11,13 @@ import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
  * 기대 금액을 재계산해 대조한다 — 클라이언트 금액 변조 차단.
  * 멱등: 같은 결제를 두 번 승인하면 토스가 ALREADY_PROCESSED_PAYMENT를 주는데,
  * 이는 이미 승인 완료라는 뜻이므로 성공으로 처리한다 (새로고침·중복 클릭 안전).
+ *
+ * 주문 원장 (2026-08-18 신설): 승인이 확정되면 Supabase 에 행을 남긴다.
+ * ⚠ **기록 실패가 결제 응답을 깨뜨리지 않는다** — 손님 돈은 이미 빠져나간 뒤이고,
+ *   원장은 부가 기능이다. 실패는 로그로만 남기고 success:true 를 그대로 돌려준다.
+ *   (Supabase 미설정이면 recordOrder 가 조용히 건너뛴다 — 종전과 동일하게 동작)
+ * 구매자 이름·연락처·배송지는 클라이언트가 함께 보낸다. 금액과 달리 **검증 대상이
+ * 아니다** — 접수용 정보이고, 어차피 같은 값이 신청서로 GAS 에도 간다.
  */
 
 const CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm"
@@ -18,7 +26,13 @@ const CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm"
 const SECRET_KEY = process.env.TOSS_SECRET_KEY || "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6"
 
 export async function POST(req: NextRequest) {
-  let body: { paymentKey?: string; orderId?: string; amount?: number }
+  let body: {
+    paymentKey?: string
+    orderId?: string
+    amount?: number
+    buyer?: { name?: string; phone?: string }
+    shipping?: ShippingInput
+  }
   try {
     body = await req.json()
   } catch {
@@ -56,6 +70,7 @@ export async function POST(req: NextRequest) {
     const data = await res.json().catch(() => null)
 
     if (res.ok) {
+      await ledger(orderId, paymentKey, expected, items, body, data?.approvedAt)
       return NextResponse.json({
         success: true,
         orderName: data?.orderName,
@@ -64,8 +79,11 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 이미 승인된 결제 재요청(새로고침 등) — 결제는 완료 상태이므로 성공으로
+    // 이미 승인된 결제 재요청(새로고침 등) — 결제는 완료 상태이므로 성공으로.
+    // 원장에도 한 번 더 시도한다: 첫 승인 때 기록이 실패했을 수 있고, recordOrder 는
+    // order_no 로 멱등이라 이미 있으면 건너뛴다.
     if (data?.code === "ALREADY_PROCESSED_PAYMENT") {
+      await ledger(orderId, paymentKey, expected, items, body)
       return NextResponse.json({ success: true })
     }
 
@@ -80,5 +98,31 @@ export async function POST(req: NextRequest) {
       { success: false, error: "결제 승인 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요." },
       { status: 502 },
     )
+  }
+}
+
+/** 원장 기록 — 절대 던지지 않는다. 실패는 로그만 남기고 결제 응답에 영향을 주지 않는다 */
+async function ledger(
+  orderId: string,
+  paymentKey: string,
+  amount: number,
+  items: import("@/lib/order-catalog").OrderItem[],
+  body: { buyer?: { name?: string; phone?: string }; shipping?: ShippingInput },
+  approvedAt?: string,
+) {
+  try {
+    const r = await recordOrder({
+      orderNo: orderId,
+      paymentKey,
+      amountTotal: amount,
+      items,
+      buyerName: body.buyer?.name?.trim() || "",
+      buyerPhone: body.buyer?.phone,
+      approvedAt,
+      shipping: body.shipping,
+    })
+    if (!r.ok) console.error(`[payment/confirm] 원장 기록 실패 (${orderId}):`, r.error)
+  } catch (err) {
+    console.error(`[payment/confirm] 원장 기록 예외 (${orderId}):`, err)
   }
 }

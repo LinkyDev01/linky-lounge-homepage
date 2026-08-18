@@ -467,6 +467,56 @@ export function JourneyDoc() {
         </dl>
       </section>
 
+      {/* ── 시공 — 규칙층·ERD 를 실제 마이그레이션으로 옮긴 첫 조각 (2026-08-18) ── */}
+      <section className={s.designSec}>
+        <h2 className={s.secTitle}>시공 ① 주문 원장 — 배포됨 (2026-08-18)</h2>
+        <p className={s.designNote}>
+          설계 ③ 의 <code>orders · order_items · order_shipping · participants</code> 를
+          실제 마이그레이션으로 옮겨 배포했다. <strong>환경변수가 없으면 조용히 꺼진 채
+          결제·신청이 종전대로 동작한다</strong> — 운영자가 Supabase 프로젝트를 만들고 키를
+          넣는 순간 켜진다. 절차: <code>supabase/README.md</code>.
+        </p>
+        <dl className={s.schemaList}>
+          <div><dt>해소 — 기록 0</dt><dd>결제 승인 즉시 <code>orders</code> 행이 남는다. <code>application_submitted_at</code> 이 NULL 인 주문이 곧 <strong>결제만 하고 신청서를 안 낸 손님</strong> — 종전엔 토스 상점관리자에만 존재했다.</dd></div>
+          <div><dt>해소 — 금액 소급 변조</dt><dd><code>order_items</code> 에 단가·상품명을 <strong>복사해 박는다</strong>(R2). 카탈로그 가격을 바꿔도 과거 주문의 금액 근거가 흔들리지 않는다.</dd></div>
+          <div><dt>해소 — 배송지 실종</dt><dd>종전엔 토스 결제 metadata 에만 있었다. 이제 <code>order_shipping</code> 에 남는다.</dd></div>
+          <div><dt>R9 파기</dt><dd><code>participants</code> 는 모임 종료일+1년(<code>purge_after</code>)이 지나면 <code>purge_expired_participants()</code> 가 지운다. 주문(법정 5년)은 그대로 남는다.</dd></div>
+        </dl>
+
+        <h3 className={s.subTitle}>되돌리기 어려운 결정 6건 — 테이블을 만들기 전에 못박았다</h3>
+        <ol className={s.dcList}>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>보존기간이 다르면 테이블을 나눈다</p>
+            <p className={s.dcWhy}>판단기준: “이 값이 5년 남아야 할 <strong>법정 근거</strong>가 있나?” 있으면 orders 쪽, 없으면 participants 쪽. 데이터가 쌓인 뒤에는 분리가 사실상 불가능하다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>금액·상품명은 주문 시점 스냅샷</p>
+            <p className={s.dcWhy}>판단기준: “주문 한 행만 보고 조인 없이 당시 금액이 완결되는가?” 환불 산정(R4)·영수증 재발급·분쟁 대응이 전부 이 성질에 의존한다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>order_no 는 결제사 orderId 원문, 발급 후 불변</p>
+            <p className={s.dcWhy}>판단기준: “금액의 진실원이 어디인가?” DB 도입 후에는 DB 다. 원문을 그대로 담아 구형 <code>lz-…</code>·<code>oneday-…</code> 도 들어오므로 전환 시 호환이 끊기지 않는다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>전화번호는 키가 아니다</p>
+            <p className={s.dcWhy}>판단기준: “번호가 바뀌어도 같은 사람이라고 답해야 하는가?” 회원 통합(운영자 확정)이 성립하려면 답은 예다. PK 는 uuid, 전화는 정규화된 조회용 속성.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>RLS 전면 거부 — 정책을 만들지 않는다</p>
+            <p className={s.dcWhy}>판단기준: “anon 키로 할 수 있는 일이 0인가?” anon 키는 브라우저에 실리므로 어떤 정책이든 곧 공개다. 로컬 재현에서 구 <code>with check (true)</code> 는 anon 이 그대로 행을 넣었고, 신 스키마는 <code>permission denied</code> 로 막았다.</p>
+          </li>
+          <li className={s.dcItem}>
+            <p className={s.dcQ}>마이그레이션 파일 + dev/prod 분리</p>
+            <p className={s.dcWhy}>판단기준: “지금 스키마가 왜 이 모양인지 파일 순서로 재생되는가?” <code>supabase/migrations/</code> append-only. 적용된 파일은 고치지 않고 새 파일을 더한다.</p>
+          </li>
+        </ol>
+        <p className={s.foot}>
+          다음 시공 순서: 신청·인터뷰(applications)를 GAS 시트에서 이관하고, 이어서
+          환불 원장(refunds, R4·R5), 정원·재고 선점(holds, R7), 마지막으로
+          회원(profiles·소셜 로그인). 각 단계는 앞 단계가 실제 데이터로 검증된 뒤에 붙인다.
+        </p>
+      </section>
+
       <section className={s.designSec}>
         <h2 className={s.secTitle}>설계 ④ 인증 흐름</h2>
         <div className={s.diagramScroll}><AuthFlow /></div>
@@ -476,8 +526,9 @@ export function JourneyDoc() {
         <h2 className={s.secTitle}>설계 ⑤ 주문·결제 흐름 — 주소는 필요할 때만</h2>
         <div className={s.diagramScroll}><CheckoutFlow /></div>
         <p className={s.foot}>
-          다음 단계: 이 설계대로 Supabase 프로젝트 생성, products·orders 스키마 반영,
-          원데이 주문부터 DB 기록(토스 심사와 무관하게 선행), 심사 승인 시 결제 스위치 온.
+          주문 원장은 <strong>시공 ① 에서 배포됐다</strong>(위 절). 남은 것은 운영자의
+          Supabase 프로젝트 생성 + 환경변수 두 개 — 그때까지는 기록이 꺼진 채 결제가
+          종전대로 동작한다.
         </p>
       </section>
     </div>

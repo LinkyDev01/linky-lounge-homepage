@@ -91,7 +91,7 @@ export default function BookclubShellDraftPage() {
           </div>
           <div>
             <p className={styles.footerDesc}>
-              저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 기대합니다.
+              저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 소망합니다.
             </p>
             <div className={styles.footerLinks}>
               <a href="/policy">이용약관</a>

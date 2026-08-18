@@ -163,7 +163,7 @@ export function LandingShell({
 
           <div className={s.footerDesc}>
             {/* 운영자 지정 원문 (2026-08-12) — 임의 수정 금지 */}
-            <p>저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 기대합니다.</p>
+            <p>저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 소망합니다.</p>
           </div>
 
           <div className={s.footerBiz}>

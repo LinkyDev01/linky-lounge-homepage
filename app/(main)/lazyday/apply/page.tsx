@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, type FormEvent, type ReactNode } from "react"
+import { useRouter } from "next/navigation"
 import { trackStandard } from "@/lib/meta-pixel"
 import { trackEvent } from "@/lib/gtag"
 import { useBasePath } from "@/hooks/use-base-path"
@@ -72,6 +73,7 @@ function formatPhone(value: string) {
 
 export default function ApplyPage() {
   const base = useBasePath()
+  const router = useRouter()
   // 테스트 모드(?sim=) — 켜져 있으면 서버를 호출하지 않는다 (2026-08-06)
   const [sim, setSim] = useState<SimMode | null>(null)
   useEffect(() => { setSim(readSim()) }, [])
@@ -342,7 +344,7 @@ export default function ApplyPage() {
               <a
                 href={withSim(isPhone ? `${base}/apply/interview/schedule` : `${base}/apply/interview/written`, sim)}
                 className={styles.successPrimaryLink}
-                onClick={() => {
+                onClick={(e) => {
                   // 결제 시작 — **코드로 심는다** (운영자 2026-08-18).
                   //
                   // 이 이벤트는 지금까지 코드에 없었고(991커밋 전수 0건), 메타의
@@ -367,6 +369,17 @@ export default function ApplyPage() {
                       num_items: 1,
                     })
                   }
+                  // ⚠ 여기서 **전체 페이지 이동을 막고 클라이언트 라우팅으로 넘긴다.**
+                  //   기본 <a> 이동은 문서를 통째로 버리는데, 그때 브라우저가 방금 띄운
+                  //   픽셀 요청을 **아직 안 나갔으면 취소**한다. 실제로 2026-08-18 테스트
+                  //   세션에서 이 클릭의 InitiateCheckout 이 잡히지 않았다.
+                  //   클라이언트 라우팅은 문서를 유지하므로 요청이 끝까지 나간다.
+                  //   (인위적인 지연을 주는 방법도 있지만 CTA 를 느리게 만든다)
+                  //   href 는 그대로 두어 새 탭 열기·JS 실패 시 폴백이 살아 있게 한다.
+                  //   ⚠ 수식키·가운데 클릭은 가로채지 않는다 — 새 탭으로 열려야 한다.
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+                  e.preventDefault()
+                  router.push(withSim(isPhone ? `${base}/apply/interview/schedule` : `${base}/apply/interview/written`, sim))
                 }}
               >
                 {isPhone ? "전화 인터뷰 일정 잡기" : "서면 인터뷰 작성하기"}

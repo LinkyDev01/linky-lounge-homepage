@@ -86,6 +86,25 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 새 클래스 추가는 안전. 기존 클래스 값 변경은 위 소비자 전부 확인 후에만.
 **TSX 쌍 동기화**: `apply/**`의 실 TSX와 `preview/apply/**` TSX는 별도 파일 쌍 — 폼 필드·문구를 실사이트에서 직접 바꾸면 프리뷰 대응 TSX에도 같은 변경을 반영해 드리프트를 막는다.
 
+### ⚠️ 공유 **데이터** 지도 — 프리뷰 트리가 프로덕션 결제를 좌우한다 (2026-08-18 실사)
+
+CSS 만 공유되는 게 아니다. **경로가 `preview/` 아래여도 프로덕션이 import 하면 그건 프리뷰가 아니다.**
+
+| 파일 | 실제 소비자 | 바꾸면 벌어지는 일 |
+|---|---|---|
+| `preview/lazyclub-4b073000ddec094f/goods-config.ts` | `lib/order-catalog.ts` → **`/api/lazyday/payment/confirm`(프로덕션 결제 승인)** + `one-day-talk-01/checkout` | 굿즈 **가격·slug·status 를 고치는 순간 프로덕션 서버가 승인하는 금액이 바뀐다.** 결제창을 이미 띄운 손님의 승인이 "금액 불일치"로 실패한다 |
+| `one-day-talk-01/oneday-shared.ts` (`ONEDAY_PRICE`·회차) | 같음 | 위와 동일 |
+| `lib/order-catalog.ts` | apply·checkout·success·fail·payment/confirm·cart·shop | orderId 계약(`lz-{code}x…`)의 단일 출처 |
+
+**주문 원장(DB)이 없어서** 서버는 orderId 에 인코딩된 상품 코드로 금액을 **매번 재계산**한다.
+즉 **카탈로그가 곧 과거 주문의 금액 근거**다 → 가격을 바꾸면 그 이전 주문의 금액 근거가 소급 변조된다.
+가격 변경은 ① 진행 중 결제가 없는 시각에 ② DECISIONS 에 변경 전/후 값과 시각을 남기고 한다.
+(정본 설계·해소 계획: `/lazyday/preview/commerce-journey`)
+
+**Supabase 자산 3종은 전부 미배선 초안이다** — `lib/supabase.ts`(소비자 0)·`supabase/schema.sql`(미적용)·
+`gas/supabase-migrate-existing.gs`(미실행). 각 파일 헤더에 사유가 적혀 있다. 이걸 "기존 스키마"로 오인해
+그 위에 얹지 말 것 — 보존기간(R9)·RLS·FK 가 전부 v3 설계와 어긋난다.
+
 ## 5. 환경 함정 (원격 실행 환경)
 
 - **Playwright**: `import('playwright')` 실패 시 `/opt/node22/lib/node_modules/playwright`, 브라우저 `/opt/pw-browsers/chromium`, `--no-sandbox` 필수. **외부 HTTPS 불가**(프록시 미설정) — localhost 전용. 배포 URL 검증은 `curl -c jar -b jar` 쿠키자로.

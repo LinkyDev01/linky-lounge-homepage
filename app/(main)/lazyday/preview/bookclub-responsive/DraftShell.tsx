@@ -6,7 +6,6 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "../../useChromeIntro"
 import s from "./draft.module.css"
-import { DeferredCss } from "@/components/common/DeferredCss"
 
 /**
  * 반응형 초안 셸 — 레이지클럽(워크룸) 셸 문법을 **북클럽 팔레트로 이식**한 사본.
@@ -25,7 +24,7 @@ import { DeferredCss } from "@/components/common/DeferredCss"
  */
 
 const NAV_ITEMS = [
-  { id: "book", label: "읽는 책" },
+  { id: "book", label: "함께 읽는 책" },
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행방식" },
   { id: "schedule", label: "일정·장소" },
@@ -84,8 +83,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
-      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
-      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      {/* 푸터 서체는 SUIT — Gothic A1 로드 제거 (실 LandingShell 과 동기, 2026-08-17) */}
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>
       </noscript>

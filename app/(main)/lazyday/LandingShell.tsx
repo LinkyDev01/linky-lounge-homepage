@@ -5,7 +5,6 @@ import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "./useChromeIntro"
-import { DeferredCss } from "@/components/common/DeferredCss"
 import s from "./landing-shell.module.css"
 
 /**
@@ -30,12 +29,13 @@ import s from "./landing-shell.module.css"
 
 /**
  * 운영자 2026-08-17 두 건:
- *  · '선정도서' → 행위형으로. 섹션 제목은 '함께 읽는 책'(BookSection), 탭은 짧게 '읽는 책'
+ *  · '선정도서' → 행위형으로. 섹션 제목·내비 탭 모두 '함께 읽는 책'
+ *    (탭만 '읽는 책'으로 줄였더니 잘린 느낌이라 어색 — 운영자 지적, 탭이 4개라 자리도 충분)
  *  · '진행방식' 탭 제거 — 진행 순서가 모임소개 하단으로 접혀 들어가 독립 섹션이 아니다
  *    ("별도로 상단 네비 메뉴까지 있을 정도로 중요해보이진 않아서")
  */
 const NAV_ITEMS = [
-  { id: "book", label: "읽는 책" },
+  { id: "book", label: "함께 읽는 책" },
   { id: "feature", label: "모임소개" },
   { id: "schedule", label: "일정·장소" },
   { id: "reviews", label: "후기·FAQ" },
@@ -104,9 +104,10 @@ export function LandingShell({
 
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
-      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음).
-          비차단 로드 (2026-08-17, DeferredCss 주석 — 첫 페인트를 막지 않는다) */}
-      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      {/* 푸터 서체는 SUIT — 종전 Gothic A1(구글 폰트) 로드는 제거했다 (2026-08-17).
+          사업자정보 56자 한 블록에 조각 14개 112KB + CSS 26KB = 138KB 를 끌어와
+          랜딩 전송량의 9% 를 차지했다 (운영자 "부담이면 suit하고").
+          ⚠ 레이지클럽 쪽 Gothic A1 은 운영자가 별도로 다룬다 — 여기서 되살리지 말 것 */}
       {/* JS 가 없으면 홀드가 풀리지 않는다 — 그 경우엔 처음부터 다 보이게 */}
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>

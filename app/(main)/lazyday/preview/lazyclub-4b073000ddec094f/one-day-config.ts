@@ -46,6 +46,8 @@ export type OneDayMeeting = {
 
 // 원데이 토크 1차 (운영자 확정 일정 2026-07-24 · 카드뉴스 원문 2026-08-04 수급)
 // 2026-08-11 운영자: 심사 대비 4주 연기 (브람스 8/30·시지프 9/6·호프 8/23) + 전 상품 재고 부활
+// 2026-08-18 운영자: 카드뉴스 이미지 기준 시간 정정 — 브람스·시지프 오전 08:00–11:00,
+// 시지프는 날짜도 9/5(토)로. oneday-shared.ts 와 값이 같아야 한다 (단일 출처 파생 아님, 표시용 별도 문자열).
 export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "hope",
@@ -55,7 +57,8 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     host: "레이지데이 북클럽",
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
-    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "호프 무비토크 — 영화 호프 포스터" }],
+    // 2026-08-18: 브람스·시지프와 같은 카드뉴스 형식으로 교체 (구 영화 포스터 이미지 폐기)
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "호프 무비토크 카드" }],
     // ⚠ 임시 소개 문구 — 운영자 카드뉴스 원문 수급 시 교체 (브랜드 카피는 운영자 소유)
     description: [
       "나홍진 감독의 영화 〈호프〉를 함께 보고 이야기 나누는 하루의 영화 모임입니다.",
@@ -69,7 +72,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "brahms",
     category: "booktalk",
     title: "『브람스를 좋아하세요...』 원데이 토크",
-    date: "8.30 (일) 19:00–22:00",
+    date: "8.30 (일) 08:00–11:00",
     host: "레이지데이 북클럽",
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
@@ -88,7 +91,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "sisyphus",
     category: "booktalk",
     title: "『시지프 신화』 원데이 토크",
-    date: "9.6 (일) 19:00–22:00",
+    date: "9.5 (토) 08:00–11:00",
     host: "레이지데이 북클럽",
     // 2026-08-11: 4주 연기로 마감 해제 (구 라운드 121 soldout)
     status: "open",

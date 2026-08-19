@@ -5,16 +5,20 @@ import Image from "next/image"
 import styles from "./FaqSection.module.css"
 import rstyles from "./ReviewsSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
+import { useZoomGesture } from "./useZoomGesture"
 
 /**
  * 후기 섹션 (실사이트) — 폴라로이드 카드 캐러셀(확정 디자인, DECISIONS 2026-07-04·07-07)
  * + 모달 갤러리 (운영자 지시 2026-07-21):
  *  - 카드 사진 클릭 → 모달로 단독 확대. 모달 안에서 좌우 스와이프/‹›/방향키로
  *    다음 후기로 넘김 (확대 상태에서도 갤러리 유지).
- *  - 모달 이미지 탭(클릭) → 그 지점 기준 2배 추가 확대, 드래그로 팬(이동),
- *    재탭 → 축소 복귀. 축소 상태에서만 스와이프가 슬라이드 넘김으로 동작.
  *  - 모바일 기준 설계, PC는 ‹›버튼·방향키·클릭 확대·드래그 팬으로 동일 기능.
  * 카드 하단 흰색 여백은 날짜만 표기 ("--의 기록") · 하단 발췌 인용 블록은 제거 (운영자 지시 2026-07-21 배포분).
+ *
+ * ⚠ 모달 확대 로직 2026-08-19 전면 교체: 고정 2배 탭 토글 → 핀치 줌(useZoomGesture.ts).
+ * 운영자 "인스타그램에서 모바일 줌인 줌아웃 하는 그런 자연스러운 줌인/줌아웃 … 지금은
+ * 클릭 기반인데 이런 식으로 하면 사용자들입장에서 불편해". 프리뷰(preview/reviews-zoom-check)
+ * 승인 원본을 값 그대로 이식 — 카드 캐러셀·데이터는 무변경.
  */
 type ReviewCard = {
   id: string
@@ -69,21 +73,17 @@ const photoCards: ReviewCard[] = [
   },
 ]
 
-const ZOOM_SCALE = 2
 const SWIPE_PX = 45
-const TAP_SLOP_PX = 8
-
-type ZoomT = { tx: number; ty: number }
 
 export function ReviewsSection() {
   const [idx, setIdx] = useState(0)
   const [modalIdx, setModalIdx] = useState<number | null>(null)
-  // 모달 내 추가 확대 상태 (null = 축소/기본). tx·ty는 팬 오프셋(px)
-  const [zoomT, setZoomT] = useState<ZoomT | null>(null)
-  const [panning, setPanning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
-  const dragRef = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null)
+  // 축소 상태 스와이프 판정용 — 확대 판정은 useZoomGesture 가 전담
+  const swipeRef = useRef<{ x: number; y: number } | null>(null)
+
+  const zoom = useZoomGesture()
 
   // 스크롤 위치 → 활성 카드 동기화 (책 소개와 동일 로직)
   useEffect(() => {
@@ -111,15 +111,14 @@ export function ReviewsSection() {
 
   function closeModal() {
     setModalIdx(null)
-    setZoomT(null)
-    setPanning(false)
+    zoom.reset()
   }
 
   function slideModal(dir: number) {
     setModalIdx((m) => {
       if (m === null) return m
       const next = Math.min(photoCards.length - 1, Math.max(0, m + dir))
-      if (next !== m) setZoomT(null) // 슬라이드 넘김 시 확대 해제
+      if (next !== m) zoom.reset() // 슬라이드 넘김 시 확대 해제
       return next
     })
   }
@@ -153,76 +152,50 @@ export function ReviewsSection() {
     })
   }
 
-  // 팬 한계: 확대(s)된 이미지가 뷰포트 밖으로 다 나가지 않게
-  function clampPan(v: number, size: number) {
-    const lim = (size * (ZOOM_SCALE - 1)) / 2
-    return Math.max(-lim, Math.min(lim, v))
-  }
+  // 트랙패드 핀치(wheel+ctrlKey) — React 의 합성 onWheel 은 루트에서 passive 로 붙어
+  // preventDefault 가 씹힐 수 있어, 네이티브 리스너로 직접 non-passive 등록한다.
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el || modalIdx === null) return
+    const handler = (e: WheelEvent) => zoom.onWheel(e as unknown as React.WheelEvent)
+    el.addEventListener("wheel", handler, { passive: false })
+    return () => el.removeEventListener("wheel", handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalIdx])
 
-  // 활성 슬라이드 DOM (탭 좌표 → 확대 원점 계산, 팬 한계 산정)
-  function activeSlideRect() {
-    const el = stageRef.current?.querySelector(`[data-slide-idx="${modalIdx}"]`)
-    return el ? (el as HTMLElement).getBoundingClientRect() : null
-  }
-
-  // ── 모달 갤러리 포인터 인터랙션 (책소개 카드 문법의 캐러셀 스테이지) ──
-  // 축소 상태: 가로 45px 이상 드래그 = 슬라이드 넘김 / 활성 카드 탭 = 그 지점 2배 확대
-  //           / 양옆 살짝 보이는 이웃 카드 탭 = 그 카드로 이동
-  // 확대 상태: 드래그 = 팬 / 살짝 탭 = 축소 복귀
+  // ── 모달 갤러리 포인터 인터랙션 — 확대 판정은 useZoomGesture 가 전담하고,
+  //    여기는 축소 상태의 스와이프 넘김·이웃 카드 이동만 처리한다. ──
   function onStagePointerDown(e: React.PointerEvent) {
-    dragRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      tx: zoomT?.tx ?? 0,
-      ty: zoomT?.ty ?? 0,
-      moved: false,
-    }
-    if (zoomT) setPanning(true)
+    swipeRef.current = { x: e.clientX, y: e.clientY }
+    zoom.onPointerDown(e)
   }
   function onStagePointerMove(e: React.PointerEvent) {
-    const d = dragRef.current
-    if (!d) return
-    const dx = e.clientX - d.x
-    const dy = e.clientY - d.y
-    if (Math.abs(dx) + Math.abs(dy) > TAP_SLOP_PX) d.moved = true
-    if (zoomT) {
-      const r = activeSlideRect()
-      if (r) setZoomT({ tx: clampPan(d.tx + dx, r.width), ty: clampPan(d.ty + dy, r.height) })
-    }
+    zoom.onPointerMove(e)
   }
   function onStagePointerUp(e: React.PointerEvent) {
-    const d = dragRef.current
-    dragRef.current = null
-    setPanning(false)
-    if (!d) return
-    const dx = e.clientX - d.x
-    if (zoomT) {
-      // 확대 중: 탭이면 축소 복귀, 드래그였으면 팬 종료
-      if (!d.moved) setZoomT(null)
+    const result = zoom.onPointerUp(e, { pointerType: e.pointerType })
+    if (result.consumed) {
+      swipeRef.current = null
       return
     }
+    const start = swipeRef.current
+    swipeRef.current = null
+    if (!start) return
+    const dx = e.clientX - start.x
     if (Math.abs(dx) >= SWIPE_PX) {
       slideModal(dx < 0 ? 1 : -1)
       return
     }
-    if (d.moved) return
-    // 탭: 이웃 카드면 그 카드로, 활성 카드면 탭 지점 확대
+    if (!result.tap) return
     const hit = (e.target as HTMLElement).closest("[data-slide-idx]") as HTMLElement | null
     const hitIdx = hit ? Number(hit.dataset.slideIdx) : NaN
     if (!Number.isNaN(hitIdx) && hitIdx !== modalIdx) {
-      setZoomT(null)
       setModalIdx(hitIdx)
-      return
     }
-    const r = activeSlideRect()
-    if (r) {
-      const px = (e.clientX - r.left) / r.width - 0.5
-      const py = (e.clientY - r.top) / r.height - 0.5
-      setZoomT({
-        tx: clampPan(-px * r.width * ZOOM_SCALE, r.width),
-        ty: clampPan(-py * r.height * ZOOM_SCALE, r.height),
-      })
-    }
+  }
+  function onStagePointerCancel(e: React.PointerEvent) {
+    swipeRef.current = null
+    zoom.onPointerCancel(e)
   }
 
   const modal = modalIdx !== null ? photoCards[modalIdx] : null
@@ -315,22 +288,22 @@ export function ReviewsSection() {
       {/* ── 모달 갤러리: 책소개 카드 문법 — 활성 카드 중앙 + 양옆 이웃 슬리버, 확대 상태에서도 넘김 ── */}
       {modal !== null && modalIdx !== null && (
         <div
-          className={rstyles.lightbox}
+          className={`${rstyles.lightbox} ${rstyles.lightboxRoot} ${zoom.zoomed ? rstyles.lightboxZoomed : ""}`}
           onClick={closeModal}
           role="dialog"
           aria-modal="true"
           aria-label={`${modal.caption} 확대 보기`}
         >
-          <button type="button" className={rstyles.lightboxClose} aria-label="닫기">×</button>
+          <button type="button" className={rstyles.lightboxClose} aria-label="닫기" onClick={(e) => { e.stopPropagation(); closeModal() }}>×</button>
 
-          <div className={rstyles.galleryFrame} onClick={(e) => e.stopPropagation()}>
+          <div className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
             <div
               ref={stageRef}
-              className={rstyles.galleryStage}
+              className={`${rstyles.galleryStage} ${rstyles.zoomStage} ${zoom.zoomed ? rstyles.zoomStageZoomed : ""}`}
               onPointerDown={onStagePointerDown}
               onPointerMove={onStagePointerMove}
               onPointerUp={onStagePointerUp}
-              onPointerCancel={() => { dragRef.current = null; setPanning(false) }}
+              onPointerCancel={onStagePointerCancel}
             >
               {photoCards.map((c, k) => {
                 const off = k - modalIdx
@@ -339,29 +312,20 @@ export function ReviewsSection() {
                   <div
                     key={`slide-${c.id}`}
                     data-slide-idx={k}
-                    className={`${rstyles.gallerySlideM} ${isCur ? rstyles.gallerySlideMActive : ""}`}
+                    className={`${rstyles.gallerySlideM} ${isCur ? rstyles.gallerySlideMActive : ""} ${isCur && zoom.zoomed ? rstyles.activeSlideZoomed : ""}`}
+                    ref={isCur ? zoom.frameRef : undefined}
                     style={{
                       transform: `translateX(calc(-50% + ${off} * (var(--slide-w) + 8px)))${isCur ? "" : " scale(0.94)"}`,
                     }}
                     aria-hidden={!isCur}
                   >
-                    <div
-                      className={rstyles.galleryZoomLayer}
-                      style={
-                        isCur && zoomT
-                          ? {
-                              transform: `translate(${zoomT.tx}px, ${zoomT.ty}px) scale(${ZOOM_SCALE})`,
-                              transition: panning ? "none" : undefined,
-                            }
-                          : undefined
-                      }
-                    >
+                    <div ref={isCur ? zoom.layerRef : undefined} className={rstyles.zoomLayer}>
                       {c.photo && (
                         <Image
                           src={c.photo}
                           alt={c.caption}
                           fill
-                          sizes="92vw"
+                          sizes="(min-width: 721px) 80vw, 92vw"
                           quality={90}
                           draggable={false}
                           priority={isCur}
@@ -392,6 +356,12 @@ export function ReviewsSection() {
             >
               ›
             </button>
+
+            {/* 데스크톱 전용 +/− — 클릭 확대를 못 찾는 사용자용 안전망 (CSS 로 모바일에서 숨김) */}
+            <div className={rstyles.zoomControls} onClick={(e) => e.stopPropagation()}>
+              <button type="button" className={rstyles.zoomBtn} onClick={() => zoom.stepZoom(-1)} aria-label="축소">−</button>
+              <button type="button" className={rstyles.zoomBtn} onClick={() => zoom.stepZoom(1)} aria-label="확대">+</button>
+            </div>
           </div>
 
           <div className={rstyles.lightboxCaption}>

@@ -188,13 +188,6 @@
   filter: none;
   cursor: zoom-in;
 }
-.galleryZoomLayer {
-  position: absolute;
-  inset: 0;
-  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.36, 1);
-  transform-origin: center;
-  will-change: transform;
-}
 /* 모달 내 슬라이드 넘김 버튼 — PC·모바일 공통, 끝에서 비활성 */
 .galleryNav {
   position: absolute;
@@ -258,9 +251,88 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gallerySlideM,
-  .galleryZoomLayer {
+  .zoomLayer {
     transition: none;
   }
   .lightbox,
   .galleryFrame { animation: none; }
+}
+
+/* ── 핀치 줌 확대 (2026-08-19, useZoomGesture.ts 짝) ──────────────────────
+   프리뷰 검수대 preview/reviews-zoom-check 의 ReviewsZoomCheck.module.css
+   값 그대로 이식 — 소비자는 이 파일(ReviewsSection.module.css) 하나뿐이라
+   새 클래스 추가는 안전하지만, 기존 클래스(위 블록)는 값을 바꾸지 않았다. */
+
+/* 데스크톱: 모달 자체를 뷰포트 ~90% 로 — "잘 안 보여서 확대하는" 상황을 줄인다.
+   --slide-w 는 .galleryFrame 의 width/height 가 그대로 참조하므로 여기서만
+   재정의하면 두 값이 함께 커진다. */
+@media (min-width: 721px) {
+  .galleryFrameZoom {
+    --slide-w: min(90vw, calc(90vh * (1005 / 1440)));
+  }
+}
+
+.zoomStage {
+  cursor: zoom-in;
+}
+.zoomStageZoomed {
+  cursor: zoom-out;
+}
+
+/* 확대 레이어 — translate+scale 만 쓴다(GPU 합성 유지, layout 트리거 없음).
+   transform-origin: 0 0 은 useZoomGesture 의 좌표 계산과 짝이다 — 바꾸면 확대 기준점이 틀어진다. */
+.zoomLayer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.lightboxRoot {
+  touch-action: none; /* 모달 안에서는 브라우저 기본 핀치 줌(페이지 확대)을 막는다 */
+}
+.lightboxZoomed {
+  cursor: default;
+}
+/* .gallerySlideMActive 가 cursor: zoom-in 을 자체 지정하고 있어(단일 클래스 선택자라
+   소스 순서에 기대는 게 불안정) 확대 상태에서 zoom-out 으로 덮으려면 !important 가
+   가장 안전하다 — 다른 프로퍼티는 건드리지 않는다 */
+.activeSlideZoomed {
+  cursor: zoom-out !important;
+}
+
+/* +/− 버튼 — 클릭 확대를 못 찾는 사용자용 안전망. 데스크톱에서만 노출.
+   운영자 지적(2026-08-19) "더 작게, 덜 투명하게 해서 잘 보이게" —
+   nav·close 버튼과 같은 옅은 프로스트 톤(0.14)은 사진 위에서 묻혔다.
+   이 버튼만 더 진하게 — 발견용 안전망이라는 목적에 맞춘 의도적 이탈. */
+.zoomControls {
+  display: none;
+}
+@media (min-width: 721px) {
+  .zoomControls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 6;
+  }
+}
+.zoomBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.42);
+  border: 1px solid rgba(255, 253, 248, 0.65);
+  border-radius: 50%;
+  color: #1a1208;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.zoomBtn:hover {
+  background: rgba(255, 253, 248, 0.6);
 }

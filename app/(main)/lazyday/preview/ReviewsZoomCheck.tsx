@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import styles from "../FaqSection.module.css"
 import rstyles from "../ReviewsSection.module.css"
-import zstyles from "./ReviewsZoomCheck.module.css"
 import { useZoomGesture } from "./useZoomGesture"
 
 /**
@@ -13,9 +12,12 @@ import { useZoomGesture } from "./useZoomGesture"
  *
  * 실사이트 ReviewsSection.tsx 를 베이스로 카드 캐러셀은 그대로 두고,
  * 모달의 확대 로직만 useZoomGesture(연속 핀치·팬·더블탭·스프링 정리)로 교체했다.
- * 승인되면 lazyday-preview-migrate 절차로 실사이트에 이식한다 — 그때까지는
- * ReviewsSection.module.css(rstyles)에 클래스를 **추가만** 하고 기존 클래스는
- * 손대지 않았다(§5, 소비자 1곳뿐이라 안전하지만 이식 전까지는 실물 미반영이 원칙).
+ *
+ * ⚠ 2026-08-19 이식 완료 후 정리: 이 검수대는 **실사이트 CSS(ReviewsSection.module.css)를
+ *   그대로 참조**한다. 종전엔 자체 사본(ReviewsZoomCheck.module.css)을 두었는데, 이식이
+ *   끝난 뒤로는 사본이 실물과 어긋나면 "검수대에선 멀쩡한데 실사이트는 다른" 상황이
+ *   된다 — 검수대의 존재 이유가 무너진다. 그래서 사본을 걷어내고 한 벌만 남겼다.
+ *   (모달 확대 관련 클래스는 이식 때 전부 rstyles 로 옮겨져 있다.)
  */
 type ReviewCard = { id: string; photo: string; photoCard: string; caption: string }
 
@@ -189,7 +191,7 @@ export function ReviewsZoomCheck() {
 
       {modal !== null && modalIdx !== null && (
         <div
-          className={`${rstyles.lightbox} ${zstyles.lightboxRoot} ${zoom.zoomed ? zstyles.lightboxZoomed : ""}`}
+          className={`${rstyles.lightbox} ${rstyles.lightboxRoot} ${zoom.zoomed ? rstyles.lightboxZoomed : ""}`}
           onClick={closeModal}
           role="dialog"
           aria-modal="true"
@@ -197,10 +199,10 @@ export function ReviewsZoomCheck() {
         >
           <button type="button" className={rstyles.lightboxClose} aria-label="닫기" onClick={(e) => { e.stopPropagation(); closeModal() }}>×</button>
 
-          <div className={`${rstyles.galleryFrame} ${zstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
             <div
               ref={stageRef}
-              className={`${rstyles.galleryStage} ${zstyles.zoomStage} ${zoom.zoomed ? zstyles.zoomStageZoomed : ""}`}
+              className={`${rstyles.galleryStage} ${rstyles.zoomStage} ${zoom.zoomed ? rstyles.zoomStageZoomed : ""}`}
               onPointerDown={onStagePointerDown}
               onPointerMove={onStagePointerMove}
               onPointerUp={onStagePointerUp}
@@ -213,14 +215,14 @@ export function ReviewsZoomCheck() {
                   <div
                     key={`slide-${c.id}`}
                     data-slide-idx={k}
-                    className={`${rstyles.gallerySlideM} ${isCur ? rstyles.gallerySlideMActive : ""} ${isCur && zoom.zoomed ? zstyles.activeSlideZoomed : ""}`}
+                    className={`${rstyles.gallerySlideM} ${isCur ? rstyles.gallerySlideMActive : ""} ${isCur && zoom.zoomed ? rstyles.activeSlideZoomed : ""}`}
                     ref={isCur ? zoom.frameRef : undefined}
                     style={{
                       transform: `translateX(calc(-50% + ${off} * (var(--slide-w) + 8px)))${isCur ? "" : " scale(0.94)"}`,
                     }}
                     aria-hidden={!isCur}
                   >
-                    <div ref={isCur ? zoom.layerRef : undefined} className={zstyles.zoomLayer}>
+                    <div ref={isCur ? zoom.layerRef : undefined} className={rstyles.zoomLayer}>
                       <Image
                         src={c.photo}
                         alt={c.caption}
@@ -241,9 +243,9 @@ export function ReviewsZoomCheck() {
             <button type="button" className={`${rstyles.galleryNav} ${rstyles.galleryNavRight}`} onClick={(e) => { e.stopPropagation(); slideModal(1) }} disabled={modalIdx === photoCards.length - 1} aria-label="다음 후기 사진">›</button>
 
             {/* 데스크톱 전용 +/− — 클릭 확대를 못 찾는 사용자용 안전망 (CSS 로 모바일에서 숨김) */}
-            <div className={zstyles.zoomControls} onClick={(e) => e.stopPropagation()}>
-              <button type="button" className={zstyles.zoomBtn} onClick={() => zoom.stepZoom(-1)} aria-label="축소">−</button>
-              <button type="button" className={zstyles.zoomBtn} onClick={() => zoom.stepZoom(1)} aria-label="확대">+</button>
+            <div className={rstyles.zoomControls} onClick={(e) => e.stopPropagation()}>
+              <button type="button" className={rstyles.zoomBtn} onClick={() => zoom.stepZoom(-1)} aria-label="축소">−</button>
+              <button type="button" className={rstyles.zoomBtn} onClick={() => zoom.stepZoom(1)} aria-label="확대">+</button>
             </div>
           </div>
 

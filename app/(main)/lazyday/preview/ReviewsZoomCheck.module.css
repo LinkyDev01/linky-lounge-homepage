@@ -56,20 +56,23 @@
     z-index: 6;
   }
 }
+/* 운영자 지적(2026-08-19) "더 작게, 덜 투명하게 해서 잘 보이게" —
+   nav·close 버튼과 같은 옅은 프로스트 톤(0.14)은 사진 위에서 묻혔다.
+   이 버튼만 더 진하게 — 발견용 안전망이라는 목적에 맞춘 의도적 이탈. */
 .zoomBtn {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 253, 248, 0.14);
-  border: 1px solid rgba(255, 253, 248, 0.35);
+  background: rgba(255, 253, 248, 0.42);
+  border: 1px solid rgba(255, 253, 248, 0.65);
   border-radius: 50%;
-  color: #fffdf8;
-  font-size: 18px;
+  color: #1a1208;
+  font-size: 15px;
   line-height: 1;
   cursor: pointer;
 }
 .zoomBtn:hover {
-  background: rgba(255, 253, 248, 0.24);
+  background: rgba(255, 253, 248, 0.6);
 }

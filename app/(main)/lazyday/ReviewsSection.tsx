@@ -329,7 +329,6 @@ export function ReviewsSection() {
                           quality={90}
                           draggable={false}
                           priority={isCur}
-                          style={{ objectFit: "cover" }}
                         />
                       )}
                     </div>

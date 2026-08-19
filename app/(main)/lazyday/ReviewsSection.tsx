@@ -208,7 +208,7 @@ export function ReviewsSection() {
             <h2 className={styles.sectionTitle}>멤버들이 남긴 문장</h2>
           </div>
           <p className={rstyles.reviewsLead}>
-            시즌이 끝나는 날, 멤버들이 손으로 눌러 적어준 이야기들이에요.
+            멤버들이 손으로 눌러 적어준 이야기들이에요.
           </p>
         </FadeUp>
 
@@ -245,7 +245,7 @@ export function ReviewsSection() {
                   {c.photo ? (
                     <div
                       className={`${rstyles.reviewPhoto} ${rstyles.reviewPhotoFilled}`}
-                      onClick={() => i === idx && setModalIdx(i)}
+                      onClick={(e) => { e.stopPropagation(); setModalIdx(i) }}
                       role="button"
                       aria-label={`${c.caption} 크게 보기`}
                     >

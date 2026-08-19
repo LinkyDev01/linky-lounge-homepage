@@ -1,0 +1,75 @@
+/* 후기 모달 확대 프로토타입 전용 — rstyles(ReviewsSection.module.css)의 lightbox·
+   galleryFrame·galleryStage·gallerySlideM 은 그대로 재사용하고, 새로 필요한 것만 여기에 둔다.
+   ⚠ rstyles 쪽 기존 클래스는 이 파일에서 값을 바꾸지 않는다(§5 — 소비자 확인 후에만). */
+
+/* 데스크톱: 모달 자체를 뷰포트 ~90% 로 — "잘 안 보여서 확대하는" 상황을 줄인다.
+   --slide-w 는 galleryFrame(rstyles)의 width/height 가 그대로 참조하므로 여기서만
+   재정의하면 두 값이 함께 커진다. */
+@media (min-width: 721px) {
+  .galleryFrameZoom {
+    --slide-w: min(90vw, calc(90vh * (1005 / 1440)));
+  }
+}
+
+.zoomStage {
+  cursor: zoom-in;
+}
+.zoomStageZoomed {
+  cursor: zoom-out;
+}
+
+/* 확대 레이어 — translate+scale 만 쓴다(GPU 합성 유지, layout 트리거 없음).
+   transform-origin: 0 0 은 useZoomGesture 의 좌표 계산과 짝이다 — 바꾸면 확대 기준점이 틀어진다. */
+.zoomLayer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* 확대 중에는 갤러리 스와이프·모달 닫기가 죽는다는 걸 커서로도 드러낸다 */
+.lightboxRoot {
+  touch-action: none; /* 모달 안에서는 브라우저 기본 핀치 줌(페이지 확대)을 막는다 */
+}
+.lightboxZoomed {
+  cursor: default;
+}
+/* rstyles 의 .gallerySlideMActive 가 cursor: zoom-in 을 자체 지정하고 있어(단일 클래스
+   선택자라 소스 순서에 기대는 게 불안정) 확대 상태에서 zoom-out 으로 덮으려면 !important 가
+   가장 안전하다 — 다른 프로퍼티는 건드리지 않는다 */
+.activeSlideZoomed {
+  cursor: zoom-out !important;
+}
+
+/* +/− 버튼 — 클릭 확대를 못 찾는 사용자용 안전망. 데스크톱에서만 노출 */
+.zoomControls {
+  display: none;
+}
+@media (min-width: 721px) {
+  .zoomControls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 6;
+  }
+}
+.zoomBtn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.14);
+  border: 1px solid rgba(255, 253, 248, 0.35);
+  border-radius: 50%;
+  color: #fffdf8;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.zoomBtn:hover {
+  background: rgba(255, 253, 248, 0.24);
+}

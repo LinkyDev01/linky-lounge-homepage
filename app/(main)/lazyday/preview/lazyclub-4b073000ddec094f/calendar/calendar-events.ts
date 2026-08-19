@@ -154,11 +154,13 @@ const PROGRAMS: ClubProgram[] = [
     // 무비토크(호프)는 movie 톤 — 그 외는 원데이 토크 (2026-08-11 상품화)
     category: (m.category === "movie" ? "movie" : "booktalk") as EventCategory,
     // 라운드 107: 카테고리 줄이 이미 "원데이 토크" 라 제목의 종류어는 중복 → 작품명만.
-    // 괄호(『』)는 폭이 넉넉한 목록에서는 유지한다 (좁은 캘린더 칸에서만 생략)
-    title: `『${workTitle(m.title)}』`,
+    // 괄호(『』)는 폭이 넉넉한 목록에서는 유지한다 (좁은 캘린더 칸에서만 생략).
+    // 2026-08-19: sessions 있는 모임(4주 과정)은 책 인용이 아니라 프로그램명 — 『』 생략
+    title: m.sessions ? m.title : `『${workTitle(m.title)}』`,
     schedule: m.date,
     times: [] as string[],
-    price: `${m.price.toLocaleString("ko-KR")}원`,
+    // 2026-08-19: 가격 미정(null) 모임은 "문의" — 임의 가격 표기 금지
+    price: m.price != null ? `${m.price.toLocaleString("ko-KR")}원` : "문의",
     description: m.description[0] ?? "",
     image: m.thumbnail,
     href: `${BASE}/meetings/${m.slug}`,
@@ -216,20 +218,39 @@ const EVENTS: ClubEvent[] = [
     { label: SEASON.fifth.label, dates: [SEASON.fifth.date.split(" ")[0]] },
   ]),
   ...seasonEvents("season-3", season3Config.label, SEASON3_SESSIONS),
-  ...ONE_DAY_MEETINGS.map((m) => {
+  // sessions(복수 회차, 2026-08-19) 있는 모임은 회차마다 캘린더 칸을 하나씩 —
+  // flatMap 인 이유: 4주 과정 하나가 캘린더 칸 4개로 펼쳐진다
+  ...ONE_DAY_MEETINGS.flatMap((m) => {
+    if (m.sessions) {
+      return m.sessions.map((s) => {
+        const [month, day] = mdFromOneDay(s.date)
+        return {
+          id: `oneday-${m.slug}-${s.week}`,
+          programId: `oneday-${m.slug}`,
+          year: YEAR,
+          month,
+          day,
+          category: "booktalk" as EventCategory,
+          cellLabel: `${m.title} ${s.week}`,
+          cellLines: [m.title, s.week] as [string, string],
+        }
+      })
+    }
     const [month, day] = mdFromOneDay(m.date)
     const isMovie = m.category === "movie"
-    return {
-      id: `oneday-${m.slug}`,
-      programId: `oneday-${m.slug}`,
-      year: YEAR,
-      month,
-      day,
-      category: (isMovie ? "movie" : "booktalk") as EventCategory,
-      cellLabel: m.title,
-      // 라운드 106: 기수와 같은 2줄 서식 — 작품명 / 종류
-      cellLines: [workTitle(m.title), isMovie ? "무비토크" : "원데이 토크"] as [string, string],
-    }
+    return [
+      {
+        id: `oneday-${m.slug}`,
+        programId: `oneday-${m.slug}`,
+        year: YEAR,
+        month,
+        day,
+        category: (isMovie ? "movie" : "booktalk") as EventCategory,
+        cellLabel: m.title,
+        // 라운드 106: 기수와 같은 2줄 서식 — 작품명 / 종류
+        cellLines: [workTitle(m.title), isMovie ? "무비토크" : "원데이 토크"] as [string, string],
+      },
+    ]
   }),
   ...MOVIE_TALKS.map((t, i) => {
     const [month, day] = t.date.split("/").map(Number)

@@ -53,6 +53,10 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       buyMessage={feature ? "가격·정원은 확정 전입니다. 카카오톡 채널로 문의해주세요." : undefined}
       images={m.images}
       cartItem={{ id: `meeting-${m.slug}`, name: m.title, price: m.price, href: `${BASE}/meetings/${m.slug}`, img: m.thumbnail }}
+      // 모임 상세 전체(호프·브람스·시지프·신규)에 sticky 포스터 그리드 — A절 지시가
+      // "모임 상세 전체" 대상이었는데 이전엔 centerBody 유무로 오판(feature)해 신규
+      // 모임에만 걸렸던 버그를 바로잡음(2026-08-19 재수정). 굿즈 상세는 이 prop 자체가 없다.
+      stickyPoster
       centerBody={feature ? <NotSqueezingBody /> : undefined}
     />
   )

@@ -167,7 +167,7 @@ export function ReviewsZoomCheck() {
                 <figure className={rstyles.reviewCard} style={{ margin: 0 }}>
                   <div
                     className={`${rstyles.reviewPhoto} ${rstyles.reviewPhotoFilled}`}
-                    onClick={() => i === idx && setModalIdx(i)}
+                    onClick={(e) => { e.stopPropagation(); setModalIdx(i) }}
                     role="button"
                     aria-label={`${c.caption} 크게 보기`}
                   >

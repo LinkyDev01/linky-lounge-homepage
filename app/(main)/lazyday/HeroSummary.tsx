@@ -68,7 +68,7 @@ export function HeroSummary() {
     : d !== null && d < 0
     ? `${SEASON.name} 모집이 마감되었어요`
     : !SEASON.showDeadline || d === null
-    ? `레이지데이 북클럽 ${SEASON.name}를 모집합니다.` // 문장형 (운영자 2026-08-12 — 클로징 CTA와 동일 전환)
+    ? `레이지데이 북클럽 ${SEASON.name} 멤버를 모집합니다.` // 문장형 (운영자 2026-08-12) + '멤버' 추가 (2026-08-19)
     : d === 0
     ? `${SEASON.name} 모집 오늘 마감`
     : `${SEASON.name} 모집 마감 D-${d}`

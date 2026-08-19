@@ -68,7 +68,7 @@ export function HeroSummary() {
     : d !== null && d < 0
     ? `${PREVIEW.season} 모집이 마감되었어요`
     : !SEASON.showDeadline || d === null
-    ? `레이지데이 북클럽 ${PREVIEW.season}를 모집합니다.` // 문장형 (운영자 2026-08-12 — 실사이트 쌍 동기화)
+    ? `레이지데이 북클럽 ${PREVIEW.season} 멤버를 모집합니다.` // 문장형 + '멤버' (실사이트 쌍 동기화)
     : d === 0
     ? `${PREVIEW.season} 모집 오늘 마감`
     : `${PREVIEW.season} 모집 마감 D-${d}`

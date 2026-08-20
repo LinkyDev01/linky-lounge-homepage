@@ -413,30 +413,27 @@ export default function ApplyPage() {
                 </tr>
               </tbody>
             </table>
-            {/* 표 아래 정보 2행 — 진행 장소 · 멤버십 가격 (운영자 2026-08-19
-                "4기 일정 / 진행 장소 / 멤버십 가격" 3단 구성, 서식 톤앤매너 동일).
-                장소는 표(요일 그리드 축) 밖으로 — 좌측 정렬, 볼드 링키라운지 +
-                괄호 부연(season-config location.sub 단일 출처). 가격은 랜딩 비노출
-                원칙과 별개로 **신청 페이지에는 노출** (2026-08-18 "참가비를
-                신청페이지에 놔야 비교를 할 수 있잖아?" 의 실행) — SEASON.price
-                단일 출처, 취소선 없이 담백하게 */}
-            <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>진행 장소</span>
-              <span>
-                <strong>{SEASON.location.name}</strong>
-                <span className={styles.schedulePlaceSub}> ({SEASON.location.sub})</span>
-              </span>
-            </p>
-            <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>멤버십 가격</span>
-              <span>
-                <strong>{SEASON.price}</strong>
-              </span>
-            </p>
             {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
-                구 "*회차별 화·수·일 중 참여 요일 선택 가능"은 같은 내용의 확정 문면으로 대체 */}
+                ⚠ 이 두 문장은 **일정 블록에 딸린 것** — 아래 장소·가격 제목보다
+                위에 둬야 소속이 맞다 */}
             <p className={styles.scheduleNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
             <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+
+            {/* 진행 장소 · 멤버십 가격 — **일정과 동급 블록** (운영자 2026-08-20
+                "진행 장소와 멤버십 가격이 왜 일정 하위 섹션으로 위계가 보여?
+                일관되게 기획해"). 종전엔 표 아래 라벨+값 행이라 일정의 하위
+                항목처럼 읽혔다 → 셋 다 같은 제목 서식(.scheduleHeader)으로
+                세우고 값만 그 아래 두는 평행 구조로 재편.
+                장소 부연은 season-config location.sub, 가격은 SEASON.price 단일 출처
+                (랜딩은 비노출 유지 — 신청 페이지에만 노출) */}
+            <h2 className={`${styles.scheduleHeader} ${styles.scheduleHeaderNext}`}>진행 장소</h2>
+            <p className={styles.scheduleValue}>
+              {SEASON.location.name}
+              <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
+            </p>
+
+            <h2 className={`${styles.scheduleHeader} ${styles.scheduleHeaderNext}`}>멤버십 가격</h2>
+            <p className={styles.scheduleValue}>{SEASON.price}</p>
           </section>
         )}
 

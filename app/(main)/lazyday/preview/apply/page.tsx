@@ -305,24 +305,19 @@ export default function PreviewApplyPage() {
                 </tr>
               </tbody>
             </table>
-            {/* 표 아래 정보 2행 — 진행 장소 · 멤버십 가격 (실사이트 쌍 동기화) */}
-            <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>진행 장소</span>
-              <span>
-                <strong>{SEASON.location.name}</strong>
-                <span className={styles.schedulePlaceSub}> ({SEASON.location.sub})</span>
-              </span>
-            </p>
-            <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>멤버십 가격</span>
-              <span>
-                <strong>{SEASON.price}</strong>
-              </span>
-            </p>
-            {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
-                구 "*회차별 화·수·일 중 참여 요일 선택 가능"은 같은 내용의 확정 문면으로 대체 */}
+            {/* 일정 주석 2문장 — 일정 블록 소속이라 장소·가격 제목보다 위 */}
             <p className={styles.scheduleNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
             <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+
+            {/* 진행 장소 · 멤버십 가격 — 일정과 동급 블록 (실사이트 쌍 동기화) */}
+            <h2 className={`${styles.scheduleHeader} ${styles.scheduleHeaderNext}`}>진행 장소</h2>
+            <p className={styles.scheduleValue}>
+              {SEASON.location.name}
+              <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
+            </p>
+
+            <h2 className={`${styles.scheduleHeader} ${styles.scheduleHeaderNext}`}>멤버십 가격</h2>
+            <p className={styles.scheduleValue}>{SEASON.price}</p>
           </section>
         )}
 

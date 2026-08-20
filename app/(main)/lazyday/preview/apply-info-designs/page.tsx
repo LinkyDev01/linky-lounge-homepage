@@ -41,12 +41,6 @@ const VARIANTS = [
   // ── 2차 요청 (운영자 "레이지클럽처럼 직선과 직사각형, 그리고 간결함 기반의
   //    단정한 디자인을 더") — 잉크 1px 직선·radius 0·평면 종이·모노톤 문법 ──
   {
-    id: "ruled",
-    name: "E. 룰드 시트",
-    ref: "레퍼런스: 레이지클럽 섹션 괘선 · 인쇄물 서식",
-    desc: "카드·라운딩을 전부 걷어내고 종이 위에 잉크 1px 수평 괘선만. 블록마다 같은 굵기의 선으로 열리는 구조라 위계 동일성이 선 자체로 표현됩니다. 레이지클럽과 가장 가까운 결.",
-  },
-  {
     id: "frame",
     name: "F. 잉크 프레임 3분할",
     ref: "레퍼런스: 레이지클럽 옵션 박스 · 전시 캡션",
@@ -57,6 +51,26 @@ const VARIANTS = [
     name: "G. 라벨 컬럼 그리드",
     ref: "레퍼런스: 레이지클럽 15컬럼 괘선 · 스위스 그리드",
     desc: "세로 잉크선으로 라벨 열과 값 열을 가르는 2열 그리드. 수직·수평선이 만나 직사각 칸이 되는 가장 건축적인 안 — 라벨 열이 같으니 세 행이 같은 급입니다.",
+  },
+  // ── 3차 — E 채택 후 "구분할 수 있도록 흰색 또는 유색이 섹션에 있어야 할까?"
+  //    질문에 대한 답을 눈으로 비교하도록 배경 유/무 두 변형을 나란히 ──
+  {
+    id: "ruledFlat",
+    name: "E1. 룰드 시트 (배경 없음, 채택)",
+    ref: "레퍼런스: 레이지클럽 섹션 괘선 · 인쇄물 서식",
+    desc: "블록 배경 없이 종이 위에 잉크선만. 실사이트에서는 이 전체가 이미 흰 카드(.scheduleNotice) 안에 있으므로, 카드 자체가 페이지와의 경계를 만들고 안에서는 선이 블록을 나눕니다 — 인쇄물이 여백 없이 괘선만으로 항목을 나누는 방식과 같습니다.",
+  },
+  {
+    id: "ruledTint",
+    name: "E2. 룰드 시트 (카드색 배경)",
+    ref: "카드 배경 토큰 #fffdf8 적용",
+    desc: "블록마다 §3 카드 배경 토큰(#fffdf8)을 깔고 잉크선은 유지. 다만 페이지 배경(#f7f3ee)과 명도차가 3% 남짓이라 실제로는 거의 안 보입니다 — 스크린샷으로 직접 대조해 보세요.",
+  },
+  {
+    id: "ruledOat",
+    name: "E3. 룰드 시트 (오트 배경)",
+    ref: "§3 섹션 배경 B(#f0e9e0) 적용",
+    desc: "블록마다 사이트가 이미 섹션 교차에 쓰는 오트 톤(B)을 깔아 실제로 눈에 띄는 대비를 만든 안. 구분은 확실해지지만 종이 위에 잉크선만 남기는 E1의 '결'과는 멀어집니다 — 카드 밖(랜딩 배경) 색과 겹쳐 보일 여지도 있습니다.",
   },
 ] as const
 
@@ -217,23 +231,27 @@ function SheetVariant() {
   )
 }
 
-// ── E. 룰드 시트 ────────────────────────────────────────────
-function RuledVariant() {
+// ── E. 룰드 시트 — tint: false 배경 없음(E1, 채택안) / "card" 카드색#fffdf8(E2,
+//    페이지 배경과 거의 안 보이는 차이) / "oat" 팔레트 B톤 #f0e9e0(E3, 실제로 보이는 차이) ──
+function RuledVariant({ tint = false }: { tint?: false | "card" | "oat" }) {
+  const tintClass = tint === "card" ? styles.ruledBlockTint : tint === "oat" ? styles.ruledBlockOat : ""
+  const wrap = tint ? `${styles.ruledWrap} ${styles.ruledWrapTint}` : styles.ruledWrap
+  const block = tint ? `${styles.ruledBlock} ${tintClass}` : styles.ruledBlock
   return (
-    <div className={styles.ruledWrap}>
-      <div className={styles.ruledBlock}>
+    <div className={wrap}>
+      <div className={block}>
         <h3 className={styles.ruledLabel}>{SEASON.name} 일정</h3>
         <MiniTable ink />
         <Notes />
       </div>
-      <div className={styles.ruledBlock}>
+      <div className={block}>
         <h3 className={styles.ruledLabel}>진행 장소</h3>
         <p className={styles.ruledValue}>
           {SEASON.location.name}
           <span className={styles.valueSubInk}> ({SEASON.location.sub})</span>
         </p>
       </div>
-      <div className={styles.ruledBlock}>
+      <div className={block}>
         <h3 className={styles.ruledLabel}>멤버십 가격</h3>
         <p className={styles.ruledValue}>{SEASON.price}</p>
       </div>
@@ -305,7 +323,7 @@ function GridVariant() {
 }
 
 export default function ApplyInfoDesignsPage() {
-  const [variant, setVariant] = useState<VariantId>("ruled")
+  const [variant, setVariant] = useState<VariantId>("ruledFlat")
   const cur = VARIANTS.find((v) => v.id === variant)!
 
   return (
@@ -313,8 +331,9 @@ export default function ApplyInfoDesignsPage() {
       <header className={styles.head}>
         <h1 className={styles.title}>신청 페이지 일정·장소·가격 시안</h1>
         <p className={styles.sub}>
-          같은 콘텐츠를 7가지 패턴으로 — 세 정보가 <strong>같은 급</strong>으로 읽히면서
-          가시성을 잃지 않는 구성을 비교합니다. E–G는 레이지클럽 문법(직선·직사각·모노톤).
+          같은 콘텐츠를 여러 패턴으로 — 세 정보가 <strong>같은 급</strong>으로 읽히면서
+          가시성을 잃지 않는 구성을 비교합니다. E–G는 레이지클럽 문법(직선·직사각·모노톤),
+          E1–E3는 채택한 E의 배경 유무·색 비교.
         </p>
       </header>
 
@@ -340,7 +359,9 @@ export default function ApplyInfoDesignsPage() {
         {variant === "rule" && <RuleVariant />}
         {variant === "tiles" && <TilesVariant />}
         {variant === "sheet" && <SheetVariant />}
-        {variant === "ruled" && <RuledVariant />}
+        {variant === "ruledFlat" && <RuledVariant />}
+        {variant === "ruledTint" && <RuledVariant tint="card" />}
+        {variant === "ruledOat" && <RuledVariant tint="oat" />}
         {variant === "frame" && <FrameVariant />}
         {variant === "grid" && <GridVariant />}
       </div>

@@ -293,6 +293,33 @@
   letter-spacing: -0.01em;
 }
 
+/* E2 — 블록마다 카드 배경(#fffdf8, §3 카드 배경 토큰) + 좌우 인셋 패딩으로
+   배경이 페이지 여백까지 안 번지게. 잉크선은 유지해 배경만으로 기대지 않는다 */
+.ruledWrapTint {
+  border-bottom: none;
+}
+.ruledBlockTint {
+  background: #fffdf8;
+  border-top: 1px solid #1a1208;
+  padding: 12px 14px 20px;
+  margin: 0 -14px;
+}
+.ruledBlockTint + .ruledBlockTint {
+  margin-top: 10px;
+}
+
+/* E3 — §3 섹션 배경 B(오트, #f0e9e0)로 실제 대비를 낸 버전. 구조는 E2와 동일,
+   색만 교체 */
+.ruledBlockOat {
+  background: #f0e9e0;
+  border-top: 1px solid #1a1208;
+  padding: 12px 14px 20px;
+  margin: 0 -14px;
+}
+.ruledBlockOat + .ruledBlockOat {
+  margin-top: 10px;
+}
+
 /* ── F. 잉크 프레임 3분할 — 직사각 외곽선 + 수평 분할선 ── */
 .frameWrap {
   border: 1px solid #1a1208;

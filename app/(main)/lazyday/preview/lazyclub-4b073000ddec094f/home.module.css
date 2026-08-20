@@ -200,10 +200,10 @@
   padding-bottom: 50px;
 }
 /* 원문 실측(상품 상세): 이미지 1/8 · 텍스트 11/15 — 가운데 3컬럼 공백이 무드의 핵심 */
-/* 굿즈 상세 갤러리 폭 — 참조 실측 `.product_cat-shop .woocommerce-product-gallery{grid-column:2/5}`
-   (운영자 2026-08-20 "굿즈는 2/5"). 모임 상세(.nsqFigure)와 같은 3열 폭으로 통일된다.
-   소비자는 ProductDetail 의 non-sticky 분기(=굿즈 상세) 한 곳뿐 — 모임은 .nsqFigure 를 쓴다 */
-.productFigure { grid-column: 2 / 5; margin: 0; position: relative; }
+/* 굿즈 상세 갤러리 — 1/8 원복 (운영자 2026-08-20 "굿즈 이미지 사이즈는 원복해야지.
+   모임만 그렇게 가는 거야" — 2/5 통일을 하루 만에 되돌림). 소비자는 ProductDetail 의
+   non-sticky 분기(=굿즈 상세) 한 곳뿐 — 모임 상세는 .nsqFigure 를 쓴다 */
+.productFigure { grid-column: 1 / 8; margin: 0; position: relative; }
 .productFigure a { display: block; }
 .productFigure img { width: 100%; height: auto; display: block; }
 .productInfo { grid-column: 11 / 15; }
@@ -407,14 +407,16 @@
    동일한 하단 호흡. 본문 있는 모임(신규)은 .nsqBody 의 padding-bottom 이 그 역할을 하므로
    중복 적용하지 않는다 */
 .nsqHeroBare { margin-bottom: 65px; }
-/* 포스터 폭 = 참조 원본 실측 `.product_cat-book .woocommerce-product-gallery{grid-column:2/5}`
-   (2026-08-19 재실측 정정). 종전 1/8 은 `product_cat-text`(프린트류) 값을 잘못 가져온 것으로,
-   1280px 기준 포스터 우변 590px 이 본문 중앙 460 컬럼 좌변 410px 을 180px 침범해 sticky 로
-   따라 내려온 포스터가 본문 글을 덮었다. 2/5 는 우변 337 < 410 이라 겹침이 구조적으로 0.
-   ⚠ 이 폭은 장식이 아니라 레이아웃 성립 조건 — .nsqBodyInner(460px)와 겹치지 않아야 한다.
-   컬럼 5~11 의 넓은 공백도 참조 무드의 일부다. */
+/* 포스터 폭 4열 = p-i-e.kr 프로그램 상세 실측(포스터 컬럼 is-3-12-900 = 25%, column-sticky)
+   수준 (운영자 2026-08-20 "모임 이미지 기준은 p-i-e 링크줬던 그 수준"). 1280px 기준 322px
+   ≈ p-i-e 의 304px. 시작은 컬럼 2 — 좌측 1열 들여쓰기는 워크룸 book 문법(2/5)에서 온
+   것인데 운영자가 "좋아 보인다"고 유지 확정. (경위: 1/8→2/5→2/6 — 2/5 는 워크룸
+   product_cat-book 실측이었으나 폭이 부족하다는 피드백으로 p-i-e 기준 4열로 확장)
+   ⚠ 이 폭에서 전폭-중앙 460 본문은 성립 안 한다(우변 421.7 > 중앙컬럼 좌변 410) —
+   그래서 본문(.nsqBodyInner)은 아래 서브그리드로 포스터 오른쪽 영역(6/-1)에 둔다.
+   폭을 또 바꿀 땐 반드시 본문 좌변과의 겹침 산식을 다시 확인할 것. */
 .nsqFigure {
-  grid-column: 2 / 5;
+  grid-column: 2 / 6;
   align-self: start; /* grid 기본 stretch 를 깨야 sticky 가 자기 콘텐츠 높이로 붙는다 */
   margin: 0;
 }
@@ -436,9 +438,17 @@
   margin-top: 50px;
   padding-top: 45px;
   padding-bottom: 65px; /* .detailHero margin-bottom 과 동일한 하단 호흡 */
+  /* 서브그리드(부모와 같은 15열·gap — 전폭 아이템이라 컬럼선이 부모와 일치):
+     본문 컬럼을 "포스터 오른쪽 영역"에 가두기 위한 골격 (2026-08-20) */
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 15px;
 }
-/* 원문 실측: 단락 max-width 460px, margin 0 auto — 컨테이너는 전폭, 내용만 중앙 정렬 */
-.nsqBodyInner { max-width: 460px; margin: 0 auto; }
+/* 본문 460px 컬럼(폭은 워크룸 원문 실측 유지)의 배치 = 포스터 오른쪽 영역(컬럼 6~끝)의
+   중앙 (운영자 2026-08-20 "본문 중앙/우측 밸런스" 절충 — 화면 전폭 중앙은 4열 포스터와
+   11.7px 겹쳐 성립 불가, 우측 끝 정렬은 과함. p-i-e 문법(본문이 포스터 옆에 흐름)을
+   따르되 읽기 폭 460 은 워크룸을 유지). 포스터(2/6)와 그리드로 분리돼 겹침이 구조적으로 0 */
+.nsqBodyInner { grid-column: 6 / -1; max-width: 460px; margin: 0 auto; width: 100%; }
 .nsqBodyImage { margin: 0 0 45px; } /* 원문 .img-container margin-bottom:45px */
 .nsqBodyImage:last-child { margin-bottom: 0; }
 .nsqBodyImage img { width: 100%; height: auto; display: block; }
@@ -475,7 +485,9 @@
   .nsqFigureSpan { margin-bottom: 20px; }
   .nsqFigureSticky { position: static; }
   .nsqInfo { grid-column: 1 / -1; grid-row: auto; padding-top: 8px; }
-  .nsqBody { grid-column: 1 / -1; grid-row: auto; margin-top: 30px; padding-top: 30px; }
+  /* 서브그리드 해제 — 모바일 본문은 종전대로 전폭(460 중앙) 흐름 */
+  .nsqBody { grid-column: 1 / -1; grid-row: auto; margin-top: 30px; padding-top: 30px; grid-template-columns: 1fr; }
+  .nsqBodyInner { grid-column: 1 / -1; }
   .nsqHostRow { flex-direction: column; gap: 15px; }
   .nsqHostPhoto { width: 140px; }
 }

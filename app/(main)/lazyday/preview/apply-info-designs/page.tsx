@@ -38,12 +38,40 @@ const VARIANTS = [
     ref: "레퍼런스: 매거진 콜로폰 · 히어로 요약 카드 문법",
     desc: "일정·진행 장소·멤버십 가격을 같은 라벨 열에 세우고 일정 표를 그 값 안에 내장. 랜딩 히어로의 종이 낱장 카드(기간/일정/장소)와 같은 문법이라 사이트 전체 일관성이 가장 높습니다.",
   },
+  // ── 2차 요청 (운영자 "레이지클럽처럼 직선과 직사각형, 그리고 간결함 기반의
+  //    단정한 디자인을 더") — 잉크 1px 직선·radius 0·평면 종이·모노톤 문법 ──
+  {
+    id: "ruled",
+    name: "E. 룰드 시트",
+    ref: "레퍼런스: 레이지클럽 섹션 괘선 · 인쇄물 서식",
+    desc: "카드·라운딩을 전부 걷어내고 종이 위에 잉크 1px 수평 괘선만. 블록마다 같은 굵기의 선으로 열리는 구조라 위계 동일성이 선 자체로 표현됩니다. 레이지클럽과 가장 가까운 결.",
+  },
+  {
+    id: "frame",
+    name: "F. 잉크 프레임 3분할",
+    ref: "레퍼런스: 레이지클럽 옵션 박스 · 전시 캡션",
+    desc: "잉크 1px 직사각 프레임 하나를 수평선으로 3등분한 인쇄 서식형. 번호(01–03)가 세 칸이 같은 급임을 명시하고, 외곽선이 정보를 한 덩어리로 묶습니다.",
+  },
+  {
+    id: "grid",
+    name: "G. 라벨 컬럼 그리드",
+    ref: "레퍼런스: 레이지클럽 15컬럼 괘선 · 스위스 그리드",
+    desc: "세로 잉크선으로 라벨 열과 값 열을 가르는 2열 그리드. 수직·수평선이 만나 직사각 칸이 되는 가장 건축적인 안 — 라벨 열이 같으니 세 행이 같은 급입니다.",
+  },
 ] as const
 
 type VariantId = (typeof VARIANTS)[number]["id"]
 
 // ── 공용 조각: 회차 표 (시안마다 동일 데이터, 셀 서식만 컨텍스트 상속) ──
-function MiniTable() {
+// ink: 레이지클럽 모노톤 — 주황 악센트(헤더 밑줄·회차 라벨)를 잉크로 (E·F·G용)
+function MiniTable({ ink = false }: { ink?: boolean }) {
+  return (
+    <div className={ink ? styles.tblInk : undefined}>
+      <MiniTableInner />
+    </div>
+  )
+}
+function MiniTableInner() {
   return (
     <table className={styles.tbl}>
       <thead>
@@ -189,8 +217,95 @@ function SheetVariant() {
   )
 }
 
+// ── E. 룰드 시트 ────────────────────────────────────────────
+function RuledVariant() {
+  return (
+    <div className={styles.ruledWrap}>
+      <div className={styles.ruledBlock}>
+        <h3 className={styles.ruledLabel}>{SEASON.name} 일정</h3>
+        <MiniTable ink />
+        <Notes />
+      </div>
+      <div className={styles.ruledBlock}>
+        <h3 className={styles.ruledLabel}>진행 장소</h3>
+        <p className={styles.ruledValue}>
+          {SEASON.location.name}
+          <span className={styles.valueSubInk}> ({SEASON.location.sub})</span>
+        </p>
+      </div>
+      <div className={styles.ruledBlock}>
+        <h3 className={styles.ruledLabel}>멤버십 가격</h3>
+        <p className={styles.ruledValue}>{SEASON.price}</p>
+      </div>
+    </div>
+  )
+}
+
+// ── F. 잉크 프레임 3분할 ────────────────────────────────────
+function FrameVariant() {
+  return (
+    <div className={styles.frameWrap}>
+      <div className={styles.frameSection}>
+        <div className={styles.frameHead}>
+          <span>{SEASON.name} 일정</span>
+          <span className={styles.frameIndex}>01</span>
+        </div>
+        <MiniTable ink />
+        <Notes />
+      </div>
+      <div className={styles.frameSection}>
+        <div className={styles.frameHead}>
+          <span>진행 장소</span>
+          <span className={styles.frameIndex}>02</span>
+        </div>
+        <p className={styles.frameValue}>
+          {SEASON.location.name}
+          <span className={styles.valueSubInk}> ({SEASON.location.sub})</span>
+        </p>
+      </div>
+      <div className={styles.frameSection}>
+        <div className={styles.frameHead}>
+          <span>멤버십 가격</span>
+          <span className={styles.frameIndex}>03</span>
+        </div>
+        <p className={styles.frameValue}>{SEASON.price}</p>
+      </div>
+    </div>
+  )
+}
+
+// ── G. 라벨 컬럼 그리드 ─────────────────────────────────────
+function GridVariant() {
+  return (
+    <div className={styles.gridWrap}>
+      <div className={styles.gridRow}>
+        <span className={styles.gridLabelCell}>일정</span>
+        <div className={styles.gridValueCell}>
+          <MiniTable ink />
+          <Notes />
+        </div>
+      </div>
+      <div className={styles.gridRow}>
+        <span className={styles.gridLabelCell}>진행 장소</span>
+        <div className={styles.gridValueCell}>
+          <p className={styles.gridValue}>
+            {SEASON.location.name}
+            <span className={styles.valueSubInk}> ({SEASON.location.sub})</span>
+          </p>
+        </div>
+      </div>
+      <div className={styles.gridRow}>
+        <span className={styles.gridLabelCell}>멤버십 가격</span>
+        <div className={styles.gridValueCell}>
+          <p className={styles.gridValue}>{SEASON.price}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ApplyInfoDesignsPage() {
-  const [variant, setVariant] = useState<VariantId>("cards")
+  const [variant, setVariant] = useState<VariantId>("ruled")
   const cur = VARIANTS.find((v) => v.id === variant)!
 
   return (
@@ -198,8 +313,8 @@ export default function ApplyInfoDesignsPage() {
       <header className={styles.head}>
         <h1 className={styles.title}>신청 페이지 일정·장소·가격 시안</h1>
         <p className={styles.sub}>
-          같은 콘텐츠를 4가지 패턴으로 — 세 정보가 <strong>같은 급</strong>으로 읽히면서
-          가시성을 잃지 않는 구성을 비교합니다.
+          같은 콘텐츠를 7가지 패턴으로 — 세 정보가 <strong>같은 급</strong>으로 읽히면서
+          가시성을 잃지 않는 구성을 비교합니다. E–G는 레이지클럽 문법(직선·직사각·모노톤).
         </p>
       </header>
 
@@ -225,6 +340,9 @@ export default function ApplyInfoDesignsPage() {
         {variant === "rule" && <RuleVariant />}
         {variant === "tiles" && <TilesVariant />}
         {variant === "sheet" && <SheetVariant />}
+        {variant === "ruled" && <RuledVariant />}
+        {variant === "frame" && <FrameVariant />}
+        {variant === "grid" && <GridVariant />}
       </div>
     </main>
   )

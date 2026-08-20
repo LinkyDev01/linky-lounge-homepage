@@ -256,3 +256,109 @@
 }
 /* 시트 안의 표는 라벨 열이 이미 있으니 회차 라벨 열 폭만 살짝 줄인다 */
 .sheetValueArea .tblEmpty { width: 40px; }
+
+/* ════ E·F·G — 레이지클럽 문법 (2026-08-20 2차: "직선과 직사각형, 간결함") ════
+   규율: 잉크(#1a1208) 1px 실선만 · border-radius 0 · 평면 종이 배경(흰 카드 없음)
+   · 주황 악센트 제거(모노톤) · 소형 라벨은 자간 0.06em. */
+
+/* 잉크 모노 표 — 주황 헤더 밑줄·회차 라벨을 잉크로 (E·F·G 전용 래퍼) */
+.tblInk .tblDay { border-bottom: 1px solid #1a1208; }
+.tblInk .tblLabel { color: #1a1208; }
+.tblInk .tblDate,
+.tblInk .tblFifth { border-top: 1px solid rgba(26, 18, 8, 0.14); }
+.valueSubInk {
+  font-weight: 500;
+  color: rgba(26, 18, 8, 0.55);
+}
+
+/* ── E. 룰드 시트 — 수평 잉크 괘선만, 종이 위 평면 ── */
+.ruledWrap {
+  border-bottom: 1px solid #1a1208;
+}
+.ruledBlock {
+  border-top: 1px solid #1a1208;
+  padding: 12px 0 22px;
+}
+.ruledLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+.ruledValue {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+/* ── F. 잉크 프레임 3분할 — 직사각 외곽선 + 수평 분할선 ── */
+.frameWrap {
+  border: 1px solid #1a1208;
+  border-radius: 0;
+}
+.frameSection {
+  padding: 13px 14px 18px;
+}
+.frameSection + .frameSection {
+  border-top: 1px solid #1a1208;
+}
+.frameHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+.frameIndex {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(26, 18, 8, 0.4);
+  font-feature-settings: "tnum";
+  letter-spacing: 0.08em;
+}
+.frameValue {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+/* ── G. 라벨 컬럼 그리드 — 수직 잉크선이 라벨 열을 가른다 ── */
+.gridWrap {
+  border-top: 1px solid #1a1208;
+  border-bottom: 1px solid #1a1208;
+}
+.gridRow {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+}
+.gridRow + .gridRow {
+  border-top: 1px solid rgba(26, 18, 8, 0.35);
+}
+.gridLabelCell {
+  border-right: 1px solid #1a1208;
+  padding: 14px 8px 14px 2px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+}
+.gridValueCell {
+  padding: 12px 0 16px 14px;
+  min-width: 0;
+}
+.gridValue {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+/* 그리드 값 칸의 표는 회차 라벨 열 폭을 줄여 좁은 값 폭에 맞춘다 */
+.gridValueCell .tblEmpty { width: 38px; }
+.gridValueCell .tbl th, .gridValueCell .tbl td { padding: 8px 4px; }

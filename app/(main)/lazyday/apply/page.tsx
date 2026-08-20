@@ -413,14 +413,24 @@ export default function ApplyPage() {
                 </tr>
               </tbody>
             </table>
-            {/* 장소 — 표(요일 그리드 축) 밖 한 줄로 (운영자 2026-08-19 "4기 일정
-                축에 장소가 배열되어 있는 게 맞지 않으므로"). 좌측 정렬, 볼드
-                링키라운지 + 괄호 부연은 season-config location.sub 단일 출처 */}
+            {/* 표 아래 정보 2행 — 진행 장소 · 멤버십 가격 (운영자 2026-08-19
+                "4기 일정 / 진행 장소 / 멤버십 가격" 3단 구성, 서식 톤앤매너 동일).
+                장소는 표(요일 그리드 축) 밖으로 — 좌측 정렬, 볼드 링키라운지 +
+                괄호 부연(season-config location.sub 단일 출처). 가격은 랜딩 비노출
+                원칙과 별개로 **신청 페이지에는 노출** (2026-08-18 "참가비를
+                신청페이지에 놔야 비교를 할 수 있잖아?" 의 실행) — SEASON.price
+                단일 출처, 취소선 없이 담백하게 */}
             <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>장소</span>
+              <span className={styles.schedulePlaceLabel}>진행 장소</span>
               <span>
                 <strong>{SEASON.location.name}</strong>
                 <span className={styles.schedulePlaceSub}> ({SEASON.location.sub})</span>
+              </span>
+            </p>
+            <p className={styles.schedulePlace}>
+              <span className={styles.schedulePlaceLabel}>멤버십 가격</span>
+              <span>
+                <strong>{SEASON.price}</strong>
               </span>
             </p>
             {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).

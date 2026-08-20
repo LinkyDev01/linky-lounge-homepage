@@ -305,12 +305,18 @@ export default function PreviewApplyPage() {
                 </tr>
               </tbody>
             </table>
-            {/* 장소 — 표 밖 한 줄 (2026-08-19, 실사이트 쌍 동기화) */}
+            {/* 표 아래 정보 2행 — 진행 장소 · 멤버십 가격 (실사이트 쌍 동기화) */}
             <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>장소</span>
+              <span className={styles.schedulePlaceLabel}>진행 장소</span>
               <span>
                 <strong>{SEASON.location.name}</strong>
                 <span className={styles.schedulePlaceSub}> ({SEASON.location.sub})</span>
+              </span>
+            </p>
+            <p className={styles.schedulePlace}>
+              <span className={styles.schedulePlaceLabel}>멤버십 가격</span>
+              <span>
+                <strong>{SEASON.price}</strong>
               </span>
             </p>
             {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).

@@ -434,15 +434,26 @@
 .nsqBody {
   grid-column: 1 / -1;
   grid-row: 2;
-  border-top: 1px solid var(--ink);
   margin-top: 50px;
-  padding-top: 45px;
   padding-bottom: 65px; /* .detailHero margin-bottom 과 동일한 하단 호흡 */
   /* 서브그리드(부모와 같은 15열·gap — 전폭 아이템이라 컬럼선이 부모와 일치):
      본문 컬럼을 "포스터 오른쪽 영역"에 가두기 위한 골격 (2026-08-20) */
   display: grid;
   grid-template-columns: repeat(15, 1fr);
   gap: 15px;
+}
+/* 구간 괘선 — 본문 컬럼과 **같은 영역(6/-1)** 에만 놓는다 (운영자 2026-08-20 문제 제기:
+   "구간별 가로선이 포스터와 겹치는 문제"). 종전엔 .nsqBody 자체의 border-top 이라 전폭
+   1250px 로 그어져 sticky 포스터(2/6)의 컬럼 밴드를 가로질렀고, 스크롤 중 선이 포스터를
+   훑고 지나가 끊어져 보였다. 괘선의 역할은 '이 본문 구간을 여는 것'이므로 자기가 여는
+   콘텐츠와 폭이 같아야 한다 — 본문이 6/-1 로 옮겨간 시점에 전폭 괘선은 이미 자기 콘텐츠보다
+   넓어져 있었고 그 초과분이 곧 겹침이었다. 폭을 콘텐츠에 맞추면 겹침이 구조적으로 사라진다.
+   (전폭 괘선은 본문이 화면 전폭 중앙이던 워크룸 원본에서 온 값 — 우리 배치에선 실효) */
+.nsqBody::before {
+  content: "";
+  grid-column: 6 / -1;
+  border-top: 1px solid var(--ink);
+  margin-bottom: 45px; /* 종전 .nsqBody padding-top 45px 을 대체 */
 }
 /* 본문 460px 컬럼(폭은 워크룸 원문 실측 유지)의 배치 = 포스터 오른쪽 영역(컬럼 6~끝)의
    중앙 (운영자 2026-08-20 "본문 중앙/우측 밸런스" 절충 — 화면 전폭 중앙은 4열 포스터와
@@ -462,10 +473,56 @@
   text-wrap: pretty;
 }
 .nsqBodyText p:last-child { margin-bottom: 0; }
-.nsqHostRow { display: flex; gap: 20px; align-items: flex-start; }
-.nsqHostPhoto { flex-shrink: 0; width: 120px; }
-.nsqHostPhoto img { width: 100%; height: auto; display: block; border-radius: 8px; }
-.nsqHostName { font-family: var(--gothic); font-weight: 600; font-size: 15px; margin: 0 0 12px; }
+/* 진행자 소개 = 운영자 카드뉴스 원본 레이아웃 (2026-08-20 "인물소개는 이 레이아웃 그대로
+   살려야해. 우측 이미지까지"): ① 이름이 큰 제목으로 좌측 상단 ② 사진은 **우측**에 띄우고
+   본문이 그 왼쪽을 감싸 흐른다(float) ③ 사진 아래로는 본문이 전폭으로 이어짐 ④ 인스타
+   핸들은 약력 끝줄. 종전 flex(사진 좌측 고정폭) 구조를 이 문법으로 교체 */
+.nsqHostRow { display: block; }
+.nsqHostRow::after { content: ""; display: block; clear: both; } /* float 해제 */
+/* 사진이 소스 순서상 먼저 와야 이름·본문이 그 옆으로 감긴다 */
+.nsqHostPhoto { float: right; width: 38%; margin: 4px 0 18px 22px; }
+/* 사진 외곽선 = 조세훈(천고든) 프로필 원본의 '오려낸' 가장자리를 픽셀 추적해 옮긴 것
+   (운영자 2026-08-20 "라운딩 사각형이 아니라 오린 듯한 자연스러움이 있거든").
+   원본 webp 의 크림 매트와 사진 영역 경계를 마스크로 뽑아 컨투어 추적 → 80점으로 단순화
+   (scripts 없이 1회성 산출, 재생성 필요 시 마스크 임계 18·tolerance 0.9 로 동일 재현).
+   ⚠ 좌표가 bbox 백분율이라 **두 사진의 종횡비가 같아야**(400x577, 0.6933) 같은 모양이 나온다 —
+   사진을 교체할 땐 이 비율로 크롭할 것. border-radius 는 이 클립으로 대체되어 제거 */
+.nsqHostPhoto img {
+  width: 100%;
+  height: auto;
+  display: block;
+  clip-path: polygon(
+    64.96% 99.91%, 35.04% 99.91%, 34.78% 99.73%, 29.92% 99.73%,
+    29.67% 99.56%, 16.62% 99.02%, 9.97% 98.14%, 8.70% 98.32%,
+    8.18% 97.78%, 6.14% 97.07%, 5.37% 97.07%, 4.22% 95.74%,
+    3.45% 95.57%, 3.45% 95.04%, 2.43% 93.79%, 1.92% 92.20%,
+    1.41% 92.02%, 1.66% 90.96%, 1.15% 89.36%, 0.90% 85.11%,
+    0.64% 84.93%, 0.38% 73.76%, 0.13% 73.58%, 0.13% 42.55%,
+    0.00% 42.38%, 0.13% 42.20%, 0.38% 35.11%, 0.64% 34.93%,
+    0.90% 29.08%, 1.15% 28.90%, 1.92% 10.99%, 2.43% 7.45%,
+    2.94% 6.03%, 3.96% 4.61%, 4.60% 3.99%, 5.24% 3.90%,
+    5.24% 3.37%, 6.14% 2.75%, 8.70% 1.68%, 11.25% 1.15%,
+    16.37% 0.62%, 22.76% 0.44%, 23.02% 0.27%, 29.41% 0.27%,
+    29.67% 0.09%, 51.41% 0.00%, 51.66% 0.09%, 65.47% 0.09%,
+    65.73% 0.27%, 81.33% 0.27%, 81.59% 0.00%, 81.84% 0.44%,
+    87.21% 0.44%, 92.58% 1.15%, 93.61% 1.51%, 96.29% 3.37%,
+    97.83% 5.32%, 98.85% 8.33%, 99.36% 8.51%, 99.10% 8.69%,
+    99.10% 10.82%, 99.62% 14.18%, 99.87% 72.16%, 99.62% 72.34%,
+    99.62% 80.85%, 99.36% 81.03%, 99.10% 87.06%, 97.31% 94.33%,
+    96.55% 94.68%, 96.55% 95.74%, 95.91% 95.83%, 93.09% 97.96%,
+    91.82% 98.49%, 89.00% 99.02%, 82.61% 99.38%, 82.35% 99.73%,
+    82.10% 99.38%, 80.82% 99.38%, 80.56% 99.56%, 65.22% 99.73%
+  );
+}
+.nsqHostName {
+  font-family: var(--gothic);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 0 0 22px;
+}
+/* 약력 마지막 줄의 인스타 핸들 (원본 카드에서 본문 끝에 한 줄로 붙는다) */
+.nsqHostHandle { margin: 0; }
 .nsqHostText p {
   font-family: var(--serif);
   font-weight: 500;
@@ -486,10 +543,14 @@
   .nsqFigureSticky { position: static; }
   .nsqInfo { grid-column: 1 / -1; grid-row: auto; padding-top: 8px; }
   /* 서브그리드 해제 — 모바일 본문은 종전대로 전폭(460 중앙) 흐름 */
-  .nsqBody { grid-column: 1 / -1; grid-row: auto; margin-top: 30px; padding-top: 30px; grid-template-columns: 1fr; }
+  .nsqBody { grid-column: 1 / -1; grid-row: auto; margin-top: 30px; grid-template-columns: 1fr; }
+  /* 모바일은 포스터가 전폭 스택이라 겹칠 일이 없다 — 괘선도 전폭으로 되돌린다 */
+  .nsqBody::before { grid-column: 1 / -1; margin-bottom: 30px; }
   .nsqBodyInner { grid-column: 1 / -1; }
-  .nsqHostRow { flex-direction: column; gap: 15px; }
-  .nsqHostPhoto { width: 140px; }
+  /* 진행자 소개는 모바일에서도 원본 카드 문법(우측 사진 + 감김)을 유지한다. 다만 390px
+     에서 38% 는 본문 줄이 너무 짧아져(≈13자) 폭만 줄이고 제목도 한 단계 낮춘다 */
+  .nsqHostPhoto { width: 33%; margin: 2px 0 14px 16px; }
+  .nsqHostName { font-size: 20px; margin-bottom: 16px; }
 }
 
 /* 목록 페이지 헤드 + 필터 (텍스트 링크 문법 — 활성 밑줄) */

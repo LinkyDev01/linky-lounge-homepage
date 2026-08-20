@@ -144,9 +144,11 @@ function NotSqueezingBody() {
   )
 }
 
-/** 진행자 소개 공용 서식 (2026-08-20) — 사진(400×581, 인물 중심·같은 비율로 크롭) + 이름·인스타 +
- *  약력. 모임마다 이 컴포넌트를 재사용해 서식이 갈라지지 않게 한다. 약력(children)은 운영자
- *  원문 그대로 — 한 글자도 편집하지 않는다. */
+/** 진행자 소개 공용 서식 — 운영자 카드뉴스 원본 레이아웃 그대로 (2026-08-20 확정):
+ *  이름이 큰 제목 → 사진은 **우측**에 띄우고 본문이 그 왼쪽을 감싸 흐름(float) →
+ *  인스타 핸들은 약력 끝줄. 모임마다 이 컴포넌트를 재사용해 서식이 갈라지지 않게 한다.
+ *  ⚠ 사진(figure)이 이름·본문보다 **소스 순서상 먼저** 와야 float 감김이 성립한다.
+ *  약력(children)은 운영자 원문 그대로 — 한 글자도 편집하지 않는다. */
 function HostIntro({
   photo,
   name,
@@ -165,14 +167,14 @@ function HostIntro({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photo} alt={name} />
       </figure>
+      <p className={styles.nsqHostName}>{name}</p>
       <div className={styles.nsqHostText}>
-        <p className={styles.nsqHostName}>
-          {name}{" "}
+        {children}
+        <p className={styles.nsqHostHandle}>
           <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer">
             @{instagram}
           </a>
         </p>
-        {children}
       </div>
     </div>
   )
@@ -192,9 +194,9 @@ function HopeBody() {
           무렵 오른손을, 5년 후에는 왼손 젓가락질을 마스터하며 한 손 상실이라는 저빈도 고위험 시나리오에 대비한
           이중화를 조기에 구축했다. 열다섯 살 무렵 총기 게임(서든어택)에서 칼전 문화를 선도하며 Tit for Tat을
           인생의 전략으로 채택했고, 비주류를 열망한다는 자기 인식을 이때 얻었다. 이 열망은 한때 1940년대 아메리칸
-          워크웨어 애호로 구현되었고, 그 과정에서 마주치는 전원의 시선을 의도치 않게 유치했으나 얻은 결론은
-          오히려 타인의 시선에 무감하다는 본인의 속성이었다. 현재 해당 복식은 착용하지 않는다. 스물여덟 살에는
-          부동산 투자로 약 2년치 연봉만큼의 수익을 익명의 시장 참여자에게 안겨주었다.{" "}
+          워크웨어 애호로 구현되었고, 그 과정에서 마주치는 전원의 시선을 의도치 않게 유치했으나 얻은 결론은 오히려
+          타인의 시선에 무감하다는 본인의 속성이었다. 현재 해당 복식은 착용하지 않는다. 스물여덟 살에는 부동산
+          투자로 약 2년치 연봉만큼의 수익을 익명의 시장 참여자에게 안겨주었다.{" "}
           <a
             href="https://ko.wikipedia.org/wiki/%EB%84%A4%EB%B9%84%EC%98%AC%EB%A1%9C"
             target="_blank"

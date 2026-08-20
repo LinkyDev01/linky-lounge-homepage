@@ -37,11 +37,17 @@ export type OneDayMeeting = {
   thumbnail: string
   /** 상세 페이지 이미지 스택 (위→아래) */
   images: { src: string; alt: string }[]
-  /** 상세 설명 문단 — 운영자 제작 카드뉴스 원문 그대로 */
+  /** 상세 설명 문단 — 운영자 제작 카드뉴스 원문 그대로. 본문을 중앙 컬럼(centerBody)으로
+   *  옮기는 모임(sessions 있는 모임)은 보통 빈 배열 — 우측 요약에는 안 뜨게 한다 */
   description: string[]
-  price: number
+  /** null = 가격 미정(구매 비활성, 2026-08-19) — 확정 전까지 임의로 만들지 않는다 */
+  price: number | null
   place: string
   contact: string
+  /** 복수 회차(4주 과정 등, 2026-08-19). 있으면 캘린더에 각 회차가 개별 등록되고,
+   *  상세 "읽는 책" 필드도 이 배열에서 파생된다. 없으면 date 필드 하나로 단일 회차
+   *  (기존 3개 모임 무변경). date 형식은 "M.D (요일) …" — mdFromOneDay 파싱과 동일 규칙 */
+  sessions?: { week: string; date: string; work: string }[]
 }
 
 // 원데이 토크 1차 (운영자 확정 일정 2026-07-24 · 카드뉴스 원문 2026-08-04 수급)
@@ -107,6 +113,30 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     price: 35000,
     place: "링키라운지 (서울 동작구 동작대로7길 44, 지하 1층)",
     contact: "contact@linkylounge.com",
+  },
+  {
+    // 2026-08-19 신규 — 워크룸 원본 상세 문법(sticky 포스터+중앙 본문 컬럼) 첫 적용.
+    // 진행: 천고든(레이지데이 북클럽 소속 — 외부 모임장이 아니다, 운영자 확정).
+    // 가격·정원·결제 방식 미확정 — buyHref 를 주지 않고 문의로 안내 (D절, 임의 가격 금지).
+    slug: "not-squeezing-myself",
+    category: "booktalk",
+    title: "비로소 나를 쥐어짜지 않는 법",
+    date: "10.3–10.24 (매주 토) 오전 10:00–12:00",
+    host: "레이지데이 북클럽",
+    status: "open",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp",
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소 나를 쥐어짜지 않는 법 포스터" }],
+    // 본문은 상세 페이지가 centerBody 로 직접 구성(인사말 + 책 4권 + 진행자 소개) — 여기는 비움
+    description: [],
+    price: null,
+    place: "사당역 링키라운지",
+    contact: "contact@linkylounge.com",
+    sessions: [
+      { week: "1주차", date: "10.3 (토) 오전 10:00–12:00", work: "인간 실격" },
+      { week: "2주차", date: "10.10 (토) 오전 10:00–12:00", work: "브람스를 좋아하세요..." },
+      { week: "3주차", date: "10.17 (토) 오전 10:00–12:00", work: "이방인" },
+      { week: "4주차", date: "10.24 (토) 오전 10:00–12:00", work: "자기 앞의 생" },
+    ],
   },
 ]
 

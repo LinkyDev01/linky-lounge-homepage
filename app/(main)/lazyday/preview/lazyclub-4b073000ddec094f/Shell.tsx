@@ -11,11 +11,11 @@ import { IdleShuffle } from "./IdleShuffle"
 import styles from "./home.module.css"
 
 // 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
-// BASE 는 서버 컴포넌트도 쓰므로 지시어 없는 base-path.ts 로 분리 (2026-08-11 —
-// "use client" 모듈의 상수를 서버에서 보간하면 프록시가 찍히는 버그). 기존 소비자용 re-export.
-import { BASE } from "./base-path"
+// BASE·BOOKCLUB_URL 은 서버 컴포넌트도 쓰므로 지시어 없는 base-path.ts 로 분리 (2026-08-11,
+// 2026-08-19 — "use client" 모듈의 상수를 서버에서 보간하면 프록시가 찍히는 버그). 기존 소비자용 re-export.
+import { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL } from "./base-path"
 import { DeferredCss } from "@/components/common/DeferredCss"
-export { BASE }
+export { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL }
 
 // 라운드 30 (운영자 2026-08-06): coming soon은 lazy-club.com 전용 페이지(/coming-soon)로 분리 —
 // 이 트리의 홈은 기존 기획안(전체 섹션)을 내부 검토용으로 유지.
@@ -42,10 +42,6 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는
 // 미들웨어가 랜딩으로 되돌리므로 상대 경로로는 북클럽에 도달할 수 없다.
 // 라운드 81: 북클럽으로 나가는 링크는 전부 **새 탭** (내비 + 기수 포스터 섹션, 운영자)
-export const BOOKCLUB_URL = "https://www.lazyday-bookclub.com"
-/** 기수별 진열은 북클럽 랜딩의 선정도서 섹션으로 (4기는 랜딩 상단이 곧 모집 화면) */
-export const BOOKCLUB_BOOK_URL = `${BOOKCLUB_URL}/#book`
-
 const NAV_ROW2_RIGHT: { label: string; href: string }[] = [
   { label: "레이지데이 북클럽", href: BOOKCLUB_URL },
 ]

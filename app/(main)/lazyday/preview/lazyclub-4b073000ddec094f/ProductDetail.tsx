@@ -39,6 +39,18 @@ export type DetailProps = {
   /** 배송 & 교환/반품 — 브라운야드 "Delievery & Returns" 레이어 문법 (2026-08-12).
    *  구매 버튼 아래 트리거를 누르면 우측에서 슬라이드로 열린다. 굿즈 전용 */
   deliveryReturns?: { label: string; lines: string[] }[]
+  /** 워크룸 원본 문법(2026-08-19) — 데스크톱(≥721px)에서 좌측 포스터를 sticky 로 고정하는
+   *  모임 상세 전용 그리드. **모임 상세 전체**(호프·브람스·시지프·신규)가 대상 — 굿즈 상세는
+   *  절대 전달하지 않는다(픽셀 무변화 보장). centerBody 유무와 무관하게 켠다: 본문 섹션이
+   *  없는 모임은 정보 컬럼과 나란히 놓일 뿐 sticky 자체는 동일하게 동작한다. 모바일(≤720px)은
+   *  종전 productHero 모바일 값과 픽셀 동일 — 스택 순서만 유지, 별도 처리 불필요 */
+  stickyPoster?: boolean
+  /** 워크룸 원본 문법(2026-08-19) — 본문을 하단 전폭 섹션의 중앙 460px 컬럼에 렌더한다.
+   *  본문이 긴 모임(현재는 신규 모임 하나)에만 준다 — 짧은 설명(호프·브람스·시지프)은 종전대로
+   *  우측 요약 컬럼에 남는다. `stickyPoster` 와 별개 축: 이게 있으면 stickyPoster 도 항상 true
+   *  여야 한다(본문 섹션은 sticky 그리드 없이는 배치할 자리가 없다). 있을 때 `images` 는 포스터
+   *  1장만, `description` 은 보통 빈 배열로 둔다(본문은 이 prop 이 담당) */
+  centerBody?: React.ReactNode
 }
 
 export function ProductDetail(props: DetailProps) {
@@ -93,6 +105,13 @@ function DetailBody(p: DetailProps) {
   // "제품 상세 페이지는") — 옵션·배송레이어를 받는 페이지가 제품. 모임 상세는 종전 배치 유지
   const commerce = Boolean(p.options || (p.deliveryReturns && p.deliveryReturns.length > 0))
 
+  // 워크룸 원본 문법(2026-08-19) — sticky 그리드는 "모임 상세 전체"(호프·브람스·시지프·
+  // 신규) 공통, 하단 전폭 본문 섹션은 본문이 긴 모임(신규)만. 둘을 별개 변수로 둔다 —
+  // 하나로 합쳐 있으면(이전 버그) 신규 모임에만 sticky 가 걸리고 기존 3개 모임은 종전
+  // productHero 그대로 남는다. 굿즈 상세는 stickyPoster 를 안 주므로 아래 전부 false.
+  const sticky = Boolean(p.stickyPoster)
+  const feature = Boolean(p.centerBody)
+
   // 배송 & 교환/반품 레이어 (브라운야드 문법) — 열려 있으면 배경 스크롤 잠금 + ESC 닫기
   const [shipOpen, setShipOpen] = useState(false)
   useEffect(() => {
@@ -109,10 +128,22 @@ function DetailBody(p: DetailProps) {
 
   return (
     <main className={styles.content}>
-      <section className={`${styles.productHero} ${styles.detailHero}`}>
-        <figure className={styles.productFigure}>
+      <section
+        className={
+          sticky
+            ? `${styles.nsqHero} ${!feature ? styles.nsqHeroBare : ""}`
+            : `${styles.productHero} ${styles.detailHero}`
+        }
+      >
+        <figure
+          className={
+            sticky
+              ? `${styles.nsqFigure} ${feature ? styles.nsqFigureSpan : ""} ${styles.nsqFigureSticky}`
+              : styles.productFigure
+          }
+        >
           {p.images.map((img, i) => (
-            <div key={img.src} className={styles.detailImage}>
+            <div key={img.src} className={sticky ? undefined : styles.detailImage}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={i === 0 && activeColorImg ? activeColorImg : img.src}
@@ -122,7 +153,7 @@ function DetailBody(p: DetailProps) {
             </div>
           ))}
         </figure>
-        <div className={styles.productInfo}>
+        <div className={sticky ? styles.nsqInfo : styles.productInfo}>
           <div className={styles.itemCat}>
             {p.category}
             {p.badgeText ? ` · ${p.badgeText}` : ""}
@@ -293,6 +324,15 @@ function DetailBody(p: DetailProps) {
           </div>
           )}
         </div>
+
+        {/* 워크룸 원본 문법 — 본문 중앙 460px 컬럼 (2026-08-19). feature 모임 전용.
+            ⚠ nsqHero 그리드 "안"의 아이템이어야 한다 — nsqFigure 의 grid-row:1/3 sticky 범위가
+            이 섹션까지 걸치려면 같은 그리드 컨테이너를 공유해야 함(밖에 두면 무효화됨) */}
+        {feature && (
+          <section className={styles.nsqBody}>
+            <div className={styles.nsqBodyInner}>{p.centerBody}</div>
+          </section>
+        )}
       </section>
 
       {/* 배송 & 교환/반품 레이어 — 브라운야드 실측 이식: 우측 고정 패널이

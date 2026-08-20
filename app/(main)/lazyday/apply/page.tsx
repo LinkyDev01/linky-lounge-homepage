@@ -379,54 +379,69 @@ export default function ApplyPage() {
         {/* 2단계에서는 숨김 — 요일 문항의 확장 캘린더 하나만 남긴다 (운영자 지시 2026-07-27) */}
         {step === 1 && (
         <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
-            <table className={styles.scheduleTable}>
-              <thead>
-                <tr>
-                  <th className={styles.schThEmpty} />
-                  {SEASON.days.map((d) => (
-                    <th key={d.label} className={styles.schThDay}>
-                      {d.label}<br />
-                      {/* 시간대는 줄 단위(줄바꿈 없이) — 일요일 오전·오후 2슬롯 대응 */}
-                      {d.time.split(", ").map((t) => (
-                        <span key={t} className={styles.schThTime}>{t}</span>
-                      ))}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {SEASON.sessions.map((s) => (
-                  <tr key={s.label}>
-                    <td className={styles.schTdLabel}>{s.label}</td>
-                    {s.dates.map((date, i) => (
-                      <td key={i} className={styles.schTdDate}>{date}</td>
+          {/* 룰드 시트 (E1, 운영자 2026-08-20 채택 — preview/apply-info-designs
+              RuledVariant 원본과 diff 0). 잉크(#1a1208) 1px 괘선만으로 블록을
+              나누는 모노톤 서식 — 카드(.scheduleNotice)가 이미 페이지와의 경계를
+              만들어 주므로 안에서는 색 없이 선만 쓴다. 구 "평행 블록"(주황 톤,
+              .scheduleHeader 반복) 은 이 커밋으로 폐기 */}
+          <div className={styles.ruledWrap}>
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>{SEASON.name} 일정</h2>
+              <table className={styles.scheduleTable}>
+                <thead>
+                  <tr>
+                    <th className={styles.schThEmpty} />
+                    {SEASON.days.map((d) => (
+                      <th key={d.label} className={styles.schThDay}>
+                        {d.label}<br />
+                        {/* 시간대는 줄 단위(줄바꿈 없이) — 일요일 오전·오후 2슬롯 대응 */}
+                        {d.time.split(", ").map((t) => (
+                          <span key={t} className={styles.schThTime}>{t}</span>
+                        ))}
+                      </th>
                     ))}
                   </tr>
-                ))}
-                <tr>
-                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
-                    {SEASON.fifth.date}{" "}
-                    <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            {/* 장소 — 표(요일 그리드 축) 밖 한 줄로 (운영자 2026-08-19 "4기 일정
-                축에 장소가 배열되어 있는 게 맞지 않으므로"). 좌측 정렬, 볼드
-                링키라운지 + 괄호 부연은 season-config location.sub 단일 출처 */}
-            <p className={styles.schedulePlace}>
-              <span className={styles.schedulePlaceLabel}>장소</span>
-              <span>
-                <strong>{SEASON.location.name}</strong>
-                <span className={styles.schedulePlaceSub}> ({SEASON.location.sub})</span>
-              </span>
-            </p>
-            {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
-                구 "*회차별 화·수·일 중 참여 요일 선택 가능"은 같은 내용의 확정 문면으로 대체 */}
-            <p className={styles.scheduleNote}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>
-            <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+                </thead>
+                <tbody>
+                  {SEASON.sessions.map((s) => (
+                    <tr key={s.label}>
+                      <td className={styles.schTdLabel}>{s.label}</td>
+                      {s.dates.map((date, i) => (
+                        <td key={i} className={styles.schTdDate}>{date}</td>
+                      ))}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
+                    <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
+                      {SEASON.fifth.date}{" "}
+                      <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
+                  이 두 문장은 일정 블록에 딸린 것 — 같은 .ruledBlock 안에 둔다 */}
+              <p className={styles.scheduleNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
+              <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+            </div>
+
+            {/* 진행 장소 · 멤버십 가격 — 일정과 동급 블록. 장소 부연은
+                season-config location.sub, 가격은 SEASON.price 단일 출처
+                (랜딩은 비노출 유지 — 신청 페이지에만 노출) */}
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>진행 장소</h2>
+              <p className={styles.scheduleValue}>
+                {SEASON.location.name}
+                <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
+              </p>
+            </div>
+
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>멤버십 가격</h2>
+              <p className={styles.scheduleValue}>{SEASON.price}</p>
+            </div>
+          </div>
           </section>
         )}
 
@@ -660,7 +675,7 @@ export default function ApplyPage() {
               <p className={styles.dayHint}>*반배정을 위하여 참여가 불가능한 요일이 있는 경우에만 선택해주세요.</p>
               {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
                   구 "*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다."는 같은 내용의 확정 문면으로 대체 */}
-              <p className={styles.dayHint}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>
+              <p className={styles.dayHint}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
               <p className={styles.dayHint}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
               <div className={styles.dayGrid}>
                 {SEASON.unavailableDaySlots.map((slot) => (

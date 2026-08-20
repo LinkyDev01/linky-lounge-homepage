@@ -462,10 +462,24 @@
   text-wrap: pretty;
 }
 .nsqBodyText p:last-child { margin-bottom: 0; }
-.nsqHostRow { display: flex; gap: 20px; align-items: flex-start; }
-.nsqHostPhoto { flex-shrink: 0; width: 120px; }
-.nsqHostPhoto img { width: 100%; height: auto; display: block; border-radius: 8px; }
-.nsqHostName { font-family: var(--gothic); font-weight: 600; font-size: 15px; margin: 0 0 12px; }
+/* 진행자 소개 = 운영자 카드뉴스 원본 레이아웃 (2026-08-20 "인물소개는 이 레이아웃 그대로
+   살려야해. 우측 이미지까지"): ① 이름이 큰 제목으로 좌측 상단 ② 사진은 **우측**에 띄우고
+   본문이 그 왼쪽을 감싸 흐른다(float) ③ 사진 아래로는 본문이 전폭으로 이어짐 ④ 인스타
+   핸들은 약력 끝줄. 종전 flex(사진 좌측 고정폭) 구조를 이 문법으로 교체 */
+.nsqHostRow { display: block; }
+.nsqHostRow::after { content: ""; display: block; clear: both; } /* float 해제 */
+/* 사진이 소스 순서상 먼저 와야 이름·본문이 그 옆으로 감긴다 */
+.nsqHostPhoto { float: right; width: 38%; margin: 4px 0 18px 22px; }
+.nsqHostPhoto img { width: 100%; height: auto; display: block; border-radius: 10px; }
+.nsqHostName {
+  font-family: var(--gothic);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 0 0 22px;
+}
+/* 약력 마지막 줄의 인스타 핸들 (원본 카드에서 본문 끝에 한 줄로 붙는다) */
+.nsqHostHandle { margin: 0; }
 .nsqHostText p {
   font-family: var(--serif);
   font-weight: 500;
@@ -488,8 +502,10 @@
   /* 서브그리드 해제 — 모바일 본문은 종전대로 전폭(460 중앙) 흐름 */
   .nsqBody { grid-column: 1 / -1; grid-row: auto; margin-top: 30px; padding-top: 30px; grid-template-columns: 1fr; }
   .nsqBodyInner { grid-column: 1 / -1; }
-  .nsqHostRow { flex-direction: column; gap: 15px; }
-  .nsqHostPhoto { width: 140px; }
+  /* 진행자 소개는 모바일에서도 원본 카드 문법(우측 사진 + 감김)을 유지한다. 다만 390px
+     에서 38% 는 본문 줄이 너무 짧아져(≈13자) 폭만 줄이고 제목도 한 단계 낮춘다 */
+  .nsqHostPhoto { width: 33%; margin: 2px 0 14px 16px; }
+  .nsqHostName { font-size: 20px; margin-bottom: 16px; }
 }
 
 /* 목록 페이지 헤드 + 필터 (텍스트 링크 문법 — 활성 밑줄) */

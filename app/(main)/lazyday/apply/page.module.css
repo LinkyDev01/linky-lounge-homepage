@@ -73,12 +73,16 @@
    "네 반영할게요"로 E1 확정. 구 .scheduleHeader/.scheduleHeaderNext(평행 블록,
    주황 톤, 카드형 여백)는 이 서식으로 교체 — 카드(.scheduleNotice) 자체가
    페이지와의 경계를 이미 만들어 주므로 안에서는 잉크선만으로 블록을 나눈다. */
-.ruledWrap {
-  border-bottom: 1px solid #1a1208;
-}
+/* 바깥 위·아래 선은 없음 — 세 블록 '사이' 두 줄만 (운영자 2026-08-20 "4기 일정
+   위의 선과 참가비 아래 선은 지우고, 세 정보 사이 두 선만 남겨. 선도 더 옅은
+   회색으로"). 첫 블록엔 선이 없으므로 형제 결합자로 둘째·셋째 블록에만 건다.
+   색은 새 회색을 들여오지 않고 잉크(#1a1208)를 옅은 알파로 — 옅은 회색조로
+   읽히면서 팔레트 안에 머문다 */
 .ruledBlock {
-  border-top: 1px solid #1a1208;
   padding: 12px 0 22px;
+}
+.ruledBlock + .ruledBlock {
+  border-top: 1px solid rgba(26, 18, 8, 0.14);
 }
 .ruledLabel {
   font-size: 11.5px;

@@ -401,8 +401,14 @@
    동일한 하단 호흡. 본문 있는 모임(신규)은 .nsqBody 의 padding-bottom 이 그 역할을 하므로
    중복 적용하지 않는다 */
 .nsqHeroBare { margin-bottom: 65px; }
+/* 포스터 폭 = 참조 원본 실측 `.product_cat-book .woocommerce-product-gallery{grid-column:2/5}`
+   (2026-08-19 재실측 정정). 종전 1/8 은 `product_cat-text`(프린트류) 값을 잘못 가져온 것으로,
+   1280px 기준 포스터 우변 590px 이 본문 중앙 460 컬럼 좌변 410px 을 180px 침범해 sticky 로
+   따라 내려온 포스터가 본문 글을 덮었다. 2/5 는 우변 337 < 410 이라 겹침이 구조적으로 0.
+   ⚠ 이 폭은 장식이 아니라 레이아웃 성립 조건 — .nsqBodyInner(460px)와 겹치지 않아야 한다.
+   컬럼 5~11 의 넓은 공백도 참조 무드의 일부다. */
 .nsqFigure {
-  grid-column: 1 / 8;
+  grid-column: 2 / 5;
   align-self: start; /* grid 기본 stretch 를 깨야 sticky 가 자기 콘텐츠 높이로 붙는다 */
   margin: 0;
 }

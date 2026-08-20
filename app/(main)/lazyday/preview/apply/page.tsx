@@ -273,7 +273,7 @@ export default function PreviewApplyPage() {
         {step === 1 && (
         <section className={styles.scheduleNotice}>
           {/* 룰드 시트 (E1, 실사이트 쌍 동기화) */}
-          <div className={styles.ruledWrap}>
+          <div>
             <div className={styles.ruledBlock}>
               <h2 className={styles.ruledLabel}>{SEASON.name} 일정</h2>
               <table className={styles.scheduleTable}>

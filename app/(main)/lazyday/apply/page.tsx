@@ -384,7 +384,7 @@ export default function ApplyPage() {
               나누는 모노톤 서식 — 카드(.scheduleNotice)가 이미 페이지와의 경계를
               만들어 주므로 안에서는 색 없이 선만 쓴다. 구 "평행 블록"(주황 톤,
               .scheduleHeader 반복) 은 이 커밋으로 폐기 */}
-          <div className={styles.ruledWrap}>
+          <div>
             <div className={styles.ruledBlock}>
               <h2 className={styles.ruledLabel}>{SEASON.name} 일정</h2>
               <table className={styles.scheduleTable}>

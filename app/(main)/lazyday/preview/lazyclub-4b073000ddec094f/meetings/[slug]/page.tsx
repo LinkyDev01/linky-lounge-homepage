@@ -144,9 +144,11 @@ function NotSqueezingBody() {
   )
 }
 
-/** 진행자 소개 공용 서식 (2026-08-20) — 사진(400×581, 인물 중심·같은 비율로 크롭) + 이름·인스타 +
- *  약력. 모임마다 이 컴포넌트를 재사용해 서식이 갈라지지 않게 한다. 약력(children)은 운영자
- *  원문 그대로 — 한 글자도 편집하지 않는다. */
+/** 진행자 소개 공용 서식 — 운영자 카드뉴스 원본 레이아웃 그대로 (2026-08-20 확정):
+ *  이름이 큰 제목 → 사진은 **우측**에 띄우고 본문이 그 왼쪽을 감싸 흐름(float) →
+ *  인스타 핸들은 약력 끝줄. 모임마다 이 컴포넌트를 재사용해 서식이 갈라지지 않게 한다.
+ *  ⚠ 사진(figure)이 이름·본문보다 **소스 순서상 먼저** 와야 float 감김이 성립한다.
+ *  약력(children)은 운영자 원문 그대로 — 한 글자도 편집하지 않는다. */
 function HostIntro({
   photo,
   name,
@@ -165,14 +167,14 @@ function HostIntro({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photo} alt={name} />
       </figure>
+      <p className={styles.nsqHostName}>{name}</p>
       <div className={styles.nsqHostText}>
-        <p className={styles.nsqHostName}>
-          {name}{" "}
+        {children}
+        <p className={styles.nsqHostHandle}>
           <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer">
             @{instagram}
           </a>
         </p>
-        {children}
       </div>
     </div>
   )

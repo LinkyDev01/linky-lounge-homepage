@@ -379,61 +379,69 @@ export default function ApplyPage() {
         {/* 2단계에서는 숨김 — 요일 문항의 확장 캘린더 하나만 남긴다 (운영자 지시 2026-07-27) */}
         {step === 1 && (
         <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
-            <table className={styles.scheduleTable}>
-              <thead>
-                <tr>
-                  <th className={styles.schThEmpty} />
-                  {SEASON.days.map((d) => (
-                    <th key={d.label} className={styles.schThDay}>
-                      {d.label}<br />
-                      {/* 시간대는 줄 단위(줄바꿈 없이) — 일요일 오전·오후 2슬롯 대응 */}
-                      {d.time.split(", ").map((t) => (
-                        <span key={t} className={styles.schThTime}>{t}</span>
-                      ))}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {SEASON.sessions.map((s) => (
-                  <tr key={s.label}>
-                    <td className={styles.schTdLabel}>{s.label}</td>
-                    {s.dates.map((date, i) => (
-                      <td key={i} className={styles.schTdDate}>{date}</td>
+          {/* 룰드 시트 (E1, 운영자 2026-08-20 채택 — preview/apply-info-designs
+              RuledVariant 원본과 diff 0). 잉크(#1a1208) 1px 괘선만으로 블록을
+              나누는 모노톤 서식 — 카드(.scheduleNotice)가 이미 페이지와의 경계를
+              만들어 주므로 안에서는 색 없이 선만 쓴다. 구 "평행 블록"(주황 톤,
+              .scheduleHeader 반복) 은 이 커밋으로 폐기 */}
+          <div className={styles.ruledWrap}>
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>{SEASON.name} 일정</h2>
+              <table className={styles.scheduleTable}>
+                <thead>
+                  <tr>
+                    <th className={styles.schThEmpty} />
+                    {SEASON.days.map((d) => (
+                      <th key={d.label} className={styles.schThDay}>
+                        {d.label}<br />
+                        {/* 시간대는 줄 단위(줄바꿈 없이) — 일요일 오전·오후 2슬롯 대응 */}
+                        {d.time.split(", ").map((t) => (
+                          <span key={t} className={styles.schThTime}>{t}</span>
+                        ))}
+                      </th>
                     ))}
                   </tr>
-                ))}
-                <tr>
-                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
-                    {SEASON.fifth.date}{" "}
-                    <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
-                ⚠ 이 두 문장은 **일정 블록에 딸린 것** — 아래 장소·가격 제목보다
-                위에 둬야 소속이 맞다 */}
-            <p className={styles.scheduleNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
-            <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+                </thead>
+                <tbody>
+                  {SEASON.sessions.map((s) => (
+                    <tr key={s.label}>
+                      <td className={styles.schTdLabel}>{s.label}</td>
+                      {s.dates.map((date, i) => (
+                        <td key={i} className={styles.schTdDate}>{date}</td>
+                      ))}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
+                    <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
+                      {SEASON.fifth.date}{" "}
+                      <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
+                  이 두 문장은 일정 블록에 딸린 것 — 같은 .ruledBlock 안에 둔다 */}
+              <p className={styles.scheduleNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
+              <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+            </div>
 
-            {/* 진행 장소 · 멤버십 가격 — **일정과 동급 블록** (운영자 2026-08-20
-                "진행 장소와 멤버십 가격이 왜 일정 하위 섹션으로 위계가 보여?
-                일관되게 기획해"). 종전엔 표 아래 라벨+값 행이라 일정의 하위
-                항목처럼 읽혔다 → 셋 다 같은 제목 서식(.scheduleHeader)으로
-                세우고 값만 그 아래 두는 평행 구조로 재편.
-                장소 부연은 season-config location.sub, 가격은 SEASON.price 단일 출처
+            {/* 진행 장소 · 멤버십 가격 — 일정과 동급 블록. 장소 부연은
+                season-config location.sub, 가격은 SEASON.price 단일 출처
                 (랜딩은 비노출 유지 — 신청 페이지에만 노출) */}
-            <h2 className={`${styles.scheduleHeader} ${styles.scheduleHeaderNext}`}>진행 장소</h2>
-            <p className={styles.scheduleValue}>
-              {SEASON.location.name}
-              <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
-            </p>
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>진행 장소</h2>
+              <p className={styles.scheduleValue}>
+                {SEASON.location.name}
+                <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
+              </p>
+            </div>
 
-            <h2 className={`${styles.scheduleHeader} ${styles.scheduleHeaderNext}`}>멤버십 가격</h2>
-            <p className={styles.scheduleValue}>{SEASON.price}</p>
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>멤버십 가격</h2>
+              <p className={styles.scheduleValue}>{SEASON.price}</p>
+            </div>
+          </div>
           </section>
         )}
 

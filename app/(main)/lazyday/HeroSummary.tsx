@@ -7,7 +7,7 @@ import styles from "./HeroSummary.module.css"
 /**
  * 히어로 포스터 바로 아래의 핵심 요약 (10b 정본 이식, 운영자 확정 2026-07-08).
  * 키커(D-day) + 제목 '오프라인 독서모임'(명조 20px — 세리프 확장 승인) + 종이 낱장 SummaryCard.
- * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행(장소 아래, 취소선 없이 담백하게) 2026-08-19 재부활.
+ * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행 없음(2026-08-19 재숨김 — 왕복 이력은 DECISIONS).
  * 데이터는 season-config 단일 출처. D-day는 마운트 후 계산(빌드 박제 방지).
  * ⚠ 프리뷰 쌍: preview/HeroSummary.tsx — 한쪽 수정 시 동기화 (TSX 쌍 동기화).
  */
@@ -68,7 +68,7 @@ export function HeroSummary() {
     : d !== null && d < 0
     ? `${SEASON.name} 모집이 마감되었어요`
     : !SEASON.showDeadline || d === null
-    ? `레이지데이 북클럽 ${SEASON.name}를 모집합니다.` // 문장형 (운영자 2026-08-12 — 클로징 CTA와 동일 전환)
+    ? `레이지데이 북클럽 ${SEASON.name} 멤버를 모집합니다.` // 문장형 (운영자 2026-08-12) + '멤버' 추가 (2026-08-19)
     : d === 0
     ? `${SEASON.name} 모집 오늘 마감`
     : `${SEASON.name} 모집 마감 D-${d}`
@@ -114,13 +114,9 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>장소</span>
           <span className={styles.summaryValue}>{locationLine}</span>
         </div>
-        {/* 참가비 — 2026-08-19 재부활. 2026-08-18 취소선(priceWas) 버전은 그날 바로
-            철회됐었는데, 이번엔 취소선 없이 담백하게 현재가만 표기 (운영자 "할인가
-            찍 긋지 말고 담백하게 참가비 15만원 이렇게만"). */}
-        <div className={styles.summaryRow}>
-          <span className={styles.summaryLabel}>참가비</span>
-          <span className={styles.summaryValue}>{SEASON.price}</span>
-        </div>
+        {/* 참가비 행 없음 — 2026-08-19 오전 재부활(취소선 없이)했다가 같은 날 다시 숨김
+            (운영자 "참가비 다시 숨겨"). 2026-08-18에도 부활→원복된 자리다 — 다음에
+            또 살릴 땐 DECISIONS 의 왕복 이력부터 확인할 것. */}
         {/* 마감 행 — deadline이 있고 노출 허용일 때만 (showDeadline=false면 미표기, 운영자 지시 2026-07-23) */}
         {SEASON.deadline && SEASON.showDeadline && (
           <div className={styles.summaryRow}>

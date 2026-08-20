@@ -26,7 +26,7 @@
   --brand: #d2691e;
   --sub: #8a7660;
   --suit: "SUIT", sans-serif;
-  --navLogoSize: 78px; /* 동적 마크 실측 폭 (마크 높이 49.5 × 종횡비 1.58) */
+  --navLogoSize: 62px; /* 동적 마크 실측 폭 (마크 높이 39.5 × 종횡비 1.582) */
   --draft-nav-h: 59.5px;
 
   background: var(--paper);
@@ -339,7 +339,7 @@
 /* ══ 데스크톱 (레이지클럽과 동일하게 단일 브레이크포인트) ══════════ */
 @media (min-width: 721px) {
   .page {
-    --navLogoSize: 90px;
+    --navLogoSize: 71px; /* 마크 높이 45 × 종횡비 1.582 (2026-08-19 축소, 구 90) */
     --draft-nav-h: 64.8px;
 
     /* 폭 시스템 교체 — 밴드는 전폭, 콘텐츠는 1100px 컬럼으로 가운데.
@@ -424,20 +424,28 @@
     padding-top: 68px;
   }
 
-  /* 히어로 : 포스터(좌) + 요약 카드(우). 포스터가 전폭이면 aspect 4/5 라
-     높이가 폭주하므로 컬럼으로 묶어 상한을 만든다 */
+  /* 히어로 : 포스터 단독 중앙 + 요약 카드는 아래 (운영자 2026-08-19 "오프라인
+     독서모임을 배열하지 말고 더" — 좌우 병치를 풀고 포스터를 더 키운다.
+     구 2컬럼(1.05fr/0.95fr 병치)은 git 이력 참조) */
   .heroRow {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 40px;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
     align-items: center;
-    padding: 12px var(--lz-gutter) 0;
+    padding: 12px max(40px, calc((100vw - 1560px) / 2)) 0;
   }
   /* HeroParallax 의 .heroWrapper (첫 자식 div) — 클래스 대신 위치로 지정해
      실사이트 CSS 모듈을 건드리지 않는다 */
   .heroRow > div:first-child {
     background: transparent;
-    max-width: 560px;
+    /* 포스터는 4:5 (높이 = 폭×1.25) 단일 SVG viewBox 스케일이라 큰 글자·실 위
+       글자가 같은 비율로 커진다 — 서식은 어느 크기에서도 못 깨진다.
+       크기 상한은 **세로가 정한다** (운영자 2026-08-19 "맨 하단 부분까지
+       애니메이션 구간에서 짤리지 않으면서 최대한 크게"): 헤더(64.8)+행 상단
+       패딩(12)+아래 숨통 ≈ 90px 를 뺀 높이에 4:5 가 통째로 들어가는 폭이
+       (100vh−90px)×0.8 이다. 1080p 에서 792px → 990px 높이로 한 화면에 딱 든다.
+       960px 은 세로로 아주 긴 화면에서의 절대 상한 */
+    max-width: min(100%, calc((100vh - 90px) * 0.8), 960px);
     justify-self: center;
     width: 100%;
   }

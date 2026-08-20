@@ -200,7 +200,10 @@
   padding-bottom: 50px;
 }
 /* 원문 실측(상품 상세): 이미지 1/8 · 텍스트 11/15 — 가운데 3컬럼 공백이 무드의 핵심 */
-.productFigure { grid-column: 1 / 8; margin: 0; position: relative; }
+/* 굿즈 상세 갤러리 폭 — 참조 실측 `.product_cat-shop .woocommerce-product-gallery{grid-column:2/5}`
+   (운영자 2026-08-20 "굿즈는 2/5"). 모임 상세(.nsqFigure)와 같은 3열 폭으로 통일된다.
+   소비자는 ProductDetail 의 non-sticky 분기(=굿즈 상세) 한 곳뿐 — 모임은 .nsqFigure 를 쓴다 */
+.productFigure { grid-column: 2 / 5; margin: 0; position: relative; }
 .productFigure a { display: block; }
 .productFigure img { width: 100%; height: auto; display: block; }
 .productInfo { grid-column: 11 / 15; }
@@ -381,9 +384,12 @@
 /* ═══════════════════════════════════════════════════════════
    워크룸 원본 상세 문법 복원 — 좌측 포스터 sticky + 본문 중앙 컬럼
    (운영자 2026-08-19, 레퍼런스 workroompress.kr/product/219978).
-   ⚠ 신규 클래스 전용 — .productHero/.productFigure/.productInfo/.detailHero
-   (굿즈 상세와 공유)는 값을 절대 바꾸지 않는다. centerBody 를 받는 모임
-   상세(현재는 "비로소 나를 쥐어짜지 않는 법")에서만 이 클래스 세트를 쓴다.
+   이 세트(.nsq*)는 **모임 상세 전체**가 쓴다 — 굿즈 상세는 위쪽
+   .productHero/.productFigure/.productInfo/.detailHero 를 계속 쓴다.
+   두 갈래는 ProductDetail 의 stickyPoster 분기로 갈린다.
+   (2026-08-19 최초 주석은 "centerBody 받는 모임 전용 / 굿즈 공유 클래스는
+    절대 불변"이었으나, 이후 sticky 를 모임 전체로 확장하고 굿즈 폭도
+    운영자 지시로 2/5 로 맞추면서 두 서술 다 실효 — 현행으로 갱신)
    ═══════════════════════════════════════════════════════════ */
 
 /* 모임 상세 전체(hope·브람스·시지프·신규)가 이 그리드를 쓴다 — 좌측 포스터 sticky 는

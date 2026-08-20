@@ -8,7 +8,7 @@ import styles from "./preview.module.css"
 /**
  * 히어로 포스터 바로 아래의 핵심 요약 (10b 시안, 운영자 확정 2026-07-08).
  * 키커(D-day) + 제목 '오프라인 독서모임'(명조 20px — 세리프 확장 승인) + 종이 낱장 SummaryCard.
- * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행(장소 아래, 취소선 없이 담백하게) 2026-08-19 재부활.
+ * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행 없음(2026-08-19 재숨김 — 왕복 이력은 DECISIONS).
  * 데이터는 season-config 단일 출처. D-day는 마운트 후 계산(빌드 박제 방지).
  */
 
@@ -114,11 +114,7 @@ export function HeroSummary() {
           <span className={styles.summaryLabel}>장소</span>
           <span className={styles.summaryValue}>{locationLine}</span>
         </div>
-        {/* 참가비 — 2026-08-19 재부활 (실사이트 쌍 동기화, 취소선 없이 담백하게) */}
-        <div className={styles.summaryRow}>
-          <span className={styles.summaryLabel}>참가비</span>
-          <span className={styles.summaryValue}>{SEASON.price}</span>
-        </div>
+        {/* 참가비 행 없음 — 2026-08-19 재부활 후 같은 날 재숨김 (실사이트 쌍 동기화) */}
         {/* 마감 행 — deadline이 있고 노출 허용일 때만 (showDeadline=false면 미표기, 운영자 지시 2026-07-23) */}
         {SEASON.deadline && SEASON.showDeadline && (
           <div className={styles.summaryRow}>

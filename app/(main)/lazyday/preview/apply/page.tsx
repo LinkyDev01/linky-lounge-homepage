@@ -303,15 +303,16 @@ export default function PreviewApplyPage() {
                     <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
                   </td>
                 </tr>
-                {/* 장소도 회차 행과 동일한 서식 — 좌측 라벨 + 값 (운영자 지시 2026-07-27) */}
-                <tr>
-                  <td className={styles.schTdLabel}>장소</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdPlace}>
-                    {SEASON.location.name}
-                  </td>
-                </tr>
               </tbody>
             </table>
+            {/* 장소 — 표 밖 한 줄 (2026-08-19, 실사이트 쌍 동기화) */}
+            <p className={styles.schedulePlace}>
+              <span className={styles.schedulePlaceLabel}>장소</span>
+              <span>
+                <strong>{SEASON.location.name}</strong>
+                <span className={styles.schedulePlaceSub}> ({SEASON.location.sub})</span>
+              </span>
+            </p>
             {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
                 구 "*회차별 화·수·일 중 참여 요일 선택 가능"은 같은 내용의 확정 문면으로 대체 */}
             <p className={styles.scheduleNote}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>

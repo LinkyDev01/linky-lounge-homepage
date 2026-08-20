@@ -92,7 +92,12 @@
 
 .schThEmpty { width: 50px; }
 
-.schThDay {
+/* ⚠ 셀렉터에 .scheduleTable 을 붙인 이유 (2026-08-19): 위의
+   `.scheduleTable th`(0,1,1)가 `.schThDay`(0,1,0)보다 명시도가 높아
+   vertical-align: top 이 middle 에 **지고 있었다** — 일요일(시간 2줄, 3행)만
+   가운데 정렬로 위로 밀려 요일명 시작 y 가 화·수와 어긋났다 (운영자 "일요일만
+   y축 시작점이 다르네"). 클래스 2개(0,2,0)로 올려 top 이 실제로 이기게 한다 */
+.scheduleTable .schThDay {
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
@@ -157,14 +162,34 @@
   letter-spacing: 0;
 }
 
-.schTdPlace {
-  /* 장소 행 — 5회차 행과 동일한 가운데 정렬 값 서식 */
-  text-align: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1a1208;
+/* 장소 — 표 **밖** 한 줄 (2026-08-19, 운영자 "4기 일정 축에 장소가 배열되어
+   있는 게 맞지 않으므로 톤앤매너 맞추어서"). 구 .schTdPlace(표 안 가운데 정렬
+   셀)는 폐기. 라벨은 회차 라벨과 같은 주황 볼드 톤, 값은 좌측 정렬 —
+   볼드 링키라운지 + 옅은 괄호 부연. 왼쪽 라벨 폭·패딩을 표 첫 열과 맞춰
+   표의 마지막 행처럼 이어져 보인다 */
+.schedulePlace {
+  display: flex;
+  align-items: baseline;
+  margin: 0;
+  padding: 8px 6px 8px 4px;
   border-top: 1px solid #f0e8df;
+  font-size: 13px;
+  color: #1a1208;
+  text-align: left;
   letter-spacing: -0.01em;
+}
+.schedulePlaceLabel {
+  flex: none;
+  width: 56px; /* 표 첫 열(50px)+셀 좌우 패딩 근사 — 값 시작 x 를 날짜 열과 정렬 */
+  font-weight: 700;
+  color: #d2691e;
+}
+.schedulePlace strong {
+  font-weight: 700;
+}
+.schedulePlaceSub {
+  font-weight: 500;
+  color: #8a6a50;
 }
 
 .schMidnightIcon {

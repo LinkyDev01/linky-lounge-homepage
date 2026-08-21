@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { WorkroomShell } from "../../../Shell"
 import { findMeeting, ONE_DAY_MEETINGS } from "../../../one-day-config"
 import { MeetingApplyForm } from "./MeetingApplyForm"
+import styles from "../../../home.module.css"
 
 /** 모임 신청 — 구매하기의 착지점 (운영자 2026-08-21 "선신청 → 후결제").
  *  결제 링크(payUrl)가 없는 모임은 신청도 받지 않는다: 접수만 되고 결제로 이어질 곳이
@@ -17,8 +18,9 @@ export default async function MeetingApplyPage({ params }: { params: Promise<{ s
 
   return (
     <WorkroomShell>
-      <MeetingApplyForm
-        meeting={{
+      <main className={styles.content}>
+        <MeetingApplyForm
+          meeting={{
           slug: m.slug,
           title: m.title,
           date: m.date,
@@ -27,7 +29,8 @@ export default async function MeetingApplyPage({ params }: { params: Promise<{ s
           payUrl: m.payUrl,
           sessions: m.sessions,
         }}
-      />
+        />
+      </main>
     </WorkroomShell>
   )
 }

@@ -528,16 +528,8 @@ function HomeContent() {
                         </div>
                         <div className={styles.itemTitle}>{person.name}</div>
                       </div>
-                      <div className={styles.itemBottom}>
-                        <button
-                          type="button"
-                          className={styles.saveBtn}
-                          aria-label={`${person.name} 저장`}
-                          onClick={() => toggleSave(`people-${person.slug}`)}
-                        >
-                          <SaveIcon filled={saved.has(`people-${person.slug}`)} />
-                        </button>
-                      </div>
+                      {/* 저장하기 없음 — 사람은 담아 두는 물건이 아니다 (운영자 2026-08-21
+                          "전체보기에서 사람은 저장하기 기능 빼"). 모임·제품 카드에는 그대로 */}
                     </div>
                   </article>
                 )

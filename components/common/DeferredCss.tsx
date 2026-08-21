@@ -23,7 +23,10 @@ export function DeferredCss({ href }: { href: string }) {
   return (
     <>
       <link rel="preload" as="style" href={href} />
-      <link rel="stylesheet" href={href} media="print" data-lz-defer-css />
+      {/* 아래 인라인 스크립트가 하이드레이션 전에 media·data-d 를 바꾸므로 서버 HTML 과
+          어긋난다 — React 는 이 속성들을 되돌리지 않지만(의도한 동작) 콘솔에 불일치
+          오류를 남겨, 진짜 불일치가 묻힌다. 의도된 변형임을 명시해 소음을 없앤다 */}
+      <link rel="stylesheet" href={href} media="print" data-lz-defer-css suppressHydrationWarning />
       <noscript>
         <link rel="stylesheet" href={href} />
       </noscript>

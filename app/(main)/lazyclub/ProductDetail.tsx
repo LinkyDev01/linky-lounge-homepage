@@ -154,10 +154,10 @@ function DetailBody(p: DetailProps) {
           ))}
         </figure>
         <div className={sticky ? styles.nsqInfo : styles.productInfo}>
-          <div className={styles.itemCat}>
-            {p.category}
-            {p.badgeText ? ` · ${p.badgeText}` : ""}
-          </div>
+          {/* 2026-08-21 운영자: "' · ' 문자로 작성하지 마 … 일단 쓰지 마" — 이름 옆에
+              모집 상태를 가운뎃점으로 이어 붙이던 표기(예: "안동민 · 모집중")를 뗀다.
+              마감·오픈예정은 이미 포스터 위 StatusOverlay 가 알린다 */}
+          <div className={styles.itemCat}>{p.category}</div>
           <h1 className={`${styles.productTitle} ${p.sub ? "" : styles.productTitleNoSub}`}>{p.title}</h1>
           {p.sub && <p className={styles.productSub}>{p.sub}</p>}
 
@@ -264,6 +264,11 @@ function DetailBody(p: DetailProps) {
               type="button"
               className={styles.chipBtn}
               onClick={() => {
+                // 마감·오픈예정은 카트에도 담기지 않는다 (2026-08-21). 구매하기는 상태로
+                // 막혀 있었는데 이 버튼만 무조건 열려 있어, 마감된 모임이 카트를 거쳐
+                // 결제까지 갈 수 있었다 — 모임은 지난 회차도 카탈로그에 남기 때문
+                // (lib/order-catalog: 승인 중인 주문을 막지 않으려는 의도적 설계).
+                if (p.status !== "open") return notify(buyMsg ?? undefined)
                 if (!requireOptions()) return
                 // 옵션이 다르면 다른 카트 항목 — id 에 #옵션 접미 (주문 코드 변환 시 # 앞만 사용)
                 const item = optionLabel

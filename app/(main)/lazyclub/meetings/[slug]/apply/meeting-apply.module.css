@@ -1,16 +1,147 @@
-/* 레이지클럽 셸(고정 내비) 안에서 쓰기 위한 보정 — 신규 CSS, 기존 모듈 미임포트 (§9).
-   `apply/page.module.css` 는 셸 밖(북클럽 신청 페이지)에서 만들어져 상단 패딩이 32px 뿐이라,
-   레이지클럽의 **position:fixed 내비(높이 실측 65px)** 뒤로 제목 첫 줄이 숨는다.
-   공유 모듈(소비자 4곳)을 고치는 대신 이 래퍼로만 밀어낸다 — 다른 소비자 무영향 */
-.shellOffset {
-  padding-top: 68px;
+/* ================================================================
+ * 모임 신청 폼 — **레이지클럽(워크룸) 서식** (운영자 2026-08-21 2차:
+ * "레이지클럽 기반 구매페이지 디자인양식으로 가야해" — 첫 판의 북클럽
+ * 신청서(apply/page.module.css, 주황 카드 폼) 차용을 철회).
+ *
+ * 신규 CSS — 기존 .module.css 미임포트 (§9). 값은 전부 트리 문법에서 가져온다:
+ *   · 읽기 컬럼 460px = nsqBodyInner/personBlock
+ *   · 정보 행 = 12px 0 패딩 + 1px 잉크 헤어라인 (cartRow)
+ *   · 라벨 = 11px SUIT letter-spacing .03em (optLabel)
+ *   · 입력 = 무테 + 하단 헤어라인 (coming-soon emptyBlock input)
+ *   · 선택지 = 노아 문법 각진 헤어라인 박스, 선택 시 잉크 반전 (optSize)
+ *   · 제출/결제 버튼 = 잉크 칩 (chipBtn — 상세 '구매하기'와 동일)
+ *   · 오류 = #a22525 (shopStock 의 아웃오브스탁 레드)
+ * ================================================================ */
+
+.wrap {
+  max-width: 460px;
+  margin: 0 auto;
+  padding-bottom: 65px;
 }
-/* 결제하기 — 신청서 제출 버튼과 같은 서식이되 <a> 라 기본 링크 스타일을 지운다 */
-.payButton {
+
+/* ── 모임 정보 — 카트 행 문법 ── */
+.infoRows { margin: 4px 0 34px; }
+.infoRow {
+  display: flex;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ink);
+}
+.infoRow:first-child { border-top: 1px solid var(--ink); }
+.infoLabel {
+  flex: 0 0 64px;
+  font-family: var(--suit);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  padding-top: 2px;
+}
+.infoValue { flex: 1; }
+.infoNote { margin: 10px 0 0; font-size: 12px; color: #6d6459; }
+
+/* ── 필드 ── */
+.field { margin-bottom: 26px; }
+.fieldLabel {
   display: block;
-  text-align: center;
+  margin: 0 0 8px;
+  font-family: var(--suit);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+.required { color: #a22525; margin-left: 2px; }
+.input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.35);
+  border-radius: 0;
+  padding: 0 0 6px;
+  font: inherit;
+  background: transparent;
+  color: var(--ink);
+}
+.input::placeholder { color: #bcbcbc; }
+.input:focus { outline: 0; border-bottom-color: var(--ink); }
+.inputError { border-bottom-color: #a22525; }
+
+/* 성별 — 노아 선택지 (optSize 문법) */
+.choices { display: flex; gap: 6px; }
+.choice {
+  min-width: 52px;
+  padding: 4px 12px;
+  background: none;
+  border: 1px solid rgba(26, 18, 8, 0.35);
+  border-radius: 0;
+  font-family: var(--suit);
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1.4;
+}
+.choice:hover { border-color: var(--ink); }
+.choiceOn {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ── 동의 ── */
+.consent { margin: 34px 0 0; border-top: 1px solid var(--ink); padding-top: 18px; }
+.consentLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.consentLabel input {
+  margin: 3px 0 0;
+  accent-color: var(--ink);
+}
+.consentNote { margin: 2px 0 14px 22px; font-size: 12px; color: #6d6459; }
+
+/* ── 오류·구제 ── */
+.errorText { margin: 6px 0 0; font-size: 12px; color: #a22525; }
+.formError { margin: 0 0 8px; font-size: 12.5px; color: #a22525; }
+.rescue { margin: 22px 0 0; border: 1px solid rgba(26, 18, 8, 0.35); padding: 14px; }
+
+/* ── 제출·결제 — 잉크 칩(chipBtn 값) ── */
+.actionBtn {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 13.2px;
+  line-height: 1.5;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 30px;
+}
+.actionBtn:hover { opacity: 0.85; text-decoration: none; }
+.actionBtn:disabled { opacity: 0.5; cursor: default; }
+/* 결제하기는 <a> — 전역 `.page a { color: inherit }`(0,1,1)와 `.page a:hover`(0,2,1)가
+   칩 글자색·밑줄을 덮으므로 명시도를 한 단계 올려 되찾는다 */
+.wrap a.actionBtn,
+.wrap a.actionBtn:hover {
+  color: var(--paper);
   text-decoration: none;
 }
-.payButton:hover {
-  text-decoration: none;
+
+/* ── 제출 중 전면 로더 — 종이 반투명 + 잉크 문구 (트리 톤) ── */
+.busy {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(247, 243, 238, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--suit);
+  letter-spacing: 0.03em;
+}
+.busy span {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4px 10px;
 }

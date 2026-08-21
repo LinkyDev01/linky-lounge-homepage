@@ -51,7 +51,18 @@ export function MeetupCalendar() {
   )
 }
 
-function CalendarBody() {
+/** 전체보기(홈) 이식용 (운영자 2026-08-21) — 캘린더 + 거북이 트랙만.
+ *  '이번 달 모임' 목록(listHead + list)은 제외하고, 거북이 트랙의 하단 스티키도
+ *  끈다("거북이 트랙은 스티키까지는 필요 없어"). 캘린더 페이지 렌더는 무변경 */
+export function HomeCalendar() {
+  return (
+    <div className={styles.homeSlot}>
+      <CalendarBody showList={false} turtleSticky={false} />
+    </div>
+  )
+}
+
+function CalendarBody({ showList = true, turtleSticky = true }: { showList?: boolean; turtleSticky?: boolean } = {}) {
   // 첫 페인트에 실제 날짜를 쓰면 서버·클라이언트가 어긋난다 → 마운트 후 확정
   const [cursor, setCursor] = useState<{ y: number; m: number } | null>(null)
   const [today, setToday] = useState<{ y: number; m: number; d: number } | null>(null)
@@ -183,6 +194,7 @@ function CalendarBody() {
         </div>
       )}
 
+      {showList && (
       <div className={styles.listHead}>
         <span className={styles.listTitle}>
           {selectedDay === null ? `${m + 1}월 모임` : `${m + 1}월 ${selectedDay}일 모임`}{" "}
@@ -194,24 +206,26 @@ function CalendarBody() {
           </button>
         )}
       </div>
-
-      {shown.length === 0 ? (
-        <p className={styles.empty}>
-          이 달은 예정된 모임이 없습니다.
-          <br />
-          다른 달을 확인해 보세요.
-        </p>
-      ) : (
-        <ul className={styles.list}>
-          {shown.map((p) => (
-            <ProgramRow key={p.id} p={p} />
-          ))}
-        </ul>
       )}
+
+      {showList &&
+        (shown.length === 0 ? (
+          <p className={styles.empty}>
+            이 달은 예정된 모임이 없습니다.
+            <br />
+            다른 달을 확인해 보세요.
+          </p>
+        ) : (
+          <ul className={styles.list}>
+            {shown.map((p) => (
+              <ProgramRow key={p.id} p={p} />
+            ))}
+          </ul>
+        ))}
 
       {/* 거북이 트랙 — 맨 아래 섹션 (라운드 96, 운영자).
           폭은 .wrap 을 그대로 따른다 (트랙 너비 = 캘린더 너비) */}
-      <div className={styles.trackSlot}>
+      <div className={turtleSticky ? styles.trackSlot : styles.trackSlotStatic}>
         <TurtleTrack />
       </div>
     </div>

@@ -822,6 +822,15 @@
   column-gap: 20px;
 }
 .shop { grid-column: -6 / -1; }
+/* 데스크톱: 현재 기수 포스터·정보가 스크롤을 따라온다 (운영자 2026-08-21 —
+   position: sticky. top 85px = 모임 상세 스티키 포스터와 같은 헤더 여백) */
+@media (min-width: 721px) {
+  .shop {
+    position: sticky;
+    top: 85px;
+    align-self: start;
+  }
+}
 
 /* ── 리스트 항목 (08: ts-item — 5컬럼 gap 15, padding 7.5px 0,
       하단 1px 괘선. 썸네일 1차 미노출 → 콘텐츠가 전폭) ────── */
@@ -980,9 +989,32 @@
 /* ── 기수 진열 (라운드 24 이동 → 라운드 26: 구 굿즈와 동일한 shopItem 배열) ── */
 .seasonList { margin-bottom: 30px; }
 
-/* 굿즈 — 라운드 77: 우측 사이드바에서 좌측 모임 아래로. 모임 리스트와 같은 문법이라
-   전용 CSS는 위 여백뿐 (구 .goodsScaled 축소 진열은 폐기) */
-.goodsBlock { margin-top: 40px; }
+/* 굿즈(제품)·사람 — 라운드 77: 우측 사이드바에서 좌측 모임 아래로. 모임 리스트와 같은
+   문법. 상단 괘선 = 섹션 구분선 (운영자 2026-08-21 "선 하나 섹션으로 구분하자" —
+   모임↔제품, 제품↔사람 사이. 마지막 행이 rowLast 로 무선이라 이 선 하나만 남는다) */
+.goodsBlock {
+  margin-top: 40px;
+  border-top: 1px solid var(--ink);
+  padding-top: 24px;
+}
+
+/* ── 일정 — 캘린더 페이지 이식 (운영자 2026-08-21). 상단 괘선 = 섹션 구분선 ── */
+.calendarBlock {
+  margin-top: 50px;
+  border-top: 1px solid var(--ink);
+  padding-top: 24px;
+}
+/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) */
+.homeEndRule {
+  border-top: 1px solid var(--ink);
+  margin-top: 65px;
+}
+
+/* 기수 진열 — 데스크톱은 현재 기수만 (운영자 2026-08-21 "웹버전에서는 현재 기수만").
+   지난 기수는 DOM 에 남겨 모바일 미디어쿼리가 되살린다. 하나만 보이므로 항목 사이
+   구분선도 데스크톱에선 무의미 — 기수 목록에 한해 무선 */
+.seasonPast { display: none; }
+.seasonList .shopItem { border-bottom: 0; }
 
 /* 아카이브 캐러셀이 맨 아래로 내려가며 생긴 상단 여백 (라운드 77) */
 .booksBottom { margin-top: 65px; }
@@ -1126,8 +1158,12 @@
   .shopDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
 
   /* 모바일: 기수 진열 풀폭 스택 (굿즈는 라운드 77에서 모임 리스트 문법으로 이동) */
-  .goodsBlock { margin-top: 30px; }
+  .goodsBlock { margin-top: 30px; padding-top: 20px; }
   .goodsBlock .sectionTitle { padding-top: 5px; }
+  /* 모바일은 종전 배열 그대로 — 지난 기수 되살림 (운영자 2026-08-21) */
+  .seasonPast { display: grid; }
+  .calendarBlock { margin-top: 40px; padding-top: 20px; }
+  .homeEndRule { margin-top: 45px; }
   .booksBottom { margin-top: 40px; }
 
   /* 리스트 항목: 모바일 2컬럼 — 썸네일 좌 절반 + 콘텐츠 우 절반 (08) */

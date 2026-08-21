@@ -61,6 +61,11 @@ export type OneDayMeeting = {
    *  상세 "읽는 책" 필드도 이 배열에서 파생된다. 없으면 date 필드 하나로 단일 회차
    *  (기존 3개 모임 무변경). date 형식은 "M.D (요일) …" — mdFromOneDay 파싱과 동일 규칙 */
   sessions?: { week: string; date: string; work: string }[]
+  /** 토스페이먼츠 **상품 결제 링크** (운영자 2026-08-21 지급).
+   *  여정: 구매하기 → 신청 폼(GAS 접수) → 접수 완료 후 이 링크로 **손님이 직접** 결제.
+   *  ⚠ 결제창을 우리가 띄우지 않으므로 orderId 계약(§4 데이터 지도)과 무관하다 —
+   *  금액 재검증도 토스 상품 페이지가 한다. 링크가 없으면 신청 폼도 열지 않는다 */
+  payUrl?: string
   /** 진행자 (people-config 의 Person.slug). 사람들 페이지가 이 값으로 역참조해
    *  "진행하는 모임"을 모은다 (2026-08-20, C안). ⚠ **미확정이면 주지 않는다** —
    *  임의 배정 금지. 없는 모임은 역참조 목록에서 자연히 빠진다 */
@@ -74,6 +79,7 @@ export type OneDayMeeting = {
 export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "hope",
+    payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
     category: "movie",
     hostSlug: "andongmin", // 2026-08-20 역참조 (브람스·시지프는 진행자 미확정 — 주지 않음)
     title: "원데이 토크, 호프",
@@ -96,6 +102,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   },
   {
     slug: "brahms",
+    payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
     category: "booktalk",
     // 2026-08-21 운영자: "원데이토크 모두 다 내가 하는 거니까 태그와 사람 다 나로" —
     // 진행자 미확정 상태가 해소됐다 (호프와 동일하게 안동민)
@@ -120,6 +127,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   },
   {
     slug: "sisyphus",
+    payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
     category: "booktalk",
     hostSlug: "andongmin", // 2026-08-21 운영자 — 원데이 토크는 전부 안동민 진행
     title: "원데이 토크, 시지프 신화",
@@ -147,6 +155,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     // 진행: 천고든(레이지데이 북클럽 소속 — 외부 모임장이 아니다, 운영자 확정).
     // 가격·정원·결제 방식 미확정 — buyHref 를 주지 않고 문의로 안내 (D절, 임의 가격 금지).
     slug: "not-squeezing-myself",
+    payUrl: "https://buy.tosspayments.com/products/jtBoCf6W3Y", // 4주 과정 전용 링크 (운영자 2026-08-21)
     category: "booktalk",
     hostSlug: "gorden",
     // ⚠ \u00A0 = 줄바꿈 없는 공백. 한 줄에 안 담길 때 **"비로소, 나를 / 쥐어짜지 않는 법"**

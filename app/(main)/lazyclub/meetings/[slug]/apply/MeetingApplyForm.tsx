@@ -202,10 +202,8 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
             </div>
           )}
         </div>
-        <p>
-          신청서가 접수되었습니다. 아직 참여가 확정된 것은 아니에요 — 아래 <strong>결제하기</strong>로
-          결제까지 마치면 신청이 최종 확정됩니다.
-        </p>
+        {/* 운영자 원문 (2026-08-21, "이렇게 담백하게") */}
+        <p>신청서가 접수되었습니다. 결제까지 마치면 신청이 최종 확정됩니다.</p>
         <a href={meeting.payUrl} target="_blank" rel="noopener noreferrer" className={form.actionBtn}>
           결제하기
         </a>

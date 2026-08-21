@@ -6,7 +6,7 @@
  */
 
 import { createContext, useContext, useEffect, useRef, useState } from "react"
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "./LazyclubLink"
 import { IdleShuffle } from "./IdleShuffle"
 import styles from "./home.module.css"
 
@@ -125,18 +125,18 @@ export function WorkroomShell({
         {/* 1행 좌: 로고 → 랜딩(애니메이션) 페이지 */}
         {/* 라운드 78: 로고로 들어가면 인트로를 다시 재생하지 않는다 —
             ?still=1 은 최종 정지 화면으로 바로 진입 (색은 그때 새로 뽑는다) */}
-        <LazydayLink href={`${BASE}/coming-soon?still=1`} className={styles.navLogo} aria-label="레이지클럽 랜딩으로">
+        <LazyclubLink href={`${BASE}/coming-soon?still=1`} className={styles.navLogo} aria-label="레이지클럽 랜딩으로">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/linky-lounge/book-club/home-v3/nav-logo-circle.png" alt="레이지 클럽" />
-        </LazydayLink>
+        </LazyclubLink>
         {/* 1행 우: 아이콘 3종 — 자체 드로잉 SVG (푸터 SNS와 같은 문법: currentColor, 1.2 스트로크) */}
         <div className={styles.navIcons}>
           <button type="button" className={styles.navIconBtn} aria-label="계정" onClick={() => notify()}>
             <AccountIcon />
           </button>
-          <LazydayLink href={`${BASE}/cart`} className={styles.navIconBtn} aria-label="카트">
+          <LazyclubLink href={`${BASE}/cart`} className={styles.navIconBtn} aria-label="카트">
             <CartIcon />
-          </LazydayLink>
+          </LazyclubLink>
           <button type="button" className={styles.navIconBtn} aria-label="검색" onClick={() => notify()}>
             <SearchIcon />
           </button>
@@ -144,12 +144,12 @@ export function WorkroomShell({
         {/* 2행 좌: 전체상품 · 제품 · 아카이브 */}
         <nav className={styles.navAll}>
           {NAV_ROW2_LEFT.map((item) => (
-            <LazydayLink key={item.label} href={item.href}>
+            <LazyclubLink key={item.label} href={item.href}>
               {item.label}
-            </LazydayLink>
+            </LazyclubLink>
           ))}
         </nav>
-        {/* 2행 우: 레이지데이 북클럽 — 절대 URL은 일반 <a> (LazydayLink는 내부 경로 전용).
+        {/* 2행 우: 레이지데이 북클럽 — 절대 URL은 일반 <a> (LazyclubLink는 내부 경로 전용).
             라운드 81: 다른 도메인이므로 새 탭 */}
         <nav className={styles.navMenu}>
           {NAV_ROW2_RIGHT.map((item) =>
@@ -158,9 +158,9 @@ export function WorkroomShell({
                 {item.label}
               </a>
             ) : (
-              <LazydayLink key={item.label} href={item.href}>
+              <LazyclubLink key={item.label} href={item.href}>
                 {item.label}
-              </LazydayLink>
+              </LazyclubLink>
             ),
           )}
         </nav>

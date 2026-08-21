@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from "react"
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "./LazyclubLink"
 import { SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useCart, useSaved, type CartItem } from "./store"
 import styles from "./home.module.css"
@@ -247,9 +247,9 @@ function DetailBody(p: DetailProps) {
           <div className={styles.productActions}>
             {p.status === "open" && p.buyHref ? (
               optionsReady ? (
-                <LazydayLink href={buyHrefWithOpts ?? p.buyHref} className={styles.chipBtn}>
+                <LazyclubLink href={buyHrefWithOpts ?? p.buyHref} className={styles.chipBtn}>
                   구매하기
-                </LazydayLink>
+                </LazyclubLink>
               ) : (
                 <button type="button" className={styles.chipBtn} onClick={requireOptions}>
                   구매하기

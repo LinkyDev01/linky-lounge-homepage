@@ -18,7 +18,15 @@ const BOOKCLUB_ORIGIN = "https://www.lazyday-bookclub.com" // 책클럽 정본(�
 // 레이지 클럽 신규 도메인 (운영자 2026-08-06 구입) — coming soon 단계:
 // 모든 페이지 요청을 coming soon 페이지로 rewrite (자산·API는 matcher/분기에서 제외)
 const LAZYCLUB_HOSTS = new Set(["lazy-club.com", "www.lazy-club.com"])
-const LAZYCLUB_COMING_SOON = "/lazyday/preview/lazyclub-4b073000ddec094f/coming-soon"
+/** 레이지클럽 실트리 프리픽스 (2026-08-21 프리뷰 졸업 — base-path.ts BASE 와 같은 값) */
+const LAZYCLUB_BASE = "/lazyclub"
+/** 구 시안 경로 2종 — 301 로 새 경로에 넘긴다 (공유된 링크·북마크 보호) */
+const LAZYCLUB_OLD_PREFIXES = ["/preview/lazyclub-4b073000ddec094f", "/lazyday/preview/lazyclub-4b073000ddec094f"]
+const LAZYCLUB_COMING_SOON = `${LAZYCLUB_BASE}/coming-soon`
+/** lazy-club.com 랜딩 공개 스위치 — false 면 **루트만** coming soon (현행 유지),
+ *  하위 경로는 실페이지가 열린다. 도메인을 정식 공개할 때 true 로 (운영자 결정 사항):
+ *  true = 루트가 곧 레이지클럽 홈(전체보기). 그 외 동작은 두 값이 동일하다 */
+const LAZYCLUB_LIVE = false
 // PG(토스 결제위젯) 심사 대비 화이트리스트 (2026-08-11): 심사관이 lazy-club.com에서
 // 상품 → 신청 → 결제위젯 → 약관·개인정보처리방침까지 도달할 수 있어야 한다.
 // 이 프리픽스만 북클럽 도메인과 같은 방식(내부 /lazyday/*)으로 열고, 나머지는 coming-soon 유지.
@@ -39,16 +47,27 @@ export function middleware(req: NextRequest) {
   // 랜딩의 마크를 누르면 기획안 홈으로 가야 하는데, 전부 rewrite면 제자리로 되돌아온다.
   // 경로는 책클럽 도메인과 같은 깔끔한 형태(/preview/…)를 쓰고 내부 /lazyday/… 로 rewrite.
   if (LAZYCLUB_HOSTS.has(host) && !pathname.startsWith("/api")) {
+    // 구 시안 경로 → 깔끔한 새 경로로 301 (2026-08-21 프리뷰 졸업)
+    const old = LAZYCLUB_OLD_PREFIXES.find((p) => pathname === p || pathname.startsWith(p + "/"))
+    if (old) {
+      const rest = pathname.slice(old.length) || "/"
+      return NextResponse.redirect(new URL(rest + req.nextUrl.search, req.url), 301)
+    }
     const to = req.nextUrl.clone()
-    if (pathname.startsWith("/preview/lazyclub-4b073000ddec094f")) {
-      to.pathname = `/lazyday${pathname}`
-    } else if (pathname.startsWith("/lazyday/preview/lazyclub-4b073000ddec094f")) {
-      return NextResponse.next()
-    } else if (LAZYCLUB_OPEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    if (pathname.startsWith(LAZYCLUB_BASE)) {
+      // 내부 프리픽스로 직접 들어온 요청 — 이 도메인의 정식 URL 은 프리픽스 없는 쪽이다
+      const rest = pathname.slice(LAZYCLUB_BASE.length) || "/"
+      return NextResponse.redirect(new URL(rest + req.nextUrl.search, req.url), 301)
+    }
+    if (LAZYCLUB_OPEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
       // PG 심사 화이트리스트 — 원데이 신청·결제(checkout/success/fail)·정책 페이지
       to.pathname = `/lazyday${pathname}`
-    } else {
+    } else if (!LAZYCLUB_LIVE && pathname === "/") {
+      // 랜딩은 아직 coming soon (LAZYCLUB_LIVE 스위치) — 하위 경로는 실페이지
       to.pathname = LAZYCLUB_COMING_SOON
+    } else {
+      // 도메인 루트 = 레이지클럽 트리. /meetings·/people·/shop… 이 그대로 열린다
+      to.pathname = pathname === "/" ? LAZYCLUB_BASE : `${LAZYCLUB_BASE}${pathname}`
     }
     return NextResponse.rewrite(to)
   }
@@ -59,12 +78,16 @@ export function middleware(req: NextRequest) {
   //    브랜치 프리뷰(vercel.app)에서만. /preview·/lazyday/preview 모두 홈으로 보낸다.
   //    예외: 난수 슬러그 공유 경로(운영자 2026-08-04 "복잡한 하위페이지명") —
   //    토큰 링크 대신 이 경로만 실도메인에서 열린다 (noindex는 프리뷰 레이아웃이 보장)
-  const isSharedPreview =
-    pathname.startsWith("/preview/lazyclub-4b073000ddec094f") ||
-    pathname.startsWith("/lazyday/preview/lazyclub-4b073000ddec094f")
+  // 2026-08-21: 레이지클럽이 프리뷰를 졸업해 /lazyclub 로 옮겼다 — 구 경로는 301.
+  // (북클럽 도메인에서도 열어 두는 이유: 운영자 검토 동선. 색인은 레이아웃이 noindex 로 막는다)
+  const oldLazyclub = LAZYCLUB_OLD_PREFIXES.find((p) => pathname === p || pathname.startsWith(p + "/"))
+  if (isBookclub && oldLazyclub) {
+    const to = req.nextUrl.clone()
+    to.pathname = `${LAZYCLUB_BASE}${pathname.slice(oldLazyclub.length)}`
+    return NextResponse.redirect(to, 301)
+  }
   if (
     isBookclub &&
-    !isSharedPreview &&
     (pathname === "/preview" ||
       pathname.startsWith("/preview/") ||
       pathname === "/lazyday/preview" ||
@@ -77,7 +100,12 @@ export function middleware(req: NextRequest) {
   //    - /api/* 와 이미 /lazyday 로 들어온 요청은 그대로 둔다(자산은 matcher에서 제외).
   let rewriteUrl: URL | null = null
   let effectivePath = pathname
-  if (isBookclub && !pathname.startsWith("/lazyday") && !pathname.startsWith("/api")) {
+  if (
+    isBookclub &&
+    !pathname.startsWith("/lazyday") &&
+    !pathname.startsWith(LAZYCLUB_BASE) && // 레이지클럽은 /lazyday 밑이 아니다 — 이중 프리픽스 방지
+    !pathname.startsWith("/api")
+  ) {
     // 인터뷰 인덱스는 일정 선택으로 (next.config의 /lazyday 리다이렉트와 동일 효과, 깔끔한 URL 유지)
     if (pathname === "/apply/interview" || pathname === "/apply/interview/") {
       const to = req.nextUrl.clone()

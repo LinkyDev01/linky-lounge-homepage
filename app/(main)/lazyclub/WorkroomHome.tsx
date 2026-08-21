@@ -6,8 +6,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { LazydayLink } from "@/components/common/LazydayLink"
-import { SEASON } from "../../season-config"
+import { LazyclubLink } from "./LazyclubLink"
+import { SEASON } from "@/app/(main)/lazyday/season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { PEOPLE } from "./people-config"
@@ -290,7 +290,7 @@ export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
         <div ref={seasonCarousel.trackRef} className={styles.shopTrack} onScroll={seasonCarousel.onScroll}>
           {seasonItems.map((s, i) => (
             <article key={s.id} className={`${styles.shopItem} ${i > 0 ? styles.seasonPast : ""}`}>
-              {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazydayLink는 내부 경로 전용) */}
+              {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazyclubLink는 내부 경로 전용) */}
               <a
                 href={s.link}
                 target="_blank"
@@ -368,10 +368,10 @@ function HomeContent() {
       <div className={styles.textsShop} id="meetings">
         <section className={styles.meetings}>
           <div className={styles.sectionTitle}>
-            <LazydayLink href={`${BASE}/meetings`}>
+            <LazyclubLink href={`${BASE}/meetings`}>
               <span>모임</span>
               <ArrowIcon />
-            </LazydayLink>
+            </LazyclubLink>
           </div>
           <div className={styles.meetingsList}>
             {items.map((m, idx) => {
@@ -382,7 +382,7 @@ function HomeContent() {
                   key={m.id}
                   className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
                 >
-                  <LazydayLink href={m.link} className={styles.itemLink} aria-label={`${m.title} 안내로 이동`} />
+                  <LazyclubLink href={m.link} className={styles.itemLink} aria-label={`${m.title} 안내로 이동`} />
                   {m.thumbnail && (
                     <figure className={styles.itemFigure}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -424,10 +424,10 @@ function HomeContent() {
                   다른 다섯 섹션(모임·사람·일정·기록·레이지데이 북클럽)이 전부 자기 목록으로
                   나가는데 제품만 제자리 앵커라 화살표가 아무 일도 하지 않았다. 내비의
                   '제품'과도 목적지가 같아진다 */}
-              <LazydayLink href={`${BASE}/shop`}>
+              <LazyclubLink href={`${BASE}/shop`}>
                 <span>제품</span>
                 <ArrowIcon />
-              </LazydayLink>
+              </LazyclubLink>
             </div>
             <div className={styles.meetingsList}>
               {GOODS.map((g, idx) => {
@@ -438,7 +438,7 @@ function HomeContent() {
                     key={g.slug}
                     className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
                   >
-                    <LazydayLink
+                    <LazyclubLink
                       href={`${BASE}/shop/${g.slug}`}
                       className={styles.itemLink}
                       aria-label={`${g.name} 상세로 이동`}
@@ -485,10 +485,10 @@ function HomeContent() {
                  같은 2열 리스트, 태그는 전부 '사람'(굿즈의 '제품' 선례). 카드 → /people/[slug] ── */}
           <div className={styles.goodsBlock} id="people">
             <div className={styles.sectionTitle}>
-              <LazydayLink href={`${BASE}/people`}>
+              <LazyclubLink href={`${BASE}/people`}>
                 <span>사람</span>
                 <ArrowIcon />
-              </LazydayLink>
+              </LazyclubLink>
             </div>
             <div className={styles.meetingsList}>
               {PEOPLE.map((person, idx) => {
@@ -500,7 +500,7 @@ function HomeContent() {
                     key={person.slug}
                     className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
                   >
-                    <LazydayLink
+                    <LazyclubLink
                       href={`${BASE}/people/${person.slug}`}
                       className={styles.itemLink}
                       aria-label={`${person.name} 소개로 이동`}
@@ -547,10 +547,10 @@ function HomeContent() {
              캘린더 + 거북이 트랙(스티키 해제)만. 상단 괘선으로 섹션 구분 ── */}
       <section className={styles.calendarBlock} id="calendar">
         <div className={styles.sectionTitle}>
-          <LazydayLink href={`${BASE}/calendar`}>
+          <LazyclubLink href={`${BASE}/calendar`}>
             <span>일정</span>
             <ArrowIcon />
-          </LazydayLink>
+          </LazyclubLink>
         </div>
         <HomeCalendar />
       </section>
@@ -563,10 +563,10 @@ function HomeContent() {
       {SHOW_ARCHIVE && (
       <section className={`${styles.books} ${styles.booksBottom} ${styles.archiveBlock}`}>
         <div className={styles.sectionTitle}>
-          <LazydayLink href={`${BASE}/archive`}>
+          <LazyclubLink href={`${BASE}/archive`}>
             <span>기록</span>
             <ArrowIcon />
-          </LazydayLink>
+          </LazyclubLink>
         </div>
         <RecordsCarousel />
       </section>

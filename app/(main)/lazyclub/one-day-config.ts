@@ -79,7 +79,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     title: "원데이 토크, 호프",
     work: "호프",
     date: "8.23 (일) 19:00–22:00",
-    host: "레이지데이 북클럽",
+    host: "안동민",
     catLabel: "안동민", // 진행자 확정(hostSlug) 모임 — 모임장 이름 (운영자 2026-08-21 2차)
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
@@ -97,11 +97,14 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "brahms",
     category: "booktalk",
+    // 2026-08-21 운영자: "원데이토크 모두 다 내가 하는 거니까 태그와 사람 다 나로" —
+    // 진행자 미확정 상태가 해소됐다 (호프와 동일하게 안동민)
+    hostSlug: "andongmin",
     title: "원데이 토크, 브람스를 좋아하세요...",
     work: "브람스를 좋아하세요...",
     date: "8.30 (일) 08:00–11:00",
-    host: "레이지데이 북클럽",
-    catLabel: "레이지데이 북클럽", // 진행자 미확정 — 진행 주체 표기 (임의 배정 금지)
+    host: "안동민",
+    catLabel: "안동민",
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
     // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만
@@ -118,11 +121,12 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "sisyphus",
     category: "booktalk",
+    hostSlug: "andongmin", // 2026-08-21 운영자 — 원데이 토크는 전부 안동민 진행
     title: "원데이 토크, 시지프 신화",
     work: "시지프 신화",
     date: "9.5 (토) 08:00–11:00",
-    host: "레이지데이 북클럽",
-    catLabel: "레이지데이 북클럽", // 진행자 미확정 — 진행 주체 표기 (임의 배정 금지)
+    host: "안동민",
+    catLabel: "안동민",
     // 2026-08-11: 4주 연기로 마감 해제 (구 라운드 121 soldout)
     status: "open",
     // 라운드 78 (운영자): 범용 One Day Talk 포스터 → 책+설명 카드로 교체 (브람스와 같은 문법)

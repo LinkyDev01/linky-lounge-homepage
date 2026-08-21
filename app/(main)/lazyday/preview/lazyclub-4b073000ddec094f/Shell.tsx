@@ -35,13 +35,13 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "전체보기", href: BASE },
   { label: "모임", href: `${BASE}/meetings` },
   { label: "제품", href: `${BASE}/shop` },
-  // 라운드 121(운영자): 제품과 아카이브 사이에 **일정** — 캘린더 페이지
+  // 2026-08-20(운영자): **사람** — 진행자 소개 페이지 (레퍼런스 p-i-e.kr/people, C안).
+  // 2026-08-21(운영자): 순서를 제품과 일정 사이로 이동 + 단수형.
+  // ⚠ 좌측 6항목이라 390px 에서 우측 '레이지데이 북클럽'과의 간격이 조인다 —
+  // 폰트·gap 은 라운드 124 값 유지하고 겹침 여부는 캡처로 실측 관리할 것
+  { label: "사람", href: `${BASE}/people` },
+  // 라운드 121(운영자): 캘린더 페이지
   { label: "일정", href: `${BASE}/calendar` },
-  // 2026-08-20(운영자): 일정과 아카이브 사이에 **사람들** — 진행자 소개 페이지
-  // (레퍼런스 p-i-e.kr/people, C안). ⚠ 좌측 6항목이 되며 390px 에서 우측
-  // '레이지데이 북클럽'과의 간격이 더 조인다 — 폰트·gap 은 라운드 124 값 유지하고
-  // 겹침 여부는 캡처로 실측 관리할 것
-  { label: "사람", href: `${BASE}/people` }, // 단수형 (운영자 2026-08-21)
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는
@@ -173,7 +173,7 @@ export function WorkroomShell({
           </figure>
           <div className={styles.footerDesc}>
             {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}
-            <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하며 하나의 선율이 되는 순간을 소망합니다.</p>
+            <p>저마다 다른 삶의 궤적 속 불협화음이 예술의 본질을 관통하여 하나의 선율이 되는 순간을 소망합니다.</p>
           </div>
           <div className={styles.footerBiz}>
             <div>

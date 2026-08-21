@@ -12,10 +12,11 @@ export type OneDayCategory = "booktalk" | "movie" | "lecture" | "reading" | "doc
 
 /** 화면 노출용 카테고리 라벨 (라운드 82, 운영자: "booktalk 대신에 원데이토크").
  *  분류 키는 그대로 두고 표기만 한국어로 — 홈·목록·상세가 공유하는 단일 출처.
- *  movie: 호프 무비토크 상품화로 추가 (운영자 2026-08-11) */
+ *  movie: 호프 상품화로 추가 (운영자 2026-08-11).
+ *  2026-08-21 운영자: '무비토크' 표기 폐지 + 띄어쓰기 정정 — 둘 다 "원데이 토크" */
 export const CATEGORY_LABELS: Record<OneDayCategory, string> = {
-  booktalk: "원데이토크",
-  movie: "무비토크",
+  booktalk: "원데이 토크",
+  movie: "원데이 토크",
   lecture: "강연",
   reading: "낭독",
   documents: "기록",
@@ -27,17 +28,23 @@ export type ProductStatus = "open" | "soldout" | "upcoming"
 export type OneDayMeeting = {
   slug: string
   category: OneDayCategory
-  /** 리스트 제목 (책 제목은 『』 표기, 워크룸 도록체) */
+  /** 리스트 제목 — "원데이 토크, <작품명>" (2026-08-21 운영자: 『』 감싸기 폐지,
+   *  모임명 뒤에 서적/영화를 나열). 자체 이름이 있는 모임(4주 과정 등)은 그 이름 그대로 */
   title: string
+  /** 작품명 (『』 없이) — 주문 코드 대조(meetingOrderCode ↔ oneday-shared.work)와
+   *  캘린더 칸 표기가 쓴다. 종전에는 title 의 『』 를 정규식으로 파싱했는데, 제목 형식
+   *  변경(2026-08-21)으로 파싱 불가 → 명시 필드로 분리. 작품이 없는 모임은 생략 */
+  work?: string
   /** 날짜 표기 — 점 표기 관례 "8.9 (일) 19:00" (05 표기 규칙) */
   date: string
   /** 모임장 — 플랫폼화(다수 모임장) 대비 필드 */
   host: string
-  /** 카드·상세 상단의 작은 카테고리 라벨 (2026-08-21 운영자).
-   *  경위: 카테고리 키 표기(무비토크·원데이토크) → 진행 주체(host, 2026-08-18) →
-   *  다시 카테고리로 돌아오되 **무비토크도 '원데이토크'로 통일**, 개별 모임장이 여는
-   *  모임만 **모임장 이름**을 쓴다("비로소 나를~" = 천고든). host(진행 필드)와는
-   *  별개 축이라 필드를 분리한다 — host 를 덮어쓰면 상세 '진행' 줄까지 바뀐다 */
+  /** 카드·상세 상단의 작은 라벨 (2026-08-21 운영자 2차: "카테고리에 이름을 써야
+   *  하니까" — 종류어(원데이토크/무비토크)는 제목 앞으로 이동하고, 이 자리는 **이름**).
+   *  진행자가 확정된 모임은 모임장 이름(천고든·안동민), 미확정 모임은 진행 주체
+   *  "레이지데이 북클럽". host(진행 필드)와는 별개 축이라 필드를 분리한다 —
+   *  host 를 덮어쓰면 상세 '진행' 줄까지 바뀐다.
+   *  경위: 카테고리 키 표기 → 진행 주체(8-18) → 카테고리 통일(8-21) → 이름(8-21 2차) */
   catLabel: string
   status: ProductStatus
   thumbnail: string
@@ -69,14 +76,15 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "hope",
     category: "movie",
     hostSlug: "andongmin", // 2026-08-20 역참조 (브람스·시지프는 진행자 미확정 — 주지 않음)
-    title: "『호프』 무비토크",
+    title: "원데이 토크, 호프",
+    work: "호프",
     date: "8.23 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
-    catLabel: "원데이토크",
+    catLabel: "안동민", // 진행자 확정(hostSlug) 모임 — 모임장 이름 (운영자 2026-08-21 2차)
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
     // 2026-08-18: 브람스·시지프와 같은 카드뉴스 형식으로 교체 (구 영화 포스터 이미지 폐기)
-    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "호프 무비토크 카드" }],
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "원데이 토크 호프 카드" }],
     // ⚠ 임시 소개 문구 — 운영자 카드뉴스 원문 수급 시 교체 (브랜드 카피는 운영자 소유)
     description: [
       "나홍진 감독의 영화 〈호프〉를 함께 보고 이야기 나누는 하루의 영화 모임입니다.",
@@ -89,10 +97,11 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "brahms",
     category: "booktalk",
-    title: "『브람스를 좋아하세요...』 원데이 토크",
+    title: "원데이 토크, 브람스를 좋아하세요...",
+    work: "브람스를 좋아하세요...",
     date: "8.30 (일) 08:00–11:00",
     host: "레이지데이 북클럽",
-    catLabel: "원데이토크",
+    catLabel: "레이지데이 북클럽", // 진행자 미확정 — 진행 주체 표기 (임의 배정 금지)
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
     // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만
@@ -109,10 +118,11 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "sisyphus",
     category: "booktalk",
-    title: "『시지프 신화』 원데이 토크",
+    title: "원데이 토크, 시지프 신화",
+    work: "시지프 신화",
     date: "9.5 (토) 08:00–11:00",
     host: "레이지데이 북클럽",
-    catLabel: "원데이토크",
+    catLabel: "레이지데이 북클럽", // 진행자 미확정 — 진행 주체 표기 (임의 배정 금지)
     // 2026-08-11: 4주 연기로 마감 해제 (구 라운드 121 soldout)
     status: "open",
     // 라운드 78 (운영자): 범용 One Day Talk 포스터 → 책+설명 카드로 교체 (브람스와 같은 문법)
@@ -171,7 +181,7 @@ export function findMeeting(slug: string) {
 export function meetingOrderCode(slug: string): string | null {
   const m = findMeeting(slug)
   if (!m) return null
-  const work = m.title.match(/『(.+?)』/)?.[1]
-  const s = ONEDAY.sessions.find((x) => x.work === work)
+  // 제목 파싱(『』) 폐지 — 제목 형식 변경(2026-08-21)으로 명시 work 필드 대조
+  const s = ONEDAY.sessions.find((x) => x.work === m.work)
   return s ? meetingCode(sessionKey(s)) : null
 }

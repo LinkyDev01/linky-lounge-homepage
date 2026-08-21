@@ -127,7 +127,7 @@ function NotSqueezingBody() {
   )
 }
 
-/** 호프 무비토크 본문 — 진행자(안동민) 소개. 원문 그대로 (운영자 2026-08-20) */
+/** 호프(원데이 토크) 본문 — 진행자(안동민) 소개. 원문 그대로 (운영자 2026-08-20) */
 function HopeBody() {
   return (
     <div style={{ display: "contents" }}>

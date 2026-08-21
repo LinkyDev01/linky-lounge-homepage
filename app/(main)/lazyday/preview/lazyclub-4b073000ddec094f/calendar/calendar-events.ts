@@ -22,7 +22,7 @@ import { season3Config } from "../../../book-config"
  *          (7/29·7/30·8/2, 8/12·8/13·8/16, 8/26·8/27·8/30 전부 스크린샷과 일치).
  *          시간대는 운영자 제공 (라운드 105, SEASON3_TIMES)
  *   · 원데이 토크 ← `one-day-config.ts`
- *   · 무비토크 ← MOVIE_TALKS (전용 config 생기면 이관)
+ *   · 구 무비토크 ← MOVIE_TALKS (비어 있음 — '무비토크' 표기는 2026-08-21 폐지)
  */
 
 export type EventCategory = "bookclub" | "booktalk" | "movie"
@@ -31,7 +31,9 @@ export type EventCategory = "bookclub" | "booktalk" | "movie"
 export const CATEGORY_TONE: Record<EventCategory, { label: string; color: string }> = {
   bookclub: { label: "레이지데이 북클럽", color: "#d2691e" },
   booktalk: { label: "원데이 토크", color: "#845d5e" },
-  movie: { label: "무비토크", color: "#96ab9b" },
+  // '무비토크' 표기 폐지 (운영자 2026-08-21) — 키·톤은 남기되 라벨만 통일.
+  // 현행 일정은 전부 booktalk 으로 매핑돼 이 항목은 범례에 안 뜬다 (MOVIE_TALKS 빈 배열)
+  movie: { label: "원데이 토크", color: "#96ab9b" },
 }
 
 /** 모임 한 건 — 포스터·정보는 여기 한 벌만 */
@@ -88,12 +90,12 @@ const SEASON3_SESSIONS: Array<{ label: string; dates: string[] }> = [
   { label: "5회차", dates: ["9/6"] },
 ]
 
-/** 무비토크 — 2026-08-11 호프가 one-day-config 상품으로 승격(포스터·35,000원)되며
+/** 구 무비토크 — 2026-08-11 호프가 one-day-config 상품으로 승격(포스터·35,000원)되며
  *  이 임시 배열은 비웠다. 상품화 전 단발 일정이 생기면 다시 쓴다 */
 const MOVIE_TALKS: Array<{ date: string; title: string; time: string; price: string }> = []
 
-/** "『시지프 신화』 원데이 토크" → "시지프 신화" (괄호 밖 종류어는 둘째 줄이 맡는다).
- *  칸이 좁아 『』 는 뺀다 — 한 글자라도 작품명에 쓰는 편이 식별에 낫다 (라운드 106) */
+/** 구 제목 형식("『시지프 신화』 원데이 토크")용 『』 파싱 — 이제 MOVIE_TALKS(레거시,
+ *  빈 배열)만 쓴다. one-day-config 는 명시 work 필드로 대체 (제목 형식 변경 2026-08-21) */
 function workTitle(title: string): string {
   const m = title.match(/『(.+?)』/)
   return m ? m[1] : title
@@ -151,12 +153,14 @@ const PROGRAMS: ClubProgram[] = [
   },
   ...ONE_DAY_MEETINGS.map((m) => ({
     id: `oneday-${m.slug}`,
-    // 무비토크(호프)는 movie 톤 — 그 외는 원데이 토크 (2026-08-11 상품화)
-    category: (m.category === "movie" ? "movie" : "booktalk") as EventCategory,
+    // '무비토크' 구분 폐지 (운영자 2026-08-21) — 호프도 원데이 토크 톤으로 통일.
+    // movie 톤을 남겨두면 범례에 "원데이 토크"가 두 색으로 중복돼 보인다
+    category: "booktalk" as EventCategory,
     // 라운드 107: 카테고리 줄이 이미 "원데이 토크" 라 제목의 종류어는 중복 → 작품명만.
     // 괄호(『』)는 폭이 넉넉한 목록에서는 유지한다 (좁은 캘린더 칸에서만 생략).
-    // 2026-08-19: sessions 있는 모임(4주 과정)은 책 인용이 아니라 프로그램명 — 『』 생략
-    title: m.sessions ? m.title : `『${workTitle(m.title)}』`,
+    // 2026-08-19: sessions 있는 모임(4주 과정)은 책 인용이 아니라 프로그램명 — 『』 생략.
+    // 작품명은 명시 work 필드 — 제목의 『』 파싱은 제목 형식 변경(2026-08-21)으로 폐지
+    title: m.sessions ? m.title : `『${m.work ?? m.title}』`,
     schedule: m.date,
     times: [] as string[],
     // 2026-08-19: 가격 미정(null) 모임은 "문의" — 임의 가격 표기 금지
@@ -237,7 +241,6 @@ const EVENTS: ClubEvent[] = [
       })
     }
     const [month, day] = mdFromOneDay(m.date)
-    const isMovie = m.category === "movie"
     return [
       {
         id: `oneday-${m.slug}`,
@@ -245,10 +248,11 @@ const EVENTS: ClubEvent[] = [
         year: YEAR,
         month,
         day,
-        category: (isMovie ? "movie" : "booktalk") as EventCategory,
+        // '무비토크' 구분 폐지 (운영자 2026-08-21) — 톤·종류 줄 모두 원데이 토크 통일
+        category: "booktalk" as EventCategory,
         cellLabel: m.title,
         // 라운드 106: 기수와 같은 2줄 서식 — 작품명 / 종류
-        cellLines: [workTitle(m.title), isMovie ? "무비토크" : "원데이 토크"] as [string, string],
+        cellLines: [m.work ?? m.title, "원데이 토크"] as [string, string],
       },
     ]
   }),
@@ -262,7 +266,7 @@ const EVENTS: ClubEvent[] = [
       day,
       category: "movie" as const,
       cellLabel: t.title,
-      cellLines: [workTitle(t.title), "무비토크"] as [string, string],
+      cellLines: [workTitle(t.title), "원데이 토크"] as [string, string],
     }
   }),
 ]

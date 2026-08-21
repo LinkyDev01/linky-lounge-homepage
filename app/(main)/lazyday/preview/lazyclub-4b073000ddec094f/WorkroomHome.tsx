@@ -11,6 +11,7 @@ import { season1Config, season2Config, season3Config, season4Config } from "../.
 import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
+import { PEOPLE } from "./people-config"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
@@ -321,6 +322,57 @@ function HomeContent() {
             </div>
           </div>
           )}
+
+          {/* ── 사람 — 전체보기에 사람 섹션 추가 (운영자 2026-08-21).
+                 내비 순서(모임·제품·사람·일정)에 맞춰 굿즈 아래. 진열 문법은 모임·굿즈와
+                 같은 2열 리스트, 태그는 전부 '사람'(굿즈의 '제품' 선례). 카드 → /people/[slug] ── */}
+          <div className={styles.goodsBlock} id="people">
+            <div className={styles.sectionTitle}>
+              <LazydayLink href={`${BASE}/people`}>
+                <span>사람</span>
+                <ArrowIcon />
+              </LazydayLink>
+            </div>
+            <div className={styles.meetingsList}>
+              {PEOPLE.map((person, idx) => {
+                const peopleLastRowStart = PEOPLE.length - (PEOPLE.length % 2 === 0 ? 2 : 1)
+                const isLastRow = idx >= peopleLastRowStart
+                const isLast = idx === PEOPLE.length - 1
+                return (
+                  <article
+                    key={person.slug}
+                    className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
+                  >
+                    <LazydayLink
+                      href={`${BASE}/people/${person.slug}`}
+                      className={styles.itemLink}
+                      aria-label={`${person.name} 소개로 이동`}
+                    />
+                    <figure className={styles.itemFigure}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={person.photo} alt="" draggable={false} />
+                    </figure>
+                    <div className={styles.itemBody}>
+                      <div>
+                        <div className={styles.itemCat}>사람</div>
+                        <div className={styles.itemTitle}>{person.name}</div>
+                      </div>
+                      <div className={styles.itemBottom}>
+                        <button
+                          type="button"
+                          className={styles.saveBtn}
+                          aria-label={`${person.name} 저장`}
+                          onClick={() => toggleSave(`people-${person.slug}`)}
+                        >
+                          <SaveIcon filled={saved.has(`people-${person.slug}`)} />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
         </section>
 
         <aside className={styles.shop}>

@@ -120,7 +120,7 @@ const PROGRAMS: ClubProgram[] = [
     id: "season-4",
     category: "bookclub",
     title: `레이지데이 북클럽 ${SEASON.name}`,
-    schedule: `${SEASON.periodLabel} · 격주 화·수·일 · 정규 4회 + ${SEASON.fifth.label}`,
+    schedule: `${SEASON.periodLabel} (격주 화·수·일, 정규 4회 + ${SEASON.fifth.label})`,
     // 일요일은 오전·오후 2슬롯이라 config 가 time 을 ", " 로 이어 둔다 → 줄로 나눠 표기
     times: SEASON.days.flatMap((d) => {
       const parts = d.time.split(",").map((t) => t.trim())
@@ -141,7 +141,7 @@ const PROGRAMS: ClubProgram[] = [
     id: "season-3",
     category: "bookclub",
     title: `레이지데이 북클럽 ${season3Config.label}`,
-    schedule: `${season3Config.dateRange} · 격주 수·목·일 · 정규 4회 + 5회차`,
+    schedule: `${season3Config.dateRange} (격주 수·목·일, 정규 4회 + 5회차)`,
     times: SEASON3_TIMES,
     price: "",
     description: "",
@@ -176,7 +176,7 @@ const PROGRAMS: ClubProgram[] = [
     id: `movie-${i}`,
     category: "movie" as const,
     title: `『${workTitle(t.title)}』`,
-    schedule: `${t.date.replace("/", "월 ")}일 · ${t.time}`,
+    schedule: `${t.date.replace("/", "월 ")}일 ${t.time}`,
     times: [] as string[],
     // 라운드 107(운영자): 무비토크도 가격 미노출. 문의 창구는 CTA 가 맡는다
     price: "",

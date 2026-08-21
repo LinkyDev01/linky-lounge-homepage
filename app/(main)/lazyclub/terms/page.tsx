@@ -4,7 +4,7 @@ import shell from "../home.module.css"
 import { TermsBody } from "@/app/(main)/lazyday/terms/TermsBody"
 
 export const metadata: Metadata = {
-  title: "이용약관 · 레이지데이",
+  title: "이용약관 — 레이지데이", // 트리 내 다른 메타 제목과 같은 구분자 (2026-08-21)
   description: "레이지데이 통합 이용약관",
 }
 

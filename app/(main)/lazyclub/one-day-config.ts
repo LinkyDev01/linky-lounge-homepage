@@ -78,27 +78,40 @@ export type OneDayMeeting = {
 // 시지프는 날짜도 9/5(토)로. oneday-shared.ts 와 값이 같아야 한다 (단일 출처 파생 아님, 표시용 별도 문자열).
 export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
-    slug: "hope",
-    payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
-    category: "movie",
-    hostSlug: "andongmin", // 2026-08-20 역참조 (브람스·시지프는 진행자 미확정 — 주지 않음)
-    title: "원데이 토크, 호프",
-    work: "호프",
-    date: "8.23 (일) 19:00–22:00",
-    host: "안동민",
-    catLabel: "안동민", // 진행자 확정(hostSlug) 모임 — 모임장 이름 (운영자 2026-08-21 2차)
+    // 2026-08-19 신규 — 워크룸 원본 상세 문법(sticky 포스터+중앙 본문 컬럼) 첫 적용.
+    // 진행: 천고든(레이지데이 북클럽 소속 — 외부 모임장이 아니다, 운영자 확정).
+    // 가격·정원·결제 방식 미확정 — buyHref 를 주지 않고 문의로 안내 (D절, 임의 가격 금지).
+    slug: "not-squeezing-myself",
+    payUrl: "https://buy.tosspayments.com/products/jtBoCf6W3Y", // 4주 과정 전용 링크 (운영자 2026-08-21)
+    category: "booktalk",
+    hostSlug: "gorden",
+    // ⚠ \u00A0 = 줄바꿈 없는 공백. 한 줄에 안 담길 때 **"비로소, 나를 / 쥐어짜지 않는 법"**
+    // 으로만 끊기게 고정한다 (운영자 2026-08-21 "한 줄에 안 담길 경우, 이렇게 줄바꿈이
+    // 일어나야만 해"). 종전에는 마지막으로 들어가는 공백에서 끊겨 "비로소, 나를 쥐어짜지 /
+    // 않는 법" 처럼 '나를 쥐어짜지'라는 한 덩어리가 갈라졌다(1280px 실측).
+    // 끊길 수 있는 공백은 '나를' 뒤 하나뿐 — 나머지 셋을 nbsp 로 묶었다.
+    // word-break:keep-all 과 짝이며, 표시 전용이라 소비처(카드·목록·캘린더·alt)는 무영향.
+    title: "비로소,\u00A0나를 쥐어짜지\u00A0않는\u00A0법", // 쉼표 표기 (운영자 2026-08-21)
+    date: "10.3–10.24 (매주 토) 오전 10:00–12:00",
+    host: "레이지데이 북클럽",
+    catLabel: "천고든", // 개별 모임장이 여는 모임 — 모임장 이름 (운영자 2026-08-21)
     status: "open",
-    thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
-    // 2026-08-18: 브람스·시지프와 같은 카드뉴스 형식으로 교체 (구 영화 포스터 이미지 폐기)
-    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "원데이 토크 호프 카드" }],
-    // ⚠ 임시 소개 문구 — 운영자 카드뉴스 원문 수급 시 교체 (브랜드 카피는 운영자 소유)
-    description: [
-      "나홍진 감독의 영화 〈호프〉를 함께 보고 이야기 나누는 하루의 영화 모임입니다.",
-      "같은 장면을 서로 다르게 통과한 사람들의 감상이 한자리에 모입니다.",
-    ],
-    price: 35000,
-    place: "링키라운지 (서울 동작구 동작대로7길 44, 지하 1층)",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp",
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소, 나를 쥐어짜지 않는 법 포스터" }],
+    // 본문은 상세 페이지가 centerBody 로 직접 구성(인사말 + 책 4권 + 진행자 소개) — 여기는 비움
+    description: [],
+    // 12만원 확정 (운영자 2026-08-21). ⚠ **결제는 아직 안 열린다** — 이 모임은
+    // oneday-shared 회차 목록에 없어 주문 코드가 없다(meetingOrderCode → null).
+    // 상세 구매 버튼은 '가격 + 주문코드' 둘 다 있을 때만 결제로 간다 (meetings/[slug])
+    price: 120000,
+    place: "사당역 링키라운지",
     contact: "contact@linkylounge.com",
+    sessions: [
+      { week: "1주차", date: "10.3 (토) 오전 10:00–12:00", work: "인간 실격" },
+      { week: "2주차", date: "10.10 (토) 오전 10:00–12:00", work: "브람스를 좋아하세요..." },
+      { week: "3주차", date: "10.17 (토) 오전 10:00–12:00", work: "이방인" },
+      { week: "4주차", date: "10.24 (토) 오전 10:00–12:00", work: "자기 앞의 생" },
+    ],
   },
   {
     slug: "brahms",
@@ -151,40 +164,27 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     contact: "contact@linkylounge.com",
   },
   {
-    // 2026-08-19 신규 — 워크룸 원본 상세 문법(sticky 포스터+중앙 본문 컬럼) 첫 적용.
-    // 진행: 천고든(레이지데이 북클럽 소속 — 외부 모임장이 아니다, 운영자 확정).
-    // 가격·정원·결제 방식 미확정 — buyHref 를 주지 않고 문의로 안내 (D절, 임의 가격 금지).
-    slug: "not-squeezing-myself",
-    payUrl: "https://buy.tosspayments.com/products/jtBoCf6W3Y", // 4주 과정 전용 링크 (운영자 2026-08-21)
-    category: "booktalk",
-    hostSlug: "gorden",
-    // ⚠ \u00A0 = 줄바꿈 없는 공백. 한 줄에 안 담길 때 **"비로소, 나를 / 쥐어짜지 않는 법"**
-    // 으로만 끊기게 고정한다 (운영자 2026-08-21 "한 줄에 안 담길 경우, 이렇게 줄바꿈이
-    // 일어나야만 해"). 종전에는 마지막으로 들어가는 공백에서 끊겨 "비로소, 나를 쥐어짜지 /
-    // 않는 법" 처럼 '나를 쥐어짜지'라는 한 덩어리가 갈라졌다(1280px 실측).
-    // 끊길 수 있는 공백은 '나를' 뒤 하나뿐 — 나머지 셋을 nbsp 로 묶었다.
-    // word-break:keep-all 과 짝이며, 표시 전용이라 소비처(카드·목록·캘린더·alt)는 무영향.
-    title: "비로소,\u00A0나를 쥐어짜지\u00A0않는\u00A0법", // 쉼표 표기 (운영자 2026-08-21)
-    date: "10.3–10.24 (매주 토) 오전 10:00–12:00",
-    host: "레이지데이 북클럽",
-    catLabel: "천고든", // 개별 모임장이 여는 모임 — 모임장 이름 (운영자 2026-08-21)
-    status: "open",
-    thumbnail: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp",
-    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소, 나를 쥐어짜지 않는 법 포스터" }],
-    // 본문은 상세 페이지가 centerBody 로 직접 구성(인사말 + 책 4권 + 진행자 소개) — 여기는 비움
-    description: [],
-    // 12만원 확정 (운영자 2026-08-21). ⚠ **결제는 아직 안 열린다** — 이 모임은
-    // oneday-shared 회차 목록에 없어 주문 코드가 없다(meetingOrderCode → null).
-    // 상세 구매 버튼은 '가격 + 주문코드' 둘 다 있을 때만 결제로 간다 (meetings/[slug])
-    price: 120000,
-    place: "사당역 링키라운지",
+    slug: "hope",
+    payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
+    category: "movie",
+    hostSlug: "andongmin", // 2026-08-20 역참조 (브람스·시지프는 진행자 미확정 — 주지 않음)
+    title: "원데이 토크, 호프",
+    work: "호프",
+    // 2026-08-21 운영자: "호프 모임이 7/26 19-21로 이미 마감되었다" — 실제 진행일로 정정 + 마감
+    // ⚠ 구 여정의 회차 목록(oneday-shared.ts)은 8/23 그대로다. 그쪽은 프로덕션 결제
+    //   금액 근거(§4 데이터 지도)라 지시 없이 건드리지 않는다 — 이 트리는 payUrl 여정이라 무관.
+    date: "7.26 (일) 19:00–21:00",
+    host: "안동민",
+    catLabel: "안동민", // 진행자 확정(hostSlug) 모임 — 모임장 이름 (운영자 2026-08-21 2차)
+    status: "soldout",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
+    // 2026-08-18: 브람스·시지프와 같은 카드뉴스 형식으로 교체 (구 영화 포스터 이미지 폐기)
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", alt: "원데이 토크 호프 카드" }],
+    // 2026-08-21 운영자 원문 ("이렇게 담백하게") — 구 2문장 임시 문구 폐기
+    description: ["나홍진 감독의 영화 〈호프〉를 함께 보고 이야기 나누는 원데이 토크입니다."],
+    price: 35000,
+    place: "링키라운지 (서울 동작구 동작대로7길 44, 지하 1층)",
     contact: "contact@linkylounge.com",
-    sessions: [
-      { week: "1주차", date: "10.3 (토) 오전 10:00–12:00", work: "인간 실격" },
-      { week: "2주차", date: "10.10 (토) 오전 10:00–12:00", work: "브람스를 좋아하세요..." },
-      { week: "3주차", date: "10.17 (토) 오전 10:00–12:00", work: "이방인" },
-      { week: "4주차", date: "10.24 (토) 오전 10:00–12:00", work: "자기 앞의 생" },
-    ],
   },
 ]
 

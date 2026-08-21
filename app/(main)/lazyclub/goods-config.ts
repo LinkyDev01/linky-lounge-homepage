@@ -1,7 +1,12 @@
 // 굿즈 단일 출처 — 홈 shop 사이드바·굿즈 상세가 공유 (docs/redesign/09)
 // 상품명은 운영자 확정 영문.
 // 2026-08-11 운영자: PG 심사 대비 **전 품목 재고 부활(open)** + 확정가 책정
-// (머그 18,900 · 코스터 12,900 · 티셔츠 24,900 — 구 임의가 999,999 폐기)
+// (머그 18,900 / 코스터 12,900 / 티셔츠 24,900 — 구 임의가 999,999 폐기)
+// 2026-08-21 운영자 개정가: 머그 20,000 / 코스터 15,000 / 티셔츠 25,000.
+//   티셔츠는 **SOLD OUT** 이며 배열 맨 뒤(= 목록 맨 뒤).
+// ⚠ 이 파일의 price·status 는 프로덕션 결제 승인이 금액을 재계산하는 근거다 (§4 데이터 지도).
+//   특히 status!=="open" 인 품목은 카탈로그에서 아예 빠져 그 코드의 승인이 실패한다.
+//   변경 시각 2026-08-21 21:35 KST — 직전 12시간 payment/confirm·checkout 트래픽 0건 실측 후 반영.
 
 import type { ProductStatus } from "./one-day-config"
 
@@ -31,35 +36,6 @@ export type Goods = {
 
 export const GOODS: Goods[] = [
   {
-    slug: "printed-t-shirt",
-    cat: "제품",
-    name: "티셔츠",
-    img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp",
-    // 2026-08-11: 재고 부활 (구 라운드 127 soldout 표기 샘플 해제)
-    status: "open",
-    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
-    price: 24900, // 운영자 확정가 2026-08-11
-    // 화이트·블랙·더스티 블루·카멜·더스티 핑크·다크브라운 (운영자 제공 사진 실측)
-    colors: ["#f0f0f2", "#1a191f", "#8488c0", "#b17335", "#d29e8f", "#543021"],
-    colorNames: ["화이트", "블랙", "더스티 블루", "카멜", "더스티 핑크", "다크브라운"],
-    // ⚠ 임시 사이즈 구성 — 운영자 확정값 나오면 교체 (2026-08-11)
-    sizes: ["S", "M", "L", "XL"],
-  },
-  {
-    slug: "acrylic-coaster",
-    cat: "제품",
-    name: "코스터",
-    // 2026-08-11 드라이브 일괄 갱신 (운영자 "기존 것 날리고 영문 파일명들만") —
-    // 구 goods-coaster.webp 삭제, 드라이브 원본 3240×4050 → 800×1000 webp q88
-    img: "/linky-lounge/book-club/home-v3/coaster.webp",
-    status: "open",
-    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
-    price: 12900, // 운영자 확정가 2026-08-11
-    // I ♥ LAZYDAY 하우스 — 단일 색 (2026-08-11 신규 제품컷 실측 #e6d6c5)
-    colors: ["#e6d6c5"],
-    colorNames: ["베이지"],
-  },
-  {
     slug: "coffee-mug",
     cat: "제품",
     name: "머그컵",
@@ -68,7 +44,7 @@ export const GOODS: Goods[] = [
     img: "/linky-lounge/book-club/home-v3/coffee-mug-y.webp",
     status: "open",
     description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
-    price: 18900, // 운영자 확정가 2026-08-11
+    price: 20000, // 운영자 개정가 2026-08-21 (구 18,900)
     // 옐로·민트·핑크·블루·그레이 — 2026-08-11 신규 제품컷 실측 (옐로가 메인이라 첫 번째)
     colors: ["#e7b131", "#a5bca8", "#bfa196", "#8b98a1", "#61615f"],
     colorNames: ["옐로", "민트", "핑크", "블루", "그레이"],
@@ -81,6 +57,35 @@ export const GOODS: Goods[] = [
       "/linky-lounge/book-club/home-v3/coffee-mug-b.webp",
       "/linky-lounge/book-club/home-v3/coffee-mug-g.webp",
     ],
+  },
+  {
+    slug: "acrylic-coaster",
+    cat: "제품",
+    name: "코스터",
+    // 2026-08-11 드라이브 일괄 갱신 (운영자 "기존 것 날리고 영문 파일명들만") —
+    // 구 goods-coaster.webp 삭제, 드라이브 원본 3240×4050 → 800×1000 webp q88
+    img: "/linky-lounge/book-club/home-v3/coaster.webp",
+    status: "open",
+    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
+    price: 15000, // 운영자 개정가 2026-08-21 (구 12,900)
+    // I ♥ LAZYDAY 하우스 — 단일 색 (2026-08-11 신규 제품컷 실측 #e6d6c5)
+    colors: ["#e6d6c5"],
+    colorNames: ["베이지"],
+  },
+  {
+    slug: "printed-t-shirt",
+    cat: "제품",
+    name: "티셔츠",
+    img: "/linky-lounge/book-club/home-v3/goods-tshirt.webp",
+    // 2026-08-21 운영자: 다시 SOLD OUT (가격은 25,000 으로 살려 둔 채 마감 표기)
+    status: "soldout",
+    description: ["느긋한 하루를 좋아하세요…"], // 세 제품 공통 문구 (운영자 원문, 2026-08-18)
+    price: 25000, // 운영자 개정가 2026-08-21 (구 24,900)
+    // 화이트·블랙·더스티 블루·카멜·더스티 핑크·다크브라운 (운영자 제공 사진 실측)
+    colors: ["#f0f0f2", "#1a191f", "#8488c0", "#b17335", "#d29e8f", "#543021"],
+    colorNames: ["화이트", "블랙", "더스티 블루", "카멜", "더스티 핑크", "다크브라운"],
+    // ⚠ 임시 사이즈 구성 — 운영자 확정값 나오면 교체 (2026-08-11)
+    sizes: ["S", "M", "L", "XL"],
   },
 ]
 

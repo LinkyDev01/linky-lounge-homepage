@@ -46,7 +46,8 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       fields={
         m.sessions
           ? [
-              { label: "일시", lines: [m.sessions.map((s) => s.date.split(" ")[0]).join(" · "), "오전 10:00–12:00"] },
+              // 회차 날짜는 가운뎃점으로 잇지 않고 각자 한 줄씩 (운영자 2026-08-21)
+              { label: "일시", lines: [...m.sessions.map((s) => s.date.split(" ")[0]), "오전 10:00–12:00"] },
               { label: "장소", lines: [m.place] },
               { label: "읽는 책", lines: m.sessions.map((s) => `${s.week} 『${s.work}』`) },
               { label: "진행", lines: [m.host] },

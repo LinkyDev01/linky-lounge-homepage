@@ -55,8 +55,10 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                       <span className={styles.personMeetingBody}>
                         <span className={styles.personMeetingTitle}>{m.title}</span>
                         <span className={styles.personMeetingMeta}>
+                          {/* 상태 표기를 가운뎃점으로 잇지 않는다 (운영자 2026-08-21) —
+                              소괄호로 묶어 날짜와 구분 */}
                           {m.date}
-                          {m.status !== "open" && ` · ${m.status === "soldout" ? "마감" : "오픈 예정"}`}
+                          {m.status !== "open" && ` (${m.status === "soldout" ? "마감" : "오픈 예정"})`}
                         </span>
                       </span>
                     </LazyclubLink>

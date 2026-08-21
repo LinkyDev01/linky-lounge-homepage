@@ -57,12 +57,18 @@ export function MeetupCalendar() {
 export function HomeCalendar() {
   return (
     <div className={styles.homeSlot}>
-      <CalendarBody showList={false} turtleSticky={false} />
+      {/* 2026-08-21 2차: '이번 달 모임' 목록 부활 + 캘린더와 **좌우배치**(split).
+          거북이 트랙은 그 아래 전폭 — wrapSplit 이 720px 캡을 풀어 좌우 여백 끝까지 */}
+      <CalendarBody split turtleSticky={false} />
     </div>
   )
 }
 
-function CalendarBody({ showList = true, turtleSticky = true }: { showList?: boolean; turtleSticky?: boolean } = {}) {
+function CalendarBody({
+  showList = true,
+  turtleSticky = true,
+  split = false,
+}: { showList?: boolean; turtleSticky?: boolean; split?: boolean } = {}) {
   // 첫 페인트에 실제 날짜를 쓰면 서버·클라이언트가 어긋난다 → 마운트 후 확정
   const [cursor, setCursor] = useState<{ y: number; m: number } | null>(null)
   const [today, setToday] = useState<{ y: number; m: number; d: number } | null>(null)
@@ -101,7 +107,11 @@ function CalendarBody({ showList = true, turtleSticky = true }: { showList?: boo
   }
 
   return (
-    <div className={styles.wrap}>
+    <div className={`${styles.wrap} ${split ? styles.wrapSplit : ""}`}>
+      {/* split 이면 (캘린더)|(이번 달 모임) 2열. 비 split(캘린더 페이지)에도 무클래스
+          div 2겹이 끼지만 전부 기본 block 이라 레이아웃 무영향 (캡처 대조로 확인) */}
+      <div className={split ? styles.splitCols : undefined}>
+      <div className={split ? styles.splitCal : undefined}>
       <div className={styles.head}>
         <span className={styles.label}>모임 일정</span>
         <div className={styles.monthNav}>
@@ -194,6 +204,8 @@ function CalendarBody({ showList = true, turtleSticky = true }: { showList?: boo
         </div>
       )}
 
+      </div>
+      <div className={split ? styles.splitList : undefined}>
       {showList && (
       <div className={styles.listHead}>
         <span className={styles.listTitle}>
@@ -223,8 +235,11 @@ function CalendarBody({ showList = true, turtleSticky = true }: { showList?: boo
           </ul>
         ))}
 
+      </div>
+      </div>
+
       {/* 거북이 트랙 — 맨 아래 섹션 (라운드 96, 운영자).
-          폭은 .wrap 을 그대로 따른다 (트랙 너비 = 캘린더 너비) */}
+          폭은 .wrap 을 그대로 따른다 — split 에선 wrap 이 전폭이라 트랙도 전폭 */}
       <div className={turtleSticky ? styles.trackSlot : styles.trackSlotStatic}>
         <TurtleTrack />
       </div>

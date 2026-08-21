@@ -1,3 +1,4 @@
+import "./fonts-inline.css" // 서체 @font-face 인라인 — 새로고침 스왑 해소 (파일 머리 주석)
 import type { Metadata } from "next"
 
 // 레이지 클럽 트리 전용 메타 (운영자 라운드 24)

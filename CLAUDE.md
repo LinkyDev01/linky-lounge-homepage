@@ -130,7 +130,7 @@ CSS 만 공유되는 게 아니다. **경로가 `preview/` 아래여도 프로�
 - **파일 일괄 삭제 전 참조 확인**: 과거 미사용 파일 정리 중 사용 중이던 JourneyStepper.tsx를 함께 삭제한 사고(`git checkout --`로 복구). rm 전 파일별 import grep.
 - **JSX 래퍼 추가 직후 `npx tsc --noEmit`**: unclosed div(TS17008) 상태로 빌드하면 6분 타임아웃처럼 보인다 — tsc가 오래 걸리면 구문 에러부터 의심.
 - **스크롤 최하단 ≠ 클로징 섹션 노출**: `SeasonCountCta`(기수 카운트)는 IntersectionObserver threshold .6 인데, `scrollTo(document.body.scrollHeight)` 로 내리면 브랜드 로고+푸터에 밀려 이 섹션이 **뷰포트 위로 빠져나간다**(390px 기준 rect.bottom ≈ −20). 발화 안 해서 "애니메이션이 없다"로 오진하기 쉽다 — 검증 시 `scrollIntoView` 로 **화면 중앙**에 맞출 것.
-- **shot.mjs networkidle 멈춤**: 외부 스크립트(va.vercel-scripts.com, fbevents 등)가 프록시에서 pending으로 매달리면 `page.goto(networkidle)`이 30s 타임아웃 난다 — 서버는 정상(200)인데 캡처만 실패하면 이것부터 의심. 대처: waitUntil 'load' 폴백 스크립트로 캡처.
+- **shot.mjs networkidle 멈춤**: 외부 스크립트(va.vercel-scripts.com, fbevents 등)가 프록시에서 pending으로 매달리면 `page.goto(networkidle)`이 30s 타임아웃 난다 — 서버는 정상(200)인데 캡처만 실패하면 이것부터 의심. 대처: waitUntil 'load' 폴백 스크립트로 캡처. ⚠ 2026-08-21부터 레이지클럽 트리는 @font-face 가 번들 CSS 에 인라인이라 **폰트 파일(gstatic·jsdelivr) 요청이 곧장 나가고, 이 환경에선 매달려 'load' 조차 안 끝난다** — 레이지클럽 캡처는 `ctx.route(/^https?:\/\/(?!localhost)/, r => r.abort())` 로 외부를 끊고 찍을 것.
 
 ## 6. GAS (Google Apps Script) 계약
 

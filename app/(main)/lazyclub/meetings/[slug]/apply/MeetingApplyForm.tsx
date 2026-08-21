@@ -232,22 +232,6 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
           </a>
           로 알려주세요.
         </p>
-        {/* 완료 상태를 새로고침에서 살리는 대신, 같은 탭에서 한 명 더 신청하려는 사람이
-            갇히지 않도록 되돌아가는 길을 남긴다 */}
-        <p className={form.infoNote}>
-          <button
-            type="button"
-            className={form.linkBtn}
-            onClick={() => {
-              try {
-                sessionStorage.removeItem(doneKey)
-              } catch {}
-              setDone(false)
-            }}
-          >
-            다른 분 신청서 작성하기
-          </button>
-        </p>
       </div>
     )
   }
@@ -257,7 +241,7 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
       {/* ① 제출 중 전면 로더 — 진행 인지 + 중복 제출 차단 (트리 톤) */}
       {loading && (
         <div className={form.busy}>
-          <TurtleLoader label="신청서 접수 중..." />
+          <TurtleLoader label="로딩 중" />
         </div>
       )}
 
@@ -464,7 +448,7 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
         )}
 
         <button type="submit" className={form.actionBtn} disabled={loading}>
-          {loading ? "접수 중입니다..." : "신청서 제출하기"}
+          {loading ? "로딩 중" : "다음"}
         </button>
       </form>
     </div>

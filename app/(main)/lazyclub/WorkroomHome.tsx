@@ -302,7 +302,7 @@ export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
               <figure className={styles.shopFigure}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={s.thumbnail} alt="" draggable={false} />
-                {s.status !== "open" && <StatusOverlay status={s.status} />}
+                {s.status !== "open" && <StatusOverlay status={s.status} kind="meeting" />}
               </figure>
               <div className={styles.shopBody}>
                 <div>
@@ -396,16 +396,19 @@ function HomeContent() {
                         fetchPriority={idx < 2 ? "high" : undefined}
                         decoding="async"
                       />
-                      {m.status !== "open" && <StatusOverlay status={m.status} />}
+                      {m.status !== "open" && <StatusOverlay status={m.status} kind="meeting" />}
                     </figure>
                   )}
                   <div className={styles.itemBody}>
                     <div>
                       <div className={styles.itemCat}>{m.category}</div>
                       <div className={styles.itemTitle}>{m.title}</div>
-                      {m.price != null && (
+                      {/* 마감이면 가격 자리를 '마감'이 대신 차지한다 (진적색, 2026-08-21) */}
+                      {m.status === "soldout" ? (
+                        <div className={styles.shopPriceOut}>마감</div>
+                      ) : m.price != null ? (
                         <div className={styles.shopPrice}>₩{m.price.toLocaleString("ko-KR")}</div>
-                      )}
+                      ) : null}
                     </div>
                     <div className={styles.itemBottom}>
                       <button
@@ -455,7 +458,7 @@ function HomeContent() {
                     <figure className={styles.itemFigure}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={g.img} alt={g.name} draggable={false} loading="lazy" decoding="async" />
-                      {g.status !== "open" && <StatusOverlay status={g.status} />}
+                      {g.status !== "open" && <StatusOverlay status={g.status} kind="goods" />}
                     </figure>
                     <div className={styles.itemBody}>
                       <div>
@@ -467,9 +470,14 @@ function HomeContent() {
                           {"\u00A0"}
                         </div>
                         <div className={styles.shopName}>{g.name}</div>
-                        <div className={styles.shopPrice}>
-                          {g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}
-                        </div>
+                        {/* 품절이면 가격 자리를 '품절'이 대신 차지한다 (진적색, 2026-08-21) */}
+                        {g.status === "soldout" ? (
+                          <div className={styles.shopPriceOut}>품절</div>
+                        ) : (
+                          <div className={styles.shopPrice}>
+                            {g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}
+                          </div>
+                        )}
                       </div>
                       <div className={styles.itemBottom}>
                         <button

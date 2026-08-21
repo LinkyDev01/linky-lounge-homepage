@@ -25,6 +25,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
     <ProductDetail
       id={`goods-${g.slug}`}
       category={g.cat}
+      kind="goods"
       status={g.status}
       title={g.name}
       sub="Product"

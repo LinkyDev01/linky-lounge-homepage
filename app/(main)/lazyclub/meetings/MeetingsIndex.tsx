@@ -69,16 +69,20 @@ function IndexBody() {
                 <figure className={styles.itemFigure}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={m.thumbnail} alt="" draggable={false} loading="lazy" decoding="async" />
-                  {m.status !== "open" && <StatusOverlay status={m.status} />}
+                  {m.status !== "open" && <StatusOverlay status={m.status} kind="meeting" />}
                 </figure>
               )}
               <div className={styles.itemBody}>
                 <div>
                   <div className={styles.itemCat}>{m.category}</div>
                   <div className={styles.itemTitle}>{m.title}</div>
-                  {m.price != null && (
+                  {/* 마감이면 **가격 자리를 '마감'이 대신 차지한다** (진적색, 운영자 2026-08-21).
+                      가격이 없는 모임(미정)도 마감이면 이 표기가 뜬다 */}
+                  {m.status === "soldout" ? (
+                    <div className={styles.shopPriceOut}>마감</div>
+                  ) : m.price != null ? (
                     <div className={styles.shopPrice}>₩{m.price.toLocaleString("ko-KR")}</div>
-                  )}
+                  ) : null}
                 </div>
                 <div className={styles.itemBottom}>
                   <button

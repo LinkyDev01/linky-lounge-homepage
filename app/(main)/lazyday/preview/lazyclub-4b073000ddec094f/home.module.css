@@ -572,20 +572,31 @@
   /* 균등 2열 (운영자 2026-08-21 "이미지 밸런스가 안 맞아") — 종전 15열 span 8+7 은
      두 카드 폭이 660/575 로 달라져 사진(38%)도 다른 크기가 됐다. 균등 분할로 정정 */
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  /* 가로 30px = 종전 15 와 시안 45 의 중간 (운영자 2026-08-21 "아까랑 딱 그 중간 지점") */
+  column-gap: 30px;
   row-gap: 45px;
 }
 /* 카드 콘텐츠 폭 = C안·모임 상세 본문과 같은 460px 읽기 컬럼 (운영자 2026-08-21
    "텍스트 가로 폭이 너무 넓어. 기존 C안 혹은 모임 소개에 인물 소개 정도").
    HostIntro 가 설계된 폭이 원래 460 이라 사진(38%≈175px)·텍스트 줄길이가
-   전용 페이지·모임 상세의 진행자 블록과 픽셀 단위로 같아진다 */
+   전용 페이지·모임 상세의 진행자 블록과 픽셀 단위로 같아진다.
+   ⚠ 이 캡은 모바일에도 적용된다 — 풀어두면 600~720px 구간에서 카드가 690px 까지 벌어져
+   사진이 228×328 로 커지고, 약력이 사진 옆에서 13줄이나 흘러 잘림이 사실상 사라진다 */
 .personCard { max-width: 460px; position: relative; }
 .personCard:hover .nsqHostName { text-decoration: underline; text-underline-offset: 3px; }
-/* 카드 안에서는 약력을 잘라 보여준다 — 전문은 /people/[slug].
-   :not(.personCardMore) — 더보기 표시는 잘림 대상에서 제외 */
+/* 카드 안에서는 약력을 잘라 보여준다 — 전문은 /people/[slug]. :not(.personCardMore) 로
+   더보기 표시는 잘림 대상에서 제외.
+   잘리는 줄 수 = **약력이 사진 밑 1줄까지 내려오는 지점** (운영자 2026-08-21
+   "폭이 좁을 경우, 사진 밑 1줄까지로 연장해").
+   사진이 카드 폭의 38% 인 float 이라 카드가 좁아질수록 사진이 짧아지고, 옆으로
+   흐르는 줄 수도 줄어든다 → 고정값 하나로는 맞출 수 없어 폭 사다리로 둔다.
+   값은 전부 실측(Range.getClientRects 로 줄 top ↔ 사진 bottom 대조).
+   ≤720px(사진 33%): 카드 460→9 · 450→8 · 420→8 · 384→7 · 360→7 · 345→6 · 310→6 · 290→5.
+   데스크톱(사진 38%, 카드 460)은 종전 7줄 유지 — 운영자 지시가 "폭이 좁을 경우"로
+   한정됐고, 7줄이면 더보기 줄 끝이 마침 사진 아랫변과 맞아떨어진다(실측 −7px) */
 .personCard .nsqHostText p:not(.personCardMore) {
   display: -webkit-box;
-  -webkit-line-clamp: 7; /* 데스크톱 7줄 (운영자 2026-08-21) */
+  -webkit-line-clamp: 7; /* 데스크톱 2열 (카드 460 · 사진 175×252) */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -593,12 +604,14 @@
    ⚠ 선택자에 p 를 붙여 위 잘림 규칙(0,3,1)과 명시도를 맞춘다 — 클래스 둘(0,2,0)만으로는
    display:-webkit-box 에 밀려 안 숨겨졌던 실측 버그 */
 .personCard .nsqHostText p.nsqHostHandle { display: none; }
-/* 더보기 — 잘린 약력 바로 아래 (p-i-e 의 "…" 뒤 클릭 유도를 우리 밑줄 문법으로).
+/* 더보기 — 인스타그램·스레드처럼 잘린 문장 뒤에 옅게 붙는 표시 (운영자 2026-08-21
+   "더보기 밑줄 지우고, 인스타그램/쓰레드가 더보기 표시하듯 자연스럽게").
+   밑줄 없음 · 보조 텍스트색 · 바짝 붙여 "…" 의 연장으로 읽히게 한다.
    클릭은 카드 오버레이가 받으므로 이 표시 자체는 장식이다 */
 .personCard .personCardMore {
-  margin: 10px 0 0;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  margin: 2px 0 0;
+  color: #8a7660;
+  text-decoration: none;
 }
 /* 오버레이 링크가 카드 전체를 덮으므로 내부 링크·취소선은 클릭 대상에서 뺀다 */
 .personCard .nsqHostText a,
@@ -607,9 +620,14 @@
 @media all and (max-width: 720px) {
   /* 모바일은 1열 — 2열로 쪼개면 사진(38%)과 텍스트가 같이 설 폭이 안 나온다 */
   .peopleGrid { grid-template-columns: 1fr; row-gap: 34px; }
-  .personCard { max-width: none; }
-  .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 5; } /* 모바일 5줄 */
+  /* 사진이 33% 로 줄어드는 구간 — 카드가 460 캡에 붙어 있는 동안은 9줄 */
+  .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 9; }
 }
+/* 카드 폭이 460 캡에 못 미치기 시작하면 한 단씩 줄인다 (위 실측표) */
+@media all and (max-width: 485px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 8; } }
+@media all and (max-width: 430px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 7; } }
+@media all and (max-width: 380px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 6; } }
+@media all and (max-width: 335px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 5; } }
 
 /* 인물 블록 = 모임 상세 본문과 같은 460px 읽기 컬럼 (새 폭 발명 금지).
    scroll-margin-top = 고정 헤더(64.8px) + 여백 — #슬러그 딥링크로 들어와도

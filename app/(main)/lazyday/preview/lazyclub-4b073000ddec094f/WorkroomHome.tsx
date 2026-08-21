@@ -92,21 +92,20 @@ export const PAST_SEASONS = [
   },
 ]
 
-/** 아카이브 = **종료된 모임** (운영자 2026-08-21). 원데이 토크 브람스·시지프 +
- *  레이지데이 1~3기. 포스터는 각 단일 출처(one-day-config · PAST_SEASONS)에서 가져온다.
- *  ⚠ 지금은 **명시 목록**이다 — 브람스(8/30)·시지프(9/5)가 아직 status "open" 이라
- *  날짜·상태로 자동 판별하면 목록이 비고, 임의로 상태를 바꾸면 판매 화면이 함께 닫힌다.
- *  회차가 실제로 끝나 status 가 정리되면 그때 파생으로 바꾼다 */
-const ARCHIVE_SET = [
-  ...["sisyphus", "brahms"].flatMap((slug) => {
-    const m = ONE_DAY_MEETINGS.find((x) => x.slug === slug)
-    return m ? [{ key: `oneday-${m.slug}`, title: m.title, src: m.thumbnail, href: `${BASE}/meetings/${m.slug}`, external: false }] : []
-  }),
-  ...PAST_SEASONS.map((s) => ({ key: s.id, title: s.title, src: s.thumbnail, href: s.link, external: true })),
-]
-/** ⚠ **임시 2배 복제** (운영자 2026-08-21 "임시로 1세트를 더 복제해서 기존 애니메이션과
- *  자연스러운 형태를 확인할 수 있도록") — 검토가 끝나면 `ARCHIVE_SET` 하나로 되돌린다 */
-const ARCHIVE_SLIDES = [...ARCHIVE_SET, ...ARCHIVE_SET.map((x) => ({ ...x, key: `${x.key}-dup` }))]
+/** 기록 = **멤버 후기 사진 6장** (운영자 2026-08-21 정정 — 직전엔 종료된 모임 포스터였으나
+ *  "기록이미지에는 레이지데이 북클럽 랜딩페이지에 있는 후기 이미지 여섯 장으로 교체해").
+ *  실사이트 ReviewsSection(app/(main)/lazyday/ReviewsSection.tsx)의 photoCard(카드용
+ *  700px 축소본)·caption 을 그대로 가져온다 — 새 이미지 생성·재생산 없음(단일 출처).
+ *  caption 이 마침 "…의 기록"이라 이 섹션 이름과 자연히 맞아떨어진다.
+ *  클릭 시 실사이트 후기 섹션(#reviews)으로 — 사진별 개별 목적지가 없어 공통 앵커 */
+const ARCHIVE_SLIDES = [
+  { key: "r1", title: "2026. 7. 15의 기록", src: "/linky-lounge/book-club/reviews/review-01-card.webp" },
+  { key: "r2", title: "2026. 7. 12의 기록", src: "/linky-lounge/book-club/reviews/review-02-card.webp" },
+  { key: "r3", title: "2026. 7. 12의 기록", src: "/linky-lounge/book-club/reviews/review-03-card.webp" },
+  { key: "r4", title: "2026. 7. 12의 기록", src: "/linky-lounge/book-club/reviews/review-04-card.webp" },
+  { key: "r5", title: "2026. 8. 9의 기록", src: "/linky-lounge/book-club/reviews/review-05-card.webp" },
+  { key: "r6", title: "2026. 8. 9의 기록", src: "/linky-lounge/book-club/reviews/review-06-card.webp" },
+].map((r) => ({ ...r, href: `${BOOKCLUB_URL}/#reviews`, external: true }))
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 활성 인덱스 + 자동 넘김 (휠 하이재킹 없음) */
 function useDragCarousel(slideCount: number, autoplay = false) {
@@ -118,18 +117,21 @@ function useDragCarousel(slideCount: number, autoplay = false) {
   const onScroll = useCallback(() => {
     const el = trackRef.current
     if (!el || el.children.length === 0) return
-    const mid = el.scrollLeft + el.clientWidth / 2
-    let best = 0
-    let bestDist = Infinity
-    Array.from(el.children).forEach((child, i) => {
-      const c = child as HTMLElement
-      const center = c.offsetLeft + c.offsetWidth / 2
-      const d = Math.abs(center - mid)
-      if (d < bestDist) {
-        bestDist = d
-        best = i
-      }
-    })
+    const n = el.children.length
+    const maxScroll = el.scrollWidth - el.clientWidth
+    let best: number
+    if (maxScroll <= 0) {
+      best = 0
+    } else {
+      // 스크롤 진행률로 인덱스를 낸다 — **중앙 거리 최솟값 방식은 양 끝에서 끊겼다**
+      // (운영자 2026-08-21 "원점이 진하게 칠해지는 건 중간 부분만이 아닌, 처음부터
+      // 끝까지 모두 해당되게"). 원인: 스냅 패딩 때문에 첫·마지막 카드는 뷰포트 중앙까지
+      // 못 오는 채로 스크롤이 끝나 버려, 중앙-거리 비교로는 그 카드가 절대 '최선'이
+      // 될 수 없었다. 진행률(0→1)을 슬라이드 개수에 매핑하면 scrollLeft=0 에서 항상
+      // 0번, 최대 스크롤에서 항상 마지막 번이 나와 전 구간이 빠짐없이 활성화된다.
+      const frac = el.scrollLeft / maxScroll
+      best = Math.min(n - 1, Math.round(frac * (n - 1)))
+    }
     activeRef.current = best
     setActive(best)
   }, [])
@@ -379,8 +381,13 @@ function HomeContent() {
                     </figure>
                     <div className={styles.itemBody}>
                       <div>
-                        <div className={styles.itemCat}>{g.cat}</div>
+                        {/* 회색 카테고리 라벨 제거 (운영자 2026-08-21 "사람과 제품에는 작은
+                            글씨 회색 카테고리 빼") — 이름 위치는 그대로(카테고리가 있던
+                            자리를 이름이 차지). 대신 /shop 목록과 같은 가격 노출 */}
                         <div className={styles.shopName}>{g.name}</div>
+                        <div className={styles.shopPrice}>
+                          {g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}
+                        </div>
                       </div>
                       <div className={styles.itemBottom}>
                         <button
@@ -431,7 +438,7 @@ function HomeContent() {
                     </figure>
                     <div className={styles.itemBody}>
                       <div>
-                        <div className={styles.itemCat}>사람</div>
+                        {/* 회색 카테고리 라벨 제거 (운영자 2026-08-21) — 이름 위치는 그대로 */}
                         <div className={styles.itemTitle}>{person.name}</div>
                       </div>
                       <div className={styles.itemBottom}>
@@ -470,9 +477,11 @@ function HomeContent() {
         <HomeCalendar />
       </section>
 
-      {/* ── ③ 아카이브 — **맨 아래** 종료된 모임 진열 (운영자 2026-08-21).
-             라운드 77: 맨 위 → 맨 아래 / 라운드 92: 숨김 / 2026-08-21: 부활 + 내용 교체
-             (역대 기수 표지 → 종료된 모임 포스터). 캐러셀 문법·자동 넘김은 종전 그대로 ── */}
+      {/* ── ③ 기록 — **맨 아래** 멤버 후기 사진 캐러셀 (운영자 2026-08-21, 워크룸프레스
+             참고로 모션 개선). 라운드 77: 맨 위 → 맨 아래 / 라운드 92: 숨김 /
+             2026-08-21: 부활 + 종료된 모임 포스터 → 후기 사진 6장으로 최종 교체.
+             비활성 슬라이드는 흐리게·살짝 축소해 활성 카드에 시선이 모이게 한다
+             (BookSection 캐러셀의 opacity/scale/blur 문법을 여기 flat 이미지에 이식) ── */}
       {SHOW_ARCHIVE && (
       <section className={`${styles.books} ${styles.booksBottom} ${styles.archiveBlock}`}>
         <div className={styles.sectionTitle}>
@@ -490,27 +499,19 @@ function HomeContent() {
           onPointerUp={carousel.onPointerUp}
           onClickCapture={carousel.onClickCapture}
         >
-          {ARCHIVE_SLIDES.map((a) =>
-            a.external ? (
-              // 기수는 다른 도메인 — 새 탭 (LazydayLink 는 내부 경로 전용)
-              <a
-                key={a.key}
-                href={a.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.bookSlide}
-                aria-label={`${a.title} 안내로 이동 (새 탭)`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.src} alt={a.title} draggable={false} />
-              </a>
-            ) : (
-              <LazydayLink key={a.key} href={a.href} className={styles.bookSlide} aria-label={`${a.title} 안내로 이동`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.src} alt={a.title} draggable={false} />
-              </LazydayLink>
-            ),
-          )}
+          {ARCHIVE_SLIDES.map((a, i) => (
+            <a
+              key={a.key}
+              href={a.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.bookSlide} ${i === carousel.active ? styles.bookSlideActive : ""}`}
+              aria-label={`${a.title} — 후기 더 보기 (새 탭)`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.src} alt={a.title} draggable={false} />
+            </a>
+          ))}
         </div>
         <div className={styles.dots}>
           {ARCHIVE_SLIDES.map((a, i) => (
@@ -518,7 +519,7 @@ function HomeContent() {
               key={a.key}
               type="button"
               className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
-              aria-label={`${i + 1}번째 포스터로 이동`}
+              aria-label={`${i + 1}번째 후기 사진으로 이동`}
               onClick={() => carousel.scrollTo(i)}
             />
           ))}

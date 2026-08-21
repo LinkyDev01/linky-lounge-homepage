@@ -794,31 +794,25 @@
   flex: 0 0 auto;
   background: var(--ph-gray); /* 로딩 중 바탕 — 원문 슬라이드 배경과 동일 (08) */
   scroll-snap-align: center;
-  /* 비활성 슬라이드는 흐리게·살짝 축소 — 활성 카드로 시선이 모인다 (운영자 2026-08-21
-     "워크룸프레스처럼 개선" — BookSection 캐러셀(§3 UI 문법)의 opacity/scale/blur
-     문법을 이 flat 이미지 캐러셀에 이식). transform-origin center 로 확대·축소가
-     이미지 중심 기준으로 일어나 옆 슬라이드를 밀지 않는다 */
-  opacity: 0.5;
-  transform: scale(0.94);
-  filter: blur(1px);
-  transform-origin: center;
-  transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+  /* 흐림·축소 표현은 도입 당일 철회 (운영자 2026-08-21 "반투명 또는 무언가로 기존
+     원본 이미지를 흐리지 마" — 전 슬라이드 원본 그대로 선명하게).
+     모달 열기 버튼으로 쓰이므로 버튼 기본 스타일만 리셋 */
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
-.bookSlideActive { opacity: 1; transform: scale(1); filter: none; }
 /* 실표지: 높이 400 고정 + 폭 자동(실판형 비율 유지 — 08) */
 .bookSlide img { width: auto; height: 100%; display: block; user-select: none; }
 
 /* 도트 (08: 8×8 #000, 비활성 .4, gap 8, 캐러셀과 25px).
-   기록(후기) 캐러셀 전용으로 활성 도트를 브랜드 주황 pill 로 — BookSection
-   .bookDotActive 와 같은 문법(운영자 2026-08-21 "워크룸프레스처럼 개선") */
+   주황 pill 활성 도트는 도입 당일 철회 (운영자 2026-08-21 "하단 원을 기존 서식으로
+   복구 … 기존 방식대로 심플하게") — 기본 .dot/.dotActive(잉크 원, 활성=불투명)만 쓴다 */
 .dots {
   display: flex;
   gap: 8px;
   justify-content: center;
   padding-top: 25px;
 }
-.dots .dot { transition: width 0.25s ease, background 0.25s ease, opacity 0.25s ease; }
-.dots .dotActive { width: 22px; border-radius: 9999px; background: #d2691e; opacity: 1; }
 .dot {
   width: 8px;
   height: 8px;

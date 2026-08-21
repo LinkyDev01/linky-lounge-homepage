@@ -1,0 +1,201 @@
+/* ================================================================
+ * 기록 섹션 모달 갤러리 — 실사이트 후기 모달의 **그대로 이식본** (운영자 2026-08-21
+ * "레이지데이 북클럽에서 후기 클릭했을 때 모달을 기록 섹션에 그대로 이식해").
+ *
+ * 원본: app/(main)/lazyday/ReviewsSection.module.css 의 모달 블록(.lightbox ~ .zoomBtn).
+ * §9 규율(신규 CSS 는 기존 .module.css 를 import 하지 않는다 — 공유 CSS 지도 오염 방지)
+ * 때문에 import 대신 **값 그대로 사본**을 뜬다. 클래스별 근거 주석은 원본 참조.
+ * ⚠ 원본 모달이 바뀌면 이 사본도 같은 값으로 (TSX 쌍 동기화 원칙과 동일한 규율).
+ * 확대 로직 짝: app/(main)/lazyday/useZoomGesture.ts (TS 훅은 공유 — CSS 만 사본)
+ * ================================================================ */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  background: rgba(26, 18, 8, 0.82);
+  animation: lbFade 0.25s ease;
+  cursor: zoom-out;
+  --slide-w: min(calc(100vw - 36px), 520px, calc(78vh * (1005 / 1440)));
+}
+@keyframes lbFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.galleryFrame {
+  position: relative;
+  width: min(100vw, calc(var(--slide-w) + 36px));
+  height: calc(var(--slide-w) * (1440 / 1005));
+  cursor: default;
+  animation: lbZoom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes lbZoom {
+  from { opacity: 0; transform: scale(0.86); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.galleryStage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+.gallerySlideM {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--slide-w);
+  height: 100%;
+  overflow: hidden;
+  border-radius: 6px;
+  opacity: 0.45;
+  filter: blur(1px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.36, 1),
+    opacity 0.35s ease, filter 0.35s ease;
+  will-change: transform;
+}
+.gallerySlideMActive {
+  opacity: 1;
+  filter: none;
+  cursor: zoom-in;
+}
+.galleryNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.14);
+  border: 1px solid rgba(255, 253, 248, 0.35);
+  border-radius: 50%;
+  color: #fffdf8;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.galleryNav:disabled { opacity: 0.25; cursor: default; }
+.galleryNavLeft { left: -8px; }
+.galleryNavRight { right: -8px; }
+.lightboxClose {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 7;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.14);
+  border: 1px solid rgba(255, 253, 248, 0.35);
+  border-radius: 50%;
+  color: #fffdf8;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.lightboxCaption {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  max-width: 90vw;
+  font-size: 13px;
+  color: rgba(255, 253, 248, 0.9);
+  text-align: center;
+  word-break: keep-all;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+}
+.lightboxCounter {
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 253, 248, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallerySlideM,
+  .zoomLayer {
+    transition: none;
+  }
+  .lightbox,
+  .galleryFrame { animation: none; }
+}
+
+/* ── 핀치 줌 (원본 2026-08-19 블록 사본 — 근거는 원본 주석) ── */
+@media (min-width: 721px) {
+  .galleryFrameZoom {
+    --slide-w: min(76vw, 1200px);
+    height: 88vh;
+  }
+  .galleryFrameZoom .gallerySlideM {
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+.zoomStage {
+  cursor: zoom-in;
+}
+.zoomStageZoomed {
+  cursor: zoom-out;
+}
+.zoomLayer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.zoomLayer img {
+  object-fit: contain;
+}
+.lightboxRoot {
+  touch-action: none;
+}
+.lightboxZoomed {
+  cursor: default;
+}
+.activeSlideZoomed {
+  cursor: zoom-out !important;
+}
+.zoomControls {
+  display: none;
+}
+@media (min-width: 721px) {
+  .zoomControls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 6;
+  }
+}
+.zoomBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.42);
+  border: 1px solid rgba(255, 253, 248, 0.65);
+  border-radius: 50%;
+  color: #1a1208;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.zoomBtn:hover {
+  background: rgba(255, 253, 248, 0.6);
+}

@@ -12,6 +12,7 @@ import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { PEOPLE } from "./people-config"
 import { HomeCalendar } from "./calendar/MeetupCalendar"
+import { RecordsLightbox } from "./RecordsLightbox"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
@@ -98,14 +99,19 @@ export const PAST_SEASONS = [
  *  700px 축소본)·caption 을 그대로 가져온다 — 새 이미지 생성·재생산 없음(단일 출처).
  *  caption 이 마침 "…의 기록"이라 이 섹션 이름과 자연히 맞아떨어진다.
  *  클릭 시 실사이트 후기 섹션(#reviews)으로 — 사진별 개별 목적지가 없어 공통 앵커 */
+// src = 캐러셀(카드용 700px 축소본) / photo = 모달 원본(세로 1440px) — 실사이트와 같은 배역
 const ARCHIVE_SLIDES = [
-  { key: "r1", title: "2026. 7. 15의 기록", src: "/linky-lounge/book-club/reviews/review-01-card.webp" },
-  { key: "r2", title: "2026. 7. 12의 기록", src: "/linky-lounge/book-club/reviews/review-02-card.webp" },
-  { key: "r3", title: "2026. 7. 12의 기록", src: "/linky-lounge/book-club/reviews/review-03-card.webp" },
-  { key: "r4", title: "2026. 7. 12의 기록", src: "/linky-lounge/book-club/reviews/review-04-card.webp" },
-  { key: "r5", title: "2026. 8. 9의 기록", src: "/linky-lounge/book-club/reviews/review-05-card.webp" },
-  { key: "r6", title: "2026. 8. 9의 기록", src: "/linky-lounge/book-club/reviews/review-06-card.webp" },
-].map((r) => ({ ...r, href: `${BOOKCLUB_URL}/#reviews`, external: true }))
+  { key: "r1", title: "2026. 7. 15의 기록" },
+  { key: "r2", title: "2026. 7. 12의 기록" },
+  { key: "r3", title: "2026. 7. 12의 기록" },
+  { key: "r4", title: "2026. 7. 12의 기록" },
+  { key: "r5", title: "2026. 8. 9의 기록" },
+  { key: "r6", title: "2026. 8. 9의 기록" },
+].map((r) => ({
+  ...r,
+  src: `/linky-lounge/book-club/reviews/review-0${r.key.slice(1)}-card.webp`,
+  photo: `/linky-lounge/book-club/reviews/review-0${r.key.slice(1)}.webp`,
+}))
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 활성 인덱스 + 자동 넘김 (휠 하이재킹 없음) */
 function useDragCarousel(slideCount: number, autoplay = false) {
@@ -140,14 +146,21 @@ function useDragCarousel(slideCount: number, autoplay = false) {
     const el = trackRef.current
     if (!el) return
     drag.current = { down: true, startX: e.clientX, startLeft: el.scrollLeft, moved: false }
-    el.setPointerCapture(e.pointerId)
+    // ⚠ 캡처는 여기서 하지 않는다 — pointerdown 에서 track 에 setPointerCapture 를 걸면
+    // pointerup 의 타깃이 track 으로 바뀌어 **click 이 슬라이드가 아니라 track 에서
+    // 발화**한다(공통 조상 규칙). 기록 모달 버튼의 onClick 이 통째로 죽었던 원인
+    // (2026-08-21 실측). 캡처는 실제 드래그가 시작된 뒤(onPointerMove)로 미룬다 —
+    // 제자리 클릭은 평범한 클릭으로 남는다.
   }
   const onPointerMove = (e: React.PointerEvent) => {
     const el = trackRef.current
     if (!el || !drag.current.down) return
     const dx = e.clientX - drag.current.startX
-    if (Math.abs(dx) > 4) drag.current.moved = true
-    el.scrollLeft = drag.current.startLeft - dx
+    if (!drag.current.moved && Math.abs(dx) > 4) {
+      drag.current.moved = true
+      el.setPointerCapture(e.pointerId) // 드래그 확정 후에만 캡처 — 트랙 밖으로 나가도 이어진다
+    }
+    if (drag.current.moved) el.scrollLeft = drag.current.startLeft - dx
   }
   const onPointerUp = () => {
     drag.current.down = false
@@ -264,6 +277,8 @@ export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
 function HomeContent() {
   const { notify } = useToast()
   const saved = useSaved()
+  // 기록 모달 — 실사이트 후기 모달 이식본 (운영자 2026-08-21). null = 닫힘
+  const [recordIdx, setRecordIdx] = useState<number | null>(null)
   // 숨김 상태에서는 자동 넘김 타이머도 돌리지 않는다 (라운드 92)
   const carousel = useDragCarousel(ARCHIVE_SLIDES.length, SHOW_ARCHIVE)
 
@@ -355,10 +370,14 @@ function HomeContent() {
           {SHOW_GOODS && (
           <div className={styles.goodsBlock} id="shop">
             <div className={styles.sectionTitle}>
-              <a href="#shop">
+              {/* 화살표 목적지를 자기 앵커(#shop) → **제품 목록 페이지**로 (2026-08-21).
+                  다른 다섯 섹션(모임·사람·일정·기록·레이지데이 북클럽)이 전부 자기 목록으로
+                  나가는데 제품만 제자리 앵커라 화살표가 아무 일도 하지 않았다. 내비의
+                  '제품'과도 목적지가 같아진다 */}
+              <LazydayLink href={`${BASE}/shop`}>
                 <span>제품</span>
                 <ArrowIcon />
-              </a>
+              </LazydayLink>
             </div>
             <div className={styles.meetingsList}>
               {GOODS.map((g, idx) => {
@@ -477,11 +496,11 @@ function HomeContent() {
         <HomeCalendar />
       </section>
 
-      {/* ── ③ 기록 — **맨 아래** 멤버 후기 사진 캐러셀 (운영자 2026-08-21, 워크룸프레스
-             참고로 모션 개선). 라운드 77: 맨 위 → 맨 아래 / 라운드 92: 숨김 /
-             2026-08-21: 부활 + 종료된 모임 포스터 → 후기 사진 6장으로 최종 교체.
-             비활성 슬라이드는 흐리게·살짝 축소해 활성 카드에 시선이 모이게 한다
-             (BookSection 캐러셀의 opacity/scale/blur 문법을 여기 flat 이미지에 이식) ── */}
+      {/* ── ③ 기록 — **맨 아래** 멤버 후기 사진 캐러셀. 라운드 77: 맨 위 → 맨 아래 /
+             라운드 92: 숨김 / 2026-08-21: 부활 + 후기 사진 6장으로 교체.
+             전 슬라이드 **원본 그대로 선명하게** (운영자 2026-08-21 "반투명 또는 무언가로
+             기존 원본 이미지를 흐리지 마" — 직전의 흐림·축소 표현 철회).
+             클릭 시 실사이트 후기 모달 이식본(RecordsLightbox)이 뜬다 ── */}
       {SHOW_ARCHIVE && (
       <section className={`${styles.books} ${styles.booksBottom} ${styles.archiveBlock}`}>
         <div className={styles.sectionTitle}>
@@ -500,17 +519,16 @@ function HomeContent() {
           onClickCapture={carousel.onClickCapture}
         >
           {ARCHIVE_SLIDES.map((a, i) => (
-            <a
+            <button
               key={a.key}
-              href={a.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${styles.bookSlide} ${i === carousel.active ? styles.bookSlideActive : ""}`}
-              aria-label={`${a.title} — 후기 더 보기 (새 탭)`}
+              type="button"
+              className={styles.bookSlide}
+              onClick={() => setRecordIdx(i)}
+              aria-label={`${a.title} 크게 보기`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={a.src} alt={a.title} draggable={false} />
-            </a>
+            </button>
           ))}
         </div>
         <div className={styles.dots}>
@@ -525,6 +543,15 @@ function HomeContent() {
           ))}
         </div>
       </section>
+      )}
+
+      {recordIdx !== null && (
+        <RecordsLightbox
+          items={ARCHIVE_SLIDES.map((a) => ({ key: a.key, photo: a.photo, caption: a.title }))}
+          index={recordIdx}
+          onClose={() => setRecordIdx(null)}
+          onSlide={setRecordIdx}
+        />
       )}
 
       {/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) — 아카이브 아래가 진짜 끝 */}

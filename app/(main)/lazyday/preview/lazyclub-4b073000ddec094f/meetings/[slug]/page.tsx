@@ -36,7 +36,9 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       badgeText={badge}
       status={m.status}
       title={m.title}
-      sub="One Day Talk" // 운영자 2026-08-18: 작은 글씨는 영어로만
+      // sub 없음 — 제목 아랫줄의 "One Day Talk" 제거 (운영자 2026-08-21
+      //   "모임 상세페이지에 모임 제목 바로아랫줄에 One Day Talk 위치에 자리한 것은 제거").
+      //   모임 상세 **전체** 대상. 굿즈 상세의 sub("Product")는 지시 범위 밖이라 유지.
       description={m.description}
       fields={
         m.sessions

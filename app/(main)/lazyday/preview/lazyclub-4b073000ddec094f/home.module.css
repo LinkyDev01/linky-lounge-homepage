@@ -235,6 +235,10 @@
   margin: 15px 0 2px; /* 원문 submenu 아래 15px */
 }
 .productSub { margin: 0 0 22.5px; }
+/* sub 가 없는 상세(모임 — 2026-08-21 "One Day Talk" 제거)에서 제목 아래 리듬 보전.
+   .productTitle 의 margin-bottom 은 2px 뿐이고 그 아래 22.5px 은 .productSub 가
+   내던 값이라, sub 을 지우면 제목과 설명이 붙어버린다 — 같은 22.5px 을 제목이 낸다 */
+.productTitleNoSub { margin-bottom: 22.5px; }
 .productLead { font-family: var(--gothic); font-weight: 600; margin: 0 0 8px; }
 /* 설명 본문 — 명조 (브랜드 단락 원문, 랜딩 책 본문 문법). 원문 description 아래 22.5px */
 .productDesc { margin-bottom: 22.5px; }

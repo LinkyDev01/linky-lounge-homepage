@@ -158,7 +158,7 @@ function DetailBody(p: DetailProps) {
             {p.category}
             {p.badgeText ? ` · ${p.badgeText}` : ""}
           </div>
-          <h1 className={styles.productTitle}>{p.title}</h1>
+          <h1 className={`${styles.productTitle} ${p.sub ? "" : styles.productTitleNoSub}`}>{p.title}</h1>
           {p.sub && <p className={styles.productSub}>{p.sub}</p>}
 
           {/* 모임(classic): 설명·필드가 종전대로 가격 위에 */}

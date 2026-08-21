@@ -28,7 +28,7 @@ function IndexBody() {
     .sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
     .map((m) => ({
       id: `meeting-${m.slug}`,
-      category: m.host, // 카테고리 대신 진행 주체 노출 (운영자 2026-08-18)
+      category: m.catLabel, // 원데이토크 통일 / 개별 모임장은 이름 (운영자 2026-08-21)
       status: m.status,
       title: m.title,
       link: `${BASE}/meetings/${m.slug}`,
@@ -42,7 +42,7 @@ function IndexBody() {
       <div className={styles.indexHead}>
         <div className={styles.sectionTitle}>
           <span>
-            <span>meetings</span>
+            <span>모임</span>
             <ArrowIcon />
           </span>
         </div>

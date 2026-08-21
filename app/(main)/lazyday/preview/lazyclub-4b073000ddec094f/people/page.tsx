@@ -27,7 +27,7 @@ export default function PeoplePage() {
         <div className={styles.indexHead}>
           <div className={styles.sectionTitle}>
             <span>
-              <span>people</span>
+              <span>사람</span>
               <ArrowIcon />
             </span>
           </div>

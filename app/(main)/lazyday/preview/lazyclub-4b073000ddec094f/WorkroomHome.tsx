@@ -202,7 +202,7 @@ function HomeContent() {
     // 작은 글씨 = 카테고리가 아니라 진행 주체 (운영자 2026-08-18: 지금은 전부 우리가
     // 진행하니 "레이지데이 북클럽" — 외부 모임장이 생기면 그 모임장명이 뜨도록
     // one-day-config 의 host 필드를 그대로 노출한다)
-    category: m.host,
+    category: m.catLabel, // 원데이토크 통일 / 개별 모임장은 이름 (운영자 2026-08-21)
     status: m.status,
     title: m.title,
     link: `${BASE}/meetings/${m.slug}`,

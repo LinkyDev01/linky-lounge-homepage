@@ -33,6 +33,12 @@ export type OneDayMeeting = {
   date: string
   /** 모임장 — 플랫폼화(다수 모임장) 대비 필드 */
   host: string
+  /** 카드·상세 상단의 작은 카테고리 라벨 (2026-08-21 운영자).
+   *  경위: 카테고리 키 표기(무비토크·원데이토크) → 진행 주체(host, 2026-08-18) →
+   *  다시 카테고리로 돌아오되 **무비토크도 '원데이토크'로 통일**, 개별 모임장이 여는
+   *  모임만 **모임장 이름**을 쓴다("비로소 나를~" = 천고든). host(진행 필드)와는
+   *  별개 축이라 필드를 분리한다 — host 를 덮어쓰면 상세 '진행' 줄까지 바뀐다 */
+  catLabel: string
   status: ProductStatus
   thumbnail: string
   /** 상세 페이지 이미지 스택 (위→아래) */
@@ -66,6 +72,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     title: "『호프』 무비토크",
     date: "8.23 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
+    catLabel: "원데이토크",
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-hope.webp",
     // 2026-08-18: 브람스·시지프와 같은 카드뉴스 형식으로 교체 (구 영화 포스터 이미지 폐기)
@@ -85,6 +92,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     title: "『브람스를 좋아하세요...』 원데이 토크",
     date: "8.30 (일) 08:00–11:00",
     host: "레이지데이 북클럽",
+    catLabel: "원데이토크",
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-brahms.webp",
     // 라운드 40: 책 단독 표지 이미지 제외 — 카드 이미지 1장만
@@ -104,6 +112,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     title: "『시지프 신화』 원데이 토크",
     date: "9.5 (토) 08:00–11:00",
     host: "레이지데이 북클럽",
+    catLabel: "원데이토크",
     // 2026-08-11: 4주 연기로 마감 해제 (구 라운드 121 soldout)
     status: "open",
     // 라운드 78 (운영자): 범용 One Day Talk 포스터 → 책+설명 카드로 교체 (브람스와 같은 문법)
@@ -129,6 +138,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     title: "비로소 나를 쥐어짜지 않는 법",
     date: "10.3–10.24 (매주 토) 오전 10:00–12:00",
     host: "레이지데이 북클럽",
+    catLabel: "천고든", // 개별 모임장이 여는 모임 — 모임장 이름 (운영자 2026-08-21)
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp",
     images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소 나를 쥐어짜지 않는 법 포스터" }],

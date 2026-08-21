@@ -82,6 +82,8 @@ export function TurtleTrack() {
   /** 1초 틱이 갱신하는 **실제** 진행률 — 복귀 목표 지점의 출처 */
   const fracRef = useRef(0)
   const dragLenRef = useRef(0)
+  /** 드래그 목표(포인터 투영 지점) — 실제 이동은 rAF 가 경로를 따라 쫓아간다 */
+  const dragTargetRef = useRef(0)
   const rafRef = useRef(0)
   /** 최근접 경로점 탐색용 좌표 캐시 — getPointAtLength 는 비싸서 폭이 바뀔 때만 다시 뜬다 */
   const samplesRef = useRef<{ x: number; y: number; len: number }[]>([])
@@ -231,18 +233,42 @@ export function TurtleTrack() {
     e.preventDefault()
     e.stopPropagation()
     cancelAnimationFrame(rafRef.current) // 복귀 중에 다시 집으면 그 자리에서 이어받는다
+    const path = measureRef.current
+    // 집는 순간의 현재 위치에서 출발 — 복귀 중이었다면 dragLenRef 가 그 지점을 들고 있다
+    if (!busyRef.current && path) dragLenRef.current = path.getTotalLength() * fracRef.current
+    dragTargetRef.current = dragLenRef.current
     busyRef.current = true
     draggingRef.current = true
     ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
+    // 드래그 추종 루프 — 포인터 투영 지점(target)을 **경로를 따라** 쫓아간다.
+    // 투영을 그대로 찍으면(place(target)) 포인터가 트랙 안쪽 빈 밭을 가로지를 때
+    // 최근접점이 위 직선 ↔ 아래 직선으로 홱 뒤집혀 거북이가 순간이동한다
+    // (운영자 2026-08-21 "거북이는 순간이동할 수 없어") — 짧은 호 방향으로
+    // 프레임당 28% 씩 접근시켜 항상 트랙 위를 미끄러지게 한다
+    const chase = () => {
+      if (!draggingRef.current) return
+      const pth = measureRef.current
+      if (pth) {
+        const L = pth.getTotalLength()
+        let d = (((dragTargetRef.current - dragLenRef.current) % L) + L) % L
+        if (d > L / 2) d -= L
+        // 비례 접근(28%)만으로는 목표가 멀 때(밭을 가로질러 반대편 직선으로 투영이
+        // 뒤집힐 때) 한 프레임에 수백 유닛을 건너뛴다(실측 314u) — **속도 상한**을
+        // 함께 건다. 18u/프레임 ≈ 1080u/s: 빠르게 미끄러지되 이동이 눈에 보인다
+        const step = Math.max(-18, Math.min(18, d * 0.28))
+        dragLenRef.current = dragLenRef.current + step
+        place(dragLenRef.current)
+      }
+      rafRef.current = requestAnimationFrame(chase)
+    }
+    rafRef.current = requestAnimationFrame(chase)
   }
 
   const onTurtleMove = (e: React.PointerEvent) => {
     if (!draggingRef.current) return
     const p = toSvg(e)
     if (!p) return
-    const len = nearestLength(p.x, p.y)
-    dragLenRef.current = len
-    place(len) // 경로에 투영 — 트랙 밖으로는 못 나간다
+    dragTargetRef.current = nearestLength(p.x, p.y) // 실제 이동은 chase 루프가
   }
 
   /** 놓으면 **경로를 따라** 실제 위치로 미끄러져 돌아온다 (직선 이동 금지).
@@ -251,6 +277,7 @@ export function TurtleTrack() {
   const onTurtleUp = (e: React.PointerEvent) => {
     if (!draggingRef.current) return
     draggingRef.current = false
+    cancelAnimationFrame(rafRef.current) // 추종 루프 정지 — 복귀 스프링으로 교대
     try { (e.currentTarget as Element).releasePointerCapture(e.pointerId) } catch {}
 
     notify("우리는 거북이를 옮길 순 있지만, 시간을 통제할 수는 없습니다.", 4000)
@@ -285,6 +312,7 @@ export function TurtleTrack() {
       last = now
       v += (K * (d - x) - C * v) * dt
       x += v * dt
+      dragLenRef.current = from + x // 복귀 중 다시 집으면 이 지점에서 이어받는다
       place(from + x)
       if (Math.abs(d - x) < 0.4 && Math.abs(v) < 4) {
         place(to)

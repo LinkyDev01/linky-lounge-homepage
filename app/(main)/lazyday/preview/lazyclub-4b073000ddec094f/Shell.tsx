@@ -14,7 +14,6 @@ import styles from "./home.module.css"
 // BASE·BOOKCLUB_URL 은 서버 컴포넌트도 쓰므로 지시어 없는 base-path.ts 로 분리 (2026-08-11,
 // 2026-08-19 — "use client" 모듈의 상수를 서버에서 보간하면 프록시가 찍히는 버그). 기존 소비자용 re-export.
 import { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL } from "./base-path"
-import { DeferredCss } from "@/components/common/DeferredCss"
 export { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL }
 
 // 라운드 30 (운영자 2026-08-06): coming soon은 lazy-club.com 전용 페이지(/coming-soon)로 분리 —
@@ -118,7 +117,9 @@ export function WorkroomShell({
             그려지고 있었다(2026-08-21 실측 발견). 실제 굵기를 받도록 추가.
           ⚠ 300 은 제거 — 유일한 소비처였던 약력 본문이 500 으로 올라가 사용처가 0 이다
             (트리 전수 grep 확인). 안 쓰는 굵기를 받으면 전송량만 늘어난다 */}
-      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;600;700&family=Space+Grotesk:wght@500&display=swap" />
+      {/* Gothic A1·Space Grotesk 는 fonts-inline.css(@font-face 번들 스냅숏)로 이동
+          (2026-08-21) — CDN CSS 왕복이 사라져 새로고침 폰트 스왑이 해소된다.
+          폰트 파일 자체는 종전대로 fonts.gstatic (preconnect 는 루트 레이아웃) */}
       {/* ── 내비 (라운드 75) — 2행. 1행: 로고 + 계정·카트·검색 / 2행: 전체상품 + 링크 3개 ── */}
       <header className={styles.header}>
         {/* 1행 좌: 로고 → 랜딩(애니메이션) 페이지 */}

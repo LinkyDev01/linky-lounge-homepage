@@ -113,6 +113,60 @@ const ARCHIVE_SLIDES = [
   photo: `/linky-lounge/book-club/reviews/review-0${r.key.slice(1)}.webp`,
 }))
 
+/** 기록(후기) 캐러셀 + 모달 — 홈 '기록' 섹션과 /archive(기록) 페이지가 공유
+ *  (운영자 2026-08-21 "기록 페이지 들어가면 아무것도 없는데 … 후기를 이식").
+ *  이 파일에 두는 이유: useDragCarousel 훅·ARCHIVE_SLIDES 가 여기 살고 있어서 —
+ *  사본을 뜨면 갈라진다 (ClubAside 공용화와 같은 규율) */
+export function RecordsCarousel({ autoplay = true }: { autoplay?: boolean }) {
+  const [recordIdx, setRecordIdx] = useState<number | null>(null)
+  const carousel = useDragCarousel(ARCHIVE_SLIDES.length, autoplay)
+  return (
+    <>
+      <div
+        ref={carousel.trackRef}
+        className={styles.booksTrack}
+        onScroll={carousel.onScroll}
+        onPointerDown={carousel.onPointerDown}
+        onPointerMove={carousel.onPointerMove}
+        onPointerUp={carousel.onPointerUp}
+        onClickCapture={carousel.onClickCapture}
+      >
+        {ARCHIVE_SLIDES.map((a, i) => (
+          <button
+            key={a.key}
+            type="button"
+            className={styles.bookSlide}
+            onClick={() => setRecordIdx(i)}
+            aria-label={`${a.title} 크게 보기`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={a.src} alt={a.title} draggable={false} />
+          </button>
+        ))}
+      </div>
+      <div className={styles.dots}>
+        {ARCHIVE_SLIDES.map((a, i) => (
+          <button
+            key={a.key}
+            type="button"
+            className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
+            aria-label={`${i + 1}번째 후기 사진으로 이동`}
+            onClick={() => carousel.scrollTo(i)}
+          />
+        ))}
+      </div>
+      {recordIdx !== null && (
+        <RecordsLightbox
+          items={ARCHIVE_SLIDES.map((a) => ({ key: a.key, photo: a.photo, caption: a.title }))}
+          index={recordIdx}
+          onClose={() => setRecordIdx(null)}
+          onSlide={setRecordIdx}
+        />
+      )}
+    </>
+  )
+}
+
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 활성 인덱스 + 자동 넘김 (휠 하이재킹 없음) */
 function useDragCarousel(slideCount: number, autoplay = false) {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -277,10 +331,6 @@ export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
 function HomeContent() {
   const { notify } = useToast()
   const saved = useSaved()
-  // 기록 모달 — 실사이트 후기 모달 이식본 (운영자 2026-08-21). null = 닫힘
-  const [recordIdx, setRecordIdx] = useState<number | null>(null)
-  // 숨김 상태에서는 자동 넘김 타이머도 돌리지 않는다 (라운드 92)
-  const carousel = useDragCarousel(ARCHIVE_SLIDES.length, SHOW_ARCHIVE)
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
@@ -401,8 +451,12 @@ function HomeContent() {
                     <div className={styles.itemBody}>
                       <div>
                         {/* 회색 카테고리 라벨 제거 (운영자 2026-08-21 "사람과 제품에는 작은
-                            글씨 회색 카테고리 빼") — 이름 위치는 그대로(카테고리가 있던
-                            자리를 이름이 차지). 대신 /shop 목록과 같은 가격 노출 */}
+                            글씨 회색 카테고리 빼"). 2차 정정: "포스터 위치 대비 상품명의
+                            y축 시작점은 동일하게" — 라벨 **높이만** 남긴다(nbsp 스페이서,
+                            같은 .itemCat 이라 줄높이·여백이 픽셀 단위로 같다) */}
+                        <div className={styles.itemCat} aria-hidden="true">
+                          {"\u00A0"}
+                        </div>
                         <div className={styles.shopName}>{g.name}</div>
                         <div className={styles.shopPrice}>
                           {g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}
@@ -451,13 +505,18 @@ function HomeContent() {
                       className={styles.itemLink}
                       aria-label={`${person.name} 소개로 이동`}
                     />
-                    <figure className={styles.itemFigure}>
+                    {/* personFigure — 사진에 프레임 알파가 구워져 있어(2026-08-21) 3:4 cover
+                        크롭이면 프레임 곡선이 잘린다 → 프레임 비율 그대로 + 투명 배경 */}
+                    <figure className={`${styles.itemFigure} ${styles.personFigure}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={person.photo} alt="" draggable={false} />
                     </figure>
                     <div className={styles.itemBody}>
                       <div>
-                        {/* 회색 카테고리 라벨 제거 (운영자 2026-08-21) — 이름 위치는 그대로 */}
+                        {/* 카테고리 라벨 제거 + y축 시작점 유지 스페이서 (제품 카드와 동일) */}
+                        <div className={styles.itemCat} aria-hidden="true">
+                          {"\u00A0"}
+                        </div>
                         <div className={styles.itemTitle}>{person.name}</div>
                       </div>
                       <div className={styles.itemBottom}>
@@ -509,49 +568,8 @@ function HomeContent() {
             <ArrowIcon />
           </LazydayLink>
         </div>
-        <div
-          ref={carousel.trackRef}
-          className={styles.booksTrack}
-          onScroll={carousel.onScroll}
-          onPointerDown={carousel.onPointerDown}
-          onPointerMove={carousel.onPointerMove}
-          onPointerUp={carousel.onPointerUp}
-          onClickCapture={carousel.onClickCapture}
-        >
-          {ARCHIVE_SLIDES.map((a, i) => (
-            <button
-              key={a.key}
-              type="button"
-              className={styles.bookSlide}
-              onClick={() => setRecordIdx(i)}
-              aria-label={`${a.title} 크게 보기`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={a.src} alt={a.title} draggable={false} />
-            </button>
-          ))}
-        </div>
-        <div className={styles.dots}>
-          {ARCHIVE_SLIDES.map((a, i) => (
-            <button
-              key={a.key}
-              type="button"
-              className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
-              aria-label={`${i + 1}번째 후기 사진으로 이동`}
-              onClick={() => carousel.scrollTo(i)}
-            />
-          ))}
-        </div>
+        <RecordsCarousel />
       </section>
-      )}
-
-      {recordIdx !== null && (
-        <RecordsLightbox
-          items={ARCHIVE_SLIDES.map((a) => ({ key: a.key, photo: a.photo, caption: a.title }))}
-          index={recordIdx}
-          onClose={() => setRecordIdx(null)}
-          onSlide={setRecordIdx}
-        />
       )}
 
       {/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) — 아카이브 아래가 진짜 끝 */}

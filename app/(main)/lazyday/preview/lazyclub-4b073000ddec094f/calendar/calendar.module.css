@@ -262,6 +262,20 @@
   display: flex;
   justify-content: center;
 }
+/* 홈 split 배치 (운영자 2026-08-21 2차) — 720px 캡을 풀어 좌우 여백 끝까지.
+   데스크톱: (캘린더)|(이번 달 모임) 2열, 거북이 트랙은 아래 전폭.
+   모바일: 자연 스택 (캘린더 → 목록 → 트랙) */
+.wrapSplit { width: 100%; }
+@media (min-width: 721px) {
+  .splitCols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 45px;
+    align-items: start;
+  }
+  /* 좌열(캘린더) head 의 상단 여백과 우열(목록) listHead 시작선을 맞춘다 */
+  .wrapSplit .listHead { margin-top: 0; }
+}
 
 /* ── 모임 목록 ────────────────────────────────────────── */
 .listHead {

@@ -1042,6 +1042,9 @@
 
 /* 아카이브 캐러셀이 맨 아래로 내려가며 생긴 상단 여백 (라운드 77) */
 .booksBottom { margin-top: 65px; }
+/* 기록 페이지 전용 — 캐러셀이 페이지의 마지막 요소라 도트와 푸터 사이 여백을 여기서 준다
+   (홈은 뒤따르는 .homeEndRule 이 65px 을 만든다). 모바일은 45px */
+.recordsPage { margin-bottom: 65px; }
 /* 아카이브 = 마지막 섹션 — 다른 섹션과 같은 1px 구분 괘선 (운영자 2026-08-21).
    .books 가 좌우 15px 씩 넘치는 풀블리드라 괘선도 같은 폭으로 그어진다 */
 .archiveBlock { border-top: 1px solid var(--ink); padding-top: 24px; }
@@ -1204,6 +1207,7 @@
   .calendarBlock { margin-top: 40px; padding-top: 20px; }
   .homeEndRule { margin-top: 45px; }
   .booksBottom { margin-top: 40px; }
+  .recordsPage { margin-bottom: 45px; }
 
   /* 리스트 항목: 모바일 2컬럼 — 썸네일 좌 절반 + 콘텐츠 우 절반 (08) */
   .item { grid-template-columns: 1fr 1fr; }

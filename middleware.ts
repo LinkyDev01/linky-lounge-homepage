@@ -54,10 +54,12 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL(rest + req.nextUrl.search, req.url), 301)
     }
     const to = req.nextUrl.clone()
-    if (pathname.startsWith(LAZYCLUB_BASE)) {
-      // 내부 프리픽스로 직접 들어온 요청 — 이 도메인의 정식 URL 은 프리픽스 없는 쪽이다
-      const rest = pathname.slice(LAZYCLUB_BASE.length) || "/"
-      return NextResponse.redirect(new URL(rest + req.nextUrl.search, req.url), 301)
+    if (pathname === LAZYCLUB_BASE || pathname.startsWith(`${LAZYCLUB_BASE}/`)) {
+      // 프리픽스가 붙은 요청은 **그대로 연다**. 종전엔 프리픽스를 떼는 301 을 걸었는데,
+      // 랜딩(`/`)이 아직 coming-soon 인 동안에는 그 301 이 **홈으로 가는 유일한 링크
+      // (내비 '전체보기')를 coming-soon 으로 떨어뜨렸다** (2026-08-21 실측 회귀).
+      // 프리픽스 없는 경로도 아래 rewrite 로 계속 열리므로 두 모양 다 동작한다.
+      return NextResponse.next()
     }
     if (LAZYCLUB_OPEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
       // PG 심사 화이트리스트 — 원데이 신청·결제(checkout/success/fail)·정책 페이지

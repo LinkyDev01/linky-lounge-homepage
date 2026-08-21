@@ -48,7 +48,7 @@ export const PEOPLE: Person[] = [
           Tit for Tat
         </a>
         을 인생의 전략으로 채택했다. 이때 비주류를 열망한다는 자기 인식을 얻었다고 한다. 이 열망은 한때{" "}
-        <a href="https://dustyoldthing.com/bold-1940s-mens-fashion/" target="_blank" rel="noopener noreferrer">
+        <a href="https://imgur.com/gallery/1940s-men-s-work-clothes-l7YfP" target="_blank" rel="noopener noreferrer">
           1940년대 아메리칸 워크웨어
         </a>{" "}
         애호로 구현되었고, 그 차림새에서 타인의 시선을 의도치 않게 유치했으나 얻은 결론은 오히려

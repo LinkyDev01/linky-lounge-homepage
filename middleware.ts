@@ -22,6 +22,25 @@ const LAZYCLUB_HOSTS = new Set(["lazy-club.com", "www.lazy-club.com"])
 const LAZYCLUB_BASE = "/lazyclub"
 /** 구 시안 경로 2종 — 301 로 새 경로에 넘긴다 (공유된 링크·북마크 보호) */
 const LAZYCLUB_OLD_PREFIXES = ["/preview/lazyclub-4b073000ddec094f", "/lazyday/preview/lazyclub-4b073000ddec094f"]
+/** 전체보기(홈) — 트리 루트가 아니라 이름 있는 라우트 (base-path.ts HOME 과 같은 값).
+ *  lazy-club.com 에서 프리픽스를 떼면 트리 루트가 `/`(= 랜딩)와 겹쳐 홈이 갈 곳을 잃는다 */
+const LAZYCLUB_HOME = `${LAZYCLUB_BASE}/all`
+/** URL 명명 규칙 확정 (2026-08-21): 슬러그 = **내비 라벨의 영문 대응어**.
+ *  전체보기=all · 모임=meetings · 제품=products · 사람=people · 일정=schedule · 기록=records.
+ *  개명 전 슬러그(shop/calendar/archive)와 구 트리 루트는 여기서 301 로 흡수한다 */
+const LAZYCLUB_RENAMED: Record<string, string> = {
+  shop: "products",
+  calendar: "schedule",
+  archive: "records",
+}
+/** `/lazyclub/...`(또는 lazy-club.com 의 루트 상대 경로)에서 구 슬러그를 새 슬러그로.
+ *  바꿀 게 없으면 null — 호출부가 리다이렉트 여부를 이걸로 판단한다 */
+function renameLazyclubSlug(rest: string): string | null {
+  if (rest === "" || rest === "/") return "/all" // 구 트리 루트 → 이름 있는 홈
+  const seg = rest.split("/")[1]
+  const next = LAZYCLUB_RENAMED[seg]
+  return next ? rest.replace(`/${seg}`, `/${next}`) : null
+}
 const LAZYCLUB_COMING_SOON = `${LAZYCLUB_BASE}/coming-soon`
 /** lazy-club.com 랜딩 공개 스위치 — false 면 **루트만** coming soon (현행 유지),
  *  하위 경로는 실페이지가 열린다. 도메인을 정식 공개할 때 true 로 (운영자 결정 사항):
@@ -50,26 +69,40 @@ export function middleware(req: NextRequest) {
     // 구 시안 경로 → 깔끔한 새 경로로 301 (2026-08-21 프리뷰 졸업)
     const old = LAZYCLUB_OLD_PREFIXES.find((p) => pathname === p || pathname.startsWith(p + "/"))
     if (old) {
-      const rest = pathname.slice(old.length) || "/"
-      return NextResponse.redirect(new URL(rest + req.nextUrl.search, req.url), 301)
+      // 슬러그 개명까지 한 번에 흡수 — 구 경로 + 구 슬러그가 겹쳐도 301 은 한 번만 탄다
+      const rest = pathname.slice(old.length)
+      const dest = renameLazyclubSlug(rest) ?? (rest || "/all")
+      return NextResponse.redirect(new URL(dest + req.nextUrl.search, req.url), 301)
     }
     const to = req.nextUrl.clone()
     if (pathname === LAZYCLUB_BASE || pathname.startsWith(`${LAZYCLUB_BASE}/`)) {
-      // 프리픽스가 붙은 요청은 **그대로 연다**. 종전엔 프리픽스를 떼는 301 을 걸었는데,
-      // 랜딩(`/`)이 아직 coming-soon 인 동안에는 그 301 이 **홈으로 가는 유일한 링크
-      // (내비 '전체보기')를 coming-soon 으로 떨어뜨렸다** (2026-08-21 실측 회귀).
-      // 프리픽스 없는 경로도 아래 rewrite 로 계속 열리므로 두 모양 다 동작한다.
-      return NextResponse.next()
+      // 이 도메인에서 `/lazyclub` 프리픽스는 군더더기다(도메인이 이미 레이지클럽) →
+      // 프리픽스를 뗀 주소로 301. 홈이 이름(`/all`)을 갖게 되면서 안전해진 처리다 —
+      // 종전에는 트리 루트가 `/`(랜딩=coming-soon)와 겹쳐 '전체보기'가 실종됐다.
+      const rest = pathname.slice(LAZYCLUB_BASE.length)
+      const to2 = req.nextUrl.clone()
+      to2.pathname = renameLazyclubSlug(rest) ?? (rest || "/all")
+      return NextResponse.redirect(to2, 301)
+    }
+    // 개명 전 슬러그(/shop·/calendar·/archive) → 새 슬러그 301
+    const renamed = renameLazyclubSlug(pathname)
+    if (renamed && pathname !== "/") {
+      const to3 = req.nextUrl.clone()
+      to3.pathname = renamed
+      return NextResponse.redirect(to3, 301)
     }
     if (LAZYCLUB_OPEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
       // PG 심사 화이트리스트 — 원데이 신청·결제(checkout/success/fail)·정책 페이지
       to.pathname = `/lazyday${pathname}`
     } else if (!LAZYCLUB_LIVE && pathname === "/") {
-      // 랜딩은 아직 coming soon (LAZYCLUB_LIVE 스위치) — 하위 경로는 실페이지
+      // 랜딩은 아직 coming soon (LAZYCLUB_LIVE 스위치) — 하위 경로는 실페이지.
+      // 공개 시 true 로 바꾸면 이 자리가 전체보기 홈이 된다(/all 은 별칭으로 유지)
       to.pathname = LAZYCLUB_COMING_SOON
+    } else if (pathname === "/") {
+      to.pathname = LAZYCLUB_HOME
     } else {
-      // 도메인 루트 = 레이지클럽 트리. /meetings·/people·/shop… 이 그대로 열린다
-      to.pathname = pathname === "/" ? LAZYCLUB_BASE : `${LAZYCLUB_BASE}${pathname}`
+      // 도메인 루트 = 레이지클럽 트리. /all·/meetings·/products·/people·/schedule·/records
+      to.pathname = `${LAZYCLUB_BASE}${pathname}`
     }
     return NextResponse.rewrite(to)
   }
@@ -84,9 +117,19 @@ export function middleware(req: NextRequest) {
   // (북클럽 도메인에서도 열어 두는 이유: 운영자 검토 동선. 색인은 레이아웃이 noindex 로 막는다)
   const oldLazyclub = LAZYCLUB_OLD_PREFIXES.find((p) => pathname === p || pathname.startsWith(p + "/"))
   if (isBookclub && oldLazyclub) {
+    const rest = pathname.slice(oldLazyclub.length)
     const to = req.nextUrl.clone()
-    to.pathname = `${LAZYCLUB_BASE}${pathname.slice(oldLazyclub.length)}`
+    to.pathname = `${LAZYCLUB_BASE}${renameLazyclubSlug(rest) ?? rest}`
     return NextResponse.redirect(to, 301)
+  }
+  // 개명 전 슬러그·구 트리 루트로 들어온 요청 → 새 슬러그 301 (북클럽 도메인)
+  if (isBookclub && (pathname === LAZYCLUB_BASE || pathname.startsWith(`${LAZYCLUB_BASE}/`))) {
+    const renamedRest = renameLazyclubSlug(pathname.slice(LAZYCLUB_BASE.length))
+    if (renamedRest) {
+      const to = req.nextUrl.clone()
+      to.pathname = `${LAZYCLUB_BASE}${renamedRest}`
+      return NextResponse.redirect(to, 301)
+    }
   }
   if (
     isBookclub &&

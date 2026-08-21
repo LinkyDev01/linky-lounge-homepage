@@ -13,8 +13,8 @@ import styles from "./home.module.css"
 // 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
 // BASE·BOOKCLUB_URL 은 서버 컴포넌트도 쓰므로 지시어 없는 base-path.ts 로 분리 (2026-08-11,
 // 2026-08-19 — "use client" 모듈의 상수를 서버에서 보간하면 프록시가 찍히는 버그). 기존 소비자용 re-export.
-import { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL } from "./base-path"
-export { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL }
+import { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL, HOME } from "./base-path"
+export { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL, HOME }
 
 // 라운드 30 (운영자 2026-08-06): coming soon은 lazy-club.com 전용 페이지(/coming-soon)로 분리 —
 // 이 트리의 홈은 기존 기획안(전체 섹션)을 내부 검토용으로 유지.
@@ -31,18 +31,20 @@ export { BASE, BOOKCLUB_URL, BOOKCLUB_BOOK_URL }
 // 라운드 85: 제품도 홈 앵커(#shop)가 아니라 **굿즈만 목록화된 전용 페이지**(/shop)로
 // — "전체보기 페이지 하나에서 섹션이동이 아니라" (운영자)
 const NAV_ROW2_LEFT: { label: string; href: string }[] = [
-  { label: "전체보기", href: BASE },
+  // 2026-08-21 URL 명명 규칙: 슬러그 = **내비 라벨의 영문 대응어** (전체보기=all ·
+  // 모임=meetings · 제품=products · 사람=people · 일정=schedule · 기록=records)
+  { label: "전체보기", href: HOME },
   { label: "모임", href: `${BASE}/meetings` },
-  { label: "제품", href: `${BASE}/shop` },
+  { label: "제품", href: `${BASE}/products` },
   // 2026-08-20(운영자): **사람** — 진행자 소개 페이지 (레퍼런스 p-i-e.kr/people, C안).
   // 2026-08-21(운영자): 순서를 제품과 일정 사이로 이동 + 단수형.
   // ⚠ 좌측 6항목이라 390px 에서 우측 '레이지데이 북클럽'과의 간격이 조인다 —
   // 폰트·gap 은 라운드 124 값 유지하고 겹침 여부는 캡처로 실측 관리할 것
   { label: "사람", href: `${BASE}/people` },
   // 라운드 121(운영자): 캘린더 페이지
-  { label: "일정", href: `${BASE}/calendar` },
+  { label: "일정", href: `${BASE}/schedule` },
   // 2026-08-21(운영자): '아카이브' → **기록** (내비·섹션·카테고리 전 표기). 경로는 그대로
-  { label: "기록", href: `${BASE}/archive` },
+  { label: "기록", href: `${BASE}/records` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는
 // 미들웨어가 랜딩으로 되돌리므로 상대 경로로는 북클럽에 도달할 수 없다.

@@ -11,7 +11,7 @@
 //   (Shell("use client") 경유 금지 — base-path.ts 헤더의 프록시 버그 주석 참조)
 // ================================================================
 
-import { BASE, BOOKCLUB_URL } from "./base-path"
+import { BOOKCLUB_URL, HOME } from "./base-path"
 
 export type Person = {
   slug: string
@@ -102,7 +102,7 @@ export const PEOPLE: Person[] = [
           레이지데이 북클럽
         </a>
         과{" "}
-        <a href={BASE} rel="noopener noreferrer">
+        <a href={HOME} rel="noopener noreferrer">
           레이지클럽
         </a>
         에서 기획자와 편집자와 디자이너와 마케터와 크리에이티브 디렉터로 일하고 있다. 초등학생 시절 강제로

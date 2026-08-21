@@ -30,7 +30,10 @@ function ArchiveBody() {
         </div>
       </div>
       {/* 홈 기록 섹션과 같은 풀블리드 래퍼(.books) — 캐러셀 좌우 여백 문법 동일 */}
-      <section className={styles.books}>
+      {/* .recordsPage — 도트 아래 여백. 홈에서는 뒤에 마감 괘선(.homeEndRule, 위 65px)이
+          받쳐 주는데 이 페이지는 캐러셀이 마지막이라 도트가 곧장 푸터에 붙었다
+          (운영자 2026-08-21 "기록 하단 점이 푸터와 붙었어") */}
+      <section className={`${styles.books} ${styles.recordsPage}`}>
         <RecordsCarousel />
       </section>
     </main>

@@ -178,7 +178,7 @@ export function WorkroomShell({
         <div className={styles.footerInner}>
           <figure className={styles.footerLogo}>
             {/* 레이지 클럽 로고 (운영자 제공 — 라운드 49 교체: 새 워드서치 마크 CWEL/LAZY/UCOM/BETO) */}
-            <img src="/linky-lounge/book-club/home-v3/logo-lazyclub-v2.png" alt="레이지 클럽" />
+            <img src="/linky-lounge/book-club/home-v3/logo-lazyclub-v2.png" alt="레이지 클럽" loading="lazy" decoding="async" />
           </figure>
           <div className={styles.footerDesc}>
             {/* 브랜드 문단 (About 링크는 라운드 14에서 제거 — 내비 Brand로 대체) */}

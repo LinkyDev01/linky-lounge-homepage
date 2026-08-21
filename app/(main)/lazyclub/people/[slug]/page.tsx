@@ -51,7 +51,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                   <li key={m.slug}>
                     <LazyclubLink href={`${BASE}/meetings/${m.slug}`} className={styles.personMeetingItem}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={m.thumbnail} alt="" draggable={false} />
+                      <img src={m.thumbnail} alt="" draggable={false} loading="lazy" decoding="async" />
                       <span className={styles.personMeetingBody}>
                         <span className={styles.personMeetingTitle}>{m.title}</span>
                         <span className={styles.personMeetingMeta}>

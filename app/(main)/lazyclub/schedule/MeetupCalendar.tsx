@@ -255,7 +255,7 @@ function ProgramRow({ p }: { p: ClubProgram }) {
       <figure className={`${styles.thumb} ${p.image ? "" : styles.thumbEmpty}`}>
         {p.image && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.image} alt="" draggable={false} />
+          <img src={p.image} alt="" draggable={false} loading="lazy" decoding="async" />
         )}
       </figure>
       <div className={styles.body}>

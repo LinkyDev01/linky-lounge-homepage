@@ -71,7 +71,7 @@ function LegacyArchiveBody() {
               >
                 <figure className={styles.itemFigure}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.image} alt="" draggable={false} />
+                  <img src={item.image} alt="" draggable={false} loading="lazy" decoding="async" />
                 </figure>
                 <div className={styles.itemBody}>
                   <div>

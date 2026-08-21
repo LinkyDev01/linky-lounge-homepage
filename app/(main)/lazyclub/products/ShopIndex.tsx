@@ -54,7 +54,7 @@ function IndexBody() {
                     정보 행의 붉은 OUT OF STOCK 이 맡는다 */}
               <figure className={`${styles.itemFigure} ${g.status === "soldout" ? styles.shopFigDim : ""}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={g.img} alt={g.name} draggable={false} />
+                <img src={g.img} alt={g.name} draggable={false} loading="lazy" decoding="async" />
                 <span className={styles.shopBadge}>new arrival</span>
               </figure>
               {/* 컬러 원 — **제품 이미지 바로 밑** (라운드 131, 운영자). 그리드에서 이미지와

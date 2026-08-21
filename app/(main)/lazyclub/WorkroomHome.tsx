@@ -139,8 +139,9 @@ export function RecordsCarousel({ autoplay = true }: { autoplay?: boolean }) {
             onClick={() => setRecordIdx(i)}
             aria-label={`${a.title} 크게 보기`}
           >
+            {/* 기록 캐러셀은 페이지 최하단 — 전부 지연 (2026-08-21 최적화) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={a.src} alt={a.title} draggable={false} />
+            <img src={a.src} alt={a.title} draggable={false} loading="lazy" decoding="async" />
           </button>
         ))}
       </div>
@@ -385,8 +386,16 @@ function HomeContent() {
                   <LazyclubLink href={m.link} className={styles.itemLink} aria-label={`${m.title} 안내로 이동`} />
                   {m.thumbnail && (
                     <figure className={styles.itemFigure}>
+                      {/* 첫 행 2장만 즉시(LCP 후보) — 나머지는 지연 (2026-08-21 최적화) */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={m.thumbnail} alt="" draggable={false} />
+                      <img
+                        src={m.thumbnail}
+                        alt=""
+                        draggable={false}
+                        loading={idx < 2 ? "eager" : "lazy"}
+                        fetchPriority={idx < 2 ? "high" : undefined}
+                        decoding="async"
+                      />
                       {m.status !== "open" && <StatusOverlay status={m.status} />}
                     </figure>
                   )}
@@ -445,7 +454,7 @@ function HomeContent() {
                     />
                     <figure className={styles.itemFigure}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={g.img} alt={g.name} draggable={false} />
+                      <img src={g.img} alt={g.name} draggable={false} loading="lazy" decoding="async" />
                       {g.status !== "open" && <StatusOverlay status={g.status} />}
                     </figure>
                     <div className={styles.itemBody}>
@@ -509,7 +518,7 @@ function HomeContent() {
                         크롭이면 프레임 곡선이 잘린다 → 프레임 비율 그대로 + 투명 배경 */}
                     <figure className={`${styles.itemFigure} ${styles.personFigure}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={person.photo} alt="" draggable={false} />
+                      <img src={person.photo} alt="" draggable={false} loading="lazy" decoding="async" />
                     </figure>
                     <div className={styles.itemBody}>
                       <div>

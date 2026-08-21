@@ -212,7 +212,7 @@ function DetailBody(p: DetailProps) {
                       <span className={styles.optThumbImg} style={c.img ? undefined : { background: c.hex }}>
                         {c.img && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={c.img} alt="" />
+                          <img src={c.img} alt="" loading="lazy" decoding="async" />
                         )}
                       </span>
                       <span className={styles.optThumbName}>{c.name}</span>

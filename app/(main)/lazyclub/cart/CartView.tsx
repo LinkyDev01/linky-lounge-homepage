@@ -60,7 +60,7 @@ function CartBody() {
               {i.img && (
                 <LazyclubLink href={i.href} className={styles.cartThumb}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={i.img} alt="" />
+                  <img src={i.img} alt="" loading="lazy" decoding="async" />
                 </LazyclubLink>
               )}
               <div className={styles.cartInfo}>

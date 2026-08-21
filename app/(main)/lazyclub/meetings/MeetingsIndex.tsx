@@ -68,7 +68,7 @@ function IndexBody() {
               {m.thumbnail && (
                 <figure className={styles.itemFigure}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={m.thumbnail} alt="" draggable={false} />
+                  <img src={m.thumbnail} alt="" draggable={false} loading="lazy" decoding="async" />
                   {m.status !== "open" && <StatusOverlay status={m.status} />}
                 </figure>
               )}

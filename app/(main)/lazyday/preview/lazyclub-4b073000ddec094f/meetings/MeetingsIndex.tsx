@@ -32,6 +32,8 @@ function IndexBody() {
       category: m.catLabel, // 원데이토크 통일 / 개별 모임장은 이름 (운영자 2026-08-21)
       status: m.status,
       title: m.title,
+      // 개별 모임 가격 노출 (운영자 2026-08-21, 제품 섹션과 같은 서식)
+      price: m.price,
       link: `${BASE}/meetings/${m.slug}`,
       thumbnail: m.thumbnail,
     }))
@@ -74,6 +76,9 @@ function IndexBody() {
                 <div>
                   <div className={styles.itemCat}>{m.category}</div>
                   <div className={styles.itemTitle}>{m.title}</div>
+                  {m.price != null && (
+                    <div className={styles.shopPrice}>₩{m.price.toLocaleString("ko-KR")}</div>
+                  )}
                 </div>
                 <div className={styles.itemBottom}>
                   <button

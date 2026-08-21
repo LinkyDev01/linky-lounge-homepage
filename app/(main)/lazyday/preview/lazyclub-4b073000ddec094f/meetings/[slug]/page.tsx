@@ -25,7 +25,9 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   // ProductDetail 이 자동으로 "구매하기 → notify(buyMessage)"로 뺀다.
   // ⚠ 2026-08-20: 종전엔 이 판정이 `Boolean(m.sessions)` 였는데, 본문(centerBody) 유무와
   // 결제 가능 여부는 별개 축이다 — 호프처럼 "본문은 있고 가격도 있는" 모임이 생기며 분리.
-  const unpriced = m.price == null
+  // 2026-08-21: 가격이 있어도 **주문 코드가 없으면 결제로 보내지 않는다** — 코드 없는
+  // 모임에 buyHref 를 주면 엉뚱한 회차 신청 폼(/one-day-talk-01/apply)으로 새어 나간다
+  const unpriced = m.price == null || code == null
   // 하단 중앙 본문 — 모임별 콘텐츠. 없는 모임은 종전대로 우측 요약만 쓴다
   const body = BODIES[m.slug]
 
@@ -58,7 +60,13 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       }
       price={m.price}
       buyHref={unpriced ? undefined : code ? `/one-day-talk-01/checkout?items=${code}` : "/one-day-talk-01/apply"}
-      buyMessage={unpriced ? "가격·정원은 확정 전입니다. 카카오톡 채널로 문의해주세요." : undefined}
+      buyMessage={
+        unpriced
+          ? m.price == null
+            ? "가격·정원은 확정 전입니다. 카카오톡 채널로 문의해주세요."
+            : "정원·결제는 카카오톡 채널로 문의해주세요."
+          : undefined
+      }
       images={m.images}
       cartItem={{ id: `meeting-${m.slug}`, name: m.title, price: m.price, href: `${BASE}/meetings/${m.slug}`, img: m.thumbnail }}
       // 모임 상세 전체(호프·브람스·시지프·신규)에 sticky 포스터 그리드 — A절 지시가

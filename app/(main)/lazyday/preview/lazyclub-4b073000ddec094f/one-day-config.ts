@@ -160,7 +160,10 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소, 나를 쥐어짜지 않는 법 포스터" }],
     // 본문은 상세 페이지가 centerBody 로 직접 구성(인사말 + 책 4권 + 진행자 소개) — 여기는 비움
     description: [],
-    price: null,
+    // 12만원 확정 (운영자 2026-08-21). ⚠ **결제는 아직 안 열린다** — 이 모임은
+    // oneday-shared 회차 목록에 없어 주문 코드가 없다(meetingOrderCode → null).
+    // 상세 구매 버튼은 '가격 + 주문코드' 둘 다 있을 때만 결제로 간다 (meetings/[slug])
+    price: 120000,
     place: "사당역 링키라운지",
     contact: "contact@linkylounge.com",
     sessions: [

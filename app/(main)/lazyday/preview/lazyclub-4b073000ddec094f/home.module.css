@@ -560,6 +560,14 @@
    올라간 만큼 링크도 500→700 으로 따라 올린다. 그대로 두면 본문과 같은 굵기가 돼
    "두 단계 굵게" 지시가 무효가 된다. Shell 의 Gothic A1 로드에 700 이 있어야
    합성 굵기(가짜 볼드)를 피한다 */
+/* 링크·취소선 문구는 **어절이 갈라지지 않게 통으로** 다음 줄로 넘긴다
+   (운영자 2026-08-21 "브라우저에 따라 Tit for Tat 이 쪼개진다").
+   word-break:keep-all 은 낱말 안쪽만 막고 낱말 **사이 공백**은 그대로 끊기므로
+   nowrap 이 필요하다. 최장 문구가 "1940년대 아메리칸 워크웨어"(≈182px @13px)라
+   최소 폭(390px 카드의 텍스트 열 ≈230px)에서도 넘치지 않는다 — 새 링크 문구를
+   추가할 때 이 여유를 넘기지 말 것 */
+.nsqHostText a,
+.nsqHostText s { white-space: nowrap; }
 .nsqHostText a { text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
 
 @media all and (max-width: 720px) {
@@ -645,7 +653,14 @@
 }
 /* 오버레이 링크가 카드 전체를 덮으므로 내부 링크·취소선은 클릭 대상에서 뺀다 */
 .personCard .nsqHostText a,
-.personCard .nsqHostText s { pointer-events: none; text-decoration: none; color: inherit; }
+.personCard .nsqHostText s {
+  pointer-events: none;
+  text-decoration: none;
+  color: inherit;
+  /* 목록 카드는 약력을 한 덩어리 문단으로 읽는 자리 — 링크 강조(700)를 풀어 본문과
+     같은 굵기로 (운영자 2026-08-21 "볼드 처리 안 되게 모두 동일한 서식으로") */
+  font-weight: inherit;
+}
 
 @media all and (max-width: 720px) {
   /* 모바일은 1열 — 2열로 쪼개면 사진(38%)과 텍스트가 같이 설 폭이 안 나온다 */
@@ -832,14 +847,14 @@
     top: 85px;
     align-self: start;
   }
-  /* ⚠ sticky 의 이동 범위는 **그리드 영역 높이**이고, 그리드보다 아래(푸터)까지 스크롤이
-     남으면 aside 가 먼저 풀려 내비 뒤로 빨려 들어간다 (운영자 2026-08-21 "탑네비에 짤려").
-     실측으로 유도한 조건: **화면 높이 ≥ aside 높이 + 푸터(≈180) + 상단 패딩(100)**.
-     그리드에 min-height 를 줘 봐야 문서 길이도 같이 늘어 상쇄된다(무의미) — 실제로 듣는
-     레버는 **aside 를 낮추는 것** 하나다. 그래서 고정 카드에 한해 포스터 폭을 240px 로
-     묶는다: aside ≈ 380px → 화면 660px 이상이면 끝까지 따라온다(종전 1600폭 기준 482px,
-     762px 필요 → 노트북에서 잘렸다). 홈 진열은 이 규칙 밖이라 크기 그대로 */
-  .shopCurrentOnly .shopFigure { max-width: 240px; }
+  /* ⚠ 포스터 크기 상한은 **해제**했다 (운영자 2026-08-21 "모임 섹션에서 레이지데이 북클럽
+     포스터 사이즈도 다시 확장해") — 전체보기 진열과 같은 크기.
+     대신 sticky 의 구조적 한계가 남는다: 이동 범위가 **그리드 영역 높이**뿐이라,
+     그리드 아래(푸터)까지 스크롤이 남으면 aside 가 먼저 풀려 내비 뒤로 들어간다.
+     실측 조건 = **화면 높이 ≥ aside 높이 + 푸터(≈180) + 상단 패딩(100)**
+     (1600 폭 기준 aside 482px → 762px 이상이면 끝까지 따라온다).
+     그리드 min-height 는 문서 길이도 같이 늘려 상쇄되므로 해법이 아니다 —
+     더 낮은 창까지 붙여야 하면 fixed 로 바꾸는 판단이 필요하다 */
 }
 
 /* ── 리스트 항목 (08: ts-item — 5컬럼 gap 15, padding 7.5px 0,
@@ -1049,7 +1064,19 @@
 /* 푸터 텍스트: 고딕 통일, 12→13.2 중간(12.6px) + 더 굵게 600 (라운드 14) */
 .footerDesc p { font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); line-height: 1.7; margin: 0; }
 /* 사업자 정보 — 같은 계열, 조금 더 가늘게 (Gothic A1 300) */
-.footerBiz { grid-column: 8 / 11; font-family: var(--gothic); font-size: 12.6px; font-weight: 600; color: var(--ink); }
+/* 사업자 정보 — 낱말 단위로만 끊기게 (운영자 2026-08-21 "벤처기업확인: 제…호
+   (혁신성장유형)도 단어단위 줄바꿈"). 긴 등록번호가 중간에서 잘리지 않도록
+   overflow-wrap 을 normal 로 못 박고, 번호 링크는 통째로 움직인다 */
+.footerBiz {
+  grid-column: 8 / 11;
+  font-family: var(--gothic);
+  font-size: 12.6px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+.footerBiz a { white-space: nowrap; }
 /* 이용약관 — 좌측 끝 로고와 짝이 되게 우측 끝에 붙여 우측정렬 (라운드 74).
    사업자정보 블록 안(8/11)에 있던 것을 푸터 그리드의 마지막 칸으로 옮겼다 */
 .contracts {

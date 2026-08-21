@@ -277,6 +277,9 @@ function HomeContent() {
     category: m.catLabel, // 원데이토크 통일 / 개별 모임장은 이름 (운영자 2026-08-21)
     status: m.status,
     title: m.title,
+    // 개별 모임은 가격 노출 (운영자 2026-08-21, 제품 섹션과 같은 서식).
+    // 레이지데이 북클럽(기수)은 우측 aside 라 여기 해당 없음 — 종전대로 미노출
+    price: m.price,
     link: `${BASE}/meetings/${m.slug}`,
     thumbnail: m.thumbnail,
   }))
@@ -324,6 +327,9 @@ function HomeContent() {
                     <div>
                       <div className={styles.itemCat}>{m.category}</div>
                       <div className={styles.itemTitle}>{m.title}</div>
+                      {m.price != null && (
+                        <div className={styles.shopPrice}>₩{m.price.toLocaleString("ko-KR")}</div>
+                      )}
                     </div>
                     <div className={styles.itemBottom}>
                       <button
@@ -471,7 +477,7 @@ function HomeContent() {
       <section className={`${styles.books} ${styles.booksBottom} ${styles.archiveBlock}`}>
         <div className={styles.sectionTitle}>
           <LazydayLink href={`${BASE}/archive`}>
-            <span>아카이브</span>
+            <span>기록</span>
             <ArrowIcon />
           </LazydayLink>
         </div>

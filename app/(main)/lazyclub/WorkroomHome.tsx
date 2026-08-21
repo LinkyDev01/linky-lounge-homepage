@@ -11,7 +11,7 @@ import { SEASON } from "@/app/(main)/lazyday/season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { PEOPLE } from "./people-config"
-import { HomeCalendar } from "./calendar/MeetupCalendar"
+import { HomeCalendar } from "./schedule/MeetupCalendar"
 import { RecordsLightbox } from "./RecordsLightbox"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
@@ -424,7 +424,7 @@ function HomeContent() {
                   다른 다섯 섹션(모임·사람·일정·기록·레이지데이 북클럽)이 전부 자기 목록으로
                   나가는데 제품만 제자리 앵커라 화살표가 아무 일도 하지 않았다. 내비의
                   '제품'과도 목적지가 같아진다 */}
-              <LazyclubLink href={`${BASE}/shop`}>
+              <LazyclubLink href={`${BASE}/products`}>
                 <span>제품</span>
                 <ArrowIcon />
               </LazyclubLink>
@@ -439,7 +439,7 @@ function HomeContent() {
                     className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
                   >
                     <LazyclubLink
-                      href={`${BASE}/shop/${g.slug}`}
+                      href={`${BASE}/products/${g.slug}`}
                       className={styles.itemLink}
                       aria-label={`${g.name} 상세로 이동`}
                     />
@@ -547,7 +547,7 @@ function HomeContent() {
              캘린더 + 거북이 트랙(스티키 해제)만. 상단 괘선으로 섹션 구분 ── */}
       <section className={styles.calendarBlock} id="calendar">
         <div className={styles.sectionTitle}>
-          <LazyclubLink href={`${BASE}/calendar`}>
+          <LazyclubLink href={`${BASE}/schedule`}>
             <span>일정</span>
             <ArrowIcon />
           </LazyclubLink>
@@ -563,7 +563,7 @@ function HomeContent() {
       {SHOW_ARCHIVE && (
       <section className={`${styles.books} ${styles.booksBottom} ${styles.archiveBlock}`}>
         <div className={styles.sectionTitle}>
-          <LazyclubLink href={`${BASE}/archive`}>
+          <LazyclubLink href={`${BASE}/records`}>
             <span>기록</span>
             <ArrowIcon />
           </LazyclubLink>

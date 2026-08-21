@@ -45,7 +45,7 @@ function IndexBody() {
               key={g.slug}
               className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
             >
-              <LazyclubLink href={`${BASE}/shop/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
+              <LazyclubLink href={`${BASE}/products/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
               {/* 라운드 125 (레퍼런스 brownyard.co.kr 상품 목록) · 129 정리:
                   · 이미지 불투명도 0.45 는 **soldout 전용** — 브라운야드와 동일
                     ("코스터랑 머그는 반투명할 필요가 없지", 운영자)

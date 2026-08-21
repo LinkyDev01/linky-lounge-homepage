@@ -5,7 +5,7 @@
  *  `meeting-<slug>`)를 주문 코드로 옮겨 담는다 (lib/order-catalog 계약). */
 
 import { LazyclubLink } from "../LazyclubLink"
-import { BASE, useToast, WorkroomShell } from "../Shell"
+import { HOME, useToast, WorkroomShell } from "../Shell"
 import { useCart } from "../store"
 import { meetingOrderCode } from "../one-day-config"
 import { goodsCode } from "@/lib/order-catalog"
@@ -51,7 +51,7 @@ function CartBody() {
 
       {cart.items.length === 0 ? (
         <p className={styles.emptyNote}>
-          카트가 비어 있습니다. <LazyclubLink href={BASE}>홈에서 상품을 둘러보세요.</LazyclubLink>
+          카트가 비어 있습니다. <LazyclubLink href={HOME}>홈에서 상품을 둘러보세요.</LazyclubLink>
         </p>
       ) : (
         <div className={styles.cartList}>

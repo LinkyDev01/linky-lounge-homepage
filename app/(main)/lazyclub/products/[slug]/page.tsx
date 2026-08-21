@@ -39,7 +39,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       price={g.price}
       deliveryReturns={DELIVERY_RETURNS}
       images={[{ src: g.img, alt: g.name }]}
-      cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/shop/${g.slug}`, img: g.img }}
+      cartItem={{ id: `goods-${g.slug}`, name: g.name, price: g.price, href: `${BASE}/products/${g.slug}`, img: g.img }}
     />
   )
 }

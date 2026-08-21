@@ -18,3 +18,8 @@ export const BASE = "/lazyclub"
 export const BOOKCLUB_URL = "https://www.lazyday-bookclub.com"
 /** 기수별 진열은 북클럽 랜딩의 선정도서 섹션으로 (4기는 랜딩 상단이 곧 모집 화면) */
 export const BOOKCLUB_BOOK_URL = `${BOOKCLUB_URL}/#book`
+
+/** 전체보기(홈) 경로 — 트리 루트가 아니라 이름 있는 라우트다 (2026-08-21).
+ *  lazy-club.com 에서 프리픽스를 떼면 트리 루트는 `/` 가 되는데 그 자리는 랜딩(coming-soon)
+ *  이라 홈이 갈 곳이 없어진다. `all` = 내비 라벨 '전체보기'의 영문 대응어 */
+export const HOME = `${BASE}/all`

@@ -174,15 +174,13 @@ function useDragCarousel(slideCount: number, autoplay = false) {
   return { trackRef, active, slideCount, onScroll, onPointerDown, onPointerMove, onPointerUp, onClickCapture, scrollTo }
 }
 
-function HomeContent() {
-  const { notify } = useToast()
-  const saved = useSaved()
-  // 숨김 상태에서는 자동 넘김 타이머도 돌리지 않는다 (라운드 92)
-  const carousel = useDragCarousel(ALL_BOOKS.length, SHOW_ARCHIVE)
-
-  const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
-
-  // 기수 진열 (라운드 24 이동 · 라운드 26 굿즈와 동일 배열) — 4기 → 랜딩, 2·3기 sold out
+/** 우측 '레이지데이 북클럽' 기수 진열 aside — 홈(전체보기)과 /meetings 가 공유.
+ *  (라운드 24 이동 · 라운드 26 굿즈와 동일 배열 · 2026-08-21 컴포넌트로 추출)
+ *  · 기본(홈): 전 기수(1~4기, sold out 포함) — 데스크톱 세로 스택 / 모바일 가로 스와이프
+ *  · currentOnly (/meetings 전용, 운영자 2026-08-21 정정): 데스크톱은 **현재 기수만**
+ *    노출하고 aside 가 sticky 로 스크롤을 따라온다. 모바일은 홈과 같은 전 기수 스와이프.
+ *    지난 기수는 DOM 에 남기고 CSS(.shopCurrentOnly .seasonPast)로만 숨긴다 */
+export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
   const seasonItems = [
     {
       id: "bookclub-4",
@@ -196,6 +194,66 @@ function HomeContent() {
     ...PAST_SEASONS,
   ]
   const seasonCarousel = useDragCarousel(seasonItems.length)
+
+  return (
+    <aside className={`${styles.shop} ${currentOnly ? styles.shopCurrentOnly : ""}`}>
+      <div className={styles.sectionTitle}>
+        <a href={BOOKCLUB_URL} target="_blank" rel="noopener noreferrer">
+          <span>레이지데이 북클럽</span>
+          <ArrowIcon />
+        </a>
+      </div>
+      {/* 기수 진열 — 구 굿즈와 동일한 배열(shopItem 문법, 모바일 가로 넘김)로 통일
+           (운영자 라운드 26 "원래 굿즈 배열했던 것처럼"). 포스터+제목만, 2·3기 sold out */}
+      <div className={`${styles.shopList} ${styles.seasonList}`}>
+        <div ref={seasonCarousel.trackRef} className={styles.shopTrack} onScroll={seasonCarousel.onScroll}>
+          {seasonItems.map((s, i) => (
+            <article key={s.id} className={`${styles.shopItem} ${i > 0 ? styles.seasonPast : ""}`}>
+              {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazydayLink는 내부 경로 전용) */}
+              <a
+                href={s.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.itemLink}
+                aria-label={`${s.title} 안내로 이동 (새 탭)`}
+              />
+              <figure className={styles.shopFigure}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={s.thumbnail} alt="" draggable={false} />
+                {s.status !== "open" && <StatusOverlay status={s.status} />}
+              </figure>
+              <div className={styles.shopBody}>
+                <div>
+                  <div className={styles.itemCat}>{s.tag}</div>
+                  <div className={styles.shopName}>{s.title}</div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className={styles.shopDots}>
+          {seasonItems.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`${styles.dot} ${i === seasonCarousel.active ? styles.dotActive : ""}`}
+              aria-label={`${i + 1}번째 기수로 이동`}
+              onClick={() => seasonCarousel.scrollTo(i)}
+            />
+          ))}
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+function HomeContent() {
+  const { notify } = useToast()
+  const saved = useSaved()
+  // 숨김 상태에서는 자동 넘김 타이머도 돌리지 않는다 (라운드 92)
+  const carousel = useDragCarousel(ALL_BOOKS.length, SHOW_ARCHIVE)
+
+  const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
   // 모임 리스트 = 원데이토크만 (라운드 77 운영자: 랜딩 부연설명 4건 제거).
   // 지난 기수는 라운드 24에서 우측 '레이지데이 북클럽' 섹션으로 이동
@@ -376,56 +434,10 @@ function HomeContent() {
           </div>
         </section>
 
-        <aside className={styles.shop}>
-          <div className={styles.sectionTitle}>
-            <a href={BOOKCLUB_URL} target="_blank" rel="noopener noreferrer">
-              <span>레이지데이 북클럽</span>
-              <ArrowIcon />
-            </a>
-          </div>
-          {/* 기수 진열 — 구 굿즈와 동일한 배열(shopItem 문법, 모바일 가로 넘김)로 통일
-               (운영자 라운드 26 "원래 굿즈 배열했던 것처럼"). 포스터+제목만, 2·3기 sold out */}
-          <div className={`${styles.shopList} ${styles.seasonList}`}>
-            <div ref={seasonCarousel.trackRef} className={styles.shopTrack} onScroll={seasonCarousel.onScroll}>
-              {seasonItems.map((s, i) => (
-                // 데스크톱은 현재 기수만 노출 (운영자 2026-08-21) — 지난 기수는 seasonPast 로
-                // 숨긴다. 모바일은 종전 가로 스와이프 그대로 (미디어쿼리에서 되살림)
-                <article key={s.id} className={`${styles.shopItem} ${i > 0 ? styles.seasonPast : ""}`}>
-                  {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazydayLink는 내부 경로 전용) */}
-                  <a
-                    href={s.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.itemLink}
-                    aria-label={`${s.title} 안내로 이동 (새 탭)`}
-                  />
-                  <figure className={styles.shopFigure}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.thumbnail} alt="" draggable={false} />
-                    {s.status !== "open" && <StatusOverlay status={s.status} />}
-                  </figure>
-                  <div className={styles.shopBody}>
-                    <div>
-                      <div className={styles.itemCat}>{s.tag}</div>
-                      <div className={styles.shopName}>{s.title}</div>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className={styles.shopDots}>
-              {seasonItems.map((s, i) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className={`${styles.dot} ${i === seasonCarousel.active ? styles.dotActive : ""}`}
-                  aria-label={`${i + 1}번째 기수로 이동`}
-                  onClick={() => seasonCarousel.scrollTo(i)}
-                />
-              ))}
-            </div>
-          </div>
-        </aside>
+        {/* 전체보기는 종전대로 전 기수(1~4기, sold out 포함) 진열 — 운영자 2026-08-21 정정:
+             "전체보기에서는 과거처럼 sold out 된 1~4기 모임도 다 기존처럼 노출".
+             현재 기수만+스티키는 /meetings 페이지 전용 (ClubAside currentOnly) */}
+        <ClubAside />
       </div>
 
       {/* ── 일정 — 캘린더 페이지 이식 (운영자 2026-08-21). '이번 달 모임' 목록은 제외,

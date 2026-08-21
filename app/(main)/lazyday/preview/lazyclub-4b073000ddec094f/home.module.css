@@ -822,10 +822,11 @@
   column-gap: 20px;
 }
 .shop { grid-column: -6 / -1; }
-/* 데스크톱: 현재 기수 포스터·정보가 스크롤을 따라온다 (운영자 2026-08-21 —
-   position: sticky. top 85px = 모임 상세 스티키 포스터와 같은 헤더 여백) */
+/* /meetings 전용 변형 (운영자 2026-08-21 정정 — 홈이 아니라 모임 목록 페이지에 적용):
+   데스크톱은 현재 기수만 노출하고 aside 가 스크롤을 따라온다.
+   top 85px = 모임 상세 스티키 포스터와 같은 헤더 여백 */
 @media (min-width: 721px) {
-  .shop {
+  .shopCurrentOnly {
     position: sticky;
     top: 85px;
     align-self: start;
@@ -1010,11 +1011,11 @@
   margin-top: 65px;
 }
 
-/* 기수 진열 — 데스크톱은 현재 기수만 (운영자 2026-08-21 "웹버전에서는 현재 기수만").
-   지난 기수는 DOM 에 남겨 모바일 미디어쿼리가 되살린다. 하나만 보이므로 항목 사이
-   구분선도 데스크톱에선 무의미 — 기수 목록에 한해 무선 */
-.seasonPast { display: none; }
-.seasonList .shopItem { border-bottom: 0; }
+/* 기수 진열 /meetings 변형 — 데스크톱은 현재 기수만 (운영자 2026-08-21 정정: 홈은
+   전 기수 종전대로, 이 규칙은 .shopCurrentOnly 안에서만). 지난 기수는 DOM 에 남겨
+   모바일 미디어쿼리가 되살린다. 하나만 보이므로 항목 구분선도 무선 */
+.shopCurrentOnly .seasonPast { display: none; }
+.shopCurrentOnly .seasonList .shopItem { border-bottom: 0; }
 
 /* 아카이브 캐러셀이 맨 아래로 내려가며 생긴 상단 여백 (라운드 77) */
 .booksBottom { margin-top: 65px; }
@@ -1160,8 +1161,8 @@
   /* 모바일: 기수 진열 풀폭 스택 (굿즈는 라운드 77에서 모임 리스트 문법으로 이동) */
   .goodsBlock { margin-top: 30px; padding-top: 20px; }
   .goodsBlock .sectionTitle { padding-top: 5px; }
-  /* 모바일은 종전 배열 그대로 — 지난 기수 되살림 (운영자 2026-08-21) */
-  .seasonPast { display: grid; }
+  /* 모바일은 종전 배열 그대로 — /meetings 에서도 전 기수 되살림 (운영자 2026-08-21) */
+  .shopCurrentOnly .seasonPast { display: grid; }
   .calendarBlock { margin-top: 40px; padding-top: 20px; }
   .homeEndRule { margin-top: 45px; }
   .booksBottom { margin-top: 40px; }

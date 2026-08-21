@@ -7,6 +7,7 @@
 
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { ONE_DAY_MEETINGS } from "../one-day-config"
+import { ClubAside } from "../WorkroomHome"
 import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "../Shell"
 import { useSaved } from "../store"
 import styles from "../home.module.css"
@@ -39,6 +40,11 @@ function IndexBody() {
 
   return (
     <main className={styles.content}>
+      {/* 홈과 같은 좌 목록 + 우 '레이지데이 북클럽' 병치 (운영자 2026-08-21 정정 —
+          현재 기수만+스티키는 이 페이지 전용). 데스크톱: 4기 하나가 sticky 로 스크롤을
+          따라오고, 모바일: 홈과 같은 전 기수 가로 스와이프 */}
+      <div className={styles.textsShop}>
+        <section className={styles.meetings}>
       <div className={styles.indexHead}>
         <div className={styles.sectionTitle}>
           <span>
@@ -83,6 +89,9 @@ function IndexBody() {
             </article>
           )
         })}
+      </div>
+        </section>
+        <ClubAside currentOnly />
       </div>
     </main>
   )

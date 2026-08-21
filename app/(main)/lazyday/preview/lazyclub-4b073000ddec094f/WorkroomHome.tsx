@@ -7,7 +7,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
-import { season1Config, season2Config, season3Config, season4Config } from "../../book-config"
 import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
@@ -23,15 +22,12 @@ type NavLang = "ko" | "en"
  *  내비 '제품' 항목도 함께 복귀 (Shell.tsx — 모임과 아카이브 사이, #shop 앵커). */
 const SHOW_GOODS = true
 
-/** 전체보기 홈 맨 아래 **아카이브 캐러셀**(역대 기수 표지 16권) — 라운드 92에서
- *  운영자 지시로 **일단 숨김**. 구현·데이터(book-config)는 그대로, 렌더만 끈다 —
- *  다시 켜려면 true 로. 내비의 '아카이브'(→ /archive 별도 페이지)는 영향 없음. */
-const SHOW_ARCHIVE = false
+/** 전체보기 홈 맨 아래 **아카이브 캐러셀** — 라운드 92에서 숨겼다가 2026-08-21 운영자
+ *  지시로 **부활 + 내용 교체**: 역대 기수 표지 16권(book-config) → **종료된 모임 포스터**
+ *  (원데이 토크 시지프·브람스 + 레이지데이 1~3기). 캐러셀 문법·자동 넘김은 종전 그대로.
+ *  내비의 '아카이브'(→ /archive 별도 페이지)는 영향 없음. */
+const SHOW_ARCHIVE = true
 
-// 역대 기수 선정 도서 — 최신 우선 (03), book-config 단일 출처
-const ALL_BOOKS = [season4Config, season3Config, season2Config, season1Config].flatMap((s) =>
-  s.books.map((b) => ({ key: `${s.label}-${b.week}`, alt: `${s.label} ${b.weekLabel} 『${b.title}』 ${b.author}`, src: b.imagePath })),
-)
 
 /** 랜딩 콘텐츠 인덱스 항목 — 카테고리가 성격을 말하고 별도 메타 텍스트는 없음
  *  (운영자 2026-08-04 라운드 14: "후기 → reviews, 일정과 장소 → place 식으로 정돈")
@@ -95,6 +91,22 @@ export const PAST_SEASONS = [
     thumbnail: "/linky-lounge/book-club/home-v3/poster-1st.webp",
   },
 ]
+
+/** 아카이브 = **종료된 모임** (운영자 2026-08-21). 원데이 토크 브람스·시지프 +
+ *  레이지데이 1~3기. 포스터는 각 단일 출처(one-day-config · PAST_SEASONS)에서 가져온다.
+ *  ⚠ 지금은 **명시 목록**이다 — 브람스(8/30)·시지프(9/5)가 아직 status "open" 이라
+ *  날짜·상태로 자동 판별하면 목록이 비고, 임의로 상태를 바꾸면 판매 화면이 함께 닫힌다.
+ *  회차가 실제로 끝나 status 가 정리되면 그때 파생으로 바꾼다 */
+const ARCHIVE_SET = [
+  ...["sisyphus", "brahms"].flatMap((slug) => {
+    const m = ONE_DAY_MEETINGS.find((x) => x.slug === slug)
+    return m ? [{ key: `oneday-${m.slug}`, title: m.title, src: m.thumbnail, href: `${BASE}/meetings/${m.slug}`, external: false }] : []
+  }),
+  ...PAST_SEASONS.map((s) => ({ key: s.id, title: s.title, src: s.thumbnail, href: s.link, external: true })),
+]
+/** ⚠ **임시 2배 복제** (운영자 2026-08-21 "임시로 1세트를 더 복제해서 기존 애니메이션과
+ *  자연스러운 형태를 확인할 수 있도록") — 검토가 끝나면 `ARCHIVE_SET` 하나로 되돌린다 */
+const ARCHIVE_SLIDES = [...ARCHIVE_SET, ...ARCHIVE_SET.map((x) => ({ ...x, key: `${x.key}-dup` }))]
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 활성 인덱스 + 자동 넘김 (휠 하이재킹 없음) */
 function useDragCarousel(slideCount: number, autoplay = false) {
@@ -251,7 +263,7 @@ function HomeContent() {
   const { notify } = useToast()
   const saved = useSaved()
   // 숨김 상태에서는 자동 넘김 타이머도 돌리지 않는다 (라운드 92)
-  const carousel = useDragCarousel(ALL_BOOKS.length, SHOW_ARCHIVE)
+  const carousel = useDragCarousel(ARCHIVE_SLIDES.length, SHOW_ARCHIVE)
 
   const booktalks = [...ONE_DAY_MEETINGS].sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1))
 
@@ -452,16 +464,13 @@ function HomeContent() {
         <HomeCalendar />
       </section>
 
-      {/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) */}
-      <div className={styles.homeEndRule} aria-hidden="true" />
-
-      {/* ── ③ 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처)
-             라운드 77(운영자): 맨 위 → 맨 아래로 이동
-             라운드 92(운영자): 일단 숨김 — SHOW_ARCHIVE 로만 껐다 (구현·데이터는 그대로) ── */}
+      {/* ── ③ 아카이브 — **맨 아래** 종료된 모임 진열 (운영자 2026-08-21).
+             라운드 77: 맨 위 → 맨 아래 / 라운드 92: 숨김 / 2026-08-21: 부활 + 내용 교체
+             (역대 기수 표지 → 종료된 모임 포스터). 캐러셀 문법·자동 넘김은 종전 그대로 ── */}
       {SHOW_ARCHIVE && (
-      <section className={`${styles.books} ${styles.booksBottom}`}>
+      <section className={`${styles.books} ${styles.booksBottom} ${styles.archiveBlock}`}>
         <div className={styles.sectionTitle}>
-          <LazydayLink href="/">
+          <LazydayLink href={`${BASE}/archive`}>
             <span>아카이브</span>
             <ArrowIcon />
           </LazydayLink>
@@ -475,26 +484,44 @@ function HomeContent() {
           onPointerUp={carousel.onPointerUp}
           onClickCapture={carousel.onClickCapture}
         >
-          {ALL_BOOKS.map((b) => (
-            <LazydayLink key={b.key} href="/#book" className={styles.bookSlide} aria-label={b.alt}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={b.src} alt={b.alt} draggable={false} />
-            </LazydayLink>
-          ))}
+          {ARCHIVE_SLIDES.map((a) =>
+            a.external ? (
+              // 기수는 다른 도메인 — 새 탭 (LazydayLink 는 내부 경로 전용)
+              <a
+                key={a.key}
+                href={a.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.bookSlide}
+                aria-label={`${a.title} 안내로 이동 (새 탭)`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.src} alt={a.title} draggable={false} />
+              </a>
+            ) : (
+              <LazydayLink key={a.key} href={a.href} className={styles.bookSlide} aria-label={`${a.title} 안내로 이동`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.src} alt={a.title} draggable={false} />
+              </LazydayLink>
+            ),
+          )}
         </div>
         <div className={styles.dots}>
-          {ALL_BOOKS.map((b, i) => (
+          {ARCHIVE_SLIDES.map((a, i) => (
             <button
-              key={b.key}
+              key={a.key}
               type="button"
               className={`${styles.dot} ${i === carousel.active ? styles.dotActive : ""}`}
-              aria-label={`${i + 1}번째 표지로 이동`}
+              aria-label={`${i + 1}번째 포스터로 이동`}
               onClick={() => carousel.scrollTo(i)}
             />
           ))}
         </div>
       </section>
       )}
+
+      {/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) — 아카이브 아래가 진짜 끝 */}
+      <div className={styles.homeEndRule} aria-hidden="true" />
     </main>
   )
 }

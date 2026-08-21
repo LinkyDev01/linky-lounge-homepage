@@ -824,13 +824,22 @@
 .shop { grid-column: -6 / -1; }
 /* /meetings 전용 변형 (운영자 2026-08-21 정정 — 홈이 아니라 모임 목록 페이지에 적용):
    데스크톱은 현재 기수만 노출하고 aside 가 스크롤을 따라온다.
-   top 85px = 모임 상세 스티키 포스터와 같은 헤더 여백 */
+   top 85px = 고정 내비 아래(내비 bottom 실측 65px) + 20px 여백 — 포스터·기간·제목이
+   한 덩어리로 이 선에 걸린다 */
 @media (min-width: 721px) {
   .shopCurrentOnly {
     position: sticky;
     top: 85px;
     align-self: start;
   }
+  /* ⚠ sticky 의 이동 범위는 **그리드 영역 높이**이고, 그리드보다 아래(푸터)까지 스크롤이
+     남으면 aside 가 먼저 풀려 내비 뒤로 빨려 들어간다 (운영자 2026-08-21 "탑네비에 짤려").
+     실측으로 유도한 조건: **화면 높이 ≥ aside 높이 + 푸터(≈180) + 상단 패딩(100)**.
+     그리드에 min-height 를 줘 봐야 문서 길이도 같이 늘어 상쇄된다(무의미) — 실제로 듣는
+     레버는 **aside 를 낮추는 것** 하나다. 그래서 고정 카드에 한해 포스터 폭을 240px 로
+     묶는다: aside ≈ 380px → 화면 660px 이상이면 끝까지 따라온다(종전 1600폭 기준 482px,
+     762px 필요 → 노트북에서 잘렸다). 홈 진열은 이 규칙 밖이라 크기 그대로 */
+  .shopCurrentOnly .shopFigure { max-width: 240px; }
 }
 
 /* ── 리스트 항목 (08: ts-item — 5컬럼 gap 15, padding 7.5px 0,
@@ -1019,6 +1028,9 @@
 
 /* 아카이브 캐러셀이 맨 아래로 내려가며 생긴 상단 여백 (라운드 77) */
 .booksBottom { margin-top: 65px; }
+/* 아카이브 = 마지막 섹션 — 다른 섹션과 같은 1px 구분 괘선 (운영자 2026-08-21).
+   .books 가 좌우 15px 씩 넘치는 풀블리드라 괘선도 같은 폭으로 그어진다 */
+.archiveBlock { border-top: 1px solid var(--ink); padding-top: 24px; }
 
 /* ── 푸터 (08: border-top 1px, 15컬럼, padding 6px 0 40px) ── */
 .footer { padding: 0 15px; }

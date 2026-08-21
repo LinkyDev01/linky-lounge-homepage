@@ -38,7 +38,7 @@ export const PEOPLE: Person[] = [
           순금 한 돈
         </a>
         이 곧 가계 유동성으로 전환되는 과정을 겪으며 자본주의 시스템의 환대와 한계를 동시에 체감했다. 일곱 살
-        무렵 오른손을, 5년 후에는 왼손 젓가락질을 연달아 숙달하며 한 손 상실에 대비한 식사 기능의 이중화를
+        무렵 오른손, 5년 후에는 왼손 젓가락질을 연달아 숙달하며 한 손 상실에 대비한 식사 기능의 이중화를
         일찍이 마쳤다. 열다섯 살 무렵 서든어택에서 총기류 대신 칼을 택하는 신뢰 기반 근접전을 지향하며{" "}
         <a
           href="https://ko.wikipedia.org/wiki/%ED%8C%83%ED%8F%AC%ED%83%AF"
@@ -47,7 +47,7 @@ export const PEOPLE: Person[] = [
         >
           Tit for Tat
         </a>
-        을 인생의 전략으로 채택했다. 비주류를 열망한다는 자기 인식을 이때 얻었다고 한다. 이 열망은 한때{" "}
+        을 인생의 전략으로 채택했다. 이때 비주류를 열망한다는 자기 인식을 얻었다고 한다. 이 열망은 한때{" "}
         <a href="https://dustyoldthing.com/bold-1940s-mens-fashion/" target="_blank" rel="noopener noreferrer">
           1940년대 아메리칸 워크웨어
         </a>{" "}

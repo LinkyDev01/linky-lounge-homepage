@@ -15,11 +15,12 @@ import { BOOKCLUB_URL } from "./base-path"
 
 export const CURRENT_SEASON = {
   id: "bookclub-4",
-  /** 기수 일정 (라운드 82, 운영자 제공 — 4기 9/7-11/1).
-   *  ⚠ `season-config.periodLabel` 은 "9/9 – 11/1" 로 **값이 다르다**. CLAUDE.md §8 의
-   *  4기 기간은 9/7–11/1 이라 화면에 나가던 이 값을 그대로 둔다 — 어느 쪽이 맞는지는
-   *  운영자 확인 대상이고, 확인되면 periodLabel 로 파생시켜 하드코딩을 없앨 것 */
-  tag: "9/7-11/1",
+  /** 기수 일정 — season-config 파생 (기수 전환 시 그 파일만 고치면 따라온다).
+   *  2026-08-21 운영자 "그래 통일하면 돼 … 그게 같은 맥락이라 모임 시작일이": 종전
+   *  하드코딩 "9/7-11/1" 의 9/7 은 **신청 마감일**(SEASON.deadline)이지 시작일이 아니었다.
+   *  기수 시작은 1회차 수요일 9/9 (sessions[0] · regularNote "9월 9일부터 격주") — 즉
+   *  periodLabel "9/9 – 11/1" 이 맞고 하드코딩 쪽이 틀렸다. 하드코딩 폐기. */
+  tag: SEASON.periodLabel,
   status: "open" as const,
   title: `레이지데이 북클럽 ${SEASON.name}`,
   /** 북클럽은 다른 도메인 — 내부 라우트가 없어 항상 새 탭 */

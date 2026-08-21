@@ -41,7 +41,7 @@ export type ClubProgram = {
   id: string
   category: EventCategory
   title: string
-  /** 묶은 일정 설명 (예: "9/7 – 11/1 · 격주 화·수·일") */
+  /** 묶은 일정 설명 (예: "9/9 – 11/1 (격주 화·수·일)") */
   schedule: string
   /** 요일별 시간대. 비었으면 감춘다 */
   times: string[]

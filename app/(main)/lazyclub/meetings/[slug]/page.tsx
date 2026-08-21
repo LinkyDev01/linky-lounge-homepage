@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { findMeeting, meetingOrderCode } from "../../one-day-config"
+import { findMeeting } from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
 // 서버 컴포넌트 — Shell("use client") 경유로 값을 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../../base-path"
@@ -18,8 +18,6 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   if (!m) notFound()
 
   const badge = m.status === "open" ? "모집중" : m.status === "soldout" ? "마감" : "오픈 예정"
-  // 일정에 매핑되지 않는 모임(지난 회차 등)은 회차 선택 페이지로 폴백
-  const code = meetingOrderCode(m.slug)
 
   // 가격 미정(price === null) 이면 구매하기를 문의로 안내한다 — buyHref 를 아예 안 주면
   // ProductDetail 이 자동으로 "구매하기 → notify(buyMessage)"로 뺀다.
@@ -27,7 +25,10 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   // 결제 가능 여부는 별개 축이다 — 호프처럼 "본문은 있고 가격도 있는" 모임이 생기며 분리.
   // 2026-08-21: 가격이 있어도 **주문 코드가 없으면 결제로 보내지 않는다** — 코드 없는
   // 모임에 buyHref 를 주면 엉뚱한 회차 신청 폼(/one-day-talk-01/apply)으로 새어 나간다
-  const unpriced = m.price == null || code == null
+  // 2026-08-21 여정 전환(선신청 → 후결제): 구매하기는 **신청 폼**으로 간다.
+  // 결제는 폼 접수가 끝난 뒤 토스페이먼츠 상품 링크(payUrl)로 손님이 직접 넘어간다 —
+  // 그래서 판정 기준도 주문코드(code)가 아니라 **payUrl 유무**다
+  const unpriced = m.payUrl == null
   // 하단 중앙 본문 — 모임별 콘텐츠. 없는 모임은 종전대로 우측 요약만 쓴다
   const body = BODIES[m.slug]
 
@@ -59,7 +60,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
             ]
       }
       price={m.price}
-      buyHref={unpriced ? undefined : code ? `/one-day-talk-01/checkout?items=${code}` : "/one-day-talk-01/apply"}
+      buyHref={unpriced ? undefined : `${BASE}/meetings/${m.slug}/apply`}
       buyMessage={
         unpriced
           ? m.price == null

@@ -603,7 +603,13 @@
    ⚠ 이 캡은 모바일에도 적용된다 — 풀어두면 600~720px 구간에서 카드가 690px 까지 벌어져
    사진이 228×328 로 커지고, 약력이 사진 옆에서 13줄이나 흘러 잘림이 사실상 사라진다 */
 .personCard { max-width: 460px; position: relative; }
-.personCard:hover .nsqHostName { text-decoration: underline; text-underline-offset: 3px; }
+/* hover 밑줄은 사이트 표준 한 벌만 쓴다 — 얇게(0.8px) 아래로 떨어뜨려(4.5px).
+   `.page a:hover` 와 같은 값 (운영자 2026-08-21 "같은 서식으로 아래 작고 얇은 단일 밑줄") */
+.personCard:hover .nsqHostName {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
 /* 카드 안에서는 약력을 잘라 보여준다 — 전문은 /people/[slug]. :not(.personCardMore) 로
    더보기 표시는 잘림 대상에서 제외.
    잘리는 줄 수 = **약력이 사진 밑 1줄까지 내려오는 지점** (운영자 2026-08-21
@@ -683,7 +689,11 @@
 .personMeetingList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .personMeetingItem { display: flex; gap: 14px; align-items: center; }
 .personMeetingItem:hover { text-decoration: none; }
-.personMeetingItem:hover .personMeetingTitle { text-decoration: underline; text-underline-offset: 3px; }
+.personMeetingItem:hover .personMeetingTitle {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
 .personMeetingItem img {
   flex-shrink: 0;
   width: 64px;

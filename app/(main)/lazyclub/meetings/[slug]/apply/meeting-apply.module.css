@@ -1,0 +1,16 @@
+/* 레이지클럽 셸(고정 내비) 안에서 쓰기 위한 보정 — 신규 CSS, 기존 모듈 미임포트 (§9).
+   `apply/page.module.css` 는 셸 밖(북클럽 신청 페이지)에서 만들어져 상단 패딩이 32px 뿐이라,
+   레이지클럽의 **position:fixed 내비(높이 실측 65px)** 뒤로 제목 첫 줄이 숨는다.
+   공유 모듈(소비자 4곳)을 고치는 대신 이 래퍼로만 밀어낸다 — 다른 소비자 무영향 */
+.shellOffset {
+  padding-top: 68px;
+}
+/* 결제하기 — 신청서 제출 버튼과 같은 서식이되 <a> 라 기본 링크 스타일을 지운다 */
+.payButton {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+.payButton:hover {
+  text-decoration: none;
+}

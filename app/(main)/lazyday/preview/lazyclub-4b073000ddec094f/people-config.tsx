@@ -38,8 +38,8 @@ export const PEOPLE: Person[] = [
           순금 한 돈
         </a>
         이 곧 가계 유동성으로 전환되는 과정을 겪으며 자본주의 시스템의 환대와 한계를 동시에 체감했다. 일곱 살
-        무렵 오른손을, 5년 후에는 왼손 젓가락질을 연달아 숙달하며 양손잡이 식사가 가능한 국제 소수 인력으로
-        조기 분류되었다. 열다섯 살 무렵 서든어택에서 칼전 문화를 선도하며{" "}
+        무렵 오른손을, 5년 후에는 왼손 젓가락질을 연달아 숙달하며 한 손 상실에 대비한 식사 기능의 이중화를
+        일찍이 마쳤다. 열다섯 살 무렵 서든어택에서 총기류 대신 칼을 택하는 신뢰 기반 근접전을 지향하며{" "}
         <a
           href="https://ko.wikipedia.org/wiki/%ED%8C%83%ED%8F%AC%ED%83%AF"
           target="_blank"
@@ -47,26 +47,15 @@ export const PEOPLE: Person[] = [
         >
           Tit for Tat
         </a>
-        을 인생의 전략으로 채택했고, 비주류를 열망한다는 자기 인식을 이때 얻었다. 이 열망은 한때{" "}
-        <a
-          href="https://kr.pinterest.com/ideas/1940s-workwear/928638629030/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        을 인생의 전략으로 채택했다. 비주류를 열망한다는 자기 인식을 이때 얻었다고 한다. 이 열망은 한때{" "}
+        <a href="https://dustyoldthing.com/bold-1940s-mens-fashion/" target="_blank" rel="noopener noreferrer">
           1940년대 아메리칸 워크웨어
         </a>{" "}
         애호로 구현되었고, 그 차림새에서 타인의 시선을 의도치 않게 유치했으나 얻은 결론은 오히려
         타인의 시선에 무감하다는 본인의 속성이었다. 현재 해당 복식은 착용하지 않는다고 한다. 이십대 후반에는 부동산
-        투자로 약 2년치 연봉만큼의 수익을 익명의 시장 참여자에게 안겨주었다.{" "}
-        <a
-          href="https://www.wine21.com/14_info/info_view.html?Idx=5685"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          네비올로
-        </a>{" "}
-        품종의 포도주를 즐겨 마시고 싶어 하는 것으로 추정된다. 회사에서는 경영과 서비스 기획과 프로젝트 관리와
-        웹 개발과 퍼실리테이팅과 공공·금융 분야 애플리케이션 및 인프라 아키텍처 컨설팅을 병행하고 있다.{" "}
+        투자로 약 2년치 연봉만큼의 수익을 익명의 시장 참여자에게 안겨주었다. 회사에서는 경영과 서비스 기획과
+        프로젝트 관리와 웹 개발과 퍼실리테이팅과 공공·금융 분야 애플리케이션 및 인프라 아키텍처 컨설팅을
+        병행하고 있다.{" "}
         <s>링키케어</s>,{" "}
         <a href="https://linkylounge.com" target="_blank" rel="noopener noreferrer">
           링키라운지
@@ -80,7 +69,15 @@ export const PEOPLE: Person[] = [
           레이지클럽
         </a>{" "}
         등 오프라인 기반 서비스를 출시했으며 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로
-        알려져 있다.
+        알려져 있으며,{" "}
+        <a
+          href="https://www.wine21.com/14_info/info_view.html?Idx=5685"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          네비올로
+        </a>{" "}
+        품종의 포도주를 즐겨 마시고 싶어 하는 것으로 추정된다.
       </p>
     ),
   },

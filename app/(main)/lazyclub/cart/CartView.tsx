@@ -4,7 +4,7 @@
  *  2026-08-11: 주문하기 → 결제위젯 체크아웃 연결. 카트 항목 id(`goods-<slug>` /
  *  `meeting-<slug>`)를 주문 코드로 옮겨 담는다 (lib/order-catalog 계약). */
 
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../LazyclubLink"
 import { BASE, useToast, WorkroomShell } from "../Shell"
 import { useCart } from "../store"
 import { meetingOrderCode } from "../one-day-config"
@@ -51,22 +51,22 @@ function CartBody() {
 
       {cart.items.length === 0 ? (
         <p className={styles.emptyNote}>
-          카트가 비어 있습니다. <LazydayLink href={BASE}>홈에서 상품을 둘러보세요.</LazydayLink>
+          카트가 비어 있습니다. <LazyclubLink href={BASE}>홈에서 상품을 둘러보세요.</LazyclubLink>
         </p>
       ) : (
         <div className={styles.cartList}>
           {cart.items.map((i) => (
             <div key={i.id} className={styles.cartRow}>
               {i.img && (
-                <LazydayLink href={i.href} className={styles.cartThumb}>
+                <LazyclubLink href={i.href} className={styles.cartThumb}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={i.img} alt="" />
-                </LazydayLink>
+                </LazyclubLink>
               )}
               <div className={styles.cartInfo}>
-                <LazydayLink href={i.href} className={styles.cartName}>
+                <LazyclubLink href={i.href} className={styles.cartName}>
                   {i.name}
-                </LazydayLink>
+                </LazyclubLink>
                 <p className={styles.cartPrice}>{i.price != null ? `₩${i.price.toLocaleString()}` : "가격 미정"}</p>
               </div>
               <button type="button" className={styles.cartRemove} onClick={() => cart.remove(i.id)}>

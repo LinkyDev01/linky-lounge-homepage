@@ -51,7 +51,7 @@
  */
 
 import { useEffect, useState } from "react"
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../LazyclubLink"
 import { BASE, WorkroomShell } from "../Shell"
 import styles from "./coming-soon.module.css"
 
@@ -236,9 +236,9 @@ export function ComingSoonMain() {
               화면에는 어떤 표시도 더하지 않는다 — 마크가 변하지 않는다는 것이 선택 이유.
               반응은 hover·press의 옅은 그림자뿐 (모바일은 상시 옅은 그림자) */}
           {s?.done ? (
-            <LazydayLink href={BASE} className={`${styles.grid} ${styles.gridLink}`} aria-label="레이지클럽 홈으로">
+            <LazyclubLink href={BASE} className={`${styles.grid} ${styles.gridLink}`} aria-label="레이지클럽 홈으로">
               {gridInner}
-            </LazydayLink>
+            </LazyclubLink>
           ) : (
             <div className={styles.grid} aria-label="LAZY CLUB">
               {gridInner}

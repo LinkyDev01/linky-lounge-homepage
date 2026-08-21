@@ -1,4 +1,4 @@
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../LazyclubLink"
 import { ArrowIcon, WorkroomShell } from "../Shell"
 // 서버 컴포넌트 — Shell("use client") 경유로 값을 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../base-path"
@@ -36,7 +36,7 @@ export default function PeoplePage() {
         <ul className={styles.peopleGrid}>
           {PEOPLE.map((p) => (
             <li key={p.slug} className={styles.personCard}>
-              <LazydayLink
+              <LazyclubLink
                 href={`${BASE}/people/${p.slug}`}
                 className={styles.itemLink}
                 aria-label={`${p.name} 소개로 이동`}

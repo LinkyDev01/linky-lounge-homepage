@@ -23,7 +23,7 @@
  */
 
 import { useEffect, useState } from "react"
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../LazyclubLink"
 import { WorkroomShell } from "../Shell"
 import { TurtleTrack } from "../turtle/TurtleTrack"
 import { CATEGORY_TONE, eventsFor, programsFor, type ClubProgram, type EventCategory } from "./calendar-events"
@@ -289,9 +289,9 @@ function ProgramRow({ p }: { p: ClubProgram }) {
               {p.cta} ↗
             </a>
           ) : (
-            <LazydayLink href={p.href} className={styles.apply}>
+            <LazyclubLink href={p.href} className={styles.apply}>
               {p.cta}
-            </LazydayLink>
+            </LazyclubLink>
           )}
         </span>
       </div>

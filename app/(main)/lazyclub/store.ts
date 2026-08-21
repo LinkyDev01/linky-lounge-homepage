@@ -9,7 +9,7 @@ export type CartItem = {
   id: string
   name: string
   price: number | null
-  /** LazydayLink 기준 내부 경로 (상세 페이지) */
+  /** LazyclubLink 기준 내부 경로 (상세 페이지) */
   href: string
   img?: string
 }

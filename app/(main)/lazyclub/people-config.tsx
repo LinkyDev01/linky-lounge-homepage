@@ -39,7 +39,7 @@ export const PEOPLE: Person[] = [
         </a>
         이 곧 가계 유동성으로 전환되는 과정을 겪으며 자본주의 시스템의 환대와 한계를 동시에 체감했다. 일곱 살
         무렵 오른손, 5년 후에는 왼손 젓가락질을 연달아 숙달하며 한 손 상실에 대비한 식사 기능의 이중화를
-        일찍이 마쳤다. 열다섯 살 무렵 서든어택에서 총기류 대신 칼을 택하는 신뢰 기반 근접전을 지향하며{" "}
+        일찍이 마쳤다. 열다섯 살 무렵 서든어택에서 총기류 대신 날붙이를 택하는 신뢰 기반 근접전을 지향하며{" "}
         <a
           href="https://ko.wikipedia.org/wiki/%ED%8C%83%ED%8F%AC%ED%83%AF"
           target="_blank"
@@ -68,8 +68,11 @@ export const PEOPLE: Person[] = [
         <a href="https://www.lazy-club.com" target="_blank" rel="noopener noreferrer">
           레이지클럽
         </a>{" "}
-        등 오프라인 기반 서비스를 출시했으며 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로
-        알려져 있으며,{" "}
+        등{" "}
+        <a href="https://ko.wikipedia.org/wiki/O2O" target="_blank" rel="noopener noreferrer">
+          O2O
+        </a>{" "}
+        서비스를 출시한 뒤, 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로 알려져 있으며,{" "}
         <a
           href="https://www.wine21.com/14_info/info_view.html?Idx=5685"
           target="_blank"
@@ -77,7 +80,7 @@ export const PEOPLE: Person[] = [
         >
           네비올로
         </a>{" "}
-        품종의 포도주를 즐겨 마시고 싶어 하는 것으로 추정된다.
+        품종의 포도주를 즐겨 마시고 싶어 하는 것으로 전해진다.
       </p>
     ),
   },

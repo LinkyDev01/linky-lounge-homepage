@@ -5,7 +5,7 @@
  *  브람스는 sold out. 랜딩 콘텐츠·지난 기수·카테고리 필터는 목록에서 제외
  *  (지난 기수 진열은 홈 하단 '레이지데이 북클럽' 섹션이 담당). */
 
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../LazyclubLink"
 import { ONE_DAY_MEETINGS } from "../one-day-config"
 import { ClubAside } from "../WorkroomHome"
 import { ArrowIcon, BASE, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "../Shell"
@@ -64,7 +64,7 @@ function IndexBody() {
               key={m.id}
               className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
             >
-              <LazydayLink href={m.link} className={styles.itemLink} aria-label={`${m.title} 안내로 이동`} />
+              <LazyclubLink href={m.link} className={styles.itemLink} aria-label={`${m.title} 안내로 이동`} />
               {m.thumbnail && (
                 <figure className={styles.itemFigure}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

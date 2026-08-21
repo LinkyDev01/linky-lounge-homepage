@@ -25,6 +25,7 @@ linkylounge.com 쪽 페이지는 명시 지시 없이 수정하지 않는다 (§
 
 ## 2. 프로젝트 지도
 
+- **레이지클럽 경로 (2026-08-21 프리뷰 졸업)**: 트리가 `app/(main)/lazyclub/**` 로 이사했다 (구 `lazyday/preview/lazyclub-4b073000ddec094f`). 프리픽스 상수는 `lazyclub/base-path.ts` 의 `BASE = "/lazyclub"`. **lazy-club.com 은 이 트리가 도메인 루트** — 미들웨어가 `/meetings` → `/lazyclub/meetings` 로 rewrite 하고, 랜딩(`/`)만 `LAZYCLUB_LIVE=false` 동안 coming-soon. 북클럽 도메인에서는 `/lazyclub/*` 로 열린다(운영자 검토용, 레이아웃이 noindex). 구 경로 2종은 301. ⚠ 트리 안 내부 링크는 `LazydayLink` 가 아니라 **`LazyclubLink`** — `/lazyday` 프리픽스를 붙이면 없는 경로가 된다. ⚠ `lib/order-catalog.ts` 가 `lazyclub/goods-config` 를 import 한다 (프로덕션 결제 — §4 데이터 지도).
 - **도메인**: `lazyday-bookclub.com` → middleware가 내부 `/lazyday/*`로 rewrite (`middleware.ts`). `/apply/interview`는 `/apply/interview/schedule`로 redirect. `linkylounge.com/lazyday/*`는 북클럽 도메인으로 301. `/lazyday/admin*`은 `lazyday_admin` 쿠키(=ADMIN_SECRET) 필요.
 - **히어로** = `HeroBreathingPoster`(숨 쉬는 포스터, 모션). 2026-08-13~17 정적 이미지 임시 복귀 기간이 있었으나 **2026-08-17 재점등** — `HeroParallax` 가 이 컴포넌트를 렌더하고 `useChromeIntro.HOLD_ENABLED=true`. 진입 안무: 포스터만 → 그어짐 종료 무렵(−200ms) 내비·푸터·본문 → +3초 스티키 CTA. 검수대는 `preview/hero-check`.
 - **실사이트 랜딩** `app/(main)/lazyday/page.tsx` — **2026-08-12 반응형 개편 이식**: 페이지 전체가 `LandingShell`(레이지클럽 문법 내비+푸터, landing-shell.module.css)로 감싸이고, 내비는 동적 마크 `LazydayMark`(I♥LAZYDAY, 냥이체+난수 도미노), 폭 시스템은 CSS 변수(--lz-*)로 데스크톱(≥721px) 확장 — **≤720px 는 종전과 픽셀 동일**. 클로징은 `SeasonCountCta`(기수 카운트)+`BrandCloseV2`. 구 NavBar·Footer(랜딩에서만)·ClosingCtaSection·BrandCloseSection 은 **고아 보존**. 모임소개 데스크톱 = 2×2 그리드(시안 A 확정). 섹션 순서·배경(**오트 톤 저대비 교차 — 짙은 쪽부터**): Hero(+HeroSummary 병치 heroRow) → **함께 읽는 책(B#f0e9e0, 구 '선정도서' — 2026-08-17 용어 변경, 내비 탭은 '읽는 책'. 종이책 조판, 기수 세그 4기·3기·2기·1기 — 4기 upcoming 리드)** → 모임소개(A#f7f3ee, **FeatureQuietSection** 콰이어트 페이드 이어 읽기 + 하단에 **HowToBrief**(진행 순서 요약)를 같은 밴드로 흡수 — 2026-08-17 시안 A, 구 HowToSection 은 고아 보존·내비 탭도 제거) → 일정·장소(**B** — 2026-08-17 재배정, **6b 괘선 박스+7b 점선 5회차+6c 손그림 장소**, 7b '자유 독서모임'은 #gathering FAQ 딥링크) → **후기(A — 2026-08-17 재배정, ReviewsSection — 캐러셀+모달 갤러리. 종전 B–B 인접 예외는 이 재배정으로 해소)** → FAQ(B) → **ClosingCta+BrandClose(A)**. 5회차 섹션은 삭제되고 내용은 FAQ 문항으로 이관. About/Closing/Rules/Vibe/**FeatureBoxSection·FifthSessionSection** 은 **고아 상태로 보존**(렌더 안 함 — 삭제하지 말 것).
@@ -92,7 +93,7 @@ CSS 만 공유되는 게 아니다. **경로가 `preview/` 아래여도 프로�
 
 | 파일 | 실제 소비자 | 바꾸면 벌어지는 일 |
 |---|---|---|
-| `preview/lazyclub-4b073000ddec094f/goods-config.ts` | `lib/order-catalog.ts` → **`/api/lazyday/payment/confirm`(프로덕션 결제 승인)** + `one-day-talk-01/checkout` | 굿즈 **가격·slug·status 를 고치는 순간 프로덕션 서버가 승인하는 금액이 바뀐다.** 결제창을 이미 띄운 손님의 승인이 "금액 불일치"로 실패한다 |
+| `lazyclub/goods-config.ts` | `lib/order-catalog.ts` → **`/api/lazyday/payment/confirm`(프로덕션 결제 승인)** + `one-day-talk-01/checkout` | 굿즈 **가격·slug·status 를 고치는 순간 프로덕션 서버가 승인하는 금액이 바뀐다.** 결제창을 이미 띄운 손님의 승인이 "금액 불일치"로 실패한다 |
 | `one-day-talk-01/oneday-shared.ts` (`ONEDAY_PRICE`·회차) | 같음 | 위와 동일 |
 | `lib/order-catalog.ts` | apply·checkout·success·fail·payment/confirm·cart·shop | orderId 계약(`lz-{code}x…`)의 단일 출처 |
 
@@ -175,7 +176,7 @@ CSS 만 공유되는 게 아니다. **경로가 `preview/` 아래여도 프로�
 > 원문 대비 현행화 2곳: ① 로고 색 교체 서술 → **보류** 반영 (01 최신 결정 우선) ② 모션 절 "(확정 후)" → 확정 완료 반영.
 
 - **v3 (2026-08-04)**: docs/redesign/ 문서군은 v3(워크룸 이식판)이며, 03 v2의 좌축+오프셋 레이아웃 서술은 실효 없음
-- 프리뷰 라우트 기준: `preview/lazyclub-4b073000ddec094f` (구 `home-v3-workroom` — 실도메인 공유용 난수 슬러그로 개명, 2026-08-04. 기존 home-v3 트리가 있으면 보존)
+- 프리뷰 라우트 기준: `lazyclub` (2026-08-21 프리뷰 졸업 — 구 `preview/lazyclub-4b073000ddec094f`) (구 `home-v3-workroom` — 실도메인 공유용 난수 슬러그로 개명, 2026-08-04. 기존 home-v3 트리가 있으면 보존)
 - 수치 우선순위: 08 실측값 > 02 규율 > 기존 §3 (충돌 시 상위 우선)
 - 범위: 신규 홈(허브), 일회성 모임 목록·상세, `preview/home-v3/` 이하 프리뷰 트리.
   기수제 상세·신청·GAS는 종전 규칙 유지

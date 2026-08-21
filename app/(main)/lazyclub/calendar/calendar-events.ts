@@ -1,7 +1,7 @@
 import { ONE_DAY_MEETINGS } from "../one-day-config"
 import { BASE, BOOKCLUB_URL } from "../Shell"
-import { SEASON, seasonYear } from "../../../season-config"
-import { season3Config } from "../../../book-config"
+import { SEASON, seasonYear } from "@/app/(main)/lazyday/season-config"
+import { season3Config } from "@/app/(main)/lazyday/book-config"
 
 /**
  * 캘린더 일정 (라운드 95 도입 · 97 슬롯 · 99 **모임/일정 분리**)

@@ -4,7 +4,7 @@
  *  "모임과 제품은 각각만 목록화된 페이지야 … 제품 클릭하면 굿즈만 보여야지").
  *  굿즈 3종만 진열 — 기수·모임은 여기 없음. 데이터는 goods-config 단일 출처. */
 
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../LazyclubLink"
 import { GOODS } from "../goods-config"
 import { ArrowIcon, BASE, SaveIcon, useToast, WorkroomShell } from "../Shell"
 import { useSaved } from "../store"
@@ -45,7 +45,7 @@ function IndexBody() {
               key={g.slug}
               className={`${styles.item} ${isLastRow ? styles.rowLast : ""} ${isLast ? styles.itemLast : ""}`}
             >
-              <LazydayLink href={`${BASE}/shop/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
+              <LazyclubLink href={`${BASE}/shop/${g.slug}`} className={styles.itemLink} aria-label={`${g.name} 상세로 이동`} />
               {/* 라운드 125 (레퍼런스 brownyard.co.kr 상품 목록) · 129 정리:
                   · 이미지 불투명도 0.45 는 **soldout 전용** — 브라운야드와 동일
                     ("코스터랑 머그는 반투명할 필요가 없지", 운영자)

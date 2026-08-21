@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { LazydayLink } from "@/components/common/LazydayLink"
+import { LazyclubLink } from "../../LazyclubLink"
 import { ArrowIcon, WorkroomShell } from "../../Shell"
 // 서버 컴포넌트 — Shell("use client") 경유로 값을 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../../base-path"
@@ -31,10 +31,10 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
       <main className={styles.content}>
         <div className={styles.indexHead}>
           <div className={styles.sectionTitle}>
-            <LazydayLink href={`${BASE}/people`}>
+            <LazyclubLink href={`${BASE}/people`}>
               <span>사람</span>
               <ArrowIcon />
-            </LazydayLink>
+            </LazyclubLink>
           </div>
         </div>
 
@@ -49,7 +49,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               <ul className={styles.personMeetingList}>
                 {meetings.map((m) => (
                   <li key={m.slug}>
-                    <LazydayLink href={`${BASE}/meetings/${m.slug}`} className={styles.personMeetingItem}>
+                    <LazyclubLink href={`${BASE}/meetings/${m.slug}`} className={styles.personMeetingItem}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={m.thumbnail} alt="" draggable={false} />
                       <span className={styles.personMeetingBody}>
@@ -59,7 +59,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                           {m.status !== "open" && ` · ${m.status === "soldout" ? "마감" : "오픈 예정"}`}
                         </span>
                       </span>
-                    </LazydayLink>
+                    </LazyclubLink>
                   </li>
                 ))}
               </ul>

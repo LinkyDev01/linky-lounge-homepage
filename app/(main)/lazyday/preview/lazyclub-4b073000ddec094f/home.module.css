@@ -544,16 +544,19 @@
 .nsqHostHandle { margin: 0; }
 .nsqHostText p {
   /* 명조 → 인물명과 같은 Gothic A1 (운영자 2026-08-21 "인물소개 폰트는 인물명 폰트와
-     동일한 걸로"). 굵기는 로드된 300 — 본문용 얇은 단 */
+     동일한 걸로"). 굵기 300(Light)은 13.2px 에서 너무 얇아 레귤러처럼 읽혔다 →
+     **500(Medium)** (운영자 2026-08-21 "두께가 미디움 정도는 되어야 해") */
   font-family: var(--gothic);
-  font-weight: 300;
+  font-weight: 500;
   line-height: 1.85;
   margin: 0;
   text-wrap: pretty;
 }
-/* 링크는 본문(300)보다 **두 단계**(+200) 굵게 = 500 (운영자 2026-08-21) —
-   Shell 의 Gothic A1 로드에 500 을 추가해 합성 굵기(가짜 볼드)를 피한다 */
-.nsqHostText a { text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+/* 링크는 본문보다 **두 단계**(+200) 굵게 (운영자 2026-08-21) — 본문이 300→500 으로
+   올라간 만큼 링크도 500→700 으로 따라 올린다. 그대로 두면 본문과 같은 굵기가 돼
+   "두 단계 굵게" 지시가 무효가 된다. Shell 의 Gothic A1 로드에 700 이 있어야
+   합성 굵기(가짜 볼드)를 피한다 */
+.nsqHostText a { text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
 
 @media all and (max-width: 720px) {
   /* 모바일은 A절 지시대로 "현행(위 이미지, 아래 텍스트 흐름) 그대로" — 본문 섹션 없는
@@ -672,6 +675,7 @@
 .personMeetings { margin-top: 34px; }
 .personMeetingsLabel {
   font-family: var(--suit);
+  font-weight: 500; /* 기본 400(레귤러) → 미디움 (운영자 2026-08-21, 소개 블록 텍스트 일괄) */
   margin: 0 0 12px;
   line-height: 1;
 }
@@ -689,7 +693,7 @@
 }
 .personMeetingBody { display: flex; flex-direction: column; gap: 4px; }
 .personMeetingTitle { font-family: var(--gothic); font-size: 15px; line-height: 1.4; font-weight: 600; }
-.personMeetingMeta { color: #8a7660; }
+.personMeetingMeta { color: #8a7660; font-weight: 500; } /* 기본 400 → 미디움 (2026-08-21) */
 
 @media all and (max-width: 720px) {
   .personBlock { max-width: none; padding: 34px 0; }

@@ -112,7 +112,10 @@ export function HeroSummary() {
         </div>
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>장소</span>
-          <span className={styles.summaryValue}>{locationLine}</span>
+          <span className={styles.summaryValue}>
+            {locationLine}
+            <span className={styles.summarySubNote}>{SEASON.location.note}</span>
+          </span>
         </div>
         {/* 참가비 행 없음 — 2026-08-19 오전 재부활(취소선 없이)했다가 같은 날 다시 숨김
             (운영자 "참가비 다시 숨겨"). 2026-08-18에도 부활→원복된 자리다 — 다음에

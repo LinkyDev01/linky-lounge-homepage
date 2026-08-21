@@ -320,6 +320,7 @@ export default function PreviewApplyPage() {
                 {SEASON.location.name}
                 <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
               </p>
+              <p className={styles.scheduleNote}>{SEASON.location.note}</p>
             </div>
 
             <div className={styles.ruledBlock}>

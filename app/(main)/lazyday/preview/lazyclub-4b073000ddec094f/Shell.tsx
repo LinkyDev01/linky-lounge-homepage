@@ -41,7 +41,7 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   // (레퍼런스 p-i-e.kr/people, C안). ⚠ 좌측 6항목이 되며 390px 에서 우측
   // '레이지데이 북클럽'과의 간격이 더 조인다 — 폰트·gap 은 라운드 124 값 유지하고
   // 겹침 여부는 캡처로 실측 관리할 것
-  { label: "사람들", href: `${BASE}/people` },
+  { label: "사람", href: `${BASE}/people` }, // 단수형 (운영자 2026-08-21)
   { label: "아카이브", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는

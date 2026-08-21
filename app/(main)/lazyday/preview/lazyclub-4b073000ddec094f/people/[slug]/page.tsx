@@ -32,7 +32,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
         <div className={styles.indexHead}>
           <div className={styles.sectionTitle}>
             <LazydayLink href={`${BASE}/people`}>
-              <span>people</span>
+              <span>사람</span>
               <ArrowIcon />
             </LazydayLink>
           </div>

@@ -30,7 +30,7 @@ function IndexBody() {
       <div className={styles.indexHead}>
         <div className={styles.sectionTitle}>
           <span>
-            <span>shop</span>
+            <span>제품</span>
             <ArrowIcon />
           </span>
         </div>

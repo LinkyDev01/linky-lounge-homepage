@@ -7,8 +7,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { LazyclubLink } from "./LazyclubLink"
-import { SEASON } from "@/app/(main)/lazyday/season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
+import { CURRENT_SEASON } from "./season-item"
 import { GOODS } from "./goods-config"
 import { PEOPLE } from "./people-config"
 import { HomeCalendar } from "./schedule/MeetupCalendar"
@@ -263,18 +263,9 @@ function useDragCarousel(slideCount: number, autoplay = false) {
  *    노출하고 aside 가 sticky 로 스크롤을 따라온다. 모바일은 홈과 같은 전 기수 스와이프.
  *    지난 기수는 DOM 에 남기고 CSS(.shopCurrentOnly .seasonPast)로만 숨긴다 */
 export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
-  const seasonItems = [
-    {
-      id: "bookclub-4",
-      // 라운드 82: 태그 = 기수별 일정 (운영자 제공 — 4기 9/7-11/1)
-      tag: "9/7-11/1",
-      status: "open" as const,
-      title: `레이지데이 북클럽 ${SEASON.name}`,
-      link: BOOKCLUB_URL,
-      thumbnail: "/linky-lounge/book-club/home-v3/hero-4th-poster.webp",
-    },
-    ...PAST_SEASONS,
-  ]
+  // 현재 기수는 season-item.ts 단일 출처 — 사람 상세의 '진행하는 모임'과 같은 것을 읽는다
+  // (2026-08-21). 종전에는 여기 인라인이라 다른 화면에 다시 적을 수밖에 없었다
+  const seasonItems = [CURRENT_SEASON, ...PAST_SEASONS]
   const seasonCarousel = useDragCarousel(seasonItems.length)
 
   return (

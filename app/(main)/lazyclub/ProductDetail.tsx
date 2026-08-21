@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react"
 import { LazyclubLink } from "./LazyclubLink"
-import { SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
+import { SaveIcon, soldOutLabel, StatusOverlay, useToast, WorkroomShell, type ItemKind } from "./Shell"
 import { useCart, useSaved, type CartItem } from "./store"
 import styles from "./home.module.css"
 
@@ -15,6 +15,9 @@ export type DetailProps = {
   id: string
   category: string
   badgeText?: string
+  /** 제품이냐 모임이냐 — 마감 표기가 갈린다 (품절 / 마감, 운영자 2026-08-21).
+   *  파생(옵션·배송 유무)으로 추측하지 않고 호출부가 명시한다 */
+  kind: ItemKind
   status: "open" | "soldout" | "upcoming"
   title: string
   sub?: string
@@ -93,7 +96,9 @@ function DetailBody(p: DetailProps) {
 
   const buyMsg =
     p.status === "soldout"
-      ? "마감된 모임입니다."
+      ? p.kind === "goods"
+        ? "품절된 제품입니다." // 운영자 2026-08-21 — 제품에 '마감된 모임입니다'가 뜨던 오류
+        : "마감된 모임입니다."
       : p.status === "upcoming"
       ? "오픈 예정입니다. 발매 알림은 준비 중입니다."
       : p.buyMessage ?? null
@@ -149,7 +154,7 @@ function DetailBody(p: DetailProps) {
                 src={i === 0 && activeColorImg ? activeColorImg : img.src}
                 alt={i === 0 && activeColorImg ? `${p.title} — ${color}` : img.alt}
               />
-              {p.status !== "open" && <StatusOverlay status={p.status} />}
+              {p.status !== "open" && <StatusOverlay status={p.status} kind={p.kind} />}
             </div>
           ))}
         </figure>
@@ -192,8 +197,13 @@ function DetailBody(p: DetailProps) {
             </>
           )}
 
-          {/* 가격 — 브라운야드 문법: 작고 담백하게. commerce 는 옵션 바로 위 (운영자 2026-08-12) */}
-          <p className={styles.productPrice}>{p.price != null ? `₩${p.price.toLocaleString()}` : "가격 미정"}</p>
+          {/* 가격 — 브라운야드 문법: 작고 담백하게. commerce 는 옵션 바로 위 (운영자 2026-08-12).
+              품절·마감이면 **가격 대신 그 표기가 이 자리를 차지한다** (진적색, 운영자 2026-08-21) */}
+          {p.status === "soldout" ? (
+            <p className={styles.productPriceOut}>{soldOutLabel(p.kind)}</p>
+          ) : (
+            <p className={styles.productPrice}>{p.price != null ? `₩${p.price.toLocaleString()}` : "가격 미정"}</p>
+          )}
 
           {/* 색상 옵션 — 노아 문법: 색별 제품컷 썸네일 + 이름·가격 (운영자 2026-08-12).
               목록·미리보기의 원형 칩과 달리 상세에서는 이미지로 고른다 */}
@@ -216,7 +226,9 @@ function DetailBody(p: DetailProps) {
                         )}
                       </span>
                       <span className={styles.optThumbName}>{c.name}</span>
-                      {p.price != null && (
+                      {/* 품절이면 색별 가격도 감춘다 — 위 가격 자리가 '품절'인데 색마다
+                          금액이 붙어 있으면 서로 어긋나 보인다 (운영자 2026-08-21) */}
+                      {p.price != null && p.status !== "soldout" && (
                         <span className={styles.optThumbPrice}>₩{p.price.toLocaleString()}</span>
                       )}
                     </button>
@@ -233,8 +245,12 @@ function DetailBody(p: DetailProps) {
                   <button
                     key={sz}
                     type="button"
-                    aria-pressed={size === sz}
-                    className={`${styles.optSize} ${size === sz ? styles.optSizeOn : ""}`}
+                    // 품절이면 연회색으로 채워 선택 불가 (운영자 2026-08-21)
+                    disabled={p.status === "soldout"}
+                    aria-pressed={p.status === "soldout" ? undefined : size === sz}
+                    className={`${styles.optSize} ${
+                      p.status === "soldout" ? styles.optSizeOff : size === sz ? styles.optSizeOn : ""
+                    }`}
                     onClick={() => setSize(sz)}
                   >
                     {sz}

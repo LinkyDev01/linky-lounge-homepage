@@ -70,8 +70,13 @@ function IndexBody() {
                 {/* 정보 행 순서 (라운드 128 · 131): 상품명 → 가격 → 아웃오브스탁 — 컬러는 이미지 밑 */}
                 <div>
                   <div className={styles.shopName}>{g.name}</div>
-                  <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
-                  {g.status === "soldout" && <div className={styles.shopStock}>out of stock</div>}
+                  {/* 품절이면 **가격 자리를 '품절'이 대신 차지한다** (진적색, 운영자 2026-08-21).
+                      종전의 가격 + 붉은 out of stock 두 줄 표기는 폐기 */}
+                  {g.status === "soldout" ? (
+                    <div className={styles.shopPriceOut}>품절</div>
+                  ) : (
+                    <div className={styles.shopPrice}>{g.price != null ? `₩${g.price.toLocaleString("ko-KR")}` : "Coming Soon"}</div>
+                  )}
                 </div>
                 <div className={styles.itemBottom}>
                   <button

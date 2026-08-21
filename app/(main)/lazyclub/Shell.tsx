@@ -329,7 +329,17 @@ export function ArrowIcon() {
   )
 }
 
-/** sold out / coming soon 오버레이 (라운드 10 — 저장·카트는 계속 가능) */
-export function StatusOverlay({ status }: { status: "soldout" | "upcoming" }) {
-  return <div className={styles.figOverlay}>{status === "soldout" ? "sold out" : "coming soon"}</div>
+/** 상품 종류 — 마감 표기가 갈린다 (제품=품절 / 모임=마감, 운영자 2026-08-21) */
+export type ItemKind = "goods" | "meeting"
+
+/** 마감 상태의 한국어 표기 — 오버레이·가격 자리·안내 토스트가 같은 말을 쓰게 하는 단일 출처.
+ *  운영자 2026-08-21: "sold out 영어 문구 대신에 이미지 위 텍스트도 품절로", "sold out
+ *  모임은 sold 아웃 대신 마감". upcoming(오픈 예정)은 지시 범위 밖이라 종전 표기 유지. */
+export function soldOutLabel(kind: ItemKind) {
+  return kind === "goods" ? "품절" : "마감"
+}
+
+/** 품절·마감 / coming soon 오버레이 (라운드 10 — 저장·카트는 계속 가능) */
+export function StatusOverlay({ status, kind }: { status: "soldout" | "upcoming"; kind: ItemKind }) {
+  return <div className={styles.figOverlay}>{status === "soldout" ? soldOutLabel(kind) : "coming soon"}</div>
 }

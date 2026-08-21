@@ -318,6 +318,15 @@
   color: var(--paper);
   border-color: var(--ink);
 }
+/* 품절 상품의 사이즈 — 연회색으로 채워 고를 수 없음을 보인다 (운영자 2026-08-21).
+   pointer-events 로만 막지 않고 disabled 도 걸어 키보드·보조기기에서도 막힌다 */
+.optSizeOff {
+  background: #e2ded7;
+  border-color: #d8d3cb;
+  color: #a09889;
+  cursor: default;
+}
+.optSizeOff:hover { border-color: #d8d3cb; }
 
 /* 저장(북마크) 버튼 — 원문 ts-item__save 문법, 오버레이 링크 위 z-index */
 .saveBtn {
@@ -977,7 +986,24 @@
   color: #6d6459;
   font-variant-numeric: tabular-nums;
 }
-/* 아웃 오브 스탁 행 — 브라운야드 붉은 표기(#a22525) 이식 (라운드 127) */
+/* 품절·마감 — **가격 자리를 대신 차지한다** (운영자 2026-08-21: "품절된 상품은 가격
+   노출 대신 가격위치에 '품절'로", "가격 자리엔 진적색으로"). 색은 종전 아웃오브스탁
+   붉은 표기(#a22525) 그대로. 한국어라 uppercase·letter-spacing 은 걷어낸다 */
+.shopPriceOut {
+  margin-top: 7px;
+  font-family: var(--suit);
+  font-size: 12px;
+  color: #a22525;
+}
+/* 상세 가격 자리 (.productPrice 와 같은 자리·여백) */
+.productPriceOut {
+  margin: 0 0 22.5px;
+  font-family: var(--suit);
+  font-size: 12px;
+  color: #a22525;
+}
+/* 구 아웃 오브 스탁 행 — 가격 자리 표기로 대체돼 목록에서는 더 안 쓴다 (소비자 0).
+   브라운야드 붉은 표기(#a22525) 이식 (라운드 127) */
 .shopStock {
   margin-top: 3px;
   font-family: "Space Grotesk", var(--suit);

@@ -72,7 +72,7 @@ export const PEOPLE: Person[] = [
         <a href="https://ko.wikipedia.org/wiki/O2O" target="_blank" rel="noopener noreferrer">
           O2O
         </a>{" "}
-        서비스를 출시한 뒤, 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로 알려져 있으며,{" "}
+        서비스를 출시했고, 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로 알려져 있으며,{" "}
         <a
           href="https://www.wine21.com/14_info/info_view.html?Idx=5685"
           target="_blank"

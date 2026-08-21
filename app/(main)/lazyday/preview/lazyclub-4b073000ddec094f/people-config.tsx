@@ -25,35 +25,7 @@ export type Person = {
 }
 
 export const PEOPLE: Person[] = [
-  {
-    slug: "gorden",
-    name: "천고든",
-    instagram: "kylor.kylor",
-    photo: "/linky-lounge/book-club/home-v3/notsqueezing-host.webp",
-    bio: (
-      <p>
-        20세기말 여름, 길병원에서 장발 우량아로 태어났다. 출생부터 남달랐던 그는 피아노와 수학에 두각을
-        나타내며 패션디자이너를 꿈꾸었으나, Fashion에 대한 Passion이 식어 4학년 2학기에 돌발 자퇴했다. 이후
-        직접 공간을 디자인하고 인테리어한 사당역의{" "}
-        <a href={`${BOOKCLUB_URL}/lounge-info`} target="_blank" rel="noopener noreferrer">
-          링키라운지
-        </a>
-        를 거점으로,{" "}
-        <a href={BOOKCLUB_URL} target="_blank" rel="noopener noreferrer">
-          레이지데이 북클럽
-        </a>
-        과{" "}
-        <a href={BASE} rel="noopener noreferrer">
-          레이지클럽
-        </a>
-        에서 기획자와 편집자와 디자이너와 마케터와 크리에이티브 디렉터로 일하고 있다. 초등학생 시절 강제로
-        다녔던 논술 학원의 영향으로 여러 분야에서 그 덕을 톡톡히 보고 있다고 회상한다. 15세 무렵에는 무려
-        119개의 프리드리히 공식을 암기하여 3×3×3 큐브를 10초대에 맞추는 등 비범한 재능을 보였다. 2024년
-        처음 출전한 마블런 10km에서 47분의 기록을 달성한 후 미련 없이 달리기를 관두었으며, 현재 가장
-        좋아하는 칵테일은 네그로니로 알려져 있다.
-      </p>
-    ),
-  },
+  // 순서: 안동민 먼저 (운영자 2026-08-21 "안동민이 제일 좌측(맨 앞) 정렬되게")
   {
     slug: "andongmin",
     name: "안동민",
@@ -95,6 +67,43 @@ export const PEOPLE: Person[] = [
         </a>{" "}
         등 오프라인 기반 서비스를 출시했으며 현재는 주로 링키라운지에서 독서모임장으로 출현하는 것으로 알려져
         있다.
+      </p>
+    ),
+  },
+  {
+    slug: "gorden",
+    name: "천고든",
+    instagram: "kylor.kylor",
+    photo: "/linky-lounge/book-club/home-v3/notsqueezing-host.webp",
+    bio: (
+      <p>
+        20세기말 여름, 길병원에서 장발 우량아로 태어났다. 출생부터 남달랐던 그는 피아노와 수학에 두각을
+        나타내며 패션디자이너를 꿈꾸었으나, Fashion에 대한 Passion이 식어 4학년 2학기에 돌발 자퇴했다. 이후
+        직접 공간을 디자인하고 인테리어한 사당역의{" "}
+        <a href={`${BOOKCLUB_URL}/lounge-info`} target="_blank" rel="noopener noreferrer">
+          링키라운지
+        </a>
+        를 거점으로,{" "}
+        <a href={BOOKCLUB_URL} target="_blank" rel="noopener noreferrer">
+          레이지데이 북클럽
+        </a>
+        과{" "}
+        <a href={BASE} rel="noopener noreferrer">
+          레이지클럽
+        </a>
+        에서 기획자와 편집자와 디자이너와 마케터와 크리에이티브 디렉터로 일하고 있다. 초등학생 시절 강제로
+        다녔던 논술 학원의 영향으로 여러 분야에서 그 덕을 톡톡히 보고 있다고 회상한다. 15세 무렵에는 무려
+        119개의 프리드리히 공식을 암기하여 3×3×3 큐브를 10초대에 맞추는 등 비범한 재능을 보였다. 2024년
+        처음 출전한 마블런 10km에서 47분의 기록을 달성한 후 미련 없이 달리기를 관두었으며, 현재 가장
+        좋아하는 칵테일은{" "}
+        <a
+          href="https://ko.wikipedia.org/wiki/%EB%84%A4%EA%B7%B8%EB%A1%9C%EB%8B%88"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          네그로니
+        </a>
+        로 알려져 있다.
       </p>
     ),
   },

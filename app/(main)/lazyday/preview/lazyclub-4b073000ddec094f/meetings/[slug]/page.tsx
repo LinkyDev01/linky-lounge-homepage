@@ -22,9 +22,6 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   // 가격·정원·결제 방식이 아직 없어(price === null) 구매하기는 문의로 안내한다 —
   // buyHref 를 아예 안 주면 ProductDetail 이 자동으로 "구매하기 → notify(buyMessage)"로 뺀다.
   const feature = Boolean(m.sessions)
-  // 호프: sessions 없는 단일 회차 모임이지만 진행자(안동민) 소개는 붙인다 — buyHref/buyMessage는
-  // feature(=m.sessions)로만 갈리므로 이 슬롯은 별도 변수로 분리해 구매 버튼에 영향이 없게 한다.
-  const bodySlot = m.sessions ? <NotSqueezingBody /> : m.slug === "hope" ? <HopeHostBio /> : undefined
 
   return (
     <ProductDetail
@@ -60,7 +57,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       // "모임 상세 전체" 대상이었는데 이전엔 centerBody 유무로 오판(feature)해 신규
       // 모임에만 걸렸던 버그를 바로잡음(2026-08-19 재수정). 굿즈 상세는 이 prop 자체가 없다.
       stickyPoster
-      centerBody={bodySlot}
+      centerBody={feature ? <NotSqueezingBody /> : undefined}
     />
   )
 }
@@ -147,56 +144,6 @@ function NotSqueezingBody() {
           </p>
         </div>
       </div>
-    </div>
-  )
-}
-
-/** 호프 모임 진행자(안동민) 소개 — 위키 시치미 문체, 운영자 원문 그대로.
- *  사진 미확보 — 파일 전달되면 nsqHostRow+nsqHostPhoto 구조로 전환 예정. */
-function HopeHostBio() {
-  return (
-    <div className={styles.nsqHostText}>
-      <p className={styles.nsqHostName}>안동민</p>
-      <p>
-        첫돌에 손가락에 끼워진{" "}
-        <a href="https://m.stock.naver.com/marketindex/metals/M04020000" target="_blank" rel="noopener noreferrer">
-          순금 한 돈
-        </a>
-        이 곧 가계 유동성으로 전환되는 과정을 겪으며 자본주의 시스템의 환대와 한계를 동시에 체감했다. 일곱 살
-        무렵 오른손을, 5년 후에는 왼손 젓가락질을 마스터하며 한 손 상실이라는 저빈도 고위험 시나리오에 대비한
-        이중화를 조기에 구축했다. 열다섯 살 무렵 총기 게임(서든어택)에서 칼전 문화를 선도하며 Tit for Tat을
-        인생의 전략으로 채택했고, 비주류를 열망한다는 자기 인식을 이때 얻었다. 이 열망은 한때 1940년대
-        아메리칸 워크웨어 애호로 구현되었고, 그 차림새에서 타인의 시선을 의도치 않게 유치했으나 얻은 결론은
-        오히려 타인의 시선에 무감하다는 본인의 속성이었다. 현재 해당 복식은 착용하지 않는다. 스물여덟 살에는
-        부동산 투자로 약 2년치 연봉만큼의 수익을 익명의 시장 참여자에게 안겨주었다.{" "}
-        <a
-          href="https://ko.wikipedia.org/wiki/%EB%84%A4%EB%B9%84%EC%98%AC%EB%A1%9C"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          네비올로
-        </a>{" "}
-        품종의 포도주를 즐겨 마시고 싶어 하는 것으로 추정된다. 회사에서는 경영과 서비스 기획과 프로젝트
-        관리와 웹 개발과 퍼실리테이팅과 공공·금융 분야 애플리케이션 및 인프라 아키텍처 컨설팅을 병행하고
-        있다. <s>링키케어</s>,{" "}
-        <a href="https://linkylounge.com" target="_blank" rel="noopener noreferrer">
-          링키라운지
-        </a>
-        ,{" "}
-        <a href="https://www.lazyday-bookclub.com" target="_blank" rel="noopener noreferrer">
-          레이지데이 북클럽
-        </a>
-        ,{" "}
-        <a href="https://www.lazy-club.com" target="_blank" rel="noopener noreferrer">
-          레이지클럽
-        </a>{" "}
-        등 오프라인 기반 서비스를 출시했으며 현재는 주로 링키라운지에서 독서모임장으로 출현하는 것으로 알려져
-        있다.
-        <br />
-        <a href="https://www.instagram.com/im_dm____" target="_blank" rel="noopener noreferrer">
-          @im_dm____
-        </a>
-      </p>
     </div>
   )
 }

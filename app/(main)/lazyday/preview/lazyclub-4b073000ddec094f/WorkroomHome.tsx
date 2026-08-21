@@ -12,6 +12,7 @@ import { SEASON } from "../../season-config"
 import { ONE_DAY_MEETINGS } from "./one-day-config"
 import { GOODS } from "./goods-config"
 import { PEOPLE } from "./people-config"
+import { HomeCalendar } from "./calendar/MeetupCalendar"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
@@ -277,7 +278,7 @@ function HomeContent() {
           <div className={styles.goodsBlock} id="shop">
             <div className={styles.sectionTitle}>
               <a href="#shop">
-                <span>굿즈</span>
+                <span>제품</span>
                 <ArrowIcon />
               </a>
             </div>
@@ -386,8 +387,10 @@ function HomeContent() {
                (운영자 라운드 26 "원래 굿즈 배열했던 것처럼"). 포스터+제목만, 2·3기 sold out */}
           <div className={`${styles.shopList} ${styles.seasonList}`}>
             <div ref={seasonCarousel.trackRef} className={styles.shopTrack} onScroll={seasonCarousel.onScroll}>
-              {seasonItems.map((s) => (
-                <article key={s.id} className={styles.shopItem}>
+              {seasonItems.map((s, i) => (
+                // 데스크톱은 현재 기수만 노출 (운영자 2026-08-21) — 지난 기수는 seasonPast 로
+                // 숨긴다. 모바일은 종전 가로 스와이프 그대로 (미디어쿼리에서 되살림)
+                <article key={s.id} className={`${styles.shopItem} ${i > 0 ? styles.seasonPast : ""}`}>
                   {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazydayLink는 내부 경로 전용) */}
                   <a
                     href={s.link}
@@ -424,6 +427,21 @@ function HomeContent() {
           </div>
         </aside>
       </div>
+
+      {/* ── 일정 — 캘린더 페이지 이식 (운영자 2026-08-21). '이번 달 모임' 목록은 제외,
+             캘린더 + 거북이 트랙(스티키 해제)만. 상단 괘선으로 섹션 구분 ── */}
+      <section className={styles.calendarBlock} id="calendar">
+        <div className={styles.sectionTitle}>
+          <LazydayLink href={`${BASE}/calendar`}>
+            <span>일정</span>
+            <ArrowIcon />
+          </LazydayLink>
+        </div>
+        <HomeCalendar />
+      </section>
+
+      {/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) */}
+      <div className={styles.homeEndRule} aria-hidden="true" />
 
       {/* ── ③ 아카이브 캐러셀 (역대 기수 표지 16권, 최신 우선 — book-config 단일 출처)
              라운드 77(운영자): 맨 위 → 맨 아래로 이동

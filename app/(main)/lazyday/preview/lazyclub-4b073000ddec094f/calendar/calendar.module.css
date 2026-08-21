@@ -249,6 +249,19 @@
   margin: 34px 0 0;
   padding: 10px 0 6px;
 }
+/* 홈 이식용 — 스티키 없는 정적 슬롯 (운영자 2026-08-21 "스티키까지는 필요 없어").
+   시각은 trackSlot 과 동일, 위치 고정만 뺐다 */
+.trackSlotStatic {
+  background: #f7f3ee;
+  border-top: 1px solid rgba(26, 18, 8, 0.14);
+  margin: 34px 0 0;
+  padding: 10px 0 6px;
+}
+/* 홈 이식 래퍼 — 홈 .content 전폭 안에서 캘린더(.wrap 720px)를 가운데로 */
+.homeSlot {
+  display: flex;
+  justify-content: center;
+}
 
 /* ── 모임 목록 ────────────────────────────────────────── */
 .listHead {

@@ -569,13 +569,17 @@
   margin: 0 0 65px;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(15, 1fr);
+  /* 균등 2열 (운영자 2026-08-21 "이미지 밸런스가 안 맞아") — 종전 15열 span 8+7 은
+     두 카드 폭이 660/575 로 달라져 사진(38%)도 다른 크기가 됐다. 균등 분할로 정정 */
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
   row-gap: 45px;
 }
-/* 15열을 2등분 (7 + 8) — 홀수라 정확히 반이 안 나뉘어 앞뒤로 나눠 준다 */
-.personCard { grid-column: span 8; position: relative; }
-.personCard:nth-child(even) { grid-column: span 7; }
+/* 카드 콘텐츠 폭 = C안·모임 상세 본문과 같은 460px 읽기 컬럼 (운영자 2026-08-21
+   "텍스트 가로 폭이 너무 넓어. 기존 C안 혹은 모임 소개에 인물 소개 정도").
+   HostIntro 가 설계된 폭이 원래 460 이라 사진(38%≈175px)·텍스트 줄길이가
+   전용 페이지·모임 상세의 진행자 블록과 픽셀 단위로 같아진다 */
+.personCard { max-width: 460px; position: relative; }
 .personCard:hover .nsqHostName { text-decoration: underline; text-underline-offset: 3px; }
 /* 카드 안에서는 약력을 잘라 보여준다 — 전문은 /people/[slug].
    :not(.personCardMore) — 더보기 표시는 잘림 대상에서 제외 */
@@ -603,8 +607,7 @@
 @media all and (max-width: 720px) {
   /* 모바일은 1열 — 2열로 쪼개면 사진(38%)과 텍스트가 같이 설 폭이 안 나온다 */
   .peopleGrid { grid-template-columns: 1fr; row-gap: 34px; }
-  .personCard,
-  .personCard:nth-child(even) { grid-column: 1 / -1; }
+  .personCard { max-width: none; }
   .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 5; } /* 모바일 5줄 */
 }
 

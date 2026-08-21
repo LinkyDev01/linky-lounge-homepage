@@ -135,13 +135,13 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "not-squeezing-myself",
     category: "booktalk",
     hostSlug: "gorden",
-    title: "비로소 나를 쥐어짜지 않는 법",
+    title: "비로소, 나를 쥐어짜지 않는 법", // 쉼표 표기 (운영자 2026-08-21 "모든 제목 이렇게 수정")
     date: "10.3–10.24 (매주 토) 오전 10:00–12:00",
     host: "레이지데이 북클럽",
     catLabel: "천고든", // 개별 모임장이 여는 모임 — 모임장 이름 (운영자 2026-08-21)
     status: "open",
     thumbnail: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp",
-    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소 나를 쥐어짜지 않는 법 포스터" }],
+    images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소, 나를 쥐어짜지 않는 법 포스터" }],
     // 본문은 상세 페이지가 centerBody 로 직접 구성(인사말 + 책 4권 + 진행자 소개) — 여기는 비움
     description: [],
     price: null,

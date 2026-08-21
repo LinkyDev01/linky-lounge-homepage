@@ -52,7 +52,11 @@ const NAV_ROW2_RIGHT: { label: string; href: string }[] = [
   { label: "레이지데이 북클럽", href: BOOKCLUB_URL },
 ]
 
-const ToastContext = createContext<{ notify: (msg?: string) => void }>({ notify: () => {} })
+/** notify(문구, 지속시간ms) — 지속시간은 **선택**이고 기본 2.2초다 (2026-08-21 추가).
+ *  긴 문구 하나 때문에 전 호출처의 노출 시간을 늘리지 않으려고 인자로 뺐다.
+ *  ⚠ 기본값(ToastContext 의 no-op)이 있어 셸 밖(예: turtle 단독 시연 페이지)에서
+ *  호출해도 크래시가 아니라 조용히 무시된다 — 폴백을 따로 만들 필요가 없다 */
+const ToastContext = createContext<{ notify: (msg?: string, ms?: number) => void }>({ notify: () => {} })
 export const useToast = () => useContext(ToastContext)
 
 // 프리뷰 바 숨김 참조 카운트 — 사용처가 여러 곳(셸 + 랜딩 인트로)이라
@@ -93,10 +97,11 @@ export function WorkroomShell({
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const notify = (msg = "준비 중인 기능입니다.") => {
+  const notify = (msg = "준비 중인 기능입니다.", ms = 2200) => {
     setToast(msg)
+    // 연달아 부르면 타이머가 리셋돼 문구만 갱신된다 (기존 동작 유지)
     if (toastTimer.current) clearTimeout(toastTimer.current)
-    toastTimer.current = setTimeout(() => setToast(null), 2200)
+    toastTimer.current = setTimeout(() => setToast(null), ms)
   }
 
 

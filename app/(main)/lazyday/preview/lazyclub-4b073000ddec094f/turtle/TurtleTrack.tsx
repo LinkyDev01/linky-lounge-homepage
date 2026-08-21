@@ -20,7 +20,8 @@
  *   ?stay=<초> 는 체류 시간 고정 (2행 노출·분 표기 검증용).
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useToast } from "../Shell"
 import styles from "./turtle.module.css"
 
 const START = new Date("2026-01-01T00:00:00+09:00").getTime()
@@ -69,6 +70,95 @@ export function TurtleTrack() {
   const fillRef = useRef<SVGPathElement>(null)
   const measureRef = useRef<SVGPathElement>(null)
   const turtleRef = useRef<SVGGElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+
+  // ── 거북이 드래그 (2026-08-21, 장식 전용) ───────────────────────────────
+  // ⚠ 카운트다운(secs)·진행률(frac)·주황 채움은 **절대 건드리지 않는다**. 거북이만
+  //   경로 위를 이탈했다가 실제 위치로 튕겨 돌아온다 — 시간은 제자리라는 그림이 농담.
+  const { notify } = useToast()
+  /** 드래그·복귀 중에는 1초 틱이 거북이 transform 을 덮어쓰지 못하게 한다 */
+  const busyRef = useRef(false)
+  const draggingRef = useRef(false)
+  /** 1초 틱이 갱신하는 **실제** 진행률 — 복귀 목표 지점의 출처 */
+  const fracRef = useRef(0)
+  const dragLenRef = useRef(0)
+  const rafRef = useRef(0)
+  /** 최근접 경로점 탐색용 좌표 캐시 — getPointAtLength 는 비싸서 폭이 바뀔 때만 다시 뜬다 */
+  const samplesRef = useRef<{ x: number; y: number; len: number }[]>([])
+
+  /** 경로 길이 len 지점에 거북이를 놓는다 — 기존 update() 의 좌표·각도·미러 로직을
+   *  그대로 뽑아낸 것(값 무변경). 닫힌 루프라 len 은 모듈로로 감싼다 */
+  const place = useCallback((len: number) => {
+    const path = measureRef.current
+    const turtle = turtleRef.current
+    if (!path || !turtle) return
+    const L = path.getTotalLength()
+    const l = ((len % L) + L) % L
+    const p = path.getPointAtLength(l)
+    const p2 = path.getPointAtLength((l + 1.5) % L)
+    const ang = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI
+    const S = 0.457
+    const tf =
+      Math.abs(ang) <= 90
+        ? `translate(${p.x} ${p.y}) rotate(${ang}) scale(${S}) translate(-106 -76)`
+        : `translate(${p.x} ${p.y}) rotate(${ang - 180}) scale(${-S} ${S}) translate(-106 -76)`
+    turtle.setAttribute("transform", tf)
+  }, [])
+
+  /** 화면 좌표 → SVG viewBox 좌표 */
+  const toSvg = useCallback((e: React.PointerEvent) => {
+    const svg = svgRef.current
+    const m = svg?.getScreenCTM()
+    if (!svg || !m) return null
+    const pt = svg.createSVGPoint()
+    pt.x = e.clientX
+    pt.y = e.clientY
+    return pt.matrixTransform(m.inverse())
+  }, [])
+
+  /** 포인터 좌표를 경로에 투영 — 캐시된 샘플에서 대충 찾고 그 주변만 정밀 탐색한다.
+   *  (전 구간을 getPointAtLength 로 훑으면 pointermove 마다 수십 ms 가 나간다) */
+  const nearestLength = useCallback((x: number, y: number) => {
+    const path = measureRef.current
+    const s = samplesRef.current
+    if (!path || s.length === 0) return 0
+    let best = 0
+    let bd = Infinity
+    for (const q of s) {
+      const d = (q.x - x) ** 2 + (q.y - y) ** 2
+      if (d < bd) { bd = d; best = q.len }
+    }
+    const L = path.getTotalLength()
+    const step = L / (s.length - 1)
+    for (let lo = best - step, hi = best + step, i = 0; i < 3; i++) {
+      let bl = best
+      let bdd = Infinity
+      for (let k = 0; k <= 8; k++) {
+        const len = lo + ((hi - lo) * k) / 8
+        const p = path.getPointAtLength(((len % L) + L) % L)
+        const d = (p.x - x) ** 2 + (p.y - y) ** 2
+        if (d < bdd) { bdd = d; bl = len }
+      }
+      best = bl
+      const w = (hi - lo) / 8
+      lo = best - w
+      hi = best + w
+    }
+    return ((best % L) + L) % L
+  }, [])
+
+  // 폭이 바뀌면 경로도 바뀐다 → 좌표 캐시 재생성
+  useEffect(() => {
+    const path = measureRef.current
+    if (!path) return
+    const L = path.getTotalLength()
+    const N = 240
+    samplesRef.current = Array.from({ length: N + 1 }, (_, i) => {
+      const len = (L * i) / N
+      const p = path.getPointAtLength(len)
+      return { x: p.x, y: p.y, len }
+    })
+  }, [vbw])
 
   useEffect(() => {
     const el = stageRef.current
@@ -114,24 +204,14 @@ export function TurtleTrack() {
           : Math.min(1, Math.max(0, (simNow - START) / (END - START)))
       setSecs(Math.max(0, Math.ceil((END - simNow) / 1000)))
 
+      fracRef.current = frac
       const path = measureRef.current
       const turtle = turtleRef.current
       if (!path || !turtle) return
-      const L = path.getTotalLength()
-      const p = path.getPointAtLength(L * frac)
-      const p2 = path.getPointAtLength(Math.min(L, L * frac + 1.5))
-      const ang = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI
-      // 라운드 88: 뒤집힘 금지 — 왼쪽으로 갈 때는 회전 180° 대신 **좌우 미러**로
-      // 진행 방향을 보게 한다 (기울기는 ±90° 이내로만). 발(-76)은 경로선 위에 얹혀
-      // 거북이가 항상 트랙 위에 서 있다.
-      // 라운드 89: 가로 앵커 = 몸 중심이 아니라 **앞다리 끝(셀 x≈106 실측)** —
-      // 채움 경계가 앞발 끝선과 일치하고 머리(x≈136)만 회색 쪽으로 살짝 나간다
-      const S = 0.457 // 140×81 셀 → ≈64유닛 폭
-      const tf =
-        Math.abs(ang) <= 90
-          ? `translate(${p.x} ${p.y}) rotate(${ang}) scale(${S}) translate(-106 -76)`
-          : `translate(${p.x} ${p.y}) rotate(${ang - 180}) scale(${-S} ${S}) translate(-106 -76)`
-      turtle.setAttribute("transform", tf)
+      // 거북이 좌표·각도·미러는 place() 가 맡는다 (로직 동일, 값 무변경).
+      // ⚠ 드래그·복귀 중에는 건너뛴다 — 아니면 1초마다 손에서 튕겨 나간다.
+      //    채움·초 갱신은 그대로 돈다 (시간은 거북이와 무관하게 흐른다)
+      if (!busyRef.current) place(path.getTotalLength() * frac)
       if (fillRef.current) fillRef.current.style.strokeDashoffset = String(1000 * (1 - frac))
     }
 
@@ -142,12 +222,84 @@ export function TurtleTrack() {
       document.removeEventListener("visibilitychange", onVis)
     }
     // vbw 변경 시 경로가 바뀌므로 즉시 재계산 (아니면 다음 초까지 거북이가 옛 위치에 뜬다)
-  }, [vbw])
+  }, [vbw, place])
+
+  // 언마운트 시 복귀 애니메이션 정리
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
+
+  const onTurtleDown = (e: React.PointerEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    cancelAnimationFrame(rafRef.current) // 복귀 중에 다시 집으면 그 자리에서 이어받는다
+    busyRef.current = true
+    draggingRef.current = true
+    ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
+  }
+
+  const onTurtleMove = (e: React.PointerEvent) => {
+    if (!draggingRef.current) return
+    const p = toSvg(e)
+    if (!p) return
+    const len = nearestLength(p.x, p.y)
+    dragLenRef.current = len
+    place(len) // 경로에 투영 — 트랙 밖으로는 못 나간다
+  }
+
+  /** 놓으면 **경로를 따라** 실제 위치로 미끄러져 돌아온다 (직선 이동 금지).
+   *  감쇠 스프링(k=170, c=20 → ζ≈0.77 부족감쇠)이라 한 번 지나쳤다가 되돌아와 안착한다.
+   *  닫힌 루프이므로 두 지점 차이는 **짧은 쪽 방향**으로 보간한다 */
+  const onTurtleUp = (e: React.PointerEvent) => {
+    if (!draggingRef.current) return
+    draggingRef.current = false
+    try { (e.currentTarget as Element).releasePointerCapture(e.pointerId) } catch {}
+
+    notify("우리는 거북이를 옮길 순 있지만, 시간을 통제할 수는 없습니다.", 4000)
+
+    const path = measureRef.current
+    if (!path) { busyRef.current = false; return }
+    const L = path.getTotalLength()
+    const from = dragLenRef.current
+    const to = L * fracRef.current
+    let d = (((to - from) % L) + L) % L
+    if (d > L / 2) d -= L // 짧은 쪽으로
+
+    const reduced =
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (reduced || Math.abs(d) < 0.5) {
+      place(to)
+      busyRef.current = false
+      return
+    }
+
+    let x = 0
+    let v = 0
+    let last = performance.now()
+    // 실측 튜닝(2026-08-21). 시작값 K=170·C=20(ζ≈0.77)은 오버슈트 1.95u·정착 554ms 로
+    // 튕김이 거의 안 보이고 지시한 정착 0.6~0.9초보다 빨랐다. 감쇠비는 0.65 근처로 두되
+    // (오버슈트 1회) 고유진동수를 낮춰 시간을 늘린다 — 정착시간 ≈ 4/(ζω) 이므로
+    // ω=√K 를 13.0 → 8.4 로. 결과 실측: 오버슈트 ≈4.6%, 정착 ≈0.75초
+    const K = 70
+    const C = 11
+    const tick = (now: number) => {
+      const dt = Math.min(0.032, (now - last) / 1000) // 탭 복귀 시 한 번에 튀는 것 방지
+      last = now
+      v += (K * (d - x) - C * v) * dt
+      x += v * dt
+      place(from + x)
+      if (Math.abs(d - x) < 0.4 && Math.abs(v) < 4) {
+        place(to)
+        busyRef.current = false
+        return
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+  }
 
   return (
     <div className={styles.stage} ref={stageRef}>
       <div className={styles.trackBox}>
-        <svg className={styles.track} viewBox={`0 0 ${vbw} ${VB_H}`} role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
+        <svg ref={svgRef} className={styles.track} viewBox={`0 0 ${vbw} ${VB_H}`} role="img" aria-label="2027년까지의 거북이 트랙 카운트다운">
           {/* 회색 트랙 밴드 (바탕) */}
           <path d={stadiumPath(0, vbw)} fill="none" stroke="#e5dfd6" strokeWidth={BAND} />
           {/* 주황 진행 루트 — 출발선부터 거북이 위치까지 경로를 따라 차오른다 */}
@@ -180,10 +332,24 @@ export function TurtleTrack() {
           {/* 진행률 측정용 (비표시) */}
           <path ref={measureRef} d={stadiumPath(0, vbw)} fill="none" stroke="none" />
           {/* 거북이 — 트랙 속, 채움 선두와 같은 지점 */}
-          <g ref={turtleRef} style={{ visibility: secs === null ? "hidden" : "visible" }}>
-            <foreignObject width={140} height={81}>
+          {/* 거북이 — 트랙 속, 채움 선두와 같은 지점.
+              2026-08-21: 드래그 가능(장식). 스프라이트가 작아 **투명 원**을 얹어 히트
+              영역을 넉넉히 준다 — 셀 좌표계라 r=95 는 화면에서 ≈43유닛(스케일 0.457).
+              다리 애니메이션(.turtle gait)은 드래그·복귀 중에도 그대로 돈다 */}
+          <g
+            ref={turtleRef}
+            style={{ visibility: secs === null ? "hidden" : "visible", cursor: "grab", touchAction: "none" }}
+            onPointerDown={onTurtleDown}
+            onPointerMove={onTurtleMove}
+            onPointerUp={onTurtleUp}
+            onPointerCancel={onTurtleUp}
+          >
+            <foreignObject width={140} height={81} style={{ pointerEvents: "none" }}>
               <div className={styles.turtle} />
             </foreignObject>
+            {/* ⚠ 히트 영역은 **foreignObject 뒤**에 둔다 — 앞에 두면 SSR HTML 을
+                파싱할 때 하이드레이션 불일치가 났다(실측). 투명이라 순서가 보이지도 않는다 */}
+            <circle cx={106} cy={76} r={95} fill="transparent" />
           </g>
         </svg>
 

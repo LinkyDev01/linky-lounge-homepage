@@ -2,9 +2,12 @@ import { notFound } from "next/navigation"
 import { findMeeting, meetingOrderCode } from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
 // 서버 컴포넌트 — Shell("use client") 경유로 값을 받으면 프록시가 찍힌다 (base-path 직수입)
-import { BASE, BOOKCLUB_URL } from "../../base-path"
+import { BASE } from "../../base-path"
 import { KAKAO_CHAT_URL } from "@/app/(main)/lazyday/support"
 import styles from "../../home.module.css"
+// 진행자 서식·원고는 공용 (사람들 페이지와 같은 출처 — 2026-08-20)
+import { HostIntro } from "../../HostIntro"
+import { findPerson } from "../../people-config"
 
 /** 원데이 토크 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 1순위).
  *  선결제→후신청 (2026-08-11): 구매하기가 신청폼이 아니라 **곧장 결제**로 간다 —
@@ -117,65 +120,7 @@ function NotSqueezingBody() {
         />
       </figure>
 
-      <HostIntro photo="/linky-lounge/book-club/home-v3/notsqueezing-host.webp" name="천고든" instagram="kylor.kylor">
-          <p>
-            20세기말 여름, 길병원에서 장발 우량아로 태어났다. 출생부터 남달랐던 그는 피아노와 수학에 두각을
-            나타내며 패션디자이너를 꿈꾸었으나, Fashion에 대한 Passion이 식어 4학년 2학기에 돌발 자퇴했다. 이후
-            직접 공간을 디자인하고 인테리어한 사당역의{" "}
-            <a href={`${BOOKCLUB_URL}/lounge-info`} target="_blank" rel="noopener noreferrer">
-              링키라운지
-            </a>
-            를 거점으로,{" "}
-            <a href={BOOKCLUB_URL} target="_blank" rel="noopener noreferrer">
-              레이지데이 북클럽
-            </a>
-            과{" "}
-            <a href={BASE} rel="noopener noreferrer">
-              레이지클럽
-            </a>
-            에서 기획자와 편집자와 디자이너와 마케터와 크리에이티브 디렉터로 일하고 있다. 초등학생 시절 강제로
-            다녔던 논술 학원의 영향으로 여러 분야에서 그 덕을 톡톡히 보고 있다고 회상한다. 15세 무렵에는 무려
-            119개의 프리드리히 공식을 암기하여 3×3×3 큐브를 10초대에 맞추는 등 비범한 재능을 보였다. 2024년
-            처음 출전한 마블런 10km에서 47분의 기록을 달성한 후 미련 없이 달리기를 관두었으며, 현재 가장
-            좋아하는 칵테일은 네그로니로 알려져 있다.
-          </p>
-      </HostIntro>
-    </div>
-  )
-}
-
-/** 진행자 소개 공용 서식 — 운영자 카드뉴스 원본 레이아웃 그대로 (2026-08-20 확정):
- *  이름이 큰 제목 → 사진은 **우측**에 띄우고 본문이 그 왼쪽을 감싸 흐름(float) →
- *  인스타 핸들은 약력 끝줄. 모임마다 이 컴포넌트를 재사용해 서식이 갈라지지 않게 한다.
- *  ⚠ 사진(figure)이 이름·본문보다 **소스 순서상 먼저** 와야 float 감김이 성립한다.
- *  약력(children)은 운영자 원문 그대로 — 한 글자도 편집하지 않는다. */
-function HostIntro({
-  photo,
-  name,
-  instagram,
-  children,
-}: {
-  photo: string
-  name: string
-  /** @ 없는 핸들만 — 표시는 @핸들, 링크는 instagram.com/핸들 */
-  instagram: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className={styles.nsqHostRow}>
-      <figure className={styles.nsqHostPhoto}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo} alt={name} />
-      </figure>
-      <p className={styles.nsqHostName}>{name}</p>
-      <div className={styles.nsqHostText}>
-        {children}
-        <p className={styles.nsqHostHandle}>
-          <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer">
-            @{instagram}
-          </a>
-        </p>
-      </div>
+      <PersonIntro slug="gorden" />
     </div>
   )
 }
@@ -184,44 +129,20 @@ function HostIntro({
 function HopeBody() {
   return (
     <div style={{ display: "contents" }}>
-      <HostIntro photo="/linky-lounge/book-club/home-v3/host-andongmin.webp" name="안동민" instagram="im_dm____">
-        <p>
-          생후 365일 무렵 손가락에 끼워진{" "}
-          <a href="https://m.stock.naver.com/marketindex/metals/M04020000" target="_blank" rel="noopener noreferrer">
-            순금 한 돈
-          </a>
-          이 곧 가계 유동성으로 전환되는 과정을 겪으며 자본주의 시스템의 환대와 한계를 동시에 체감했다. 일곱 살
-          무렵 오른손을, 5년 후에는 왼손 젓가락질을 마스터하며 한 손 상실이라는 저빈도 고위험 시나리오에 대비한
-          이중화를 조기에 구축했다. 열다섯 살 무렵 총기 게임(서든어택)에서 칼전 문화를 선도하며 Tit for Tat을
-          인생의 전략으로 채택했고, 비주류를 열망한다는 자기 인식을 이때 얻었다. 이 열망은 한때 1940년대 아메리칸
-          워크웨어 애호로 구현되었고, 그 과정에서 마주치는 전원의 시선을 의도치 않게 유치했으나 얻은 결론은 오히려
-          타인의 시선에 무감하다는 본인의 속성이었다. 현재 해당 복식은 착용하지 않는다. 스물여덟 살에는 부동산
-          투자로 약 2년치 연봉만큼의 수익을 익명의 시장 참여자에게 안겨주었다.{" "}
-          <a
-            href="https://ko.wikipedia.org/wiki/%EB%84%A4%EB%B9%84%EC%98%AC%EB%A1%9C"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            네비올로
-          </a>{" "}
-          품종의 포도주를 즐겨 마시고 싶어 하는 것으로 추정된다. 취미로는 경영과 서비스 기획과 웹 개발과 PM과
-          공공·금융 분야 애플리케이션 및 인프라 아키텍처 컨설팅을 병행하고 있다. <s>링키케어</s>,{" "}
-          <a href="https://linkylounge.com" target="_blank" rel="noopener noreferrer">
-            링키라운지
-          </a>
-          ,{" "}
-          <a href="https://www.lazyday-bookclub.com" target="_blank" rel="noopener noreferrer">
-            레이지데이 북클럽
-          </a>
-          ,{" "}
-          <a href="https://www.lazy-club.com" target="_blank" rel="noopener noreferrer">
-            레이지클럽
-          </a>{" "}
-          등 오프라인 기반 서비스를 출시했으며 현재는 주로 링키라운지에서 독서모임장으로 출현하는 것으로 알려져
-          있다.
-        </p>
-      </HostIntro>
+      <PersonIntro slug="andongmin" />
     </div>
+  )
+}
+
+/** 진행자 소개 — 원고는 people-config 단일 출처, 서식은 공용 HostIntro.
+ *  사람들 페이지(/people)와 같은 것을 읽으므로 원고가 갈라지지 않는다 (2026-08-20) */
+function PersonIntro({ slug }: { slug: string }) {
+  const p = findPerson(slug)
+  if (!p) return null
+  return (
+    <HostIntro photo={p.photo} name={p.name} instagram={p.instagram}>
+      {p.bio}
+    </HostIntro>
   )
 }
 

@@ -48,6 +48,10 @@ export type OneDayMeeting = {
    *  상세 "읽는 책" 필드도 이 배열에서 파생된다. 없으면 date 필드 하나로 단일 회차
    *  (기존 3개 모임 무변경). date 형식은 "M.D (요일) …" — mdFromOneDay 파싱과 동일 규칙 */
   sessions?: { week: string; date: string; work: string }[]
+  /** 진행자 (people-config 의 Person.slug). 사람들 페이지가 이 값으로 역참조해
+   *  "진행하는 모임"을 모은다 (2026-08-20, C안). ⚠ **미확정이면 주지 않는다** —
+   *  임의 배정 금지. 없는 모임은 역참조 목록에서 자연히 빠진다 */
+  hostSlug?: string
 }
 
 // 원데이 토크 1차 (운영자 확정 일정 2026-07-24 · 카드뉴스 원문 2026-08-04 수급)
@@ -58,6 +62,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
     slug: "hope",
     category: "movie",
+    hostSlug: "andongmin", // 2026-08-20 역참조 (브람스·시지프는 진행자 미확정 — 주지 않음)
     title: "『호프』 무비토크",
     date: "8.23 (일) 19:00–22:00",
     host: "레이지데이 북클럽",
@@ -120,6 +125,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     // 가격·정원·결제 방식 미확정 — buyHref 를 주지 않고 문의로 안내 (D절, 임의 가격 금지).
     slug: "not-squeezing-myself",
     category: "booktalk",
+    hostSlug: "gorden",
     title: "비로소 나를 쥐어짜지 않는 법",
     date: "10.3–10.24 (매주 토) 오전 10:00–12:00",
     host: "레이지데이 북클럽",

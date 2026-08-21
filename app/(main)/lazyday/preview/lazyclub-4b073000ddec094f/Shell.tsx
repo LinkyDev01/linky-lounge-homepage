@@ -42,7 +42,8 @@ const NAV_ROW2_LEFT: { label: string; href: string }[] = [
   { label: "사람", href: `${BASE}/people` },
   // 라운드 121(운영자): 캘린더 페이지
   { label: "일정", href: `${BASE}/calendar` },
-  { label: "아카이브", href: `${BASE}/archive` },
+  // 2026-08-21(운영자): '아카이브' → **기록** (내비·섹션·카테고리 전 표기). 경로는 그대로
+  { label: "기록", href: `${BASE}/archive` },
 ]
 // 라운드 79: 레이지데이 북클럽은 실도메인 절대 URL — lazy-club.com 위에서 /lazyday 는
 // 미들웨어가 랜딩으로 되돌리므로 상대 경로로는 북클럽에 도달할 수 없다.

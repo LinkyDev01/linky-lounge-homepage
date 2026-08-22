@@ -1224,6 +1224,12 @@
     padding: 0 15px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
+    /* ⚠ 스냅은 padding 이 아니라 **scroll-padding** 을 기준선으로 삼는다. 이게 없으면
+       mandatory 스냅이 첫 카드를 스크롤포트 맨 끝(x=0)에 붙여 버려 좌측 여백이 사라진다
+       — 반면 끝까지 밀면 더 갈 데가 없어 우측엔 padding 15px 이 남아, 좌 0 / 우 15 로
+       어긋났다(운영자 2026-08-22 "4기 좌측 여백이 없어", 390px 실측 확인).
+       padding 과 같은 값을 주면 스냅 정지선이 여백을 존중해 좌우가 같아진다 */
+    scroll-padding-inline: 15px;
     scrollbar-width: none;
   }
   .shopTrack::-webkit-scrollbar { display: none; }

@@ -74,10 +74,9 @@ export function TurtleTrack() {
   // ── 거북이 드래그 (2026-08-21, 장식 전용) ───────────────────────────────
   // ⚠ 카운트다운(secs)·진행률(frac)·주황 채움은 **절대 건드리지 않는다**. 거북이만
   //   경로 위를 이탈했다가 실제 위치로 튕겨 돌아온다 — 시간은 제자리라는 그림이 농담.
-  /** 드래그 후 안내 — 전역 토스트(화면 맨 아래)가 아니라 **트랙 바로 아래**에 띄운다
-   *  (운영자 2026-08-22 "트랙 바로 위아래 혹은 화면 중앙부 노출이 좋아보여").
-   *  거북이를 만지는 손이 트랙을 보고 있으니 시선이 화면 끝까지 내려갈 이유가 없다.
-   *  전역 notify 는 카트·저장 등 다른 화면이 함께 쓰므로 위치를 건드리지 않는다 */
+  /** 드래그 후 안내 — **화면 중앙**에 띄운다 (운영자 2026-08-22 2차: 트랙 아래 →
+   *  중앙부로 변경). 전역 토스트(화면 맨 아래)를 쓰지 않고 이 컴포넌트가 직접 그린다 —
+   *  전역 notify 는 카트·저장 등 다른 화면이 함께 쓰므로 그쪽 위치는 건드리지 않는다 */
   const [dragHint, setDragHint] = useState<string | null>(null)
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => () => { if (hintTimer.current) clearTimeout(hintTimer.current) }, [])
@@ -391,7 +390,7 @@ export function TurtleTrack() {
           </g>
         </svg>
 
-        {/* 드래그 안내 — 트랙 바로 아래. absolute 라 떴다 사라져도 아래 문구가 밀리지 않는다 */}
+        {/* 드래그 안내 — fixed 라 화면 한가운데. 레이아웃에 자리를 차지하지 않는다 */}
         {dragHint && (
           <div className={styles.dragHint} role="status">
             {dragHint}

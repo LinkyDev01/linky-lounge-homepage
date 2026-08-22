@@ -283,13 +283,20 @@ export function ClubAside({ currentOnly = false }: { currentOnly?: boolean }) {
           {seasonItems.map((s, i) => (
             <article key={s.id} className={`${styles.shopItem} ${i > 0 ? styles.seasonPast : ""}`}>
               {/* 라운드 81: 북클럽은 다른 도메인 — 새 탭 (LazyclubLink는 내부 경로 전용) */}
-              <a
-                href={s.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.itemLink}
-                aria-label={`${s.title} 안내로 이동 (새 탭)`}
-              />
+              {/* 지난 기수는 **클릭 자체를 막는다** — 현재 기수만 열린다 (운영자 2026-08-21
+                  "이전 기수 레이지데이는 클릭 자체가 안되게 막아. 현재 4기만 가능해야해").
+                  카드를 덮는 이 링크를 아예 렌더하지 않는 방식 — pointer-events 로 가리면
+                  마크업엔 링크가 남아 크롤러·보조기기에는 여전히 이동 가능해 보인다.
+                  판정은 status 로 (기수 전환 시 자동으로 따라온다 — 지난 기수는 전부 soldout) */}
+              {s.status === "open" && (
+                <a
+                  href={s.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.itemLink}
+                  aria-label={`${s.title} 안내로 이동 (새 탭)`}
+                />
+              )}
               <figure className={styles.shopFigure}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={s.thumbnail} alt="" draggable={false} />

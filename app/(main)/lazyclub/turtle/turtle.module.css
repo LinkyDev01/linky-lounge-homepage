@@ -188,3 +188,30 @@
   /* 2행은 페이드 없이 그냥 나타난다 (숫자 갱신 자체는 정보라 유지) */
   .line2 { animation: none; }
 }
+
+/* 드래그 후 안내 — **트랙 바로 아래** (운영자 2026-08-22: 전역 토스트가 화면 맨 아래라
+   거북이를 보던 시선에서 멀었다). 서식은 전역 토스트와 같은 잉크 칩.
+   absolute 라 떴다 사라져도 아래 콘텐츠가 밀리지 않는다.
+   ⚠ 전역 토스트와 달리 nowrap 을 쓰지 않는다 — 문구가 길어 390px 에서 화면을 넘긴다 */
+.dragHint {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+  z-index: 3;
+  /* ⚠ left:50% 만 두면 절대배치 요소의 shrink-to-fit 가용폭이 트랙의 **절반**으로 줄어
+     한 문장이 3줄로 쪼개진다(390px 실측). max-content 로 자연폭을 잡고 상한만 건다 */
+  width: max-content;
+  /* 상한은 트랙 폭이 아니라 **화면 폭** 기준 — 트랙이 조금만 좁아도(홈 360 vs 전용 367)
+     한 줄이 세 줄로 쪼개졌다(실측). 좌우 12px 만 남기고 최대한 한 줄로 편다 */
+  max-width: min(420px, calc(100vw - 24px));
+  background: var(--ink, #1a1208);
+  color: var(--paper, #f7f3ee);
+  padding: 8px 16px;
+  font-family: var(--suit, "SUIT", sans-serif);
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+  pointer-events: none;
+}

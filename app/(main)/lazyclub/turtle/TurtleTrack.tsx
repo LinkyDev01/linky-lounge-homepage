@@ -21,7 +21,6 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useToast } from "../Shell"
 import styles from "./turtle.module.css"
 
 const START = new Date("2026-01-01T00:00:00+09:00").getTime()
@@ -75,7 +74,18 @@ export function TurtleTrack() {
   // ── 거북이 드래그 (2026-08-21, 장식 전용) ───────────────────────────────
   // ⚠ 카운트다운(secs)·진행률(frac)·주황 채움은 **절대 건드리지 않는다**. 거북이만
   //   경로 위를 이탈했다가 실제 위치로 튕겨 돌아온다 — 시간은 제자리라는 그림이 농담.
-  const { notify } = useToast()
+  /** 드래그 후 안내 — 전역 토스트(화면 맨 아래)가 아니라 **트랙 바로 아래**에 띄운다
+   *  (운영자 2026-08-22 "트랙 바로 위아래 혹은 화면 중앙부 노출이 좋아보여").
+   *  거북이를 만지는 손이 트랙을 보고 있으니 시선이 화면 끝까지 내려갈 이유가 없다.
+   *  전역 notify 는 카트·저장 등 다른 화면이 함께 쓰므로 위치를 건드리지 않는다 */
+  const [dragHint, setDragHint] = useState<string | null>(null)
+  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (hintTimer.current) clearTimeout(hintTimer.current) }, [])
+  const showHint = (msg: string, ms: number) => {
+    setDragHint(msg)
+    if (hintTimer.current) clearTimeout(hintTimer.current)
+    hintTimer.current = setTimeout(() => setDragHint(null), ms)
+  }
   /** 드래그·복귀 중에는 1초 틱이 거북이 transform 을 덮어쓰지 못하게 한다 */
   const busyRef = useRef(false)
   const draggingRef = useRef(false)
@@ -280,7 +290,7 @@ export function TurtleTrack() {
     cancelAnimationFrame(rafRef.current) // 추종 루프 정지 — 복귀 스프링으로 교대
     try { (e.currentTarget as Element).releasePointerCapture(e.pointerId) } catch {}
 
-    notify("우리는 거북이를 옮길 순 있지만, 시간을 통제할 수는 없습니다.", 4000)
+    showHint("우리는 거북이를 옮길 순 있지만, 시간을 통제할 수는 없습니다.", 4000)
 
     const path = measureRef.current
     if (!path) { busyRef.current = false; return }
@@ -380,6 +390,13 @@ export function TurtleTrack() {
             <circle cx={106} cy={76} r={95} fill="transparent" />
           </g>
         </svg>
+
+        {/* 드래그 안내 — 트랙 바로 아래. absolute 라 떴다 사라져도 아래 문구가 밀리지 않는다 */}
+        {dragHint && (
+          <div className={styles.dragHint} role="status">
+            {dragHint}
+          </div>
+        )}
 
         {/* 트랙 안쪽 문구 (라운드 108) — SVG <text> 가 아니라 HTML 이다.
             viewBox 스케일을 타면 모바일에서 10px 남짓으로 쪼그라들어 읽히지 않는다.

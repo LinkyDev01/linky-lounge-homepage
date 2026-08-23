@@ -33,11 +33,15 @@ const LAZYCLUB_RENAMED: Record<string, string> = {
   calendar: "schedule",
   archive: "records",
 }
-/** 사람 슬러그 개명 (2026-08-22 운영자: 이름 대신 **순번**) — 구 주소를 301 로 살린다.
+/** 사람 슬러그 개명 — **지난 표기를 전부** 새 핸들로 301 (2026-08-22).
+ *  경위: 이름(andongmin·gorden) → 순번(00000001·00000002, 같은 날 오전) → **핸들**(확정).
+ *  중간 단계였던 순번도 짧게나마 프로덕션에 나갔으므로 함께 살려 둔다.
  *  ⚠ 인스타 링크인바이오가 `/people/andongmin` 을 가리키고 있다. 끊으면 그 유입이 죽는다 */
 const LAZYCLUB_PEOPLE_RENAMED: Record<string, string> = {
-  andongmin: "00000001",
-  gorden: "00000002",
+  andongmin: "dmahn",
+  "00000001": "dmahn",
+  gorden: "gdcheon",
+  "00000002": "gdcheon",
 }
 
 /** `/lazyclub/...`(또는 lazy-club.com 의 루트 상대 경로)에서 구 슬러그를 새 슬러그로.

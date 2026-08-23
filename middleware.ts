@@ -33,13 +33,27 @@ const LAZYCLUB_RENAMED: Record<string, string> = {
   calendar: "schedule",
   archive: "records",
 }
+/** 사람 슬러그 개명 (2026-08-22 운영자: 이름 대신 **순번**) — 구 주소를 301 로 살린다.
+ *  ⚠ 인스타 링크인바이오가 `/people/andongmin` 을 가리키고 있다. 끊으면 그 유입이 죽는다 */
+const LAZYCLUB_PEOPLE_RENAMED: Record<string, string> = {
+  andongmin: "00000001",
+  gorden: "00000002",
+}
+
 /** `/lazyclub/...`(또는 lazy-club.com 의 루트 상대 경로)에서 구 슬러그를 새 슬러그로.
  *  바꿀 게 없으면 null — 호출부가 리다이렉트 여부를 이걸로 판단한다 */
 function renameLazyclubSlug(rest: string): string | null {
   if (rest === "" || rest === "/") return "/all" // 구 트리 루트 → 이름 있는 홈
-  const seg = rest.split("/")[1]
+  const parts = rest.split("/")
+  const seg = parts[1]
   const next = LAZYCLUB_RENAMED[seg]
-  return next ? rest.replace(`/${seg}`, `/${next}`) : null
+  if (next) return rest.replace(`/${seg}`, `/${next}`)
+  // 2단 슬러그: /people/<이름> → /people/<순번>
+  if (seg === "people" && parts[2]) {
+    const person = LAZYCLUB_PEOPLE_RENAMED[parts[2]]
+    if (person) return ["", "people", person, ...parts.slice(3)].join("/")
+  }
+  return null
 }
 const LAZYCLUB_COMING_SOON = `${LAZYCLUB_BASE}/coming-soon`
 /** lazy-club.com 랜딩 공개 스위치 — false 면 **루트만** coming soon (현행 유지),

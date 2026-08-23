@@ -133,7 +133,7 @@ function NotSqueezingBody() {
         />
       </figure>
 
-      <PersonIntro slug="gorden" />
+      <PersonIntro slug="00000002" /> {/* 천고든 */}
     </div>
   )
 }
@@ -142,7 +142,7 @@ function NotSqueezingBody() {
 function HopeBody() {
   return (
     <div style={{ display: "contents" }}>
-      <PersonIntro slug="andongmin" />
+      <PersonIntro slug="00000001" /> {/* 안동민 */}
     </div>
   )
 }

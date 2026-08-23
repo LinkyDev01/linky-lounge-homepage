@@ -1,0 +1,30 @@
+/* 첫 방문 인트로 오버레이 (2026-08-22) — 요청한 페이지 위를 종이색으로 덮고
+   랜딩과 같은 워드서치 마크를 한가운데서 재생한다. 마크 자체의 조판은
+   coming-soon.module.css 를 그대로 읽는다(사본 없음 — 연출이 갈라지지 않게).
+   ⚠ 페이지는 이미 아래에 정상 렌더돼 있다 — 오버레이가 걷히면 그 화면이 그대로 남는다 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400; /* 전역 토스트(250)·거북이 안내보다 위 — 인트로는 첫 화면이다 */
+  background: #f8f3ef; /* 랜딩과 같은 종이색 (ComingSoonMain 의 paper 값) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ⚠ 마크 조판(.grid)이 이 변수로 폭·글자크기를 잡는다 — 랜딩 .main 이 정의하던 값을
+     여기서도 줘야 한다. 안 주면 width:var(--gridW) 가 무효라 마크가 0폭으로 접힌다.
+     오버레이엔 내비·푸터가 없으니 세로 여유(360)를 덜 빼고 조금 크게 잡는다 */
+  --gridW: min(88vw, calc((100vh - 200px) / 1.273));
+}
+
+/* 하이드레이트 전 가림막 — 인라인 스크립트(layout.tsx)가 <html> 에 표식을 달면
+   첫 페인트부터 종이색으로 덮는다. IntroOverlay 가 마크를 그리기 시작하면 그 위에
+   같은 색으로 얹히므로 이음매가 보이지 않고, 인트로가 끝나면 표식이 지워져 함께 걷힌다.
+   ⚠ 이 규칙만 전역 선택자다 — CSS 모듈이라 클래스는 해시되지만 :global 은 그대로 나간다 */
+:global(html[data-lzc-intro]) body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 399;
+  background: #f8f3ef;
+  pointer-events: none;
+}

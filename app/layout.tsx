@@ -82,7 +82,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko">
+    // suppressHydrationWarning 은 **이 요소의 속성에만** 적용된다(자식 트리엔 무관).
+    // 레이지클럽 첫 방문 인트로의 선(先) 가림막 스크립트가 하이드레이션 전에
+    // data-lzc-intro 를 여기에 달기 때문 — 의도된 변형이라 소음만 없앤다 (2026-08-22)
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         {/* ⚠ SUIT 의 **수동 preload 를 두지 말 것** (2026-08-17). Next 16 이

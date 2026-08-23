@@ -8,6 +8,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { LazyclubLink } from "./LazyclubLink"
 import { IdleShuffle } from "./IdleShuffle"
+import { IntroOverlay } from "./IntroOverlay"
 import styles from "./home.module.css"
 
 // 라운드 23: 토큰 링크 대신 실도메인 공유용 난수 경로로 개명 (운영자 "복잡한 하위페이지명")
@@ -172,6 +173,11 @@ export function WorkroomShell({
 
       {/* 유휴 60초 → 난수 셔플 오버레이 — 트리 전 페이지 공통 (라운드 79) */}
       <IdleShuffle />
+
+      {/* 첫 방문 인트로 — 하위 페이지로 바로 들어온 손님(링크인바이오·utm)에게도
+          랜딩 워드서치를 1회 보여준다 (2026-08-22). 리다이렉트가 아니라 오버레이라
+          주소·utm 이 그대로다. 랜딩 자신과 재방문에서는 렌더되지 않는다 */}
+      <IntroOverlay />
 
       {/* ── 푸터 — 전 섹션 동일 유지 (운영자 라운드 31: coming soon도 같은 푸터) ── */}
       <footer className={styles.footer}>

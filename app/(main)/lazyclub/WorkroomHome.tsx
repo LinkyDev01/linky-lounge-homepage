@@ -366,11 +366,12 @@ function HomeContent() {
       {/* ── ①② 좌: 모임 + 굿즈 / 우: 레이지데이 북클럽 (라운드 77 재배치) ── */}
       <div className={styles.textsShop} id="meetings">
         <section className={styles.meetings}>
+          {/* 전체보기에서는 **링크가 아닌 순수 텍스트** (운영자 2026-08-22: "모임, 제품
+              카테고리명은 눌러도 해당페이지 가지 않아야해 … 탑네비 통해서만 이동 가능하게").
+              화살표(ArrowIcon)도 뗀다 — 링크가 아닌데 화살표만 남으면 눌리는 것처럼 보인다.
+              목록 페이지로 가는 길은 상단 내비가 맡는다 */}
           <div className={styles.sectionTitle}>
-            <LazyclubLink href={`${BASE}/meetings`}>
-              <span>모임</span>
-              <ArrowIcon />
-            </LazyclubLink>
+            <span>모임</span>
           </div>
           <div className={styles.meetingsList}>
             {items.map((m, idx) => {
@@ -429,15 +430,10 @@ function HomeContent() {
                  라운드 78: 잠정 보류 — SHOW_GOODS 로만 껐다 (구현·데이터는 그대로) ── */}
           {SHOW_GOODS && (
           <div className={styles.goodsBlock} id="shop">
+            {/* 모임과 같이 링크 없는 텍스트 (운영자 2026-08-22) — 2026-08-21 에 화살표
+                목적지를 제품 목록으로 고쳤던 항목이 이번 지시로 링크 자체가 폐기됐다 */}
             <div className={styles.sectionTitle}>
-              {/* 화살표 목적지를 자기 앵커(#shop) → **제품 목록 페이지**로 (2026-08-21).
-                  다른 다섯 섹션(모임·사람·일정·기록·레이지데이 북클럽)이 전부 자기 목록으로
-                  나가는데 제품만 제자리 앵커라 화살표가 아무 일도 하지 않았다. 내비의
-                  '제품'과도 목적지가 같아진다 */}
-              <LazyclubLink href={`${BASE}/products`}>
-                <span>제품</span>
-                <ArrowIcon />
-              </LazyclubLink>
+              <span>제품</span>
             </div>
             <div className={styles.meetingsList}>
               {GOODS.map((g, idx) => {

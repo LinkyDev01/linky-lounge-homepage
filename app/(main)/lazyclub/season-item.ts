@@ -30,4 +30,4 @@ export const CURRENT_SEASON = {
 
 /** 기수를 진행하는 사람 (people-config 의 Person.slug).
  *  사람 상세의 '진행하는 모임'이 이 값으로 역참조한다 — one-day-config 의 hostSlug 와 같은 축 */
-export const CURRENT_SEASON_HOSTS = ["00000001"] // 안동민 (사람 슬러그 = 순번)
+export const CURRENT_SEASON_HOSTS = ["dmahn"] // 안동민 (사람 슬러그 = 핸들)

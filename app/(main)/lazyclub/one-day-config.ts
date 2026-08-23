@@ -84,7 +84,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "not-squeezing-myself",
     payUrl: "https://buy.tosspayments.com/products/jtBoCf6W3Y", // 4주 과정 전용 링크 (운영자 2026-08-21)
     category: "booktalk",
-    hostSlug: "00000002", // 천고든 (사람 슬러그 = 순번, people-config)
+    hostSlug: "gdcheon", // 천고든 (사람 슬러그 = 핸들, people-config)
     // ⚠ \u00A0 = 줄바꿈 없는 공백. 한 줄에 안 담길 때 **"비로소, 나를 / 쥐어짜지 않는 법"**
     // 으로만 끊기게 고정한다 (운영자 2026-08-21 "한 줄에 안 담길 경우, 이렇게 줄바꿈이
     // 일어나야만 해"). 종전에는 마지막으로 들어가는 공백에서 끊겨 "비로소, 나를 쥐어짜지 /
@@ -119,7 +119,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     category: "booktalk",
     // 2026-08-21 운영자: "원데이토크 모두 다 내가 하는 거니까 태그와 사람 다 나로" —
     // 진행자 미확정 상태가 해소됐다 (호프와 동일하게 안동민)
-    hostSlug: "00000001", // 안동민 (사람 슬러그 = 순번, people-config)
+    hostSlug: "dmahn", // 안동민 (사람 슬러그 = 핸들, people-config)
     title: "원데이 토크, 브람스를 좋아하세요...",
     work: "브람스를 좋아하세요...",
     date: "8.30 (일) 08:00–11:00",
@@ -142,7 +142,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "sisyphus",
     payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
     category: "booktalk",
-    hostSlug: "00000001", // 안동민 — 2026-08-21 운영자: 원데이 토크는 전부 안동민 진행
+    hostSlug: "dmahn", // 안동민 — 2026-08-21 운영자: 원데이 토크는 전부 안동민 진행
     title: "원데이 토크, 시지프 신화",
     work: "시지프 신화",
     date: "9.5 (토) 08:00–11:00",
@@ -167,7 +167,7 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     slug: "hope",
     payUrl: "https://buy.tosspayments.com/products/OBBn5YubQ0", // 원데이 토크 공통 (운영자 2026-08-21)
     category: "movie",
-    hostSlug: "00000001", // 안동민
+    hostSlug: "dmahn", // 안동민
     title: "원데이 토크, 호프",
     work: "호프",
     // 2026-08-21 운영자: "호프 모임이 7/26 19-21로 이미 마감되었다" — 실제 진행일로 정정 + 마감

@@ -24,15 +24,15 @@ export type Person = {
   bio: React.ReactNode
 }
 
-/** ⚠ slug = **순번 8자리**다, 이름이 아니다 (운영자 2026-08-22: "순번으로만 써줘 이름 대신").
- *  배열 순서대로 00000001부터. 사람이 늘면 다음 번호를 잇는다 — **번호를 재사용하거나
- *  기존 사람의 번호를 바꾸지 말 것**(공유된 주소가 다른 사람을 가리키게 된다).
- *  구 이름 슬러그(/people/andongmin·gorden)는 middleware 가 301 로 여기 보낸다 —
- *  인스타 링크인바이오가 그 주소를 쓰고 있어 끊으면 유입이 죽는다. */
+/** ⚠ slug = **개인 핸들**이다 (운영자 2026-08-22 2차: 안동민 dmahn · 천고든 gdcheon.
+ *  같은 날 오전의 순번 8자리 표기는 폐기). 사람이 늘면 그 사람의 핸들을 쓴다.
+ *  **한 번 쓴 핸들은 다른 사람에게 넘기지 말 것** — 공유된 주소가 다른 사람을 가리키게 된다.
+ *  지난 슬러그(andongmin·gorden·00000001·00000002)는 middleware 가 301 로 여기 보낸다 —
+ *  인스타 링크인바이오가 옛 주소를 쓰고 있어 끊으면 유입이 죽는다. */
 export const PEOPLE: Person[] = [
   // 순서: 안동민 먼저 (운영자 2026-08-21 "안동민이 제일 좌측(맨 앞) 정렬되게")
   {
-    slug: "00000001", // 안동민
+    slug: "dmahn", // 안동민
     name: "안동민",
     instagram: "im_dm____",
     photo: "/linky-lounge/book-club/home-v3/host-andongmin.webp",
@@ -90,7 +90,7 @@ export const PEOPLE: Person[] = [
     ),
   },
   {
-    slug: "00000002", // 천고든
+    slug: "gdcheon", // 천고든
     name: "천고든",
     instagram: "kylor.kylor",
     photo: "/linky-lounge/book-club/home-v3/notsqueezing-host.webp",

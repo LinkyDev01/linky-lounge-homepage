@@ -53,7 +53,7 @@ var p=location.pathname;
 if(p==='/'||p==='/coming-soon'||p==='/lazyclub/coming-soon')return;
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 var q=location.search;if(q.indexOf('t=')>-1||q.indexOf('still=')>-1)return;
-if(localStorage.getItem('lzc-intro-seen'))return;
+if(sessionStorage.getItem('lzc-intro-seen'))return;
 document.documentElement.setAttribute('data-lzc-intro','1');
 }catch(e){}})()`
 

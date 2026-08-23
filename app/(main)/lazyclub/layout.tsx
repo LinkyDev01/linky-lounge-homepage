@@ -37,6 +37,31 @@ export async function generateMetadata(): Promise<Metadata> {
   return { ...metadata, robots: isLazyclub ? { index: true, follow: true } : { index: false, follow: false } }
 }
 
+/** 첫 방문 인트로의 **선(先) 가림막** (2026-08-22).
+ *
+ *  오버레이만으로는 늦다 — React 가 하이드레이트된 뒤에야 뜨므로 그 전까지 손님이
+ *  요청한 페이지가 먼저 보였다가 인트로가 덮치는 꼴이 된다(실측). 그래서 첫 페인트
+ *  **전에** 도는 인라인 스크립트가 관람 여부를 판정해 <html> 에 표식을 달고, CSS 가
+ *  즉시 종이색으로 덮는다. 애니메이션은 하이드레이트 후 IntroOverlay 가 이어받는다.
+ *
+ *  판정 조건은 IntroOverlay 와 같아야 한다 — 여기서 덮었는데 저기서 안 그리면
+ *  종이색 화면에 갇힌다. 그래서 **저장 기록은 여기서 쓰지 않고 읽기만** 하고,
+ *  기록·해제는 전부 IntroOverlay 가 한다(단일 책임). 스크립트가 아예 안 돌면
+ *  표식이 없어 평소처럼 보인다 — 실패해도 손님이 갇히지 않는 방향으로 기울였다. */
+const INTRO_PRECOVER = `(function(){try{
+var p=location.pathname;
+if(p==='/'||p==='/coming-soon'||p==='/lazyclub/coming-soon')return;
+if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+var q=location.search;if(q.indexOf('t=')>-1||q.indexOf('still=')>-1)return;
+if(localStorage.getItem('lzc-intro-seen'))return;
+document.documentElement.setAttribute('data-lzc-intro','1');
+}catch(e){}})()`
+
 export default function LazyClubLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return (
+    <>
+      <script dangerouslySetInnerHTML={{ __html: INTRO_PRECOVER }} />
+      {children}
+    </>
+  )
 }

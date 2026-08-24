@@ -71,9 +71,8 @@ export default function PreviewLandingPage() {
           {/* 2026-08-24: 5안 확정 — 시안 스위처(IntroRuleLab)를 걷어내고 실사이트와
               같은 구조로 고정했다. 진행 순서는 밴드 안 요약이 아니라 독립 섹션
               ProcessSection('진행 방식')이며, 실사이트 것을 직접 import 한다(V2 없음). */}
-          <div className={shell.featureBand}>
-            <FeatureQuietSection />
-          </div>
+          {/* featureBand 래퍼 제거 — 실사이트와 동일 (2026-08-24 여백 수리, page.tsx 주석 참조) */}
+          <FeatureQuietSection />
           <ProcessSection />
           <ScheduleSectionV2 />
           <ReviewsSection />

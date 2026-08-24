@@ -1,7 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
 import styles from "./intro-rule-designs.module.css"
+import rstyles from "../../ReviewsSection.module.css"
+import { useZoomGesture } from "../../useZoomGesture"
 
 /**
  * 자기소개 규칙 섹션 — 디자인 시안 쇼케이스 (2026-08-24, 노출 구조 개정).
@@ -19,6 +22,12 @@ import styles from "./intro-rule-designs.module.css"
  *
  * ⚠ 카피는 전부 운영자 원문(온라인 공개용)에서 발췌·축약 — 창작 문장 없음.
  *   축약 지점은 운영자 검토 대상. 실사이트 미반영 — 프리뷰 전용 제안.
+ *
+ * 2안(완전 게이팅)에는 운영자 요청으로 "기수별 진행했던 질문" 샘플 이미지 4장을
+ * 후기 섹션 모달과 동일한 UI/UX(핀치줌·스와이프·‹›·점 카운터)로 얹었다 — ReviewsSection
+ * 의 rstyles·useZoomGesture 를 그대로 재사용(§4 공유 CSS 지도: ReviewsSection.module.css
+ * 소비자 +1). 이미지 4장은 지금 플레이스홀더(question-sample-0N.webp, "SAMPLE" 워터마크) —
+ * 운영자가 기수별 실제 질문 카드 이미지를 주면 교체.
  */
 
 const RULES = [
@@ -44,6 +53,14 @@ const LEAD = (
     집중할 수 있도록.
   </>
 )
+
+/** 2안 전용 — 기수별 진행했던 질문 샘플. 지금은 플레이스홀더, 실제 카드 이미지로 교체 예정 */
+const SAMPLE_QUESTIONS = [
+  { id: "q1", img: "/linky-lounge/book-club/intro-rules/question-sample-01.webp", caption: "1기에서 나눈 질문" },
+  { id: "q2", img: "/linky-lounge/book-club/intro-rules/question-sample-02.webp", caption: "2기에서 나눈 질문" },
+  { id: "q3", img: "/linky-lounge/book-club/intro-rules/question-sample-03.webp", caption: "3기에서 나눈 질문" },
+  { id: "q4", img: "/linky-lounge/book-club/intro-rules/question-sample-04.webp", caption: "4기에서 나눈 질문" },
+]
 
 const VARIANTS = [
   {
@@ -145,6 +162,173 @@ function ExposeVariant() {
   )
 }
 
+// ── 2안 전용: 질문 샘플 썸네일 4장 + 후기 모달과 완전히 동일한 갤러리 모달 ──
+// (rstyles·useZoomGesture 는 ReviewsSection.tsx 를 그대로 가져다 씀 — 핀치줌·
+//  스와이프·‹›·+/−·점 카운터까지 전부 동일 동작)
+function QuestionGallery() {
+  const [modalIdx, setModalIdx] = useState<number | null>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const swipeRef = useRef<{ x: number; y: number } | null>(null)
+  const zoom = useZoomGesture()
+  const SWIPE_PX = 45
+
+  function closeModal() {
+    setModalIdx(null)
+    zoom.reset()
+  }
+  function slideModal(dir: number) {
+    setModalIdx((m) => {
+      if (m === null) return m
+      const next = Math.min(SAMPLE_QUESTIONS.length - 1, Math.max(0, m + dir))
+      if (next !== m) zoom.reset()
+      return next
+    })
+  }
+
+  useEffect(() => {
+    if (modalIdx === null) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal()
+      else if (e.key === "ArrowRight") slideModal(1)
+      else if (e.key === "ArrowLeft") slideModal(-1)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener("keydown", onKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalIdx])
+
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el || modalIdx === null) return
+    const handler = (e: WheelEvent) => zoom.onWheel(e as unknown as React.WheelEvent)
+    el.addEventListener("wheel", handler, { passive: false })
+    return () => el.removeEventListener("wheel", handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalIdx])
+
+  function onStagePointerDown(e: React.PointerEvent) {
+    swipeRef.current = { x: e.clientX, y: e.clientY }
+    zoom.onPointerDown(e)
+  }
+  function onStagePointerMove(e: React.PointerEvent) {
+    zoom.onPointerMove(e)
+  }
+  function onStagePointerUp(e: React.PointerEvent) {
+    const result = zoom.onPointerUp(e, { pointerType: e.pointerType })
+    if (result.consumed) {
+      swipeRef.current = null
+      return
+    }
+    const start = swipeRef.current
+    swipeRef.current = null
+    if (!start) return
+    const dx = e.clientX - start.x
+    if (Math.abs(dx) >= SWIPE_PX) slideModal(dx < 0 ? 1 : -1)
+  }
+  function onStagePointerCancel(e: React.PointerEvent) {
+    swipeRef.current = null
+    zoom.onPointerCancel(e)
+  }
+
+  const modal = modalIdx !== null ? SAMPLE_QUESTIONS[modalIdx] : null
+
+  return (
+    <>
+      <div className={styles.qThumbs}>
+        {SAMPLE_QUESTIONS.map((q, i) => (
+          <button
+            key={q.id}
+            type="button"
+            className={styles.qThumb}
+            onClick={() => setModalIdx(i)}
+            aria-label={`${q.caption} 크게 보기`}
+          >
+            <Image src={q.img} alt={q.caption} fill sizes="90px" quality={85} draggable={false} />
+          </button>
+        ))}
+      </div>
+
+      {modal !== null && modalIdx !== null && (
+        <div
+          className={`${rstyles.lightbox} ${rstyles.lightboxRoot} ${zoom.zoomed ? rstyles.lightboxZoomed : ""}`}
+          onClick={closeModal}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${modal.caption} 확대 보기`}
+        >
+          <button type="button" className={rstyles.lightboxClose} aria-label="닫기" onClick={(e) => { e.stopPropagation(); closeModal() }}>×</button>
+
+          <div className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
+            <div
+              ref={stageRef}
+              className={`${rstyles.galleryStage} ${rstyles.zoomStage} ${zoom.zoomed ? rstyles.zoomStageZoomed : ""}`}
+              onPointerDown={onStagePointerDown}
+              onPointerMove={onStagePointerMove}
+              onPointerUp={onStagePointerUp}
+              onPointerCancel={onStagePointerCancel}
+            >
+              {SAMPLE_QUESTIONS.map((q, k) => {
+                const off = k - modalIdx
+                const isCur = k === modalIdx
+                return (
+                  <div
+                    key={`qslide-${q.id}`}
+                    data-slide-idx={k}
+                    className={`${rstyles.gallerySlideM} ${isCur ? rstyles.gallerySlideMActive : ""} ${isCur && zoom.zoomed ? rstyles.activeSlideZoomed : ""}`}
+                    ref={isCur ? zoom.frameRef : undefined}
+                    style={{
+                      transform: `translateX(calc(-50% + ${off} * (var(--slide-w) + 8px)))${isCur ? "" : " scale(0.94)"}`,
+                    }}
+                    aria-hidden={!isCur}
+                  >
+                    <div ref={isCur ? zoom.layerRef : undefined} className={rstyles.zoomLayer}>
+                      <Image src={q.img} alt={q.caption} fill sizes="(min-width: 721px) 80vw, 92vw" quality={90} draggable={false} priority={isCur} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button
+              type="button"
+              className={`${rstyles.galleryNav} ${rstyles.galleryNavLeft}`}
+              onClick={(e) => { e.stopPropagation(); slideModal(-1) }}
+              disabled={modalIdx === 0}
+              aria-label="이전 질문"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              className={`${rstyles.galleryNav} ${rstyles.galleryNavRight}`}
+              onClick={(e) => { e.stopPropagation(); slideModal(1) }}
+              disabled={modalIdx === SAMPLE_QUESTIONS.length - 1}
+              aria-label="다음 질문"
+            >
+              ›
+            </button>
+
+            <div className={rstyles.zoomControls} onClick={(e) => e.stopPropagation()}>
+              <button type="button" className={rstyles.zoomBtn} onClick={() => zoom.stepZoom(-1)} aria-label="축소">−</button>
+              <button type="button" className={rstyles.zoomBtn} onClick={() => zoom.stepZoom(1)} aria-label="확대">+</button>
+            </div>
+          </div>
+
+          <div className={rstyles.lightboxCaption}>
+            <span>{modal.caption}</span>
+            <span className={rstyles.lightboxCounter}>{modalIdx + 1} / {SAMPLE_QUESTIONS.length}</span>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 // ── 2. 완전 게이팅 — 제목의 약속(티저)을 클릭으로 지킴 ──────────────
 function GateVariant() {
   const [revealed, setRevealed] = useState(false)
@@ -162,6 +346,8 @@ function GateVariant() {
           <div className={styles.gateReveal}>
             <RuleLines />
             <DocLink onOpen={() => setOpen(true)} />
+            <p className={styles.qLabel}>기수별로 실제 나눴던 질문들이에요</p>
+            <QuestionGallery />
           </div>
         )}
       </div>

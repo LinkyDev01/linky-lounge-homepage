@@ -8,6 +8,7 @@ import { HeroSummary } from "./HeroSummary"
 import { BookSectionV2 } from "./BookSectionV2"
 import { FeatureQuietSection } from "./FeatureQuietSection"
 import { HowToBrief } from "../HowToBrief"
+import { IntroRuleLab } from "./IntroRuleLab"
 import { ScheduleSectionV2 } from "./ScheduleSectionV2"
 import { ReviewsSection } from "../ReviewsSection"
 import { ScenesSection } from "./ScenesSection"
@@ -68,12 +69,10 @@ export default function PreviewLandingPage() {
           <BookSectionV2 />
           {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
           {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}
-          <div className={shell.featureBand}>
-            <FeatureQuietSection />
-            <div className={shell.briefWrap}>
-              <HowToBrief />
-            </div>
-          </div>
+          {/* 모임소개 밴드 — 자기소개 규칙 시안 6개를 이 안에서 갈아 끼울 수 있게
+              IntroRuleLab 이 감싼다 (프리뷰 전용 도구, 채택 후 걷어냄).
+              0안 = 실사이트 현행 배치 그대로라 비교 기준선이 된다. */}
+          <IntroRuleLab feature={<FeatureQuietSection />} brief={<HowToBrief />} />
           <ScheduleSectionV2 />
           <ReviewsSection />
           {/* 장면들(SCENES): 사진 콜라주 (프리뷰 전용, 2026-07-07 신설) — scenes-config가 비면 미렌더.

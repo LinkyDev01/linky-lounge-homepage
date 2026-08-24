@@ -77,9 +77,12 @@ export default function StudyForeignPage() {
             HowToBrief 는 삭제하지 않고 고아 보존 — 되돌릴 땐 briefWrap 을 되살리면 된다.
             배경 교차는 2026-08-24 전면 재배열: 책B → 모임소개A → 진행방식B → 일정A →
             후기B → FAQ A → 클로징B (운영자 "섹션 컬러도 다시 재배열해") */}
-        <div className={shell.featureBand}>
-          <FeatureQuietSection />
-        </div>
+        {/* featureBand 래퍼는 제거 (2026-08-24 여백 수리) — 래퍼의
+            `> section { padding-bottom: 0 }` 이 섹션 자체 하단 패딩(72px)을 죽이는데,
+            숨구멍을 대신 주던 briefWrap(56px)이 5안 승격으로 빠지면서 '이어 읽기'가
+            섹션 경계에 붙었다 (운영자 "이어 읽기 아래 섹션여백 없는 문제").
+            섹션 자체 배경(A)·패딩이 있어 래퍼 없이 성립한다. */}
+        <FeatureQuietSection />
         <ProcessSection />
         <ScheduleSection />
         {/* 후기(멤버들이 남긴 문장) — 프리뷰 확정 디자인 이식, FAQ 바로 위 (운영자 지시 2026-07-21). 실물 사진 업로드 대기 */}

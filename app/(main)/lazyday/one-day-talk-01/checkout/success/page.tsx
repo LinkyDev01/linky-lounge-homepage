@@ -407,7 +407,9 @@ function PostPayApplyForm({
       return
     }
 
-    trackStandard("Lead", { content_name: "OneDayTalk_신청완료" })
+    // 세 번째 인자는 서버 미러(전환 API) 전용 — 픽셀 파라미터는 불변.
+    // orderId 는 이 사이트에서 유일한 내부 식별자라 external_id 로 쓴다(서버에서 해싱)
+    trackStandard("Lead", { content_name: "OneDayTalk_신청완료" }, { phone, externalId: orderId })
     trackEvent("oneday_apply_complete", { program: "book_club" })
     setLoading(false)
     onDone()

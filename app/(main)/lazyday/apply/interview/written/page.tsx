@@ -249,12 +249,16 @@ export default function WrittenInterviewPage() {
     //  ⚠ 재제출(서버가 duplicate 로 응답)이면 쏘지 않는다 — 한 사람의 인터뷰 확정이
     //    전환 2건으로 잡히면 광고 최적화가 왜곡된다.
     if (!sim && !duplicateRef.current) {
-      trackStandard("CompleteRegistration", {
-        content_name: "lazyday_bookclub_4",
-        status: true,
-        value: 150000, // season-config 의 4기 참가비 150,000원과 일치
-        currency: "KRW",
-      })
+      trackStandard(
+        "CompleteRegistration",
+        {
+          content_name: "lazyday_bookclub_4",
+          status: true,
+          value: 150000, // season-config 의 4기 참가비 150,000원과 일치
+          currency: "KRW",
+        },
+        { phone }, // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변
+      )
     }
     try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
     setSubmitted(true)

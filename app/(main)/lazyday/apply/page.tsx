@@ -285,7 +285,8 @@ export default function ApplyPage() {
 
     // content_name 을 기수 식별자로 (운영자 2026-08-18) — 광고 리포트에서 기수별로
     // 갈라 보려면 값이 코드화돼 있어야 한다. 발화 위치·조건은 종전 그대로(서버 접수 성공 후).
-    trackStandard("Lead", { content_name: "lazyday_bookclub_4" })
+    // 세 번째 인자는 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변이다
+    trackStandard("Lead", { content_name: "lazyday_bookclub_4" }, { phone })
     trackEvent("apply_complete", { program: "book_club" })
     setSubmitted(true)
   }

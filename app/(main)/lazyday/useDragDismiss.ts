@@ -3,40 +3,47 @@
 import { useEffect, useRef } from "react"
 
 /**
- * 모달 세로 드래그 탈출 (2026-08-24, 운영자 지시).
+ * 모달 드래그 탈출 (2026-08-24, 운영자 지시).
  *
  * "모바일 기준 한 손가락 상하 방향으로 튕기면 다시 나가지게 —
  *  바깥을 클릭해야 하는 건 갇힌 느낌이야. 확대하지 않더라도 이미지 이동으로써
- *  이미지가 움직이고 그 상태에서 일정 정도 이하면 복귀, 이상이면 모달 탈출"
+ *  이미지가 움직이고 그 상태에서 일정 정도 이하면 복귀 이상이면 모달 탈출"
  *
- * 인스타그램 사진 뷰어 문법: 비확대 상태에서 한 손가락 세로 드래그를 이미지가
- * 따라오고(배경은 비례해 옅어짐), 놓는 순간 거리·속도가 문턱을 넘으면 그 방향으로
- * 빠져나가며 닫히고, 못 넘으면 제자리로 스프링 복귀한다. 위·아래 모두 탈출.
+ * 인스타그램 사진 뷰어 문법: 비확대 상태에서 한 손가락 드래그를 이미지가
+ * 따라오고(배경은 비례해 옅어짐), 놓는 순간 거리·속도가 문턱을 넘으면 그
+ * 방향으로 빠져나가며 닫히고, 못 넘으면 제자리로 스프링 복귀한다.
  *
- * 소비자 4곳: ReviewsSection · ProcessSection · lazyclub/RecordsLightbox
- * (셋은 useZoomGesture 와 병행 — 확대 상태에선 팬이 우선이므로 호출부가
- * `allowed=!zoom.zoomed` 로 끈다) · lounge-info/SpacesGallery(줌 없음, 단독).
+ * 두 축 모드:
+ *  · `vertical`(기본) — 위·아래만 탈출, 가로는 무시(슬라이드 넘김에 양보).
+ *    소비자: ReviewsSection · lazyclub/RecordsLightbox · lounge-info/SpacesGallery
+ *    · ProcessSection 의 레이지 노트(다장 갤러리 — 가로는 슬라이드 넘김).
+ *  · `omni` — 상하좌우 전방향 탈출. 넘길 슬라이드가 없는 **낱장 모달 전용**
+ *    (운영자 2026-08-24 "자기소개 규칙은 낱장이므로 전방향 다 튕겨나가게").
+ *    소비자: ProcessSection 의 자기소개 규칙(단일 이미지).
  *
  * useZoomGesture 와 같은 설계: 제스처 중에는 ref 직접 변형(리렌더 없음),
  * React 상태 없음. 판정 상수는 실측 튜닝 값 — 근거 주석 참조.
  */
 
-/** 드래그 시작 판정 — 이 거리(px)를 넘고 세로 우세여야 드래그로 본다.
+export type DragAxis = "vertical" | "omni"
+
+/** 드래그 시작 판정 — 이 거리(px)를 넘어야 드래그로 본다.
  *  줌 엔진 TAP_SLOP(8)보다 크게 잡아 탭·더블탭 판정과 안 겹치게 한다. */
 const START_PX = 14
-/** 세로 우세 판정 배율 — |dy| > |dx|*1.2 (가로 스와이프=슬라이드 넘김과 분리) */
+/** vertical 모드 전용 — 세로 우세 판정 배율(가로 스와이프=슬라이드 넘김과 분리) */
 const AXIS_RATIO = 1.2
 /** 탈출 문턱: 거리(px) 또는 속도(px/ms). 둘 중 하나만 넘으면 탈출 —
- *  짧고 빠른 '튕김'은 속도로, 느리고 긴 끌기는 거리로 잡힌다. */
+ *  짧고 빠른 '튕김'은 속도로, 느리고 긴 끌기는 거리로 잡힌다.
+ *  omni 모드는 방향 벡터의 크기(반경/속력)로 같은 문턱을 쓴다. */
 const DISMISS_PX = 96
 const DISMISS_VEL = 0.55
 /** 속도 표본 창(ms) — 마지막 이 시간 안의 이동으로 놓는 순간의 속도를 잰다 */
 const VEL_WINDOW_MS = 90
-/** 배경 페이드 — 드래그 이 거리(px)에서 배경 알파가 최저 배율에 도달 */
+/** 배경 페이드 — 드래그 이 거리(px, omni 는 반경)에서 배경 알파가 최저 배율에 도달 */
 const FADE_RANGE_PX = 360
 const FADE_MIN = 0.35
 
-type Sample = { y: number; t: number }
+type Sample = { x: number; y: number; t: number }
 
 export function useDragDismiss(onDismiss: () => void) {
   const frameElRef = useRef<HTMLElement | null>(null)
@@ -46,7 +53,9 @@ export function useDragDismiss(onDismiss: () => void) {
     startX: number
     startY: number
     dragging: boolean
+    dx: number
     dy: number
+    axis: DragAxis
     samples: Sample[]
     veilBase: { r: number; g: number; b: number; a: number } | null
   } | null>(null)
@@ -97,15 +106,20 @@ export function useDragDismiss(onDismiss: () => void) {
       startX: e.clientX,
       startY: e.clientY,
       dragging: false,
+      dx: 0,
       dy: 0,
-      samples: [{ y: e.clientY, t: performance.now() }],
+      axis: "vertical",
+      samples: [{ x: e.clientX, y: e.clientY, t: performance.now() }],
       veilBase: null,
     }
   }
 
-  /** @param allowed 호출부의 허용 조건 — 줌 모달은 `!zoom.zoomed` 를 넘긴다
-   *  (확대 상태의 세로 이동은 팬이므로 여기가 가로채면 안 된다) */
-  function onMove(e: React.PointerEvent, allowed: boolean) {
+  /**
+   * @param allowed 호출부의 허용 조건 — 줌 모달은 `!zoom.zoomed` 를 넘긴다
+   *   (확대 상태의 이동은 팬이므로 여기가 가로채면 안 된다)
+   * @param axis 'vertical'(기본) | 'omni' — 낱장 모달만 'omni'
+   */
+  function onMove(e: React.PointerEvent, allowed: boolean, axis: DragAxis = "vertical") {
     const st = state.current
     if (!st || pointerCount.current > 1) return
     const dx = e.clientX - st.startX
@@ -113,8 +127,13 @@ export function useDragDismiss(onDismiss: () => void) {
 
     if (!st.dragging) {
       if (!allowed) return
-      if (Math.abs(dy) < START_PX || Math.abs(dy) < Math.abs(dx) * AXIS_RATIO) return
+      if (axis === "omni") {
+        if (Math.hypot(dx, dy) < START_PX) return
+      } else {
+        if (Math.abs(dy) < START_PX || Math.abs(dy) < Math.abs(dx) * AXIS_RATIO) return
+      }
       st.dragging = true
+      st.axis = axis
       const veil = veilElRef.current
       if (veil) {
         const m = getComputedStyle(veil).backgroundColor.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/)
@@ -122,19 +141,21 @@ export function useDragDismiss(onDismiss: () => void) {
       }
     }
 
+    st.dx = dx
     st.dy = dy
     const now = performance.now()
-    st.samples.push({ y: e.clientY, t: now })
+    st.samples.push({ x: e.clientX, y: e.clientY, t: now })
     while (st.samples.length > 2 && now - st.samples[0].t > VEL_WINDOW_MS) st.samples.shift()
 
     const frame = frameElRef.current
     if (frame) {
       frame.style.transition = "none"
-      frame.style.transform = `translateY(${dy}px)`
+      frame.style.transform = st.axis === "omni" ? `translate(${dx}px, ${dy}px)` : `translateY(${dy}px)`
     }
     const veil = veilElRef.current
     if (veil && st.veilBase) {
-      const fade = 1 - Math.min(Math.abs(dy) / FADE_RANGE_PX, 1) * (1 - FADE_MIN)
+      const mag = st.axis === "omni" ? Math.hypot(dx, dy) : Math.abs(dy)
+      const fade = 1 - Math.min(mag / FADE_RANGE_PX, 1) * (1 - FADE_MIN)
       const { r, g, b, a } = st.veilBase
       veil.style.transition = "none"
       veil.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a * fade})`
@@ -154,8 +175,12 @@ export function useDragDismiss(onDismiss: () => void) {
 
     const now = performance.now()
     const oldest = st.samples[0]
-    const vel = oldest && now > oldest.t ? (e.clientY - oldest.y) / (now - oldest.t) : 0
-    const escape = Math.abs(st.dy) >= DISMISS_PX || Math.abs(vel) >= DISMISS_VEL
+    const dt = oldest && now > oldest.t ? now - oldest.t : 0
+    const velX = dt ? (e.clientX - oldest.x) / dt : 0
+    const velY = dt ? (e.clientY - oldest.y) / dt : 0
+    const dist = st.axis === "omni" ? Math.hypot(st.dx, st.dy) : Math.abs(st.dy)
+    const vel = st.axis === "omni" ? Math.hypot(velX, velY) : Math.abs(velY)
+    const escape = dist >= DISMISS_PX || vel >= DISMISS_VEL
 
     if (!escape) {
       resetStyles(true)
@@ -163,14 +188,26 @@ export function useDragDismiss(onDismiss: () => void) {
     }
 
     // 탈출 — 드래그(또는 튕김) 방향으로 마저 빠져나가며 닫힌다
-    const dir = (st.dy !== 0 ? Math.sign(st.dy) : Math.sign(vel)) || 1
     const frame = frameElRef.current
+    const veil = veilElRef.current
+    const vw = window.innerWidth || 800
+    const vh = window.innerHeight || 800
     if (frame) {
       frame.style.transition = "transform 0.18s ease-in, opacity 0.18s ease-in"
-      frame.style.transform = `translateY(${dir * (window.innerHeight || 800)}px)`
+      if (st.axis === "omni") {
+        // 이동 방향(느리면 드래그 벡터, 빠르면 속도 벡터)으로 화면 밖까지 밀어낸다
+        const useVel = vel > (dist / Math.max(1, dt)) // 속도 판정이 거리 판정보다 우세했으면 속도 방향 사용
+        const dirX = useVel ? velX : st.dx
+        const dirY = useVel ? velY : st.dy
+        const norm = Math.hypot(dirX, dirY) || 1
+        const reach = Math.hypot(vw, vh)
+        frame.style.transform = `translate(${(dirX / norm) * reach}px, ${(dirY / norm) * reach}px)`
+      } else {
+        const dir = (st.dy !== 0 ? Math.sign(st.dy) : Math.sign(velY)) || 1
+        frame.style.transform = `translateY(${dir * vh}px)`
+      }
       frame.style.opacity = "0"
     }
-    const veil = veilElRef.current
     if (veil && st.veilBase) {
       const { r, g, b } = st.veilBase
       veil.style.transition = "background-color 0.18s ease-in"

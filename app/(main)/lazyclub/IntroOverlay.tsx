@@ -28,17 +28,11 @@
  */
 
 import { useEffect, useState } from "react"
-import { HOT, INITIAL, stateAt, T } from "./intro-core"
+import { HOT, INITIAL, INTRO_SEEN_KEY, markIntroSeen, stateAt, T } from "./intro-core"
 import { BASE } from "./base-path"
 import mark from "./coming-soon/coming-soon.module.css"
 import styles from "./intro-overlay.module.css"
 
-/** 관람 기록 — **탭 세션** 단위다(영구 저장 아님). 운영자 정정 2026-08-22:
- *  "뜨긴 떠야지 / 도메인 안에서 이동할 때만 안 뜨게" — 즉 '평생 1회'가 아니라
- *  '방문 1회'다. 밖에서 들어올 때(인스타 링크·북마크·새 탭)마다 다시 재생되고,
- *  사이트 안에서 페이지를 옮길 때만 잠잠하다. localStorage 였다면 한 번 본 사람에게는
- *  영영 안 떴다 — 그게 운영자가 지적한 문제다 */
-const SEEN_KEY = "lzc-intro-seen"
 
 export function IntroOverlay() {
   const [seed, setSeed] = useState<number | null>(null)
@@ -59,8 +53,8 @@ export function IntroOverlay() {
     const q = new URLSearchParams(window.location.search)
     if (q.get("t") !== null || q.get("still") !== null) return uncover()
     try {
-      if (sessionStorage.getItem(SEEN_KEY)) return uncover()
-      sessionStorage.setItem(SEEN_KEY, "1") // 재생을 시작하는 순간 기록 — 도중에 이탈해도 1회로 친다
+      if (sessionStorage.getItem(INTRO_SEEN_KEY)) return uncover()
+      markIntroSeen() // 재생을 시작하는 순간 기록 — 도중에 이탈해도 1회로 친다
     } catch {
       return uncover() // 저장할 수 없는 환경(프라이빗 모드 등)에선 매번 뜨느니 재생하지 않는다
     }

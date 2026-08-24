@@ -35,22 +35,85 @@ function newEventId(): string {
 }
 
 /**
+ * 서버 미러(전환 API)로만 보내는 부가 정보.
+ * ⚠ fbq 페이로드에는 **절대 섞이지 않는다** — 브라우저 픽셀의 파라미터는 불변이어야 한다.
+ */
+export type CapiExtra = {
+  /** 전화번호 원문. 같은 오리진 HTTPS 로만 가고 서버가 즉시 SHA-256 해싱한다 */
+  phone?: string
+  /** 내부 식별자(현재는 원데이 토크 orderId) — 서버에서 해싱 */
+  externalId?: string
+}
+
+/**
+ * 전환 API 서버 미러 (2026-08-24).
+ *
+ * fbq 와 **같은 event_id** 를 같은 페이로드에 실어 `/api/capi` 로 보낸다 — Meta 는 이
+ * 값이 같은 브라우저·서버 쌍을 한 건으로 합치므로 이중 집계가 되지 않는다.
+ * 차단기가 `fbevents.js` 를 막아 픽셀 요청이 죽어도 이쪽은 같은 오리진이라 살아 나간다.
+ *
+ * ⚠ fire-and-forget — 절대 await 하지 않는다. 폼 제출이 이것 때문에 지연되면 안 된다.
+ * ⚠ sendBeacon 을 먼저 쓰는 이유: 링크 이동으로 문서가 버려져도 전송이 살아남는다
+ *   (`<a>` 기본 이동이 픽셀 요청을 취소했던 2026-08-18 사례와 같은 함정).
+ *   반환 false 는 브라우저 큐가 찼다는 뜻이라 fetch(keepalive) 로 폴백한다.
+ */
+function mirror(event: string, params: PixelParams, eventID: string, extra?: CapiExtra) {
+  try {
+    const body = JSON.stringify({
+      event_name: event,
+      event_id: eventID,
+      event_time: Date.now(), // ms — 서버가 초로 바꾼다
+      url: location.href, // event_source_url + fbclid 파싱 소스
+      custom_data: params,
+      ...(extra?.phone || extra?.externalId
+        ? { user: { phone: extra.phone, external_id: extra.externalId } }
+        : {}),
+    })
+    if (
+      typeof navigator !== "undefined" &&
+      navigator.sendBeacon &&
+      navigator.sendBeacon("/api/capi", new Blob([body], { type: "application/json" }))
+    ) {
+      return
+    }
+    void fetch("/api/capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    })
+  } catch {
+    // 미러 실패는 사용자 흐름·픽셀에 영향을 주지 않는다
+  }
+}
+
+/**
  * 표준 이벤트. 발화하면 그 이벤트의 eventID 를 돌려준다 —
  * 호출부가 서버로 같이 넘겨야 할 때 쓴다. 픽셀이 없으면(=이 도메인에서 미로드)
  * 아무 일도 하지 않고 null.
+ *
+ * 세 번째 인자는 서버 미러 전용 부가 정보(선택) — 전화번호를 아는 지점만 넘긴다.
+ * ⚠ 미러는 이 함수 안에서만 일어난다. 그래야 호출부의 발화 조건(sim 가드,
+ *   재제출 중복 차단 등)을 **그대로 상속**하고 우회가 생기지 않는다.
  */
-export function trackStandard(event: FbqStandard, params?: PixelParams): string | null {
+export function trackStandard(
+  event: FbqStandard,
+  params?: PixelParams,
+  capi?: CapiExtra,
+): string | null {
   if (typeof window === "undefined" || !window.fbq) return null
   const eventID = newEventId()
   window.fbq("track", event, params ?? {}, { eventID })
+  mirror(event, params ?? {}, eventID, capi)
   return eventID
 }
 
-/** 커스텀 이벤트 — 표준과 같은 규칙으로 eventID 를 붙인다 */
-export function trackCustom(event: string, params?: PixelParams): string | null {
+/** 커스텀 이벤트 — 표준과 같은 규칙으로 eventID 를 붙이고 서버로 미러한다 */
+export function trackCustom(event: string, params?: PixelParams, capi?: CapiExtra): string | null {
   if (typeof window === "undefined" || !window.fbq) return null
   const eventID = newEventId()
   window.fbq("trackCustom", event, params ?? {}, { eventID })
+  mirror(event, params ?? {}, eventID, capi)
   return eventID
 }
 

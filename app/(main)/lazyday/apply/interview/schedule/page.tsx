@@ -406,12 +406,16 @@ export default function InterviewSchedulePage() {
         //    연타로 두 번 잡히지 않는다 — 두 번째는 success:false 로 떨어져 여기 못 온다.
         //  ⚠ 시뮬레이션은 위에서 먼저 return 하므로 여기 도달하지 않는다.
         if (!isRebooking) {
-          trackStandard("CompleteRegistration", {
-            content_name: "lazyday_bookclub_4",
-            status: true,
-            value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
-            currency: "KRW",
-          })
+          trackStandard(
+            "CompleteRegistration",
+            {
+              content_name: "lazyday_bookclub_4",
+              status: true,
+              value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
+              currency: "KRW",
+            },
+            { phone }, // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변
+          )
         }
         setConfirmed(selectedSlot)
         setSubmitted(true)

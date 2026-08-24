@@ -217,6 +217,43 @@
   color: #8a6a50;
 }
 
+/* ── 2안: 완전 게이팅 — CTA 버튼 + 펼침 ── */
+.gateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 10px 18px;
+  background: #d2691e;
+  border: 0;
+  border-radius: 999px;
+  color: #fffdf8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.gateBtn:hover { background: #b8571a; }
+.gateReveal {
+  animation: irdFade 0.3s ease;
+}
+
+/* ── 3안: 펀치라인만 게이팅 ── */
+.punchlineBtn {
+  display: inline;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px dashed rgba(210, 105, 30, 0.55);
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #6b5a48;
+  text-align: left;
+  cursor: pointer;
+}
+.punchlineBtn strong { color: #d2691e; font-weight: 800; }
+.punchlineBtn:hover { color: #4a3020; }
+
 /* C안 — 카드 안 취소선 헤드라인 */
 .strikeLineInCard {
   font-size: 19px;

@@ -2,22 +2,57 @@
    프리뷰 전용 스타일 — 기존 모듈에 없는 신규 요소만 정의
    ═══════════════════════════════════════════════════════════ */
 
-/* ── 프리뷰 안내 바 (임시 이동 버튼) ─────────────────────── */
-.previewBar {
+/* ── 프리뷰 안내 도구 (임시 이동) — 우측 가장자리 버튼→펼침 패널.
+   ⚠ 2026-08-24: 상단 고정 풀바였을 때 LandingShell 헤더(position:fixed,
+   top:0)와 같은 자리에서 겹쳐 헤더 상단이 가려졌다 — 레이아웃 공간을
+   차지하지 않는 우측 버튼으로 전환(PreviewBar.tsx 주석 참조). ── */
+.previewToggle {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 50%;
   right: 0;
+  transform: translateY(-50%);
   z-index: 300;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
+  padding: 10px 8px;
   background: #2b2119;
   color: #f5ede4;
-  font-size: 12px;
-  overflow-x: auto;
-  white-space: nowrap;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.25);
+}
+.previewToggle:hover { background: #3a2c20; }
+.previewPanel {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 168px;
+  padding: 10px;
+  background: #2b2119;
+  border-radius: 8px 0 0 8px;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.25);
+}
+.previewPanelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.previewPanelClose {
+  background: none;
+  border: none;
+  color: #e8dccb;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
 }
 .previewBadge {
   background: #d2691e;
@@ -30,11 +65,13 @@
   flex-shrink: 0;
 }
 .previewLink {
+  display: block;
   color: #e8dccb;
   text-decoration: none;
-  padding: 4px 8px;
+  font-size: 12px;
+  padding: 6px 8px;
   border-radius: 6px;
-  flex-shrink: 0;
+  white-space: nowrap;
 }
 .previewLink:hover { background: rgba(255, 255, 255, 0.1); }
 .previewLinkActive {
@@ -42,7 +79,6 @@
   color: #fff;
   font-weight: 600;
 }
-.previewBarSpacer { height: 34px; }
 
 /* ── 히어로 핵심 요약 (절제된 타이포 — 배지·이모지 없음) ──
    섹션 색 교차(포스터 아래 밴드는 짙은 베이지)로 아래 선정도서(#f5ede4)와 대비 */
@@ -489,8 +525,11 @@
 /* ── 데스크톱 여백 세로 타이포 장식: 제거됨 (운영자 결정 2026-07-03) ── */
 .desktopFrame { position: relative; }
 
-/* 내비 클릭 시 섹션 제목이 프리뷰 바 + 내비에 가리지 않도록 */
-.desktopFrame :global(section[id]) { scroll-margin-top: 96px; }
+/* 2026-08-24: 프리뷰 바가 우측 버튼(레이아웃 공간 미차지)으로 바뀌면서
+   상단 보정용 scroll-margin-top 오버라이드는 불필요해졌다 — 각 섹션이
+   이미 실사이트와 동일한 52px을 자체 보유(BookSection.module.css 등).
+   되살리지 말 것: 96px 오버라이드는 구 NavBarV2+상단 풀바 시절 값이라
+   지금 다시 켜면 LandingShell 헤더 높이와 안 맞아 앵커가 어긋난다. */
 
 /* ── 책 소개 V3: 옆이 보이는 스와이프 캐러셀 + 기수 필 ────── */
 .bookLead {

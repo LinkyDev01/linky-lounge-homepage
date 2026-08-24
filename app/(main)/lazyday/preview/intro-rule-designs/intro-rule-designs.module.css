@@ -345,6 +345,18 @@
   cursor: pointer;
 }
 
+/* ── 4·5안 (위계 라운드) ── */
+.subCtx {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #a08b70;
+  margin: 0;
+}
+.chipInline {
+  margin: 8px 0 0;
+  display: inline-block;
+}
+
 /* ── 배치 목업 (진행 순서 01~04 — 접힘 기본, FAQ 미니멀 라인 문법 값 복사) ── */
 .mock { margin-top: 44px; }
 .mockCaption {

@@ -65,7 +65,7 @@ const SAMPLE_QUESTIONS = [
 const VARIANTS = [
   {
     id: "expose",
-    name: "1. 완전 노출 (추천)",
+    name: "1. 완전 노출",
     title: "자기소개 규칙",
     ref: "레퍼런스: 모임소개 챕터의 콰이어트 노출 문법 — 게이팅 없이 전부 스크롤에 붙임",
     desc: "규칙 3줄을 스크롤 도달과 동시에 전부 보여줍니다. 제목은 담백하게 '자기소개 규칙' — 파격은 제목이 아니라 세 번째 규칙(거짓말 허용) 자체가 만듭니다. '원문 보기'는 호기심 게이트가 아니라 '진짜 있는 규칙'이라는 증빙으로 격하됩니다. 스크롤 흐름이 끊기지 않고, 안 눌러봐서 못 보는 사람이 없습니다.",
@@ -83,6 +83,23 @@ const VARIANTS = [
     title: "자기소개 규칙",
     ref: "레퍼런스: B(명함 지우기) 취소선 문법 + FAQ 접힘 — 두 안의 절충",
     desc: "제목은 담백하되, 안전한 규칙 1·2(공개/비밀 자유)는 바로 보여주고 진짜 파격인 규칙 3(거짓말 허용)만 취소선으로 가려 클릭해야 드러나게 합니다. 완전 노출의 '밋밋함'과 완전 게이팅의 '이탈'을 동시에 줄이는 절충안 — 스크롤만으로도 규칙 3개가 있다는 건 인지되고, 가장 세일즈포인트가 되는 한 줄에만 손이 가게 만듭니다.",
+  },
+  // ── 2026-08-24 위계 라운드 — 운영자 우려: "자기소개에 대한 큰 섹션 노출이 지나치지
+  //    않을까" (전체 랜딩 기준 + 해당 섹션 단독 기준 각각). 4·5안은 노출량이 아니라
+  //    **위계** 자체를 낮추는 안.
+  {
+    id: "subblock",
+    name: "4. 서브블록 (추천)",
+    title: "",
+    ref: "레퍼런스: 현행 모임소개 밴드 — 32px 섹션 제목 없이 카드만 챕터 뒤에 이어 붙임",
+    desc: "풀 섹션 위계를 포기하고 모임소개 밴드 안의 서브블록으로 격하합니다. 32px 제목·킥커가 빠져 세로 ~500px — '모임의 규칙 하나'라는 실제 위계와 노출 크기가 일치하고, 랜딩 섹션 수·배경 교차·내비가 전부 현행 그대로입니다. 취소선 카드가 밴드의 유일한 오브제라 눈에는 여전히 걸립니다.",
+  },
+  {
+    id: "process",
+    name: "5. 진행 방식 분리 섹션",
+    title: "진행 방식",
+    ref: "레퍼런스: 운영자 구상 — 진행 방식을 모임소개에서 분리, 정보는 이미지 모달로",
+    desc: "진행 방식을 별도 섹션으로 승격하고 자기소개 규칙은 01 단계 안으로 흡수합니다. 규칙 원문·기수별 질문이 전부 이미지 모달 뒤로 들어가 화면 노출은 최소, 정보는 최대. 다만 랜딩 최상위 섹션이 하나 늘어 배경 A/B 재배정과 내비 탭 추가 검토가 필요합니다 — 채택 시 별도 항목으로 보고드립니다.",
   },
 ] as const
 
@@ -165,7 +182,7 @@ function ExposeVariant() {
 // ── 2안 전용: 질문 샘플 썸네일 4장 + 후기 모달과 완전히 동일한 갤러리 모달 ──
 // (rstyles·useZoomGesture 는 ReviewsSection.tsx 를 그대로 가져다 씀 — 핀치줌·
 //  스와이프·‹›·+/−·점 카운터까지 전부 동일 동작)
-function QuestionGallery() {
+function QuestionGallery({ trigger = "thumbs" }: { trigger?: "thumbs" | "chip" }) {
   const [modalIdx, setModalIdx] = useState<number | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
@@ -239,19 +256,25 @@ function QuestionGallery() {
 
   return (
     <>
-      <div className={styles.qThumbs}>
-        {SAMPLE_QUESTIONS.map((q, i) => (
-          <button
-            key={q.id}
-            type="button"
-            className={styles.qThumb}
-            onClick={() => setModalIdx(i)}
-            aria-label={`${q.caption} 크게 보기`}
-          >
-            <Image src={q.img} alt={q.caption} fill sizes="90px" quality={85} draggable={false} />
-          </button>
-        ))}
-      </div>
+      {trigger === "thumbs" ? (
+        <div className={styles.qThumbs}>
+          {SAMPLE_QUESTIONS.map((q, i) => (
+            <button
+              key={q.id}
+              type="button"
+              className={styles.qThumb}
+              onClick={() => setModalIdx(i)}
+              aria-label={`${q.caption} 크게 보기`}
+            >
+              <Image src={q.img} alt={q.caption} fill sizes="90px" quality={85} draggable={false} />
+            </button>
+          ))}
+        </div>
+      ) : (
+        <button type="button" className={`${styles.docLink} ${styles.chipInline}`} onClick={() => setModalIdx(0)}>
+          기수별 질문 샘플 보기
+        </button>
+      )}
 
       {modal !== null && modalIdx !== null && (
         <div
@@ -393,6 +416,75 @@ function PartialVariant() {
   )
 }
 
+// ── 4. 서브블록 (추천) — 섹션 제목·킥커 없이 모임소개 밴드에 카드만 이어 붙임 ──
+function SubBlockVariant() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div>
+      <p className={styles.subCtx}>
+        ↑ 모임소개 네 번째 챕터(&lsquo;대화에만 온전히 몰입할 수 있는 공간에서&rsquo;)가
+        끝난 자리 — 32px 섹션 제목 없이 카드만 이어집니다
+      </p>
+      <div className={styles.paperCard}>
+        <span className={styles.tape} aria-hidden />
+        <p className={styles.strikeLineInCard}>
+          <s>나이</s> · <s>직업</s> · <s>학력</s>
+        </p>
+        <p className={styles.cardLead}>{LEAD}</p>
+        <RuleLines />
+        <DocLink onOpen={() => setOpen(true)} />
+      </div>
+      {open && <DocModal onClose={() => setOpen(false)} />}
+    </div>
+  )
+}
+
+// ── 5. 진행 방식 분리 섹션 — 규칙·질문은 전부 이미지 모달 뒤로 (운영자 구상) ──
+function ProcessSectionVariant() {
+  const [docOpen, setDocOpen] = useState(false)
+  const steps = [
+    {
+      n: "01",
+      label: "자기소개",
+      desc: "조금 특별한 규칙의 방식대로, 원하는 모습으로 자신을 소개합니다.",
+      extra: (
+        <button type="button" className={`${styles.docLink} ${styles.chipInline}`} onClick={() => setDocOpen(true)}>
+          자기소개 규칙 보기
+        </button>
+      ),
+    },
+    {
+      n: "02",
+      label: "오프닝, 질문 1~3",
+      desc: "레이지데이가 제시하는 주제를 바탕으로 대화를 시작합니다.",
+      extra: <QuestionGallery trigger="chip" />,
+    },
+    { n: "03", label: "서로의 페이지", desc: "각자 가져온 문장이나 질문을 중심으로 대화를 이어갑니다.", extra: null },
+    { n: "04", label: "마무리", desc: "사유를 넓혀준 이야기를 나누며 마무리합니다.", extra: null },
+  ]
+  return (
+    <div>
+      <div className={styles.mockSteps}>
+        {steps.map((s) => (
+          <div key={s.n} className={styles.mockStep}>
+            <span className={styles.mockNum}>{s.n}</span>
+            <span>
+              <span className={styles.mockLabel}>{s.label}</span>
+              <span className={styles.mockDesc}>{s.desc}</span>
+              {s.extra}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className={styles.subCtx}>
+        규칙 원문·기수별 질문이 전부 이미지 모달 — 화면에는 4단계 골격만 남습니다.
+        모임소개 밴드의 진행 순서는 이 섹션으로 이사하고 밴드에서는 빠집니다.
+      </p>
+      {docOpen && <DocModal onClose={() => setDocOpen(false)} />}
+    </div>
+  )
+}
+
 // ── 배치 목업: 진행 순서 01~04 — 접힘 기본 (운영자 2026-08-24: "클릭한 사람만
 //    명시화해서 볼 수 있고, 불필요한 정보를 줄이고자") · FAQ 미니멀 라인 문법
 //    (괘선 + '+' 45° 회전 + grid-rows 애니) — 카드 안 '원문 보기' 링크와 시각 구분 ──
@@ -439,7 +531,7 @@ function PlacementMock() {
 }
 
 export default function IntroRuleDesignsPage() {
-  const [variant, setVariant] = useState<VariantId>("expose")
+  const [variant, setVariant] = useState<VariantId>("subblock")
   const meta = VARIANTS.find((v) => v.id === variant)!
 
   return (
@@ -447,10 +539,10 @@ export default function IntroRuleDesignsPage() {
       <div className={styles.frame}>
         <h1 className={styles.pageTitle}>자기소개 규칙 — 제목↔노출 구조 시안</h1>
         <p className={styles.pageSub}>
-          &lsquo;티저 제목이면 게이팅, 완전 노출이면 담백한 제목&rsquo;이라는 원칙 아래
-          세 조합을 비교합니다. 스타일(카드·취소선)은 공통이고 제목과 노출 방식만
-          다릅니다. 위 버튼으로 전환하고, &lsquo;규칙 원문 보기&rsquo;로 모달(구글
-          드라이브 최신 이미지)까지 확인해 보세요.
+          1~3안은 제목↔노출량 조합, 4~5안은 <strong>위계</strong> 조정안입니다 —
+          &ldquo;자기소개에 큰 섹션 노출이 지나치지 않나&rdquo;라는 우려(2026-08-24)에
+          대한 응답으로, 4안은 섹션 제목을 없애 모임소개 안 서브블록으로, 5안은 진행
+          방식을 별도 섹션으로 분리하고 규칙·질문을 전부 이미지 모달 뒤로 보냅니다.
         </p>
 
         <div className={styles.switcher}>
@@ -472,15 +564,19 @@ export default function IntroRuleDesignsPage() {
         </div>
 
         <div className={styles.demoBand}>
-          <div className={styles.titleRow}>
-            <h2 className={styles.sectionTitle}>{meta.title}</h2>
-          </div>
+          {meta.title && (
+            <div className={styles.titleRow}>
+              <h2 className={styles.sectionTitle}>{meta.title}</h2>
+            </div>
+          )}
 
           {variant === "expose" && <ExposeVariant />}
           {variant === "gate" && <GateVariant />}
           {variant === "partial" && <PartialVariant />}
+          {variant === "subblock" && <SubBlockVariant />}
+          {variant === "process" && <ProcessSectionVariant />}
 
-          <PlacementMock />
+          {variant !== "process" && <PlacementMock />}
         </div>
       </div>
     </div>

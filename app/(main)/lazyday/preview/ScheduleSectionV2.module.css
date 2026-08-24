@@ -6,12 +6,10 @@
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  /* 배경 A→B 재배정 (2026-08-24) — 실사이트 2026-08-17 재배정과 동일 사유:
-     진행방식(HowToBrief)이 모임소개 밴드로 흡수되며 모임소개(A)-일정 인접이
-     됐다. 프리뷰도 이번 아키텍처 재동기화로 같은 구조가 됐으므로 종전에 A를
-     유지하던 근거(DECISIONS 2026-08-17 "그쪽 랜딩은 아직 진행방식이 독립
-     섹션")가 사라져 실사이트와 같은 값으로 맞춘다 (운영자 확인 2026-08-24) */
-  background-color: #f0e9e0;
+  /* 배경 B → A 재배정 (운영자 2026-08-24 "섹션 컬러도 다시 재배열해") —
+     진행 방식 독립 섹션(B) 부활에 따른 전체 재편. 실사이트 쌍과 동일 값 —
+     드리프트 금지 (ScheduleSection.module.css 참조) */
+  background-color: #f7f3ee;
   padding: 56px var(--lz-gutter, 24px) 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
@@ -34,12 +32,16 @@
 }
 
 .sectionTitle {
-  font-size: 26px;
+  /* '함께 읽는 책' 서식으로 통일 (운영자 2026-08-24) — 실사이트 쌍과 동일 값 */
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
+}
+@media (max-width: 480px) {
+  .sectionTitle { font-size: 26px; }
 }
 
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */

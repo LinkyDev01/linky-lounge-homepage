@@ -8,16 +8,13 @@
    타이포는 howto-brief.module.css 값을 그대로 승계 (라벨형 번호 11px/0.22em,
    단계 제목 17px/700, 본문 명조 13px/1.9 justify).
 
-   ⚠ 배경은 A(#f7f3ee) — 모임소개 밴드와 같은 색이다. 이 섹션이 feature(A)와
-   schedule(B) 사이에 새로 끼어들기 때문에, B 를 주면 schedule 과 B-B 가 되고
-   A 를 주면 feature 와 이어진다. 후자를 골랐다: 시각적으로는 모임소개 밴드가
-   연장되고(구 HowToBrief 가 그 밴드 안에 있었으므로 현행과 같은 인상),
-   밴드 단위 교차 B-A-B-A-B-A 는 그대로 유지된다. 대안(process=B + schedule·
-   reviews·faq·closing 4개 전부 뒤집기)은 파급이 커 운영자 확인 대상.
+   배경 B(#f0e9e0) — 운영자 2026-08-24 "섹션 컬러도 다시 재배열해"에 따라
+   섹션 7개 완전 교차로 재편: 책B → 모임소개A → **진행방식B** → 일정A →
+   후기B → FAQ A → 클로징B.
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  background: #f7f3ee;
+  background: #f0e9e0;
   padding: 56px var(--lz-gutter, 24px) 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
@@ -50,12 +47,16 @@
   background: rgba(210, 105, 30, 0.6);
 }
 .title {
-  font-size: 26px;
+  /* '함께 읽는 책' 서식 그대로 — 32px/800, ≤480px 26px (운영자 2026-08-24 통일 지시) */
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
+}
+@media (max-width: 480px) {
+  .title { font-size: 26px; }
 }
 .meta {
   font-size: 12px;

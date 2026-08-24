@@ -48,16 +48,31 @@
 }
 
 .qtTitle {
-  /* '모임 소개' 제목 — 원본 회귀(22px 중앙, 괘선 없음) (운영자 지시 2026-07-07:
-     선정도서 크기까지 키웠다가 '조금 크다' → 원본으로 되돌림) */
+  /* '모임 소개' 제목 — '함께 읽는 책' 서식으로 통일 (운영자 2026-08-24,
+     실사이트 쌍과 동일 값 — 드리프트 금지). 구 22px 중앙(2026-07-07)은 대체됨. */
   /* 그리드 시안(--lz-qt-display: grid)에서 제목은 전 열 — block 모드에선 무시됨 */
   grid-column: 1 / -1;
-  font-size: 22px;
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
-  letter-spacing: -0.02em;
-  text-align: center;
-  margin: 0 0 52px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-align: left;
+  margin: 0 0 28px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.qtTitle::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 1.5px;
+  background-color: rgba(210, 105, 30, 0.6);
+}
+@media (max-width: 480px) {
+  .qtTitle { font-size: 26px; }
 }
 .qtChapter {
   /* 본문 폭 320px 복귀 (운영자 지시 2026-07-06) */

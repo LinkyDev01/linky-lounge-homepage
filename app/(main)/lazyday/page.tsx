@@ -75,7 +75,8 @@ export default function StudyForeignPage() {
             **독립 섹션 ProcessSection('진행 방식')** 으로 승격했다 — 4단계로 늘고
             (자기소개를 01 로 분리) 자기소개 규칙 원문·레이지 노트는 모달 뒤로 갔다.
             HowToBrief 는 삭제하지 않고 고아 보존 — 되돌릴 땐 briefWrap 을 되살리면 된다.
-            ⚠ ProcessSection 배경은 A(밴드와 같은 색) — 사유는 process-section.module.css 참조 */}
+            배경 교차는 2026-08-24 전면 재배열: 책B → 모임소개A → 진행방식B → 일정A →
+            후기B → FAQ A → 클로징B (운영자 "섹션 컬러도 다시 재배열해") */}
         <div className={shell.featureBand}>
           <FeatureQuietSection />
         </div>

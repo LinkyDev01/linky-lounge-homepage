@@ -561,9 +561,13 @@
    (이미지 비중은 낮추고 텍스트 영역 확보, 스와이프는 네이티브 스크롤 스냅) */
 .bookCarousel { position: relative; }
 .bookTrack {
-  display: flex;
+  /* 데스크톱 그리드 펼침 훅 — 실 BookSection.module.css 와 동일한 --lz-carousel-*
+     변수를 소비한다. shell 이 #book 스코프에 값을 주입(landing-shell.module.css)
+     하므로 기본값(현행 모바일 캐러셀)은 무변경, LandingShell 안에서만 확장된다. */
+  display: var(--lz-carousel-display, flex);
+  grid-template-columns: repeat(var(--lz-carousel-cols, 1), minmax(0, 1fr));
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--lz-carousel-gap, 8px);
   margin-top: 6px;
   padding: 14px 18px 10px;
   overflow-x: auto;
@@ -575,15 +579,15 @@
 /* 가운데 스냅 + 양끝에 이전/다음 카드가 ~10px 슬리버로 '존재만' 보임 */
 .bookCard {
   flex: 0 0 calc(100% - 36px);
-  max-width: 560px;
+  max-width: var(--lz-card, 560px);
   scroll-snap-align: center;
   background: #fffdf8;
   border: 1px solid #eee2d0;
   border-radius: 16px;
   padding: 22px 16px 20px;
-  opacity: 0.45;
-  transform: scale(0.94);
-  filter: blur(1px);
+  opacity: var(--lz-card-dim, 0.45);
+  transform: scale(var(--lz-card-scale, 0.94));
+  filter: var(--lz-card-blur, blur(1px));
   transform-origin: center top;
   transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease, box-shadow 0.35s ease;
   cursor: pointer;
@@ -601,7 +605,7 @@
   z-index: 5;
   width: 38px;
   height: 38px;
-  display: flex;
+  display: var(--lz-carousel-nav, flex);
   align-items: center;
   justify-content: center;
   background: rgba(255, 253, 248, 0.9);
@@ -616,7 +620,7 @@
 .bookChevronLeft  { left: 6px; }
 .bookChevronRight { right: 6px; }
 .bookDots {
-  display: flex;
+  display: var(--lz-carousel-nav, flex);
   justify-content: center;
   gap: 7px;
   margin-top: 14px;
@@ -646,7 +650,8 @@
   background: none;
   border: none;
   padding: 0;
-  cursor: pointer;
+  /* 그리드 모드(데스크톱)에선 눌러도 옮겨 갈 곳이 없다 — 실 BookSection 과 동일 처리 */
+  cursor: var(--lz-cover-cursor, pointer);
   text-align: center;
 }
 .coverThumb {
@@ -655,14 +660,14 @@
   object-fit: cover;
   border-radius: 3px;
   border: 2px solid transparent;
-  opacity: 0.55;
+  opacity: var(--lz-cover-dim, 0.55);
   box-shadow: 0 2px 8px rgba(74, 58, 42, 0.12);
   transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 .coverCellActive .coverThumb {
   opacity: 1;
-  transform: translateY(-3px);
-  border-color: #d2691e;
+  transform: translateY(var(--lz-cover-lift, -3px));
+  border-color: var(--lz-cover-mark, #d2691e);
 }
 .coverWeek {
   display: block;
@@ -670,7 +675,10 @@
   font-size: 11.5px;
   color: #a08b70;
 }
-.coverCellActive .coverWeek { color: #b8571a; font-weight: 700; }
+.coverCellActive .coverWeek {
+  color: var(--lz-cover-week, #b8571a);
+  font-weight: var(--lz-cover-week-weight, 700);
+}
 
 .bookDetailHead {
   display: flex;

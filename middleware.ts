@@ -28,6 +28,8 @@ const LAZYCLUB_HOME = `${LAZYCLUB_BASE}/all`
 /** URL 명명 규칙 확정 (2026-08-21): 슬러그 = **내비 라벨의 영문 대응어**.
  *  전체보기=all · 모임=meetings · 제품=products · 사람=people · 일정=schedule · 기록=records.
  *  개명 전 슬러그(shop/calendar/archive)와 구 트리 루트는 여기서 301 로 흡수한다 */
+// ⚠ 아래 두 표는 **301 원장**이다 — append-only, 청소 금지 (정본: docs/url-policy.md).
+// 지우는 순간 그 주소를 저장해 둔 사람이 404 를 본다. 개명 절차도 그 문서를 따를 것.
 const LAZYCLUB_RENAMED: Record<string, string> = {
   shop: "products",
   calendar: "schedule",

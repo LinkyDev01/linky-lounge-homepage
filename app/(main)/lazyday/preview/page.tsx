@@ -1,67 +1,84 @@
 import styles from "../page.module.css"
+import shell from "../landing-shell.module.css"
 import pstyles from "./preview.module.css"
-import { Footer } from "@/components/footer"
+import { LandingShell } from "../LandingShell"
+import { HashScrollOnLoad } from "../HashScrollOnLoad"
 import { HeroParallax } from "../HeroParallax"
-import { HowToSectionV2 } from "./HowToSectionV2"
-import { ScheduleSectionV2 } from "./ScheduleSectionV2"
-import { NavBarV2 } from "./NavBarV2"
 import { HeroSummary } from "./HeroSummary"
-import { FeatureQuietSection } from "./FeatureQuietSection"
-import { ReviewsSection } from "./ReviewsSection"
 import { BookSectionV2 } from "./BookSectionV2"
-import { FaqSectionV2 } from "./FaqSectionV2"
+import { FeatureQuietSection } from "./FeatureQuietSection"
+import { HowToBrief } from "../HowToBrief"
+import { ScheduleSectionV2 } from "./ScheduleSectionV2"
+import { ReviewsSection } from "../ReviewsSection"
 import { ScenesSection } from "./ScenesSection"
-import { ClosingSectionV2 } from "./ClosingSectionV2"
+import { FaqSectionV2 } from "./FaqSectionV2"
+import { SeasonCountCta, BrandCloseV2 } from "../SeasonCountCta"
+import { NextSeasonNotify } from "../NextSeasonNotify"
+import { SEASON } from "../season-config"
 import { StickyApplyButtonV2 } from "./StickyApplyButtonV2"
 import { SectionIndicator } from "../SectionIndicator"
 
 /**
- * ── 개선안 프리뷰 랜딩 (2026-07-03 피드백 반영) ──
- * 원본 대비 변경점:
- *  1. 히어로 아래 핵심 요약 — 절제된 타이포(배지·이모지 없음), D-day 자동 계산(마감 7/16)
- *  2. 내비게이션: '모임소개'→실제 소개 섹션, '후기' 탭 추가
- *  3. 모임 소개 아코디언: 요약 항상 노출 + '불균형의 균형' 카드
- *  4. 후기 섹션 (손글씨 후기 사진 스트립 — 현 디자인 유지 확정)
- *  5. 책 소개 V2: 커버 선택 + 카드 슬라이드 + 기수 탭(지난 기수는 클릭 시 열람)
- *  6. 스티키 CTA에 마감 D-day 자동 표기
- *  7. FAQ도 모임 소개와 동일한 '핵심 문장 상시 노출 + 페이드 힌트 + 더보기'
- *     구조로 실험(FaqSectionV2, 2026-07-03 제안) — 실사이트 미반영
- * 보류·제외된 것 (운영자 결정):
- *  · 잔여석 표기 제외 / 참가 안내(가격 상세)는 기존처럼 인터뷰 페이지에서만
- *  · 4기 알림 받기 보류 / PC 여백 세로 타이포 제거
+ * ── 개선안 프리뷰 랜딩 — 2026-08-24 아키텍처 재동기화 ──
+ *
+ * 실사이트가 2026-08-12(반응형 개편)·08-17(진행순서 흡수·후기 재배정) 두 차례
+ * 구조 변경을 겪는 동안 이 파일은 2026-07 상태로 멈춰 있었다(운영자 지적:
+ * "프리뷰페이지가 원본 페이지와 너무 많이 갭이 커져서"). 이번에 실사이트
+ * 현재 구조에 맞춰 재동기화 — 개별 V2 컴포넌트 내부 디자인은 손대지 않고
+ * **셸·조립 구조만** 맞췄다:
+ *  · 내비·푸터: 구 NavBarV2·Footer → LandingShell (레이지클럽 문법 셸, 실사이트 것을
+ *    직접 import — V2 없음. NavBarV2·Footer 는 다른 고아들과 같이 보존, 렌더 안 함)
+ *  · 진행 순서: 독립 섹션 HowToSectionV2 → 모임소개 밴드에 흡수된 HowToBrief
+ *    (실사이트 것을 직접 import. HowToSectionV2 는 고아 보존)
+ *  · 후기: "실물 사진 업로드 대기" 시절 플레이스홀더(구 preview/ReviewsSection,
+ *    ⚠️ 보존 모듈 삭제 금지)는 이미 오래전에 실물 사진+핀치줌으로 대체됐다 →
+ *    실사이트 ReviewsSection 을 직접 import
+ *  · 클로징: 구 ClosingSectionV2 → SeasonCountCta+BrandCloseV2 (실사이트 것을
+ *    직접 import. ClosingSectionV2 는 고아 보존)
+ *  · 섹션 순서·배경 교차를 실사이트와 동일하게: 책(B)→모임소개+진행순서(A)→
+ *    일정(B)→후기(A)→[ScenesSection]→FAQ(B)→클로징(A)
+ *
+ * ⚠ ScenesSection(A, #f7f3ee)은 실사이트에 대응 섹션이 없는 **프리뷰 전용 보류
+ *   항목**(사진 확보 대기) — 위치를 그대로 두었더니 앞의 후기(A)와 인접해 A-A
+ *   가 생겼다. 배경 재배정은 임의로 하지 않음(§3 규칙) — 운영자 확인 필요.
+ *
+ * 남겨둔 것(이번 라운드 범위 밖 — 개별 V2 내부 값 대조는 안 함):
+ *  BookSectionV2·ScheduleSectionV2·FeatureQuietSection·FaqSectionV2·
+ *  StickyApplyButtonV2 는 기존 그대로. 자체 디자인 포크라 실사이트 값과
+ *  달라도 정상(TSX 쌍 동기화 대상일 뿐 동일 컴포넌트가 아님).
  */
 export default function PreviewLandingPage() {
   return (
     <div className={pstyles.desktopFrame}>
-      <NavBarV2 />
-      <main className={styles.container} data-track-section="bookclub_home_preview">
-        <HeroParallax />
-        <HeroSummary />
-        <BookSectionV2 />
-        {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
-        {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}
-        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기'로 교체 (2026-07-06 확정) — FeatureBoxSectionV2는 보존 */}
-        <FeatureQuietSection />
-        {/* 진행 순서·일정/장소: 콰이어트 리스트로 개편 (2026-07-06 확정, 프리뷰 전용) — 원본은 V2 없이 직접 import하던 구조라 신설 */}
-        <HowToSectionV2 />
-        <ScheduleSectionV2 />
-        {/* 후기 → 장면들 → FAQ 순서 (운영자 확정 2026-07-07) — 배경 교차 B/A/B/A 완성 */}
-        <ReviewsSection />
-        {/* 장면들(SCENES): 사진 콜라주 (프리뷰 전용, 2026-07-07 신설) — scenes-config가 비면 미렌더. 실사이트 이식은 사진 확보+승인 대기 */}
-        <ScenesSection />
-        <FaqSectionV2 />
-        <ClosingSectionV2 />
-      </main>
-
-      {/* 실사이트 현행화: 우측 도트 인디케이터 — 실 컴포넌트 직접 사용 (HeroParallax 패턴) */}
+      <HashScrollOnLoad />
+      <LandingShell>
+        <main className={`${styles.container} ${shell.body}`} data-track-section="bookclub_home_preview">
+          <div className={shell.heroRow}>
+            <HeroParallax />
+            <HeroSummary />
+          </div>
+          <BookSectionV2 />
+          {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
+          {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}
+          <div className={shell.featureBand}>
+            <FeatureQuietSection />
+            <div className={shell.briefWrap}>
+              <HowToBrief />
+            </div>
+          </div>
+          <ScheduleSectionV2 />
+          <ReviewsSection />
+          {/* 장면들(SCENES): 사진 콜라주 (프리뷰 전용, 2026-07-07 신설) — scenes-config가 비면 미렌더.
+              실사이트 이식은 사진 확보+승인 대기. 위 주석 참조 — A-A 인접 발생 중 */}
+          <ScenesSection />
+          <FaqSectionV2 />
+          <SeasonCountCta />
+          {SEASON.status === "closedEarly" && <NextSeasonNotify />}
+          <StickyApplyButtonV2 />
+          <BrandCloseV2 />
+        </main>
+      </LandingShell>
       <SectionIndicator />
-      <StickyApplyButtonV2 />
-      <Footer
-        instagramUrl="https://instagram.com/lazyday_bookclub"
-        kakaoUrl="https://pf.kakao.com/_gixaAX"
-        policyLabel="이용약관"
-        privacyHref="/privacy"
-      />
     </div>
   )
 }

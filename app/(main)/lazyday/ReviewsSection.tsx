@@ -205,7 +205,8 @@ export function ReviewsSection() {
       <div className={rstyles.reviewsInner}>
         <FadeUp y={12} duration={0.9}>
           <div className={styles.titleRow}>
-            <h2 className={styles.sectionTitle}>멤버들이 남긴 문장</h2>
+            {/* 운영자 2026-08-24: "멤버들이 남긴 문장" → "후기" */}
+            <h2 className={styles.sectionTitle}>후기</h2>
           </div>
           <p className={rstyles.reviewsLead}>
             멤버들이 손으로 눌러 적어준 이야기들이에요.

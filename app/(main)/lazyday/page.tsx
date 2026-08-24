@@ -5,7 +5,7 @@ import { LandingShell } from "./LandingShell"
 import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
 import { HeroSummary } from "./HeroSummary"
-import { HowToBrief } from "./HowToBrief"
+import { ProcessSection } from "./ProcessSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSection } from "./BookSection"
@@ -71,12 +71,16 @@ export default function StudyForeignPage() {
             2026-08-17: 진행방식(HowToSection)이 **독립 섹션에서 이 밴드 하단 요약으로 접혀** 들어왔다
             (운영자 "별도로 상단 네비 메뉴까지 있을 정도로 중요해보이진 않아서 모임 소개 하단에 간략히").
             HowToSection 은 삭제하지 않고 고아 보존 — 되돌릴 땐 이 밴드를 풀고 다시 렌더하면 된다 */}
+        {/* 2026-08-24 (5안 확정): 진행 순서가 이 밴드 안 요약 블록(HowToBrief)에서
+            **독립 섹션 ProcessSection('진행 방식')** 으로 승격했다 — 4단계로 늘고
+            (자기소개를 01 로 분리) 자기소개 규칙 원문·레이지 노트는 모달 뒤로 갔다.
+            HowToBrief 는 삭제하지 않고 고아 보존 — 되돌릴 땐 briefWrap 을 되살리면 된다.
+            배경 교차는 2026-08-24 전면 재배열: 책B → 모임소개A → 진행방식B → 일정A →
+            후기B → FAQ A → 클로징B (운영자 "섹션 컬러도 다시 재배열해") */}
         <div className={shell.featureBand}>
           <FeatureQuietSection />
-          <div className={shell.briefWrap}>
-            <HowToBrief />
-          </div>
         </div>
+        <ProcessSection />
         <ScheduleSection />
         {/* 후기(멤버들이 남긴 문장) — 프리뷰 확정 디자인 이식, FAQ 바로 위 (운영자 지시 2026-07-21). 실물 사진 업로드 대기 */}
         <ReviewsSection />

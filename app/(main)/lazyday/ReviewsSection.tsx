@@ -6,6 +6,7 @@ import styles from "./FaqSection.module.css"
 import rstyles from "./ReviewsSection.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { useZoomGesture } from "./useZoomGesture"
+import { useDragDismiss } from "./useDragDismiss"
 
 /**
  * 후기 섹션 (실사이트) — 폴라로이드 카드 캐러셀(확정 디자인, DECISIONS 2026-07-04·07-07)
@@ -84,6 +85,8 @@ export function ReviewsSection() {
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
 
   const zoom = useZoomGesture()
+  // 세로 드래그 탈출 — 갇힌 느낌 해소 (운영자 2026-08-24, useDragDismiss 헤더 참조)
+  const drag = useDragDismiss(closeModal)
 
   // 스크롤 위치 → 활성 카드 동기화 (책 소개와 동일 로직)
   useEffect(() => {
@@ -164,16 +167,23 @@ export function ReviewsSection() {
   }, [modalIdx])
 
   // ── 모달 갤러리 포인터 인터랙션 — 확대 판정은 useZoomGesture 가 전담하고,
-  //    여기는 축소 상태의 스와이프 넘김·이웃 카드 이동만 처리한다. ──
+  //    여기는 축소 상태의 스와이프 넘김·이웃 카드 이동·세로 드래그 탈출만 처리한다. ──
   function onStagePointerDown(e: React.PointerEvent) {
     swipeRef.current = { x: e.clientX, y: e.clientY }
     zoom.onPointerDown(e)
+    drag.onDown(e)
   }
   function onStagePointerMove(e: React.PointerEvent) {
     zoom.onPointerMove(e)
+    // 세로 드래그 탈출 — 비확대 상태에서만 (확대 중 세로 이동은 팬)
+    drag.onMove(e, !zoom.zoomed)
   }
   function onStagePointerUp(e: React.PointerEvent) {
     const result = zoom.onPointerUp(e, { pointerType: e.pointerType })
+    if (drag.onUp(e).dragged) {
+      swipeRef.current = null
+      return
+    }
     if (result.consumed) {
       swipeRef.current = null
       return
@@ -196,6 +206,7 @@ export function ReviewsSection() {
   function onStagePointerCancel(e: React.PointerEvent) {
     swipeRef.current = null
     zoom.onPointerCancel(e)
+    drag.onCancel()
   }
 
   const modal = modalIdx !== null ? photoCards[modalIdx] : null
@@ -289,6 +300,7 @@ export function ReviewsSection() {
       {/* ── 모달 갤러리: 책소개 카드 문법 — 활성 카드 중앙 + 양옆 이웃 슬리버, 확대 상태에서도 넘김 ── */}
       {modal !== null && modalIdx !== null && (
         <div
+          ref={drag.veilRef}
           className={`${rstyles.lightbox} ${rstyles.lightboxRoot} ${zoom.zoomed ? rstyles.lightboxZoomed : ""}`}
           onClick={closeModal}
           role="dialog"
@@ -297,7 +309,7 @@ export function ReviewsSection() {
         >
           <button type="button" className={rstyles.lightboxClose} aria-label="닫기" onClick={(e) => { e.stopPropagation(); closeModal() }}>×</button>
 
-          <div className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
+          <div ref={drag.frameRef} className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
             <div
               ref={stageRef}
               className={`${rstyles.galleryStage} ${rstyles.zoomStage} ${zoom.zoomed ? rstyles.zoomStageZoomed : ""}`}

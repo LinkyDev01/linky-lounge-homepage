@@ -6,6 +6,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
 import s from "./process-section.module.css"
 import rstyles from "./ReviewsSection.module.css"
 import { useZoomGesture } from "./useZoomGesture"
+import { useDragDismiss } from "./useDragDismiss"
 
 /**
  * 진행 방식 — 독립 섹션 (5안 확정, 운영자 2026-08-24 "5안으로 확정해서 배포해").
@@ -56,6 +57,8 @@ function ShotModal({ shots, startIdx, onClose }: { shots: Shot[]; startIdx: numb
   const stageRef = useRef<HTMLDivElement>(null)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const zoom = useZoomGesture()
+  // 세로 드래그 탈출 — 갇힌 느낌 해소 (운영자 2026-08-24, useDragDismiss 헤더 참조)
+  const drag = useDragDismiss(onClose)
   const multi = shots.length > 1
 
   function slide(dir: number) {
@@ -96,9 +99,16 @@ function ShotModal({ shots, startIdx, onClose }: { shots: Shot[]; startIdx: numb
   function onDown(e: React.PointerEvent) {
     swipeRef.current = { x: e.clientX, y: e.clientY }
     zoom.onPointerDown(e)
+    drag.onDown(e)
+  }
+  function onMove(e: React.PointerEvent) {
+    zoom.onPointerMove(e)
+    // 세로 드래그 탈출 — 비확대 상태에서만 (확대 중 세로 이동은 팬)
+    drag.onMove(e, !zoom.zoomed)
   }
   function onUp(e: React.PointerEvent) {
     const result = zoom.onPointerUp(e, { pointerType: e.pointerType })
+    if (drag.onUp(e).dragged) { swipeRef.current = null; return }
     if (result.consumed) { swipeRef.current = null; return }
     const start = swipeRef.current
     swipeRef.current = null
@@ -111,6 +121,7 @@ function ShotModal({ shots, startIdx, onClose }: { shots: Shot[]; startIdx: numb
 
   return (
     <div
+      ref={drag.veilRef}
       className={`${rstyles.lightbox} ${rstyles.lightboxRoot} ${zoom.zoomed ? rstyles.lightboxZoomed : ""}`}
       onClick={onClose}
       role="dialog"
@@ -119,14 +130,14 @@ function ShotModal({ shots, startIdx, onClose }: { shots: Shot[]; startIdx: numb
     >
       <button type="button" className={rstyles.lightboxClose} aria-label="닫기" onClick={(e) => { e.stopPropagation(); onClose() }}>×</button>
 
-      <div className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
+      <div ref={drag.frameRef} className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
         <div
           ref={stageRef}
           className={`${rstyles.galleryStage} ${rstyles.zoomStage} ${zoom.zoomed ? rstyles.zoomStageZoomed : ""}`}
           onPointerDown={onDown}
-          onPointerMove={zoom.onPointerMove}
+          onPointerMove={onMove}
           onPointerUp={onUp}
-          onPointerCancel={(e) => { swipeRef.current = null; zoom.onPointerCancel(e) }}
+          onPointerCancel={(e) => { swipeRef.current = null; zoom.onPointerCancel(e); drag.onCancel() }}
         >
           {shots.map((sh, k) => {
             const off = k - idx

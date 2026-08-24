@@ -12,6 +12,7 @@
 import { useEffect, useRef } from "react"
 import Image from "next/image"
 import { useZoomGesture } from "@/app/(main)/lazyday/useZoomGesture"
+import { useDragDismiss } from "@/app/(main)/lazyday/useDragDismiss"
 import rstyles from "./records-lightbox.module.css"
 
 export type RecordItem = {
@@ -38,6 +39,8 @@ export function RecordsLightbox({
   const stageRef = useRef<HTMLDivElement>(null)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const zoom = useZoomGesture()
+  // 세로 드래그 탈출 — 갇힌 느낌 해소 (운영자 2026-08-24, useDragDismiss 헤더 참조)
+  const drag = useDragDismiss(close)
 
   function close() {
     onClose()
@@ -82,12 +85,19 @@ export function RecordsLightbox({
   function onStagePointerDown(e: React.PointerEvent) {
     swipeRef.current = { x: e.clientX, y: e.clientY }
     zoom.onPointerDown(e)
+    drag.onDown(e)
   }
   function onStagePointerMove(e: React.PointerEvent) {
     zoom.onPointerMove(e)
+    // 세로 드래그 탈출 — 비확대 상태에서만 (확대 중 세로 이동은 팬)
+    drag.onMove(e, !zoom.zoomed)
   }
   function onStagePointerUp(e: React.PointerEvent) {
     const result = zoom.onPointerUp(e, { pointerType: e.pointerType })
+    if (drag.onUp(e).dragged) {
+      swipeRef.current = null
+      return
+    }
     if (result.consumed) {
       swipeRef.current = null
       return
@@ -108,6 +118,7 @@ export function RecordsLightbox({
   function onStagePointerCancel(e: React.PointerEvent) {
     swipeRef.current = null
     zoom.onPointerCancel(e)
+    drag.onCancel()
   }
 
   const cur = items[index]
@@ -115,6 +126,7 @@ export function RecordsLightbox({
 
   return (
     <div
+      ref={drag.veilRef}
       className={`${rstyles.lightbox} ${rstyles.lightboxRoot} ${zoom.zoomed ? rstyles.lightboxZoomed : ""}`}
       onClick={close}
       role="dialog"
@@ -123,7 +135,7 @@ export function RecordsLightbox({
     >
       <button type="button" className={rstyles.lightboxClose} aria-label="닫기" onClick={(e) => { e.stopPropagation(); close() }}>×</button>
 
-      <div className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
+      <div ref={drag.frameRef} className={`${rstyles.galleryFrame} ${rstyles.galleryFrameZoom}`} onClick={(e) => e.stopPropagation()}>
         <div
           ref={stageRef}
           className={`${rstyles.galleryStage} ${rstyles.zoomStage} ${zoom.zoomed ? rstyles.zoomStageZoomed : ""}`}

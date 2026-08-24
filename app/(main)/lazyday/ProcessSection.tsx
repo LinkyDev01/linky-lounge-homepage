@@ -103,8 +103,12 @@ function ShotModal({ shots, startIdx, onClose }: { shots: Shot[]; startIdx: numb
   }
   function onMove(e: React.PointerEvent) {
     zoom.onPointerMove(e)
-    // 세로 드래그 탈출 — 비확대 상태에서만 (확대 중 세로 이동은 팬)
-    drag.onMove(e, !zoom.zoomed)
+    // 드래그 탈출 — 비확대 상태에서만 (확대 중 이동은 팬).
+    // 낱장(자기소개 규칙, multi===false)은 전방향 탈출 — 넘길 슬라이드가
+    // 없어 가로도 온전히 탈출에 쓸 수 있다(운영자 2026-08-24 "낱장이므로
+    // 전방향 다 튕겨나가게"). 다장(레이지 노트)은 가로를 슬라이드 넘김에
+    // 양보해야 하니 세로만.
+    drag.onMove(e, !zoom.zoomed, multi ? "vertical" : "omni")
   }
   function onUp(e: React.PointerEvent) {
     const result = zoom.onPointerUp(e, { pointerType: e.pointerType })

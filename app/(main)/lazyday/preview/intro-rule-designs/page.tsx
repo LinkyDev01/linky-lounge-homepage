@@ -101,6 +101,16 @@ const VARIANTS = [
     ref: "레퍼런스: 운영자 구상 — 진행 방식을 모임소개에서 분리, 정보는 이미지 모달로",
     desc: "진행 방식을 별도 섹션으로 승격하고 자기소개 규칙은 01 단계 안으로 흡수합니다. 규칙 원문·기수별 질문이 전부 이미지 모달 뒤로 들어가 화면 노출은 최소, 정보는 최대. 다만 랜딩 최상위 섹션이 하나 늘어 배경 A/B 재배정과 내비 탭 추가 검토가 필요합니다 — 채택 시 별도 항목으로 보고드립니다.",
   },
+  // ── 이중 박스 우려 라운드 — "자기소개와 질문을 모두 저런 식으로 한 박스씩
+  //    노출해도 괜찮을지" 에 대한 비교용: 박스 2개가 아니라 오브제 1개(카드) +
+  //    저무게 스트립(썸네일)로 위계를 차등하는 안.
+  {
+    id: "duo",
+    name: "6. 카드 + 질문 스트립",
+    title: "자기소개 규칙",
+    ref: "레퍼런스: 4안 + 2안의 썸네일 그리드 — 오브제는 1개 유지, 질문은 스트립으로",
+    desc: "규칙 카드(오브제)는 하나만 유지하고, 질문 샘플은 같은 무게의 두 번째 박스가 아니라 카드 아래 낮은 썸네일 스트립(~110px)으로 붙입니다. 두 셀링포인트가 다 스크롤에 노출되지만 시각 위계가 달라 '박스 2개' 부담이 없습니다. 스트립 클릭 시 후기 모달 UI로 확대 — 질문의 매력은 확대해서 읽을 때 전달되므로 스트립은 예고편 역할만 합니다.",
+  },
 ] as const
 
 type VariantId = (typeof VARIANTS)[number]["id"]
@@ -485,6 +495,30 @@ function ProcessSectionVariant() {
   )
 }
 
+// ── 6. 카드 + 질문 스트립 — 오브제 1개 + 저무게 썸네일 스트립으로 위계 차등 ──
+function DuoVariant() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div>
+      <Kicker />
+      <div className={styles.paperCard}>
+        <span className={styles.tape} aria-hidden />
+        <p className={styles.strikeLineInCard}>
+          <s>나이</s> · <s>직업</s> · <s>학력</s>
+        </p>
+        <p className={styles.cardLead}>{LEAD}</p>
+        <RuleLines />
+        <DocLink onOpen={() => setOpen(true)} />
+      </div>
+      <div className={styles.stripWrap}>
+        <p className={styles.qLabel}>기수별로 실제 나눴던 질문들이에요</p>
+        <QuestionGallery />
+      </div>
+      {open && <DocModal onClose={() => setOpen(false)} />}
+    </div>
+  )
+}
+
 // ── 배치 목업: 진행 순서 01~04 — 접힘 기본 (운영자 2026-08-24: "클릭한 사람만
 //    명시화해서 볼 수 있고, 불필요한 정보를 줄이고자") · FAQ 미니멀 라인 문법
 //    (괘선 + '+' 45° 회전 + grid-rows 애니) — 카드 안 '원문 보기' 링크와 시각 구분 ──
@@ -575,6 +609,7 @@ export default function IntroRuleDesignsPage() {
           {variant === "partial" && <PartialVariant />}
           {variant === "subblock" && <SubBlockVariant />}
           {variant === "process" && <ProcessSectionVariant />}
+          {variant === "duo" && <DuoVariant />}
 
           {variant !== "process" && <PlacementMock />}
         </div>

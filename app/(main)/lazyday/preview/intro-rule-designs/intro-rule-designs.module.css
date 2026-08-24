@@ -356,6 +356,11 @@
   margin: 8px 0 0;
   display: inline-block;
 }
+/* 6안 — 카드 아래 질문 썸네일 스트립 (카드 폭에 정렬) */
+.stripWrap {
+  max-width: 420px;
+  margin: 22px auto 0;
+}
 
 /* ── 배치 목업 (진행 순서 01~04 — 접힘 기본, FAQ 미니멀 라인 문법 값 복사) ── */
 .mock { margin-top: 44px; }

@@ -393,8 +393,11 @@ function PartialVariant() {
   )
 }
 
-// ── 배치 목업: 채택 시 바로 아래에 오는 진행 순서 01~04 (자기소개 분리) ──
+// ── 배치 목업: 진행 순서 01~04 — 접힘 기본 (운영자 2026-08-24: "클릭한 사람만
+//    명시화해서 볼 수 있고, 불필요한 정보를 줄이고자") · FAQ 미니멀 라인 문법
+//    (괘선 + '+' 45° 회전 + grid-rows 애니) — 카드 안 '원문 보기' 링크와 시각 구분 ──
 function PlacementMock() {
+  const [open, setOpen] = useState(false)
   const steps = [
     { n: "01", label: "자기소개", desc: "위 규칙의 방식대로, 원하는 모습으로 자신을 소개합니다.", isNew: true },
     { n: "02", label: "오프닝, 질문 1~3", desc: "레이지데이가 제시하는 주제를 바탕으로 대화를 시작합니다.", isNew: false },
@@ -404,20 +407,32 @@ function PlacementMock() {
   return (
     <div className={styles.mock}>
       <p className={styles.mockCaption}>
-        ↓ 채택 시 배치 — 규칙 블록 바로 아래 진행 순서가 01~04 로 (자기소개를 01 로 분리).
-        01 문안은 초안이며 확정 필요.
+        ↓ 채택 시 배치 — 진행 순서는 접힘 기본, 누른 사람에게만 01~04 를 펼쳐 보입니다
+        (자기소개를 01 로 분리). 01 문안은 초안이며 확정 필요.
       </p>
-      <div className={styles.mockSteps}>
-        <p className={styles.mockTitle}>진행 순서</p>
-        {steps.map((s) => (
-          <div key={s.n} className={`${styles.mockStep} ${s.isNew ? styles.mockStepNew : ""}`}>
-            <span className={styles.mockNum}>{s.n}</span>
-            <span>
-              <span className={styles.mockLabel}>{s.label}</span>
-              <span className={styles.mockDesc}>{s.desc}</span>
-            </span>
+      <button
+        type="button"
+        className={styles.stepsLine}
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className={styles.stepsLineTitle}>진행 순서</span>
+        <span className={`${styles.stepsPlus} ${open ? styles.stepsPlusOpen : ""}`} aria-hidden>+</span>
+      </button>
+      <div className={`${styles.stepsFold} ${open ? styles.stepsFoldOpen : ""}`}>
+        <div className={styles.stepsFoldInner}>
+          <div className={styles.mockSteps}>
+            {steps.map((s) => (
+              <div key={s.n} className={`${styles.mockStep} ${s.isNew ? styles.mockStepNew : ""}`}>
+                <span className={styles.mockNum}>{s.n}</span>
+                <span>
+                  <span className={styles.mockLabel}>{s.label}</span>
+                  <span className={styles.mockDesc}>{s.desc}</span>
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )

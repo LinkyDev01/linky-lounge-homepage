@@ -7,8 +7,7 @@ import { HeroParallax } from "../HeroParallax"
 import { HeroSummary } from "./HeroSummary"
 import { BookSectionV2 } from "./BookSectionV2"
 import { FeatureQuietSection } from "./FeatureQuietSection"
-import { HowToBrief } from "../HowToBrief"
-import { IntroRuleLab } from "./IntroRuleLab"
+import { ProcessSection } from "../ProcessSection"
 import { ScheduleSectionV2 } from "./ScheduleSectionV2"
 import { ReviewsSection } from "../ReviewsSection"
 import { ScenesSection } from "./ScenesSection"
@@ -29,14 +28,14 @@ import { SectionIndicator } from "../SectionIndicator"
  * **셸·조립 구조만** 맞췄다:
  *  · 내비·푸터: 구 NavBarV2·Footer → LandingShell (레이지클럽 문법 셸, 실사이트 것을
  *    직접 import — V2 없음. NavBarV2·Footer 는 다른 고아들과 같이 보존, 렌더 안 함)
- *  · 진행 순서: 독립 섹션 HowToSectionV2 → 모임소개 밴드에 흡수된 HowToBrief
- *    (실사이트 것을 직접 import. HowToSectionV2 는 고아 보존)
+ *  · 진행 순서: 구 독립 섹션 HowToSectionV2 → (08-24 5안 확정으로) 실사이트
+ *    ProcessSection('진행 방식') 직접 import. HowToSectionV2·HowToBrief 는 고아 보존
  *  · 후기: "실물 사진 업로드 대기" 시절 플레이스홀더(구 preview/ReviewsSection,
  *    ⚠️ 보존 모듈 삭제 금지)는 이미 오래전에 실물 사진+핀치줌으로 대체됐다 →
  *    실사이트 ReviewsSection 을 직접 import
  *  · 클로징: 구 ClosingSectionV2 → SeasonCountCta+BrandCloseV2 (실사이트 것을
  *    직접 import. ClosingSectionV2 는 고아 보존)
- *  · 섹션 순서·배경 교차를 실사이트와 동일하게: 책(B)→모임소개+진행순서(A)→
+ *  · 섹션 순서·배경 교차를 실사이트와 동일하게: 책(B)→모임소개(A)+진행 방식(A)→
  *    일정(B)→후기(A)→[ScenesSection]→FAQ(B)→클로징(A)
  *  · 데스크톱(≥721px) 반응형 훅(--lz-*) 도 Book·Schedule·모임소개 세 프리뷰
  *    CSS 파일에 포트 완료(2026-08-24) — 390·1280px 모두 실사이트와 픽셀 동일
@@ -69,10 +68,13 @@ export default function PreviewLandingPage() {
           <BookSectionV2 />
           {/* '우리가 믿는 것'(PhilosophySectionV2)은 당분간 제외 — 컴포넌트·원고는 보존 (운영자 결정 2026-07-04) */}
           {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ로 이관 (운영자 결정 2026-07-06) */}
-          {/* 모임소개 밴드 — 자기소개 규칙 시안 6개를 이 안에서 갈아 끼울 수 있게
-              IntroRuleLab 이 감싼다 (프리뷰 전용 도구, 채택 후 걷어냄).
-              0안 = 실사이트 현행 배치 그대로라 비교 기준선이 된다. */}
-          <IntroRuleLab feature={<FeatureQuietSection />} brief={<HowToBrief />} />
+          {/* 2026-08-24: 5안 확정 — 시안 스위처(IntroRuleLab)를 걷어내고 실사이트와
+              같은 구조로 고정했다. 진행 순서는 밴드 안 요약이 아니라 독립 섹션
+              ProcessSection('진행 방식')이며, 실사이트 것을 직접 import 한다(V2 없음). */}
+          <div className={shell.featureBand}>
+            <FeatureQuietSection />
+          </div>
+          <ProcessSection />
           <ScheduleSectionV2 />
           <ReviewsSection />
           {/* 장면들(SCENES): 사진 콜라주 (프리뷰 전용, 2026-07-07 신설) — scenes-config가 비면 미렌더.

@@ -1,0 +1,146 @@
+/* ═══════════════════════════════════════════════════════════
+   진행 방식 — 독립 섹션 (5안 확정, 운영자 2026-08-24 "5안으로 확정해서 배포해")
+
+   구 HowToBrief(모임소개 밴드 하단 요약 블록)를 대체한다. 바뀐 것:
+    · 밴드 안 요약 블록 → 자체 26px 제목을 가진 독립 섹션
+    · 3단계 → 4단계 (자기소개를 01 로 분리)
+    · 자기소개 규칙 원문·레이지 노트는 본문에 펼치지 않고 **모달 뒤**로
+   타이포는 howto-brief.module.css 값을 그대로 승계 (라벨형 번호 11px/0.22em,
+   단계 제목 17px/700, 본문 명조 13px/1.9 justify).
+
+   ⚠ 배경은 A(#f7f3ee) — 모임소개 밴드와 같은 색이다. 이 섹션이 feature(A)와
+   schedule(B) 사이에 새로 끼어들기 때문에, B 를 주면 schedule 과 B-B 가 되고
+   A 를 주면 feature 와 이어진다. 후자를 골랐다: 시각적으로는 모임소개 밴드가
+   연장되고(구 HowToBrief 가 그 밴드 안에 있었으므로 현행과 같은 인상),
+   밴드 단위 교차 B-A-B-A-B-A 는 그대로 유지된다. 대안(process=B + schedule·
+   reviews·faq·closing 4개 전부 뒤집기)은 파급이 커 운영자 확인 대상.
+   ═══════════════════════════════════════════════════════════ */
+
+.section {
+  background: #f7f3ee;
+  padding: 56px var(--lz-gutter, 24px) 72px;
+  word-break: keep-all;
+  scroll-margin-top: 52px;
+}
+@media (min-width: 768px) {
+  .section {
+    padding-left: var(--lz-gutter-lg, 56px);
+    padding-right: var(--lz-gutter-lg, 56px);
+  }
+}
+
+.inner { max-width: var(--lz-rail, 600px); margin: 0 auto; }
+
+/* 머리 — 랜딩 섹션 제목 문법(26px/800 + 주황 괘선 56×1.5) */
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  margin: 0 0 34px;
+}
+.head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -12px;
+  width: 56px;
+  height: 1.5px;
+  background: rgba(210, 105, 30, 0.6);
+}
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+.meta {
+  font-size: 12px;
+  color: #8a7660;
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.list { list-style: none; margin: 0; padding: 0; }
+
+.step {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.1);
+  margin-bottom: 16px;
+}
+.step:last-child { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
+
+.stepHead {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0 0 6px;
+}
+.stepNum {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #a08b70;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+.stepLabel {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.stepDesc {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #6a5038;
+  margin: 0;
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* 모달 여는 링크 — 설명 바로 아래.
+   ⚠ 세로 간격은 운영자 지시로 좁혔다 (2026-08-24 "설명 줄과 그 아래 클릭
+   모달의 줄간격이 조금 넓어서 좀 더 세로를 좁혀도 돼"): 명조 본문의
+   행간 1.9 가 만든 아래 여백 위에 margin 을 더 얹지 않고 2px 만 준다. */
+.openBtn {
+  display: inline-block;
+  margin: 2px 0 0;
+  padding: 0 0 2px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.35);
+  font-family: inherit;
+  font-size: 12.5px;
+  color: #8a6a50;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.openBtn:hover { color: #d2691e; border-color: rgba(210, 105, 30, 0.6); }
+
+/* ══ 데스크톱 — 라벨 좌 / 본문 우 2단 행 (HowToBrief 값 승계) ══ */
+@media (min-width: 721px) {
+  .step {
+    display: grid;
+    grid-template-columns: minmax(210px, 30%) 1fr;
+    align-items: baseline;
+    column-gap: 28px;
+    padding: 14px 0;
+    margin-bottom: 0;
+  }
+  .step:last-child { padding-bottom: 0; }
+  .stepHead { display: block; margin: 0; }
+  .stepNum { display: block; margin-bottom: 4px; }
+  .stepLabel { font-size: 16px; }
+}

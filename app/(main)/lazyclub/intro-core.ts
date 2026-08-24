@@ -98,3 +98,19 @@ export function stateAt(raw: number, seed: number) {
 
 /** 시드 전(SSR 포함) 첫 페인트 — 웰컴 배열 잉크 단색. 배치는 이후와 동일 */
 export const INITIAL: Cell[] = WELCOME.flat().map((ch) => ({ ch, color: INK }))
+
+/** 관람 기록 키 — **탭 세션 단위** (운영자 2026-08-22: 밖에서 들어올 때마다 재생,
+ *  도메인 안 이동에서만 잠잠).
+ *  ⚠ 재생 주체가 둘이다(랜딩 자체 재생 / 하위 페이지 IntroOverlay). 기록·판정이
+ *  이 키 하나로 통일되지 않으면 "랜딩에서 봤는데 하위 페이지에서 또 뜨는" 이중 재생이
+ *  난다(2026-08-23 실측 — 랜딩이 기록을 안 남겨서). **어느 쪽이 재생하든 여기에 남긴다.**
+ *  ⚠ layout.tsx 의 선(先) 가림막 인라인 스크립트는 이 상수를 import 할 수 없어
+ *  문자열 리터럴로 같은 값을 쓴다 — 바꿀 땐 그쪽도 함께. */
+export const INTRO_SEEN_KEY = "lzc-intro-seen"
+
+/** 인트로를 봤다고 기록 — 저장 불가 환경(프라이빗 모드 등)은 조용히 무시 */
+export function markIntroSeen() {
+  try {
+    sessionStorage.setItem(INTRO_SEEN_KEY, "1")
+  } catch {}
+}

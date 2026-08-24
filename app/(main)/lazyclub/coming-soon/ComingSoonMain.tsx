@@ -56,7 +56,7 @@ import { HOME, WorkroomShell } from "../Shell"
 import styles from "./coming-soon.module.css"
 // 배열·타임라인·상태 함수는 공유 코어에서 (2026-08-22 추출) — 하위 페이지 인트로
 // 오버레이(IntroOverlay)와 **같은 것을 읽는다**. 사본을 뜨면 연출이 갈라진다
-import { HOT, INITIAL, stateAt, T } from "../intro-core"
+import { HOT, INITIAL, markIntroSeen, stateAt, T } from "../intro-core"
 
 export function ComingSoonMain() {
   const [elapsed, setElapsed] = useState(0)
@@ -65,6 +65,12 @@ export function ComingSoonMain() {
   const [chromeEarly, setChromeEarly] = useState(false)
 
   useEffect(() => {
+    // 랜딩 = 인트로 그 자체 — 여기 도착한 것만으로 '이번 방문에 봤다'로 기록한다
+    // (?still·reduced-motion 포함: 최종 마크를 봤으면 본 것). 안 남기면 하위 페이지의
+    // IntroOverlay 가 처음 방문으로 판정해 **같은 인트로가 연달아 두 번** 뜬다
+    // (2026-08-23 운영자 실측 신고 — 기록·판정의 단일 출처는 intro-core)
+    markIntroSeen()
+
     // 난수 시드는 여기서 딱 한 번 (구현 주의 — stateAt은 읽기만 한다)
     const s = Math.floor(Math.random() * 2147483647) || 1
     setSeed(s)

@@ -395,7 +395,11 @@ export function CoffeeBarForm() {
             <p className={cb.confirmTitle} id="cb-confirm-title">
               정말 제출하시겠습니까?
             </p>
-            <p className={cb.confirmBody}>버튼은 도망쳤지만 신청서는 도망가지 않습니다.</p>
+            {/* 운영자 원문 (2026-08-25 2차) — 앞선 "버튼은 도망쳤지만…"은 내가 쓴 임시본이었다 */}
+            <p className={cb.confirmBody}>
+              네그로니도, 네비올로도 없는 동민과 고든 커피앤바의 대화 자리에 참가를 희망하신다면 제출해
+              주세요.
+            </p>
             <div className={cb.confirmActions}>
               <button type="button" className={cb.actionBtn} onClick={reallySubmit}>
                 제출합니다

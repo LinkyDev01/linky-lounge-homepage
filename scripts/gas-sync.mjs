@@ -268,6 +268,45 @@ function compare(live, local, config) {
   return { same: changed.length === 0 && missingLocal.length === 0 && extraLocal.length === 0, report, missingLocal, extraLocal, changed }
 }
 
+/** 그 커밋이 이 클론에 있는가 */
+function gitHas(ref) {
+  try {
+    execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], { cwd: ROOT, stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * **마지막으로 배포한 커밋**을 실배포 쪽에서 읽어 온다 — 기준선의 사실 근거.
+ *
+ * cmdDeploy 가 배포 설명을 `auto: <짧은SHA> <커밋 제목>` 으로 적어 두므로, 배포 자체가
+ * "우리가 무엇을 올렸는가"의 원장이다. 종전의 `HEAD~1` 추정은 **GAS 커밋 뒤에 다른 커밋이
+ * 하나라도 얹히면 무너진다** — HEAD~1 이 이미 신코드라, 실배포(구코드)와 달라 가짜
+ * 드리프트가 잡힌다 (2026-08-25 실측: 문서 커밋 #491 이 얹혀 배포가 막혔다).
+ *
+ * 설명이 `auto:` 로 시작할 때만 신뢰한다 — 운영자가 -m 으로 직접 쓴 설명은 SHA 가 아니다.
+ */
+async function deployedBaselineRef() {
+  let description = ''
+  try {
+    const d = await api('GET', `/projects/${scriptId()}/deployments/${deploymentId()}`)
+    description = d.deploymentConfig?.description ?? ''
+  } catch {
+    return null
+  }
+  const m = description.match(/^auto:\s*([0-9a-f]{7,40})\b/)
+  if (!m) return null
+  const sha = m[1]
+  if (gitHas(sha)) return sha
+  // 얕은 클론이면 그 커밋이 없다. 짧은 SHA 는 targeted fetch 가 안 되므로(전체 40자만
+  // 가능) 여기서 되살릴 방법이 없다 — 워크플로가 전체 이력을 받아 오게 해 둔 이유다
+  // (.github/workflows/gas-deploy.yml: fetch-depth 0 + filter blob:none).
+  log(`⚠ 마지막 배포 커밋 ${sha} 가 이 클론에 없습니다 — 기준선을 추정값으로 대체합니다`)
+  return null
+}
+
 /** 기준선(git ref) 시점의 파일 내용. 그 시점에 없던 파일이면 null */
 function baselineSource(localName, ref) {
   try {
@@ -292,12 +331,15 @@ function baselineSource(localName, ref) {
  * 다르면 편집기 쪽 내용을 지우는 셈이라 멈춘다. (파일 하나가 신규라고 해서
  * 나머지 파일의 검사까지 통째로 건너뛰면 가드가 조용히 무력화된다)
  */
-function guardBaseline(live, local, config) {
+async function guardBaseline(live, local, config) {
   if (flags.allowDrift) {
     log('⚠ --allow-drift: 기준선 검사를 건너뜁니다')
     return
   }
-  const ref = flags.baseline ?? 'HEAD~1'
+  // 기준선 우선순위: ① 실배포에 기록된 마지막 배포 커밋(사실) → ② --baseline → ③ HEAD~1(추정)
+  const deployed = await deployedBaselineRef()
+  const ref = deployed ?? flags.baseline ?? 'HEAD~1'
+  if (deployed) log(`기준선: 실배포에 기록된 마지막 배포 커밋 ${deployed}`)
   const liveByName = new Map(live.map((f) => [f.name, f]))
   const localByName = new Map(local.map((f) => [f.name, f]))
   const offenders = []
@@ -316,7 +358,7 @@ function guardBaseline(live, local, config) {
   if (offenders.length) {
     console.error(report)
     fail(
-      `실배포본이 기준선(${ref})과 다릅니다 — 편집기에서 직접 수정된 내용으로 보입니다: ${offenders.join(', ')}`,
+      `실배포본이 기준선(${ref}${deployed ? ' — 마지막 배포 커밋' : ''})과 다릅니다 — 편집기에서 직접 수정된 내용으로 보입니다: ${offenders.join(', ')}`,
       'node scripts/gas-sync.mjs pull 로 회수해 커밋한 뒤 다시 시도하세요 (의도적으로 덮어쓸 거라면 --allow-drift)',
     )
   }
@@ -443,7 +485,7 @@ async function cmdPush() {
     return { pushed: false }
   }
 
-  guardBaseline(live, local, config)
+  await guardBaseline(live, local, config)
 
   log(`변경 파일: ${cmp.changed.join(', ') || cmp.extraLocal.join(', ')}`)
   if (cmp.report) log(cmp.report)

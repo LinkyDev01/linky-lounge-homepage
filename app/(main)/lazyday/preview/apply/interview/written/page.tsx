@@ -54,8 +54,7 @@ const QUESTIONS = [
   },
 ]
 
-const INTRO_1 =
-  "레이지데이 북클럽은 한 권의 책을 매개로 저마다의 깊이 있는 시선과 일상의 화두를 공유하는 독서모임입니다."
+// INTRO_1 제거 — 실사이트 쌍 동기화 (2026-08-25, 사유는 실사이트 주석 참조)
 const INTRO_2 =
   "아래의 6가지 질문은 다가오는 시즌 동안 함께 머물 대화의 공간을 조금 더 밀도 있게 준비하기 위한 과정입니다. 정답은 없으니, 평소 일상과 서재에서 하던 생각들을 편안하게 들려주세요."
 // 개선: 부담 완화 장치를 시작 전에 명시
@@ -304,7 +303,6 @@ export default function PreviewWrittenInterviewPage() {
               <h1 className={styles.headerTitle}>서면 인터뷰</h1>
               <JourneyStepper current={2} interview="서면" />
               <div className={styles.headerSub}>
-                <p>{INTRO_1}</p>
                 <p>{INTRO_2}</p>
                 <p><strong>{INTRO_3}</strong></p>
               </div>

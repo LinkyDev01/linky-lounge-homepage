@@ -514,12 +514,14 @@ export default function InterviewSchedulePage() {
             (운영자 "전화와 서면에는 상단에 장소나 정규/자유모임 소개 안 해도 될 것
             같은데"). 이 페이지의 본 기능은 **인터뷰 통화 시간** 고르기인데 바로 위에
             모임 일정(격주 화·수·일)이 붙어 있어 슬롯 제한으로 오독될 소지가 있었다.
-            일정·장소는 apply 페이지에 그대로 있다 — 여기선 가격만 남긴다. */}
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>{SEASON.name} 안내</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>멤버십 가격</span>
-              <span className={`${styles.ref0Val} ${styles.priceNow}`}>{SEASON.price}</span>
+            일정·장소는 apply 페이지에 그대로 있다 — 여기선 가격만 남긴다.
+            서식은 2026-08-25 베이지 안내 박스 → **apply 히어로 카드 서식**으로 교체
+            (운영자 "기존 어플라이페이지 히어로 서식 이식해서 멤버십 가격만 적어").
+            값은 page.module.css 의 .feeCard/.feeBlock/.feeLabel/.feeValue 참조. */}
+          <div className={styles.feeCard}>
+            <div className={styles.feeBlock}>
+              <h2 className={styles.feeLabel}>멤버십 가격</h2>
+              <p className={styles.feeValue}>{SEASON.price}</p>
             </div>
           </div>
 

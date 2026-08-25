@@ -58,8 +58,11 @@ const QUESTIONS = [
   },
 ]
 
-const INTRO_1 =
-  "레이지데이 북클럽은 한 권의 책을 매개로 저마다의 깊이 있는 시선과 일상의 화두를 공유하는 독서모임입니다."
+// INTRO_1(북클럽이 무엇인지 정의하는 문장)은 2026-08-25 제거 — 운영자 "서면인터뷰
+// 설명문도 피로해보여". 신청서를 이미 낸 사람에게 모임 정의는 랜딩·apply 에서 두 번
+// 본 정보라 여기선 군더더기다. 전화 인터뷰 쪽도 정의문 없이 곧장 "…전화 인터뷰
+// 세션입니다"로 들어가므로, 제거가 곧 형제 페이지와의 서식 통일이기도 하다.
+// (문구 자체는 운영자 소유 — 새로 쓰지 않고 중복 문장만 덜어냈다)
 const INTRO_2 =
   "아래의 6가지 질문은 다가오는 시즌 동안 함께 머물 대화의 공간을 조금 더 밀도 있게 준비하기 위한 과정입니다. 정답은 없으니, 평소 일상과 서재에서 하던 생각들을 편안하게 들려주세요."
 
@@ -372,7 +375,6 @@ export default function WrittenInterviewPage() {
               <h1 className={styles.headerTitle}>서면 인터뷰</h1>
               <JourneyStepper current={2} interview="서면" />
               <div className={styles.headerSub}>
-                <p>{INTRO_1}</p>
                 <p>{INTRO_2}</p>
               </div>
             </div>

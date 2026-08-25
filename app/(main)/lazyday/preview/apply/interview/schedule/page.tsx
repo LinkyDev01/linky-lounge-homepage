@@ -309,13 +309,12 @@ export default function PreviewInterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-          {/* 안내 박스 — 실사이트 쌍 동기화 (2026-08-25 축소: 정규모임·자유모임·장소
-              행과 장소 주석 제거, 멤버십 가격만 유지). 사유는 실사이트 주석 참조 */}
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>{SEASON.name} 안내</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>멤버십 가격</span>
-              <span className={`${styles.ref0Val} ${styles.priceNow}`}>{SEASON.price}</span>
+          {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25: 안내 박스의 일정·장소 행을
+              걷고 apply 히어로 카드 서식으로 교체). 사유는 실사이트 주석 참조 */}
+          <div className={styles.feeCard}>
+            <div className={styles.feeBlock}>
+              <h2 className={styles.feeLabel}>멤버십 가격</h2>
+              <p className={styles.feeValue}>{SEASON.price}</p>
             </div>
           </div>
 

@@ -620,6 +620,43 @@
 }
 
 /* ── ref0 베이지 인라인 카드 ── */
+/* ── 멤버십 가격 카드 — apply 페이지 히어로(일정·장소) 카드 서식 이식
+   (운영자 2026-08-25 "기존 어플라이페이지 히어로 서식 이식해서 멤버십 가격만 적어").
+   apply/page.module.css 의 .scheduleNotice / .ruledBlock / .ruledLabel /
+   .scheduleValue 값을 **그대로 복사**했다 — import 하지 않은 이유는 그쪽이
+   실 apply·preview/apply·one-day-talk-01 3곳 공용이라, 여기까지 물리면 apply 쪽
+   손볼 때마다 인터뷰 페이지가 조용히 따라 바뀌기 때문(§4 공유 CSS 지도).
+   apply 값이 바뀌면 이 블록도 같이 볼 것.
+   ⚠ 라벨 색은 apply 와 동일하게 **본문 상속**에 맡긴다 — 두 페이지의 body color 가
+   같음을 실측 확인(lab(12.8288 5.9375 3.9758)). 여기에 색을 새로 지정하면 오히려
+   원본과 갈린다. 블록이 하나뿐이라 apply 의 `.ruledBlock + .ruledBlock` 구분선은
+   port 대상이 아니다. */
+.feeCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px 16px;
+  margin-bottom: 8px;
+  border: 1px solid #e8dccd;
+}
+.feeBlock {
+  padding: 12px 0 22px;
+}
+.feeLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+.feeValue {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1208;
+  text-align: left;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
 .refBeigeWrap {
   background: #edddd0;
   border-radius: 8px;

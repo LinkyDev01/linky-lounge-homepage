@@ -15,6 +15,9 @@ import {
   DISSONANCE_TITLE,
   DISSONANCE_PARAGRAPHS,
 } from "../../../../philosophy-content"
+// 멤버십 가격만 단일 출처에서 읽는다 — 이 사본의 다른 안내 값들은 예전부터
+// 하드코딩이지만, 금액은 하드코딩하면 기수 전환 때 조용히 어긋난다 (2026-08-25)
+import { SEASON } from "../../../../season-config"
 
 // ================================================================
 // 슬롯 설정 — 원본과 동일. 단, 프리뷰는 예약 API 미연동(전 슬롯 예약 가능).
@@ -313,6 +316,9 @@ export default function PreviewInterviewSchedulePage() {
               <span className={styles.ref0Val}>1–4회차 · 9월 9일부터 격주, 화·수·일 선택</span>
               <span className={styles.ref0Key}>자유모임</span>
               <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
+              {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25 apply 에서 이관) */}
+              <span className={styles.ref0Key}>멤버십 가격</span>
+              <span className={`${styles.ref0Val} ${styles.priceNow}`}>{SEASON.price}</span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
             </div>

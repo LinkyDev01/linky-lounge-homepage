@@ -50,6 +50,8 @@ export function CoffeeBarForm() {
   /** 제출 버튼이 한 번 달아났는가 (운영자 2026-08-25 — 위트 장치) */
   const [escaped, setEscaped] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  /** 개인정보 동의 상세 접기 (기본 접힘 — apply 페이지와 동일 문법) */
+  const [privacyDetailOpen, setPrivacyDetailOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -117,18 +119,25 @@ export function CoffeeBarForm() {
     const btn = btnRef.current
     if (!row || !btn) return
     const dx = Math.max(0, row.clientWidth - btn.offsetWidth)
-    btn.style.transform = `translateX(${dx}px)`
+    // 경로 개정 (운영자 2026-08-25 "한 쪽 끝으로만 도망가지 말고 다시 중앙에서 조금
+    // 좌측으로 가깝게 와줘. 높이도 사알짝만 틀어지게. 좌측 끝이 우측 끝으로 가니까
+    // 누르기 불편해"): 우측 끝을 스치듯 찍고 **둥글게 돌아와** 중앙보다 약간 좌측
+    // (0.38 × 이동폭)에, 원래 높이보다 5px 위로 살짝 틀어져 정착한다 — 두 번째
+    // 클릭이 손 닿는 자리다.
+    const endX = dx * 0.38
+    const endY = -5
+    btn.style.transform = `translate(${endX}px, ${endY}px)`
     const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
     if (reduce || typeof btn.animate !== "function") return
     btn.animate(
       [
         { transform: "translate(0px, 0px)" },
-        { transform: `translate(${dx * 0.2}px, -7px)`, offset: 0.15 },
-        { transform: `translate(${dx * 0.45}px, 6px)`, offset: 0.35 },
-        { transform: `translate(${dx * 0.66}px, -5px)`, offset: 0.55 },
-        { transform: `translate(${dx * 0.83}px, 4px)`, offset: 0.75 },
-        { transform: `translate(${dx * 0.94}px, -2px)`, offset: 0.9 },
-        { transform: `translate(${dx}px, 0px)` },
+        { transform: `translate(${dx * 0.55}px, -8px)`, offset: 0.22 },
+        { transform: `translate(${dx * 0.92}px, 4px)`, offset: 0.42 },
+        { transform: `translate(${dx}px, -3px)`, offset: 0.52 }, // 우측 끝 터치
+        { transform: `translate(${dx * 0.78}px, -10px)`, offset: 0.68 }, // 위로 둥글게 회귀
+        { transform: `translate(${dx * 0.52}px, 2px)`, offset: 0.85 },
+        { transform: `translate(${endX}px, ${endY}px)` },
       ],
       { duration: 1000, easing: "linear" },
     )
@@ -297,36 +306,58 @@ export function CoffeeBarForm() {
           <label htmlFor="cb-when" className={cb.fieldLabel}>
             희망 날짜와 시간대<span className={cb.required}>*</span>
           </label>
+          {/* 플레이스홀더 = [신청서] 옆에 있던 괄호 부기의 이관 (운영자 2026-08-25).
+              전면 제거 원칙(같은 날 "플레이스홀더에 텍스트는 필요없어")의 명시적 예외 —
+              서체는 솔뫼체·흑색 베이스, 크기·굵기는 플레이스홀더 기본값 그대로 */}
           <input
             id="cb-when"
             name="preferredWhen"
             type="text"
-            className={`${cb.input} ${errors.preferredWhen ? cb.inputError : ""}`}
+            placeholder="신청 가능 시간: 평일 19시 ~ 24시"
+            className={`${cb.input} ${cb.inputWhen} ${errors.preferredWhen ? cb.inputError : ""}`}
             onChange={() => clearError("preferredWhen")}
           />
           {errors.preferredWhen && <p className={cb.errorText}>{errors.preferredWhen}</p>}
         </div>
 
         <div className={cb.consent}>
-          <label htmlFor="privacyConsent" className={cb.consentLabel}>
-            <input
-              id="privacyConsent"
-              type="checkbox"
-              checked={privacyConsent}
-              onChange={(e) => {
-                setPrivacyConsent(e.target.checked)
-                if (e.target.checked) clearError("privacyConsent")
-              }}
-            />
-            <span>
-              개인정보 수집·이용에 동의합니다. <span className={cb.required}>(필수)</span>
-            </span>
-          </label>
-          <p className={cb.consentNote}>
-            <span>수집 항목: 이름·나이·연락처(선택 입력 포함)</span>
-            <span>목적: 커피앤바 일정 조율 및 안내</span>
-            <span>보유 기간: 만남 종료 후 1년</span>
-          </p>
+          {/* 상세 고지는 접기 뒤 (운영자 2026-08-25 — apply 페이지 문법 이식, 문구도
+              운영자 지정 원문). 아이콘은 + 대신 꺾은괄호 아래↔위 회전 */}
+          <div className={cb.consentHead}>
+            <label htmlFor="privacyConsent" className={cb.consentLabel}>
+              <input
+                id="privacyConsent"
+                type="checkbox"
+                checked={privacyConsent}
+                onChange={(e) => {
+                  setPrivacyConsent(e.target.checked)
+                  if (e.target.checked) clearError("privacyConsent")
+                }}
+              />
+              <span>
+                개인정보 수집·이용에 동의합니다. <span className={cb.required}>(필수)</span>
+              </span>
+            </label>
+            <button
+              type="button"
+              className={`${cb.consentToggle} ${privacyDetailOpen ? cb.consentToggleOpen : ""}`}
+              onClick={() => setPrivacyDetailOpen((v) => !v)}
+              aria-expanded={privacyDetailOpen}
+              aria-label="개인정보 수집·이용 동의 상세"
+            >
+              &gt;
+            </button>
+          </div>
+          <div className={`${cb.consentBody} ${privacyDetailOpen ? cb.consentBodyOpen : ""}`}>
+            <div className={cb.consentBodyInner}>
+              <p className={cb.consentNote}>
+                <span>개인정보 보호법 제15조에 따라 동의를 받습니다.</span>
+                <span>· 수집 항목: 신청서에 기재하신 정보</span>
+                <span>· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영</span>
+                <span>· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)</span>
+              </p>
+            </div>
+          </div>
           {errors.privacyConsent && <p className={cb.errorText}>{errors.privacyConsent}</p>}
 
           <label htmlFor="marketingConsent" className={cb.consentLabel}>

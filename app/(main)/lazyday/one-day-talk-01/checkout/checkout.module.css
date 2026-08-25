@@ -203,6 +203,9 @@
   border-radius: 0;
   background: transparent;
   font: inherit;
+  /* 16px 미만이면 iOS 사파리가 포커스 순간 페이지를 자동 확대한다 (2026-08-25 전수 조사).
+     결제 여정 입력칸이라 특히 걸리면 안 되는 자리 */
+  font-size: 16px;
   color: var(--ink);
   margin-bottom: 8px;
 }

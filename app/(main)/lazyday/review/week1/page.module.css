@@ -138,7 +138,7 @@
 .formInput {
     width: 100%;
     padding: 16px 20px;
-    font-size: 15px;
+    font-size: 16px; /* 16px 미만이면 iOS 사파리가 포커스 순간 페이지를 자동 확대한다 (2026-08-25 전수 조사) */
     font-weight: 400;
     border: 1px solid var(--border-color);
     background: var(--bg-color);

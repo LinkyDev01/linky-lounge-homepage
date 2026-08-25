@@ -64,7 +64,8 @@
   padding: 12px 14px;
   border: 1px solid #d8c9b4;
   border-radius: 8px;
-  font-size: 14px;
+  /* 16px 미만이면 iOS 사파리가 포커스 순간 페이지를 자동 확대한다 (2026-08-25 전수 조사) */
+  font-size: 16px;
   background: #fffdf8;
   color: #1a1208;
 }

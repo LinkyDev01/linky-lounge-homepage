@@ -6,7 +6,6 @@ import { trackCustom, trackStandard } from "@/lib/meta-pixel"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import { SEASON } from "../../../season-config"
 import { JourneyStepper } from "../../../JourneyStepper"
 import styles from "./page.module.css"
 
@@ -378,19 +377,12 @@ export default function WrittenInterviewPage() {
               </div>
             </div>
 
-            {/* 3기 안내 */}
-            <div className={styles.refBeigeWrap}>
-              <p className={styles.ref0Title}>{SEASON.name} 안내</p>
-              <div className={styles.ref0Grid}>
-                <span className={styles.ref0Key}>정규모임</span>
-                <span className={styles.ref0Val}>{SEASON.regularNote}</span>
-                <span className={styles.ref0Key}>자유모임</span>
-                <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-                <span className={styles.ref0Key}>장소</span>
-                <span className={styles.ref0Val}>{SEASON.location.short}</span>
-              </div>
-              <p className={styles.ref0Note}>{SEASON.location.note}</p>
-            </div>
+            {/* 기수 안내 박스는 2026-08-25 제거 — 운영자 "전화와 서면에는 상단에
+                장소나 정규/자유모임 소개 안 해도 될 것 같은데". 신청서를 이미 낸
+                단계라 모임 일정·장소는 apply 페이지에 그대로 있고, 이 페이지의 일은
+                답변 작성이다. 전화 예약 쪽은 멤버십 가격만 남겨 축소했지만 여기엔
+                가격 노출이 없어(정책상 전화 전용) 박스째 걷었다.
+                CSS(.refBeigeWrap/.ref0*)는 고아 보존 — 되살릴 땐 그대로 쓰면 된다. */}
 
             <div className={styles.infoCard}>
               <div className={styles.infoRow}>

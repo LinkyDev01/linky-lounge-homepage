@@ -309,20 +309,14 @@ export default function PreviewInterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
+          {/* 안내 박스 — 실사이트 쌍 동기화 (2026-08-25 축소: 정규모임·자유모임·장소
+              행과 장소 주석 제거, 멤버십 가격만 유지). 사유는 실사이트 주석 참조 */}
           <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 안내</p>
+            <p className={styles.ref0Title}>{SEASON.name} 안내</p>
             <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>1–4회차 · 9월 9일부터 격주, 화·수·일 선택</span>
-              <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
-              {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25 apply 에서 이관) */}
               <span className={styles.ref0Key}>멤버십 가격</span>
               <span className={`${styles.ref0Val} ${styles.priceNow}`}>{SEASON.price}</span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
             </div>
-            <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
           </div>
 
           <div className={styles.panel}>

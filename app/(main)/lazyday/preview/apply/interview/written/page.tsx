@@ -310,18 +310,7 @@ export default function PreviewWrittenInterviewPage() {
               </div>
             </div>
 
-            <div className={styles.refBeigeWrap}>
-              <p className={styles.ref0Title}>3기 안내</p>
-              <div className={styles.ref0Grid}>
-                <span className={styles.ref0Key}>정규모임</span>
-                <span className={styles.ref0Val}>1–4회차 · 9월 9일부터 격주, 화·수·일 선택</span>
-                <span className={styles.ref0Key}>자유모임</span>
-                <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
-                <span className={styles.ref0Key}>장소</span>
-                <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
-              </div>
-              <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
-            </div>
+            {/* 기수 안내 박스 제거 — 실사이트 쌍 동기화 (2026-08-25, 사유는 실사이트 주석 참조) */}
 
             <div className={styles.infoCard}>
               <div className={styles.infoRow}>

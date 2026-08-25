@@ -82,29 +82,64 @@
    ⚠ 세 색이 각자 더 짙은 테두리를 가진다 — 원본에서 색마다 따로 실측했다.
    ⚠ 본문 인라인의 '동민과 고든 커피앤바'는 원본에서 **테두리가 없다**(확대 확인) —
      .kOrange/.kPlum/.kSage 는 색만 입힌다. */
-.titleTop,
-.title .kPlum,
-.title .kSage {
+/* ⚠ 2026-08-25 운영자 "글자테두리는 모든 글자에 적용되어야 해" — 종전에는 제목에만
+   넣었지만(원본 확대 판독상 본문 인라인엔 없었다) 지시대로 **손글씨체로 그려지는 글자
+   전체**로 넓혔다. 적용 대상을 클래스로 하나씩 적는다: 상속으로 퍼뜨리면 모달·입력칸·
+   동의 고지(전부 Gothic A1/SUIT)까지 물들어 12px 법정 고지의 가독성을 해친다.
+   ⚠ stroke-color 를 지정하지 않으면 초깃값이 currentColor 다 — 어두운 본문은 제 색으로
+   얇게 두꺼워질 뿐이고(검정보다 어두운 테두리는 없다), 색이 있는 글자만 아래 짙은
+   테두리를 받아 제목처럼 도드라진다. */
+.title,
+.tickerItem,
+.intro,
+.fee,
+.blockHead,
+.blockNote,
+.groupLabel,
+.item,
+.fieldLabel,
+.doneText {
   -webkit-text-stroke-width: 0.0356em;
   paint-order: stroke fill;
 }
 .titleTop {
   color: var(--cb-orange);
+}
+/* 색깔 글자의 짙은 테두리 — 원본에서 색마다 따로 실측. 제목뿐 아니라 본문·티커의
+   같은 표기에도 걸린다(위 지시로 범위 확대) */
+.titleTop,
+.kOrange {
   -webkit-text-stroke-color: #563009;
 }
-.title .kPlum {
+.kPlum {
   -webkit-text-stroke-color: #362523;
 }
-.title .kSage {
+.kSage {
   -webkit-text-stroke-color: #343b32;
 }
 .kOrange { color: var(--cb-orange); }
 .kPlum { color: var(--cb-plum); }
 .kSage { color: var(--cb-sage); }
 
-/* 우상단 원형 로고 — 10초 반시계 회전 (운영자 2026-08-24) */
-.logo {
+/* 우상단 원형 로고 — **돌면서 좌우왕복** (10초 반시계 회전 + 좌우 오감).
+   transform 은 요소당 하나뿐이라 두 애니메이션을 겹칠 수 없다 → 래퍼가 좌우왕복,
+   안쪽 img 가 회전. 왕복 폭은 제목과 부딪히지 않는 범위에서 실측해 정했다. */
+.logoSway {
   flex: 0 0 auto;
+  display: block;
+  animation: cbSway 4s ease-in-out infinite alternate;
+}
+@keyframes cbSway {
+  to {
+    transform: translateX(-40px);
+  }
+}
+@keyframes cbSwayWide {
+  to {
+    transform: translateX(-72px);
+  }
+}
+.logo {
   width: 74px;
   height: 74px;
   border-radius: 50%;
@@ -117,7 +152,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .logo {
+  .logo,
+  .logoSway {
     animation: none;
   }
 }
@@ -143,8 +179,12 @@
   margin-bottom: 36px;
   padding: 5px 0;
   overflow: hidden;
-  /* 본문이 뒤로 지나가도 비치지 않게. 헤더와 같은 종이색이라 둘이 한 덩어리로 읽힌다 */
+  /* 본문이 뒤로 지나가도 비치지 않게 */
   background: var(--paper);
+  /* 위아래 전폭 가로선으로 바의 경계를 만든다 (운영자 2026-08-25).
+     굵기·색은 트리 문법 그대로 — 푸터 상단선과 같은 1px 잉크 */
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
 }
 .tickerTrack {
   display: flex;
@@ -513,6 +553,12 @@
      한 벌이 길어진 만큼 duration 도 늘려 초당 이동량(≈60px/s)을 그대로 둔다 */
   .tickerItem {
     font-size: 48px;
+  }
+  /* 데스크톱은 제목과 로고 사이 여유가 넓어 왕복 폭도 키운다.
+     ⚠ 변수(`translateX(var(--x))`)로 폭을 바꾸지 않는다 — 키프레임 안의 CSS 변수는
+     합성 가속을 막는다(도망 버튼에서 겪은 그 문제). 키프레임을 따로 두고 이름만 바꾼다 */
+  .logoSway {
+    animation-name: cbSwayWide;
   }
   .ticker {
     --cb-ticker-dur: 18.4s;

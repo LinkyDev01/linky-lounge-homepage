@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { WorkroomShell } from "../../Shell"
 import { CoffeeBarForm } from "./CoffeeBarForm"
+import { NavOffset } from "./NavOffset"
 import styles from "../../home.module.css"
 import cb from "./coffeebar.module.css"
 
@@ -45,7 +46,9 @@ export default function CoffeeBarPage() {
       <main className={styles.content}>
         {/* 색·서체 변수는 이 바깥 래퍼가 들고 있다 — 티커가 본문 열(.page) 밖으로
             나가야 전폭이 되는데, 변수가 .page 에만 있으면 티커가 상속받지 못한다 */}
-        <div className={cb.root}>
+        <div className={cb.root} data-cb-root>
+          {/* 헤더 높이를 실측해 티커를 내비에 빈틈없이 붙인다 (파일 머리 주석) */}
+          <NavOffset />
           {/* **탑네비 바로 밑 전폭 스티키 티커**, 좌측 등속
               (운영자 2026-08-25: "동민과 고든 커피앤바 보다 위에 있어야해 /
                탑네비 바로밑에 좌우폭에 맞추어 스티키로", 레퍼런스 outstanding-co.kr
@@ -73,8 +76,13 @@ export default function CoffeeBarPage() {
                 <span className={cb.kPlum}>바</span>
               </span>
             </h1>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={cb.logo} src={LOGO} alt="레이지 클럽" width={74} height={74} />
+            {/* 로고는 **돌면서 좌우로 오간다** (운영자 2026-08-25).
+                transform 하나에 두 애니메이션을 못 걸므로 래퍼가 좌우왕복,
+                안쪽 img 가 회전을 맡는다 */}
+            <span className={cb.logoSway}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className={cb.logo} src={LOGO} alt="레이지 클럽" width={74} height={74} />
+            </span>
           </header>
 
           <div className={cb.intro}>

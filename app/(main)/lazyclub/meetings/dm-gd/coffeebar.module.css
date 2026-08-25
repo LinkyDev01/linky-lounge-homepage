@@ -1,0 +1,404 @@
+/* ================================================================
+ * 동민과 고든 커피앤바 — 운영자 제공 참가폼의 **웹 조판 재현**
+ * (운영자 2026-08-24: "조판으로 살려서 - 솔뫼김대건체")
+ *
+ * 원본은 800×2000 이미지 한 장이었다. 이미지를 그대로 걸지 않고 조판으로 다시 짠
+ * 이유는 운영자 지시이자, ① 폼이 실제로 작동해야 하고 ② 390px 에서 글자가 뭉개지지
+ * 않아야 하며 ③ 카피 수정이 이미지 재발주 없이 되기 때문이다.
+ *
+ * 색은 **원본에서 실측**했다 (운영자 자신의 작업물이므로 팔레트 승인 대상 아님):
+ *   주황 #f49c3c (동민과 고든) · 플럼 #845c64 (커피/바) · 세이지 #94ac9c (앤)
+ *   로고 원 #845c5c + 세이지 글자 · 본문 잉크는 트리 --ink
+ * 배경은 원본 #f9f3ee 대신 **트리 종이색(--ink 짝)** 을 그대로 쓴다 — 셸 안에 앉는
+ * 페이지라 여기만 2/255 다른 크림이면 경계가 보인다.
+ *
+ * 신규 CSS — 기존 .module.css 미임포트 (§9). 폼 서식 값은 meeting-apply.module.css
+ * 와 같은 트리 문법에서 가져왔다(입력=무테+하단 헤어라인, 제출=잉크 칩, 오류=#a22525).
+ * 두 파일은 **사본이 아니라 각자 소유** — 한쪽을 고친다고 다른 쪽을 따라 고치지 않는다.
+ *
+ * ⚠ 서체는 서브셋이다 (public/fonts/solmoe-kdg-medium-subset-v1.woff2, 26KB).
+ *   **카피를 고치면 글리프가 빠진다** — scripts/gen_solmoe_subset.py 를 다시 돌려
+ *   파일명 버전을 올리고(§5 immutable 캐시 계약) 교체할 것.
+ *   서체 적용 범위는 **포스터 원고와 필드 라벨까지**다. 입력값·오류·동의 고지는
+ *   임의 문자열이라 서브셋에 없을 수 있어 트리 기본 서체로 둔다.
+ * ================================================================ */
+
+@font-face {
+  font-family: "Solmoe KimDaeGeon";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/solmoe-kdg-medium-subset-v1.woff2") format("woff2");
+}
+
+.page {
+  --cb-orange: #f49c3c;
+  --cb-plum: #845c64;
+  --cb-sage: #94ac9c;
+  --hand: "Solmoe KimDaeGeon", var(--suit);
+
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 72px;
+}
+
+/* ── 머리: 제목(좌) + 회전 로고(우) ── */
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 6px;
+}
+
+.title {
+  font-family: var(--hand);
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 1.3;
+  margin: 0;
+  word-break: keep-all;
+}
+/* **직접 자식만** 블록 — 중첩 span(커피/앤/바 색 분할)까지 블록이 되면 제목이
+   글자마다 줄바꿈된다 (2026-08-25 실측: '커피앤바'가 3줄로 쪼개졌다) */
+.title > span { display: block; }
+/* 원본의 주황 제목에는 갈색 테두리가 있다 — paint-order 로 획을 글자 뒤에 깔아
+   두께를 잃지 않게 그린다(미지원 브라우저는 획이 약간 안쪽을 먹지만 형태는 유지) */
+.titleTop {
+  color: var(--cb-orange);
+  -webkit-text-stroke: 1.6px #b4732c;
+  paint-order: stroke fill;
+}
+.kOrange { color: var(--cb-orange); }
+.kPlum { color: var(--cb-plum); }
+.kSage { color: var(--cb-sage); }
+
+/* 우상단 원형 로고 — 10초 반시계 회전 (운영자 2026-08-24) */
+.logo {
+  flex: 0 0 auto;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  display: block;
+  animation: cbSpin 10s linear infinite;
+}
+@keyframes cbSpin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo {
+    animation: none;
+  }
+}
+
+/* ── 첫 문장 = 좌측 등속 티커 (운영자 2026-08-25) ──
+   레퍼런스는 outstanding-co.kr 상단 스티키 바이고, 우리는 **반대 방향(좌측)** 이다.
+   같은 벌을 4개 줄지어 두고 한 벌 폭(=트랙의 25%)만큼 밀면 이음매 없이 순환한다 —
+   translate 만 움직이므로 합성 스레드에서 돌고 레이아웃을 건드리지 않는다.
+   글자 크기는 **한 문장이 열 너비를 채우도록** 실측해 정했다(운영자 단서).
+   속도는 등속 — 뷰포트가 넓어지면 한 벌이 길어지므로 duration 도 같이 늘려
+   초당 이동 픽셀(≈60px/s)을 유지한다. */
+.ticker {
+  --cb-ticker-dur: 6.7s;
+  overflow: hidden;
+  margin: 44px 0 0;
+}
+.tickerTrack {
+  display: flex;
+  width: max-content;
+  animation: cbTicker var(--cb-ticker-dur) linear infinite;
+}
+.tickerItem {
+  flex: 0 0 auto;
+  padding-right: 40px;
+  font-family: var(--hand);
+  /* 390px 실측: 열 360px ÷ 문장폭 → 28px 에서 한 문장이 열을 꽉 채운다 */
+  font-size: 28px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+@keyframes cbTicker {
+  to {
+    transform: translateX(-25%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tickerTrack {
+    animation: none;
+  }
+}
+
+/* ── 인사말 ── */
+.intro {
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 1.85;
+  margin: 40px 0 0;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.intro p {
+  margin: 0 0 18px;
+}
+.intro p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── 참가비 ── */
+.fee {
+  font-family: var(--hand);
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 52px 0 0;
+}
+
+/* ── 환영 음료 ── */
+.menu {
+  position: relative;
+  margin: 30px 0 0;
+}
+.blockHead {
+  font-family: var(--hand);
+  font-size: 19px;
+  line-height: 1.5;
+  margin: 0;
+}
+/* 괄호 부기 — 원본에서도 제목보다 작다 */
+.blockNote {
+  font-family: var(--hand);
+  font-size: 13px;
+  margin-left: 7px;
+}
+.group {
+  margin: 26px 0 0;
+  position: relative;
+  z-index: 1;
+}
+.groupLabel {
+  font-family: var(--hand);
+  font-size: 17px;
+  margin: 0 0 14px;
+}
+.item {
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+.item:last-child {
+  margin-bottom: 0;
+}
+/* '네그로니'·'네비올로'만 밑줄 — 두 사람 소개의 그 링크가 여기로 오는 농담이다 */
+.noHave {
+  text-decoration: underline;
+  text-underline-offset: 3.5px;
+  text-decoration-thickness: 1px;
+}
+
+/* 원본 중앙의 흐린 로고 워터마크 */
+.watermark {
+  position: absolute;
+  right: 4%;
+  top: 40%;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  opacity: 0.13;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 신청서 ── */
+.formHead {
+  margin: 56px 0 26px;
+}
+
+.field {
+  margin: 0 0 22px;
+}
+.fieldLabel {
+  display: block;
+  font-family: var(--hand);
+  font-size: 16px;
+  margin-bottom: 7px;
+}
+.required {
+  color: #a22525;
+  margin-left: 3px;
+}
+.input,
+.textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.35);
+  border-radius: 0;
+  padding: 0 0 6px;
+  font: inherit;
+  background: transparent;
+  color: var(--ink);
+}
+.textarea {
+  resize: vertical;
+  min-height: 76px;
+  line-height: 1.7;
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: #bcbcbc;
+}
+.input:focus,
+.textarea:focus {
+  outline: 0;
+  border-bottom-color: var(--ink);
+}
+.inputError {
+  border-bottom-color: #a22525;
+}
+.hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #6d6459;
+}
+
+/* ── 동의 ── */
+.consent {
+  margin: 34px 0 0;
+  border-top: 1px solid var(--ink);
+  padding-top: 18px;
+}
+.consentLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.consentLabel input {
+  margin: 3px 0 0;
+  accent-color: var(--ink);
+}
+.consentNote {
+  margin: 2px 0 14px 22px;
+  font-size: 12px;
+  color: #6d6459;
+}
+.consentNote span {
+  display: block;
+}
+
+/* ── 오류·구제 ── */
+.errorText {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #a22525;
+}
+.formError {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: #a22525;
+}
+.rescue {
+  margin: 22px 0 0;
+  border: 1px solid rgba(26, 18, 8, 0.35);
+  padding: 14px;
+}
+.rescueActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.linkBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* ── 제출 — 잉크 칩 ── */
+.actionBtn {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 13.2px;
+  line-height: 1.5;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  margin-top: 30px;
+}
+.actionBtn:hover {
+  opacity: 0.85;
+}
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── 제출 중 전면 로더 ── */
+.busy {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(247, 243, 238, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── 접수 완료 ── */
+.doneText {
+  font-family: var(--hand);
+  font-size: 17px;
+  line-height: 1.85;
+  margin: 26px 0 0;
+  word-break: keep-all;
+}
+
+/* ── 데스크톱 확장 ── */
+@media (min-width: 720px) {
+  .page {
+    max-width: 560px;
+  }
+  .title {
+    font-size: 48px;
+  }
+  .logo {
+    width: 92px;
+    height: 92px;
+  }
+  .intro {
+    font-size: 17px;
+  }
+  .fee {
+    font-size: 25px;
+  }
+  .blockHead {
+    font-size: 21px;
+  }
+  .groupLabel {
+    font-size: 18px;
+  }
+  .item,
+  .fieldLabel {
+    font-size: 17px;
+  }
+  /* 열이 560px 로 넓어지므로 문장도 같이 키운다(같은 '열을 채우는' 규칙) —
+     한 벌이 길어진 만큼 duration 도 늘려 초당 이동량을 그대로 둔다 */
+  .tickerItem {
+    font-size: 44px;
+  }
+  .ticker {
+    --cb-ticker-dur: 10s;
+  }
+}

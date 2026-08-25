@@ -58,10 +58,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # push 이벤트의 이전 커밋(= 기준선)을 볼 수 있어야 한다.
           # 기준선 검사는 "실배포본이 우리가 마지막에 올린 그대로인가"를 확인해
           # 운영자가 편집기에서 직접 고친 내용을 덮어쓰는 사고를 막는다.
-          fetch-depth: 50
+          # 그 기준선은 **실배포에 기록된 마지막 배포 커밋**이라 얼마든지 과거일 수 있다
+          # (2026-08-25 실측: 배포가 일주일 막힌 사이 142 커밋이 쌓여 depth 50 을 벗어났다).
+          # → 전체 이력을 받되 blob 은 필요할 때만(blob:none). 과거 blob 을 통째로 받던
+          #   종전 depth 50 보다 오히려 가볍다.
+          fetch-depth: 0
+          filter: blob:none
 
       - uses: actions/setup-node@v4
         with:

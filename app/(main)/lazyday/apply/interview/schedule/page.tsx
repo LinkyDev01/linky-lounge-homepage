@@ -519,7 +519,13 @@ export default function InterviewSchedulePage() {
             (운영자 "기존 어플라이페이지 히어로 서식 이식해서 멤버십 가격만 적어").
             값은 page.module.css 의 .feeCard/.feeLabel/.feeValue 참조 (2026-08-25 한 줄로 압축). */}
           <div className={styles.feeCard}>
-            <h2 className={styles.feeLabel}>멤버십 가격</h2>
+            {/* 회차 수는 sessions 배열 길이에서 — 기수 전환 때 문구가 조용히 어긋나지 않게
+                (운영자 지정 문안: "4기 멤버십(정규 독서모임 4회 + 자유 독서모임)").
+                span 을 줄바꿈 없이 붙여야 괄호 앞 공백이 안 생긴다 — JSX 는 줄 사이를
+                공백 하나로 합친다. */}
+            <h2 className={styles.feeLabel}>
+              {SEASON.name} 멤버십<span className={styles.feeLabelSub}>(정규 독서모임 {SEASON.sessions.length}회 + 자유 독서모임)</span>
+            </h2>
             <p className={styles.feeValue}>{SEASON.price}</p>
           </div>
 

@@ -643,9 +643,12 @@
   padding: 12px 14px;
   margin-bottom: 8px;
   border: 1px solid #e8dccd;
+  /* 2026-08-25 내용 확장 — 라벨이 "4기 멤버십(정규 독서모임 4회 + 자유 독서모임)"
+     으로 길어져 값과 한 줄에 못 담는다. 세로 2행으로 두되 압축 패딩은 유지. */
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 /* .feeBlock 은 폐기 — 단일 블록이라 래퍼가 할 일이 없다 (구 apply .ruledBlock 대응물) */
 .feeLabel {
@@ -653,6 +656,12 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   margin: 0;
+  line-height: 1.45;
+}
+/* 괄호 부연 — 라벨보다 **굵기 두 단계 아래**(700 → 600 → 500), 운영자 2026-08-25.
+   크기·색은 라벨과 같게 두어 한 문장으로 이어 읽히게 한다. */
+.feeLabelSub {
+  font-weight: 500;
 }
 .feeValue {
   margin: 0;

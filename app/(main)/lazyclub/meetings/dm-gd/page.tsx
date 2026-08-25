@@ -47,7 +47,7 @@ export default function CoffeeBarPage() {
   // ⚠ crossOrigin 필수: 폰트 fetch 는 same-origin 이어도 CORS 모드다 — 빼면
   //   preload 본과 실제 요청이 캐시를 공유하지 못해 두 번 받는다.
   // ⚠ 서브셋 파일명 버전이 오르면 여기도 같이 (coffeebar.module.css 의 src 와 짝)
-  preload("/fonts/solmoe-kdg-medium-subset-v2.woff2", {
+  preload("/fonts/solmoe-kdg-medium-subset-v3.woff2", {
     as: "font",
     type: "font/woff2",
     crossOrigin: "anonymous",
@@ -141,10 +141,9 @@ export default function CoffeeBarPage() {
             <img className={cb.watermark} src={LOGO} alt="" aria-hidden="true" loading="lazy" decoding="async" />
           </section>
 
-          <h2 className={`${cb.blockHead} ${cb.formHead}`}>
-            [신청서]
-            <span className={cb.blockNote}>(신청 가능 시간: 평일 19시 ~ 24시)</span>
-          </h2>
+          {/* 괄호 부기(신청 가능 시간)는 2026-08-25 지시로 '희망 날짜와 시간대'
+              플레이스홀더로 이관 — CoffeeBarForm 참조 */}
+          <h2 className={`${cb.blockHead} ${cb.formHead}`}>[신청서]</h2>
 
           <CoffeeBarForm />
           </div>

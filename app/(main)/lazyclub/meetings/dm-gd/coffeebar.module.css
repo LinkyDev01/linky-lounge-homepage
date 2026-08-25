@@ -16,7 +16,7 @@
  * 와 같은 트리 문법에서 가져왔다(입력=무테+하단 헤어라인, 제출=잉크 칩, 오류=#a22525).
  * 두 파일은 **사본이 아니라 각자 소유** — 한쪽을 고친다고 다른 쪽을 따라 고치지 않는다.
  *
- * ⚠ 서체는 서브셋이다 (public/fonts/solmoe-kdg-medium-subset-v2.woff2, 26KB).
+ * ⚠ 서체는 서브셋이다 (public/fonts/solmoe-kdg-medium-subset-v3.woff2, 26KB).
  *   **카피를 고치면 글리프가 빠진다** — scripts/gen_solmoe_subset.py 를 다시 돌려
  *   파일명 버전을 올리고(§5 immutable 캐시 계약) 교체할 것.
  *   서체 적용 범위는 **포스터 원고와 필드 라벨까지**다. 입력값·오류·동의 고지는
@@ -34,7 +34,7 @@
      투명하게 두므로 틀린 모양이 아예 안 보인다. 파일이 26KB 서브셋 + 아래
      preload(page.tsx)까지 있어 공백은 체감 못 할 길이다. */
   font-display: block;
-  src: url("/fonts/solmoe-kdg-medium-subset-v2.woff2") format("woff2");
+  src: url("/fonts/solmoe-kdg-medium-subset-v3.woff2") format("woff2");
 }
 
 /* 색·서체·치수 변수는 **바깥 래퍼**가 든다 — 티커가 본문 열 밖으로 나가야 전폭이
@@ -133,7 +133,8 @@
 .logoSway {
   flex: 0 0 auto;
   display: block;
-  animation: cbSway 4s ease-in-out infinite alternate;
+  /* 1.33s = 4s 의 3배속 (운영자 2026-08-25 "좌우왕복 속도 3배 빠르게") */
+  animation: cbSway 1.33s ease-in-out infinite alternate;
 }
 @keyframes cbSway {
   to {
@@ -347,6 +348,14 @@
 .textarea::placeholder {
   color: #bcbcbc;
 }
+/* 희망 날짜와 시간대 필드만 — [신청서] 옆 괄호 부기(신청 가능 시간)를 이 플레이스홀더로
+   이관 (운영자 2026-08-25 "같은 폰트로 넣어줘(크기만 감소하고 흑색 베이스). 현재
+   플레이스홀더용 굵기와 크기에 맞추어 폰트만 그걸로"). 크기·굵기는 입력값(16px/500)
+   그대로 두고 서체만 솔뫼체, 색은 흑색 베이스(잉크). */
+.inputWhen::placeholder {
+  font-family: var(--hand);
+  color: var(--ink);
+}
 .input:focus,
 .textarea:focus {
   outline: 0;
@@ -385,6 +394,50 @@
 }
 .consentNote span {
   display: block;
+}
+
+/* 동의 상세 접기 — lazyday apply 의 FAQ 라인 문법(grid-rows 전개) 이식
+   (운영자 2026-08-25 "애니메이션은 lazyday-bookclub.com/apply 페이지 기반으로").
+   단 아이콘은 + 45° 회전 대신 **꺾은괄호를 아래↔위로 돌린다**(같은 지시). */
+.consentHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.consentHead .consentLabel {
+  flex: 1;
+  margin-bottom: 0;
+}
+.consentToggle {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 13px;
+  /* '>' 를 90° 돌려 ∨(아래) — 접힘 상태. 열면 -90° 로 ∧(위) */
+  transform: rotate(90deg);
+  transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.consentToggleOpen {
+  transform: rotate(-90deg);
+}
+.consentBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+.consentBodyOpen {
+  grid-template-rows: 1fr;
+}
+.consentBodyInner {
+  overflow: hidden;
 }
 
 /* ── 오류·구제 ── */

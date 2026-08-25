@@ -46,17 +46,18 @@ export default function CoffeeBarPage() {
         {/* 색·서체 변수는 이 바깥 래퍼가 들고 있다 — 티커가 본문 열(.page) 밖으로
             나가야 전폭이 되는데, 변수가 .page 에만 있으면 티커가 상속받지 못한다 */}
         <div className={cb.root}>
-          {/* 첫 문장 = **탑네비 바로 밑 전폭 스티키 티커**, 좌측 등속
+          {/* **탑네비 바로 밑 전폭 스티키 티커**, 좌측 등속
               (운영자 2026-08-25: "동민과 고든 커피앤바 보다 위에 있어야해 /
                탑네비 바로밑에 좌우폭에 맞추어 스티키로", 레퍼런스 outstanding-co.kr
-               상단 스티키 바의 **반대 방향**). 문구도 같은 라운드에서 교체됐다:
-              "…를 발견하신 여러분을 환영합니다" → "안녕하세요. 동민과 고든입니다."
-              ('동민과 고든' 주황 서식은 유지) */}
+               상단 스티키 바의 **반대 방향**).
+              ⚠ 문구는 **원본 포스터의 첫 줄(환영 인사) 그대로**다 — 한때 "안녕하세요.
+              동민과 고든입니다."로 갈아끼웠던 것은 지시 오독이었다(2026-08-25 정정).
+              그 인사말은 티커가 아니라 **제목 아래 본문 첫 줄**로 따로 들어간다. */}
           <div className={cb.ticker}>
             <div className={cb.tickerTrack}>
               {[0, 1, 2, 3, 4, 5].map((i) => (
                 <span className={cb.tickerItem} key={i} aria-hidden={i > 0 || undefined}>
-                  안녕하세요. <span className={cb.kOrange}>동민과 고든</span>입니다.
+                  <BrandRun />를 발견하신 여러분을 환영합니다.
                 </span>
               ))}
             </div>
@@ -77,6 +78,12 @@ export default function CoffeeBarPage() {
           </header>
 
           <div className={cb.intro}>
+            {/* 제목 바로 밑 인사말 — 운영자 2026-08-25 추가 지시
+                ("그 아래 첫 제목 밑에 안녕하세요 동민과고든 그거 문장 추가").
+                '동민과 고든' 주황 서식 유지 */}
+            <p>
+              안녕하세요. <span className={cb.kOrange}>동민과 고든</span>입니다.
+            </p>
             <p>
               <BrandRun />는 음료 및 주류 판매점이 아닙니다.
             </p>

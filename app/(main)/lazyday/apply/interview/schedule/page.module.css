@@ -626,7 +626,9 @@
    .scheduleValue 값을 **그대로 복사**했다 — import 하지 않은 이유는 그쪽이
    실 apply·preview/apply·one-day-talk-01 3곳 공용이라, 여기까지 물리면 apply 쪽
    손볼 때마다 인터뷰 페이지가 조용히 따라 바뀌기 때문(§4 공유 CSS 지도).
-   apply 값이 바뀌면 이 블록도 같이 볼 것.
+   ⚠ 2026-08-25: **여백은 단일 블록에 맞게 조정했다** — 서체·색·보더·radius 만
+   apply 원본과 동일하고 padding/margin 은 다르다(다음 세션이 diff 0 으로 오해하지 말 것).
+   apply 의 서체·색이 바뀌면 이 블록도 같이 볼 것.
    ⚠ 라벨 색은 apply 와 동일하게 **본문 상속**에 맡긴다 — 두 페이지의 body color 가
    같음을 실측 확인(lab(12.8288 5.9375 3.9758)). 여기에 색을 새로 지정하면 오히려
    원본과 갈린다. 블록이 하나뿐이라 apply 의 `.ruledBlock + .ruledBlock` 구분선은
@@ -634,21 +636,35 @@
 .feeCard {
   background: #ffffff;
   border-radius: 12px;
-  padding: 18px 16px;
+  /* 한 줄 압축 (운영자 2026-08-25 "박스 너무 커 / 두 줄로 할 필요도 없어보여").
+     구 18px 16px 는 apply 카드 값이었는데, 그쪽은 일정·장소 세 블록이 구분선으로
+     쌓이는 카드라 그 여백에 할 일이 있었다. 여기는 블록이 하나뿐이라 여백만
+     따라온 상태였다 — 카드 높이 ~122px → ~48px */
+  padding: 12px 14px;
   margin-bottom: 8px;
   border: 1px solid #e8dccd;
+  /* 2026-08-25 내용 확장 — 라벨이 "4기 멤버십(정규 독서모임 4회 + 자유 독서모임)"
+     으로 길어져 값과 한 줄에 못 담는다. 세로 2행으로 두되 압축 패딩은 유지. */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
-.feeBlock {
-  padding: 12px 0 22px;
-}
+/* .feeBlock 은 폐기 — 단일 블록이라 래퍼가 할 일이 없다 (구 apply .ruledBlock 대응물) */
 .feeLabel {
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  margin: 0 0 12px;
+  margin: 0;
+  line-height: 1.45;
+}
+/* 괄호 부연 — 라벨보다 **굵기 두 단계 아래**(700 → 600 → 500), 운영자 2026-08-25.
+   크기·색은 라벨과 같게 두어 한 문장으로 이어 읽히게 한다. */
+.feeLabelSub {
+  font-weight: 500;
 }
 .feeValue {
-  margin: 2px 0 0;
+  margin: 0;
   font-size: 15px;
   font-weight: 700;
   color: #1a1208;

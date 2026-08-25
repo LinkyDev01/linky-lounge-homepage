@@ -313,7 +313,8 @@ export default function PreviewApplyPage() {
               <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
             </div>
 
-            {/* 진행 장소 · 멤버십 가격 — 일정과 동급 블록 (실사이트 쌍 동기화) */}
+            {/* 진행 장소 — 일정과 동급 블록 (실사이트 쌍 동기화).
+                멤버십 가격 행은 2026-08-25 제거 — 전화 인터뷰 예약 페이지로 이동 */}
             <div className={styles.ruledBlock}>
               <h2 className={styles.ruledLabel}>진행 장소</h2>
               <p className={styles.scheduleValue}>
@@ -321,11 +322,6 @@ export default function PreviewApplyPage() {
                 <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
               </p>
               <p className={styles.scheduleNote}>{SEASON.location.note}</p>
-            </div>
-
-            <div className={styles.ruledBlock}>
-              <h2 className={styles.ruledLabel}>멤버십 가격</h2>
-              <p className={styles.scheduleValue}>{SEASON.price}</p>
             </div>
           </div>
           </section>

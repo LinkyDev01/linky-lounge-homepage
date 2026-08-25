@@ -507,7 +507,9 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-        {/* 3기 안내 */}
+        {/* 기수 안내 — 멤버십 가격은 2026-08-25 부터 이 박스에서만 노출한다
+            (운영자 지시로 apply 페이지에서 이관. 랜딩·apply 는 비노출 유지,
+            서면 인터뷰 쪽 같은 박스에는 넣지 않는다). 값은 SEASON.price 단일 출처. */}
           <div className={styles.refBeigeWrap}>
             <p className={styles.ref0Title}>{SEASON.name} 안내</p>
             <div className={styles.ref0Grid}>
@@ -515,6 +517,8 @@ export default function InterviewSchedulePage() {
               <span className={styles.ref0Val}>{SEASON.regularNote}</span>
               <span className={styles.ref0Key}>자유모임</span>
               <span className={styles.ref0Val}>{SEASON.freeNote}</span>
+              <span className={styles.ref0Key}>멤버십 가격</span>
+              <span className={`${styles.ref0Val} ${styles.priceNow}`}>{SEASON.price}</span>
               <span className={styles.ref0Key}>장소</span>
               <span className={styles.ref0Val}>{SEASON.location.short}</span>
             </div>

@@ -180,8 +180,9 @@
   letter-spacing: 0;
 }
 
-/* 진행 장소 · 멤버십 가격 — 일정과 동급 블록(.ruledBlock, 위에서 정의). 값 서식은
-   preview/apply-info-designs 의 .ruledValue/.valueSubInk 원본과 diff 0 */
+/* 진행 장소 — 일정과 동급 블록(.ruledBlock, 위에서 정의). 값 서식은
+   preview/apply-info-designs 의 .ruledValue/.valueSubInk 원본과 diff 0.
+   (멤버십 가격 행은 2026-08-25 전화 인터뷰 예약 페이지로 이관) */
 .scheduleValue {
   margin: 2px 0 0;
   font-size: 15px;

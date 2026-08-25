@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { preload } from "react-dom"
 import { WorkroomShell } from "../../Shell"
 import { CoffeeBarForm } from "./CoffeeBarForm"
 import { NavOffset } from "./NavOffset"
@@ -41,6 +42,16 @@ function BrandRun() {
 }
 
 export default function CoffeeBarPage() {
+  // 솔뫼체 서브셋을 첫 HTML 응답의 <head> 에서 preload — CSS 파싱을 기다렸다
+  // @font-face 를 만나고서야 받기 시작하면 그만큼 글자 공백(block)이 길어진다.
+  // ⚠ crossOrigin 필수: 폰트 fetch 는 same-origin 이어도 CORS 모드다 — 빼면
+  //   preload 본과 실제 요청이 캐시를 공유하지 못해 두 번 받는다.
+  // ⚠ 서브셋 파일명 버전이 오르면 여기도 같이 (coffeebar.module.css 의 src 와 짝)
+  preload("/fonts/solmoe-kdg-medium-subset-v2.woff2", {
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  })
   return (
     <WorkroomShell>
       <main className={styles.content}>

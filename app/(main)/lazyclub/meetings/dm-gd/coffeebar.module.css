@@ -27,7 +27,13 @@
   font-family: "Solmoe KimDaeGeon";
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
+  /* ⚠ swap 이 아니라 **block** — 운영자 신고(2026-08-25) "사파리 첫 진입 찰나에
+     서식이 깨졌다 바뀐다": swap 은 폴백(SUIT)으로 먼저 그렸다가 갈아끼우는데,
+     이 페이지는 티커 크기(문장이 바를 채우는 배율)와 글자 테두리가 전부 솔뫼체
+     기준이라 폴백 순간이 '깨진 서식'으로 보인다. block 은 그 짧은 동안 글자를
+     투명하게 두므로 틀린 모양이 아예 안 보인다. 파일이 26KB 서브셋 + 아래
+     preload(page.tsx)까지 있어 공백은 체감 못 할 길이다. */
+  font-display: block;
   src: url("/fonts/solmoe-kdg-medium-subset-v2.woff2") format("woff2");
 }
 

@@ -387,26 +387,11 @@
   border-radius: 0;
   cursor: pointer;
 }
-.fled {
-  animation: cbFlee 1.5s linear forwards;
-}
-/* X 는 감속하며 나아가고 Y 는 점점 잦아드는 파형 — 전체 timing 을 linear 로 두어야
-   키프레임 사이가 매끄럽다(구간마다 ease 를 먹이면 마디마다 멈칫한다) */
-@keyframes cbFlee {
-  0% { transform: translate(0, 0); }
-  15% { transform: translate(calc(var(--cb-flee, 0px) * 0.2), -7px); }
-  35% { transform: translate(calc(var(--cb-flee, 0px) * 0.45), 6px); }
-  55% { transform: translate(calc(var(--cb-flee, 0px) * 0.66), -5px); }
-  75% { transform: translate(calc(var(--cb-flee, 0px) * 0.83), 4px); }
-  90% { transform: translate(calc(var(--cb-flee, 0px) * 0.94), -2px); }
-  100% { transform: translate(var(--cb-flee, 0px), 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fled {
-    animation: none;
-    transform: translateX(var(--cb-flee, 0px));
-  }
-}
+/* ⚠ 도망 애니메이션은 **CSS 키프레임이 아니라 JS(WAAPI)** 로 돌린다 —
+   키프레임 안에서 `calc(var(--x) * n)` 을 쓰면 크로미움이 그 transform 애니메이션을
+   **합성 스레드로 못 올린다**(메인 스레드에서 돌아 다른 작업에 밀린다). 달아날 거리는
+   런타임에만 알 수 있어 변수가 불가피했으므로, 키프레임을 아예 JS 로 옮겨
+   **실제 px 값**으로 넘긴다. 구현은 CoffeeBarForm.flee() 참조. */
 
 /* ── 확인 모달 — 서체는 푸터와 같은 Gothic A1, 미디움(500) (운영자 지정) ── */
 .confirmBack {

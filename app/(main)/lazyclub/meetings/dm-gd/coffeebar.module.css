@@ -70,12 +70,33 @@
 /* **직접 자식만** 블록 — 중첩 span(커피/앤/바 색 분할)까지 블록이 되면 제목이
    글자마다 줄바꿈된다 (2026-08-25 실측: '커피앤바'가 3줄로 쪼개졌다) */
 .title > span { display: block; }
-/* 원본의 주황 제목에는 갈색 테두리가 있다 — paint-order 로 획을 글자 뒤에 깔아
-   두께를 잃지 않게 그린다(미지원 브라우저는 획이 약간 안쪽을 먹지만 형태는 유지) */
+/* 제목 글자 테두리 — 원본 실측 복원 (운영자 2026-08-25 "글자테두리 원본 이미지
+   다시 살려서 글자크기 대비 비율에 맞게 반영해").
+   비율 구하는 법: 원본 '동민과 고든' 잉크높이 66px, 이 서체의 잉크/em = 0.93 →
+   원본 글자크기 ≈ 71px. 그래서 **내 제목도 71px 로 맞춰 놓고** 두 이미지의 테두리
+   두께 분포를 같은 방법으로 재 맞췄다(계산보다 실측이 정확하다 — 안티에일리어싱이
+   양쪽에 같은 편향을 주므로 상쇄된다). 2회 보정 끝 **0.0356em**:
+   원본 평균 2.82px ↔ 이 값 2.88px (2% 차).
+   em 단위라 글자 크기가 바뀌어도 비율이 따라온다(운영자 단서 "글자크기 대비 비율").
+   ⚠ 다시 맞출 일이 생기면 계산하지 말고 71px 로 맞춘 캡처끼리 분포를 비교할 것.
+   ⚠ 세 색이 각자 더 짙은 테두리를 가진다 — 원본에서 색마다 따로 실측했다.
+   ⚠ 본문 인라인의 '동민과 고든 커피앤바'는 원본에서 **테두리가 없다**(확대 확인) —
+     .kOrange/.kPlum/.kSage 는 색만 입힌다. */
+.titleTop,
+.title .kPlum,
+.title .kSage {
+  -webkit-text-stroke-width: 0.0356em;
+  paint-order: stroke fill;
+}
 .titleTop {
   color: var(--cb-orange);
-  -webkit-text-stroke: 1.6px #b4732c;
-  paint-order: stroke fill;
+  -webkit-text-stroke-color: #563009;
+}
+.title .kPlum {
+  -webkit-text-stroke-color: #362523;
+}
+.title .kSage {
+  -webkit-text-stroke-color: #343b32;
 }
 .kOrange { color: var(--cb-orange); }
 .kPlum { color: var(--cb-plum); }
@@ -346,7 +367,14 @@
   text-decoration-thickness: 0.8px;
 }
 
-/* ── 제출 — 잉크 칩 ── */
+/* ── 제출 — 잉크 칩 + **도망가는 버튼** (운영자 2026-08-25) ──
+   한 번 누르면 1.5초에 걸쳐 살짝 구불구불하게 우측으로 달아나고(꼬이지는 않는다 —
+   회전 없이 Y 만 잦아드는 파형), 잡아서 다시 누르면 확인 모달이 뜬다.
+   달아날 거리 --cb-flee 는 클릭 순간 JS 가 실측해 넣는다(행 너비 - 버튼 너비) —
+   CSS 만으로는 형제 폭을 알 수 없고, 100% 는 자기 폭이라 쓸 수 없다. */
+.submitRow {
+  margin-top: 30px;
+}
 .actionBtn {
   display: inline-block;
   background: var(--ink);
@@ -358,7 +386,79 @@
   border: 0;
   border-radius: 0;
   cursor: pointer;
-  margin-top: 30px;
+}
+.fled {
+  animation: cbFlee 1.5s linear forwards;
+}
+/* X 는 감속하며 나아가고 Y 는 점점 잦아드는 파형 — 전체 timing 을 linear 로 두어야
+   키프레임 사이가 매끄럽다(구간마다 ease 를 먹이면 마디마다 멈칫한다) */
+@keyframes cbFlee {
+  0% { transform: translate(0, 0); }
+  15% { transform: translate(calc(var(--cb-flee, 0px) * 0.2), -7px); }
+  35% { transform: translate(calc(var(--cb-flee, 0px) * 0.45), 6px); }
+  55% { transform: translate(calc(var(--cb-flee, 0px) * 0.66), -5px); }
+  75% { transform: translate(calc(var(--cb-flee, 0px) * 0.83), 4px); }
+  90% { transform: translate(calc(var(--cb-flee, 0px) * 0.94), -2px); }
+  100% { transform: translate(var(--cb-flee, 0px), 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fled {
+    animation: none;
+    transform: translateX(var(--cb-flee, 0px));
+  }
+}
+
+/* ── 확인 모달 — 서체는 푸터와 같은 Gothic A1, 미디움(500) (운영자 지정) ── */
+.confirmBack {
+  position: fixed;
+  inset: 0;
+  z-index: 400; /* 헤더 99 · 티커 20 · 로더 300 위 */
+  background: rgba(26, 18, 8, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.confirmCard {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 26px 22px 20px;
+  max-width: 340px;
+  width: 100%;
+  font-family: var(--gothic);
+  font-weight: 500;
+  color: var(--ink);
+}
+.confirmTitle {
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.confirmBody {
+  margin: 0 0 22px;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #6d6459;
+  word-break: keep-all;
+}
+.confirmActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.confirmNo {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: #6d6459;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
 }
 .actionBtn:hover {
   opacity: 0.85;

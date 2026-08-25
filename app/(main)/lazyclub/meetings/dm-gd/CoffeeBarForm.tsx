@@ -19,7 +19,7 @@
  * 선택기를 쓰지 않는다. 운영자가 읽고 조율하는 자유 문장이라 형식을 강제하지 않는다.
  */
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   copyText,
   KAKAO_CHAT_URL,
@@ -47,6 +47,12 @@ export function CoffeeBarForm() {
   const [privacyConsent, setPrivacyConsent] = useState(false)
   const [failedText, setFailedText] = useState("")
   const [failCopied, setFailCopied] = useState(false)
+  /** 제출 버튼이 한 번 달아났는가 (운영자 2026-08-25 — 위트 장치) */
+  const [escaped, setEscaped] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const rowRef = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
 
   const clearError = (k: string) => setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
 
@@ -58,17 +64,18 @@ export function CoffeeBarForm() {
     } catch {}
   }, [])
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (loading) return
-    const data = new FormData(e.currentTarget)
+  /** 폼 값 읽기 — 제출 이벤트가 아니라 ref 에서 읽는다. 버튼이 submit 이 아니게
+   *  바뀌었기 때문(도망 → 확인 모달 → 제출 순서라 클릭이 곧 제출이 아니다) */
+  function readValues() {
+    const data = new FormData(formRef.current ?? undefined)
     const v = (k: string) => ((data.get(k) as string) ?? "").trim()
-    const name = v("name")
-    const age = v("age")
-    const phone = v("phone")
-    const preferredWhen = v("preferredWhen")
-    const intro = v("intro")
+    return { name: v("name"), age: v("age"), phone: v("phone"), preferredWhen: v("preferredWhen"), intro: v("intro") }
+  }
 
+  /** 검증만 — 통과 여부를 돌려준다. 모달을 띄우기 **전에** 부른다:
+   *  빈 칸인 채로 "정말 제출하시겠습니까"를 묻는 건 허탕이다 */
+  function validate() {
+    const { name, age, phone, preferredWhen } = readValues()
     const next: Record<string, string> = {}
     if (!name) next.name = "이름을 입력해주세요."
     if (!age) next.age = "나이를 입력해주세요."
@@ -83,10 +90,35 @@ export function CoffeeBarForm() {
           ? document.getElementById("privacyConsent")
           : document.querySelector(`[name="${first}"]`)
       el?.scrollIntoView({ behavior: "smooth", block: "center" })
+      return false
+    }
+    setErrors({})
+    return true
+  }
+
+  /** 달아날 거리를 실측해 CSS 변수로 넣는다 — 행 너비에서 버튼 너비를 뺀 만큼.
+   *  CSS 만으로는 형제(행)의 폭을 알 수 없고 100% 는 자기 폭이라 쓸 수 없다 */
+  function flee() {
+    const row = rowRef.current
+    const btn = btnRef.current
+    if (row && btn) btn.style.setProperty("--cb-flee", `${Math.max(0, row.clientWidth - btn.offsetWidth)}px`)
+    setEscaped(true)
+  }
+
+  /** 버튼 클릭 — 처음엔 달아나고(검증 없음), 잡아서 다시 누르면 검증 후 확인 모달 */
+  function handleButtonClick() {
+    if (loading) return
+    if (!escaped) {
+      flee()
       return
     }
+    if (validate()) setConfirming(true)
+  }
 
-    setErrors({})
+  async function reallySubmit() {
+    setConfirming(false)
+    if (loading) return
+    const { name, age, phone, preferredWhen, intro } = readValues()
     setLoading(true)
     const ac = new AbortController()
     const timer = setTimeout(() => ac.abort(), 25_000)
@@ -160,7 +192,15 @@ export function CoffeeBarForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate>
+      {/* onSubmit 은 Enter 키 대비 — 버튼이 submit 이 아니라 도망 장치가 됐다 */}
+      <form
+        ref={formRef}
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleButtonClick()
+        }}
+      >
         <div className={cb.field}>
           <label htmlFor="cb-name" className={cb.fieldLabel}>
             이름<span className={cb.required}>*</span>
@@ -170,7 +210,6 @@ export function CoffeeBarForm() {
             name="name"
             type="text"
             className={`${cb.input} ${errors.name ? cb.inputError : ""}`}
-            placeholder="성함을 기입해주세요."
             onChange={() => clearError("name")}
           />
           {errors.name && <p className={cb.errorText}>{errors.name}</p>}
@@ -187,7 +226,6 @@ export function CoffeeBarForm() {
             inputMode="numeric"
             maxLength={3}
             className={`${cb.input} ${errors.age ? cb.inputError : ""}`}
-            placeholder="만 나이를 입력해주세요."
             onChange={(e) => {
               e.target.value = e.target.value.replace(/[^0-9]/g, "")
               clearError("age")
@@ -206,7 +244,6 @@ export function CoffeeBarForm() {
             type="tel"
             inputMode="numeric"
             className={`${cb.input} ${errors.phone ? cb.inputError : ""}`}
-            placeholder="010-0000-0000"
             onChange={(e) => {
               e.target.value = formatPhone(e.target.value)
               clearError("phone")
@@ -224,7 +261,6 @@ export function CoffeeBarForm() {
             name="intro"
             rows={3}
             className={cb.textarea}
-            placeholder="어떤 분인지, 어떤 대화를 나누고 싶은지 편하게 적어주세요."
           />
         </div>
 
@@ -237,10 +273,8 @@ export function CoffeeBarForm() {
             name="preferredWhen"
             type="text"
             className={`${cb.input} ${errors.preferredWhen ? cb.inputError : ""}`}
-            placeholder="예) 9월 3일 저녁 8시쯤"
             onChange={() => clearError("preferredWhen")}
           />
-          <p className={cb.hint}>신청 가능 시간은 평일 19시 ~ 24시입니다.</p>
           {errors.preferredWhen && <p className={cb.errorText}>{errors.preferredWhen}</p>}
         </div>
 
@@ -303,10 +337,47 @@ export function CoffeeBarForm() {
           </div>
         )}
 
-        <button type="submit" className={cb.actionBtn} disabled={loading}>
-          {loading ? "로딩 중" : "신청하기"}
-        </button>
+        {/* 도망가는 제출 버튼 — 처음 누르면 1.5초에 걸쳐 우측으로 달아나고,
+            잡아서 다시 누르면 확인 모달이 뜬다 (운영자 2026-08-25) */}
+        <div className={cb.submitRow} ref={rowRef}>
+          <button
+            type="button"
+            ref={btnRef}
+            className={`${cb.actionBtn} ${escaped ? cb.fled : ""}`}
+            disabled={loading}
+            onClick={handleButtonClick}
+          >
+            {loading ? "로딩 중" : "신청하기"}
+          </button>
+        </div>
       </form>
+
+      {confirming && (
+        <div
+          className={cb.confirmBack}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cb-confirm-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setConfirming(false)
+          }}
+        >
+          <div className={cb.confirmCard}>
+            <p className={cb.confirmTitle} id="cb-confirm-title">
+              정말 제출하시겠습니까?
+            </p>
+            <p className={cb.confirmBody}>버튼은 도망쳤지만 신청서는 도망가지 않습니다.</p>
+            <div className={cb.confirmActions}>
+              <button type="button" className={cb.actionBtn} onClick={reallySubmit}>
+                제출합니다
+              </button>
+              <button type="button" className={cb.confirmNo} onClick={() => setConfirming(false)}>
+                아직이요
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

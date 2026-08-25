@@ -96,7 +96,7 @@ export function CoffeeBarForm() {
     return true
   }
 
-  /** 버튼을 우측으로 달아나게 한다 (1.5초).
+  /** 버튼을 우측으로 달아나게 한다 (1초 — 운영자 2026-08-25 "1.5초라면 1초로 당겨").
    *
    *  달아날 거리는 런타임에만 알 수 있다 — 행 너비에서 버튼 너비를 뺀 만큼이고,
    *  CSS 만으로는 형제(행)의 폭을 알 수 없으며 `100%` 는 자기 폭이라 쓸 수 없다.
@@ -130,7 +130,7 @@ export function CoffeeBarForm() {
         { transform: `translate(${dx * 0.94}px, -2px)`, offset: 0.9 },
         { transform: `translate(${dx}px, 0px)` },
       ],
-      { duration: 1500, easing: "linear" },
+      { duration: 1000, easing: "linear" },
     )
   }
 

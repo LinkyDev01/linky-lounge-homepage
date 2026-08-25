@@ -96,13 +96,42 @@ export function CoffeeBarForm() {
     return true
   }
 
-  /** 달아날 거리를 실측해 CSS 변수로 넣는다 — 행 너비에서 버튼 너비를 뺀 만큼.
-   *  CSS 만으로는 형제(행)의 폭을 알 수 없고 100% 는 자기 폭이라 쓸 수 없다 */
+  /** 버튼을 우측으로 달아나게 한다 (1.5초).
+   *
+   *  달아날 거리는 런타임에만 알 수 있다 — 행 너비에서 버튼 너비를 뺀 만큼이고,
+   *  CSS 만으로는 형제(행)의 폭을 알 수 없으며 `100%` 는 자기 폭이라 쓸 수 없다.
+   *
+   *  ⚠ 그래서 **CSS 키프레임을 쓰지 않는다.** 키프레임 안에서 `calc(var(--x) * n)` 을
+   *  쓰면 크로미움이 그 transform 애니메이션을 합성 스레드로 올리지 못해 메인 스레드에서
+   *  돌고, 기기가 바쁠 때 끊긴다. WAAPI 로 **실제 px 키프레임**을 넘기면 합성 대상이 된다.
+   *
+   *  최종 위치는 인라인 transform 으로 못박고 애니메이션에는 fill 을 주지 않는다 —
+   *  끝나면 자연히 그 값에 정착하므로 fill 잔재가 남지 않는다.
+   *
+   *  X 는 감속하며 나아가고 Y 는 ±7 → ±2px 로 잦아드는 파형이다(회전 없음 — 운영자
+   *  "살짝 구불구불하게 꼬이지는 않고"). easing 은 linear — 구간마다 ease 를 먹이면
+   *  키프레임 마디에서 멈칫한다. */
   function flee() {
+    setEscaped(true)
     const row = rowRef.current
     const btn = btnRef.current
-    if (row && btn) btn.style.setProperty("--cb-flee", `${Math.max(0, row.clientWidth - btn.offsetWidth)}px`)
-    setEscaped(true)
+    if (!row || !btn) return
+    const dx = Math.max(0, row.clientWidth - btn.offsetWidth)
+    btn.style.transform = `translateX(${dx}px)`
+    const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (reduce || typeof btn.animate !== "function") return
+    btn.animate(
+      [
+        { transform: "translate(0px, 0px)" },
+        { transform: `translate(${dx * 0.2}px, -7px)`, offset: 0.15 },
+        { transform: `translate(${dx * 0.45}px, 6px)`, offset: 0.35 },
+        { transform: `translate(${dx * 0.66}px, -5px)`, offset: 0.55 },
+        { transform: `translate(${dx * 0.83}px, 4px)`, offset: 0.75 },
+        { transform: `translate(${dx * 0.94}px, -2px)`, offset: 0.9 },
+        { transform: `translate(${dx}px, 0px)` },
+      ],
+      { duration: 1500, easing: "linear" },
+    )
   }
 
   /** 버튼 클릭 — 처음엔 달아나고(검증 없음), 잡아서 다시 누르면 검증 후 확인 모달 */
@@ -343,7 +372,7 @@ export function CoffeeBarForm() {
           <button
             type="button"
             ref={btnRef}
-            className={`${cb.actionBtn} ${escaped ? cb.fled : ""}`}
+            className={cb.actionBtn}
             disabled={loading}
             onClick={handleButtonClick}
           >

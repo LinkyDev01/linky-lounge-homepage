@@ -517,12 +517,10 @@ export default function InterviewSchedulePage() {
             일정·장소는 apply 페이지에 그대로 있다 — 여기선 가격만 남긴다.
             서식은 2026-08-25 베이지 안내 박스 → **apply 히어로 카드 서식**으로 교체
             (운영자 "기존 어플라이페이지 히어로 서식 이식해서 멤버십 가격만 적어").
-            값은 page.module.css 의 .feeCard/.feeBlock/.feeLabel/.feeValue 참조. */}
+            값은 page.module.css 의 .feeCard/.feeLabel/.feeValue 참조 (2026-08-25 한 줄로 압축). */}
           <div className={styles.feeCard}>
-            <div className={styles.feeBlock}>
-              <h2 className={styles.feeLabel}>멤버십 가격</h2>
-              <p className={styles.feeValue}>{SEASON.price}</p>
-            </div>
+            <h2 className={styles.feeLabel}>멤버십 가격</h2>
+            <p className={styles.feeValue}>{SEASON.price}</p>
           </div>
 
         {/* 메인 패널 */}

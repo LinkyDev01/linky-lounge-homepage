@@ -312,10 +312,8 @@ export default function PreviewInterviewSchedulePage() {
           {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25: 안내 박스의 일정·장소 행을
               걷고 apply 히어로 카드 서식으로 교체). 사유는 실사이트 주석 참조 */}
           <div className={styles.feeCard}>
-            <div className={styles.feeBlock}>
-              <h2 className={styles.feeLabel}>멤버십 가격</h2>
-              <p className={styles.feeValue}>{SEASON.price}</p>
-            </div>
+            <h2 className={styles.feeLabel}>멤버십 가격</h2>
+            <p className={styles.feeValue}>{SEASON.price}</p>
           </div>
 
           <div className={styles.panel}>

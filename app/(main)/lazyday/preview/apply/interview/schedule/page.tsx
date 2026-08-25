@@ -309,20 +309,13 @@ export default function PreviewInterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 안내</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>1–4회차 · 9월 9일부터 격주, 화·수·일 선택</span>
-              <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
-              {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25 apply 에서 이관) */}
-              <span className={styles.ref0Key}>멤버십 가격</span>
-              <span className={`${styles.ref0Val} ${styles.priceNow}`}>{SEASON.price}</span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
+          {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25: 안내 박스의 일정·장소 행을
+              걷고 apply 히어로 카드 서식으로 교체). 사유는 실사이트 주석 참조 */}
+          <div className={styles.feeCard}>
+            <div className={styles.feeBlock}>
+              <h2 className={styles.feeLabel}>멤버십 가격</h2>
+              <p className={styles.feeValue}>{SEASON.price}</p>
             </div>
-            <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
           </div>
 
           <div className={styles.panel}>

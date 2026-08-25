@@ -43,7 +43,26 @@ export default function CoffeeBarPage() {
   return (
     <WorkroomShell>
       <main className={styles.content}>
-        <div className={cb.page}>
+        {/* 색·서체 변수는 이 바깥 래퍼가 들고 있다 — 티커가 본문 열(.page) 밖으로
+            나가야 전폭이 되는데, 변수가 .page 에만 있으면 티커가 상속받지 못한다 */}
+        <div className={cb.root}>
+          {/* 첫 문장 = **탑네비 바로 밑 전폭 스티키 티커**, 좌측 등속
+              (운영자 2026-08-25: "동민과 고든 커피앤바 보다 위에 있어야해 /
+               탑네비 바로밑에 좌우폭에 맞추어 스티키로", 레퍼런스 outstanding-co.kr
+               상단 스티키 바의 **반대 방향**). 문구도 같은 라운드에서 교체됐다:
+              "…를 발견하신 여러분을 환영합니다" → "안녕하세요. 동민과 고든입니다."
+              ('동민과 고든' 주황 서식은 유지) */}
+          <div className={cb.ticker}>
+            <div className={cb.tickerTrack}>
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <span className={cb.tickerItem} key={i} aria-hidden={i > 0 || undefined}>
+                  안녕하세요. <span className={cb.kOrange}>동민과 고든</span>입니다.
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className={cb.page}>
           <header className={cb.head}>
             <h1 className={cb.title}>
               <span className={cb.titleTop}>동민과 고든</span>
@@ -56,20 +75,6 @@ export default function CoffeeBarPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={cb.logo} src={LOGO} alt="레이지 클럽" width={74} height={74} />
           </header>
-
-          {/* 첫 문장 = **좌측 등속 티커** (운영자 2026-08-25 — 레퍼런스 outstanding-co.kr
-              상단 스티키 바의 **반대 방향**). 문구도 같은 지시로 교체됐다:
-              "…를 발견하신 여러분을 환영합니다" → "안녕하세요. 동민과 고든입니다."
-              ('동민과 고든' 주황 서식은 유지) */}
-          <div className={cb.ticker}>
-            <div className={cb.tickerTrack}>
-              {[0, 1, 2, 3].map((i) => (
-                <span className={cb.tickerItem} key={i} aria-hidden={i > 0 || undefined}>
-                  안녕하세요. <span className={cb.kOrange}>동민과 고든</span>입니다.
-                </span>
-              ))}
-            </div>
-          </div>
 
           <div className={cb.intro}>
             <p>
@@ -116,6 +121,7 @@ export default function CoffeeBarPage() {
           </h2>
 
           <CoffeeBarForm />
+          </div>
         </div>
       </main>
     </WorkroomShell>

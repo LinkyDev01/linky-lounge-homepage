@@ -40,7 +40,9 @@
 ⚠ 다른 Supabase 계정(조직 wacnihxjkusgpxgsfupw)에 같은 이름의 lazyday-prod 가 하나
 만들어졌다가 계정을 바꾸며 버려졌다 — 그 계정 대시보드에서 지우면 된다 (빈 프로젝트).
 
-### ② Vercel 에 환경변수 2개 넣기
+### ② Vercel 에 환경변수 2개 넣기 — ✔ 완료 (2026-08-26 확인)
+
+> prod 원장에 실주문이 서버 경로로 기록돼 있어(첫 행 `lz-d906-…`, 2026-08-18) 두 변수가 실제로 들어가 있음이 확인됐다. 아래는 값을 다시 넣거나 Preview 에 dev 값을 붙일 때의 절차다.
 
 Vercel → 프로젝트 `linky-lounge-homepage` → Settings → Environment Variables.
 
@@ -79,7 +81,7 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 |---|---|---|---|
 | `20260818090000_core_orders.sql` | orders · order_items · order_shipping · participants + RLS + R9 파기 함수 | ✔ | ✔ |
 | `20260818120000_harden_functions.sql` | 파기 함수 EXECUTE 를 service_role 만으로 회수 + set_updated_at search_path 고정 (dev 어드바이저 지적) | ✔ | ✔ |
-| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ⏳ MCP 재연결 시 적용 |
+| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ✔ (2026-08-26 확인 — `cron.job` 에 `r9-purge-participants @ 30 18 * * *` UTC 등록됨. SQL 로 직접 적용해 `list_migrations` 목록에는 안 뜬다) |
 
 ## 5. 운영 조회
 

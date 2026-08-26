@@ -74,7 +74,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 
 **공유 데이터 — 프리뷰/레이지클럽 경로가 프로덕션 결제를 좌우한다**: `lazyclub/goods-config.ts` 와 `one-day-talk-01/oneday-shared.ts` 의 가격·slug·status 는 `lib/order-catalog.ts` → `/api/lazyday/payment/confirm` 이 **결제 승인 금액을 재계산하는 근거**다(주문 DB 없음 — 카탈로그가 과거 주문의 금액 근거). 가격 변경은 ① 진행 중 결제 없는 시각에 ② DECISIONS 에 전/후 값·시각 기록 후. (설계: `/lazyday/preview/commerce-journey`)
 
-**Supabase 자산 3종(lib/supabase.ts·schema.sql·migrate gs)은 미배선 초안** — "기존 스키마"로 오인해 얹지 말 것 (각 파일 헤더 참조).
+**Supabase 주문 원장(2026-08-18 배선 완료)** — 정본 절차는 `supabase/README.md`. 스키마는 `supabase/migrations/*.sql` **append-only**(적용된 파일 수정 금지, 새 파일 추가) · 접근은 `lib/supabase-server.ts`(service_role) 를 쓰는 **서버 라우트만** — 브라우저 클라이언트·RLS 정책·`NEXT_PUBLIC_SUPABASE_*` 금지(정책=공개). 환경변수 2개가 없으면 원장은 **조용히 꺼지고** 결제·신청은 종전대로 동작한다. 구 미배선 초안 3종(lib/supabase.ts·schema.sql·migrate gs)은 그때 삭제됐다 — git 이력에만 있다.
 
 ## 5. 환경 함정 (원격 실행 환경)
 

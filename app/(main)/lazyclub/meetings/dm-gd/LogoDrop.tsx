@@ -24,8 +24,12 @@
 
 import { useEffect } from "react"
 
-/** 전체 비행 시간(ms) — 세 번의 호(등장 → 1차 튕김 → 2차 튕김)를 합친 값 */
-const DROP_MS = 1500
+/** 전체 시간(ms) — 세 번의 호(등장 → 1차 튕김 → 2차 튕김) + 굴러 멎는 마무리 */
+const DROP_MS = 1780
+/** 마무리(오른쪽으로 살짝 지나쳤다가 되굴러 와 멎는 구간)의 길이(ms) */
+const SETTLE_MS = 280
+/** 착지 뒤 이어받는 cbSpin 의 각속도(도/초, 반시계) — 마무리 회전을 여기에 맞춘다 */
+const IDLE_SPIN_DPS = 360 / 3.33
 /** 이 이상 스크롤된 채로 진입하면 안무를 건너뛴다(고정 헤더 좌표가 어긋난다) */
 const SCROLL_GUARD = 40
 
@@ -36,7 +40,7 @@ type Pt = { x: number; y: number }
  * 수평은 등속, 수직은 중력 가속 — `y = y0 + v0·t + ½g·t²` 에서 끝점을 지나도록 v0 를 푼다.
  * `apex` 는 이 호가 시작점보다 얼마나 더 높이 솟는지(px, 위가 +)로, 중력 g 를 정한다.
  */
-function arc(from: Pt, to: Pt, apex: number, steps: number): Pt[] {
+function arc(from: Pt, to: Pt, apex: number, steps: number, ease?: (t: number) => number): Pt[] {
   const out: Pt[] = []
   // 솟는 높이 h 를 내는 중력: 최고점까지 걸리는 시간 비율을 t=1 기준으로 정규화해 풀면
   // v0 = -2·(h + √(h² + h·d)), g = 2·(d + v0) 형태가 된다(d = 낙차, 아래가 +).
@@ -45,7 +49,9 @@ function arc(from: Pt, to: Pt, apex: number, steps: number): Pt[] {
   const v0 = -2 * (h + Math.sqrt(h * h + Math.max(h * (h + d), 0)))
   const g = 2 * (d - v0)
   for (let i = 1; i <= steps; i++) {
-    const t = i / steps
+    // ease 는 호 전체를 **되감기(retiming)** 한다 — x·y 를 같은 t 로 뽑으므로
+    // 궤적 모양은 그대로 두고 속도만 바꾼다(마지막 호를 감속해 도착시킬 때 쓴다).
+    const t = ease ? ease(i / steps) : i / steps
     out.push({
       x: from.x + (to.x - from.x) * t,
       y: from.y + v0 * t + 0.5 * g * t * t,
@@ -53,6 +59,9 @@ function arc(from: Pt, to: Pt, apex: number, steps: number): Pt[] {
   }
   return out
 }
+
+/** 도착 속도를 낮추는 감속 곡선 (끝에서 기울기가 완만해진다) */
+const easeOut = (t: number) => 1 - (1 - t) * (1 - t)
 
 export function LogoDrop() {
   useEffect(() => {
@@ -132,36 +141,87 @@ export function LogoDrop() {
         y: Math.max(hitTop.y, end.y - endSize * 0.5),
       }
 
-      // ── 경로: 세 개의 포물선 호 ───────────────────────────────────
+      // ── 경로: 세 개의 포물선 호 + 굴러 멎는 마무리 ─────────────────
       // ① 살짝 띄웠다가 '동' 으로 낙하 ② '동' 에서 튕겨 오름 ③ 낮게 한 번 더 튕겨 착지
-      const A = Math.round(28 * 0.4)
-      const path: Pt[] = [start]
-      path.push(...arc(start, hitTop, Math.max(18, A), 26))
-      path.push(...arc(hitTop, hit2, 30, 20))
-      path.push(...arc(hit2, end, 14, 14))
+      //
+      // ⚠ ③ 이 곧장 제자리에서 멎으면 **이음매가 깨진다**(실측: 착지 직전 +1140°/s 로
+      //   가속했다가 한 프레임에 0, 곧바로 대기 회전이 -108°/s 로 시작 — 속도도 방향도
+      //   뒤집힌다). 그래서 제자리를 **오른쪽으로 살짝 지나쳤다가**(OVERSHOOT)
+      //   왼쪽으로 되굴러 와 멎는 구간을 붙인다. 되굴러오는 방향이 곧 반시계라
+      //   이어받는 cbSpin 과 **회전 방향이 같아지고**, 속도도 아래에서 맞춘다.
+      // 되굴림 거리는 **종단 속도에서 역산**한다 — 임의로 정하면 시작이 너무 빨라
+      // 되굴림 자체가 또 튄다(실측 -245°/s 로 시작해 -108 로 이어받았다).
+      // D = 1.25·vEnd·T 로 두면 시작 속도가 정확히 1.5·vEnd 가 되어,
+      // 되굴림이 대기 회전 속도까지 완만하게 줄어든다(아래 v0 식에 대입하면 나온다).
+      const vEndPre = ((IDLE_SPIN_DPS * Math.PI) / 180) * (endSize / 2)
+      const OVERSHOOT = vEndPre * (SETTLE_MS / 1000) * 1.25
+      const rest: Pt = { x: end.x + OVERSHOOT, y: end.y }
 
-      // ── 구르기: 회전각을 장식이 아니라 **이동거리에서** 유도한다 ──
-      // Δθ = 이동거리 / 반지름 (실제 굴러가는 각속도). 오른쪽으로 가니 시계방향(+).
-      const radius = (startSize + endSize) / 4
-      const seg: number[] = [0]
-      for (let i = 1; i < path.length; i++) {
-        seg.push(seg[i - 1] + Math.hypot(path[i].x - path[i - 1].x, path[i].y - path[i - 1].y))
+      const path: Pt[] = [start]
+      path.push(...arc(start, hitTop, 18, 26))
+      path.push(...arc(hitTop, hit2, 30, 20))
+      const flightEnd = path.length + 18 - 1 // 아래 마지막 호까지가 '비행'
+      // 마지막 호는 **감속하며** 도착한다 — 전속력으로 닿았다가 방향만 뒤집히면
+      // 부딪힐 것도 없는 자리에서 벽을 친 것처럼 보인다(실측 542px/s → -119px/s).
+      path.push(...arc(hit2, rest, 14, 18, easeOut))
+
+      // 마무리: 등감속으로 되굴러 와 **정확히 대기 회전 속도**에서 멎는다.
+      // 굴림이라 v = ω·r 이므로 목표 종단속도는 (대기 각속도)×(착지 반지름).
+      const vEnd = vEndPre
+      const T = SETTLE_MS / 1000
+      // 되굴림은 **한 프레임 간격으로** 촘촘히 뜬다. 키프레임 사이는 선형 보간이라
+      // 표본이 성기면 마지막 구간의 '평균 속도'가 종단 속도보다 높게 그려진다
+      // (31ms 간격일 때 -146°/s 로 이어받았다 — 목표는 -108).
+      const settleSteps = Math.round(SETTLE_MS / 16.7)
+      // D = T·(v0 + vEnd)/2 → v0 (되굴러오기 시작 속도, 왼쪽으로)
+      const v0 = (2 * OVERSHOOT) / T - vEnd
+      for (let i = 1; i <= settleSteps; i++) {
+        const t = (i / settleSteps) * T
+        const moved = v0 * t - 0.5 * ((v0 - vEnd) / T) * t * t
+        path.push({ x: rest.x - moved, y: end.y })
       }
-      const total = seg[seg.length - 1]
-      const rawDeg = (total / radius) * (180 / Math.PI)
-      // **정수 바퀴로 끝맺는다** — 착지 뒤 이어받는 cbSpin 이 0° 에서 시작하므로,
-      // 어중간한 각도로 멈추면 그 차이만큼 툭 돈다. 굴림 비율을 아주 살짝 늘려 맞춘다.
-      const fit = Math.max(1, Math.round(rawDeg / 360)) * 360
+
+      // ── 구르기: 회전각을 장식이 아니라 **굴러간 거리에서** 유도한다 ──
+      // Δθ = 가로 이동 / 반지름. **부호가 있다** — 오른쪽이면 시계(+), 왼쪽이면 반시계(-).
+      // 그래서 마무리의 되굴림이 자연히 반시계가 되어 대기 회전과 방향이 이어진다.
+      // 반지름은 그때그때의 크기로 잰다(공이 날아가며 커진다).
       const n = path.length - 1
+      // 크기는 **비행이 끝날 때** 목표 크기에 닿는다 — 되굴림은 이미 다 자란 채로 구른다
+      const sizeAt = (i: number) =>
+        startSize + (endSize - startSize) * Math.min(1, i / flightEnd)
+      const degs: number[] = [0]
+      for (let i = 1; i <= n; i++) {
+        const r = (sizeAt(i) + sizeAt(i - 1)) / 4 // 두 프레임 평균 반지름
+        degs.push(degs[i - 1] + ((path[i].x - path[i - 1].x) / r) * (180 / Math.PI))
+      }
+      // **정수 바퀴로 끝맺는다** — 착지 뒤 이어받는 cbSpin 이 0° 에서 시작하므로,
+      // 어중간한 각도로 멈추면 그 차이만큼 툭 돈다.
+      //
+      // ⚠ 보정은 **비행 구간에만** 건다. 전체에 걸면 되굴림의 각속도까지 같이 늘어나
+      //   애써 맞춘 종단 속도가 어긋난다(실측: 목표 -108 인데 -175 로 이어받았다).
+      //   되굴림은 물리값 그대로 두고, 비행 쪽 회전만 조여 총합을 정수 바퀴로 만든다.
+      const settleDeg = degs[n] - degs[flightEnd]
+      const flightDeg = degs[flightEnd]
+      const fit = Math.max(1, Math.round((flightDeg + settleDeg) / 360)) * 360
+      const kFlight = flightDeg !== 0 ? (fit - settleDeg) / flightDeg : 1
+      const degAt = (i: number) =>
+        i <= flightEnd ? degs[i] * kFlight : degs[flightEnd] * kFlight + (degs[i] - degs[flightEnd])
+
+      // 타임라인은 **구간별로 명시한다** — 되굴림 표본이 더 촘촘하므로 offset 을
+      // i/n 로 균등 배분하면 되굴림이 제 시간보다 오래 걸린다.
+      const flightFrac = (DROP_MS - SETTLE_MS) / DROP_MS
+      const offsetAt = (i: number) =>
+        i <= flightEnd
+          ? (i / flightEnd) * flightFrac
+          : flightFrac + ((i - flightEnd) / (n - flightEnd)) * (1 - flightFrac)
+
       const frames = path.map((p, i) => {
-        const t = i / n
-        const size = startSize + (endSize - startSize) * t
-        const deg = total > 0 ? (seg[i] / total) * fit : 0
+        const size = sizeAt(i)
         return {
-          offset: t,
+          offset: offsetAt(i),
           transform:
             `translate(${(p.x - size / 2).toFixed(2)}px, ${(p.y - size / 2).toFixed(2)}px) ` +
-            `rotate(${deg.toFixed(1)}deg) scale(${(size / startSize).toFixed(4)})`,
+            `rotate(${degAt(i).toFixed(1)}deg) scale(${(size / startSize).toFixed(4)})`,
         }
       })
 

@@ -1,23 +1,30 @@
 "use client"
 
 /**
- * 유휴 셔플 오버레이 (라운드 79, 운영자) — lazy-club.com 트리 전 페이지 공통.
+ * 유휴 워드서치 오버레이 (라운드 79 도입 · 2026-08-26 시각부 교체) — lazy-club.com 전 페이지 공통.
  *
- * 마지막 입력으로부터 60초 동안 아무 동작이 없으면, 현재 페이지 위를 종이색으로
- * 덮고 랜딩 인트로와 같은 4×4 3색 난수 셔플이 **끝없이** 재생된다.
+ * 마지막 입력으로부터 60초 동안 아무 동작이 없으면, 현재 페이지 위를 종이색으로 덮고
+ * **워드서치 필드**(21×13 = 273자)가 끝없이 재생된다. 무수한 글자가 색과 글자를 뒤섞다가
+ * 좌→우 물결이 지나가면 그 속에 숨어 있던 LAZY(가로)·CLUB(세로, L 공유)만 또렷해지고,
+ * 단어 찾기 동그라미가 그어진 뒤 다시 전체가 뒤섞이는 8.1초 루프.
+ *
+ * 종전 4×4 3색 셔플을 대체한다 (운영자 확정 — 시안 F안). 브랜드 마크의 문법(숨은 단어 +
+ * 동그라미)을 큰 밀도로 확장한 것이라 마크와 한 몸으로 읽힌다.
+ *
  * 페이지 이동이 아니라 오버레이다 — 터치·클릭·키·휠·스크롤은 물론 **마우스 이동**까지
  * 동작으로 감지해 즉시 걷히고, 원래 화면이 그대로 돌아온다 (상태 훼손 없음).
- *
- * 셸(WorkroomShell)에 마운트되므로 트리의 모든 페이지(랜딩·홈·모임·아카이브·카트·상세)에
- * 동일하게 작동한다. 랜딩의 페이지 내 유휴 셔플(라운드 77)은 이 오버레이로 승격·대체.
+ * 셸(WorkroomShell)에 마운트되므로 트리의 모든 페이지에 동일하게 작동한다.
  *
  * 검증용 ?idle=<ms> 로 대기시간을 덮어쓸 수 있다. ?t=(랜딩 시점 고정 스크린샷 모드)와
  * reduced-motion 에서는 비활성.
  *
- * 구현: 랜딩과 같은 시드 해시 + 단일 rAF. 오버레이가 걷힐 때 타이머가 재장전된다.
+ * 구현: 랜딩과 같은 시드 해시 + 단일 rAF(50ms 양자화 — 글자 교체는 이산이라 20fps 면
+ * 충분하고 273칸 리렌더 비용이 1/3). 난수는 시드 해시로만 유도하고 렌더 중에는
+ * Math.random() 을 부르지 않는다 (부르면 프레임마다 재추첨돼 화면이 발작한다).
+ * 오버레이가 걷힐 때 타이머가 재장전되고, 다시 뜰 때마다 새 시드를 뽑는다.
  */
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import styles from "./idle-shuffle.module.css"
 
 const PALETTE = ["#f49938", "#96ab9b", "#845d5e"]
@@ -32,25 +39,51 @@ function rnd(seed: number, a: number, b: number) {
   return h / 4294967296
 }
 
-type Cell = { ch: string; color: string }
-
-/** 경과시간 → 16칸 셔플 상태 (칸별 60~140ms 간격, 종료 시점 없음) */
-function cellsAt(e: number, seed: number): Cell[] {
-  const cells: Cell[] = []
-  for (let i = 0; i < 16; i++) {
-    const interval = 60 + rnd(seed, i, 999) * 80
-    const tick = Math.floor(e / interval)
-    cells.push({
-      ch: ALPHABET[Math.floor(rnd(seed, i, tick + 31337) * 26)],
-      color: PALETTE[Math.floor(rnd(seed, i, tick + 31344) * 3)],
-    })
-  }
-  return cells
+const D_COLS = 21
+const D_ROWS = 13
+// 워드서치 배치 — LAZY 4행(가로) · CLUB 8열(세로), (4,8)의 L 공유 (브랜드 마크와 같은 기하)
+const D_WORD: Record<string, string> = {
+  "3-8": "C",
+  "4-8": "L",
+  "5-8": "U",
+  "6-8": "B",
+  "4-9": "A",
+  "4-10": "Z",
+  "4-11": "Y",
 }
 
+/* 타임라인 (ms) — 운영자 확정본. 셔플 유지가 길고(3.9s), 캡슐 완성 후 유지는 짧다(1.7s) */
+const DT = { SCRAMBLE: 3900, SWEEP: 900, CAP1: 5500, CAP2: 5800, RESET: 7500, CYCLE: 8100 }
+
+/* 캡슐 기하 — 기존 레이지클럽 마크(coming-soon)에서 실측한 비율.
+   글자가 흐르는 방향으로는 살짝 넘치고(가로 1.04 / 세로 1.03), 직교 방향으로는
+   칸보다 **좁다**(가로캡슐 높이 0.84행 / 세로캡슐 폭 0.88열) — 글자에 딱 붙는 문법. */
+const CAP_ALONG_ROW = 1.04
+const CAP_ACROSS_ROW = 0.84
+const CAP_ALONG_COL = 1.03
+const CAP_ACROSS_COL = 0.88
+const D_COL_W = 100 / D_COLS
+const D_ROW_H = 100 / D_ROWS
+const pct = (v: number) => `${v.toFixed(3)}%`
+
+/** 글자 칸 범위를 감싸는 캡슐 상자 — 중심은 유지하고 진행·직교 방향에 실측 배율만 적용 */
+function capBox(c0: number, cols: number, r0: number, rows: number, horizontal: boolean) {
+  const x0 = c0 * D_COL_W
+  const w0 = cols * D_COL_W
+  const y0 = r0 * D_ROW_H
+  const h0 = rows * D_ROW_H
+  const w = w0 * (horizontal ? CAP_ALONG_ROW : CAP_ACROSS_COL)
+  const h = h0 * (horizontal ? CAP_ACROSS_ROW : CAP_ALONG_COL)
+  return { left: pct(x0 - (w - w0) / 2), top: pct(y0 - (h - h0) / 2), width: pct(w), height: pct(h) }
+}
+const D_CAP_LAZY = capBox(8, 4, 4, 1, true)
+const D_CAP_CLUB = capBox(8, 1, 3, 4, false)
+
 export function IdleShuffle() {
-  // null = 오버레이 비활성 (평상시)
-  const [cells, setCells] = useState<Cell[] | null>(null)
+  // null = 오버레이 비활성 (평상시). 숫자 = 오버레이 시작부터의 경과 ms (50ms 양자화)
+  const [clock, setClock] = useState<number | null>(null)
+  // 이번 등장의 시드 — 뜰 때마다 새로 뽑아 매번 다른 글자·색 배열이 된다
+  const seedRef = useRef(1)
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
@@ -58,7 +91,6 @@ export function IdleShuffle() {
     if (q.get("t") !== null) return // 랜딩 시점 고정(스크린샷) 모드에선 비활성
     const idleQ = Number(q.get("idle"))
     const idleDelay = q.get("idle") && Number.isFinite(idleQ) && idleQ > 0 ? idleQ : IDLE_DELAY
-    const seed = Math.floor(Math.random() * 2147483647) || 1
 
     let raf = 0
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -66,9 +98,12 @@ export function IdleShuffle() {
     const arm = () => {
       clearTimeout(timer)
       timer = setTimeout(() => {
+        seedRef.current = Math.floor(Math.random() * 2147483647) || 1
         const start = performance.now()
         const tick = (now: number) => {
-          setCells(cellsAt(now - start, seed))
+          // 50ms 양자화 — 글자 교체는 이산이라 20fps 로 충분하고 리렌더가 1/3로 준다
+          const e = Math.floor((now - start) / 50) * 50
+          setClock((prev) => (prev === e ? prev : e))
           raf = requestAnimationFrame(tick)
         }
         raf = requestAnimationFrame(tick)
@@ -79,7 +114,7 @@ export function IdleShuffle() {
     const EVENTS = ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "touchmove", "scroll"] as const
     const onInput = () => {
       cancelAnimationFrame(raf)
-      setCells(null)
+      setClock(null)
       arm()
     }
     EVENTS.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }))
@@ -91,15 +126,51 @@ export function IdleShuffle() {
     }
   }, [])
 
-  if (!cells) return null
+  if (clock === null) return null
+
+  const seed = seedRef.current
+  const phase = clock % DT.CYCLE
+  const cycle = Math.floor(clock / DT.CYCLE)
+  const cells = []
+  for (let r = 0; r < D_ROWS; r++) {
+    for (let c = 0; c < D_COLS; c++) {
+      const i = r * D_COLS + c
+      const word = D_WORD[`${r}-${c}`]
+      // 잠금 스윕 — 열이 주도하되 행·난수를 섞어 대각선 물결로 흩는다(열 단위면 계단이 보인다)
+      const lockAt =
+        DT.SCRAMBLE + ((c / D_COLS) * 0.78 + (r / D_ROWS) * 0.14 + rnd(seed, i, 61) * 0.08) * DT.SWEEP
+      // 해제(다시 진해지는 것)도 같은 좌→우 방향으로 확산한다 (운영자 확정)
+      const unlockAt =
+        DT.RESET + ((c / D_COLS) * 0.78 + (r / D_ROWS) * 0.14 + rnd(seed, i, 67) * 0.08) * 420
+      const locked = phase >= lockAt && phase < unlockAt
+      const interval = 90 + rnd(seed, i, 41) * 90
+      const tick = Math.floor(clock / interval) // 절대 시계 — 흐려진 뒤에도 계속 진화
+      const ch = word && locked ? word : ALPHABET[Math.floor(rnd(seed, i, tick) * 26)]
+      const color =
+        word && locked
+          ? PALETTE[Math.floor(rnd(seed ^ Math.imul(cycle + 1, 40503), i, 4242) * 3)]
+          : PALETTE[Math.floor(rnd(seed, i, tick + 7) * 3)]
+      cells.push(
+        <span
+          key={i}
+          className={word && locked ? styles.dLock : locked ? styles.dDim : styles.dCell}
+          style={{ color }}
+        >
+          {ch}
+        </span>,
+      )
+    }
+  }
+  const capLazy = phase >= DT.CAP1 && phase < DT.RESET
+  const capClub = phase >= DT.CAP2 && phase < DT.RESET
+
   return (
     <div className={styles.overlay} aria-hidden>
-      <div className={styles.grid}>
-        {cells.map((cell, i) => (
-          <span key={i} className={styles.cell} style={{ color: cell.color }}>
-            {cell.ch}
-          </span>
-        ))}
+      <div className={styles.dense}>
+        {cells}
+        {/* 캡슐은 clip-path 로 한쪽 끝에서부터 그어진다 — 워드서치에 손으로 동그라미 치는 몸짓 */}
+        {capLazy && <div className={`${styles.dCap} ${styles.dCapRow}`} style={D_CAP_LAZY} />}
+        {capClub && <div className={`${styles.dCap} ${styles.dCapCol}`} style={D_CAP_CLUB} />}
       </div>
     </div>
   )

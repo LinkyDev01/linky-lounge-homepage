@@ -1,8 +1,8 @@
-/* 유휴 셔플 오버레이 (라운드 79, 운영자) — lazy-club.com 트리 전 페이지 공통.
-   60초 무입력 시 현재 페이지 위를 종이색으로 덮고 4×4 3색 난수 셔플이 무한 재생된다.
+/* 유휴 워드서치 오버레이 (라운드 79 도입 · 2026-08-26 시각부 교체) — lazy-club.com 전 페이지 공통.
+   60초 무입력 시 현재 페이지 위를 종이색으로 덮고 워드서치 필드(21×13)가 무한 재생된다.
    페이지 이동이 아니라 오버레이 — 입력(터치·마우스 이동 포함) 즉시 걷힌다.
-   조판은 랜딩 인트로(coming-soon.module.css)의 그리드 문법을 그대로 옮긴 사본:
-   이 파일은 셸 전역에서 로드되므로 랜딩 CSS를 import 하지 않는다 (공유 오염 방지). */
+   종전 4×4 셔플 조판을 대체한 사본이다: 이 파일은 셸 전역에서 로드되므로 시안 트리
+   (motion-type.module.css)를 import 하지 않는다 (공유 오염 방지 · §9 신규 CSS 원칙). */
 
 /* 둥근모꼴 서브셋 — 랜딩과 동일한 data URI 인라인 (같은 family·src 는 브라우저가 중복 제거) */
 @font-face {
@@ -18,26 +18,66 @@
   inset: 0;
   z-index: 200; /* 헤더(99)·프리뷰 바 위 */
   background: var(--paper, #f8f3ef);
+  --ink: #1a1208;
+  /* 필드 한 칸 — 가로(21칸)·세로(13행 × 1.24 = 16.12) 양쪽에 맞추고 상한을 둔다.
+     390×844 → 16.3px(필드 343px) · 1280×900 → 30px(필드 630px, 구 4×4 마크 424px 보다 크다) */
+  --dcell: min(calc(88vw / 21), calc((100vh - 140px) / 16.12), 30px);
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 랜딩 .main 과 같은 광학 배치 — 랜딩에서 오버레이로 넘어가도 그리드가 거의 같은 자리 */
-  --gridW: min(88vw, calc((100vh - 360px) / 1.273));
-  padding: 96px 15px calc(40px + 6vh);
   user-select: none;
   cursor: default;
 }
 
-.grid {
-  width: var(--gridW);
+/* ── 워드서치 필드 — 글자 셔플·색·잠금은 전부 JS 클록(rAF 50ms 양자화)이 구동하고,
+      CSS 는 흐려짐 전환과 캡슐만 맡는다 ── */
+.dense {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  aspect-ratio: 1 / 1.273;
-  place-items: center;
+  grid-template-columns: repeat(21, var(--dcell));
+  grid-auto-rows: calc(var(--dcell) * 1.24);
+  justify-content: center;
+}
+.dense span {
   font-family: "DungGeunMo", monospace;
-  font-size: calc(var(--gridW) / 4.6);
-  line-height: 1;
+  font-size: calc(var(--dcell) * 0.94);
+  line-height: calc(var(--dcell) * 1.24);
+  text-align: center;
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dCell { opacity: 1; }
+/* 잠금 스윕이 지나가면 단어 밖 글자는 흐려진 채 계속 웅성인다 */
+.dDim { opacity: 0.18; }
+/* 확정되는 순간 한 번 튕긴다 — 클래스가 dCell/dDim → dLock 으로 바뀔 때만 발화 */
+.dLock {
+  opacity: 1;
+  animation: lockPop 0.44s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes lockPop {
+  0% { transform: scale(1); }
+  38% { transform: scale(1.24); }
+  100% { transform: scale(1); }
 }
 
-.cell { min-width: 1ch; text-align: center; }
+/* ── 단어 찾기 동그라미 ──
+   획 굵기는 기존 마크 실측 비율(캡슐 높이의 0.0327 = 행 높이의 0.0275). 그대로면
+   서브픽셀로 흐려지므로 렌더 가능한 최소치 1px 을 바닥으로 둔다. */
+.dCap {
+  position: absolute;
+  border: max(1px, calc(var(--dcell) * 0.034)) solid var(--ink);
+  border-radius: 999px;
+  pointer-events: none;
+}
+/* 한쪽 끝에서부터 그어진다 — 손으로 동그라미 치는 몸짓. clip-path 를 쓰는 이유는
+   스타디움 모양을 지키기 위해서다(SVG stroke 그리기로 바꾸면 늘린 타원이 된다).
+   끝값은 요소 밖으로 1px 넘겨 테두리가 경계에서 잘리지 않게 한다. */
+.dCapRow { animation: capDrawRow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes capDrawRow {
+  from { clip-path: inset(-1px 100% -1px -1px); }
+  to { clip-path: inset(-1px); }
+}
+.dCapCol { animation: capDrawCol 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes capDrawCol {
+  from { clip-path: inset(-1px -1px 100% -1px); }
+  to { clip-path: inset(-1px); }
+}

@@ -540,7 +540,12 @@ function handlePhoneBooking(d) {
   // 2. 전화 인터뷰 시트에 기록 (인터뷰 일시 = 시작시각 '날짜값', 진행 여부 = 대기)
   var phoneSheet = getOrCreateSheet(PHONE_SHEET,
     ["예약일시", "이름", "전화번호", "인터뷰 일시", "진행 여부", "비고"]);
+  // 유입 출처 (2026-08-26) — 운영 중인 시트에는 위 헤더 배열이 안 먹으므로 ensureColumn 으로.
+  var pSrcIdx = ensureColumn(phoneSheet, "유입 출처"); // 0-based
   prependRow(phoneSheet, [new Date(), d.name, d.phone, start, "대기", ""]);
+  var pSrcCell = phoneSheet.getRange(2, pSrcIdx + 1); // 헤더 서식 상속 끊기 (위와 같은 이유)
+  pSrcCell.setBackground(null).setFontColor(null).setFontWeight("normal");
+  if (d.trafficSrc) pSrcCell.setValue(d.trafficSrc);
   var pCol = colIndexMap(phoneSheet);
   phoneSheet.getRange(2, (pCol["인터뷰 일시"] != null ? pCol["인터뷰 일시"] : 3) + 1)
     .setNumberFormat(SLOT_FMT);
@@ -651,12 +656,27 @@ function handleWritten(d) {
     }
   }
 
+  // 유입 출처 (2026-08-26) — 어느 경로로 들어온 손님인지. 프론트가 안 보내면 빈 값.
+  //   ⚠ 헤더를 ensureColumn 으로 만든다. 위 getOrCreateSheet 의 헤더 배열은 **시트가
+  //     없을 때만** 쓰인다 — 운영 중인 시트에는 배열에 칸을 더해도 컬럼이 안 생긴다.
+  var srcIdx = ensureColumn(sheet, "유입 출처"); // 0-based
+
   var rowValues = [new Date(), d.name || "", d.phone || "",
     a.q1 || "", a.q2 || "", a.q3 || "", a.q4 || "", a.q5 || "", a.q6 || ""];
   if (existingRow) {
+    // 재제출은 수정으로 취급해 답변을 덮어쓴다. 다만 setValues 는 1~9열만 건드리므로
+    // 유입 출처는 자연히 보존된다 — **최초 유입이 공이다**(운영자 2026-08-26).
+    // 옛 행(이 기능 이전 제출)만 비어 있으니 그때만 채운다.
     sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+    var cur = sheet.getRange(existingRow, srcIdx + 1);
+    if (!String(cur.getValue()).trim() && d.trafficSrc) cur.setValue(d.trafficSrc);
   } else {
     prependRow(sheet, rowValues);
+    // prependRow 는 값 범위에만 서식을 초기화한다 — 그 밖인 이 칸도 헤더 서식(굵게·배경)을
+    // 물려받으므로 같이 끊는다.
+    var srcCell = sheet.getRange(2, srcIdx + 1);
+    srcCell.setBackground(null).setFontColor(null).setFontWeight("normal");
+    if (d.trafficSrc) srcCell.setValue(d.trafficSrc);
   }
 
   updateMainStatus(d.phone, { "인터뷰 상태": "O" });

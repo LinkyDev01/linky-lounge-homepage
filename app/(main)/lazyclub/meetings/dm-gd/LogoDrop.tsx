@@ -116,9 +116,14 @@ export function LogoDrop() {
       const swayShift = new DOMMatrixReadOnly(getComputedStyle(sway).transform).e
       const end = { x: doc(endRect).x - swayShift, y: doc(endRect).y }
 
-      // 접점 보정: 1차 튕김은 비행의 45% 지점쯤이라 그때 공은 이미 그만큼 커져 있다.
-      // 출발 크기로 반지름을 잡으면 공이 글자에 파묻힌다 — 그 시점 크기로 잰다.
-      const bounceRadius = (startSize + (endSize - startSize) * 0.45) / 2
+      // 접점 보정: 공은 날아가며 커지므로 1차 튕김 시점의 **그때 크기**로 반지름을 잡는다.
+      // 출발 크기로 잡으면 공이 글자에 파묻힌다.
+      // 그 시점이 비행의 몇 %인지는 아래 세 호의 표본 수에서 그대로 나온다(추정하지 않는다).
+      const STEPS_1 = 26
+      const STEPS_2 = 20
+      const STEPS_3 = 18
+      const BOUNCE_AT = STEPS_1 / (STEPS_1 + STEPS_2 + STEPS_3)
+      const bounceRadius = (startSize + (endSize - startSize) * BOUNCE_AT) / 2
 
       // '동' 한 글자만의 상자 — Range 로 첫 글자를 집어 재면 마크업을 건드릴 필요가 없다
       const text = titleTop.firstChild
@@ -158,12 +163,12 @@ export function LogoDrop() {
       const rest: Pt = { x: end.x + OVERSHOOT, y: end.y }
 
       const path: Pt[] = [start]
-      path.push(...arc(start, hitTop, 18, 26))
-      path.push(...arc(hitTop, hit2, 30, 20))
-      const flightEnd = path.length + 18 - 1 // 아래 마지막 호까지가 '비행'
+      path.push(...arc(start, hitTop, 18, STEPS_1))
+      path.push(...arc(hitTop, hit2, 30, STEPS_2))
+      const flightEnd = path.length + STEPS_3 - 1 // 아래 마지막 호까지가 '비행'
       // 마지막 호는 **감속하며** 도착한다 — 전속력으로 닿았다가 방향만 뒤집히면
       // 부딪힐 것도 없는 자리에서 벽을 친 것처럼 보인다(실측 542px/s → -119px/s).
-      path.push(...arc(hit2, rest, 14, 18, easeOut))
+      path.push(...arc(hit2, rest, 14, STEPS_3, easeOut))
 
       // 마무리: 등감속으로 되굴러 와 **정확히 대기 회전 속도**에서 멎는다.
       // 굴림이라 v = ω·r 이므로 목표 종단속도는 (대기 각속도)×(착지 반지름).
@@ -215,12 +220,22 @@ export function LogoDrop() {
           ? (i / flightEnd) * flightFrac
           : flightFrac + ((i - flightEnd) / (n - flightEnd)) * (1 - flightFrac)
 
+      // ⚠ **translate 는 스케일 후 크기가 아니라 레이아웃 크기(startSize)로 뺀다.**
+      //   scale 은 transform-origin(50% 50%)을 기준으로 커지므로 요소의 시각적 중심은
+      //   `레이아웃 중심(startSize/2) + translate` 로 그대로 남는다. 여기에 스케일 후
+      //   크기를 쓰면 중심이 (size - startSize)/2 만큼 **위·왼쪽으로 밀린다** —
+      //   실측: 모바일에서 클론 중심 (321,160) vs 목표 (338,177), 세로 17px 어긋남.
+      //   착지 순간 진짜 로고가 그만큼 아래에서 나타나 '높이가 밑으로 순간이동'했다
+      //   (운영자 2026-08-26 신고). 출발 순간엔 size == startSize 라 오차가 0이어서
+      //   비행 내내 서서히 벌어지는 형태였고, 검증 코드가 같은 잘못된 공식으로 중심을
+      //   계산해 자기 자신을 확인하는 바람에 두 라운드를 놓쳤다.
+      //   ⚠ 앞으로 이 궤적을 검증할 때는 반드시 **getBoundingClientRect 의 중심**을 쓸 것.
       const frames = path.map((p, i) => {
         const size = sizeAt(i)
         return {
           offset: offsetAt(i),
           transform:
-            `translate(${(p.x - size / 2).toFixed(2)}px, ${(p.y - size / 2).toFixed(2)}px) ` +
+            `translate(${(p.x - startSize / 2).toFixed(2)}px, ${(p.y - startSize / 2).toFixed(2)}px) ` +
             `rotate(${degAt(i).toFixed(1)}deg) scale(${(size / startSize).toFixed(4)})`,
         }
       })

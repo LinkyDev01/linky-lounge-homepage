@@ -61,13 +61,16 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
               },
               { label: "장소", lines: [m.place] },
               { label: "읽는 책", lines: m.sessions.map((s) => `${s.week} 『${s.work}』`) },
-              { label: "진행", lines: [m.host] },
+              // ⚠ '진행' 줄 없음 (운영자 2026-08-26) — 진행자는 **상단 카테고리 라벨**
+              //   (catLabel: 안동민·천고든·레이지데이 북클럽)에 이미 나와 있어 중복이고,
+              //   두 자리의 값이 서로 달라 보여 일관성이 없다는 지적이었다.
+              //   m.host 는 데이터로는 남는다(카드·역참조가 쓴다) — 이 요약에서만 뺀다.
               { label: "문의", lines: ["카카오톡 채널"], href: KAKAO_CHAT_URL },
             ]
           : [
               { label: "일시", lines: [m.date] },
               { label: "장소", lines: [m.place] },
-              { label: "진행", lines: [m.host] },
+              // '진행' 줄 없음 — 위와 같은 이유 (상단 라벨과 중복)
               { label: "문의", lines: [m.contact] },
             ]
       }

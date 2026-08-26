@@ -386,8 +386,11 @@ export function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }
          계단이 눈에 보여 딱딱했다. 열이 주도하되 행·난수를 섞어 대각선 물결로 흩는다. */
       const lockAt =
         DT.SCRAMBLE + ((c / D_COLS) * 0.78 + (r / D_ROWS) * 0.14 + rnd(seed, i, 61) * 0.08) * DT.SWEEP
-      // 해제도 한꺼번에가 아니라 반대 방향(우→좌)으로 풀린다
-      const unlockAt = DT.RESET + (1 - c / D_COLS) * 420
+      // 해제(색이 다시 진해지는 것)도 잠금과 마찬가지로 좌→우로 확산한다
+      // (라운드 4, 운영자 "다시 색 진해지는 것도 마찬가지로 우측방향으로 확산") —
+      // 같은 물결 공식을 해제 길이(420ms)로 축소 적용
+      const unlockAt =
+        DT.RESET + ((c / D_COLS) * 0.78 + (r / D_ROWS) * 0.14 + rnd(seed, i, 67) * 0.08) * 420
       const locked = phase >= lockAt && phase < unlockAt
       const interval = 90 + rnd(seed, i, 41) * 90
       const tick = Math.floor(clock / interval) // 절대 시계 — 흐려진 뒤에도 계속 진화

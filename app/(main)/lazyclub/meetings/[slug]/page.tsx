@@ -48,7 +48,17 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
         m.sessions
           ? [
               // 회차 날짜는 가운뎃점으로 잇지 않고 각자 한 줄씩 (운영자 2026-08-21)
-              { label: "일시", lines: [...m.sessions.map((s) => s.date.split(" ")[0]), "오전 10:00–12:00"] },
+              // 시각은 **회차 문자열에서 파생**한다 — 종전엔 "오전 10:00–12:00" 을 박아
+              // 뒀는데 그건 비로소 전용 값이라, 시간이 다른 모임이 생기면 조용히 틀린다
+              // (불안을 건너 고요로 = 오전 10:30–12:30, 2026-08-26).
+              // 형식은 "M.D (요일) 오전 HH:MM–HH:MM" — 앞 두 토큰이 날짜·요일, 나머지가 시각
+              {
+                label: "일시",
+                lines: [
+                  ...m.sessions.map((s) => s.date.split(" ")[0]),
+                  m.sessions[0].date.split(" ").slice(2).join(" "),
+                ],
+              },
               { label: "장소", lines: [m.place] },
               { label: "읽는 책", lines: m.sessions.map((s) => `${s.week} 『${s.work}』`) },
               { label: "진행", lines: [m.host] },
@@ -138,6 +148,62 @@ function NotSqueezingBody() {
   )
 }
 
+/** "불안을 건너 고요로..." 본문 — 인사말(원문 그대로) + 책 4권 + 진행자 소개.
+ *  운영자 제공 본문 이미지(2026-08-26)를 옮긴 것이고, 형식은 비로소(천고든)와 같다.
+ *  브랜드 카피는 운영자 소유 — 한 글자도 편집하지 않는다. */
+function AnxietyToCalmBody() {
+  return (
+    <div style={{ display: "contents" }}>
+      <div className={styles.nsqBodyText}>
+        <p>안녕하세요. 안동민입니다.</p>
+        <p>
+          30대라는 시기는 생각보다 평온하지 않습니다. 사회가 요구하는 궤도에 잘 안착했는지 끊임없이 확인받고,
+          타인의 성취와 나의 현주소를 비교하며 매일 조금씩 가라앉는 기분을 느끼기도 합니다.
+        </p>
+        <p>
+          이번 모임은 그렇게 파도처럼 밀려오는 불안을 무작정 억누르거나 맹목적으로 긍정하는 대신, 그 안에서
+          나만의 중심을 잡는 방법을 고민하기 위해 기획되었습니다.
+        </p>
+        <p>
+          첫 만남에서는 알랭 드 보통의 《불안》을 읽으며 시작합니다. 우리를 흔드는 조바심의 실체가 무엇인지,
+          그것이 진정 나의 결함인지 사회의 구조적 압박인지 객관적으로 해체해 봅니다.
+        </p>
+        <p>
+          불안의 원인을 분리한 뒤에는 버지니아 울프의 《자기만의 방》을 다룹니다. 타인의 시선이나 요구에
+          침범받지 않고 스스로를 지킬 수 있는 최소한의 물리적, 심리적 요새를 짓는 법을 논의합니다.
+        </p>
+        <p>
+          세 번째 시간에는 알베르 카뮈의 《시지프 신화》를 읽습니다. 끝없이 바위를 굴려야 하는 일상의 반복과
+          부조리를 회피하지 않고, 오히려 그 굴레 속에서 묵묵히 삶의 주도권을 쥐는 묵직한 태도에 대해
+          이야기합니다.
+        </p>
+        <p>
+          마지막으로 에리히 프롬의 《사랑의 기술》을 통해, 누군가에게 의존하기 위해서가 아니라 단단하게 홀로
+          선 채 세상과 타인을 능동적으로 마주하는 성숙한 관계 맺기를 모색합니다.
+        </p>
+        <p>
+          치열하게 정답을 찾거나 서로를 섣불리 위로하는 자리는 아닙니다. 그저 각자의 불안을 담담하게 꺼내두고,
+          흔들림 속에서도 나를 지탱하는 법에 대해 느긋하게 이야기를 나누려 합니다.
+        </p>
+        <p>
+          이 4주의 여정이 끝날 즈음에는, 요동치는 불안 속에서도 고요한 중심을 잃지 않는 단단한 당신과 마주할
+          수 있기를 진심으로 바랍니다.
+        </p>
+      </div>
+
+      <figure className={styles.nsqBodyImage}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/linky-lounge/book-club/home-v3/anxiety-to-calm-books.webp"
+          alt="1주차 10/10 『불안』· 2주차 10/17 『자기만의 방』· 3주차 10/24 『시지프 신화』· 4주차 10/31 『사랑의 기술』"
+        />
+      </figure>
+
+      <PersonIntro slug="dmahn" /> {/* 안동민 */}
+    </div>
+  )
+}
+
 /** 호프(원데이 토크) 본문 — 진행자(안동민) 소개. 원문 그대로 (운영자 2026-08-20) */
 function HopeBody() {
   return (
@@ -162,5 +228,6 @@ function PersonIntro({ slug }: { slug: string }) {
 /** 모임 slug → 하단 중앙 본문. 없는 모임은 종전대로 우측 요약만 (2026-08-20) */
 const BODIES: Record<string, React.ReactNode> = {
   "not-squeezing-myself": <NotSqueezingBody />,
+  "anxiety-to-calm": <AnxietyToCalmBody />,
   hope: <HopeBody />,
 }

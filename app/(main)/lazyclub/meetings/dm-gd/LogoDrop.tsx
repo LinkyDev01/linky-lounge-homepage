@@ -32,6 +32,8 @@ const SETTLE_MS = 280
 const IDLE_SPIN_DPS = 360 / 3.33
 /** 이 이상 스크롤된 채로 진입하면 안무를 건너뛴다(고정 헤더 좌표가 어긋난다) */
 const SCROLL_GUARD = 40
+/** 폰트를 이만큼 기다려도 안 오면 안무를 포기하고 최종 상태만 세운다(ms) */
+const FONT_WAIT_MS = 2500
 
 type Pt = { x: number; y: number }
 
@@ -86,8 +88,22 @@ export function LogoDrop() {
     }
 
     const run = async () => {
-      // 글자 좌표가 서체에 딸려 있으므로 폰트부터 기다린다
-      if (document.fonts?.ready) await document.fonts.ready
+      // 글자 좌표가 서체에 딸려 있으므로 폰트부터 기다린다.
+      // ⚠ **무한정 기다리지 않는다** — 폰트 요청 하나가 매달리면(프록시·느린 망)
+      //   fonts.ready 가 영영 resolve 되지 않고, 그러면 이 await 에 갇혀 셸 로고와
+      //   제목 옆 로고가 **둘 다 남는다**(안무도 안 돌고 합체도 안 된 어정쩡한 상태).
+      //   FONT_WAIT_MS 를 넘기면 안무는 포기하고 최종 상태만 세운다.
+      if (document.fonts?.ready) {
+        const timedOut = await Promise.race([
+          document.fonts.ready.then(() => false),
+          new Promise<boolean>((r) => setTimeout(() => r(true), FONT_WAIT_MS)),
+        ])
+        if (cancelled) return
+        if (timedOut) {
+          settle()
+          return
+        }
+      }
       if (cancelled) return
 
       const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches

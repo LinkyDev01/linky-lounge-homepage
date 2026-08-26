@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { trackStandard, trackCustom } from "@/lib/meta-pixel"
+import { captureTrafficSrc } from "@/lib/traffic-src"
 
 export function MetaPixelTracker() {
   const pathname = usePathname()
@@ -10,6 +11,13 @@ export function MetaPixelTracker() {
   // 첫 경로는 layout.tsx 의 인라인 스니펫이 파싱 시점에 이미 쐈다.
   // 여기서 또 쏘면 첫 로드가 두 번 집계된다 — 두 번째 경로부터만 담당한다.
   const skipFirst = useRef(true)
+
+  // 유입 출처 캡처 (2026-08-26). **첫 로드에 한 번** — 위 skipFirst 규율과는 반대라
+  // 일부러 별도 블록이다. 광고·프로필 링크는 랜딩에 도착한 그 순간이 유일한 기회다.
+  // first-touch·도메인 게이트는 captureTrafficSrc() 안에 있다.
+  useEffect(() => {
+    captureTrafficSrc()
+  }, [])
 
   // SPA 라우트 변경 시 PageView 이벤트 발송 (첫 로드분은 스니펫이 담당)
   useEffect(() => {

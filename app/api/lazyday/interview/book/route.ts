@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { name, phone, slotStart, slotEnd } = body as Record<string, string>
+  // ⚠ 패스스루가 아니다 — 여기 없는 필드는 GAS 에 닿지 않는다 (새 필드 추가 시 함께 수정)
+  const { name, phone, slotStart, slotEnd, trafficSrc } = body as Record<string, string>
 
   if (!name || !phone || !slotStart || !slotEnd) {
     return NextResponse.json(
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // GAS 간헐 404 대응 — 미실행이 확실할 때만 1회 재시도 (lib/gas.ts)
-    const data = await gasPostJson(GAS_URL, { type: "phone_interview", name, phone, slotStart, slotEnd })
+    const data = await gasPostJson(GAS_URL, { type: "phone_interview", name, phone, slotStart, slotEnd, trafficSrc })
     return NextResponse.json(data)
   } catch (err) {
     // 302 수신 = 캘린더 등록까지 완료 — 본문 유실을 실패로 알리면 중복 예약을 부른다

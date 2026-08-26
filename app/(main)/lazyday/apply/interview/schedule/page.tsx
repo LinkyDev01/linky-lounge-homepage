@@ -5,6 +5,8 @@ import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientErr
 import { readSim, simSubmit, simSlots, type SimMode } from "../../../sim"
 import { SimBanner } from "../../../SimBanner"
 import { trackStandard } from "@/lib/meta-pixel"
+import { readTrafficSrc } from "@/lib/traffic-src"
+
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -390,7 +392,14 @@ export default function InterviewSchedulePage() {
       const res = await fetch("/api/lazyday/interview/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, slotStart: selectedSlot.startISO, slotEnd: selectedSlot.endISO }),
+        body: JSON.stringify({
+          name,
+          phone,
+          slotStart: selectedSlot.startISO,
+          slotEnd: selectedSlot.endISO,
+          // 유입 출처 — 시트 '유입 출처' 열에 기록된다 (2026-08-26)
+          trafficSrc: readTrafficSrc() ?? "",
+        }),
       })
       const data = await res.json()
       if (data.success) {
@@ -414,7 +423,9 @@ export default function InterviewSchedulePage() {
               value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
               currency: "KRW",
             },
-            { phone }, // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변
+            // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변.
+            // trafficSrc 는 퍼널 계측(funnel_events)의 제출 축이 된다 (2026-08-26)
+            { phone, trafficSrc: readTrafficSrc() ?? undefined },
           )
         }
         setConfirmed(selectedSlot)

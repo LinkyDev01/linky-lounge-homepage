@@ -40,9 +40,7 @@
 ⚠ 다른 Supabase 계정(조직 wacnihxjkusgpxgsfupw)에 같은 이름의 lazyday-prod 가 하나
 만들어졌다가 계정을 바꾸며 버려졌다 — 그 계정 대시보드에서 지우면 된다 (빈 프로젝트).
 
-### ② Vercel 에 환경변수 2개 넣기 — ✔ 완료 (2026-08-26 확인)
-
-> prod 원장에 실주문이 서버 경로로 기록돼 있어(첫 행 `lz-d906-…`, 2026-08-18) 두 변수가 실제로 들어가 있음이 확인됐다. 아래는 값을 다시 넣거나 Preview 에 dev 값을 붙일 때의 절차다.
+### ② Vercel 에 환경변수 2개 넣기 — ✔ 완료 (2026-08-26, 운영자)
 
 Vercel → 프로젝트 `linky-lounge-homepage` → Settings → Environment Variables.
 
@@ -59,6 +57,7 @@ service_role 키는 대시보드에서만 복사할 수 있다 (MCP 는 secret �
 
 **이 두 변수가 없으면 원장 기록은 조용히 꺼진 채 결제·신청이 종전대로 동작한다.**
 그래서 순서를 틀려도 사고가 나지 않는다 — 먼저 넣든 나중에 넣든 상관없다.
+⚠ 환경변수는 **넣은 뒤의 새 배포부터** 적용된다 — 넣기만 하고 재배포가 없으면 여전히 꺼진 채다.
 
 ## 4. 마이그레이션 적용
 
@@ -81,11 +80,23 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 |---|---|---|---|
 | `20260818090000_core_orders.sql` | orders · order_items · order_shipping · participants + RLS + R9 파기 함수 | ✔ | ✔ |
 | `20260818120000_harden_functions.sql` | 파기 함수 EXECUTE 를 service_role 만으로 회수 + set_updated_at search_path 고정 (dev 어드바이저 지적) | ✔ | ✔ |
-| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ✔ (2026-08-26 확인 — `cron.job` 에 `r9-purge-participants @ 30 18 * * *` UTC 등록됨. SQL 로 직접 적용해 `list_migrations` 목록에는 안 뜬다) |
+| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ✔ (2026-08-26) |
+| `20260826060000_funnel_events.sql` | 퍼널 계측 — 유입 출처별 결제시작/제출 집계. 개인정보 0, event_id 멱등, RLS 거부 | ✔ | ✔ |
 
 ## 5. 운영 조회
 
 ```sql
+-- 유입 출처별 퍼널: 결제 시작 → 신청서(Lead) → 인터뷰 확정 (2026-08-26)
+select coalesce(traffic_src, '(미상)') as 출처,
+       count(*) filter (where event_name = 'InitiateCheckout')     as 결제시작,
+       count(*) filter (where event_name = 'Lead')                 as 신청서,
+       count(*) filter (where event_name = 'CompleteRegistration') as 인터뷰확정,
+       round(100.0 * count(*) filter (where event_name = 'CompleteRegistration')
+             / nullif(count(*) filter (where event_name = 'InitiateCheckout'), 0), 1) as 전환율_pct
+  from funnel_events
+ where occurred_at >= now() - interval '30 days'
+ group by 1 order by 결제시작 desc;
+
 -- 결제는 됐는데 신청서를 안 낸 손님 (재진입 링크를 보내야 할 대상)
 select order_no, orderer_name, orderer_phone, approved_at, amount_total
   from orders

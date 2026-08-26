@@ -129,6 +129,20 @@ export function middleware(req: NextRequest) {
 
   const isBookclub = BOOKCLUB_HOSTS.has(host)
 
+  // 인스타그램 프로필 바이오용 단축 경로 → 랜딩 + 유입 출처 표시 (운영자 2026-08-26).
+  //   목적: 프로필 경유 유입과 광고 직행 유입의 전환율을 갈라 보기 위한 계측.
+  //   ⚠ 302(임시)인 이유: 목적지가 바뀔 수 있는 마케팅 경로다. 301 은 브라우저가
+  //     영구 캐시해서 나중에 목적지를 못 바꾼다 (개명 301 원장과는 성격이 다르다).
+  //   ⚠ 여기가 북클럽 rewrite 블록보다 **앞**이어야 한다 — 뒤로 가면 /lazyday/ig 로
+  //     바뀌어 없는 페이지가 된다.
+  //   clone() 이 search 를 들고 가므로 utm_*·fbclid 가 보존된다.
+  if (isBookclub && pathname === "/ig") {
+    const to = req.nextUrl.clone()
+    to.pathname = "/"
+    to.searchParams.set("src", "profile")
+    return NextResponse.redirect(to, 302)
+  }
+
   // 0) 프리뷰 트리는 프로덕션(책클럽 도메인)에 공개하지 않는다 — 내부 리뷰는
   //    브랜치 프리뷰(vercel.app)에서만. /preview·/lazyday/preview 모두 홈으로 보낸다.
   //    예외: 난수 슬러그 공유 경로(운영자 2026-08-04 "복잡한 하위페이지명") —

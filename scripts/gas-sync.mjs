@@ -179,24 +179,55 @@ async function accessToken() {
   return body.access_token
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
 let cachedToken = null
+
+/**
+ * ⚠ **읽기만 재시도한다** (2026-08-26).
+ *   `script.googleapis.com` 이 이따금 JSON 대신 **503 HTML** 을 뱉는다 — 구글 쪽 일시 장애로,
+ *   run #11·#12·#15·#17 네 번 이 증상으로 워크플로가 죽었고 그중 두 번은 실제 작업을 막았다.
+ *   한 번 찔러 보고 치명으로 단정할 이유가 없다.
+ *   **쓰기(PUT·POST)는 재시도하지 않는다** — 응답만 유실되고 서버엔 반영됐을 수 있어
+ *   versions.create 가 중복 버전을 만들 여지가 있다. 쓰기가 503 을 맞으면 종전대로 실패하고,
+ *   운영자가 다시 돌리면 된다(그 경로는 이미 안전하다).
+ */
+const API_READ_RETRY_WAITS = [0, 3_000, 9_000]
 
 async function api(method, urlPath, body) {
   const token = (cachedToken ??= await accessToken())
-  const res = await fetch(`${API}${urlPath}`, {
-    method,
-    headers: {
-      authorization: `Bearer ${token}`,
-      ...(body ? { 'content-type': 'application/json' } : {}),
-    },
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  })
-  const text = await res.text()
-  let json
-  try {
-    json = text ? JSON.parse(text) : {}
-  } catch {
-    fail(`Apps Script API 가 JSON 이 아닌 응답을 보냈습니다 (${res.status})`, text.slice(0, 200))
+  const isRead = method === 'GET'
+  const waits = isRead ? API_READ_RETRY_WAITS : [0]
+  let res, text, json
+
+  for (let i = 0; i < waits.length; i++) {
+    if (waits[i]) await sleep(waits[i])
+    res = await fetch(`${API}${urlPath}`, {
+      method,
+      headers: {
+        authorization: `Bearer ${token}`,
+        ...(body ? { 'content-type': 'application/json' } : {}),
+      },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    })
+    text = await res.text()
+    json = undefined
+    try {
+      json = text ? JSON.parse(text) : {}
+    } catch {
+      /* 아래에서 처리 */
+    }
+    // 일시 장애로 보이는 것만 다시 본다: 본문이 JSON 이 아니거나 5xx
+    const transient = json === undefined || res.status >= 500
+    if (!transient || i === waits.length - 1) break
+    log(`  … Apps Script API 가 ${res.status} 를 줬습니다 — 다시 시도합니다 (${i + 2}/${waits.length})`)
+  }
+
+  if (json === undefined) {
+    fail(
+      `Apps Script API 가 JSON 이 아닌 응답을 보냈습니다 (${res.status})`,
+      (isRead ? '구글 쪽 일시 장애일 수 있습니다 — 잠시 뒤 다시 실행해 보세요. ' : '') + text.slice(0, 200),
+    )
   }
   if (!res.ok) {
     const msg = json?.error?.message ?? text.slice(0, 200)
@@ -557,8 +588,6 @@ async function cmdDeploy() {
 
   await smokeTest(beforeVersion)
 }
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 /**
  * 배포 직후 실제 웹앱을 찔러 살아 있는지 본다 (콜드 스타트 80초 사례가 있어 넉넉히 기다린다).

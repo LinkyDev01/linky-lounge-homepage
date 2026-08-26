@@ -7,6 +7,7 @@ import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { trackStandard } from "@/lib/meta-pixel"
+import { readTrafficSrc } from "@/lib/traffic-src"
 import { trackEvent } from "@/lib/gtag"
 import {
   KAKAO_CHAT_URL,
@@ -409,7 +410,11 @@ function PostPayApplyForm({
 
     // 세 번째 인자는 서버 미러(전환 API) 전용 — 픽셀 파라미터는 불변.
     // orderId 는 이 사이트에서 유일한 내부 식별자라 external_id 로 쓴다(서버에서 해싱)
-    trackStandard("Lead", { content_name: "OneDayTalk_신청완료" }, { phone, externalId: orderId })
+    trackStandard(
+      "Lead",
+      { content_name: "OneDayTalk_신청완료" },
+      { phone, externalId: orderId, trafficSrc: readTrafficSrc() ?? undefined },
+    )
     trackEvent("oneday_apply_complete", { program: "book_club" })
     setLoading(false)
     onDone()

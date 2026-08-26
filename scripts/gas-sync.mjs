@@ -558,27 +558,48 @@ async function cmdDeploy() {
   await smokeTest(beforeVersion)
 }
 
-/** 배포 직후 실제 웹앱을 찔러 살아 있는지 본다 (콜드 스타트 80초 사례가 있어 넉넉히 기다린다) */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+/**
+ * 배포 직후 실제 웹앱을 찔러 살아 있는지 본다 (콜드 스타트 80초 사례가 있어 넉넉히 기다린다).
+ *
+ * ⚠ **재시도가 필요한 이유** (2026-08-26 실측): 배포 직후 몇 초 동안 웹앱이 JSON 대신
+ *   HTML(콜드 스타트·구글 인터스티셜)을 돌려주는 창이 있다. 한 번만 찔러 보고 실패로
+ *   단정하면 **배포는 멀쩡한데 워크플로만 빨개진다** — run #15 가 정확히 그랬고,
+ *   그 오탐 때문에 '배포 실패'로 오인해 후속 병합이 한 라운드 밀렸다.
+ *   (그때도 실제로는 v32→v33 갱신까지 다 끝나 있었고 웹앱은 정상이었다.)
+ *   그래서 **간격을 두고 세 번**까지 본다. 세 번 다 JSON 이 아니면 그건 진짜 고장이다.
+ */
 async function smokeTest(rollbackVersion) {
   const url = webappUrl()
   if (!url) {
     log('ℹ GAS_WEBAPP_URL 이 없어 스모크 테스트를 건너뜁니다')
     return
   }
-  log('· 웹앱 스모크 테스트 (콜드 스타트면 최대 90초)...')
+  const WAITS = [0, 10_000, 20_000] // 시도 전 대기 — 콜드 스타트가 풀릴 시간을 준다
   const started = Date.now()
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(90_000), redirect: 'follow' })
-    const text = await res.text()
-    const elapsed = ((Date.now() - started) / 1000).toFixed(1)
-    JSON.parse(text) // doGet 은 JSON 을 준다. HTML 이면 오류 페이지
-    log(`✔ 스모크 테스트 통과 (${res.status}, ${elapsed}s)`)
-  } catch (e) {
-    console.error(`\n✖ 스모크 테스트 실패: ${e.message}`)
-    console.error('  배포는 이미 반영된 상태입니다. 되돌리려면:')
-    console.error(`    node scripts/gas-sync.mjs rollback ${rollbackVersion ?? '<이전 버전번호>'}`)
-    process.exit(1)
+  let last = null
+
+  for (let i = 0; i < WAITS.length; i++) {
+    if (WAITS[i]) await sleep(WAITS[i])
+    log(`· 웹앱 스모크 테스트 ${i + 1}/${WAITS.length} (콜드 스타트면 최대 90초)...`)
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(90_000), redirect: 'follow' })
+      const text = await res.text()
+      JSON.parse(text) // doGet 은 JSON 을 준다. HTML 이면 오류 페이지
+      const elapsed = ((Date.now() - started) / 1000).toFixed(1)
+      log(`✔ 스모크 테스트 통과 (${res.status}, ${elapsed}s${i ? `, ${i + 1}번째 시도` : ''})`)
+      return
+    } catch (e) {
+      last = e
+      if (i < WAITS.length - 1) log(`  … 아직 JSON 이 아닙니다 (${e.message}) — 다시 시도합니다`)
+    }
   }
+
+  console.error(`\n✖ 스모크 테스트 실패 (${WAITS.length}회 모두): ${last?.message}`)
+  console.error('  배포는 이미 반영된 상태입니다. 되돌리려면:')
+  console.error(`    node scripts/gas-sync.mjs rollback ${rollbackVersion ?? '<이전 버전번호>'}`)
+  process.exit(1)
 }
 
 async function cmdRollback() {

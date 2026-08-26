@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { copyText } from "../../support"
 import styles from "./status.module.css"
 
 /**
@@ -12,9 +13,21 @@ import styles from "./status.module.css"
 
 type Check = { key: string; label: string; ok: boolean; detail: string; ms?: number; hint?: string }
 
+/** 결제만 하고 신청서를 안 낸 주문 (모임 포함 주문만 — 굿즈 주문은 신청서가 원래 없다) */
+type UnsubmittedOrder = {
+  orderNo: string
+  name: string
+  phone: string | null
+  amount: number
+  approvedAt: string | null
+  meetings: string[]
+}
+
 export default function AdminStatusPage() {
   const router = useRouter()
   const [checks, setChecks] = useState<Check[] | null>(null)
+  const [unsubmitted, setUnsubmitted] = useState<UnsubmittedOrder[]>([])
+  const [copiedNo, setCopiedNo] = useState("")
   const [checkedAt, setCheckedAt] = useState("")
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState("")
@@ -31,6 +44,14 @@ export default function AdminStatusPage() {
       const data = await res.json()
       setChecks(data.checks ?? [])
       setCheckedAt(data.checkedAt ?? "")
+      // 구제 대상 목록 — 원장이 꺼져 있거나 실패해도 점검 화면 자체는 계속 뜬다
+      try {
+        const r2 = await fetch("/api/lazyday/admin/orders/unsubmitted", { cache: "no-store" })
+        if (r2.ok) {
+          const d2 = await r2.json()
+          setUnsubmitted(d2.orders ?? [])
+        }
+      } catch {}
     } catch {
       setFailed("점검 요청 자체가 실패했습니다. 네트워크를 확인해주세요.")
     } finally {
@@ -93,6 +114,50 @@ export default function AdminStatusPage() {
             </li>
           ))}
         </ul>
+
+        {/* 구제 대상 — 결제 승인은 됐는데 신청서를 안 낸 주문 (2026-08-18, 주문 원장).
+            재진입 링크를 복사해 카톡/문자로 보내면 손님이 신청서만 다시 열게 된다
+            (결제는 이미 끝난 주문 — 재결제 아님) */}
+        {unsubmitted.length > 0 && (
+          <section className={styles.rescue}>
+            <p className={styles.rescueTitle}>
+              신청서 미제출 주문 {unsubmitted.length}건 — 재진입 링크를 보내 주세요
+            </p>
+            <ul className={styles.rescueList}>
+              {unsubmitted.map((o) => (
+                <li key={o.orderNo} className={styles.rescueItem}>
+                  <div className={styles.rescueBody}>
+                    <p className={styles.rescueName}>
+                      {o.name}
+                      {o.phone && <span className={styles.rescuePhone}> · {o.phone}</span>}
+                    </p>
+                    <p className={styles.rescueMeta}>
+                      {o.meetings.join(", ")} · ₩{o.amount.toLocaleString("ko-KR")}
+                      {o.approvedAt &&
+                        ` · ${new Date(o.approvedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 결제`}
+                    </p>
+                  </div>
+                  <button
+                    className={styles.rescueCopy}
+                    onClick={async () => {
+                      const url = `${window.location.origin}/one-day-talk-01/checkout/success?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
+                      if (await copyText(url)) {
+                        setCopiedNo(o.orderNo)
+                        setTimeout(() => setCopiedNo(""), 2000)
+                      }
+                    }}
+                  >
+                    {copiedNo === o.orderNo ? "복사됨" : "재진입 링크 복사"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className={styles.rescueNote}>
+              이 링크는 결제가 이미 승인된 주문의 신청서만 다시 엽니다 — 재결제가 아닙니다.
+              제출되면 목록에서 자동으로 빠집니다.
+            </p>
+          </section>
+        )}
 
         <section className={styles.note}>
           <p className={styles.noteTitle}>참고</p>

@@ -33,7 +33,7 @@ export const SCENES_LEFT: Scene[] = [
     height: 220,
   },
   {
-    src: "/linky-lounge/book-club/books/1기-1-어린 왕자.jpg",
+    src: "/linky-lounge/book-club/books/1기-1-어린 왕자.webp",
     alt: "[임시] 펼쳐진 레이지노트",
     caption: "[자리표시] 오늘의 레이지노트",
     quote: "[발제 발췌 자리 — 운영자 원고 대기]",
@@ -50,13 +50,13 @@ export const SCENES_LEFT: Scene[] = [
 // 우열 3장 — 타임라인 짝수 번째 (② 도착·다과 → ④ 밑줄 친 책 → ⑥ 마지막 페이지)
 export const SCENES_RIGHT: Scene[] = [
   {
-    src: "/linky-lounge/book-club/books/2기-3-사랑의 기술.jpg",
+    src: "/linky-lounge/book-club/books/2기-3-사랑의 기술.webp",
     alt: "[임시] 도착과 다과",
     caption: "[자리표시] 도착, 따뜻한 다과",
     height: 150,
   },
   {
-    src: "/linky-lounge/book-club/books/1기-4-시지프 신화.jpg",
+    src: "/linky-lounge/book-club/books/1기-4-시지프 신화.webp",
     alt: "[임시] 밑줄 친 책",
     caption: "[자리표시] 같은 문장, 다른 밑줄",
     quote: "[발제 발췌 자리 — 운영자 원고 대기]",

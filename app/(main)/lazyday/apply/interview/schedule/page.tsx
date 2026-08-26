@@ -1,9 +1,12 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { KAKAO_CHAT_URL, KAKAO_SUBMIT_GUIDE, KAKAO_SUBMIT_LABEL, reportClientError, copyText } from "../../../support"
 import { readSim, simSubmit, simSlots, type SimMode } from "../../../sim"
 import { SimBanner } from "../../../SimBanner"
+import { trackStandard } from "@/lib/meta-pixel"
+import { readTrafficSrc } from "@/lib/traffic-src"
+
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -191,6 +194,43 @@ export default function InterviewSchedulePage() {
     return () => { cancelled = true }
   }, [sim, simReady])
 
+  // ── 예약 현황 갱신 (운영자 2026-08-18 "예약 완료된 시간 실시간 반영 안 되는 것 같아")
+  //
+  // 위 effect 는 **진입 시 한 번만** 조회한다. 그래서 페이지를 열어둔 채 시간이 지나면
+  // 목록이 그때로 멈춰 있고, 그 사이 남이 잡은 시간이 계속 비어 보인다.
+  // (예약 자체는 GAS 캘린더 중복 검사가 막아주므로 이중 예약이 되지는 않지만,
+  //  끝까지 입력하고 나서 "이미 예약된 시간입니다"로 튕기는 최악의 순간에 알게 된다.)
+  //
+  // → 탭으로 돌아왔을 때와 열어둔 동안 주기적으로 다시 읽는다.
+  //   서버 캐시가 짧게 걸려 있어(slots route) 여러 탭이 열려도 GAS 호출은 뭉쳐진다.
+  //   ⚠ 첫 조회가 끝나기 전(slotsLoading)·시뮬레이션·완료 화면에서는 돌지 않는다.
+  const refreshSlots = useCallback(async () => {
+    if (sim || !simReady) return
+    try {
+      const r = await fetch("/api/lazyday/interview/slots", { cache: "no-store" })
+      const d = (await r.json()) as { success?: boolean; bookedSlots?: { start: string; end: string }[] }
+      if (r.ok && d.success && Array.isArray(d.bookedSlots)) {
+        setBookedEvents(d.bookedSlots.map((x) => ({ start: x.start, end: x.end })))
+        setSlotsFailed(false)
+      }
+    } catch {
+      /* 갱신 실패는 조용히 넘긴다 — 이미 그려진 목록을 지우면 더 나쁘다 */
+    }
+  }, [sim, simReady])
+
+  useEffect(() => {
+    if (sim || !simReady || slotsLoading || submitted) return
+    const onVisible = () => { if (document.visibilityState === "visible") refreshSlots() }
+    document.addEventListener("visibilitychange", onVisible)
+    window.addEventListener("focus", refreshSlots)
+    const timer = setInterval(refreshSlots, 45_000)
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible)
+      window.removeEventListener("focus", refreshSlots)
+      clearInterval(timer)
+    }
+  }, [sim, simReady, slotsLoading, submitted, refreshSlots])
+
   const nowUTCMs   = useMemo(() => Date.now(), [])
   // KST 기준 당일 포함 DAYS_AHEAD일째의 자정 UTC (= 예약 마감 기준)
   const maxBookingUTCMs = useMemo(() => {
@@ -352,10 +392,42 @@ export default function InterviewSchedulePage() {
       const res = await fetch("/api/lazyday/interview/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, slotStart: selectedSlot.startISO, slotEnd: selectedSlot.endISO }),
+        body: JSON.stringify({
+          name,
+          phone,
+          slotStart: selectedSlot.startISO,
+          slotEnd: selectedSlot.endISO,
+          // 유입 출처 — 시트 '유입 출처' 열에 기록된다 (2026-08-26)
+          trafficSrc: readTrafficSrc() ?? "",
+        }),
       })
       const data = await res.json()
       if (data.success) {
+        // 이 번호가 이미 인터뷰를 확정했으면(시간 변경 재예약, 또는 서면 이력)
+        // GAS 가 duplicate=true 로 알려준다 — 전환을 다시 쏘지 않는다.
+        // 운영자 2026-08-18: "전화/서면 모두 같은 거고 방식만 다른 거지."
+        const isRebooking = !!data.duplicate
+        // 표준 전환 — 서면 제출과 **같은 지점**이다 (운영자 2026-08-18 "2. written 제출 =
+        // 3. schedule 예약 제출 동일해. 그러므로 동일하게 붙여야해").
+        // 인터뷰 방식만 다를 뿐 둘 다 '인터뷰 확정'이 마지막 단계라, 전화를 고른 사람의
+        // 전환이 통째로 누락되고 있었다.
+        //  · GAS 가 같은 슬롯 재예약을 거부하므로(handlePhoneBooking 캘린더 중복 검사)
+        //    연타로 두 번 잡히지 않는다 — 두 번째는 success:false 로 떨어져 여기 못 온다.
+        //  ⚠ 시뮬레이션은 위에서 먼저 return 하므로 여기 도달하지 않는다.
+        if (!isRebooking) {
+          trackStandard(
+            "CompleteRegistration",
+            {
+              content_name: "lazyday_bookclub_4",
+              status: true,
+              value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
+              currency: "KRW",
+            },
+            // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변.
+            // trafficSrc 는 퍼널 계측(funnel_events)의 제출 축이 된다 (2026-08-26)
+            { phone, trafficSrc: readTrafficSrc() ?? undefined },
+          )
+        }
         setConfirmed(selectedSlot)
         setSubmitted(true)
         window.scrollTo(0, 0)
@@ -363,6 +435,9 @@ export default function InterviewSchedulePage() {
         setErrors({ _form: data.error ?? "일시적인 오류로 예약이 완료되지 않았어요. 잠시 후 다시 시도해주세요." })
         keepFailed(name, phone)
         reportClientError("schedule_book", String(data.error ?? "예약 실패"))
+        // 그 사이 남이 먼저 잡았을 수 있다 — 목록을 바로 새로 읽어 그 시간이
+        // '마감'으로 보이게 한다. 안 하면 같은 시간을 계속 다시 누르게 된다.
+        refreshSlots()
       }
     } catch {
       setErrors({ _form: "연결이 잠시 불안정했어요. 선택하신 시간은 그대로니, 잠시 후 다시 시도해주세요." })
@@ -443,18 +518,26 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-        {/* 3기 안내 */}
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>{SEASON.name} 안내</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>{SEASON.regularNote}</span>
-              <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>{SEASON.location.short}</span>
-            </div>
-            <p className={styles.ref0Note}>{SEASON.location.note}</p>
+        {/* 기수 안내 — 멤버십 가격은 2026-08-25 부터 이 박스에서만 노출한다
+            (운영자 지시로 apply 페이지에서 이관. 랜딩·apply 는 비노출 유지,
+            서면 인터뷰 쪽 같은 박스에는 넣지 않는다). 값은 SEASON.price 단일 출처.
+            ⚠ 2026-08-25 축소: 정규모임·자유모임·장소 행과 장소 변경 주석을 뺐다
+            (운영자 "전화와 서면에는 상단에 장소나 정규/자유모임 소개 안 해도 될 것
+            같은데"). 이 페이지의 본 기능은 **인터뷰 통화 시간** 고르기인데 바로 위에
+            모임 일정(격주 화·수·일)이 붙어 있어 슬롯 제한으로 오독될 소지가 있었다.
+            일정·장소는 apply 페이지에 그대로 있다 — 여기선 가격만 남긴다.
+            서식은 2026-08-25 베이지 안내 박스 → **apply 히어로 카드 서식**으로 교체
+            (운영자 "기존 어플라이페이지 히어로 서식 이식해서 멤버십 가격만 적어").
+            값은 page.module.css 의 .feeCard/.feeLabel/.feeValue 참조 (2026-08-25 한 줄로 압축). */}
+          <div className={styles.feeCard}>
+            {/* 회차 수는 sessions 배열 길이에서 — 기수 전환 때 문구가 조용히 어긋나지 않게
+                (운영자 지정 문안: "4기 멤버십(정규 독서모임 4회 + 자유 독서모임)").
+                span 을 줄바꿈 없이 붙여야 괄호 앞 공백이 안 생긴다 — JSX 는 줄 사이를
+                공백 하나로 합친다. */}
+            <h2 className={styles.feeLabel}>
+              {SEASON.name} 멤버십<span className={styles.feeLabelSub}>(정규 독서모임 {SEASON.sessions.length}회 + 자유 독서모임)</span>
+            </h2>
+            <p className={styles.feeValue}>{SEASON.price}</p>
           </div>
 
         {/* 메인 패널 */}

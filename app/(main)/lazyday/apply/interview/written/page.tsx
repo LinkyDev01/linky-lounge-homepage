@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
-import { trackCustom } from "@/lib/meta-pixel"
+import { trackCustom, trackStandard } from "@/lib/meta-pixel"
+import { readTrafficSrc } from "@/lib/traffic-src"
+
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
-import { SEASON } from "../../../season-config"
 import { JourneyStepper } from "../../../JourneyStepper"
 import styles from "./page.module.css"
 
@@ -59,8 +60,11 @@ const QUESTIONS = [
   },
 ]
 
-const INTRO_1 =
-  "레이지데이 북클럽은 한 권의 책을 매개로 저마다의 깊이 있는 시선과 일상의 화두를 공유하는 독서모임입니다."
+// INTRO_1(북클럽이 무엇인지 정의하는 문장)은 2026-08-25 제거 — 운영자 "서면인터뷰
+// 설명문도 피로해보여". 신청서를 이미 낸 사람에게 모임 정의는 랜딩·apply 에서 두 번
+// 본 정보라 여기선 군더더기다. 전화 인터뷰 쪽도 정의문 없이 곧장 "…전화 인터뷰
+// 세션입니다"로 들어가므로, 제거가 곧 형제 페이지와의 서식 통일이기도 하다.
+// (문구 자체는 운영자 소유 — 새로 쓰지 않고 중복 문장만 덜어냈다)
 const INTRO_2 =
   "아래의 6가지 질문은 다가오는 시즌 동안 함께 머물 대화의 공간을 조금 더 밀도 있게 준비하기 위한 과정입니다. 정답은 없으니, 평소 일상과 서재에서 하던 생각들을 편안하게 들려주세요."
 
@@ -91,6 +95,9 @@ export default function WrittenInterviewPage() {
   // 제출이 오래 걸릴 때(응답 지연) 답변을 잃지 않도록 복사 안내를 띄운다 (운영자 지시 2026-08-06)
   const [slowSubmit, setSlowSubmit] = useState(false)
   const [copied, setCopied] = useState(false)
+  const submitting = useRef(false)
+  // 서버가 "이미 접수된 번호"라고 알려주면 전환을 다시 쏘지 않는다
+  const duplicateRef = useRef(false)
   const slowTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -192,6 +199,11 @@ export default function WrittenInterviewPage() {
   // 서버 접수가 확인된 경우에만 완료 처리한다 (답변 유실 방지).
   // 실패 시 답변은 localStorage에 그대로 남고, 재시도 배너를 보여준다.
   async function doSubmit() {
+    // 재진입 가드 — 버튼 disabled 는 리렌더 뒤에야 걸리므로, 그 사이의 두 번째
+    // 클릭(빠른 연타·엔터 중복)까지 여기서 막는다. 서버에도 중복 차단이 있지만
+    // 요청 자체를 안 보내는 게 낫다.
+    if (submitting.current) return
+    submitting.current = true
     setConfirmOpen(false)
     setSubmitError(false)
     setSlowSubmit(false)
@@ -210,15 +222,21 @@ export default function WrittenInterviewPage() {
           name,
           phone,
           answers,
+          // 유입 출처 — 시트 '유입 출처' 열에 기록된다 (2026-08-26).
+          // 값이 없으면(캡처 전이거나 비북클럽 도메인) 빈 값으로 두고 GAS 가 알아서 건너뛴다.
+          trafficSrc: readTrafficSrc() ?? "",
           // 질문 원문도 함께 전송 → 관리자 메일에서 질문+답변 매핑 (페이지 수정 시 메일 자동 반영)
           questions: QUESTIONS.map((q) => ({ id: q.id, label: q.label, text: q.text, sub: q.sub })),
         }),
       })
       const data = await res.json().catch(() => null)
       if (!res.ok || !data?.success) throw new Error(data?.error || "submit failed")
+      // GAS 가 같은 번호의 기존 제출을 찾아 덮어썼다는 신호 (재제출 = 수정)
+      duplicateRef.current = !!data?.duplicate
       }
     } catch {
       if (slowTimer.current) clearTimeout(slowTimer.current)
+      submitting.current = false // 실패했으니 '다시 제출하기'가 가능해야 한다
       setLoading(false)
       setSubmitError(true)
       track("written_interview_submit_error", { program: "book_club" })
@@ -229,6 +247,28 @@ export default function WrittenInterviewPage() {
     setSlowSubmit(false)
     setLoading(false)
     track("written_interview_complete", { program: "book_club", missing_count: allMissingLabels().length })
+    // 표준 이벤트 병행 발화 (운영자 2026-08-18) — 커스텀을 대체하는 게 아니라 나란히.
+    //  · 여기는 **마지막 단계(LAST_PAGE)의 제출이 서버에서 성공한 뒤** 단 한 곳이다.
+    //    step 이벤트 쪽에서는 절대 쏘지 않는다 (중간 단계 이탈이 전환으로 잡힌다).
+    //  · 실패하면 위 catch 에서 return 하므로 여기까지 오지 않는다.
+    //  ⚠ 시뮬레이션(/lazyday/admin/simulate)은 실제 접수가 없으므로 제외한다 —
+    //    안 막으면 테스트할 때마다 가짜 전환이 광고 최적화에 학습된다.
+    //  ⚠ 재제출(서버가 duplicate 로 응답)이면 쏘지 않는다 — 한 사람의 인터뷰 확정이
+    //    전환 2건으로 잡히면 광고 최적화가 왜곡된다.
+    if (!sim && !duplicateRef.current) {
+      trackStandard(
+        "CompleteRegistration",
+        {
+          content_name: "lazyday_bookclub_4",
+          status: true,
+          value: 150000, // season-config 의 4기 참가비 150,000원과 일치
+          currency: "KRW",
+        },
+        // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변.
+        // trafficSrc 는 퍼널 계측(funnel_events)의 제출 축이 된다 (2026-08-26)
+        { phone, trafficSrc: readTrafficSrc() ?? undefined },
+      )
+    }
     try { localStorage.removeItem("lazyday_written_answers") } catch {} // 제출 완료 → 임시저장 정리
     setSubmitted(true)
     window.scrollTo(0, 0)
@@ -342,24 +382,16 @@ export default function WrittenInterviewPage() {
               <h1 className={styles.headerTitle}>서면 인터뷰</h1>
               <JourneyStepper current={2} interview="서면" />
               <div className={styles.headerSub}>
-                <p>{INTRO_1}</p>
                 <p>{INTRO_2}</p>
               </div>
             </div>
 
-            {/* 3기 안내 */}
-            <div className={styles.refBeigeWrap}>
-              <p className={styles.ref0Title}>{SEASON.name} 안내</p>
-              <div className={styles.ref0Grid}>
-                <span className={styles.ref0Key}>정규모임</span>
-                <span className={styles.ref0Val}>{SEASON.regularNote}</span>
-                <span className={styles.ref0Key}>자유모임</span>
-                <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-                <span className={styles.ref0Key}>장소</span>
-                <span className={styles.ref0Val}>{SEASON.location.short}</span>
-              </div>
-              <p className={styles.ref0Note}>{SEASON.location.note}</p>
-            </div>
+            {/* 기수 안내 박스는 2026-08-25 제거 — 운영자 "전화와 서면에는 상단에
+                장소나 정규/자유모임 소개 안 해도 될 것 같은데". 신청서를 이미 낸
+                단계라 모임 일정·장소는 apply 페이지에 그대로 있고, 이 페이지의 일은
+                답변 작성이다. 전화 예약 쪽은 멤버십 가격만 남겨 축소했지만 여기엔
+                가격 노출이 없어(정책상 전화 전용) 박스째 걷었다.
+                CSS(.refBeigeWrap/.ref0*)는 고아 보존 — 되살릴 땐 그대로 쓰면 된다. */}
 
             <div className={styles.infoCard}>
               <div className={styles.infoRow}>

@@ -3,7 +3,26 @@
     "allow": [
       "Bash(git add *)",
       "Bash(git commit *)",
-      "mcp__Vercel__deploy_to_vercel"
+      "mcp__Vercel__deploy_to_vercel",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"--- tsc exit: $? ---\")",
+      "Bash(npm install *)",
+      "Bash(npm -v)",
+      "Bash(npm ci *)",
+      "Bash(echo \"exit=$?\")",
+      "Read(//tmp/**)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/lazyday)",
+      "Bash(node /tmp/claude-0/-home-user-linky-lounge-homepage/291cc44b-bf4d-532b-87c8-673adcf0660a/scratchpad/capi-verify.mjs)",
+      "Bash(node /tmp/claude-0/-home-user-linky-lounge-homepage/291cc44b-bf4d-532b-87c8-673adcf0660a/scratchpad/capi-verify.mjs --no-stub)",
+      "Bash(node /tmp/claude-0/-home-user-linky-lounge-homepage/291cc44b-bf4d-532b-87c8-673adcf0660a/scratchpad/capi-written.mjs)",
+      "Bash(node /tmp/claude-0/-home-user-linky-lounge-homepage/291cc44b-bf4d-532b-87c8-673adcf0660a/scratchpad/capi-written.mjs --sim)",
+      "Bash(curl -s -o /dev/null -w \"graph.facebook.com status=%{http_code}\\\\n\" --max-time 15 \"https://graph.facebook.com/v21.0/\")",
+      "Bash(curl -s -o /dev/null -w \"lazyday=%{http_code}\\\\n\" --max-time 10 http://localhost:3000/lazyday)",
+      "Bash(ls -la /tmp/dev2.log 2>&1; pgrep -fa \"next\" | head -5; echo \"--- 프로세스 위 ---\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

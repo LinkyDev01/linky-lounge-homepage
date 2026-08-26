@@ -10,7 +10,7 @@
  */
 
 import { ONEDAY, ONEDAY_PRICE, sessionKey } from "@/app/(main)/lazyday/one-day-talk-01/oneday-shared"
-import { GOODS } from "@/app/(main)/lazyday/preview/lazyclub-4b073000ddec094f/goods-config"
+import { GOODS } from "@/app/(main)/lazyclub/goods-config"
 
 export type OrderItem = {
   /** 주문 코드 — orderId·쿼리에 실린다. 토스 허용 문자 [a-zA-Z0-9-_] 만 사용 */

@@ -24,7 +24,7 @@ import s from "./draft.module.css"
  */
 
 const NAV_ITEMS = [
-  { id: "book", label: "선정도서" },
+  { id: "book", label: "함께 읽는 책" },
   { id: "feature", label: "모임소개" },
   { id: "howto", label: "진행방식" },
   { id: "schedule", label: "일정·장소" },
@@ -83,11 +83,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
-      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
-      />
+      {/* 푸터 서체는 SUIT — Gothic A1 로드 제거 (실 LandingShell 과 동기, 2026-08-17) */}
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>
       </noscript>
@@ -140,7 +136,7 @@ export function DraftShell({ children }: { children: React.ReactNode }) {
 
           <div className={s.footerDesc}>
             {/* 운영자 지정 원문 (2026-08-12) — 임의 수정 금지 */}
-            <p>저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.</p>
+            <p>저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 소망합니다.</p>
           </div>
 
           <div className={s.footerBiz}>

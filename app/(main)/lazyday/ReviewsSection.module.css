@@ -4,6 +4,9 @@
 
 .reviewsSection {
   padding: 72px var(--lz-gutter, 24px);
+  /* 2026-08-24 A → B 재배정 (운영자 "섹션 컬러도 다시 재배열해") — 진행 방식
+     독립 섹션(B) 부활로 전체 교차 재편:
+     책B → 모임소개A → 진행방식B → 일정A → **후기B** → FAQ A → 클로징B */
   background: #f0e9e0;
   scroll-margin-top: 52px;
 }
@@ -186,13 +189,6 @@
   filter: none;
   cursor: zoom-in;
 }
-.galleryZoomLayer {
-  position: absolute;
-  inset: 0;
-  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.36, 1);
-  transform-origin: center;
-  will-change: transform;
-}
 /* 모달 내 슬라이드 넘김 버튼 — PC·모바일 공통, 끝에서 비활성 */
 .galleryNav {
   position: absolute;
@@ -256,9 +252,116 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gallerySlideM,
-  .galleryZoomLayer {
+  .zoomLayer {
     transition: none;
   }
   .lightbox,
   .galleryFrame { animation: none; }
+}
+
+/* ── 핀치 줌 확대 (2026-08-19, useZoomGesture.ts 짝) ──────────────────────
+   프리뷰 검수대 preview/reviews-zoom-check 의 ReviewsZoomCheck.module.css
+   값 그대로 이식 — 소비자는 이 파일(ReviewsSection.module.css) 하나뿐이라
+   새 클래스 추가는 안전하지만, 기존 클래스(위 블록)는 값을 바꾸지 않았다. */
+
+/* 데스크톱 모달 (2026-08-19 재설계) — 운영자 "모달의 좌우폭도 반응형에 맞춰서
+   커져야 … 확대시 좌우가 잘 안보여".
+
+   진단: 확대한 이미지를 잘라내는 **클리핑 상자는 .gallerySlideM**(폭 = --slide-w)이다.
+   종전 값 min(90vw, calc(90vh*(1005/1440))) 은 사진이 세로로 긴 원본(1005:1440)이라
+   가로로 넓은 데스크톱 창에서 **항상 vh 항이 이겼다** — 창을 아무리 넓혀도 상자는
+   좁은 세로 띠 그대로였고, 2배만 확대해도 좌우가 상자 밖으로 밀려 잘렸다.
+   화면에는 좌우로 1000px 넘는 빈 공간이 남아 있는데도.
+
+   해결: 상자를 화면 가로로 넓히고(--slide-w), 높이는 화면에 맞추고(height),
+   그 안의 이미지는 `object-fit: contain` 으로 원본 비율 그대로 담는다.
+   → 확대 전 크기는 종전과 같지만(세로가 화면 높이에 묶이는 건 물리적 한계),
+     확대하면 넓어진 상자만큼 좌우가 살아난다. 실측: 1280×800 에서 1.8배 확대 시
+     이미지 884px < 상자 973px 이라 좌우 **전부** 보인다(종전엔 503px 에서 잘림).
+   ⚠ 100vw 로 채우지 않는 이유: 좌우 여백은 "바깥 클릭 = 닫기" 영역으로 남겨야 한다.
+   ⚠ 이웃 슬라이드는 ±(--slide-w + 8px) 로 밀려 화면 밖이다 — 데스크톱에선 양옆
+     슬리버가 사라지지만, ‹› 버튼·방향키·스와이프가 그대로라 넘김에 지장이 없다. */
+@media (min-width: 721px) {
+  .galleryFrameZoom {
+    --slide-w: min(76vw, 1200px);
+    height: 88vh;
+  }
+  /* 상자가 이미지보다 넓어졌으니 카드 그림자·모서리는 뗀다 — 사진이 어두운 배경 위에
+     그대로 떠 있는 라이트박스 모양이 된다 (그림자를 두면 빈 상자 테두리가 드러난다) */
+  .galleryFrameZoom .gallerySlideM {
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
+.zoomStage {
+  cursor: zoom-in;
+}
+.zoomStageZoomed {
+  cursor: zoom-out;
+}
+
+/* 확대 레이어 — translate+scale 만 쓴다(GPU 합성 유지, layout 트리거 없음).
+   transform-origin: 0 0 은 useZoomGesture 의 좌표 계산과 짝이다 — 바꾸면 확대 기준점이 틀어진다. */
+.zoomLayer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* ⚠ cover 가 아니라 contain — 데스크톱에서 상자가 이미지보다 넓어지므로 cover 로 두면
+   그 비율에 맞춰 좌우가 **잘린다**(렌더 단계 크롭이라 확대·팬으로도 복구 불가).
+   모바일은 상자 비율 = 이미지 비율이라 contain 이든 cover 든 결과가 같다.
+   JSX 인라인 style 이 아니라 여기 두는 이유: 인라인은 미디어쿼리로 못 바꾼다. */
+.zoomLayer img {
+  object-fit: contain;
+}
+
+.lightboxRoot {
+  touch-action: none; /* 모달 안에서는 브라우저 기본 핀치 줌(페이지 확대)을 막는다 */
+}
+.lightboxZoomed {
+  cursor: default;
+}
+/* .gallerySlideMActive 가 cursor: zoom-in 을 자체 지정하고 있어(단일 클래스 선택자라
+   소스 순서에 기대는 게 불안정) 확대 상태에서 zoom-out 으로 덮으려면 !important 가
+   가장 안전하다 — 다른 프로퍼티는 건드리지 않는다 */
+.activeSlideZoomed {
+  cursor: zoom-out !important;
+}
+
+/* +/− 버튼 — 클릭 확대를 못 찾는 사용자용 안전망. 데스크톱에서만 노출.
+   운영자 지적(2026-08-19) "더 작게, 덜 투명하게 해서 잘 보이게" —
+   nav·close 버튼과 같은 옅은 프로스트 톤(0.14)은 사진 위에서 묻혔다.
+   이 버튼만 더 진하게 — 발견용 안전망이라는 목적에 맞춘 의도적 이탈. */
+.zoomControls {
+  display: none;
+}
+@media (min-width: 721px) {
+  .zoomControls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 6;
+  }
+}
+.zoomBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 253, 248, 0.42);
+  border: 1px solid rgba(255, 253, 248, 0.65);
+  border-radius: 50%;
+  color: #1a1208;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.zoomBtn:hover {
+  background: rgba(255, 253, 248, 0.6);
 }

@@ -29,7 +29,7 @@
 //
 // ⚠ 프론트(Vercel)와의 계약
 //   · POST type: written / phone_interview / admin_block / admin_delete /
-//     notify / oneday / (없음 = 신청 폼)
+//     notify / oneday / coffeebar / (없음 = 신청 폼)
 //   · GET ?adminToken=<스크립트 속성 ADMIN_TOKEN> → 이벤트에 id·title 포함
 //     (admin 차단 관리 화면이 이 값으로 차단/인터뷰를 구분·삭제한다.
 //      Vercel 환경변수 ADMIN_SECRET 과 반드시 같은 값이어야 한다)
@@ -41,7 +41,9 @@ var WRITTEN_SHEET = "서면 인터뷰";
 var CLASS_SHEET = "반배정";
 var NOTIFY_SHEET = "4기 알림"; // 다음 기수 오픈 알림 신청 (2026-07-13)
 var DRAFT_SHEET  = "임시저장"; // 신청 1단계 임시저장 (2026-07-27) — 같은 문서 별도 탭
-var ONEDAY_SHEET = "1회성 모임"; // 1회성 모임 신청 (2026-07-24) — 같은 문서 별도 탭
+// ⚠ 2026-08-24 이후 **쓰지 않는다** — 원데이 접수는 레이지클럽 파일로 이전됐다
+// (LAZYCLUB_ONEDAY_SHEET). 북클럽 시트의 이 탭은 이전 이전(以前) 기록 보관용으로 남는다.
+var ONEDAY_SHEET = "1회성 모임"; // (과거 기록 탭 — 신규 접수는 여기로 오지 않는다)
 
 // 확인 완료: 운영 캘린더 "레이지데이북클럽 인터뷰" (라이브 일정과 대조 검증됨)
 var CALENDAR_ID = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
@@ -107,6 +109,63 @@ var WRITTEN_QUESTIONS = [
     text: "한 기수의 레이지데이 북클럽을 마치고 집으로 돌아가는 마지막 길, 내 마음에 어떤 잔상이나 기분이 남아있기를 바라시나요?",
     sub:  "" },
 ];
+
+// ── 레이지클럽 신청 관리 (2026-08-24 신설) ──────────────────
+// 북클럽 시트(SHEET_ID)와 **다른 파일**이다 (운영자: "기존 레이지데이 북클럽과는 다르니까").
+// 모임 단위로 탭을 나눈다 — 탭은 payload 가 지정한 이름으로 자동 생성되므로
+// 모임이 늘어도 이 스크립트를 고칠 필요가 없다.
+//
+// 파일 ID 는 코드에 박지 않고 **스크립트 속성**에 둔다(비밀값 규율과 같은 자리).
+// 없으면 최초 접수 때 새 스프레드시트를 만들어 ID 를 적어 두고 운영자에게 메일로 알린다 —
+// 운영자가 미리 만들어 둔 파일을 쓰려면 스크립트 속성 LAZYCLUB_SHEET_ID 에 그 ID 를 넣으면 된다.
+var LAZYCLUB_SHEET_NAME = "레이지클럽 신청 관리";
+var LAZYCLUB_COFFEEBAR_SHEET = "커피앤바";
+var LAZYCLUB_ONEDAY_SHEET    = "원데이 토크";
+
+function lazyclubSs() {
+  var id = _PROPS.getProperty("LAZYCLUB_SHEET_ID") || "";
+  if (id) {
+    try { return SpreadsheetApp.openById(id); } catch (err) { /* 지워졌거나 권한 없음 → 새로 만든다 */ }
+  }
+  var created = SpreadsheetApp.create(LAZYCLUB_SHEET_NAME);
+  _PROPS.setProperty("LAZYCLUB_SHEET_ID", created.getId());
+  try {
+    DriveApp.getFileById(created.getId()).addEditor(ADMIN_EMAIL);
+  } catch (err) {}
+  try {
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: "[레이지클럽] 신청 관리 스프레드시트가 새로 만들어졌습니다",
+      body: "레이지클럽 신청을 받을 새 스프레드시트를 만들었습니다.\n" +
+            "앞으로 커피앤바·원데이 토크 신청은 모두 이 파일의 모임별 탭에 쌓입니다.\n\n" +
+            "https://docs.google.com/spreadsheets/d/" + created.getId()
+    });
+  } catch (err) {}
+  return created;
+}
+
+/** 레이지클럽 파일 안에서 탭 확보 — 없으면 만들고 첫 헤더 셀을 선시드한다.
+ *  (빈 시트는 getLastColumn()이 0이라 ensureColumn 이 못 읽는다 — 원데이 시트와 같은 함정) */
+function lazyclubSheet(name) {
+  var doc = lazyclubSs();
+  var sheet = doc.getSheetByName(name);
+  if (!sheet) {
+    sheet = doc.insertSheet(name);
+    sheet.getRange(1, 1).setValue("신청일자")
+      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
+    sheet.setFrozenRows(1);
+  }
+  // 새 파일이면 기본 '시트1' 이 남아 지저분하다 — 비어 있을 때만 치운다
+  try {
+    var first = doc.getSheetByName("시트1") || doc.getSheetByName("Sheet1");
+    if (first && doc.getSheets().length > 1 && first.getLastRow() === 0) doc.deleteSheet(first);
+  } catch (err) {}
+  return sheet;
+}
+
+function lazyclubSheetUrl() {
+  return "https://docs.google.com/spreadsheets/d/" + (_PROPS.getProperty("LAZYCLUB_SHEET_ID") || "");
+}
 
 // ── 공통 유틸 ───────────────────────────────────────────────
 function ss() { return SpreadsheetApp.openById(SHEET_ID); }
@@ -201,6 +260,7 @@ function doPost(e) {
     if (type === "admin_block")     return handleAdminBlock(data);
     if (type === "admin_delete")    return handleAdminDelete(data);
     if (type === "notify")          return handleNotify(data);
+    if (type === "coffeebar")       return handleCoffeeBar(data);
     if (type === "oneday")          return handleOnedayApply(data);
     if (type === "" || type === "apply") return handleApply(data); // type 없음 = 신청 폼(기존 계약)
 
@@ -256,6 +316,53 @@ function handleNotify(d) {
   return jsonResponse({ success: true });
 }
 
+// ── 커피앤바 신청 → 레이지클럽 파일 '커피앤바' 탭 (2026-08-24) ──────
+// 프론트 /lazyclub/meetings/dm-gd 폼 (payload: type:"coffeebar"/name/age/phone/
+// intro/preferredWhen/marketingConsent/consentAt).
+// **결제 없는 선신청**이다 — 접수 후 운영자가 해당 번호로 직접 연락한다(카피 근거).
+// 알림톡 없음, 관리자 메일만 (운영자 2026-08-24 "메일만").
+function handleCoffeeBar(d) {
+  if (!d.name || !d.phone) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
+  var sheet = lazyclubSheet(LAZYCLUB_COFFEEBAR_SHEET);
+  ensureColumn(sheet, "이름");
+  ensureColumn(sheet, "나이");
+  ensureColumn(sheet, "전화번호");
+  ensureColumn(sheet, "희망 날짜와 시간대");
+  ensureColumn(sheet, "자기소개");
+  ensureColumn(sheet, "마케팅 동의");
+  ensureColumn(sheet, "동의 시각");
+  var col = colIndexMap(sheet);
+  var row = new Array(sheet.getLastColumn()).fill("");
+  row[col["신청일자"]]          = new Date();
+  row[col["이름"]]              = d.name || "";
+  row[col["나이"]]              = d.age || "";
+  row[col["전화번호"]]          = d.phone || "";
+  row[col["희망 날짜와 시간대"]] = d.preferredWhen || "";
+  row[col["자기소개"]]          = d.intro || "";
+  row[col["마케팅 동의"]]       = d.marketingConsent || "";
+  row[col["동의 시각"]]         = d.consentAt ? new Date(d.consentAt) : "";
+  prependRow(sheet, row);
+  if (d.consentAt && col["동의 시각"] != null) {
+    sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
+  }
+
+  MailApp.sendEmail({
+    to: ADMIN_EMAIL,
+    subject: "[레이지클럽] 동민과 고든 커피앤바 신청 — " + (d.name || "?") + "님",
+    body: "커피앤바 신청이 접수되었습니다. (결제 없는 선신청 — 해당 번호로 연락해 주세요)\n\n" +
+          "이름: " + (d.name || "-") + "\n" +
+          "나이: " + (d.age || "-") + "\n" +
+          "연락처: " + (d.phone || "-") + "\n" +
+          "희망 날짜와 시간대: " + (d.preferredWhen || "-") + "\n" +
+          "자기소개: " + (d.intro || "-") + "\n\n" +
+          "📄 스프레드시트('" + LAZYCLUB_COFFEEBAR_SHEET + "' 탭):\n" + lazyclubSheetUrl()
+  });
+
+  return jsonResponse({ success: true });
+}
+
 // ── 1회성 모임 신청 → '1회성 모임' 시트 (2026-07-24) ─────────────
 // 프론트 /oneday 폼 (payload: type:"oneday"/name/gender/age/phone/greeting/
 // instagram/meetingDates/orderId/marketingConsent/consentAt).
@@ -267,18 +374,19 @@ function handleOnedayApply(d) {
   if (!d.name || !d.phone) {
     return jsonResponse({ success: false, error: "필수 항목 누락" });
   }
-  var sheet = ss().getSheetByName(ONEDAY_SHEET);
-  if (!sheet) {
-    sheet = ss().insertSheet(ONEDAY_SHEET);
-    // 빈 시트는 getLastColumn()이 0이라 ensureColumn이 못 읽음 — 첫 헤더 셀 선시드
-    sheet.getRange(1, 1).setValue("신청일자")
-      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
-  }
+  // 2026-08-24: 도착지를 북클럽 시트 → **레이지클럽 파일 '원데이 토크' 탭**으로 이전.
+  // 북클럽 시트의 기존 '1회성 모임' 탭은 과거 기록으로 그대로 둔다(이전은 신규 접수부터).
+  var sheet = lazyclubSheet(LAZYCLUB_ONEDAY_SHEET);
   ensureColumn(sheet, "이름");
   ensureColumn(sheet, "성별");
   ensureColumn(sheet, "나이");
   ensureColumn(sheet, "전화번호");
-  ensureColumn(sheet, "모임 일자");
+  // 2026-08-24 칼럼 분해 (운영자: "너무 많은 정보가 한 칼럼에 들어오므로 항목별 쪼개야").
+  // 종전에는 제목·회차·일시가 meetingDates 한 문자열로 뭉쳐 '모임 일자' 한 칸에 들어갔다.
+  ensureColumn(sheet, "모임");        // 제목 (예: 원데이 토크, 브람스를 좋아하세요...)
+  ensureColumn(sheet, "모임 slug");   // 집계·필터용 안정 키 (brahms)
+  ensureColumn(sheet, "일시");        // 8.30 (일) 08:00–11:00
+  ensureColumn(sheet, "회차");        // 4주 과정만 — 단일 회차는 빈칸
   ensureColumn(sheet, "주문번호"); // 토스 orderId — 결제 내역과 매칭 (선결제→후신청, 2026-08-11)
   ensureColumn(sheet, "한 줄 인사");
   ensureColumn(sheet, "인스타그램");
@@ -291,7 +399,12 @@ function handleOnedayApply(d) {
   row[col["성별"]]        = d.gender || "";
   row[col["나이"]]        = d.age || "";
   row[col["전화번호"]]    = d.phone || "";
-  row[col["모임 일자"]]   = d.meetingDates || "";
+  // ⚠ 새 필드 우선, 없으면 meetingDates 로 폴백 — 프론트가 아직 구 payload 를 보내도
+  //   행이 통째로 비지 않게(§6 뒤집힘 대비). 프론트 전환이 끝나면 폴백은 걷어낸다.
+  row[col["모임"]]        = d.meetingTitle || d.meetingDates || "";
+  row[col["모임 slug"]]   = d.meetingSlug || "";
+  row[col["일시"]]        = d.meetingDate || "";
+  row[col["회차"]]        = d.meetingSessions || "";
   row[col["주문번호"]]    = d.orderId || "";
   row[col["한 줄 인사"]]  = d.greeting || "";
   row[col["인스타그램"]]  = d.instagram || "";
@@ -304,17 +417,19 @@ function handleOnedayApply(d) {
 
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
-    subject: "[레이지데이 북클럽] 1회성 모임 신청 — " + (d.name || "?") + "님",
-    body: "1회성 모임 신청이 접수되었습니다. (토스 결제 완료 후 제출된 신청서 — 주문번호로 토스 결제 내역과 매칭)\n\n" +
+    subject: "[레이지클럽] 원데이 토크 신청 — " + (d.name || "?") + "님",
+    body: "원데이 토크 신청이 접수되었습니다.\n\n" +
           "이름: " + (d.name || "-") + "\n" +
           "성별: " + (d.gender || "-") + "\n" +
           "나이: " + (d.age || "-") + "\n" +
           "연락처: " + (d.phone || "-") + "\n" +
-          "모임 일자: " + (d.meetingDates || "-") + "\n" +
+          "모임: " + (d.meetingTitle || d.meetingDates || "-") + "\n" +
+          "일시: " + (d.meetingDate || "-") + "\n" +
+          (d.meetingSessions ? "회차: " + d.meetingSessions + "\n" : "") +
           "주문번호: " + (d.orderId || "-") + "\n" +
           "한 줄 인사: " + (d.greeting || "-") + "\n" +
           "인스타그램: " + (d.instagram || "-") + "\n\n" +
-          "📄 스프레드시트('1회성 모임' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
+          "📄 스프레드시트('" + LAZYCLUB_ONEDAY_SHEET + "' 탭):\n" + lazyclubSheetUrl()
   });
 
   return jsonResponse({ success: true });
@@ -404,6 +519,9 @@ function handlePhoneBooking(d) {
   if (!d.name || !d.phone || !d.slotStart || !d.slotEnd) {
     return jsonResponse({ success: false, error: "필수 항목 누락" });
   }
+  // 전환 재발화 여부 — 예약을 **만들기 전에** 본다 (지금 넣을 행에 걸리면 안 된다)
+  var alreadyConverted = hasInterviewAlready(d.phone);
+
   var start = new Date(d.slotStart);
   var end   = new Date(d.slotEnd);
 
@@ -422,7 +540,12 @@ function handlePhoneBooking(d) {
   // 2. 전화 인터뷰 시트에 기록 (인터뷰 일시 = 시작시각 '날짜값', 진행 여부 = 대기)
   var phoneSheet = getOrCreateSheet(PHONE_SHEET,
     ["예약일시", "이름", "전화번호", "인터뷰 일시", "진행 여부", "비고"]);
+  // 유입 출처 (2026-08-26) — 운영 중인 시트에는 위 헤더 배열이 안 먹으므로 ensureColumn 으로.
+  var pSrcIdx = ensureColumn(phoneSheet, "유입 출처"); // 0-based
   prependRow(phoneSheet, [new Date(), d.name, d.phone, start, "대기", ""]);
+  var pSrcCell = phoneSheet.getRange(2, pSrcIdx + 1); // 헤더 서식 상속 끊기 (위와 같은 이유)
+  pSrcCell.setBackground(null).setFontColor(null).setFontWeight("normal");
+  if (d.trafficSrc) pSrcCell.setValue(d.trafficSrc);
   var pCol = colIndexMap(phoneSheet);
   phoneSheet.getRange(2, (pCol["인터뷰 일시"] != null ? pCol["인터뷰 일시"] : 3) + 1)
     .setNumberFormat(SLOT_FMT);
@@ -469,16 +592,92 @@ function handlePhoneBooking(d) {
     } catch (err) { Logger.log("리마인더 예약 오류: " + err.message); }
   }
 
-  return jsonResponse({ success: true });
+  // duplicate=true 면 프론트가 CompleteRegistration 을 쏘지 않는다.
+  // 시간 변경 재예약, 그리고 서면 이력이 있는 사람의 예약이 여기 걸린다.
+  // 예약·알림톡은 정상 처리된다 — 바뀐 시간은 안내해야 하므로.
+  return jsonResponse({ success: true, duplicate: alreadyConverted });
 }
 
 // ── 서면 인터뷰 → 서면 인터뷰 시트 + 신청현황 O 표시 ────────
+/**
+ * 이 번호가 **이미 인터뷰를 확정했는지** — 서면·전화 시트를 함께 본다.
+ *
+ * 운영자 2026-08-18: "전화/서면 모두 같은 거고 방식만 다른 거지."
+ * 실제로 "전화 예약했다가 시간이 안 맞아 서면으로 가는" 경로가 종종 있는데,
+ * 시트를 따로 보면 전화에서 한 번·서면에서 또 한 번 전환이 잡혀 **한 사람이
+ * 2건**으로 집계된다. 한 사람은 한 번만 세야 광고 최적화가 왜곡되지 않는다.
+ *
+ * ⚠ 접수·알림톡 같은 실제 처리는 막지 않는다 — 이 값은 **전환 재발화 여부**만
+ *   정한다. 시간을 바꿔 다시 잡는 사람에게 새 시간 안내는 나가야 한다.
+ */
+function hasInterviewAlready(phone) {
+  var np = normPhone(phone);
+  if (!np) return false;
+  var sheets = [WRITTEN_SHEET, PHONE_SHEET];
+  for (var si = 0; si < sheets.length; si++) {
+    var sh = ss().getSheetByName(sheets[si]);
+    if (!sh) continue;
+    var rows = sh.getDataRange().getValues();
+    if (rows.length < 2) continue;
+    var col = colIndexMap(sh);
+    // 서면은 '연락처', 전화는 '전화번호' 로 헤더가 다르다
+    var idx = (col["연락처"] !== undefined) ? col["연락처"] : col["전화번호"];
+    if (idx === undefined) continue;
+    for (var ri = 1; ri < rows.length; ri++) {
+      if (normPhone(rows[ri][idx]) === np) return true;
+    }
+  }
+  return false;
+}
+
 function handleWritten(d) {
   var a = d.answers || {};
   var sheet = getOrCreateSheet(WRITTEN_SHEET,
     ["제출일시", "이름", "연락처", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6"]);
-  prependRow(sheet, [new Date(), d.name || "", d.phone || "",
-    a.q1 || "", a.q2 || "", a.q3 || "", a.q4 || "", a.q5 || "", a.q6 || ""]);
+
+  // ── 중복 제출 차단 (운영자 2026-08-18 "똑같은 사람이 제출하기 2번 누르는 게 문제네.
+  //    한 번만 받아올 수 있나?").
+  //    프론트 버튼은 disabled 로 연타를 막지만, 그것으로는 못 막는 경로가 있다:
+  //      · 응답이 유실된 뒤 '다시 제출하기' (서버는 이미 접수했는데 화면은 실패)
+  //      · 완료 후 뒤로가기·새로고침해서 다시 제출
+  //    막지 않으면 시트 행·관리자 메일이 겹치고, **신청자에게 알림톡이 두 번** 나간다.
+  //    같은 번호가 이미 있으면 그 행을 덮어쓴다(=재제출은 수정으로 취급).
+  // 전환 재발화 여부는 **두 시트를 함께** 본다 (전화 → 서면 전환자 포함).
+  // 행 덮어쓰기·알림톡 판단에 쓰는 existingRow 와는 별개다.
+  var alreadyConverted = hasInterviewAlready(d.phone);
+
+  var np = normPhone(d.phone);
+  var existingRow = 0;
+  if (np) {
+    var rows = sheet.getDataRange().getValues();
+    var wcol = colIndexMap(sheet);
+    for (var wi = 1; wi < rows.length; wi++) {
+      if (normPhone(rows[wi][wcol["연락처"]]) === np) { existingRow = wi + 1; break; }
+    }
+  }
+
+  // 유입 출처 (2026-08-26) — 어느 경로로 들어온 손님인지. 프론트가 안 보내면 빈 값.
+  //   ⚠ 헤더를 ensureColumn 으로 만든다. 위 getOrCreateSheet 의 헤더 배열은 **시트가
+  //     없을 때만** 쓰인다 — 운영 중인 시트에는 배열에 칸을 더해도 컬럼이 안 생긴다.
+  var srcIdx = ensureColumn(sheet, "유입 출처"); // 0-based
+
+  var rowValues = [new Date(), d.name || "", d.phone || "",
+    a.q1 || "", a.q2 || "", a.q3 || "", a.q4 || "", a.q5 || "", a.q6 || ""];
+  if (existingRow) {
+    // 재제출은 수정으로 취급해 답변을 덮어쓴다. 다만 setValues 는 1~9열만 건드리므로
+    // 유입 출처는 자연히 보존된다 — **최초 유입이 공이다**(운영자 2026-08-26).
+    // 옛 행(이 기능 이전 제출)만 비어 있으니 그때만 채운다.
+    sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+    var cur = sheet.getRange(existingRow, srcIdx + 1);
+    if (!String(cur.getValue()).trim() && d.trafficSrc) cur.setValue(d.trafficSrc);
+  } else {
+    prependRow(sheet, rowValues);
+    // prependRow 는 값 범위에만 서식을 초기화한다 — 그 밖인 이 칸도 헤더 서식(굵게·배경)을
+    // 물려받으므로 같이 끊는다.
+    var srcCell = sheet.getRange(2, srcIdx + 1);
+    srcCell.setBackground(null).setFontColor(null).setFontWeight("normal");
+    if (d.trafficSrc) srcCell.setValue(d.trafficSrc);
+  }
 
   updateMainStatus(d.phone, { "인터뷰 상태": "O" });
 
@@ -491,21 +690,24 @@ function handleWritten(d) {
 
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
-    subject: "[레이지데이 북클럽] 서면 인터뷰 제출 — " + (d.name || "?") + "님",
+    subject: "[레이지데이 북클럽] 서면 인터뷰 " + (existingRow ? "재제출(수정)" : "제출") + " — " + (d.name || "?") + "님",
     body: "서면 인터뷰 답변이 접수되었습니다.\n\n이름: " + (d.name || "-") + "\n연락처: " + (d.phone || "-") +
           "\n\n📄 스프레드시트:\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID +
           "\n\n═════════════════════════════\n\n" + qaBlocks
   });
 
-  // 신청자에게 카카오 알림톡 (실패 시 SMS fallback)
+  // 신청자에게 카카오 알림톡 (실패 시 SMS fallback).
+  // ⚠ 재제출(수정)이면 보내지 않는다 — 같은 안내가 두 번 가고 발송 비용도 이중이다.
   var npWritten = normPhone(d.phone);
-  if (npWritten) {
+  if (npWritten && !existingRow) {
     var okWritten = sendKakaoAlimtalk(npWritten, KAKAO_TEMPLATE_WRITTEN, { "#{이름}": d.name || "" });
     if (!okWritten) sendSMS(npWritten,
       "[레이지데이 북클럽]\n" + (d.name || "") + "님, 서면 인터뷰가 제출되었습니다.\n소중한 답변 감사드려요. 검토 후 개별 연락드리겠습니다.");
   }
 
-  return jsonResponse({ success: true });
+  // duplicate=true 면 프론트가 CompleteRegistration 을 다시 쏘지 않는다
+  // (한 사람의 인터뷰 확정이 전환 2건으로 잡히는 것을 막는다)
+  return jsonResponse({ success: true, duplicate: alreadyConverted });
 }
 
 // ── 관리자: 시간 차단 / 이벤트 삭제 ─────────────────────────

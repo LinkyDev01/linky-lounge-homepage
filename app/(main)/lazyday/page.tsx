@@ -5,7 +5,7 @@ import { LandingShell } from "./LandingShell"
 import { HashScrollOnLoad } from "./HashScrollOnLoad"
 import { HeroParallax } from "./HeroParallax"
 import { HeroSummary } from "./HeroSummary"
-import { HowToSection } from "./HowToSection"
+import { ProcessSection } from "./ProcessSection"
 import { ScheduleSection } from "./ScheduleSection"
 import { ReviewsSection } from "./ReviewsSection"
 import { BookSection } from "./BookSection"
@@ -24,7 +24,7 @@ import shell from "./landing-shell.module.css"
 export const metadata: Metadata = {
   title: "레이지데이 북클럽",
   description:
-    "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
+    "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 소망합니다.",
   keywords: [
     "독서모임",
     "북클럽",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "레이지데이 북클럽",
-    description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.",
+    description: "저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 소망합니다.",
     images: ["/linky-lounge/book-club/og-lazyday-heart-v5.png"],
     type: "website",
   },
@@ -67,9 +67,23 @@ export default function StudyForeignPage() {
         </div>
         <BookSection />
         {/* 5회차(FifthSessionSection)는 섹션 삭제 — 내용은 FAQ '5회차 자유 독서모임' 문항으로 이관, 컴포넌트는 고아 보존 (운영자 결정 2026-07-06) */}
-        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기' + 보완 원고 (2026-07-06 배포 승인) — FeatureBoxSection은 고아 보존 */}
+        {/* 모임 소개: 콰이어트 '①+ 페이드 이어 읽기' + 보완 원고 (2026-07-06 배포 승인) — FeatureBoxSection은 고아 보존.
+            2026-08-17: 진행방식(HowToSection)이 **독립 섹션에서 이 밴드 하단 요약으로 접혀** 들어왔다
+            (운영자 "별도로 상단 네비 메뉴까지 있을 정도로 중요해보이진 않아서 모임 소개 하단에 간략히").
+            HowToSection 은 삭제하지 않고 고아 보존 — 되돌릴 땐 이 밴드를 풀고 다시 렌더하면 된다 */}
+        {/* 2026-08-24 (5안 확정): 진행 순서가 이 밴드 안 요약 블록(HowToBrief)에서
+            **독립 섹션 ProcessSection('진행 방식')** 으로 승격했다 — 4단계로 늘고
+            (자기소개를 01 로 분리) 자기소개 규칙 원문·레이지 노트는 모달 뒤로 갔다.
+            HowToBrief 는 삭제하지 않고 고아 보존 — 되돌릴 땐 briefWrap 을 되살리면 된다.
+            배경 교차는 2026-08-24 전면 재배열: 책B → 모임소개A → 진행방식B → 일정A →
+            후기B → FAQ A → 클로징B (운영자 "섹션 컬러도 다시 재배열해") */}
+        {/* featureBand 래퍼는 제거 (2026-08-24 여백 수리) — 래퍼의
+            `> section { padding-bottom: 0 }` 이 섹션 자체 하단 패딩(72px)을 죽이는데,
+            숨구멍을 대신 주던 briefWrap(56px)이 5안 승격으로 빠지면서 '이어 읽기'가
+            섹션 경계에 붙었다 (운영자 "이어 읽기 아래 섹션여백 없는 문제").
+            섹션 자체 배경(A)·패딩이 있어 래퍼 없이 성립한다. */}
         <FeatureQuietSection />
-        <HowToSection />
+        <ProcessSection />
         <ScheduleSection />
         {/* 후기(멤버들이 남긴 문장) — 프리뷰 확정 디자인 이식, FAQ 바로 위 (운영자 지시 2026-07-21). 실물 사진 업로드 대기 */}
         <ReviewsSection />

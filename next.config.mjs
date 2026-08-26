@@ -6,6 +6,23 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async headers() {
+    return [
+      {
+        // 서체는 불변 파일 — 1년 캐시 (2026-08-17, 운영자 "느리면 안되지").
+        // ① 기본(max-age=0)이면 재방문마다 610KB(SUIT)를 다시 받는다.
+        // ② Next 가 CSS @font-face 를 보고 자동 preload 를 심는데, 하이드레이션 때
+        //    같은 힌트를 한 번 더 발화한다 — 캐시가 0 이라 그 재발화가 **같은 로드에서
+        //    610KB 를 통째로 두 번** 받게 했다 (실측 33ms·653ms 2회 전송).
+        //    캐시를 주면 재발화는 디스크 캐시 히트(전송 0)로 끝난다.
+        // ⚠ 이 정책의 계약: **서체 파일 내용을 바꾸면 파일명도 바꾼다** (예:
+        //    pretendard-poster-subset.woff2 재생성 시 -v2 부여 + 참조 갱신).
+        //    같은 이름으로 덮어쓰면 재방문자가 1년간 옛 파일을 본다.
+        source: "/fonts/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+    ]
+  },
   async redirects() {
     return [
       // /lazyday/apply/interview → /lazyday/apply/interview/schedule

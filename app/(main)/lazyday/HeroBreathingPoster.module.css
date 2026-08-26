@@ -35,25 +35,78 @@
   background: #f0e8e2; /* 포스터 원본 종이색 실측 (240,232,226) */
 }
 
-/* 실 위 문장 — Pretendard Regular. 반복 단위가 닫힌 루프(2737.31u)를 정확히 채우는 값 (위 주석) */
+/* ── 포스터 전용 자체 호스팅 서체 (2026-08-17) ───────────────────────────────
+   운영자 실기기 "각각 텍스트가 또 확 튀어 위치가" 의 뿌리.
+   종전엔 포스터 글자도 **Pretendard 동적 서브셋 CDN** 에 기대고 있었다. 이 방식은
+   글자를 유니코드 구간별 수백 개 조각으로 쪼개 받는 구조라, 이 포스터가 쓰는 180자를
+   다 받으려면 요청이 수십 개 붙는다 — 데스크톱 유선에서는 200ms 지만 실기기 모바일
+   회선에서는 **초 단위로 흔들린다.** 컴포넌트는 서체 폭이 안정된 뒤에 크기를 확정해
+   노출하므로(TSX fontSettled), 그 흔들림이 그대로 **"이번엔 제 크기 / 이번엔 폴백
+   크기"** 라는 로드별 편차가 됐다 (실측: 서체 미도착 시 7.2px → 8.29px, 15% 차이).
+   늦게 도착한 서체를 구제하는 watchLateFont 가 뒤늦게 크기를 고치면 그게 곧 화면에서
+   **한 번 확 튀는** 것으로 보인다.
+   → 포스터가 쓰는 **180자만 담은 35KB 서브셋을 같은 오리진에서 한 번에** 받는다.
+   요청 1개·프리로드라 도착이 사실상 즉시고, 로드마다 같은 폭으로 확정된다.
+   ⚠ 원본과 **같은 파일에서 잘라낸** 서브셋이라 글자 폭(advance)이 1u도 다르지 않다 —
+   아래 7.2px·자간 값을 다시 맞출 필요가 없다. 글자를 추가하면 서브셋을 다시 떠야 한다
+   (docs/DECISIONS.md 2026-08-17 절차).
+   ⚠ 가변 축(wght 45~930)을 살려 뒀다 — 큰 글자 900 이 같은 파일에서 나온다. */
+@font-face {
+  font-family: "Pretendard Poster";
+  src: url("/fonts/pretendard-poster-subset.woff2") format("woff2");
+  font-weight: 45 930;
+  font-style: normal;
+  font-display: block; /* 폴백으로 먼저 그렸다가 바꾸지 않는다 — 홀드가 어차피 가린다 */
+}
+
+/* 실 위 문장 — Pretendard Regular.
+
+   ⚠ 2026-08-17 — 크기가 **빌드 산출물**로 옮겨갔다 (`poster-metrics.ts` 의
+   POSTER_FONT_SIZE = 8.30373px). 한 벌 474자가 실 둘레 2736.73u 를 정확히 한 바퀴
+   채우는 값을 서브셋 서체의 advance 실측에서 역산한 것이다. 종전의 7.2px 는 루프가
+   2668u 이던 시절 값이라 실제로는 런타임이 매 로드 15%씩 키우고 있었다.
+   ⚠ **자간도 배치표에 들어갔다** — 글자 좌표를 우리가 직접 주므로 CSS 자간은 아무
+   효과가 없다(글자마다 x 가 지정되면 현재 텍스트 위치가 매번 초기화된다). 값을
+   바꾸려면 gen_poster_layout.py 의 LETTER_SPACING_EM 을 고치고 다시 굽는다. */
 .threadText {
-  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-family: "Pretendard Poster", "Pretendard Variable", Pretendard, sans-serif;
   font-weight: 400;
-  font-size: 7.2px;
-  letter-spacing: 0.003em;
+  font-size: 8.30373px;
+  letter-spacing: 0;
   fill: #1a1208;
 }
 
 /* 큰 글자 12자 — Pretendard Black (구 SUIT 800 폐기) */
 .glyph {
-  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-family: "Pretendard Poster", "Pretendard Variable", Pretendard, sans-serif;
   font-weight: 900;
   fill: #1a1208;
 }
 
-/* ── 진입 (2안+3안 조합, 운영자 2026-08-12) ──
+/* 실 위 본문은 **크기가 확정되기 전까지 안 보인다** (2026-08-14).
+   글자 크기는 서체가 붙어야 정할 수 있는데, 보이기 시작한 뒤에 바꾸면 화면에서
+   크기가 변하는 게 그대로 보인다 (운영자 "폰트 바뀌는 것 봐봐 왜그래?" → 전환 때
+   바꿔도 첫 벌은 같은 자리라 **바뀌는 건 크기뿐**이라 더 잘 보였다).
+   → 확정 전엔 opacity 0, 확정 직후 스태거를 처음부터 한 번만 돌린다. 아무것도
+   안 보이던 상태에서 시작하므로 "되감기"가 아니라 그냥 한 번의 깨끗한 그어짐이다.
+
+   ⚠ 홀드 중에는 스태거를 **일시정지**시켜 시각 0 에 세워 둔다. 종전엔 노출 순간에
+   `animation: none` 을 붙였다 떼는 리스타트 수법을 썼는데 **웹킷에서 안 먹었다**
+   (실제 WebKit 실측 2026-08-15: 노출 시점에 이미 458/474 가 떠 있어 그어짐 없이
+   통짜로 나타났다 — 운영자 "ios 미리보기에선 이상하고 크롬은 괜찮아").
+   일시정지는 규격이라 엔진을 안 탄다. */
+.threadText[data-hold="1"] {
+  opacity: 0;
+}
+.threadText[data-hold="1"] .introChar {
+  animation-play-state: paused;
+}
+
+/* ── 진입 (2안+3안 조합, 운영자 2026-08-12 — **2026-08-14 채택 원형으로 복구**) ──
    실 위 글자: 붓끝이 닿는 순서대로 안착 (시안 ① draw 리듬 — 딜레이는 인라인 --d).
-   CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돌고 완료 상태로 정지 */
+   CSS 애니라 JS 하이드레이션 전·실패 시에도 페인트부터 돌고 완료 상태로 정지.
+   운영자 "이전처럼 애니메이션 살려야" — 정지·재개, 마스크 스윕 등 중간 시도는
+   전부 철회 (git 이력 참조). */
 .introChar {
   opacity: 0;
   animation: heroCharIn 0.2s ease-out both;

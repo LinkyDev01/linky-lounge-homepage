@@ -5,7 +5,11 @@
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  /* 배경 플립 (2026-07-06 교차 재배정) — 종이 낱장(#fffdf8)이 베이지 위에서 도드라짐 */
+  /* 배경 B → A 재배정 (운영자 2026-08-24 "섹션 컬러도 다시 재배열해") —
+     진행 방식이 독립 섹션(B)으로 부활하며 전체 교차가
+     책B → 모임소개A → 진행방식B → **일정A** → 후기B → FAQ A → 클로징B 로 재편.
+     (2026-08-17 A→B 재배정은 진행방식이 밴드로 접혀 있던 시절의 값 — 대체됨.
+      프리뷰 쌍 ScheduleSectionV2 도 같은 값 — 드리프트 금지) */
   background-color: #f7f3ee;
   padding: 56px var(--lz-gutter, 24px) 72px;
   word-break: keep-all;
@@ -29,12 +33,16 @@
 }
 
 .sectionTitle {
-  font-size: 26px;
+  /* '함께 읽는 책' 서식으로 통일 (운영자 2026-08-24) — 32px/800, ≤480px 26px */
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
+}
+@media (max-width: 480px) {
+  .sectionTitle { font-size: 26px; }
 }
 
 /* 카드·장소 폭 420 상한 — HeroSummary 종이 낱장(summaryCard 420px)과 시각 정렬 (운영자 지시 2026-07-10)

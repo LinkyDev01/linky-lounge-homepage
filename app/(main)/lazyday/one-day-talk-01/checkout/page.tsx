@@ -17,6 +17,7 @@ import {
   type OrderItem,
 } from "@/lib/order-catalog"
 import styles from "./checkout.module.css"
+import { DeferredCss } from "@/components/common/DeferredCss"
 
 /**
  * 결제 — 토스페이먼츠 결제위젯 v2.
@@ -148,10 +149,25 @@ function CheckoutInner() {
       const orderId = buildOrderId(codes)
       // 선결제→후신청 (2026-08-11): 결제 후 success 신청서에 이름·연락처를 프리필한다.
       // 토스 리다이렉트는 같은 탭이라 sessionStorage 가 살아 있다 (실패해도 폼은 빈 값으로 동작)
+      // 2026-08-18: 수령 방법·배송지도 함께 보관한다 — success 가 승인 요청에 실어 보내
+      // **주문 원장**에 기록된다. 종전에는 토스 결제 metadata 에만 있어 우리 DB 로는
+      // 배송지를 알 수 없었다 (주문 DB 부재의 부작용).
       try {
         sessionStorage.setItem(
           "lz-buyer",
-          JSON.stringify({ orderId, name: buyerName.trim(), phone: buyerPhone.replace(/[^0-9]/g, "") }),
+          JSON.stringify({
+            orderId,
+            name: buyerName.trim(),
+            phone: buyerPhone.replace(/[^0-9]/g, ""),
+            ...(hasGoods
+              ? {
+                  shipping: {
+                    method: useParcel ? "parcel" : "pickup",
+                    ...(useParcel ? { zip: zip.trim(), addr1: addr1.trim(), addr2: addr2.trim() } : {}),
+                  },
+                }
+              : {}),
+          }),
         )
       } catch {}
       await widgets.requestPayment({
@@ -404,11 +420,8 @@ export default function CheckoutPage() {
     <main className={styles.page}>
       {/* 워크룸 서체 — Pretendard·Gothic A1 은 전역 미로드라 페이지에서 로드
           (레이지클럽 calendar/turtle 페이지와 같은 방식) */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      <DeferredCss href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       <div className={styles.container}>
         <CheckoutNav />
         {/* useSearchParams는 Suspense 경계 필요 (Next 정적 프리렌더 규칙) */}

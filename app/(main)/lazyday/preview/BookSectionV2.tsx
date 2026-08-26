@@ -91,7 +91,8 @@ export function BookSectionV2() {
       <div className={bstyles.content}>
         <FadeUp y={12} duration={0.9}>
           <div className={bstyles.titleRow}>
-            <h2 className={bstyles.sectionTitle}>선정도서</h2>
+            {/* 실 BookSection 과 동기 (운영자 2026-08-17 용어 변경) */}
+            <h2 className={bstyles.sectionTitle}>함께 읽는 책</h2>
           </div>
           {/* 현재 기수 강조 리드 */}
           <p className={styles.bookLead}>

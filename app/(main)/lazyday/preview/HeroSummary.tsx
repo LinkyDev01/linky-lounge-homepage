@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
 import { SEASON } from "../season-config"
 import styles from "./preview.module.css"
@@ -8,13 +8,18 @@ import styles from "./preview.module.css"
 /**
  * 히어로 포스터 바로 아래의 핵심 요약 (10b 시안, 운영자 확정 2026-07-08).
  * 키커(D-day) + 제목 '오프라인 독서모임'(명조 20px — 세리프 확장 승인) + 종이 낱장 SummaryCard.
- * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행 없음(이번 기수 미표기).
+ * 제목이 기존 태그라인·서브·메타를 대체. 참가비 행 없음(2026-08-19 재숨김 — 왕복 이력은 DECISIONS).
  * 데이터는 season-config 단일 출처. D-day는 마운트 후 계산(빌드 박제 방지).
  */
 
-// 요일을 시간대별로 묶어 "수·화 19:30–22:30 / 일 10:30–13:30, 14:30–17:30" 형태로
+// 요일을 시간대별로 묶어 ["화·수 19:30–22:30", "일 10:30–13:30, 14:30–17:30"] 로.
 // (수·일·화처럼 같은 시간이 떨어져 있어도 묶는다 — 등장 순서 유지)
-function dayScheduleLine() {
+// ⚠ **한 문자열로 잇지 않는다** (2026-08-17). 모바일에서 자연 줄바꿈이 일요일 그룹
+//   **안쪽**을 잘라 "일 10:30–13:30," 까지만 첫 줄에 남기고 "14:30–17:30" 을 다음 줄로
+//   보냈다 — 일요일에 오전 한 타임만 있는 것처럼 읽힌다 (운영자 "모바일에서는 일요일
+//   통째로 줄바꿈해서 착오가 없게끔 해"). 그룹 단위로 넘겨 오전·오후가 늘 같은 줄에
+//   붙어 있게 한다 (렌더에서 그룹마다 white-space: nowrap).
+function dayScheduleGroups() {
   const groups: { labels: string[]; time: string }[] = []
   for (const d of SEASON.days) {
     const g = groups.find((x) => x.time === d.time)
@@ -22,21 +27,23 @@ function dayScheduleLine() {
     else groups.push({ labels: [d.label], time: d.time })
   }
   const DOW = ["일", "월", "화", "수", "목", "금", "토"]
-  return groups
-    .map((g) => {
-      // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
-      const names = g.labels
-        .map((l) => l.replace("요일", ""))
-        .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
-        .join("·")
-      return `${names} ${g.time}`
-    })
-    .join(" / ")
+  return groups.map((g) => {
+    // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
+    const names = g.labels
+      .map((l) => l.replace("요일", ""))
+      .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
+      .join("·")
+    return `${names} ${g.time}`
+  })
 }
 
-// "링키라운지 (사당역 도보 3분)" → "링키라운지 · 사당역 도보 3분"
-// (낱장 카드용 압축 표기 — season-config location.short 단일 출처)
-const locationLine = SEASON.location.short.replace(" (", " · ").replace(")", "")
+// 장소 표기는 **season-config 원문 그대로** — "링키라운지 (사당역 도보 3분)".
+// ⚠ 종전엔 낱장 카드용이라며 괄호를 점으로 풀어 "링키라운지 · 사당역 도보 3분" 으로
+//   썼는데, 그러면 **동격 정보를 나열한 것처럼** 읽힌다. 뒤에 오는 건 장소의 부연이라
+//   괄호가 맞고, 사이트의 다른 모든 화면(모임소개·FAQ·인터뷰 확인·원데이 신청·결제)도
+//   이미 괄호 표기다 — 이 카드만 예외였다 (운영자 2026-08-17 "링키라운지는 점으로
+//   우측 정보를 나열하는 게 아니라 뒷내용은 소괄호로 짜야지").
+const locationLine = SEASON.location.short
 
 // SEASON.deadline("2026-07-16") → "7/16 (목) 23:59까지" — 요일은 날짜에서 계산. null이면 미표기
 function deadlineLine() {
@@ -61,7 +68,7 @@ export function HeroSummary() {
     : d !== null && d < 0
     ? `${PREVIEW.season} 모집이 마감되었어요`
     : !SEASON.showDeadline || d === null
-    ? `레이지데이 북클럽 ${PREVIEW.season}를 모집합니다.` // 문장형 (운영자 2026-08-12 — 실사이트 쌍 동기화)
+    ? `레이지데이 북클럽 ${PREVIEW.season} 멤버를 모집합니다.` // 문장형 + '멤버' (실사이트 쌍 동기화)
     : d === 0
     ? `${PREVIEW.season} 모집 오늘 마감`
     : `${PREVIEW.season} 모집 마감 D-${d}`
@@ -88,13 +95,29 @@ export function HeroSummary() {
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>일정</span>
           <span className={styles.summaryValue}>
-            {dayScheduleLine()}
+            {/* 그룹 하나가 통째로 다음 줄로 — 구분자 '/'는 **앞 그룹에 붙여** 줄 끝에
+                남기고, 그룹 사이 공백에서만 줄바꿈이 일어나게 한다 */}
+            {dayScheduleGroups().map((g, i, all) => (
+              <Fragment key={g}>
+                {/* ⚠ 줄바꿈 기회가 되는 공백은 nowrap 그룹 **바깥**에 둔다 —
+                    안에 넣으면 그 공백까지 안 끊겨 두 그룹이 한 줄로 붙는다 */}
+                {i > 0 ? " " : null}
+                <span className={styles.schedGroup}>
+                  {g}
+                  {i < all.length - 1 ? " /" : ""}
+                </span>
+              </Fragment>
+            ))}
           </span>
         </div>
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>장소</span>
-          <span className={styles.summaryValue}>{locationLine}</span>
+          <span className={styles.summaryValue}>
+            {locationLine}
+            <span className={styles.summarySubNote}>{SEASON.location.note}</span>
+          </span>
         </div>
+        {/* 참가비 행 없음 — 2026-08-19 재부활 후 같은 날 재숨김 (실사이트 쌍 동기화) */}
         {/* 마감 행 — deadline이 있고 노출 허용일 때만 (showDeadline=false면 미표기, 운영자 지시 2026-07-23) */}
         {SEASON.deadline && SEASON.showDeadline && (
           <div className={styles.summaryRow}>

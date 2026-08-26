@@ -26,7 +26,7 @@
   --brand: #d2691e;
   --sub: #8a7660;
   --suit: "SUIT", sans-serif;
-  --navLogoSize: 78px; /* 동적 마크 실측 폭 (마크 높이 49.5 × 종횡비 1.58) */
+  --navLogoSize: 62px; /* 동적 마크 실측 폭 (마크 높이 39.5 × 종횡비 1.582) */
   --draft-nav-h: 59.5px;
 
   background: var(--paper);
@@ -78,10 +78,21 @@
      이벤트는 window 까지 버블링되어 그대로 '입력 = 노출' 트리거가 된다 */
   pointer-events: auto;
 }
-/* 포스터만 덮개 위로 (조상에 stacking context 가 없어 루트에서 비교된다 — 실측 확인) */
-.page[data-intro="hold"] [data-lz-poster] {
+/* 포스터만 덮개 위로 (조상에 stacking context 가 없어 루트에서 비교된다 — 실측 확인).
+   ⚠ **덮개가 다 걷힌 뒤에 내려온다.** 홀드가 풀리는 순간 바로 내려오면, 아직
+   0.45s 동안 걷히는 중인 덮개(같은 종이색)가 포스터를 덮어 **실 위 글자가 흐려졌다
+   돌아온다** (2026-08-14 프레임 캡처로 확인 — 흐름 전환 시점과 겹쳐 "전환에서 뭔가
+   깜빡인다"로 읽힌다). z-index 는 정수라 transition 이 걸리고, duration 0s + delay
+   0.45s 면 덮개가 사라진 뒤에 한 번에 내려온다. 전환이 안 먹는 엔진에서도 종전과
+   같은 동작으로 떨어질 뿐이라 회귀 위험이 없다. */
+.page [data-lz-poster] {
   position: relative;
   z-index: 201;
+  transition: z-index 0s linear 0.45s;
+}
+/* 덮개가 걷힌 뒤 — 고정 내비(z 110)보다 아래로 돌아간다 */
+.page[data-intro="show"] [data-lz-poster] {
+  z-index: 0;
 }
 /* 등장 — 페이드는 짧게(0.4s), 올라오는 궤적은 조금 길게(0.55s) 잡아 감속 꼬리를
    남긴다. 이징은 §3 등장 리빌과 같은 cubic-bezier(0.22,1,0.36,1) */
@@ -117,6 +128,16 @@
   text-decoration: underline;
   text-underline-offset: 4.5px;
   text-decoration-thickness: 0.8px;
+}
+/* ⚠ **브랜드 마크는 예외 — 밑줄 금지** (운영자 2026-08-17 "탑네비 북클럽 로고는
+   텍스트에도 클릭시 언더바표시 안되게 해. 이건 텍스트로 보여질 의향이 없어").
+   마크(I♥LAZYDAY)는 그림처럼 보이지만 실제로는 **글자로 조판**돼 있어(LazydayMark
+   — 냥이체 + 아치 배치), 위의 링크 밑줄이 그대로 글자 밑에 그어진다. 모바일은 탭
+   뒤 hover 가 남아 "클릭하면 밑줄이 생기는" 것으로 보인다.
+   ⚠ `text-decoration` 은 상속이 아니라 **전파**라 자식에서 none 으로 못 지운다 —
+   반드시 **밑줄이 시작되는 이 <a> 자체**에서 꺼야 한다. */
+.header a.navLogo:hover {
+  text-decoration: none;
 }
 
 /* ── 헤더 : 레이지클럽 2행 고정 내비 (햄버거 없음) ───────────────── */
@@ -168,7 +189,8 @@
   grid-area: 2 / 1 / 3 / 5;
   padding-left: calc(var(--navLogoSize) + 10px);
   display: flex;
-  gap: 8px;
+  /* 탭 4개로 줄어 모바일에도 여유가 생겼다 (운영자 2026-08-17 "가로 간격 조금씩") */
+  gap: 12px;
   /* 레이지클럽 링크행 실측 — 11px(높이 16.5) / 데스크톱 13.2px(높이 19.8) */
   font-size: 11px;
   align-self: end;
@@ -228,8 +250,11 @@
   border-top: 1px solid var(--ink);
   padding: 6px 0 40px;
   position: relative;
-  /* 레이지클럽 푸터와 동일 서체 (운영자 2026-08-12 "폰트도 맞추자") */
-  font-family: "Gothic A1", sans-serif;
+  /* 서체는 SUIT (2026-08-17). 종전 Gothic A1(레이지클럽과 통일, 2026-08-12)은
+     이 56자짜리 사업자정보 한 블록 때문에 구글 폰트에서 **138KB**(조각 14개 112KB
+     + CSS 26KB)를 끌어왔다 — 랜딩 전송량의 9%. 운영자 2026-08-17 "부담이면 suit하고"
+     → 북클럽만 SUIT 로. 레이지클럽 쪽 Gothic A1 은 운영자가 별도로 다룬다. */
+  font-family: var(--suit);
   font-size: 12.6px;
   line-height: 1.7;
   font-weight: 600;
@@ -283,10 +308,38 @@
   background: #f0e9e0;
 }
 
+/* ── 모임소개 밴드 : 모임소개 + 진행 순서를 한 배경(A)으로 묶는다 ────
+   운영자 2026-08-17 시안 A — 진행방식이 독립 섹션(배경 B)에서 빠지고
+   요약(HowToBrief)으로 접혀 들어왔다. 두 블록이 한 밴드라 사이에 경계가
+   없어야 하므로 섹션의 아래 여백(72px)은 밴드가 대신 만든다.
+   ⚠ 데스크톱 2×2 그리드 변수(--lz-qt-*)는 위 `.page` 블록이 이미 주므로
+     여기서 다시 주지 않는다 (프리뷰 시안본은 셸이 없어 자체 주입했었다) */
+.featureBand {
+  background: #f7f3ee;
+}
+.featureBand > section {
+  padding-bottom: 0;
+}
+/* 요약 블록 — 섹션과 같은 좌우 거터 + 밴드의 아래 숨구멍 */
+.briefWrap {
+  padding: 0 var(--lz-gutter, 24px) 56px;
+}
+@media (min-width: 768px) {
+  .briefWrap {
+    padding-left: var(--lz-gutter-lg, 56px);
+    padding-right: var(--lz-gutter-lg, 56px);
+  }
+}
+@media (min-width: 721px) {
+  .briefWrap {
+    padding-bottom: 64px;
+  }
+}
+
 /* ══ 데스크톱 (레이지클럽과 동일하게 단일 브레이크포인트) ══════════ */
 @media (min-width: 721px) {
   .page {
-    --navLogoSize: 90px;
+    --navLogoSize: 71px; /* 마크 높이 45 × 종횡비 1.582 (2026-08-19 축소, 구 90) */
     --draft-nav-h: 64.8px;
 
     /* 폭 시스템 교체 — 밴드는 전폭, 콘텐츠는 1100px 컬럼으로 가운데.
@@ -323,6 +376,18 @@
   .body :global(#book) {
     --lz-carousel-cols: 4;
     --lz-card: 100%;
+    /* 커버 레일의 선택 표시를 끈다 — 네 권이 아래에 전부 펼쳐져 있으므로 한 권만
+       주황으로 세워 두면 "1회차만 유효"로 오독된다 (운영자 2026-08-17
+       "웹버전에서는 동시노출이니만큼 모두 주황표시가 불필요해").
+       레일은 선택 UI 가 아니라 **네 권 한눈 목록**으로만 남는다.
+       ⚠ 캐러셀(≤720px)에서는 종전 그대로 — 거기선 한 번에 한 권만 보이므로
+         "지금 어느 권인지"가 실제 정보다. BookSection.module.css 의 기본값이 그것. */
+    --lz-cover-dim: 1;
+    --lz-cover-lift: 0px;
+    --lz-cover-mark: transparent;
+    --lz-cover-week: #a08b70;
+    --lz-cover-week-weight: 400;
+    --lz-cover-cursor: default;
   }
   .body :global(#reviews) {
     --lz-carousel-cols: 3;
@@ -333,18 +398,25 @@
     grid-template-columns: repeat(15, 1fr);
     gap: 15px;
     row-gap: 9px;
+    /* 오른쪽 패딩 15px 고정 — 왼쪽(마크 15px)과 대칭, 화면 우측 끝에 붙는다
+       (운영자 2026-08-19 "상단 탑네비도 신청하기는 우측 끝으로 정렬해").
+       ⚠ 2026-08-17엔 반대로 콘텐츠 열(1100px) 끝선에 맞춘 적이 있는데(그때는
+       고정 15px가 콘텐츠보다 75px 밖으로 튀어나와 보여서), 넓은 화면에서
+       콘텐츠 열 기준을 쓰면 이번엔 신청하기가 실제 화면 끝에서 수백px 안쪽에
+       떠 보이는 반대 문제가 났다 — 화면 끝 고정으로 재전환 */
     padding: 10px 15px 9px;
     min-height: 63.8px;
   }
   .navAll {
     grid-area: 2 / 1 / 3 / 11;
     padding-left: calc(var(--navLogoSize) + 15px);
-    gap: 15px;
+    /* 탭 사이 숨통 (운영자 2026-08-17 "가로 간격 조금씩 넓혀도 되겠어") */
+    gap: 22px;
     font-size: 13.2px;
   }
   .navMenu {
     grid-area: 1 / 11 / 2 / 16;
-    gap: 15px;
+    gap: 22px;
     font-size: 13.2px;
   }
 
@@ -352,20 +424,28 @@
     padding-top: 68px;
   }
 
-  /* 히어로 : 포스터(좌) + 요약 카드(우). 포스터가 전폭이면 aspect 4/5 라
-     높이가 폭주하므로 컬럼으로 묶어 상한을 만든다 */
+  /* 히어로 : 포스터 단독 중앙 + 요약 카드는 아래 (운영자 2026-08-19 "오프라인
+     독서모임을 배열하지 말고 더" — 좌우 병치를 풀고 포스터를 더 키운다.
+     구 2컬럼(1.05fr/0.95fr 병치)은 git 이력 참조) */
   .heroRow {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 40px;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
     align-items: center;
-    padding: 12px var(--lz-gutter) 0;
+    padding: 12px max(40px, calc((100vw - 1560px) / 2)) 0;
   }
   /* HeroParallax 의 .heroWrapper (첫 자식 div) — 클래스 대신 위치로 지정해
      실사이트 CSS 모듈을 건드리지 않는다 */
   .heroRow > div:first-child {
     background: transparent;
-    max-width: 560px;
+    /* 포스터는 4:5 (높이 = 폭×1.25) 단일 SVG viewBox 스케일이라 큰 글자·실 위
+       글자가 같은 비율로 커진다 — 서식은 어느 크기에서도 못 깨진다.
+       크기 상한은 **세로가 정한다** (운영자 2026-08-19 "맨 하단 부분까지
+       애니메이션 구간에서 짤리지 않으면서 최대한 크게"): 헤더(64.8)+행 상단
+       패딩(12)+아래 숨통 ≈ 90px 를 뺀 높이에 4:5 가 통째로 들어가는 폭이
+       (100vh−90px)×0.8 이다. 1080p 에서 792px → 990px 높이로 한 화면에 딱 든다.
+       960px 은 세로로 아주 긴 화면에서의 절대 상한 */
+    max-width: min(100%, calc((100vh - 90px) * 0.8), 960px);
     justify-self: center;
     width: 100%;
   }

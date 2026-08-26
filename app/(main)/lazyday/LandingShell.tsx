@@ -5,6 +5,7 @@ import Image from "next/image"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "./useChromeIntro"
+import { trackApplyCtaClick } from "@/lib/meta-pixel"
 import s from "./landing-shell.module.css"
 
 /**
@@ -27,10 +28,18 @@ import s from "./landing-shell.module.css"
  * 내비 항목(랜딩 섹션 앵커 5개 — NavBar.tsx 와 동일 구성·라벨).
  */
 
+/**
+ * 운영자 2026-08-17 두 건:
+ *  · '선정도서' → 행위형으로. 섹션 제목·내비 탭 모두 '함께 읽는 책'
+ *    (탭만 '읽는 책'으로 줄였더니 잘린 느낌이라 어색 — 운영자 지적, 탭이 4개라 자리도 충분)
+ *  · '진행방식' 탭 제거 — 당시 진행 순서가 모임소개 하단 요약이라 독립 섹션이 아니었다
+ * 운영자 2026-08-24: '진행방식' 탭 **부활** — 진행 방식이 독립 섹션(ProcessSection)으로
+ *  승격하면서 제거 사유가 사라짐 ("탑네비 메뉴에 모임소개 다음에 진행방식 넣을 거야")
+ */
 const NAV_ITEMS = [
-  { id: "book", label: "선정도서" },
+  { id: "book", label: "함께 읽는 책" },
   { id: "feature", label: "모임소개" },
-  { id: "howto", label: "진행방식" },
+  { id: "process", label: "진행방식" },
   { id: "schedule", label: "일정·장소" },
   { id: "reviews", label: "후기·FAQ" },
 ]
@@ -80,19 +89,28 @@ function KakaoIcon() {
   )
 }
 
-export function LandingShell({ children }: { children: React.ReactNode }) {
+export function LandingShell({
+  children,
+  holdIntro = false,
+}: {
+  children: React.ReactNode
+  /** 진입 홀드를 강제로 켠다 — 검수 페이지(`preview/hero-check`) 전용 우회로.
+   *  2026-08-17 모션 재점등으로 랜딩도 홀드가 켜졌으므로(HOLD_ENABLED=true) 이제는
+   *  둘의 동작이 같다. 히어로가 다시 정적으로 내려가는 일이 생겨도 검수 페이지만은
+   *  안무를 볼 수 있어야 하므로 플래그는 남긴다. 랜딩은 이 값을 넘기지 않는다. */
+  holdIntro?: boolean
+}) {
   const activeId = useActiveSection()
   // 진입 홀드 — 포스터만 뜨고, 그어짐이 끝나갈 무렵(또는 아무 입력에) 내비·푸터가,
   // 그로부터 3초 뒤 스티키 CTA 가 나타난다 (운영자 2026-08-12, 레이지클럽 인트로 문법)
-  const { chrome, cta } = useChromeIntro()
+  const { chrome, cta } = useChromeIntro(holdIntro)
 
   return (
     <div className={s.page} data-intro={chrome ? "show" : "hold"} data-cta={cta ? "show" : "hold"}>
-      {/* 푸터 서체 Gothic A1 — 레이지클럽 Shell 과 동일 로드 (북클럽 전역엔 없음) */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap"
-      />
+      {/* 푸터 서체는 SUIT — 종전 Gothic A1(구글 폰트) 로드는 제거했다 (2026-08-17).
+          사업자정보 56자 한 블록에 조각 14개 112KB + CSS 26KB = 138KB 를 끌어와
+          랜딩 전송량의 9% 를 차지했다 (운영자 "부담이면 suit하고").
+          ⚠ 레이지클럽 쪽 Gothic A1 은 운영자가 별도로 다룬다 — 여기서 되살리지 말 것 */}
       {/* JS 가 없으면 홀드가 풀리지 않는다 — 그 경우엔 처음부터 다 보이게 */}
       <noscript>
         <style>{CHROME_NOSCRIPT_CSS}</style>
@@ -120,7 +138,7 @@ export function LandingShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <nav className={s.navMenu} aria-label="바로가기">
-          <LazydayLink href="/apply" className={s.navApply}>
+          <LazydayLink href="/apply" className={s.navApply} onClick={() => trackApplyCtaClick()}>
             신청하기
           </LazydayLink>
         </nav>
@@ -147,7 +165,7 @@ export function LandingShell({ children }: { children: React.ReactNode }) {
 
           <div className={s.footerDesc}>
             {/* 운영자 지정 원문 (2026-08-12) — 임의 수정 금지 */}
-            <p>저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 믿습니다.</p>
+            <p>저마다 다른 사유의 궤적 속 불협화음이 고전의 본질을 관통하여 하나의 선율이 되는 순간을 소망합니다.</p>
           </div>
 
           <div className={s.footerBiz}>

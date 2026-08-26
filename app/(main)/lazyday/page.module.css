@@ -45,9 +45,12 @@
     /* iPhone notch/home-bar 회피용 safe-area 추가 */
     padding-bottom: max(48px, calc(env(safe-area-inset-bottom, 0px) + 48px));
     /* 2026-08-12 D안 채택 (운영자 "너무 노골적이라" → 시안 D 잉크형):
-       갈색 스크림(#b8a38ac2)을 걷고 **종이색 그라데이션**으로. 지금 강렬함의 절반은
-       버튼이 아니라 이 갈색 띠에서 왔다 */
-    background: linear-gradient(to top, #f7f3ee 72%, rgba(247, 243, 238, 0));
+       갈색 스크림(#b8a38ac2)을 걷고 종이색으로. 지금 강렬함의 절반은
+       버튼이 아니라 이 갈색 띠에서 왔다.
+       ⚠ 2026-08-19 그라데이션 제거 — 종이색 단색으로 (운영자 "CTA 옆에 있는
+       배경색은 그라데이션은 없이 심플하게"). 내려앉은 상태(data-docked)가 이미
+       같은 단색이라 스크롤 중·내려앉은 뒤의 배경이 이제 완전히 같다 */
+    background: #f7f3ee;
     padding-top: 32px;
     z-index: 100;
     pointer-events: auto;

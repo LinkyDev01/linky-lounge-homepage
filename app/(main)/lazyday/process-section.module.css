@@ -1,0 +1,149 @@
+/* ═══════════════════════════════════════════════════════════
+   진행 방식 — 독립 섹션 (5안 확정, 운영자 2026-08-24 "5안으로 확정해서 배포해")
+
+   구 HowToBrief(모임소개 밴드 하단 요약 블록)를 대체한다. 바뀐 것:
+    · 밴드 안 요약 블록 → 자체 26px 제목을 가진 독립 섹션
+    · 3단계 → 4단계 (자기소개를 01 로 분리)
+    · 자기소개 규칙 원문·레이지 노트는 본문에 펼치지 않고 **모달 뒤**로
+   타이포는 howto-brief.module.css 값을 그대로 승계 (라벨형 번호 11px/0.22em,
+   단계 제목 17px/700, 본문 명조 13px/1.9 justify).
+
+   배경 B(#f0e9e0) — 운영자 2026-08-24 "섹션 컬러도 다시 재배열해"에 따라
+   섹션 7개 완전 교차로 재편: 책B → 모임소개A → **진행방식B** → 일정A →
+   후기B → FAQ A → 클로징B.
+   ═══════════════════════════════════════════════════════════ */
+
+.section {
+  background: #f0e9e0;
+  padding: 56px var(--lz-gutter, 24px) 72px;
+  word-break: keep-all;
+  scroll-margin-top: 52px;
+}
+@media (min-width: 768px) {
+  .section {
+    padding-left: var(--lz-gutter-lg, 56px);
+    padding-right: var(--lz-gutter-lg, 56px);
+  }
+}
+
+.inner { max-width: var(--lz-rail, 600px); margin: 0 auto; }
+
+/* 머리 — 랜딩 섹션 제목 문법(26px/800 + 주황 괘선 56×1.5) */
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  margin: 0 0 34px;
+}
+.head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -12px;
+  width: 56px;
+  height: 1.5px;
+  background: rgba(210, 105, 30, 0.6);
+}
+.title {
+  /* '함께 읽는 책' 서식 그대로 — 32px/800, ≤480px 26px (운영자 2026-08-24 통일 지시) */
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+@media (max-width: 480px) {
+  .title { font-size: 26px; }
+}
+.meta {
+  font-size: 12px;
+  color: #8a7660;
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.list { list-style: none; margin: 0; padding: 0; }
+
+.step {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.1);
+  margin-bottom: 16px;
+}
+.step:last-child { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
+
+.stepHead {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0 0 6px;
+}
+.stepNum {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #a08b70;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+.stepLabel {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1208;
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.stepDesc {
+  font-family: var(--font-noto-serif), "Noto Serif KR", serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #6a5038;
+  margin: 0;
+  text-align: justify;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* 모달 여는 링크 — 설명 바로 아래.
+   ⚠ 세로 간격은 운영자 지시로 좁혔다 (2026-08-24 "설명 줄과 그 아래 클릭
+   모달의 줄간격이 조금 넓어서 좀 더 세로를 좁혀도 돼"): 명조 본문의
+   행간 1.9 가 만든 아래 여백 위에 margin 을 더 얹지 않고 2px 만 준다. */
+.openBtn {
+  display: inline-block;
+  margin: 2px 0 0;
+  padding: 0 0 2px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.55);
+  font-family: inherit;
+  font-size: 12.5px;
+  /* 본문 다크브라운 — 운영자 2026-08-24 "자기소개와 레이지노트 보는 것 폰트컬러 진하게"
+     (구 #8a6a50 보조 텍스트 톤에서 승격, 보더도 같이) */
+  color: #4a3020;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.openBtn:hover { color: #d2691e; border-color: rgba(210, 105, 30, 0.6); }
+
+/* ══ 데스크톱 — 라벨 좌 / 본문 우 2단 행 (HowToBrief 값 승계) ══ */
+@media (min-width: 721px) {
+  .step {
+    display: grid;
+    grid-template-columns: minmax(210px, 30%) 1fr;
+    align-items: baseline;
+    column-gap: 28px;
+    padding: 14px 0;
+    margin-bottom: 0;
+  }
+  .step:last-child { padding-bottom: 0; }
+  .stepHead { display: block; margin: 0; }
+  .stepNum { display: block; margin-bottom: 4px; }
+  .stepLabel { font-size: 16px; }
+}

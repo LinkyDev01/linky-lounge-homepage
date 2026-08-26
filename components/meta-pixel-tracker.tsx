@@ -12,7 +12,7 @@ export function MetaPixelTracker() {
   // 여기서 또 쏘면 첫 로드가 두 번 집계된다 — 두 번째 경로부터만 담당한다.
   const skipFirst = useRef(true)
 
-  // 유입 출처 캡처 (2026-08-24). **첫 로드에 한 번** — 위 skipFirst 규율과는 반대라
+  // 유입 출처 캡처 (2026-08-26). **첫 로드에 한 번** — 위 skipFirst 규율과는 반대라
   // 일부러 별도 블록이다. 광고·프로필 링크는 랜딩에 도착한 그 순간이 유일한 기회다.
   // first-touch·도메인 게이트는 captureTrafficSrc() 안에 있다.
   useEffect(() => {

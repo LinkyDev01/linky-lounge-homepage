@@ -77,12 +77,20 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  /** 시트 '신청 회차' 칸 문자열 — 4주 과정은 회차를 펼쳐 적는다.
-   *  한 칸에 담아야 해 잇는 수밖에 없는 자리 — 가운뎃점 대신 소괄호로 (운영자 2026-08-21
-   *  "할거면 소괄호 쓰는데"). 제목의 nbsp 는 시트에서 눈에 거슬려 보통 공백으로 되돌린다 */
+  /** 제목의 nbsp 는 시트에서 눈에 거슬려 보통 공백으로 되돌린다 */
   const plainTitle = meeting.title.replace(/\u00A0/g, " ")
-  const meetingDates = meeting.sessions
-    ? `${plainTitle} (${meeting.sessions.map((s) => `${s.week} ${s.date}`).join(", ")})`
+  /** 시트 '회차' 칸 — **4주 과정만** 채운다(단일 회차는 빈칸). 한 칸에 담아야 해 잇는
+   *  수밖에 없는 자리라 가운뎃점 대신 쉼표로 (운영자 2026-08-21 "할거면 소괄호 쓰는데") */
+  const meetingSessions = meeting.sessions
+    ? meeting.sessions.map((s) => `${s.week} ${s.date}`).join(", ")
+    : ""
+  /** ⚠ **전환기 폴백** — 종전에는 제목·회차·일시를 이 한 문자열로 뭉쳐 보냈고, 시트도
+   *  '모임 일자' 한 칸에 그대로 받았다(운영자: "너무 많은 정보가 한 칼럼에 들어오므로").
+   *  이제 아래 payload 가 항목별로 나눠 보내지만, 이 값도 **당분간 함께** 보낸다 —
+   *  실배포 GAS 가 되돌려지더라도 '모임' 칸이 통째로 비지 않게(§6 뒤집힘 대비).
+   *  전환이 안정되면 이 필드와 GAS 쪽 폴백을 같이 걷어낸다 (docs/lazyclub-sheets-plan.md §3C) */
+  const meetingDates = meetingSessions
+    ? `${plainTitle} (${meetingSessions})`
     : `${plainTitle} (${meeting.date})`
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -134,7 +142,12 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
           phone,
           greeting: v("greeting"),
           instagram: v("instagram"),
-          meetingDates,
+          // 칼럼 분해 (2026-08-24) — 시트의 모임 / 모임 slug / 일시 / 회차 칸에 1:1 대응
+          meetingTitle: plainTitle,
+          meetingSlug: meeting.slug,
+          meetingDate: meeting.date,
+          meetingSessions,
+          meetingDates, // 전환기 폴백 (위 주석)
           // 결제를 우리가 띄우지 않아 주문번호가 없다 — 시트 '주문번호'는 비운다
           orderId: "",
           marketingConsent: marketingConsent ? "동의" : "미동의",
@@ -150,7 +163,9 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
       setFailedText(
         [
           `[레이지클럽 모임 신청]`,
-          `모임: ${meetingDates}`,
+          `모임: ${plainTitle}`,
+          `일시: ${meeting.date}`,
+          ...(meetingSessions ? [`회차: ${meetingSessions}`] : []),
           `이름: ${name}`,
           `성별: ${gender}`,
           `나이: ${age}`,

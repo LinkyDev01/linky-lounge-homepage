@@ -72,7 +72,7 @@ function mirror(event: string, params: PixelParams, eventID: string, extra?: Cap
       event_time: Date.now(), // ms — 서버가 초로 바꾼다
       url: location.href, // event_source_url + fbclid 파싱 소스
       // ⚠ 서버 전송분에만 traffic_src 를 얹는다. 위 window.fbq 호출은 params 원본
-      //   그대로라 브라우저 픽셀 파라미터는 불변이다 (운영자 2026-08-24).
+      //   그대로라 브라우저 픽셀 파라미터는 불변이다 (운영자 2026-08-26).
       custom_data: extra?.trafficSrc ? { ...params, traffic_src: extra.trafficSrc } : params,
       ...(extra?.phone || extra?.externalId
         ? { user: { phone: extra.phone, external_id: extra.externalId } }
@@ -154,7 +154,7 @@ export function trackApplyCtaClick() {
       currency: "KRW",
       num_items: 1,
     },
-    // 유입 출처는 **서버 전송분에만** (2026-08-24). 프로필 경유 vs 광고 직행의
+    // 유입 출처는 **서버 전송분에만** (2026-08-26). 프로필 경유 vs 광고 직행의
     // 결제시작→제출 전환율을 갈라 보기 위한 계측이라 이 이벤트 하나에만 붙인다.
     { trafficSrc: readTrafficSrc() ?? undefined },
   )

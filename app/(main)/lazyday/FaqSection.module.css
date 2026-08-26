@@ -1,6 +1,7 @@
 .section {
-  /* 배경 플립 (2026-07-06 교차 재배정) — 실 FAQ·프리뷰 FaqSectionV2 공유 */
-  background-color: #f0e9e0;
+  /* 2026-08-24 B → A 재배정 (운영자 "섹션 컬러도 다시 재배열해" — 진행 방식
+     독립 섹션 부활에 따른 전체 재편). 실 FAQ·프리뷰 FaqSectionV2 공유 */
+  background-color: #f7f3ee;
   padding: 48px var(--lz-gutter, 24px) 56px;
   word-break: keep-all;
   scroll-margin-top: 52px;

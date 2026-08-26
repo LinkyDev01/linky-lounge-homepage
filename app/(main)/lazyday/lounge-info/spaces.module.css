@@ -71,6 +71,8 @@
   position: relative;
   width: min(92vw, 1100px);
   height: min(78vh, 900px);
+  /* 세로 드래그 탈출(useDragDismiss)이 포인터를 소비 — 브라우저 팬·줌에 안 뺏기게 */
+  touch-action: none;
 }
 .lightboxImg {
   object-fit: contain;

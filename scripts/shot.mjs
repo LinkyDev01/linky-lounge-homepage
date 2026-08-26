@@ -13,6 +13,7 @@
  *   node scripts/shot.mjs --url ... --eval "getComputedStyle(document.querySelector('nav')).backgroundColor"
  *
  * 옵션: --width(기본 390 = 모바일 기준 뷰포트) --height(844) --wait(ms, 기본 900)
+ *       --scroll(px, 캡처 전 세로 스크롤 — 스티키·고정 요소 검증용)
  *       --click 는 여러 번 지정 가능 (순서대로 클릭, 각 클릭 후 500ms 대기)
  * 주의: 이 원격 환경의 Playwright는 외부 HTTPS에 못 나간다(프록시 미설정).
  *       배포 URL 검증은 curl 쿠키자(-c/-b)로 할 것. 이 도구는 localhost 전용.
@@ -56,6 +57,13 @@ try {
   // 그런 페이지는 `--waituntil domcontentloaded` 로 넘기고 --wait 로 안정화한다 (2026-08-12)
   await page.goto(url, { waitUntil: opt('waituntil', 'networkidle') })
   await page.waitForTimeout(Number(opt('wait', 900)))
+
+  // --scroll <px> — 스티키/고정 요소 검증용. 스크롤 후 잠깐 정착시키고 캡처한다
+  const scrollY = opt('scroll')
+  if (scrollY !== undefined) {
+    await page.evaluate((y) => window.scrollTo(0, Number(y)), scrollY)
+    await page.waitForTimeout(400)
+  }
 
   for (const text of optAll('click')) {
     await page.locator(`button:has-text("${text}"), [role=tab]:has-text("${text}"), a:has-text("${text}")`).first().click()

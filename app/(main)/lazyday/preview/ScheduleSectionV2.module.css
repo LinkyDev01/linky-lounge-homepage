@@ -6,9 +6,11 @@
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  /* 배경 플립 (2026-07-06 교차 재배정) — 종이 낱장(#fffdf8)이 베이지 위에서 도드라짐 */
+  /* 배경 B → A 재배정 (운영자 2026-08-24 "섹션 컬러도 다시 재배열해") —
+     진행 방식 독립 섹션(B) 부활에 따른 전체 재편. 실사이트 쌍과 동일 값 —
+     드리프트 금지 (ScheduleSection.module.css 참조) */
   background-color: #f7f3ee;
-  padding: 56px 24px 72px;
+  padding: 56px var(--lz-gutter, 24px) 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
@@ -30,12 +32,16 @@
 }
 
 .sectionTitle {
-  font-size: 26px;
+  /* '함께 읽는 책' 서식으로 통일 (운영자 2026-08-24) — 실사이트 쌍과 동일 값 */
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
+}
+@media (max-width: 480px) {
+  .sectionTitle { font-size: 26px; }
 }
 
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
@@ -187,7 +193,9 @@
   align-items: flex-start;
   gap: 12px;
   padding-top: 20px;
-  margin-top: 28px;
+  /* 가로실선 — 확장 레이아웃에선 콘텐츠 폭에 비례 (실 ScheduleSection 과 동일 훅) */
+  max-width: var(--lz-rule, var(--lz-block, 420px));
+  margin: 28px auto 0;
   border-top: 1px solid rgba(74, 58, 42, 0.2);
 }
 
@@ -276,7 +284,14 @@
 /* ═══ 월별 달력 석 장 (14a 시안, 운영자 확정 2026-07-24) ═══
    구 6b 조판 괘선 박스(paperBox·scheduleTable 계열)는 고아 보존 — 삭제하지 말 것 */
 
-/* 공통 헤더 — 좌 "4기 일정" · 우 기간 */
+/* 공통 헤더 — 좌 "4기 일정" · 우 기간.
+   그리드 시안(--lz-cal-display: grid)에서 헤더·꼬리주는 전 열을 가로지른다
+   (실 ScheduleSection 과 동일 훅, 2026-08-24 포트) — block 모드에선 무의미 */
+.calHeader,
+.calTimeFoot,
+.calNote {
+  grid-column: 1 / -1;
+}
 .calHeader {
   display: flex;
   justify-content: space-between;
@@ -430,9 +445,15 @@
 /* 주석이 연달아 올 때의 문장 간격 — 줄간격 1을 유지하면서 붙지 않을 최소값 */
 .calNote + .calNote { margin-top: 4px; }
 
-/* 카드·장소 폭 420 상한 — 실사이트 boxWrap과 동일 (달력 시트 폭 정렬) */
+/* 카드·장소 폭 420 상한 — 실사이트 boxWrap과 동일 (달력 시트 폭 정렬).
+   반응형 훅(2026-08-24 포트): --lz-cal-* 를 주면 월 시트가 가로로 펴진다.
+   기본값이 현행이라 무변경 — LandingShell 안에서만 확장된다. */
 .boxWrap {
-  max-width: 420px;
+  max-width: var(--lz-cal-max, var(--lz-block, 420px));
   margin-left: auto;
   margin-right: auto;
+  display: var(--lz-cal-display, block);
+  grid-template-columns: repeat(var(--lz-cal-cols, 1), minmax(0, 1fr));
+  column-gap: 22px;
+  align-items: start;
 }

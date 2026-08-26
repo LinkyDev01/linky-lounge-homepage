@@ -37,22 +37,27 @@ export async function generateMetadata(): Promise<Metadata> {
   return { ...metadata, robots: isLazyclub ? { index: true, follow: true } : { index: false, follow: false } }
 }
 
-/** 첫 방문 인트로의 **선(先) 가림막** (2026-08-22).
+/** 첫 방문 인트로의 **선(先) 가림막** (2026-08-22, 2026-08-24 게이트 수정).
  *
  *  오버레이만으로는 늦다 — React 가 하이드레이트된 뒤에야 뜨므로 그 전까지 손님이
  *  요청한 페이지가 먼저 보였다가 인트로가 덮치는 꼴이 된다(실측). 그래서 첫 페인트
  *  **전에** 도는 인라인 스크립트가 관람 여부를 판정해 <html> 에 표식을 달고, CSS 가
  *  즉시 종이색으로 덮는다. 애니메이션은 하이드레이트 후 IntroOverlay 가 이어받는다.
  *
- *  판정 조건은 IntroOverlay 와 같아야 한다 — 여기서 덮었는데 저기서 안 그리면
- *  종이색 화면에 갇힌다. 그래서 **저장 기록은 여기서 쓰지 않고 읽기만** 하고,
+ *  판정 조건은 IntroOverlay 와 **구현까지 같아야 한다** — 여기서 덮었는데 저기서 안
+ *  그리면 종이색 화면에 갇히고, 반대로 여기만 건너뛰면 페이지가 번쩍인 뒤 인트로가
+ *  덮친다. 실제 사고(2026-08-24): 스크린샷 모드 검사를 indexOf('t=') 부분 문자열로
+ *  했다가 **utm_conten`t=`link_in_bio 를 t= 파라미터로 오인** — 운영자의 인스타
+ *  링크인바이오 유입 전원이 가림막 없이 들어와 페이지가 먼저 보였다. 쿼리 판정은
+ *  반드시 URLSearchParams 로(오버레이와 동일 문법). 그래서 **저장 기록은 여기서 쓰지 않고 읽기만** 하고,
  *  기록·해제는 전부 IntroOverlay 가 한다(단일 책임). 스크립트가 아예 안 돌면
  *  표식이 없어 평소처럼 보인다 — 실패해도 손님이 갇히지 않는 방향으로 기울였다. */
 const INTRO_PRECOVER = `(function(){try{
 var p=location.pathname;
 if(p==='/'||p==='/coming-soon'||p==='/lazyclub/coming-soon')return;
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-var q=location.search;if(q.indexOf('t=')>-1||q.indexOf('still=')>-1)return;
+var sp=new URLSearchParams(location.search);
+if(sp.get('t')!==null||sp.get('still')!==null)return;
 if(sessionStorage.getItem('lzc-intro-seen'))return;
 document.documentElement.setAttribute('data-lzc-intro','1');
 }catch(e){}})()`

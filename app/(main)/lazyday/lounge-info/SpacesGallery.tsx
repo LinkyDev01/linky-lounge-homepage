@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import styles from "./spaces.module.css"
+import { useDragDismiss } from "../useDragDismiss"
 
 /**
  * 공간 둘러보기 — linkylounge 홈 'Our Space' 갤러리를 북클럽 오시는길 맨 아래로 이식
@@ -23,6 +24,9 @@ const PHOTOS = [
 export function SpacesGallery() {
   const [open, setOpen] = useState<number | null>(null)
   const n = PHOTOS.length
+  // 세로 드래그 탈출 — 갇힌 느낌 해소 (운영자 2026-08-24, useDragDismiss 헤더 참조).
+  // 이 모달은 줌이 없어 항상 허용(onMove 두 번째 인자 true).
+  const drag = useDragDismiss(() => setOpen(null))
 
   const go = useCallback(
     (dir: 1 | -1) => setOpen((cur) => (cur === null ? cur : Math.min(n - 1, Math.max(0, cur + dir)))),
@@ -74,7 +78,7 @@ export function SpacesGallery() {
       </div>
 
       {open !== null && (
-        <div className={styles.lightbox} onClick={() => setOpen(null)} role="dialog" aria-modal="true">
+        <div ref={drag.veilRef} className={styles.lightbox} onClick={() => setOpen(null)} role="dialog" aria-modal="true">
           <button type="button" className={styles.lbClose} aria-label="닫기">×</button>
           <button
             type="button"
@@ -85,13 +89,22 @@ export function SpacesGallery() {
           >
             ‹
           </button>
-          <div className={styles.lightboxImgWrap} onClick={(e) => e.stopPropagation()}>
+          <div
+            ref={drag.frameRef}
+            className={styles.lightboxImgWrap}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={drag.onDown}
+            onPointerMove={(e) => drag.onMove(e, true)}
+            onPointerUp={drag.onUp}
+            onPointerCancel={drag.onCancel}
+          >
             <Image
               src={`${PHOTOS[open].base}-full.webp`}
               alt={PHOTOS[open].alt}
               fill
               sizes="92vw"
               className={styles.lightboxImg}
+              draggable={false}
             />
           </div>
           <button

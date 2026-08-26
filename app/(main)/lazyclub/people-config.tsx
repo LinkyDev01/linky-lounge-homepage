@@ -7,11 +7,15 @@
 // ⚠ 브랜드 카피는 운영자 소유 — 이 파일의 약력은 운영자 원문 그대로다.
 //   한 글자도 편집하지 않는다. 수정 지시가 오면 원문을 그대로 갈아끼운다.
 // ⚠ .tsx 인 이유: 약력에 링크·취소선 마크업이 들어간다 (philosophy-content.tsx 선례)
+// ⚠ '네비올로'(안동민)·'네그로니'(천고든) 링크는 2026-08-25 부터 **커피앤바 참가폼**
+//   (`/lazyclub/meetings/dm-gd`)으로 간다 — 종전 목적지(wine21·위키백과) 교체. 운영자 지시이자,
+//   그 페이지의 "네그로니는 없습니다 / 네비올로도 없습니다"와 짝을 이루는 농담이다.
+//   내부 링크라 새 탭으로 열지 않는다(같은 파일의 레이지클럽 링크와 같은 취급).
 // ⚠ 서버 컴포넌트에서 문자열 보간해도 안전하도록 base-path 에서 직수입
 //   (Shell("use client") 경유 금지 — base-path.ts 헤더의 프록시 버그 주석 참조)
 // ================================================================
 
-import { BOOKCLUB_URL, HOME } from "./base-path"
+import { BASE, BOOKCLUB_URL, HOME } from "./base-path"
 
 export type Person = {
   slug: string
@@ -79,13 +83,7 @@ export const PEOPLE: Person[] = [
           O2O
         </a>{" "}
         서비스를 출시했고, 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로 알려져 있으며,{" "}
-        <a
-          href="https://www.wine21.com/14_info/info_view.html?Idx=5685"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          네비올로
-        </a>{" "}
+        <a href={`${BASE}/meetings/dm-gd`}>네비올로</a>{" "}
         품종의 포도주를 즐겨 마시고 싶어 하는 것으로 전해진다.
       </p>
     ),
@@ -123,13 +121,7 @@ export const PEOPLE: Person[] = [
         을 암기하여 3×3×3 큐브를 10초대에 맞추는 등 비범한 재능을 보였다. 2024년
         처음 출전한 마블런 10km에서 47분의 기록을 달성한 후 미련 없이 달리기를 관두었으며, 현재 가장
         좋아하는 칵테일은{" "}
-        <a
-          href="https://ko.wikipedia.org/wiki/%EB%84%A4%EA%B7%B8%EB%A1%9C%EB%8B%88"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          네그로니
-        </a>
+        <a href={`${BASE}/meetings/dm-gd`}>네그로니</a>
         로 알려져 있다.
       </p>
     ),

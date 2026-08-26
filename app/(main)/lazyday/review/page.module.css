@@ -99,7 +99,7 @@
 .textarea {
   width: 100%;
   padding: 14px 16px;
-  font-size: 15px;
+  font-size: 16px; /* 16px 미만이면 iOS 사파리가 포커스 순간 페이지를 자동 확대한다 (2026-08-25 전수 조사) */
   font-family: inherit;
   color: #1a1208;
   background: #ffffff;

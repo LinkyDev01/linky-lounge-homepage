@@ -507,18 +507,26 @@ export default function InterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-        {/* 3기 안내 */}
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>{SEASON.name} 안내</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>{SEASON.regularNote}</span>
-              <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>{SEASON.freeNote}</span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>{SEASON.location.short}</span>
-            </div>
-            <p className={styles.ref0Note}>{SEASON.location.note}</p>
+        {/* 기수 안내 — 멤버십 가격은 2026-08-25 부터 이 박스에서만 노출한다
+            (운영자 지시로 apply 페이지에서 이관. 랜딩·apply 는 비노출 유지,
+            서면 인터뷰 쪽 같은 박스에는 넣지 않는다). 값은 SEASON.price 단일 출처.
+            ⚠ 2026-08-25 축소: 정규모임·자유모임·장소 행과 장소 변경 주석을 뺐다
+            (운영자 "전화와 서면에는 상단에 장소나 정규/자유모임 소개 안 해도 될 것
+            같은데"). 이 페이지의 본 기능은 **인터뷰 통화 시간** 고르기인데 바로 위에
+            모임 일정(격주 화·수·일)이 붙어 있어 슬롯 제한으로 오독될 소지가 있었다.
+            일정·장소는 apply 페이지에 그대로 있다 — 여기선 가격만 남긴다.
+            서식은 2026-08-25 베이지 안내 박스 → **apply 히어로 카드 서식**으로 교체
+            (운영자 "기존 어플라이페이지 히어로 서식 이식해서 멤버십 가격만 적어").
+            값은 page.module.css 의 .feeCard/.feeLabel/.feeValue 참조 (2026-08-25 한 줄로 압축). */}
+          <div className={styles.feeCard}>
+            {/* 회차 수는 sessions 배열 길이에서 — 기수 전환 때 문구가 조용히 어긋나지 않게
+                (운영자 지정 문안: "4기 멤버십(정규 독서모임 4회 + 자유 독서모임)").
+                span 을 줄바꿈 없이 붙여야 괄호 앞 공백이 안 생긴다 — JSX 는 줄 사이를
+                공백 하나로 합친다. */}
+            <h2 className={styles.feeLabel}>
+              {SEASON.name} 멤버십<span className={styles.feeLabelSub}>(정규 독서모임 {SEASON.sessions.length}회 + 자유 독서모임)</span>
+            </h2>
+            <p className={styles.feeValue}>{SEASON.price}</p>
           </div>
 
         {/* 메인 패널 */}

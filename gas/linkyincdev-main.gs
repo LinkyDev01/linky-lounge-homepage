@@ -29,7 +29,7 @@
 //
 // ⚠ 프론트(Vercel)와의 계약
 //   · POST type: written / phone_interview / admin_block / admin_delete /
-//     notify / oneday / (없음 = 신청 폼)
+//     notify / oneday / coffeebar / (없음 = 신청 폼)
 //   · GET ?adminToken=<스크립트 속성 ADMIN_TOKEN> → 이벤트에 id·title 포함
 //     (admin 차단 관리 화면이 이 값으로 차단/인터뷰를 구분·삭제한다.
 //      Vercel 환경변수 ADMIN_SECRET 과 반드시 같은 값이어야 한다)
@@ -41,7 +41,9 @@ var WRITTEN_SHEET = "서면 인터뷰";
 var CLASS_SHEET = "반배정";
 var NOTIFY_SHEET = "4기 알림"; // 다음 기수 오픈 알림 신청 (2026-07-13)
 var DRAFT_SHEET  = "임시저장"; // 신청 1단계 임시저장 (2026-07-27) — 같은 문서 별도 탭
-var ONEDAY_SHEET = "1회성 모임"; // 1회성 모임 신청 (2026-07-24) — 같은 문서 별도 탭
+// ⚠ 2026-08-24 이후 **쓰지 않는다** — 원데이 접수는 레이지클럽 파일로 이전됐다
+// (LAZYCLUB_ONEDAY_SHEET). 북클럽 시트의 이 탭은 이전 이전(以前) 기록 보관용으로 남는다.
+var ONEDAY_SHEET = "1회성 모임"; // (과거 기록 탭 — 신규 접수는 여기로 오지 않는다)
 
 // 확인 완료: 운영 캘린더 "레이지데이북클럽 인터뷰" (라이브 일정과 대조 검증됨)
 var CALENDAR_ID = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
@@ -107,6 +109,63 @@ var WRITTEN_QUESTIONS = [
     text: "한 기수의 레이지데이 북클럽을 마치고 집으로 돌아가는 마지막 길, 내 마음에 어떤 잔상이나 기분이 남아있기를 바라시나요?",
     sub:  "" },
 ];
+
+// ── 레이지클럽 신청 관리 (2026-08-24 신설) ──────────────────
+// 북클럽 시트(SHEET_ID)와 **다른 파일**이다 (운영자: "기존 레이지데이 북클럽과는 다르니까").
+// 모임 단위로 탭을 나눈다 — 탭은 payload 가 지정한 이름으로 자동 생성되므로
+// 모임이 늘어도 이 스크립트를 고칠 필요가 없다.
+//
+// 파일 ID 는 코드에 박지 않고 **스크립트 속성**에 둔다(비밀값 규율과 같은 자리).
+// 없으면 최초 접수 때 새 스프레드시트를 만들어 ID 를 적어 두고 운영자에게 메일로 알린다 —
+// 운영자가 미리 만들어 둔 파일을 쓰려면 스크립트 속성 LAZYCLUB_SHEET_ID 에 그 ID 를 넣으면 된다.
+var LAZYCLUB_SHEET_NAME = "레이지클럽 신청 관리";
+var LAZYCLUB_COFFEEBAR_SHEET = "커피앤바";
+var LAZYCLUB_ONEDAY_SHEET    = "원데이 토크";
+
+function lazyclubSs() {
+  var id = _PROPS.getProperty("LAZYCLUB_SHEET_ID") || "";
+  if (id) {
+    try { return SpreadsheetApp.openById(id); } catch (err) { /* 지워졌거나 권한 없음 → 새로 만든다 */ }
+  }
+  var created = SpreadsheetApp.create(LAZYCLUB_SHEET_NAME);
+  _PROPS.setProperty("LAZYCLUB_SHEET_ID", created.getId());
+  try {
+    DriveApp.getFileById(created.getId()).addEditor(ADMIN_EMAIL);
+  } catch (err) {}
+  try {
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: "[레이지클럽] 신청 관리 스프레드시트가 새로 만들어졌습니다",
+      body: "레이지클럽 신청을 받을 새 스프레드시트를 만들었습니다.\n" +
+            "앞으로 커피앤바·원데이 토크 신청은 모두 이 파일의 모임별 탭에 쌓입니다.\n\n" +
+            "https://docs.google.com/spreadsheets/d/" + created.getId()
+    });
+  } catch (err) {}
+  return created;
+}
+
+/** 레이지클럽 파일 안에서 탭 확보 — 없으면 만들고 첫 헤더 셀을 선시드한다.
+ *  (빈 시트는 getLastColumn()이 0이라 ensureColumn 이 못 읽는다 — 원데이 시트와 같은 함정) */
+function lazyclubSheet(name) {
+  var doc = lazyclubSs();
+  var sheet = doc.getSheetByName(name);
+  if (!sheet) {
+    sheet = doc.insertSheet(name);
+    sheet.getRange(1, 1).setValue("신청일자")
+      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
+    sheet.setFrozenRows(1);
+  }
+  // 새 파일이면 기본 '시트1' 이 남아 지저분하다 — 비어 있을 때만 치운다
+  try {
+    var first = doc.getSheetByName("시트1") || doc.getSheetByName("Sheet1");
+    if (first && doc.getSheets().length > 1 && first.getLastRow() === 0) doc.deleteSheet(first);
+  } catch (err) {}
+  return sheet;
+}
+
+function lazyclubSheetUrl() {
+  return "https://docs.google.com/spreadsheets/d/" + (_PROPS.getProperty("LAZYCLUB_SHEET_ID") || "");
+}
 
 // ── 공통 유틸 ───────────────────────────────────────────────
 function ss() { return SpreadsheetApp.openById(SHEET_ID); }
@@ -201,6 +260,7 @@ function doPost(e) {
     if (type === "admin_block")     return handleAdminBlock(data);
     if (type === "admin_delete")    return handleAdminDelete(data);
     if (type === "notify")          return handleNotify(data);
+    if (type === "coffeebar")       return handleCoffeeBar(data);
     if (type === "oneday")          return handleOnedayApply(data);
     if (type === "" || type === "apply") return handleApply(data); // type 없음 = 신청 폼(기존 계약)
 
@@ -256,6 +316,53 @@ function handleNotify(d) {
   return jsonResponse({ success: true });
 }
 
+// ── 커피앤바 신청 → 레이지클럽 파일 '커피앤바' 탭 (2026-08-24) ──────
+// 프론트 /lazyclub/meetings/dm-gd 폼 (payload: type:"coffeebar"/name/age/phone/
+// intro/preferredWhen/marketingConsent/consentAt).
+// **결제 없는 선신청**이다 — 접수 후 운영자가 해당 번호로 직접 연락한다(카피 근거).
+// 알림톡 없음, 관리자 메일만 (운영자 2026-08-24 "메일만").
+function handleCoffeeBar(d) {
+  if (!d.name || !d.phone) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
+  var sheet = lazyclubSheet(LAZYCLUB_COFFEEBAR_SHEET);
+  ensureColumn(sheet, "이름");
+  ensureColumn(sheet, "나이");
+  ensureColumn(sheet, "전화번호");
+  ensureColumn(sheet, "희망 날짜와 시간대");
+  ensureColumn(sheet, "자기소개");
+  ensureColumn(sheet, "마케팅 동의");
+  ensureColumn(sheet, "동의 시각");
+  var col = colIndexMap(sheet);
+  var row = new Array(sheet.getLastColumn()).fill("");
+  row[col["신청일자"]]          = new Date();
+  row[col["이름"]]              = d.name || "";
+  row[col["나이"]]              = d.age || "";
+  row[col["전화번호"]]          = d.phone || "";
+  row[col["희망 날짜와 시간대"]] = d.preferredWhen || "";
+  row[col["자기소개"]]          = d.intro || "";
+  row[col["마케팅 동의"]]       = d.marketingConsent || "";
+  row[col["동의 시각"]]         = d.consentAt ? new Date(d.consentAt) : "";
+  prependRow(sheet, row);
+  if (d.consentAt && col["동의 시각"] != null) {
+    sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
+  }
+
+  MailApp.sendEmail({
+    to: ADMIN_EMAIL,
+    subject: "[레이지클럽] 동민과 고든 커피앤바 신청 — " + (d.name || "?") + "님",
+    body: "커피앤바 신청이 접수되었습니다. (결제 없는 선신청 — 해당 번호로 연락해 주세요)\n\n" +
+          "이름: " + (d.name || "-") + "\n" +
+          "나이: " + (d.age || "-") + "\n" +
+          "연락처: " + (d.phone || "-") + "\n" +
+          "희망 날짜와 시간대: " + (d.preferredWhen || "-") + "\n" +
+          "자기소개: " + (d.intro || "-") + "\n\n" +
+          "📄 스프레드시트('" + LAZYCLUB_COFFEEBAR_SHEET + "' 탭):\n" + lazyclubSheetUrl()
+  });
+
+  return jsonResponse({ success: true });
+}
+
 // ── 1회성 모임 신청 → '1회성 모임' 시트 (2026-07-24) ─────────────
 // 프론트 /oneday 폼 (payload: type:"oneday"/name/gender/age/phone/greeting/
 // instagram/meetingDates/orderId/marketingConsent/consentAt).
@@ -267,18 +374,19 @@ function handleOnedayApply(d) {
   if (!d.name || !d.phone) {
     return jsonResponse({ success: false, error: "필수 항목 누락" });
   }
-  var sheet = ss().getSheetByName(ONEDAY_SHEET);
-  if (!sheet) {
-    sheet = ss().insertSheet(ONEDAY_SHEET);
-    // 빈 시트는 getLastColumn()이 0이라 ensureColumn이 못 읽음 — 첫 헤더 셀 선시드
-    sheet.getRange(1, 1).setValue("신청일자")
-      .setFontWeight("bold").setBackground("#f5ede4").setFontColor("#1a1208");
-  }
+  // 2026-08-24: 도착지를 북클럽 시트 → **레이지클럽 파일 '원데이 토크' 탭**으로 이전.
+  // 북클럽 시트의 기존 '1회성 모임' 탭은 과거 기록으로 그대로 둔다(이전은 신규 접수부터).
+  var sheet = lazyclubSheet(LAZYCLUB_ONEDAY_SHEET);
   ensureColumn(sheet, "이름");
   ensureColumn(sheet, "성별");
   ensureColumn(sheet, "나이");
   ensureColumn(sheet, "전화번호");
-  ensureColumn(sheet, "모임 일자");
+  // 2026-08-24 칼럼 분해 (운영자: "너무 많은 정보가 한 칼럼에 들어오므로 항목별 쪼개야").
+  // 종전에는 제목·회차·일시가 meetingDates 한 문자열로 뭉쳐 '모임 일자' 한 칸에 들어갔다.
+  ensureColumn(sheet, "모임");        // 제목 (예: 원데이 토크, 브람스를 좋아하세요...)
+  ensureColumn(sheet, "모임 slug");   // 집계·필터용 안정 키 (brahms)
+  ensureColumn(sheet, "일시");        // 8.30 (일) 08:00–11:00
+  ensureColumn(sheet, "회차");        // 4주 과정만 — 단일 회차는 빈칸
   ensureColumn(sheet, "주문번호"); // 토스 orderId — 결제 내역과 매칭 (선결제→후신청, 2026-08-11)
   ensureColumn(sheet, "한 줄 인사");
   ensureColumn(sheet, "인스타그램");
@@ -291,7 +399,12 @@ function handleOnedayApply(d) {
   row[col["성별"]]        = d.gender || "";
   row[col["나이"]]        = d.age || "";
   row[col["전화번호"]]    = d.phone || "";
-  row[col["모임 일자"]]   = d.meetingDates || "";
+  // ⚠ 새 필드 우선, 없으면 meetingDates 로 폴백 — 프론트가 아직 구 payload 를 보내도
+  //   행이 통째로 비지 않게(§6 뒤집힘 대비). 프론트 전환이 끝나면 폴백은 걷어낸다.
+  row[col["모임"]]        = d.meetingTitle || d.meetingDates || "";
+  row[col["모임 slug"]]   = d.meetingSlug || "";
+  row[col["일시"]]        = d.meetingDate || "";
+  row[col["회차"]]        = d.meetingSessions || "";
   row[col["주문번호"]]    = d.orderId || "";
   row[col["한 줄 인사"]]  = d.greeting || "";
   row[col["인스타그램"]]  = d.instagram || "";
@@ -304,17 +417,19 @@ function handleOnedayApply(d) {
 
   MailApp.sendEmail({
     to: ADMIN_EMAIL,
-    subject: "[레이지데이 북클럽] 1회성 모임 신청 — " + (d.name || "?") + "님",
-    body: "1회성 모임 신청이 접수되었습니다. (토스 결제 완료 후 제출된 신청서 — 주문번호로 토스 결제 내역과 매칭)\n\n" +
+    subject: "[레이지클럽] 원데이 토크 신청 — " + (d.name || "?") + "님",
+    body: "원데이 토크 신청이 접수되었습니다.\n\n" +
           "이름: " + (d.name || "-") + "\n" +
           "성별: " + (d.gender || "-") + "\n" +
           "나이: " + (d.age || "-") + "\n" +
           "연락처: " + (d.phone || "-") + "\n" +
-          "모임 일자: " + (d.meetingDates || "-") + "\n" +
+          "모임: " + (d.meetingTitle || d.meetingDates || "-") + "\n" +
+          "일시: " + (d.meetingDate || "-") + "\n" +
+          (d.meetingSessions ? "회차: " + d.meetingSessions + "\n" : "") +
           "주문번호: " + (d.orderId || "-") + "\n" +
           "한 줄 인사: " + (d.greeting || "-") + "\n" +
           "인스타그램: " + (d.instagram || "-") + "\n\n" +
-          "📄 스프레드시트('1회성 모임' 탭):\nhttps://docs.google.com/spreadsheets/d/" + SHEET_ID
+          "📄 스프레드시트('" + LAZYCLUB_ONEDAY_SHEET + "' 탭):\n" + lazyclubSheetUrl()
   });
 
   return jsonResponse({ success: true });

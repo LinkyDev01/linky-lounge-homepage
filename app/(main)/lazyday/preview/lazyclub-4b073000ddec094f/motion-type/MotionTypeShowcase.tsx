@@ -324,7 +324,10 @@ const D_WORD: Record<string, string> = {
   "4-10": "Z",
   "4-11": "Y",
 }
-const DT = { SCRAMBLE: 1300, SWEEP: 900, CAP1: 2900, CAP2: 3200, RESET: 6600, CYCLE: 7200 }
+/* 타임라인 (라운드 4, 운영자): ① 난수 필드가 옅어지기 전 유지 구간 3배 —
+   SCRAMBLE 1300 → 3900 ② 두 캡슐이 그려진 뒤 유지 절반 — CAP2→RESET 3400 → 1700.
+   나머지 간격(스윕 900 · 잠금→캡슐 700·300 · 해제 꼬리 600)은 종전 그대로 뒤로 밀린다 */
+const DT = { SCRAMBLE: 3900, SWEEP: 900, CAP1: 5500, CAP2: 5800, RESET: 7500, CYCLE: 8100 }
 
 /* ── 캡슐 기하 — 기존 레이지클럽 마크(coming-soon)에서 실측한 비율 그대로 (라운드 3, 운영자
    "레이지와 클럽을 감싼 테두리 길쭉한 동그라미 … 굵고 여백이 넓어 보여").
@@ -356,7 +359,7 @@ const D_CAP_CLUB = capBox(8, 1, 3, 4, false)
 
 export function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }) {
   // 모션 최소화면 잠금+캡슐이 완성된 정지 화면에 고정
-  const [clock, setClock] = useState(reduced ? 4000 : 0)
+  const [clock, setClock] = useState(reduced ? 6800 : 0)
   useEffect(() => {
     if (reduced) return
     let raf = 0
@@ -371,7 +374,7 @@ export function DenseStage({ seed, reduced }: { seed: number; reduced: boolean }
     return () => cancelAnimationFrame(raf)
   }, [reduced])
 
-  const phase = reduced ? 4000 : clock % DT.CYCLE
+  const phase = reduced ? 6800 : clock % DT.CYCLE
   const cycle = reduced ? 0 : Math.floor(clock / DT.CYCLE)
   const cells = []
   for (let r = 0; r < D_ROWS; r++) {

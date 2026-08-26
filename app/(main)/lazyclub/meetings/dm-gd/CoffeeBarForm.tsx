@@ -45,74 +45,97 @@ const FLEE_MS = 1000
 const END_N = 0.38
 
 /**
- * 도망 경로를 **물리로 푼다** (운영자 2026-08-26 "튕기듯 달려나가서 감속… 가속/반작용
- * 등 물리법칙에 가깝게").
+ * 도망 경로를 **물리로 푼다** — 좁고 긴 상자 안에서 튕기는 공 (운영자 2026-08-26
+ * "사각 구획을 세로를 좁게, 가로범위는 그대로 잡아서 더 튕기는 느낌… 강하게 발사하는
+ * 에너지로 확 튕기면서 점차 감속해 현재위치로 돌아오겠지").
  *
- * 모델은 네 마디다. 상태는 정규화 좌표 x(0=제자리, 1=오른쪽 끝)와 속도 v.
- *   ① **추진** — 첫 50ms 동안만 큰 가속(A). 서서히 붙는 속도가 아니라 튕겨 나가는 출발.
- *   ② **공기저항** — `a -= DRAG·v·|v|` (속도 제곱 저항). 추진이 끝나는 순간부터
- *      혼자 감속한다. 이게 "달려나가서 감속"의 실체다 — easing 흉내가 아니다.
- *   ③ **벽 반발** — x 가 1 에 닿으면 그 자리에서 속도가 뒤집히고 REST 배만 남는다.
- *      되튀는 힘(반작용)이 여기서 나온다.
- *   ④ **감쇠 정착** — 반발 뒤에는 착지점을 향한 용수철(KS)과 감쇠(C)가 붙어,
- *      살짝 지나쳤다가 되돌아와 멎는다.
+ * **구획**: 가로는 종전 그대로 0(제자리) ~ dx(오른쪽 끝), 세로는 **16px 뿐**이다
+ * (BOX_TOP -12 ~ BOX_BOTTOM +4). 세로가 좁아야 위아래 벽을 자주 때리고, 그 잦은
+ * 반사가 "꼬불꼬불"의 정체다 — 곡선을 손으로 그려 넣은 게 아니다.
  *
- * y 는 감쇠 진동 한 벌이다 — 튀어 나갈 때 위로 솟았다가 잦아들며 최종 높이에 눕는다.
+ * 모델은 세 마디다. 상태는 위치(x, y)와 속도(vx, vy).
+ *   ① **발사** — 시작 순간 오른쪽 위로 큰 초속(VX0·VY0)을 준다. 가속 구간 없이
+ *      처음이 가장 빠르다. 이게 "강하게 발사하는 에너지"다.
+ *   ② **벽 반사 + 공기저항** — 네 벽에서 속도가 뒤집히고 REST 배만 남는다.
+ *      동시에 `a = -K·v·|v|` (속도 제곱 저항)로 계속 잦아든다 → 튕길수록 짧아진다.
+ *   ③ **감쇠 정착** — 절반(0.45s)을 지나면 착지점을 향한 용수철(KS)·감쇠(C)가
+ *      서서히 켜져(smoothstep) 튕김이 잦아들며 제자리 근처로 돌아와 멎는다.
  *
- * ⚠ **적분 결과를 그대로 쓰지 않는다.** 1초 시점의 용수철은 아직 수렴 중이라 착지점과
- *   몇 px 어긋난다. 마지막 30% 구간에 smoothstep 가중으로 그 오차를 나눠 실어 **정확히**
- *   착지점에서 끝나게 한다 — 안 하면 애니메이션이 끝나는 순간 인라인 transform 값으로
- *   툭 튄다(애니메이션에 fill 을 주지 않으므로).
+ * **가로 초속은 이동폭에 비례**(VX0_PER_DX), 저항은 반비례(K_X = KX_UNIT/dx) —
+ * 그래야 화면 폭이 달라져도 **궤적 모양이 같다**(속도만 폭에 맞춰 커진다).
+ * 세로는 상자가 고정 px 라 계수도 고정이다.
  *
- * 매개변수는 실측으로 정했다(1초·60프레임): 최고속 t≈0.03s, 우측 끝 t≈0.37s,
- * 되돌아와 0.34 까지 지나친 뒤 착지.
+ * ⚠ **적분 결과를 그대로 쓰지 않는다.** 1초 시점엔 아직 완전히 멎지 않아 착지점과
+ *   몇 px 어긋난다. 마지막 30% 구간에 smoothstep 가중으로 그 오차를 나눠 실어
+ *   **정확히** 착지점에서 끝나게 한다 — 안 하면 애니메이션이 끝나는 순간 인라인
+ *   transform 값으로 툭 튄다(애니메이션에 fill 을 주지 않으므로).
+ *
+ * 실측(1초·60프레임, dx=295px): 최고속 ≈2,490px/s(첫 프레임) · **좌우 벽 3회 ·
+ * 위아래 벽 10회** · 끝 무렵 속도 135px/s 로 잦아들어 착지.
  */
 function solveFlee(dx: number, endY: number) {
   const STEPS = 60
-  const THRUST_S = 0.05 // 추진이 걸리는 시간(초)
-  const A = 130 // 추진 가속도
-  const DRAG = 1.5 // 공기저항 계수
-  const REST = 0.5 // 벽 반발계수 (0=흡수, 1=완전탄성)
-  const KS = 60 // 착지점 용수철
-  const C = 7.5 // 용수철 감쇠
+  const BOX_TOP = -12 // 상자 위 벽 (px, 원래 높이 기준)
+  const BOX_BOTTOM = 4 // 상자 아래 벽
+  const VX0_PER_DX = 8.14 // 가로 초속 = 이동폭 × 이 값 (1/s)
+  const VY0 = -820 // 세로 초속 (px/s, 위쪽)
+  const KX_UNIT = 0.1475 // 가로 저항 계수 × dx (폭 무관 궤적)
+  const KY = 0.0005 // 세로 저항 계수
+  const REST = 0.8 // 벽 반발계수 (0=흡수, 1=완전탄성)
+  const KS = 55 // 착지점 용수철
+  const C = 10 // 용수철 감쇠
+  const SPRING_FROM = 0.45 // 용수철이 켜지기 시작하는 시각(초)
   const dur = FLEE_MS / 1000
   const dt = dur / STEPS
+  const endX = dx * END_N
 
-  const xs: number[] = [0]
+  const path: { x: number; y: number }[] = [{ x: 0, y: 0 }]
   let x = 0
-  let v = 0
-  let bounced = false
+  let y = 0
+  let vx = VX0_PER_DX * dx
+  let vy = VY0
+  const kx = dx > 0 ? KX_UNIT / dx : 0
   for (let i = 1; i <= STEPS; i++) {
     const t = (i - 1) * dt
-    let a = 0
-    if (t < THRUST_S) a += A
-    a -= DRAG * v * Math.abs(v)
-    if (bounced) a += -KS * (x - END_N) - C * v
-    v += a * dt
-    x += v * dt
-    if (x >= 1 && !bounced) {
-      x = 1
-      v = -REST * Math.abs(v)
-      bounced = true
+    // 용수철은 갑자기 켜지지 않는다 — smoothstep 으로 서서히 실어야 마디가 안 생긴다
+    const s = t < SPRING_FROM ? 0 : (t - SPRING_FROM) / (dur - SPRING_FROM)
+    const w = s * s * (3 - 2 * s)
+    vx += (-kx * vx * Math.abs(vx) + w * (-KS * (x - endX) - C * vx)) * dt
+    vy += (-KY * vy * Math.abs(vy) + w * (-KS * (y - endY) - C * vy)) * dt
+    x += vx * dt
+    y += vy * dt
+    // 벽 반사 — 넘어간 만큼 되접고(그 프레임에 이미 지난 거리), 속도는 뒤집어 REST 배
+    if (x > dx) {
+      x = dx - (x - dx)
+      vx = -REST * Math.abs(vx)
     }
-    xs.push(x)
+    if (x < 0) {
+      x = -x
+      vx = REST * Math.abs(vx)
+    }
+    if (y < BOX_TOP) {
+      y = BOX_TOP + (BOX_TOP - y)
+      vy = REST * Math.abs(vy)
+    }
+    if (y > BOX_BOTTOM) {
+      y = BOX_BOTTOM - (y - BOX_BOTTOM)
+      vy = -REST * Math.abs(vy)
+    }
+    path.push({ x, y })
   }
 
   // 착지 오차를 마지막 30% 에 smoothstep 으로 흘려 넣는다
-  const drift = END_N - xs[STEPS]
+  const driftX = endX - path[STEPS].x
+  const driftY = endY - path[STEPS].y
   const TAIL = 0.7
-  return xs.map((xn, i) => {
+  return path.map((pt, i) => {
     const t = i / STEPS
     const s = t <= TAIL ? 0 : (t - TAIL) / (1 - TAIL)
     const w = s * s * (3 - 2 * s)
-    // y: 감쇠 진동(위로 솟았다 잦아듦) + 최종 높이로의 수렴
-    const decay = Math.exp(-3.2 * t)
-    const y = -9 * decay * Math.sin(2 * Math.PI * 1.8 * t) + endY * (1 - decay)
-    const yDrift = (endY - y) * w
     return {
       t,
-      x: Math.round((xn + drift * w) * dx * 100) / 100,
-      y: Math.round((y + yDrift) * 100) / 100,
+      x: Math.round((pt.x + driftX * w) * 100) / 100,
+      y: Math.round((pt.y + driftY * w) * 100) / 100,
     }
   })
 }
@@ -191,11 +214,10 @@ export function CoffeeBarForm() {
    *  최종 위치는 인라인 transform 으로 못박고 애니메이션에는 fill 을 주지 않는다 —
    *  끝나면 자연히 그 값에 정착하므로 fill 잔재가 남지 않는다.
    *
-   *  **경로는 손으로 찍지 않고 물리로 푼다** (운영자 2026-08-26: "튕기듯 달려나가서
-   *  감속하는 형태로. 지금은 부드러운데 조금 더 가속/반작용 등 물리법칙에 가깝게").
-   *  손으로 찍은 웨이포인트는 구간마다 속도가 일정해 '부드럽게 미끄러지는' 느낌이 됐다.
-   *  대신 `solveFlee` 가 **추진 → 공기저항 감속 → 우측 벽 반발 → 감쇠 정착**을 60프레임
-   *  적분해 좌표를 뽑고, 키프레임은 그 표본을 그대로 싣는다.
+   *  **경로는 손으로 찍지 않고 물리로 푼다** (운영자 2026-08-26). 손으로 찍은
+   *  웨이포인트는 구간마다 속도가 일정해 '부드럽게 미끄러지는' 느낌이 됐다. 대신
+   *  `solveFlee` 가 **좁고 긴 상자 안에서 튕기는 공**(강한 발사 → 네 벽 반사 +
+   *  공기저항 → 감쇠 정착)을 60프레임 적분해 좌표를 뽑고, 키프레임은 그 표본을 싣는다.
    *
    *  ⚠ easing 은 여전히 **linear** 다 — 물리는 키프레임 **간격**에 이미 들어 있고,
    *  구간마다 ease 를 덧대면 마디에서 속도가 튀어 멈칫한다(2026-08-25 실측). */

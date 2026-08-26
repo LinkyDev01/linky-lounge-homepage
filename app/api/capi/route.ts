@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
+import { recordFunnelEvent } from "@/lib/funnel"
 
 /**
  * Meta 전환 API(CAPI) 서버 미러 (운영자 지시 2026-08-24).
@@ -128,9 +129,6 @@ export async function POST(req: NextRequest) {
 
   if (!originAllowed(req.headers.get("origin"))) return NextResponse.json({ success: true })
 
-  // 토큰 미설정 = 기능 꺼짐. 아무것도 하지 않고 200 (사이트 흐름에 영향 0)
-  if (!ACCESS_TOKEN) return NextResponse.json({ success: true })
-
   const eventName = typeof body.event_name === "string" ? body.event_name : ""
   const eventId = typeof body.event_id === "string" ? body.event_id : ""
   if (!EVENT_NAME_RE.test(eventName) || !EVENT_ID_RE.test(eventId)) {
@@ -143,6 +141,20 @@ export async function POST(req: NextRequest) {
   let eventTime = Math.floor(sentMs / 1000)
   if (!Number.isFinite(eventTime) || eventTime > nowSec) eventTime = nowSec
   if (nowSec - eventTime > MAX_EVENT_AGE_SEC) return NextResponse.json({ success: true })
+
+  // ── 퍼널 계측 (2026-08-26) — 유입 출처별 결제시작/제출 자체 집계.
+  //    Meta 토큰과 **무관하게** 남긴다(그래서 토큰 게이트보다 앞). 개인정보 0,
+  //    event_id 멱등, 실패해도 절대 던지지 않는다 (lib/funnel.ts).
+  const trafficSrcRaw = (body.custom_data as Record<string, unknown> | undefined)?.traffic_src
+  await recordFunnelEvent({
+    eventName,
+    eventId,
+    trafficSrc: typeof trafficSrcRaw === "string" ? trafficSrcRaw : undefined,
+    eventTimeSec: eventTime,
+  })
+
+  // 토큰 미설정 = Meta 전송 꺼짐. 계측은 위에서 이미 남았다 (사이트 흐름에 영향 0)
+  if (!ACCESS_TOKEN) return NextResponse.json({ success: true })
 
   const sourceUrl = typeof body.url === "string" ? body.url.slice(0, 2000) : ""
 

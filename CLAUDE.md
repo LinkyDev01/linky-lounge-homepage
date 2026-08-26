@@ -74,7 +74,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 
 **공유 데이터 — 프리뷰/레이지클럽 경로가 프로덕션 결제를 좌우한다**: `lazyclub/goods-config.ts` 와 `one-day-talk-01/oneday-shared.ts` 의 가격·slug·status 는 `lib/order-catalog.ts` → `/api/lazyday/payment/confirm` 이 **결제 승인 금액을 재계산하는 근거**다(주문 DB 없음 — 카탈로그가 과거 주문의 금액 근거). 가격 변경은 ① 진행 중 결제 없는 시각에 ② DECISIONS 에 전/후 값·시각 기록 후. (설계: `/lazyday/preview/commerce-journey`)
 
-**Supabase 자산 3종(lib/supabase.ts·schema.sql·migrate gs)은 미배선 초안** — "기존 스키마"로 오인해 얹지 말 것 (각 파일 헤더 참조).
+**Supabase 는 실배선 상태다** (2026-08-18 주문 원장 시공 — 구 "미배선 초안 3종"은 그때 삭제됨). 정본 절차 `supabase/README.md` · 규칙층 R1~R13/ERD v3 는 `/lazyday/preview/commerce-journey`. 테이블: orders 4종(원장) + funnel_events(퍼널 계측, 2026-08-26). 클라이언트는 `lib/supabase-server.ts`(service_role, 서버 전용) 하나 — RLS 전면 거부라 브라우저용을 만들지 않는다. ⚠ Vercel env(SUPABASE_URL·SERVICE_ROLE_KEY) 미설정이면 조용히 꺼짐 — `/lazyday/admin/status` 의 ledger 체크로 확인.
 
 ## 5. 환경 함정 (원격 실행 환경)
 

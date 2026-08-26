@@ -79,11 +79,23 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 |---|---|---|---|
 | `20260818090000_core_orders.sql` | orders · order_items · order_shipping · participants + RLS + R9 파기 함수 | ✔ | ✔ |
 | `20260818120000_harden_functions.sql` | 파기 함수 EXECUTE 를 service_role 만으로 회수 + set_updated_at search_path 고정 (dev 어드바이저 지적) | ✔ | ✔ |
-| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ⏳ MCP 재연결 시 적용 |
+| `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ✔ (2026-08-26) |
+| `20260826060000_funnel_events.sql` | 퍼널 계측 — 유입 출처별 결제시작/제출 집계. 개인정보 0, event_id 멱등, RLS 거부 | ✔ | ✔ |
 
 ## 5. 운영 조회
 
 ```sql
+-- 유입 출처별 퍼널: 결제 시작 → 신청서(Lead) → 인터뷰 확정 (2026-08-26)
+select coalesce(traffic_src, '(미상)') as 출처,
+       count(*) filter (where event_name = 'InitiateCheckout')     as 결제시작,
+       count(*) filter (where event_name = 'Lead')                 as 신청서,
+       count(*) filter (where event_name = 'CompleteRegistration') as 인터뷰확정,
+       round(100.0 * count(*) filter (where event_name = 'CompleteRegistration')
+             / nullif(count(*) filter (where event_name = 'InitiateCheckout'), 0), 1) as 전환율_pct
+  from funnel_events
+ where occurred_at >= now() - interval '30 days'
+ group by 1 order by 결제시작 desc;
+
 -- 결제는 됐는데 신청서를 안 낸 손님 (재진입 링크를 보내야 할 대상)
 select order_no, orderer_name, orderer_phone, approved_at, amount_total
   from orders

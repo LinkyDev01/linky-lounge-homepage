@@ -423,7 +423,9 @@ export default function InterviewSchedulePage() {
               value: 150000, // season-config 4기 참가비와 일치 (서면 쪽과 같은 값)
               currency: "KRW",
             },
-            { phone }, // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변
+            // 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변.
+            // trafficSrc 는 퍼널 계측(funnel_events)의 제출 축이 된다 (2026-08-26)
+            { phone, trafficSrc: readTrafficSrc() ?? undefined },
           )
         }
         setConfirmed(selectedSlot)

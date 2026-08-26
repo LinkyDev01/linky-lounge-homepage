@@ -163,21 +163,12 @@ export function LogoDrop() {
       const rest: Pt = { x: end.x + OVERSHOOT, y: end.y }
 
       const path: Pt[] = [start]
-<<<<<<< HEAD
       path.push(...arc(start, hitTop, 18, STEPS_1))
       path.push(...arc(hitTop, hit2, 30, STEPS_2))
       const flightEnd = path.length + STEPS_3 - 1 // 아래 마지막 호까지가 '비행'
       // 마지막 호는 **감속하며** 도착한다 — 전속력으로 닿았다가 방향만 뒤집히면
       // 부딪힐 것도 없는 자리에서 벽을 친 것처럼 보인다(실측 542px/s → -119px/s).
       path.push(...arc(hit2, rest, 14, STEPS_3, easeOut))
-=======
-      path.push(...arc(start, hitTop, 18, 26))
-      path.push(...arc(hitTop, hit2, 30, 20))
-      const flightEnd = path.length + 18 - 1 // 아래 마지막 호까지가 '비행'
-      // 마지막 호는 **감속하며** 도착한다 — 전속력으로 닿았다가 방향만 뒤집히면
-      // 부딪힐 것도 없는 자리에서 벽을 친 것처럼 보인다(실측 542px/s → -119px/s).
-      path.push(...arc(hit2, rest, 14, 18, easeOut))
->>>>>>> origin/main
 
       // 마무리: 등감속으로 되굴러 와 **정확히 대기 회전 속도**에서 멎는다.
       // 굴림이라 v = ω·r 이므로 목표 종단속도는 (대기 각속도)×(착지 반지름).
@@ -229,7 +220,6 @@ export function LogoDrop() {
           ? (i / flightEnd) * flightFrac
           : flightFrac + ((i - flightEnd) / (n - flightEnd)) * (1 - flightFrac)
 
-<<<<<<< HEAD
       // ⚠ **translate 는 스케일 후 크기가 아니라 레이아웃 크기(startSize)로 뺀다.**
       //   scale 은 transform-origin(50% 50%)을 기준으로 커지므로 요소의 시각적 중심은
       //   `레이아웃 중심(startSize/2) + translate` 로 그대로 남는다. 여기에 스케일 후
@@ -240,18 +230,12 @@ export function LogoDrop() {
       //   비행 내내 서서히 벌어지는 형태였고, 검증 코드가 같은 잘못된 공식으로 중심을
       //   계산해 자기 자신을 확인하는 바람에 두 라운드를 놓쳤다.
       //   ⚠ 앞으로 이 궤적을 검증할 때는 반드시 **getBoundingClientRect 의 중심**을 쓸 것.
-=======
->>>>>>> origin/main
       const frames = path.map((p, i) => {
         const size = sizeAt(i)
         return {
           offset: offsetAt(i),
           transform:
-<<<<<<< HEAD
             `translate(${(p.x - startSize / 2).toFixed(2)}px, ${(p.y - startSize / 2).toFixed(2)}px) ` +
-=======
-            `translate(${(p.x - size / 2).toFixed(2)}px, ${(p.y - size / 2).toFixed(2)}px) ` +
->>>>>>> origin/main
             `rotate(${degAt(i).toFixed(1)}deg) scale(${(size / startSize).toFixed(4)})`,
         }
       })

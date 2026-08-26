@@ -100,7 +100,10 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     // 본문은 상세 페이지가 centerBody 로 직접 구성 — 여기는 비움 (비로소와 같음)
     description: [],
     price: 120000, // 운영자 확정 2026-08-26
-    place: "을지로", // 포스터 원문 (상세 주소는 확정되면 추가)
+    // 포스터 원문 그대로. ⚠ **상세 주소는 넣지 않는다** (운영자 2026-08-26 확정) —
+    // '확정되면 추가'가 아니라 이게 최종형이다. 다른 모임(사당역 링키라운지 등)처럼
+    // 주소를 붙이려 들지 말 것.
+    place: "을지로",
     contact: "contact@linkylounge.com",
     sessions: [
       { week: "1주차", date: "10.10 (토) 오전 10:30–12:30", work: "불안" },

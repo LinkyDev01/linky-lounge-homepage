@@ -12,7 +12,10 @@
  *   node scripts/shot.mjs --url ... --full --out full.png                    # 전체 페이지
  *   node scripts/shot.mjs --url ... --eval "getComputedStyle(document.querySelector('nav')).backgroundColor"
  *
+ *   node scripts/shot.mjs --url ... --block-external --out lc.png   # 레이지클럽 트리 필수
+ *
  * 옵션: --width(기본 390 = 모바일 기준 뷰포트) --height(844) --wait(ms, 기본 900)
+ *       --block-external (외부 호스트 요청 차단 — 레이지클럽 트리는 이거 없이는 안 찍힌다)
  *       --scroll(px, 캡처 전 세로 스크롤 — 스티키·고정 요소 검증용)
  *       --click 는 여러 번 지정 가능 (순서대로 클릭, 각 클릭 후 500ms 대기)
  * 주의: 이 원격 환경의 Playwright는 외부 HTTPS에 못 나간다(프록시 미설정).
@@ -53,6 +56,19 @@ try {
   const page = await browser.newPage({
     viewport: { width: Number(opt('width', 390)), height: Number(opt('height', 844)) },
   })
+  // --block-external — 외부 호스트 요청을 끊는다. **레이지클럽 트리는 이게 없으면 못 찍는다**:
+  // 폰트가 프록시에서 매달려 load 가 영영 안 오고 30s 타임아웃으로 죽는다 (§5).
+  // 같은 이유로 document.fonts.ready 도 resolve 되지 않아 폰트를 기다리는 코드가 멈춘다.
+  if (has('block-external')) {
+    await page.route('**/*', (route) => {
+      try {
+        const h = new URL(route.request().url()).hostname
+        return h === 'localhost' || h === '127.0.0.1' ? route.continue() : route.abort()
+      } catch {
+        return route.abort()
+      }
+    })
+  }
   // 랜딩(/lazyday)은 히어로 모션 때문에 networkidle 이 영영 안 온다 —
   // 그런 페이지는 `--waituntil domcontentloaded` 로 넘기고 --wait 로 안정화한다 (2026-08-12)
   await page.goto(url, { waitUntil: opt('waituntil', 'networkidle') })

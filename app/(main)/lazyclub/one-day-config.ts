@@ -78,6 +78,38 @@ export type OneDayMeeting = {
 // 시지프는 날짜도 9/5(토)로. oneday-shared.ts 와 값이 같아야 한다 (단일 출처 파생 아님, 표시용 별도 문자열).
 export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
   {
+    // 2026-08-26 신규 — 안동민 4주 과정. 운영자 제공 포스터·본문 2장에서 옮겼다
+    // (천고든 '비로소…' 와 같은 형식: 인사말 + 책 4권 이미지 + 진행자 소개).
+    // ⚠ 카피는 운영자 소유 — 본문 원문 그대로다(meetings/[slug] 의 AnxietyToCalmBody).
+    slug: "anxiety-to-calm", // 운영자 확정 2026-08-26 (url-policy §1 — 임의 작명 금지)
+    payUrl: "https://buy.tosspayments.com/products/iNBoEAw8vw", // 이 모임 전용 (운영자 2026-08-26)
+    category: "booktalk",
+    hostSlug: "dmahn", // 안동민
+    // 포스터 표기는 "불안을 건너 고요로..." — 말줄임표까지 원문 그대로.
+    // ⚠ \u00A0 = 줄바꿈 없는 공백. 한 줄에 안 담기면 **"불안을 건너 / 고요로..."** 로만
+    // 끊기게 고정한다(비로소 선례와 같은 규율) — '불안을'과 '건너'가 갈라지지 않게 묶었다.
+    title: "불안을\u00A0건너 고요로...",
+    date: "10.10–10.31 (매주 토) 오전 10:30–12:30",
+    host: "안동민",
+    catLabel: "안동민",
+    status: "open",
+    thumbnail: "/linky-lounge/book-club/home-v3/oneday-anxiety-to-calm.webp",
+    images: [
+      { src: "/linky-lounge/book-club/home-v3/oneday-anxiety-to-calm.webp", alt: "불안을 건너 고요로 포스터" },
+    ],
+    // 본문은 상세 페이지가 centerBody 로 직접 구성 — 여기는 비움 (비로소와 같음)
+    description: [],
+    price: 120000, // 운영자 확정 2026-08-26
+    place: "을지로", // 포스터 원문 (상세 주소는 확정되면 추가)
+    contact: "contact@linkylounge.com",
+    sessions: [
+      { week: "1주차", date: "10.10 (토) 오전 10:30–12:30", work: "불안" },
+      { week: "2주차", date: "10.17 (토) 오전 10:30–12:30", work: "자기만의 방" },
+      { week: "3주차", date: "10.24 (토) 오전 10:30–12:30", work: "시지프 신화" },
+      { week: "4주차", date: "10.31 (토) 오전 10:30–12:30", work: "사랑의 기술" },
+    ],
+  },
+  {
     // 2026-08-19 신규 — 워크룸 원본 상세 문법(sticky 포스터+중앙 본문 컬럼) 첫 적용.
     // 진행: 천고든(레이지데이 북클럽 소속 — 외부 모임장이 아니다, 운영자 확정).
     // 가격·정원·결제 방식 미확정 — buyHref 를 주지 않고 문의로 안내 (D절, 임의 가격 금지).

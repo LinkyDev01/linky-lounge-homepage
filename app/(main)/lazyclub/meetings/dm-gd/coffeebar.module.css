@@ -275,7 +275,6 @@
 
 /* ── 환영 음료 ── */
 .menu {
-  position: relative;
   margin: 30px 0 0;
 }
 .blockHead {
@@ -314,24 +313,6 @@
   text-decoration: underline;
   text-underline-offset: 3.5px;
   text-decoration-thickness: 1px;
-}
-
-/* 원본 중앙의 흐린 워터마크 — **로고 마크 없이 원(배경)만**
-   (운영자 2026-08-25 "로고이미지 포함하지 않고 배경만 남길거야").
-   색은 원본 실측: 워터마크 영역 지배색 #dfd3d0. 원본은 원과 글자의 명암 차가
-   거의 없어(글자 #dcd3d0) 어차피 균일한 원으로 읽혔다 — 마크를 빼도 인상이 같다.
-   이미지가 아니라 색면이라 opacity 로 흐리게 하지 않고 **색 자체를 종이색에
-   가깝게** 둔다(opacity 는 자식이 없어 쓸 이유가 없다). */
-.watermark {
-  position: absolute;
-  right: 4%;
-  top: 40%;
-  width: 190px;
-  height: 190px;
-  border-radius: 50%;
-  background: #dfd3d0;
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* ── 신청서 ── */

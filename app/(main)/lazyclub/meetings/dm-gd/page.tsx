@@ -137,10 +137,6 @@ export default function CoffeeBarPage() {
               </p>
             </div>
 
-            {/* 흐린 원 — 원본의 워터마크 자리다. **로고 마크는 빼고 배경(원)만**
-                남긴다 (운영자 2026-08-25 "로고이미지 포함하지 않고 배경만 남길거야").
-                이미지가 아니라 CSS 원이라 요청도 한 건 준다 */}
-            <div className={cb.watermark} aria-hidden="true" />
           </section>
 
           {/* 괄호 부기(신청 가능 시간)는 2026-08-25 지시로 '희망 날짜와 시간대'

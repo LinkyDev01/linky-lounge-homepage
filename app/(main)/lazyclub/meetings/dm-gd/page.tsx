@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { preload } from "react-dom"
 import { WorkroomShell } from "../../Shell"
 import { CoffeeBarForm } from "./CoffeeBarForm"
+import { LogoDrop } from "./LogoDrop"
 import { NavOffset } from "./NavOffset"
 import styles from "../../home.module.css"
 import cb from "./coffeebar.module.css"
@@ -60,6 +61,8 @@ export default function CoffeeBarPage() {
         <div className={cb.root} data-cb-root>
           {/* 헤더 높이를 실측해 티커를 내비에 빈틈없이 붙인다 (파일 머리 주석) */}
           <NavOffset />
+          {/* 탑네비 로고가 굴러 떨어져 제목 옆 로고가 된다 — 셸은 안 건드린다 */}
+          <LogoDrop />
           {/* **탑네비 바로 밑 전폭 스티키 티커**, 좌측 등속
               (운영자 2026-08-25: "동민과 고든 커피앤바 보다 위에 있어야해 /
                탑네비 바로밑에 좌우폭에 맞추어 스티키로", 레퍼런스 outstanding-co.kr
@@ -80,7 +83,11 @@ export default function CoffeeBarPage() {
           <div className={cb.page}>
           <header className={cb.head}>
             <h1 className={cb.title}>
-              <span className={cb.titleTop}>동민과 고든</span>
+              {/* data-cb-* 는 LogoDrop 이 좌표를 실측할 때 쓰는 손잡이다 —
+                  CSS 모듈 클래스명은 해시라 밖에서 못 겨냥한다 */}
+              <span className={cb.titleTop} data-cb-title-top>
+                동민과 고든
+              </span>
               <span>
                 <span className={cb.kPlum}>커피</span>
                 <span className={cb.kSage}>앤</span>
@@ -90,9 +97,16 @@ export default function CoffeeBarPage() {
             {/* 로고는 **돌면서 좌우로 오간다** (운영자 2026-08-25).
                 transform 하나에 두 애니메이션을 못 걸므로 래퍼가 좌우왕복,
                 안쪽 img 가 회전을 맡는다 */}
-            <span className={cb.logoSway}>
+            <span className={cb.logoSway} data-cb-sway>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className={cb.logo} src={LOGO} alt="레이지 클럽" width={74} height={74} />
+              <img
+                className={cb.logo}
+                data-cb-logo
+                src={LOGO}
+                alt="레이지 클럽"
+                width={74}
+                height={74}
+              />
             </span>
           </header>
 
@@ -106,7 +120,12 @@ export default function CoffeeBarPage() {
             <p>
               <BrandRun />는 음료 및 주류 판매점이 아닙니다.
             </p>
-            <p>레이지 클럽 운영자인 안동민, 천고든과 대화를 나누고 싶은 분들을 위한 자리입니다.</p>
+            {/* **한 줄 고정** (운영자 2026-08-26 "한 줄로 가도록 해줘 웹버전에서도.
+                좌우폭을 늘려야하는 경우면 그래도 좋아") — 규칙은 coffeebar.module.css
+                의 .oneLine 주석 참조. ⚠ 이 문장을 고치면 거기 적힌 배율을 다시 잰다 */}
+            <p className={cb.oneLine}>
+              레이지 클럽 운영자인 안동민, 천고든과 대화를 나누고 싶은 분들을 위한 자리입니다.
+            </p>
             <p>가벼운 수다부터 사업 논의, 아이디어 구상까지 어떠한 대화든 환영합니다.</p>
             <p>신청서를 작성해 주시면 해당 번호로 연락드리겠습니다.</p>
             <p>감사합니다.</p>

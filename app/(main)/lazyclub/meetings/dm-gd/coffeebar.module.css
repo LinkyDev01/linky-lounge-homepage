@@ -203,7 +203,18 @@
 .tickerTrack {
   display: flex;
   width: max-content;
-  animation: cbTicker var(--cb-ticker-dur) linear infinite;
+  /* **첫 화면은 빈 바에서 시작한다** (운영자 2026-08-26 "제로베이스부터 하나씩
+     보여야지 처음부터 전체가 다 보이면 안돼"): 진입 키프레임(cbTickerIn)이 트랙을
+     한 벌(+16.6667%)만큼 오른쪽에 세워 두고 제자리까지 끌고 온 뒤, 무한 루프가
+     딱 그 시점(delay = 한 사이클)에 이어받는다.
+     ⚠ 진입 거리 = 루프 한 사이클 거리(한 벌)·duration 도 같은 값 — 그래서 진입과
+       루프의 속도가 **정의상 동일**해 이음매에서 멈칫하지 않는다. 모바일은 한 벌
+       (≈428px)이 바(390px)보다 넓어 정확히 빈 바에서 출발한다. 데스크톱은 바가
+       한 벌보다 넓어 문장 머리가 바 중간쯤에서 출발하지만, '비어 있다가 하나씩
+       채워진다'는 요구는 그대로 성립한다(전체가 미리 보이지 않는다). */
+  animation:
+    cbTickerIn var(--cb-ticker-dur) linear both,
+    cbTicker var(--cb-ticker-dur) linear var(--cb-ticker-dur) infinite;
 }
 .tickerItem {
   flex: 0 0 auto;
@@ -222,6 +233,14 @@
 @keyframes cbTicker {
   to {
     transform: translateX(-16.6667%);
+  }
+}
+@keyframes cbTickerIn {
+  from {
+    transform: translateX(16.6667%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 @media (prefers-reduced-motion: reduce) {

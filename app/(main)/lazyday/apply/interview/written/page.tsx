@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, type FormEvent } from "react"
 import { trackEvent } from "@/lib/gtag"
 import { trackCustom, trackStandard } from "@/lib/meta-pixel"
+import { readTrafficSrc } from "@/lib/traffic-src"
+
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
@@ -220,6 +222,9 @@ export default function WrittenInterviewPage() {
           name,
           phone,
           answers,
+          // 유입 출처 — 시트 '유입 출처' 열에 기록된다 (2026-08-26).
+          // 값이 없으면(캡처 전이거나 비북클럽 도메인) 빈 값으로 두고 GAS 가 알아서 건너뛴다.
+          trafficSrc: readTrafficSrc() ?? "",
           // 질문 원문도 함께 전송 → 관리자 메일에서 질문+답변 매핑 (페이지 수정 시 메일 자동 반영)
           questions: QUESTIONS.map((q) => ({ id: q.id, label: q.label, text: q.text, sub: q.sub })),
         }),

@@ -30,16 +30,20 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { name, phone, answers, questions } = body as {
+  // ⚠ 이 라우트는 apply 와 달리 **패스스루가 아니다** — 여기 없는 필드는 GAS 에 닿지도 않는다.
+  //   새 필드를 프론트에 추가할 때 여기를 같이 고치지 않으면 조용히 유실된다.
+  const { name, phone, answers, questions, trafficSrc } = body as {
     name: string
     phone: string
     answers: Record<string, string>
     questions?: Array<{ id: string; label: string; text: string; sub?: string }>
+    /** 유입 출처 — 시트 '유입 출처' 열 (2026-08-26) */
+    trafficSrc?: string
   }
 
   try {
     // GAS 간헐 404 대응 — 미실행이 확실할 때만 1회 재시도 (lib/gas.ts)
-    const data = await gasPostJson(GAS_URL, { type: "written", name, phone, answers, questions })
+    const data = await gasPostJson(GAS_URL, { type: "written", name, phone, answers, questions, trafficSrc })
     return NextResponse.json(data)
   } catch (err) {
     if (isGasExecuted(err)) {

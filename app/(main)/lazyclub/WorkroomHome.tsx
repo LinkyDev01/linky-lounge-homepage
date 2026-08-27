@@ -101,12 +101,14 @@ export const PAST_SEASONS = [
  *  클릭 시 실사이트 후기 섹션(#reviews)으로 — 사진별 개별 목적지가 없어 공통 앵커 */
 // src = 캐러셀(카드용 700px 축소본) / photo = 모달 원본(세로 1440px) — 실사이트와 같은 배역
 const ARCHIVE_SLIDES = [
+  { key: "r7", title: "2026. 8. 27의 기록" },
   { key: "r1", title: "2026. 7. 15의 기록" },
   { key: "r2", title: "2026. 7. 12의 기록" },
   { key: "r3", title: "2026. 7. 12의 기록" },
   { key: "r4", title: "2026. 7. 12의 기록" },
   { key: "r5", title: "2026. 8. 9의 기록" },
   { key: "r6", title: "2026. 8. 9의 기록" },
+  { key: "r8", title: "2026. 8. 27의 기록" },
 ].map((r) => ({
   ...r,
   src: `/linky-lounge/book-club/reviews/review-0${r.key.slice(1)}-card.webp`,

@@ -35,6 +35,16 @@ type ReviewCard = {
 }
 
 const photoCards: ReviewCard[] = [
+  // 2026-08-27 추가분 — 운영자 지시로 **맨 앞**(260827-01)과 **맨 뒤**(260827-02)에 나눠 배치.
+  // 규격은 종전과 동일(원본 JPG → 모달용 세로 1440px webp q82 + 카드용 가로 700px).
+  // ⚠ 순서를 바꿀 땐 레이지클럽 `WorkroomHome.tsx` 의 ARCHIVE_SLIDES 도 같이 —
+  //   자동 연동이 아니라 같은 이미지를 쓰는 **수동 사본**이다.
+  {
+    id: "r7",
+    photo: "/linky-lounge/book-club/reviews/review-07.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-07-card.webp",
+    caption: "2026. 8. 27의 기록",
+  },
   {
     id: "r1",
     photo: "/linky-lounge/book-club/reviews/review-01.webp",
@@ -71,6 +81,12 @@ const photoCards: ReviewCard[] = [
     photo: "/linky-lounge/book-club/reviews/review-06.webp",
     photoCard: "/linky-lounge/book-club/reviews/review-06-card.webp",
     caption: "2026. 8. 9의 기록",
+  },
+  {
+    id: "r8",
+    photo: "/linky-lounge/book-club/reviews/review-08.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-08-card.webp",
+    caption: "2026. 8. 27의 기록",
   },
 ]
 

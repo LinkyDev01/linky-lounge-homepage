@@ -41,16 +41,6 @@ function rnd(seed: number, a: number, b: number) {
 
 const D_COLS = 21
 const D_ROWS = 13
-// 워드서치 배치 — LAZY 4행(가로) · CLUB 8열(세로), (4,8)의 L 공유 (브랜드 마크와 같은 기하)
-const D_WORD: Record<string, string> = {
-  "3-8": "C",
-  "4-8": "L",
-  "5-8": "U",
-  "6-8": "B",
-  "4-9": "A",
-  "4-10": "Z",
-  "4-11": "Y",
-}
 
 /* 타임라인 (ms) — 운영자 확정본. 셔플 유지가 길고(3.9s), 캡슐 완성 후 유지는 짧다(1.7s) */
 const DT = { SCRAMBLE: 3900, SWEEP: 900, CAP1: 5500, CAP2: 5800, RESET: 7500, CYCLE: 8100 }
@@ -76,8 +66,47 @@ function capBox(c0: number, cols: number, r0: number, rows: number, horizontal: 
   const h = h0 * (horizontal ? CAP_ACROSS_ROW : CAP_ALONG_COL)
   return { left: pct(x0 - (w - w0) / 2), top: pct(y0 - (h - h0) / 2), width: pct(w), height: pct(h) }
 }
-const D_CAP_LAZY = capBox(8, 4, 4, 1, true)
-const D_CAP_CLUB = capBox(8, 1, 3, 4, false)
+
+/* 배치 난수 범위 — 네 칸짜리 단어가 들어가고, 가장자리 한 칸은 비운다
+   (캡슐이 진행 방향으로 4% 넘치므로 화면 끝에 붙으면 잘려 보인다) */
+const R_MIN = 1
+const R_MAX = D_ROWS - 5 // 8
+const C_MIN = 1
+const C_MAX = D_COLS - 5 // 16
+
+type Cap = { box: React.CSSProperties; horizontal: boolean }
+
+/**
+ * 시드 → 이번 사이클의 LAZY·CLUB 배치. 위치와 방향이 **매번 바뀐다**(운영자).
+ * 두 배열 중 하나가 뽑히며, 어느 쪽이든 **L 을 축으로 묶인다**:
+ *   ①  C          ②  C L U B
+ *      L A Z Y          A
+ *      U                Z
+ *      B                Y
+ * ① CLUB 세로 + LAZY 가로 (L 공유) · ② CLUB 가로 + LAZY 세로 (L 공유)
+ */
+function placementFor(s: number) {
+  const vertClub = rnd(s, 7001, 11) < 0.5
+  const r = R_MIN + Math.floor(rnd(s, 7002, 13) * (R_MAX - R_MIN + 1))
+  const c = C_MIN + Math.floor(rnd(s, 7003, 17) * (C_MAX - C_MIN + 1))
+  const cells: Record<string, string> = {}
+  let capLazy: Cap
+  let capClub: Cap
+  if (vertClub) {
+    // ① CLUB 세로(c열) + LAZY 가로(r+1행) — 공유 L 은 (r+1, c)
+    ;["C", "L", "U", "B"].forEach((ch, k) => (cells[`${r + k}-${c}`] = ch))
+    ;["A", "Z", "Y"].forEach((ch, k) => (cells[`${r + 1}-${c + 1 + k}`] = ch))
+    capLazy = { box: capBox(c, 4, r + 1, 1, true), horizontal: true }
+    capClub = { box: capBox(c, 1, r, 4, false), horizontal: false }
+  } else {
+    // ② CLUB 가로(r행) + LAZY 세로(c+1열) — 공유 L 은 (r, c+1)
+    ;["C", "L", "U", "B"].forEach((ch, k) => (cells[`${r}-${c + k}`] = ch))
+    ;["A", "Z", "Y"].forEach((ch, k) => (cells[`${r + 1 + k}-${c + 1}`] = ch))
+    capLazy = { box: capBox(c + 1, 1, r, 4, false), horizontal: false }
+    capClub = { box: capBox(c, 4, r, 1, true), horizontal: true }
+  }
+  return { cells, capLazy, capClub }
+}
 
 export function IdleShuffle() {
   // null = 오버레이 비활성 (평상시). 숫자 = 오버레이 시작부터의 경과 ms (50ms 양자화)
@@ -131,11 +160,14 @@ export function IdleShuffle() {
   const seed = seedRef.current
   const phase = clock % DT.CYCLE
   const cycle = Math.floor(clock / DT.CYCLE)
+  // 배치는 **사이클마다** 새로 뽑는다 — 한 번 뜬 화면 안에서도 8.1초마다 자리가 바뀐다.
+  // 사이클 경계에서는 전부 셔플 상태(해제 완료 7920 < 8100)라 갈아끼워도 티가 없다.
+  const place = placementFor((seed ^ Math.imul(cycle + 1, 2654435761)) >>> 0 || 1)
   const cells = []
   for (let r = 0; r < D_ROWS; r++) {
     for (let c = 0; c < D_COLS; c++) {
       const i = r * D_COLS + c
-      const word = D_WORD[`${r}-${c}`]
+      const word = place.cells[`${r}-${c}`]
       // 잠금 스윕 — 열이 주도하되 행·난수를 섞어 대각선 물결로 흩는다(열 단위면 계단이 보인다)
       const lockAt =
         DT.SCRAMBLE + ((c / D_COLS) * 0.78 + (r / D_ROWS) * 0.14 + rnd(seed, i, 61) * 0.08) * DT.SWEEP
@@ -169,8 +201,20 @@ export function IdleShuffle() {
       <div className={styles.dense}>
         {cells}
         {/* 캡슐은 clip-path 로 한쪽 끝에서부터 그어진다 — 워드서치에 손으로 동그라미 치는 몸짓 */}
-        {capLazy && <div className={`${styles.dCap} ${styles.dCapRow}`} style={D_CAP_LAZY} />}
-        {capClub && <div className={`${styles.dCap} ${styles.dCapCol}`} style={D_CAP_CLUB} />}
+        {capLazy && (
+          <div
+            key={`lazy-${cycle}`}
+            className={`${styles.dCap} ${place.capLazy.horizontal ? styles.dCapRow : styles.dCapCol}`}
+            style={place.capLazy.box}
+          />
+        )}
+        {capClub && (
+          <div
+            key={`club-${cycle}`}
+            className={`${styles.dCap} ${place.capClub.horizontal ? styles.dCapRow : styles.dCapCol}`}
+            style={place.capClub.box}
+          />
+        )}
       </div>
     </div>
   )

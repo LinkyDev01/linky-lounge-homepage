@@ -71,12 +71,17 @@
 /* 한쪽 끝에서부터 그어진다 — 손으로 동그라미 치는 몸짓. clip-path 를 쓰는 이유는
    스타디움 모양을 지키기 위해서다(SVG stroke 그리기로 바꾸면 늘린 타원이 된다).
    끝값은 요소 밖으로 1px 넘겨 테두리가 경계에서 잘리지 않게 한다. */
-.dCapRow { animation: capDrawRow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* 라운드 5 (운영자 "프레임을 끊어서 더 딱딱하게"): 부드러운 이징을 버리고 **4단계 스텝**.
+   단계 수 4 = 단어의 글자 수 — 한 칸씩 뚝뚝 끊어 감싸며 지나간다(워드서치에 동그라미를
+   치는 손의 리듬). ⚠ 지속시간이 0.667s 인 이유: steps(4, jump-start) 는 마지막 값(100%)에
+   3/4 지점에서 도달하므로, **완성 시각을 종전 0.5s 와 똑같이** 맞추려면 0.5 ÷ 0.75 = 0.667s
+   여야 한다("최종 채워지는 속도는 동일하게"). jump-start 라 첫 1/4 은 즉시 나타나 빈 박자가 없다. */
+.dCapRow { animation: capDrawRow 0.667s steps(4, jump-start) both; }
 @keyframes capDrawRow {
   from { clip-path: inset(-1px 100% -1px -1px); }
   to { clip-path: inset(-1px); }
 }
-.dCapCol { animation: capDrawCol 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.dCapCol { animation: capDrawCol 0.667s steps(4, jump-start) both; }
 @keyframes capDrawCol {
   from { clip-path: inset(-1px -1px 100% -1px); }
   to { clip-path: inset(-1px); }

@@ -80,6 +80,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 
 - **Playwright**: `/opt/node22/lib/node_modules/playwright`, 브라우저 `/opt/pw-browsers/chromium`, `--no-sandbox`. 외부 HTTPS 는 프록시 경유 — 배포 URL 검증은 `curl -c jar -b jar`.
 - **브라우저에서 외부 SDK 를 실제로 띄워야 할 때** (결제창 등): 세 가지가 동시에 막힌다 — ① Playwright 는 `HTTPS_PROXY` 를 **자동으로 타지 않는다**(외부 스크립트가 안 뜬다) ② `chromium.launch({proxy})` 로 붙이면 **localhost 까지 프록시로 나가** dev 서버에 못 붙는다(`bypass` 옵션도 안 먹었다) ③ 프로덕션 HTTPS 에 직접 붙는 것도 Chromium 이 MITM CA 를 안 믿어 `ERR_CONNECTION_RESET`. **해법은 브라우저에 프록시를 걸지 않고 `ctx.route('**')` 로 외부 호스트 요청만 Node fetch 로 중계**(`NODE_USE_ENV_PROXY=1` 이면 Node 가 프록시를 탄다) — TLS 검증을 끄지 않고 localhost + 외부 SDK 를 동시에 쓰는 유일한 조합. 구현본 `scripts/pay-e2e.mjs`(2026-08-31 결제창 검증에 실사용, 외부 91건 중계 성공). ⚠ "프록시가 CDN 을 막는다"는 그동안의 진단은 틀렸다 — `curl https://cdn.portone.io/...` 는 200 이다.
+- **Vercel 의 Redeploy 는 빌드 캐시를 재사용한다** — env 를 넣고 Redeploy 만 누르면 `NEXT_PUBLIC_*` 이 **반영되지 않는다**(2026-08-31 실측: 청크가 바이트 단위로 동일). 새 커밋을 푸시하거나 'Use existing Build Cache' 를 꺼야 한다. 서버 전용 env(시크릿·`ACTIVE_PG`)는 런타임에 읽으므로 재배포만으로 즉시 반영된다 — 둘을 헷갈리지 말 것.
 - **`NEXT_PUBLIC_*` 설정 여부는 프로덕션 번들로 확인한다**: Next 는 **설정된** 값만 리터럴로 인라인하고, 미설정은 `t.default.env.NEXT_PUBLIC_X||""` 참조로 남긴다. 청크를 받아 grep 하면 Vercel 콘솔 없이 주입 여부를 판정할 수 있다 (2026-08-31 포트원 공개키 미설정 확인).
 - **스크린샷은 `node scripts/shot.mjs`** (boilerplate 재작성 금지, `--eval` 로 수치 검증). **networkidle 멈춤**: 외부 스크립트가 프록시에서 매달리면 30s 타임아웃 — waitUntil 'load' 폴백. 레이지클럽 트리는 폰트 요청까지 매달리므로 `ctx.route(외부, abort)` 로 끊고 캡처.
 - **dev 서버는 턴 사이 자주 죽는다**: 백그라운드 재기동 후 curl 200 폴링. pkill 후 exit 144 무해.

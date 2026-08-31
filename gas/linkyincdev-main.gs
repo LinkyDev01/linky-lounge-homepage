@@ -70,6 +70,17 @@ var KAKAO_TEMPLATE_PHONE   = "KA01TP260508044527472ApL7vKEq4ZE"; // 전화 인�
 var KAKAO_TEMPLATE_WRITTEN = "KA01TP260508044618959Levf57dcz2q"; // 서면 인터뷰 제출 완료
 var KAKAO_TEMPLATE_REMIND  = "KA01TP260622024010341GGWbJcYzjak"; // 전화 인터뷰 당일 리마인더
 
+// ── 레이지클럽 모임 신청 완료 알림톡 (2026-08-31, 운영자 지급) ──────────────
+// ⚠ **채널이 북클럽과 다르다.** 위 KAKAO_PFID 는 북클럽 채널이고, 레이지클럽은 별도
+//   채널을 쓴다 — 그래서 sendKakaoAlimtalk 에 pfId 를 넘기는 인자를 뒀다(4번째).
+//   채널을 안 갈아끼우면 "템플릿이 이 발신프로필에 없다"로 조용히 실패한다.
+// ⚠ **아직 승인 전이다** (운영자 2026-08-31 "아직 승인은 안 났는데 미리 반영할게").
+//   승인 전에는 Solapi 가 에러를 돌려주고 발송이 실패하는데, 아래 호출부는 **SMS 폴백을
+//   붙이지 않으므로** 손님에게 아무것도 안 나간다(승인 전 오발송 방지). 접수·시트·메일은
+//   종전대로 진행된다. 승인이 나면 코드 변경 없이 그대로 발송된다.
+var KAKAO_PFID_LAZYCLUB           = "KA01PF260831065614085Y3w41QKym0u"; // 레이지클럽 채널
+var KAKAO_TEMPLATE_LAZYCLUB_APPLY = "KA01TP260831070822208VLuwoxsTYW7"; // 템플릿 코드 JZvGf8LJM5
+
 // 전화 인터뷰 3시간 전 리마인더 자동 발송 스위치. 템플릿 승인 완료 → 알림톡 예약 발송 ON.
 var ENABLE_REMINDER = true;
 
@@ -431,6 +442,24 @@ function handleOnedayApply(d) {
           "인스타그램: " + (d.instagram || "-") + "\n\n" +
           "📄 스프레드시트('" + LAZYCLUB_ONEDAY_SHEET + "' 탭):\n" + lazyclubSheetUrl()
   });
+
+  // ── 신청자에게 카카오 알림톡 (레이지클럽 채널, 2026-08-31) ──────────────
+  // ⚠ **SMS 폴백을 일부러 붙이지 않았다.** 다른 핸들러(handleApply 등)는 알림톡 실패 시
+  //   문자로 대체하지만, 이 템플릿은 아직 승인 전이라 항상 실패한다 — 폴백을 달면
+  //   승인도 나기 전에 문자가 나가고 요금까지 붙는다. 승인 뒤 폴백이 필요하면 그때 추가.
+  // ⚠ 실패해도 **접수 결과에 영향 없다** — 아래 return 은 발송 성공 여부와 무관하다
+  //   (시트·관리자 메일은 이미 끝났다). ledger·CAPI 와 같은 규율.
+  // ⚠ 변수는 기존 템플릿 관례대로 #{이름} 하나다. 승인된 템플릿 본문에 다른 변수가
+  //   있으면 변수 불일치로 발송이 실패하므로, 승인 시 본문을 보고 이 맵을 맞출 것.
+  var npOneday = normPhone(d.phone);
+  if (npOneday) {
+    sendKakaoAlimtalk(
+      npOneday,
+      KAKAO_TEMPLATE_LAZYCLUB_APPLY,
+      { "#{이름}": d.name || "" },
+      KAKAO_PFID_LAZYCLUB
+    );
+  }
 
   return jsonResponse({ success: true });
 }
@@ -1494,7 +1523,9 @@ function scheduleKakao(to, scheduledDate, templateId, variables) {
 // 이런 1회성 작업은 코드로 남기지 말고 편집기에서 실행 후 지운다.
 
 // ── 카카오 알림톡 (Solapi) — 신청자 발송. 성공 true / 실패 false(→ SMS fallback) ──
-function sendKakaoAlimtalk(to, templateId, variables) {
+// pfId 는 **생략 가능**하다 — 안 주면 북클럽 채널(KAKAO_PFID). 레이지클럽처럼 다른
+// 채널의 템플릿을 보낼 때만 4번째 인자로 넘긴다 (2026-08-31). 기존 호출부는 무변경.
+function sendKakaoAlimtalk(to, templateId, variables, pfId) {
   if (!to || !templateId) return false;
   try {
     var resp = UrlFetchApp.fetch("https://api.solapi.com/messages/v4/send", {
@@ -1502,7 +1533,7 @@ function sendKakaoAlimtalk(to, templateId, variables) {
       headers: { "Authorization": buildSolapiAuth(), "Content-Type": "application/json" },
       payload: JSON.stringify({ message: {
         to: to, from: SENDER_PHONE,
-        kakaoOptions: { pfId: KAKAO_PFID, templateId: templateId, variables: variables }
+        kakaoOptions: { pfId: pfId || KAKAO_PFID, templateId: templateId, variables: variables }
       }}),
       muteHttpExceptions: true
     });

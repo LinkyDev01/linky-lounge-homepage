@@ -24,7 +24,15 @@ export const PORTONE_STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID || ""
 export const PORTONE_CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || ""
 
 /** 채널키는 콘솔에서 발급된 값을 env 로만 주입한다 — 코드에 상수로 박거나
- *  테스트/실연동을 조건문으로 가르지 않는다 (실연동 전환 = 값 교체만). */
+ *  테스트/실연동을 조건문으로 가르지 않는다 (실연동 전환 = 값 교체만).
+ *
+ *  ⚠ **위 두 값을 Vercel 에 넣은 뒤에는 반드시 캐시 없는 재배포를 해야 한다.**
+ *  `NEXT_PUBLIC_*` 은 빌드 시 번들에 리터럴로 박히는데, Vercel 의 Redeploy 는
+ *  기본적으로 빌드 캐시를 재사용해서 **번들이 바이트 단위로 그대로 남는다**
+ *  (2026-08-31 실측: env 를 넣고 Redeploy 했는데 청크가 600182B 로 동일,
+ *   값은 여전히 `process.env.X||""` 참조 상태였다). 새 커밋을 푸시하거나
+ *  Redeploy 대화상자에서 'Use existing Build Cache' 를 꺼야 반영된다.
+ *  주입 여부 판정은 프로덕션 청크 grep — 설정된 값만 리터럴로 보인다 (§5). */
 export function portoneConfigured() {
   return PORTONE_STORE_ID.length > 0 && PORTONE_CHANNEL_KEY.length > 0
 }

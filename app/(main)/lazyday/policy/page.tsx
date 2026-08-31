@@ -5,6 +5,8 @@ import styles from "./page.module.css"
 export const metadata: Metadata = {
   title: "이용약관 · 레이지데이 북클럽",
   description: "레이지데이 북클럽 이용약관",
+  // 두 도메인 중복 콘텐츠 — 상대 canonical (metadataBase 호스트 분기, SEO 2026-08-12)
+  alternates: { canonical: "/policy" },
 }
 
 /**

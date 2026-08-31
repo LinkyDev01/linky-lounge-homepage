@@ -1,0 +1,495 @@
+/* 랜딩 셸 — 반응형 초안(preview/bookclub-responsive/draft.module.css)의 이식본.
+   값은 원본과 **동일**. 프리뷰 전용만 덜어냈다: 프리뷰 바 오프셋(--preview-bar),
+   시안 전환 스위치(.qtSwitch*), 초안 안내 바(.draftNote).
+   모임소개는 **시안 A(2×2 그리드) 확정** (운영자 2026-08-12 "A로 하고 시작해") —
+   data-variant 선택자 대신 데스크톱 변수로 상시 적용한다.
+
+   원문 주석:
+   북클럽 반응형 초안 — 레이지클럽(워크룸) 레이아웃 문법 + 북클럽 팔레트.
+   §9 규율: 기존 .module.css 를 import 하지 않는다. 값은 레이지클럽 실측(docs/redesign/08)
+   에서 그대로 가져오되 색·서체만 북클럽 것으로 바꾼다.
+
+   폭 시스템: 실사이트 섹션 CSS 를 변수화(기본값 현행 유지)해 두었으므로,
+   여기서 변수만 갈아끼우면 같은 컴포넌트가 데스크톱 폭으로 펼쳐진다.
+     --lz-max      컨테이너 max-width   (실 600px)
+     --lz-rail     본문 컬럼 폭 (인디케이터 기준, 실 600px)
+     --lz-gutter   섹션 좌우 패딩       (실 24px)
+     --lz-gutter-lg  ≥768 섹션 패딩     (실 56px)
+     --lz-block    카드·캘린더 블록 폭   (실 420px)
+     --lz-card     캐러셀 카드 폭        (실 560px)
+     --lz-chapter  본문 원고 폭          (실 320px)
+   ≤720px 에서는 변수를 건드리지 않아 **현행 모바일과 픽셀 동일**하다. */
+
+.page {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --brand: #d2691e;
+  --sub: #8a7660;
+  --suit: "SUIT", sans-serif;
+  --navLogoSize: 62px; /* 동적 마크 실측 폭 (마크 높이 39.5 × 종횡비 1.582) */
+  --draft-nav-h: 59.5px;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--suit);
+  overflow-x: clip;
+}
+
+/* ── 진입 홀드 (운영자 2026-08-12) ─────────────────────────────────
+   처음엔 **포스터만**. 포스터 영역 밖은 전부 포스터와 같은 색으로 덮이고,
+   히어로 텍스트가 정상 속도에 오른 순간(=흐름 시작 +0.3s) 또는 아무 입력이
+   들어온 순간 덮개가 걷히며 가려진 부분이 드러난다 (운영자 "포스터 영역 외
+   포스터와 동일한 컬러로 모두 가려지고, 클릭/입력했을 때 가려진 부분이 노출").
+   ⚠ 레이지클럽 인트로 규율: **display 로 감추지 않는다** — 레이아웃이 1px도
+   움직이지 않아야 하므로 opacity 만 0. 스티키 CTA 는 다른 모듈(page.module.css)의
+   해시 클래스라 이름으로 못 잡는다 → `data-lz-chrome` 속성으로 건다 */
+.page[data-intro="hold"] .header,
+.page[data-intro="hold"] .footer,
+/* ⚠ 스티키 CTA 만 **다른 축**(data-cta)으로 건다 — 내비·푸터보다 3초 늦게 뜬다
+   (운영자 2026-08-12 "4기 신청하기 cta 스티키는 지금보다 3초 지연시켜").
+   지연은 useChromeIntro 가 크롬 노출 시각 기준 상대값으로 잰다 */
+.page[data-cta="hold"] [data-lz-chrome] {
+  opacity: 0;
+  /* 제 위치보다 10px 아래에서 대기했다가 올라온다 — 페이드만으로는 '툭 나타난다'로
+     읽혔다 (운영자 2026-08-12 "살짝 아래서 위로 빠르게 자연스럽게 올라오는") */
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+/* 덮개 — 뷰포트 전체를 포스터 바탕색으로. 색은 HeroBreathingPoster.module.css
+   `.poster { background: #f0e8e2 }` 와 **같은 값**이어야 이음매가 안 보인다
+   (한쪽만 바꾸면 포스터 둘레에 사각형 테두리가 생긴다) */
+.introMask {
+  position: fixed;
+  inset: 0;
+  background: #f0e8e2;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  /* 덮개는 크롬보다 조금 느리게 걷힌다 — 커튼이 올라가는 동안 크롬이 먼저 올라와
+     두 동작이 겹치면서, 한 프레임에 전부 나타나는 인상이 사라진다.
+     0.6s 까지 늘렸다가 0.45s 로 환원 (운영자 2026-08-12 "0.45s도 충분해") —
+     크롬 페이드 0.4s 보다는 여전히 길어 겹침은 유지된다 */
+  transition: opacity 0.45s ease;
+}
+.page[data-intro="hold"] .introMask {
+  opacity: 1;
+  /* 홀드 중엔 덮개가 클릭을 삼킨다 — 가려진 링크가 눌리는 사고를 막고,
+     이벤트는 window 까지 버블링되어 그대로 '입력 = 노출' 트리거가 된다 */
+  pointer-events: auto;
+}
+/* 포스터만 덮개 위로 (조상에 stacking context 가 없어 루트에서 비교된다 — 실측 확인).
+   ⚠ **덮개가 다 걷힌 뒤에 내려온다.** 홀드가 풀리는 순간 바로 내려오면, 아직
+   0.45s 동안 걷히는 중인 덮개(같은 종이색)가 포스터를 덮어 **실 위 글자가 흐려졌다
+   돌아온다** (2026-08-14 프레임 캡처로 확인 — 흐름 전환 시점과 겹쳐 "전환에서 뭔가
+   깜빡인다"로 읽힌다). z-index 는 정수라 transition 이 걸리고, duration 0s + delay
+   0.45s 면 덮개가 사라진 뒤에 한 번에 내려온다. 전환이 안 먹는 엔진에서도 종전과
+   같은 동작으로 떨어질 뿐이라 회귀 위험이 없다. */
+.page [data-lz-poster] {
+  position: relative;
+  z-index: 201;
+  transition: z-index 0s linear 0.45s;
+}
+/* 덮개가 걷힌 뒤 — 고정 내비(z 110)보다 아래로 돌아간다 */
+.page[data-intro="show"] [data-lz-poster] {
+  z-index: 0;
+}
+/* 등장 — 페이드는 짧게(0.4s), 올라오는 궤적은 조금 길게(0.55s) 잡아 감속 꼬리를
+   남긴다. 이징은 §3 등장 리빌과 같은 cubic-bezier(0.22,1,0.36,1) */
+.header,
+.footer,
+.page [data-lz-chrome] {
+  transition: opacity 0.4s ease-out, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .footer,
+  .page [data-lz-chrome] {
+    transition: none;
+  }
+  /* 모션을 끈 사용자에겐 이동 자체가 없어야 한다 */
+  .page[data-intro="hold"] .header,
+  .page[data-intro="hold"] .footer,
+  .page[data-cta="hold"] [data-lz-chrome] {
+    transform: none;
+  }
+}
+
+/* ⚠ 범위는 내비·푸터로 한정한다 — 전역 `.page a` 로 두면 명시도(0,1,1)가
+   실사이트 `.applyButton { color: white }`(0,1,0)를 이겨 **CTA 글씨가 잉크로**
+   나온다 (운영자 2026-08-12 "CTA 폰트컬러는 그대로 흰색 맞지?" — 실측 확인) */
+.header a,
+.footer a {
+  color: inherit;
+  text-decoration: none;
+}
+.header a:hover,
+.footer a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+/* ⚠ **브랜드 마크는 예외 — 밑줄 금지** (운영자 2026-08-17 "탑네비 북클럽 로고는
+   텍스트에도 클릭시 언더바표시 안되게 해. 이건 텍스트로 보여질 의향이 없어").
+   마크(I♥LAZYDAY)는 그림처럼 보이지만 실제로는 **글자로 조판**돼 있어(LazydayMark
+   — 냥이체 + 아치 배치), 위의 링크 밑줄이 그대로 글자 밑에 그어진다. 모바일은 탭
+   뒤 hover 가 남아 "클릭하면 밑줄이 생기는" 것으로 보인다.
+   ⚠ `text-decoration` 은 상속이 아니라 **전파**라 자식에서 none 으로 못 지운다 —
+   반드시 **밑줄이 시작되는 이 <a> 자체**에서 꺼야 한다. */
+.header a.navLogo:hover {
+  text-decoration: none;
+}
+
+/* ── 헤더 : 레이지클럽 2행 고정 내비 (햄버거 없음) ───────────────── */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* 스티키 4기 CTA(page.module.css .fixedButtonContainer = 100)보다 위 —
+     끝까지 내리면 CTA가 제자리에 내려앉으며 헤더 높이를 지나가는데,
+     99였을 때 CTA가 내비를 덮었다 (운영자 제보 2026-08-12).
+     후기 모달(ReviewsSection .lightbox = 200)보다는 아래를 유지 */
+  z-index: 110;
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  row-gap: 7px;
+  align-items: center;
+  /* 아래 패딩만 1px 적게 — 레이지클럽 헤더에는 border 가 없어(실측 0px) 우리 1px
+     테두리를 그대로 얹으면 총 높이가 1px 더 커진다 */
+  padding: 10px 15px 9px;
+  /* 헤더 높이 = **레이지클럽 실측 그대로** (모바일 59.5 / 데스크톱 64.8).
+     마크는 흐름 밖이라 헤더를 밀지 않으므로 여기서 높이를 정한다 — 구 값
+     (마크+20)은 레이지클럽보다 10px 두꺼웠다 (운영자 2026-08-12 "네비바 높이를
+     레이지클럽이랑 맞춰서") */
+  min-height: 58.5px;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.12);
+}
+
+/* 레이지클럽 정렬 (운영자 2026-08-12 "탑네비를 레이지클럽처럼 로고 옆부터 시작"):
+   마크는 흐름 밖(absolute)으로 왼쪽에 서고, 메뉴·신청하기는 **하단 행에서 마크 옆**
+   부터 시작한다 — 스케치처럼 메뉴 행이 LAZYDAY(마크 아랫행)와 같은 축.
+   헤더 높이는 min-height 가 마크를 감싼다.
+   모바일은 마크 폭을 빼면 6항목이 안 들어가므로 **탭만 가로 스크롤**하고
+   신청하기는 행 오른쪽에 고정해 항상 보이게 한다 */
+.navLogo {
+  position: absolute;
+  left: 15px;
+  /* 상하 여백 균등 보정 — 구 정중앙은 9.5/10.5 로 어긋났다. 0.5px 내리면
+     마크 위 10 / 마크 아래 10 (실측). 방향을 반대로 잡으면 9/11 로 더 벌어진다 */
+  top: calc(50% + 0.5px);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.navAll {
+  grid-area: 2 / 1 / 3 / 5;
+  padding-left: calc(var(--navLogoSize) + 10px);
+  display: flex;
+  /* 탭 4개로 줄어 모바일에도 여유가 생겼다 (운영자 2026-08-17 "가로 간격 조금씩") */
+  gap: 12px;
+  /* 레이지클럽 링크행 실측 — 11px(높이 16.5) / 데스크톱 13.2px(높이 19.8) */
+  font-size: 11px;
+  align-self: end;
+}
+.navAll::-webkit-scrollbar { display: none; }
+/* 신청하기 — **1행 우측** (전 뷰포트 공통, 운영자 2026-08-12 정정: "모바일에서도
+   우측 위 네비 1열에 신청하기가 있어야지"). 메뉴는 2행이라 자리 다툼이 없다 */
+.navMenu {
+  display: flex;
+  grid-area: 1 / 4 / 2 / 5;
+  align-self: start;
+  justify-self: end;
+  gap: 8px;
+  /* 레이지클럽 1행(아이콘 16px·중심 y18)과 **세로 위치를 맞춘다** — 텍스트라
+     그대로 두면 19.8px 로 3.8px 두꺼워져 헤더가 커진다 (운영자 2026-08-12
+     "신청하기도 레이지클럽 아이콘들의 세로위치와 맞아야지") */
+  font-size: 13.2px;
+  line-height: 16px;
+}
+
+.navItem {
+  color: var(--sub);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.navItemOn {
+  color: var(--brand);
+  font-weight: 600;
+}
+.navApply {
+  color: var(--brand);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 본문 — 고정 헤더 + 프리뷰 바만큼 밀어준다 (레이지클럽 .content padding-top 문법).
+   ⚠ 헤더 높이(마크 51.7/54.9 + 두 행)와 **같이 움직여야 한다** — 신청하기를 2행으로
+   내리며 1행이 마크 전용이 되어 헤더가 96.9/104.7px 로 커졌다 (실측).
+   ⚠ 프리뷰 바 높이는 더하지 않는다 — 바가 흐름에 있어 main 자체가 이미 그만큼
+   내려와 있다 (더하면 36px 헛여백). 실사이트 이식 시 바가 없어도 그대로 맞는다.
+   ⚠ `.page` 를 붙여 명시도를 올린 이유: page.module.css 의 `.container { padding: 0 }`
+   과 명시도가 같아 로드 순서에 따라 덮여, 패딩이 **0px 로 죽어 있었다** (실측) */
+.page .body {
+  padding-top: 62px;
+}
+
+/* ── 푸터 : 레이지클럽 15컬럼 문법 ──────────────────────────────── */
+.footer {
+  padding: 0 15px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.footerInner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  border-top: 1px solid var(--ink);
+  padding: 6px 0 40px;
+  position: relative;
+  /* 서체는 SUIT (2026-08-17). 종전 Gothic A1(레이지클럽과 통일, 2026-08-12)은
+     이 56자짜리 사업자정보 한 블록 때문에 구글 폰트에서 **138KB**(조각 14개 112KB
+     + CSS 26KB)를 끌어왔다 — 랜딩 전송량의 9%. 운영자 2026-08-17 "부담이면 suit하고"
+     → 북클럽만 SUIT 로. 레이지클럽 쪽 Gothic A1 은 운영자가 별도로 다룬다. */
+  font-family: var(--suit);
+  font-size: 12.6px;
+  line-height: 1.7;
+  font-weight: 600;
+}
+.footerDesc p {
+  margin: 0;
+}
+.footerLogo {
+  grid-column: 1 / 2;
+  position: absolute;
+  /* 로고 위 끝선을 문구 첫 줄 **글자 윗선**에 맞춘다 (운영자 2026-08-12
+     "로고 시작점이 텍스트 시작점과 높이가 맞아야 하는데 위로 튀어나와 있어").
+     6px 일 때 로고가 첫 줄보다 17px 위였다 — .footerDesc 의 padding-top 14px 과
+     행간 반각(line-height 1.7 → 위 4.4px)만큼 텍스트가 내려가 있기 때문.
+     ⚠ .footerDesc 의 padding-top 을 바꾸면 이 값도 같이 재측정할 것 */
+  top: 23px;
+  margin: 0;
+}
+/* 새 마크는 세로가 긴 박스형(904×1181)이라 폭을 줄여 잡는다 (구 정사각 66/88px) */
+.footerLogo img {
+  width: 52px;
+  height: auto;
+}
+.footerDesc {
+  grid-column: 2 / 5;
+  padding-top: 14px;
+}
+.footerBiz {
+  grid-column: 2 / 5;
+}
+.footerContact {
+  grid-column: 2 / 5;
+}
+.contracts {
+  display: none;
+}
+.contractsInline {
+  display: block;
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+}
+.footerSns {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* ── 히어로 행 : 데스크톱에서 포스터 + 요약 카드 병치 ─────────────── */
+.heroRow {
+  background: #f0e9e0;
+}
+
+/* ── 모임소개 밴드 : 모임소개 + 진행 순서를 한 배경(A)으로 묶는다 ────
+   운영자 2026-08-17 시안 A — 진행방식이 독립 섹션(배경 B)에서 빠지고
+   요약(HowToBrief)으로 접혀 들어왔다. 두 블록이 한 밴드라 사이에 경계가
+   없어야 하므로 섹션의 아래 여백(72px)은 밴드가 대신 만든다.
+   ⚠ 데스크톱 2×2 그리드 변수(--lz-qt-*)는 위 `.page` 블록이 이미 주므로
+     여기서 다시 주지 않는다 (프리뷰 시안본은 셸이 없어 자체 주입했었다) */
+.featureBand {
+  background: #f7f3ee;
+}
+.featureBand > section {
+  padding-bottom: 0;
+}
+/* 요약 블록 — 섹션과 같은 좌우 거터 + 밴드의 아래 숨구멍 */
+.briefWrap {
+  padding: 0 var(--lz-gutter, 24px) 56px;
+}
+@media (min-width: 768px) {
+  .briefWrap {
+    padding-left: var(--lz-gutter-lg, 56px);
+    padding-right: var(--lz-gutter-lg, 56px);
+  }
+}
+@media (min-width: 721px) {
+  .briefWrap {
+    padding-bottom: 64px;
+  }
+}
+
+/* ══ 데스크톱 (레이지클럽과 동일하게 단일 브레이크포인트) ══════════ */
+@media (min-width: 721px) {
+  .page {
+    --navLogoSize: 71px; /* 마크 높이 45 × 종횡비 1.582 (2026-08-19 축소, 구 90) */
+    --draft-nav-h: 64.8px;
+
+    /* 폭 시스템 교체 — 밴드는 전폭, 콘텐츠는 1100px 컬럼으로 가운데.
+       거터가 곧 중앙 정렬 장치라 섹션마다 컨테이너를 새로 만들 필요가 없다 */
+    --lz-max: 100%;
+    --lz-rail: min(1100px, calc(100vw - 80px));
+    --lz-gutter: max(40px, calc((100vw - 1100px) / 2));
+    --lz-gutter-lg: max(40px, calc((100vw - 1100px) / 2));
+    --lz-block: 520px;
+    --lz-card: 660px;
+    /* 모임소개 = 시안 A(2×2 그리드) 확정 — 초안 data-variant="grid" 값 그대로 */
+    --lz-chapter: 460px;
+    --lz-qt-display: grid;
+    --lz-qt-cols: 2;
+    --lz-qt-divider: none;
+    --lz-qt-row-gap: 96px;
+    /* 월 시트 3장을 가로로 (실사이트는 세로 스택 — 초안 확장 지점) */
+    --lz-cal-display: grid;
+    --lz-cal-cols: 3;
+    --lz-cal-max: 100%;
+    /* 가로실선(장소 구분선)도 콘텐츠 폭에 비례해 확장 (운영자 2026-08-12) */
+    --lz-rule: 100%;
+  }
+
+  /* 선정도서 4권 / 후기 3장 그리드 펼침 (운영자 2026-08-12 — 캐러셀은 ≤720 전용) */
+  .body {
+    --lz-carousel-display: grid;
+    --lz-carousel-gap: 18px;
+    --lz-carousel-nav: none;
+    --lz-card-dim: 1;
+    --lz-card-scale: 1;
+    --lz-card-blur: none;
+  }
+  .body :global(#book) {
+    --lz-carousel-cols: 4;
+    --lz-card: 100%;
+    /* 커버 레일의 선택 표시를 끈다 — 네 권이 아래에 전부 펼쳐져 있으므로 한 권만
+       주황으로 세워 두면 "1회차만 유효"로 오독된다 (운영자 2026-08-17
+       "웹버전에서는 동시노출이니만큼 모두 주황표시가 불필요해").
+       레일은 선택 UI 가 아니라 **네 권 한눈 목록**으로만 남는다.
+       ⚠ 캐러셀(≤720px)에서는 종전 그대로 — 거기선 한 번에 한 권만 보이므로
+         "지금 어느 권인지"가 실제 정보다. BookSection.module.css 의 기본값이 그것. */
+    --lz-cover-dim: 1;
+    --lz-cover-lift: 0px;
+    --lz-cover-mark: transparent;
+    --lz-cover-week: #a08b70;
+    --lz-cover-week-weight: 400;
+    --lz-cover-cursor: default;
+  }
+  .body :global(#reviews) {
+    --lz-carousel-cols: 3;
+    --lz-card: 100%;
+  }
+
+  .header {
+    grid-template-columns: repeat(15, 1fr);
+    gap: 15px;
+    row-gap: 9px;
+    /* 오른쪽 패딩 15px 고정 — 왼쪽(마크 15px)과 대칭, 화면 우측 끝에 붙는다
+       (운영자 2026-08-19 "상단 탑네비도 신청하기는 우측 끝으로 정렬해").
+       ⚠ 2026-08-17엔 반대로 콘텐츠 열(1100px) 끝선에 맞춘 적이 있는데(그때는
+       고정 15px가 콘텐츠보다 75px 밖으로 튀어나와 보여서), 넓은 화면에서
+       콘텐츠 열 기준을 쓰면 이번엔 신청하기가 실제 화면 끝에서 수백px 안쪽에
+       떠 보이는 반대 문제가 났다 — 화면 끝 고정으로 재전환 */
+    padding: 10px 15px 9px;
+    min-height: 63.8px;
+  }
+  .navAll {
+    grid-area: 2 / 1 / 3 / 11;
+    padding-left: calc(var(--navLogoSize) + 15px);
+    /* 탭 사이 숨통 (운영자 2026-08-17 "가로 간격 조금씩 넓혀도 되겠어") */
+    gap: 22px;
+    font-size: 13.2px;
+  }
+  .navMenu {
+    grid-area: 1 / 11 / 2 / 16;
+    gap: 22px;
+    font-size: 13.2px;
+  }
+
+  .page .body {
+    padding-top: 68px;
+  }
+
+  /* 히어로 : 포스터 단독 중앙 + 요약 카드는 아래 (운영자 2026-08-19 "오프라인
+     독서모임을 배열하지 말고 더" — 좌우 병치를 풀고 포스터를 더 키운다.
+     구 2컬럼(1.05fr/0.95fr 병치)은 git 이력 참조) */
+  .heroRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-items: center;
+    padding: 12px max(40px, calc((100vw - 1560px) / 2)) 0;
+  }
+  /* HeroParallax 의 .heroWrapper (첫 자식 div) — 클래스 대신 위치로 지정해
+     실사이트 CSS 모듈을 건드리지 않는다 */
+  .heroRow > div:first-child {
+    background: transparent;
+    /* 포스터는 4:5 (높이 = 폭×1.25) 단일 SVG viewBox 스케일이라 큰 글자·실 위
+       글자가 같은 비율로 커진다 — 서식은 어느 크기에서도 못 깨진다.
+       크기 상한은 **세로가 정한다** (운영자 2026-08-19 "맨 하단 부분까지
+       애니메이션 구간에서 짤리지 않으면서 최대한 크게"): 헤더(64.8)+행 상단
+       패딩(12)+아래 숨통 ≈ 90px 를 뺀 높이에 4:5 가 통째로 들어가는 폭이
+       (100vh−90px)×0.8 이다. 1080p 에서 792px → 990px 높이로 한 화면에 딱 든다.
+       960px 은 세로로 아주 긴 화면에서의 절대 상한 */
+    max-width: min(100%, calc((100vh - 90px) * 0.8), 960px);
+    justify-self: center;
+    width: 100%;
+  }
+  .heroRow > div:nth-child(2) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* 푸터 15컬럼 — 레이지클럽 배치 그대로 */
+  .footerInner {
+    grid-template-columns: repeat(15, 1fr);
+    gap: 15px;
+    padding: 6px 0 40px;
+  }
+  .footerLogo {
+    grid-column: 1 / 2;
+    /* 데스크톱은 .footerDesc padding-top 이 0 이라 텍스트가 3px 만 내려가 있다 */
+    top: 9px;
+  }
+  .footerLogo img {
+    width: 64px;
+  }
+  .footerDesc {
+    grid-column: 2 / 8;
+    padding-top: 0;
+  }
+  .footerBiz {
+    grid-column: 8 / 11;
+  }
+  .footerContact {
+    grid-column: 11 / 15;
+  }
+  .contracts {
+    display: block;
+    grid-column: 15 / 16;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+    white-space: nowrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .contractsInline {
+    display: none;
+  }
+}

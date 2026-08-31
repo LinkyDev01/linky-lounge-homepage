@@ -5,9 +5,13 @@
    ═══════════════════════════════════════════════════════════ */
 
 .section {
-  /* 배경 플립 (2026-07-06 교차 재배정) — 종이 낱장(#fffdf8)이 베이지 위에서 도드라짐 */
+  /* 배경 B → A 재배정 (운영자 2026-08-24 "섹션 컬러도 다시 재배열해") —
+     진행 방식이 독립 섹션(B)으로 부활하며 전체 교차가
+     책B → 모임소개A → 진행방식B → **일정A** → 후기B → FAQ A → 클로징B 로 재편.
+     (2026-08-17 A→B 재배정은 진행방식이 밴드로 접혀 있던 시절의 값 — 대체됨.
+      프리뷰 쌍 ScheduleSectionV2 도 같은 값 — 드리프트 금지) */
   background-color: #f7f3ee;
-  padding: 56px 24px 72px;
+  padding: 56px var(--lz-gutter, 24px) 72px;
   word-break: keep-all;
   scroll-margin-top: 52px;
 }
@@ -29,19 +33,36 @@
 }
 
 .sectionTitle {
-  font-size: 26px;
+  /* '함께 읽는 책' 서식으로 통일 (운영자 2026-08-24) — 32px/800, ≤480px 26px */
+  font-size: 32px;
   font-weight: 800;
   color: #1a1208;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
 }
+@media (max-width: 480px) {
+  .sectionTitle { font-size: 26px; }
+}
 
-/* 카드·장소 폭 420 상한 — HeroSummary 종이 낱장(summaryCard 420px)과 시각 정렬 (운영자 지시 2026-07-10) */
+/* 카드·장소 폭 420 상한 — HeroSummary 종이 낱장(summaryCard 420px)과 시각 정렬 (운영자 지시 2026-07-10)
+   반응형 훅(2026-08-12): --lz-cal-cols 를 주면 월 시트가 가로로 펴진다. 기본값 1열·폭 상한
+   그대로라 실사이트는 무변경 (헤더·꼬리주는 전 열을 가로지른다) */
 .boxWrap {
-  max-width: 420px;
+  max-width: var(--lz-cal-max, var(--lz-block, 420px));
   margin-left: auto;
   margin-right: auto;
+  /* 기본은 block — 그리드로 바꾸면 마진 포함 규칙이 달라져 실사이트 높이가 2px 흔들린다.
+     초안에서만 --lz-cal-display: grid 로 켠다 */
+  display: var(--lz-cal-display, block);
+  grid-template-columns: repeat(var(--lz-cal-cols, 1), minmax(0, 1fr));
+  column-gap: 22px;
+  align-items: start;
+}
+.calHeader,
+.calTimeFoot,
+.calNote {
+  grid-column: 1 / -1;
 }
 
 /* ── 일정 박스 — 6b: 조판 괘선 (테이프·기울기·펜 밑줄 없음) ── */
@@ -195,7 +216,8 @@
   gap: 12px;
   padding-top: 20px;
   /* 폭 420 상한 — 일정 카드·HeroSummary 낱장과 동일 폭 정렬 (운영자 지시 2026-07-10) */
-  max-width: 420px;
+  /* 가로실선 — 확장 레이아웃에선 콘텐츠 폭에 비례 (운영자 2026-08-12, 기본값 현행) */
+  max-width: var(--lz-rule, var(--lz-block, 420px));
   margin: 28px auto 0;
   border-top: 1px solid rgba(74, 58, 42, 0.2);
 }

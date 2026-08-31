@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
+import { trackApplyCtaClick } from "@/lib/meta-pixel"
 import { SEASON, daysUntilDeadline } from "./season-config"
 import styles from "./page.module.css"
 
@@ -45,7 +46,13 @@ export function ApplyButton({ className = "", short = false }: { className?: str
       : `${SEASON.name} 신청 (마감일까지 D-${d})`
 
   return (
-    <LazydayLink href={d !== null && d < 0 ? "/" : "/apply"} className={`${styles.applyButton} ${className}`}>
+    <LazydayLink
+      href={d !== null && d < 0 ? "/" : "/apply"}
+      className={`${styles.applyButton} ${className}`}
+      // 결제 시작 — 종전 이벤트 설정 도구 규칙이 잡던 바로 그 지점 (lib/meta-pixel 주석 참조).
+      // 마감 뒤에는 홈으로 가는 버튼이라 쏘지 않는다.
+      onClick={() => { if (!(d !== null && d < 0)) trackApplyCtaClick() }}
+    >
       {label}
     </LazydayLink>
   )

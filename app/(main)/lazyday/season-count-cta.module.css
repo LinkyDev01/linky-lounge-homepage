@@ -1,0 +1,80 @@
+/* 초안 클로징 — 실사이트 ClosingCtaSection·BrandCloseSection 값을 그대로 옮기되,
+   제목만 시안 ⑥(기수 카운트) 서식으로 바꾼 초안 전용 사본 (§9: 기존 모듈 미참조) */
+
+.closing {
+  padding: 64px var(--lz-gutter, 24px) 8px;
+  text-align: center;
+  /* 2026-08-24 A → B 재배정 (운영자 "섹션 컬러도 다시 재배열해") — FAQ 가 A 를
+     받으면서 클로징(CTA+브랜드)이 B. .brand 와 같은 값 — 한 밴드로 이어진다 */
+  background: #f0e9e0;
+}
+
+/* 시안 ⑥ 서식 — 34px/800, 숫자만 주황. 원본은 flex+baseline 이지만 여기선
+   가운데 정렬이 필요해 inline-flex 로 감싼다 (베이스라인 정렬은 그대로) */
+.title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #1a1208;
+  margin: 0 0 10px;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+}
+/* 숫자 교체 시 폭이 흔들리지 않게 (시안 ⑥ 값) */
+.num {
+  display: inline-block;
+  color: #d2691e;
+  min-width: 0.72em;
+  text-align: center;
+  will-change: transform;
+}
+
+/* 마감·조기마감일 때의 문장형 안내 — 실사이트 closingCtaTitle 값 그대로 */
+.titleStatic {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4a3a2a;
+  margin: 0 0 6px;
+  word-break: keep-all;
+}
+
+.sub {
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: #6b5a48;
+  margin: 0 0 20px;
+}
+.link {
+  color: #6b5a48;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(138, 106, 80, 0.5);
+}
+.link:hover {
+  color: #d2691e;
+  text-decoration-color: #d2691e;
+}
+
+/* 브랜드 클로즈 — 실사이트 BrandCloseSection 여백·크기 그대로 (로고 원복) */
+.brand {
+  /* 2026-08-24 A → B — .closing 과 동기 (한 밴드) */
+  background-color: #f0e9e0;
+  padding: 56px var(--lz-gutter, 24px) 80px;
+  word-break: keep-all;
+}
+.brandLogo {
+  display: flex;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .brand {
+    padding: 64px var(--lz-gutter-lg, 56px) 96px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 30px;
+  }
+}

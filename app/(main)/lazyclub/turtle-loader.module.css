@@ -1,0 +1,86 @@
+/* 지구를 도는 거북이 — 운영자 원안(2026-08-21) 이식.
+   기하 계수(0.8042 / 0.4021 / 0.2879 / +2.5px)와 걸음 시퀀스 [0,1,2,3,4,3,2,1] 은
+   원안 값 그대로다. --globe·--turtle·--spin 세 값만 바꾸면 전체가 비례한다. */
+.loader {
+  /* 이식용 파라미터 (원안: 110 / 34 / 30s — 제출 대기라 원안 3단 중 4초를 쓴다) */
+  --globe: 110px;
+  --turtle: 34px;
+  --spin: 4s;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 궤도가 .stage 박스를 ~7px 넘어선다(거북이 자체 크기만큼) — 라벨이 닿지 않게 그만큼 더 */
+  gap: 22px;
+}
+
+.stage {
+  position: relative;
+  width: calc(0.8042 * var(--globe) + 1.2 * var(--turtle));
+  height: calc(0.8042 * var(--globe) + 1.2 * var(--turtle));
+}
+
+.earth {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--globe);
+  height: var(--globe);
+  transform: translate(-50%, -50%);
+  color: var(--ink, #1a1208);
+}
+.earth svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* 원안은 흰 면 — 여기선 로더가 얹히는 오트 종이색으로 (뒤가 비치지 않게 불투명) */
+.globeDisc {
+  fill: var(--paper, #f7f3ee);
+}
+
+.orbit {
+  position: absolute;
+  inset: 0;
+  animation: spin var(--spin) linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 거북이 — 5프레임 스프라이트(146×90 원본을 표시폭 2배로 축소, 340×42) */
+.rider {
+  position: absolute;
+  left: 50%;
+  width: var(--turtle);
+  height: calc(var(--turtle) * 0.6164); /* 90/146 */
+  top: calc(50% - 0.4021 * var(--globe) - 0.2879 * var(--turtle) + 2.5px);
+  transform: translate(-50%, -50%);
+  background: url("/linky-lounge/book-club/lazyclub/turtle-globe-sprite.png") 0% 0% / 500% 100% no-repeat;
+  /* 걸음 한 주기 = 원안 stepMs(=spin/50) × 8프레임 = spin × 0.16 — 발이 미끄러지지 않는다 */
+  animation: gait calc(var(--spin) * 0.16) step-end infinite;
+}
+@keyframes gait {
+  0%     { background-position-x: 0%; }
+  12.5%  { background-position-x: 25%; }
+  25%    { background-position-x: 50%; }
+  37.5%  { background-position-x: 75%; }
+  50%    { background-position-x: 100%; }
+  62.5%  { background-position-x: 75%; }
+  75%    { background-position-x: 50%; }
+  87.5%  { background-position-x: 25%; }
+}
+
+.label {
+  font-family: var(--suit, "SUIT", sans-serif);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  background: var(--ink, #1a1208);
+  color: var(--paper, #f7f3ee);
+  padding: 4px 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit,
+  .rider { animation: none; }
+}

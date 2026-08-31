@@ -1,0 +1,120 @@
+# ============================================================
+# GAS(Google Apps Script) 자동 배포 (2026-08-13)
+# ============================================================
+# CLAUDE.md §6 의 수작업 —
+#   "편집기에 붙여넣기 → 배포 관리 → 기존 배포 편집 → 새 버전" — 을 대신한다.
+#
+# 트리거
+#   · main 에 gas/** 변경이 들어오면 자동으로 실배포 갱신 + 기존 배포 새 버전
+#   · 수동 실행(Run workflow)으로 check(대조만) / deploy 선택
+#   · 매주 월요일 06:00 KST 드리프트 점검 — 운영자가 편집기에서 직접 고친 게 있으면 알림
+#
+# ⚠ 순서 (§6): GAS 계약이 바뀌는 변경은 이 워크플로가 **프론트보다 먼저** 끝나야 한다.
+#    Vercel 빌드는 보통 수 분, 이 워크플로는 1분 내외라 같은 병합에서 자연히 앞선다.
+#    계약 변경이 큰 경우엔 gas/ 만 먼저 병합해 이 워크플로 성공을 확인한 뒤 프론트를 병합할 것.
+#
+# 필요한 GitHub Secrets (Settings → Secrets and variables → Actions)
+#   GAS_SCRIPT_ID      Apps Script 프로젝트 ID
+#   GAS_REFRESH_TOKEN  OAuth 리프레시 토큰 (node scripts/gas-sync.mjs auth 로 발급)
+#   GAS_WEBAPP_URL     https://script.google.com/macros/s/<배포ID>/exec
+#                      (= Vercel 의 INTERVIEW_GAS_URL. 배포 ID 추출 + 스모크 테스트에 쓴다)
+#   GAS_CLIENT_ID / GAS_CLIENT_SECRET  (선택) 자체 GCP OAuth 클라이언트를 쓸 때만
+# ============================================================
+name: GAS 배포
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gas/**'
+      - 'scripts/gas-sync.mjs'
+      - '.github/workflows/gas-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '실행 모드'
+        type: choice
+        default: check
+        options: [check, deploy]
+      description:
+        description: '배포 설명 (deploy 일 때만)'
+        type: string
+        required: false
+  schedule:
+    # 매주 월요일 06:00 KST = 일요일 21:00 UTC — 실배포본이 레포와 갈라졌는지 점검
+    - cron: '0 21 * * 0'
+
+# 배포는 절대 동시에 돌면 안 된다 (버전이 엇갈린다)
+concurrency:
+  group: gas-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  gas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 기준선 검사는 "실배포본이 우리가 마지막에 올린 그대로인가"를 확인해
+          # 운영자가 편집기에서 직접 고친 내용을 덮어쓰는 사고를 막는다.
+          # 그 기준선은 **실배포에 기록된 마지막 배포 커밋**이라 얼마든지 과거일 수 있다
+          # (2026-08-25 실측: 배포가 일주일 막힌 사이 142 커밋이 쌓여 depth 50 을 벗어났다).
+          # → 전체 이력을 받되 blob 은 필요할 때만(blob:none). 과거 blob 을 통째로 받던
+          #   종전 depth 50 보다 오히려 가볍다.
+          fetch-depth: 0
+          filter: blob:none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 기준선 커밋 결정
+        id: baseline
+        run: |
+          before="${{ github.event.before }}"
+          if [ -n "$before" ] && git cat-file -e "${before}^{commit}" 2>/dev/null; then
+            echo "ref=$before" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 현황
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+          GAS_REFRESH_TOKEN: ${{ secrets.GAS_REFRESH_TOKEN }}
+          GAS_WEBAPP_URL: ${{ secrets.GAS_WEBAPP_URL }}
+          GAS_CLIENT_ID: ${{ secrets.GAS_CLIENT_ID }}
+          GAS_CLIENT_SECRET: ${{ secrets.GAS_CLIENT_SECRET }}
+        run: node scripts/gas-sync.mjs status
+
+      - name: 대조 (check)
+        if: github.event_name == 'schedule' || inputs.mode == 'check'
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+          GAS_REFRESH_TOKEN: ${{ secrets.GAS_REFRESH_TOKEN }}
+          GAS_WEBAPP_URL: ${{ secrets.GAS_WEBAPP_URL }}
+          GAS_CLIENT_ID: ${{ secrets.GAS_CLIENT_ID }}
+          GAS_CLIENT_SECRET: ${{ secrets.GAS_CLIENT_SECRET }}
+        run: node scripts/gas-sync.mjs check
+
+      - name: 배포 (deploy)
+        if: github.event_name == 'push' || inputs.mode == 'deploy'
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+          GAS_REFRESH_TOKEN: ${{ secrets.GAS_REFRESH_TOKEN }}
+          GAS_WEBAPP_URL: ${{ secrets.GAS_WEBAPP_URL }}
+          GAS_CLIENT_ID: ${{ secrets.GAS_CLIENT_ID }}
+          GAS_CLIENT_SECRET: ${{ secrets.GAS_CLIENT_SECRET }}
+          # 커밋 메시지에 줄바꿈·따옴표가 섞여도 안전하도록 env 로 넘긴다
+          DEPLOY_MSG: ${{ inputs.description }}
+          BASELINE: ${{ steps.baseline.outputs.ref }}
+        run: |
+          if [ -n "$DEPLOY_MSG" ]; then
+            node scripts/gas-sync.mjs deploy --baseline "$BASELINE" -m "$DEPLOY_MSG"
+          else
+            # 설명 생략 시 스크립트가 "짧은SHA 커밋제목"으로 자동 생성한다
+            node scripts/gas-sync.mjs deploy --baseline "$BASELINE"
+          fi

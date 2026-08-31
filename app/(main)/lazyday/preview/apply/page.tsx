@@ -272,50 +272,58 @@ export default function PreviewApplyPage() {
         {/* 2단계에서는 숨김 — 요일 문항의 확장 캘린더 하나만 남긴다 (운영자 지시 2026-07-27) */}
         {step === 1 && (
         <section className={styles.scheduleNotice}>
-            <h2 className={styles.scheduleHeader}>{SEASON.name} 일정</h2>
-            <table className={styles.scheduleTable}>
-              <thead>
-                <tr>
-                  <th className={styles.schThEmpty} />
-                  {SEASON.days.map((d) => (
-                    <th key={d.label} className={styles.schThDay}>
-                      {d.label}<br />
-                      {d.time.split(", ").map((t) => (
-                        <span key={t} className={styles.schThTime}>{t}</span>
-                      ))}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {SEASON.sessions.map((s) => (
-                  <tr key={s.label}>
-                    <td className={styles.schTdLabel}>{s.label}</td>
-                    {s.dates.map((date, i) => (
-                      <td key={i} className={styles.schTdDate}>{date}</td>
+          {/* 룰드 시트 (E1, 실사이트 쌍 동기화) */}
+          <div>
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>{SEASON.name} 일정</h2>
+              <table className={styles.scheduleTable}>
+                <thead>
+                  <tr>
+                    <th className={styles.schThEmpty} />
+                    {SEASON.days.map((d) => (
+                      <th key={d.label} className={styles.schThDay}>
+                        {d.label}<br />
+                        {d.time.split(", ").map((t) => (
+                          <span key={t} className={styles.schThTime}>{t}</span>
+                        ))}
+                      </th>
                     ))}
                   </tr>
-                ))}
-                <tr>
-                  <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
-                    {SEASON.fifth.date}{" "}
-                    <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
-                  </td>
-                </tr>
-                {/* 장소도 회차 행과 동일한 서식 — 좌측 라벨 + 값 (운영자 지시 2026-07-27) */}
-                <tr>
-                  <td className={styles.schTdLabel}>장소</td>
-                  <td colSpan={SEASON.days.length} className={styles.schTdPlace}>
-                    {SEASON.location.name}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
-                구 "*회차별 화·수·일 중 참여 요일 선택 가능"은 같은 내용의 확정 문면으로 대체 */}
-            <p className={styles.scheduleNote}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>
-            <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+                </thead>
+                <tbody>
+                  {SEASON.sessions.map((s) => (
+                    <tr key={s.label}>
+                      <td className={styles.schTdLabel}>{s.label}</td>
+                      {s.dates.map((date, i) => (
+                        <td key={i} className={styles.schTdDate}>{date}</td>
+                      ))}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className={styles.schTdLabel}>{SEASON.fifth.label}</td>
+                    <td colSpan={SEASON.days.length} className={styles.schTdMidnight}>
+                      {SEASON.fifth.date}{" "}
+                      <span className={styles.schTimeInline}>{SEASON.fifth.timeLabel}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {/* 일정 주석 2문장 — 일정 블록 소속이라 같은 .ruledBlock 안에 */}
+              <p className={styles.scheduleNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
+              <p className={styles.scheduleNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
+            </div>
+
+            {/* 진행 장소 — 일정과 동급 블록 (실사이트 쌍 동기화).
+                멤버십 가격 행은 2026-08-25 제거 — 전화 인터뷰 예약 페이지로 이동 */}
+            <div className={styles.ruledBlock}>
+              <h2 className={styles.ruledLabel}>진행 장소</h2>
+              <p className={styles.scheduleValue}>
+                {SEASON.location.name}
+                <span className={styles.scheduleValueSub}> ({SEASON.location.sub})</span>
+              </p>
+              <p className={styles.scheduleNote}>{SEASON.location.note}</p>
+            </div>
+          </div>
           </section>
         )}
 
@@ -529,7 +537,7 @@ export default function PreviewApplyPage() {
               <p className={styles.dayHint}>*반배정을 위하여 참여가 불가능한 요일이 있는 경우에만 선택해주세요.</p>
               {/* 일정 주석 2문장 — 랜딩·캘린더와 동일 문면 (운영자 지시 2026-07-28).
                   구 "*반배정이 되더라도, 다른 요일에 교차 참여가 가능합니다."는 같은 내용의 확정 문면으로 대체 */}
-              <p className={styles.dayHint}>*고정 요일로 반 배정이 진행될 수 있으나, 매 회차 요일 변경이 가능합니다.</p>
+              <p className={styles.dayHint}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
               <p className={styles.dayHint}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
               <div className={styles.dayGrid}>
                 {SEASON.unavailableDaySlots.map((slot) => (

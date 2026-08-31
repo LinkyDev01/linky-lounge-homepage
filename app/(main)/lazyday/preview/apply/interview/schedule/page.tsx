@@ -15,6 +15,9 @@ import {
   DISSONANCE_TITLE,
   DISSONANCE_PARAGRAPHS,
 } from "../../../../philosophy-content"
+// 멤버십 가격만 단일 출처에서 읽는다 — 이 사본의 다른 안내 값들은 예전부터
+// 하드코딩이지만, 금액은 하드코딩하면 기수 전환 때 조용히 어긋난다 (2026-08-25)
+import { SEASON } from "../../../../season-config"
 
 // ================================================================
 // 슬롯 설정 — 원본과 동일. 단, 프리뷰는 예약 API 미연동(전 슬롯 예약 가능).
@@ -306,17 +309,17 @@ export default function PreviewInterviewSchedulePage() {
         </FadeUp>
 
         <FadeUp className={styles.bodyGroup}>
-          <div className={styles.refBeigeWrap}>
-            <p className={styles.ref0Title}>3기 안내</p>
-            <div className={styles.ref0Grid}>
-              <span className={styles.ref0Key}>정규모임</span>
-              <span className={styles.ref0Val}>1–4회차 · 9월 9일부터 격주, 화·수·일 선택</span>
-              <span className={styles.ref0Key}>자유모임</span>
-              <span className={styles.ref0Val}>5회차 · 정규 4회 이후 진행</span>
-              <span className={styles.ref0Key}>장소</span>
-              <span className={styles.ref0Val}>링키라운지 (사당역 도보 3분)</span>
-            </div>
-            <p className={styles.ref0Note}>*상황에 따라 장소가 변경될 수 있습니다.</p>
+          {/* 멤버십 가격 — 실사이트 쌍 동기화 (2026-08-25: 안내 박스의 일정·장소 행을
+              걷고 apply 히어로 카드 서식으로 교체). 사유는 실사이트 주석 참조 */}
+          <div className={styles.feeCard}>
+            {/* 회차 수는 sessions 배열 길이에서 — 기수 전환 때 문구가 조용히 어긋나지 않게
+                (운영자 지정 문안: "4기 멤버십(정규 독서모임 4회 + 자유 독서모임)").
+                span 을 줄바꿈 없이 붙여야 괄호 앞 공백이 안 생긴다 — JSX 는 줄 사이를
+                공백 하나로 합친다. */}
+            <h2 className={styles.feeLabel}>
+              {SEASON.name} 멤버십<span className={styles.feeLabelSub}>(정규 독서모임 {SEASON.sessions.length}회 + 자유 독서모임)</span>
+            </h2>
+            <p className={styles.feeValue}>{SEASON.price}</p>
           </div>
 
           <div className={styles.panel}>

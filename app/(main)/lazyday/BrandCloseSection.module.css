@@ -1,7 +1,7 @@
 .section {
   /* 배경 플립 (2026-07-06 교차 재배정) — 실 BrandClose·프리뷰 ClosingSectionV2 공유 */
   background-color: #f7f3ee;
-  padding: 56px 24px 80px;
+  padding: 56px var(--lz-gutter, 24px) 80px;
   word-break: keep-all;
 }
 
@@ -11,5 +11,5 @@
 }
 
 @media (min-width: 768px) {
-  .section { padding: 64px 56px 96px; }
+  .section { padding: 64px var(--lz-gutter-lg, 56px) 96px; }
 }

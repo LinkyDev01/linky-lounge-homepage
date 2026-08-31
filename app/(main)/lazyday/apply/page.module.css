@@ -68,13 +68,27 @@
   border: 1px solid #e8dccd;
 }
 
-.scheduleHeader {
-  font-size: 16px;
+/* 룰드 시트 (E1, 2026-08-20 승인 — preview/apply-info-designs RuledVariant 원본).
+   운영자: "e가 좋아" → 배경 유/무 비교(E1 배경 없음·E2 카드색·E3 오트) 후
+   "네 반영할게요"로 E1 확정. 구 .scheduleHeader/.scheduleHeaderNext(평행 블록,
+   주황 톤, 카드형 여백)는 이 서식으로 교체 — 카드(.scheduleNotice) 자체가
+   페이지와의 경계를 이미 만들어 주므로 안에서는 잉크선만으로 블록을 나눈다. */
+/* 바깥 위·아래 선은 없음 — 세 블록 '사이' 두 줄만 (운영자 2026-08-20 "4기 일정
+   위의 선과 참가비 아래 선은 지우고, 세 정보 사이 두 선만 남겨. 선도 더 옅은
+   회색으로"). 첫 블록엔 선이 없으므로 형제 결합자로 둘째·셋째 블록에만 건다.
+   색은 새 회색을 들여오지 않고 잉크(#1a1208)를 옅은 알파로 — 옅은 회색조로
+   읽히면서 팔레트 안에 머문다 */
+.ruledBlock {
+  padding: 12px 0 22px;
+}
+.ruledBlock + .ruledBlock {
+  border-top: 1px solid rgba(26, 18, 8, 0.14);
+}
+.ruledLabel {
+  font-size: 11.5px;
   font-weight: 700;
-  color: #1a1208;
-  margin: 0 0 14px;
-  letter-spacing: -0.01em;
-  text-align: left;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
 }
 
 .scheduleTable {
@@ -92,11 +106,17 @@
 
 .schThEmpty { width: 50px; }
 
-.schThDay {
+/* ⚠ 셀렉터에 .scheduleTable 을 붙인 이유 (2026-08-19): 위의
+   `.scheduleTable th`(0,1,1)가 `.schThDay`(0,1,0)보다 명시도가 높아
+   vertical-align: top 이 middle 에 **지고 있었다** — 일요일(시간 2줄, 3행)만
+   가운데 정렬로 위로 밀려 요일명 시작 y 가 화·수와 어긋났다 (운영자 "일요일만
+   y축 시작점이 다르네"). 클래스 2개(0,2,0)로 올려 top 이 실제로 이기게 한다 */
+.scheduleTable .schThDay {
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
-  border-bottom: 1.5px solid #d2691e;
+  /* 잉크 모노톤 (E1) — 구 1.5px #d2691e(주황) 폐기 */
+  border-bottom: 1px solid #1a1208;
   padding-bottom: 8px;
   letter-spacing: -0.01em;
   line-height: 1.4;
@@ -117,7 +137,8 @@
 .schTdLabel {
   font-size: 13px;
   font-weight: 700;
-  color: #d2691e;
+  /* 잉크 모노톤 (E1) — 구 #d2691e(주황) 폐기 */
+  color: #1a1208;
   text-align: left;
   padding-left: 4px;
   letter-spacing: -0.01em;
@@ -128,7 +149,8 @@
   font-weight: 600;
   color: #1a1208;
   font-feature-settings: "tnum";
-  border-top: 1px solid #f0e8df;
+  /* 잉크 모노톤 (E1) — 구 #f0e8df 폐기 */
+  border-top: 1px solid rgba(26, 18, 8, 0.14);
 }
 
 .scheduleTable thead + tbody tr:first-child .schTdDate,
@@ -143,7 +165,8 @@
   font-size: 12px;
   font-weight: 700;
   color: #1a1208;
-  border-top: 1px solid #f0e8df;
+  /* 잉크 모노톤 (E1) — 구 #f0e8df 폐기 */
+  border-top: 1px solid rgba(26, 18, 8, 0.14);
   letter-spacing: -0.01em;
   line-height: 1.4;
 }
@@ -157,14 +180,22 @@
   letter-spacing: 0;
 }
 
-.schTdPlace {
-  /* 장소 행 — 5회차 행과 동일한 가운데 정렬 값 서식 */
-  text-align: center;
-  font-size: 13px;
+/* 진행 장소 — 일정과 동급 블록(.ruledBlock, 위에서 정의). 값 서식은
+   preview/apply-info-designs 의 .ruledValue/.valueSubInk 원본과 diff 0.
+   (멤버십 가격 행은 2026-08-25 전화 인터뷰 예약 페이지로 이관) */
+.scheduleValue {
+  margin: 2px 0 0;
+  font-size: 15px;
   font-weight: 700;
   color: #1a1208;
-  border-top: 1px solid #f0e8df;
+  text-align: left;
   letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+.scheduleValueSub {
+  font-weight: 500;
+  /* 잉크 모노톤 (E1 .valueSubInk) — 구 #8a6a50 폐기 */
+  color: rgba(26, 18, 8, 0.55);
 }
 
 .schMidnightIcon {
@@ -172,16 +203,16 @@
 }
 
 .scheduleNote {
-  /* 주석 표준 서식 (운영자 지시 2026-07-28): 좌측정렬 + 줄간격 1 (구 center 폐기) */
+  /* 주석 표준 서식 — 좌측정렬. line-height 1→1.6 (E1 .note 원본, 2026-08-20).
+     구 1(운영자 지시 2026-07-28, 구 center 폐기 맥락)은 룰드 시트 이식과 함께
+     프리뷰 원본 값으로 교체 — 두 문장 사이 여백은 아래 margin 만으로 충분해져
+     구 "+" 형제 규칙(margin-top 4px 보정)도 함께 폐기 */
   font-size: 11px;
-  line-height: 1;
+  line-height: 1.6;
   color: #8a6a50;
-  /* 윗줄(장소 행)과의 간격 축소 (운영자 지시 2026-07-27) */
   margin: 2px 0 0;
   text-align: left;
 }
-/* 문장 간격 — 줄간격 1을 유지하면서 붙지 않을 최소값 */
-.scheduleNote + .scheduleNote { margin-top: 4px; }
 
 /* ========== Price ========== */
 .priceRow {

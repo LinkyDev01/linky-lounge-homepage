@@ -7,6 +7,12 @@
  * 2026-08-11 운영자: 원데이 두 상품 4주 연기(브람스 8/2→8/30, 시지프 8/9→9/6) +
  * 호프 무비토크 상품화(7/26→8/23, 가격 동일 35,000원). 월이 갈리며 회차 식별자는
  * day 단수에서 key(month*100+day)로 전환.
+ *
+ * 2026-08-18 운영자: 카드뉴스 이미지(브람스·시지프·호프) 기준으로 시간 정정.
+ * 브람스·시지프는 저녁(19:00–22:00)이 아니라 **오전(08:00–11:00)**, 시지프는
+ * 날짜도 9/6(일)이 아니라 **9/5(토)**. day 가 바뀌어 sessionKey(month*100+day)도
+ * 906→905 로 바뀐다 — 배포 직전 원장(orders) 실측으로 진행 중 결제 없음을
+ * 확인했다(테스트 결제 1건만 있었고 운영자 확인 후 무시).
  */
 
 export const ONEDAY_PRICE = 35_000 // 회차당 참가비 (원) — 전 회차 동일 (무비토크 포함)
@@ -31,10 +37,10 @@ export const ONEDAY = {
   year: 2026,
   sessions: [
     { month: 8, day: 23, label: "무비토크", kind: "movie", work: "호프", author: "나홍진 감독", time: "19:00–22:00" },
-    { month: 8, day: 30, label: "1회차", kind: "book", work: "브람스를 좋아하세요...", author: "프랑수아즈 사강", time: "19:00–22:00" },
-    { month: 9, day: 6, label: "2회차", kind: "book", work: "시지프 신화", author: "알베르 카뮈", time: "19:00–22:00" },
+    { month: 8, day: 30, label: "1회차", kind: "book", work: "브람스를 좋아하세요...", author: "프랑수아즈 사강", time: "08:00–11:00" },
+    { month: 9, day: 5, label: "2회차", kind: "book", work: "시지프 신화", author: "알베르 카뮈", time: "08:00–11:00" },
   ] as OnedaySession[],
-  rangeLabel: "8/23 · 8/30 · 9/6",
+  rangeLabel: "8/23 · 8/30 · 9/5",
 }
 
 /** 회차 식별 키 — 월이 섞여 day 만으로 유일하지 않다 (8월·9월). 예: 8/23 → 823 */
@@ -46,10 +52,15 @@ export function findSession(key: number) {
   return ONEDAY.sessions.find((s) => sessionKey(s) === key)
 }
 
-/** 이미 지난 회차 판정 — 모임 시작(19:00 KST = 10:00 UTC)이 지나면 신청 불가 (2026-08-05).
- *  지난 회차가 선택 가능하면 종료된 모임에 결제까지 진행되어 환불 사고가 난다. */
+/** 이미 지난 회차 판정 — 모임 시작 시각이 지나면 신청 불가 (2026-08-05).
+ *  지난 회차가 선택 가능하면 종료된 모임에 결제까지 진행되어 환불 사고가 난다.
+ *  ⚠ 2026-08-18: 회차마다 시작 시각이 다르다(무비토크 19:00, 원데이 오전 08:00) —
+ *  이전엔 19:00(=10:00 UTC)을 전 회차에 하드코딩했다가, 브람스·시지프가 오전으로
+ *  바뀌면서 그 값이 맞지 않게 됐다. s.time 첫 시각에서 직접 KST→UTC(−9h)로 구한다.
+ *  Date.UTC 는 시(hour) 언더플로를 자동으로 전날로 정규화한다(08:00 KST → 전날 23:00 UTC). */
 export function isPastSession(s: OnedaySession) {
-  return Date.now() > Date.UTC(ONEDAY.year, s.month - 1, s.day, 10, 0)
+  const [h, m] = s.time.split(/[–-]/)[0].split(":").map(Number)
+  return Date.now() > Date.UTC(ONEDAY.year, s.month - 1, s.day, h - 9, m)
 }
 
 /** "8/23 (일)" — 캘린더 밑 일정표·체크아웃 요약 라벨 */

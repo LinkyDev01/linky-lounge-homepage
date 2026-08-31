@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { activePg } from "@/lib/payments/config"
-import { createOrder, type ShippingInput } from "@/lib/payments/orders"
 import { SHIPPING_CODE, buildOrderId, orderNameFor, resolveItems, totalOf } from "@/lib/order-catalog"
 
 /**
- * 주문 준비 — **paymentId(=orderId)를 서버가 발급**하고 원장에 남긴다 (2026-08-31).
+ * 주문 준비 — **paymentId(=orderId)와 금액을 서버가 정한다** (2026-08-31).
  *
  * 클라이언트는 상품 코드만 보낸다. 금액은 서버가 카탈로그에서 조회해 결정하며,
  * 클라이언트가 보낸 금액은 받지도 쓰지도 않는다 (위변조 차단).
@@ -13,7 +12,10 @@ import { SHIPPING_CODE, buildOrderId, orderNameFor, resolveItems, totalOf } from
  *  · 포트원 → PortOne.requestPayment({ paymentId })
  *  · 토스   → widgets.requestPayment({ orderId })
  * 형식은 lib/order-catalog 의 `lz-{code}x{code}-{ts}-{rand}` 계약 그대로라,
- * 원장이 없어도 승인 단계에서 코드로 금액을 재계산할 수 있다(이중 안전장치).
+ * 승인 단계에서 코드만으로 금액을 재계산할 수 있다(원장과 무관한 이중 안전장치).
+ *
+ * ⚠ 여기서는 원장에 쓰지 않는다 — 주문 원장(lib/orders)은 "승인된 계약"만 담는 설계라
+ *   결제 전 pending 행을 만들지 않는다. 기록은 승인 확정 시 한 번(complete·confirm).
  */
 
 type Body = {
@@ -60,29 +62,6 @@ export async function POST(req: NextRequest) {
   const orderName = orderNameFor(items)
   const provider = activePg()
 
-  const hasGoods = items.some((i) => i.kind === "goods")
-  const shipping: ShippingInput | null = hasGoods
-    ? {
-        method: body.parcel ? "parcel" : "pickup",
-        zip: body.shipping?.zip,
-        addr1: body.shipping?.addr1,
-        addr2: body.shipping?.addr2,
-        recipientName: body.ordererName,
-        recipientPhone: body.ordererPhone,
-      }
-    : null
-
-  // 원장 저장 실패는 결제를 막지 않는다 — order_no 인코딩으로 금액 검증이 성립하기 때문
-  const saved = await createOrder({
-    orderNo,
-    provider,
-    amountTotal: amount,
-    items,
-    ordererName: body.ordererName,
-    ordererPhone: body.ordererPhone,
-    shipping,
-  })
-
   return NextResponse.json({
     success: true,
     provider,
@@ -90,6 +69,5 @@ export async function POST(req: NextRequest) {
     orderName,
     amount,
     options,
-    ledger: saved.ok,
   })
 }

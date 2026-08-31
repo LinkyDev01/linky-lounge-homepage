@@ -1,0 +1,256 @@
+/* 동적 로고 시안 쇼케이스 (2026-08-12) — 프리뷰 전용, 기존 .module.css 미참조 */
+
+/* Cafe24 냥이체 — W(아웃라인, 정본)·B(블랙, 시안 ⑥ 대비용).
+   눈누 배포본(jsdelivr)을 **자체 호스팅**으로 내려받아 쓴다 (public/fonts, 18.5KB+11KB):
+   ① CDN 장애·차단에 영향받지 않고 ② 로고는 첫 화면 요소라 왕복 한 번을 줄이는 게 낫다.
+   카페24 폰트는 상업적 이용·재배포 허용(폰트 파일 자체 판매만 금지). */
+@font-face {
+  font-family: "Cafe24NyangiW";
+  src: url("/fonts/Cafe24Nyangi-W.woff2") format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cafe24NyangiB";
+  src: url("/fonts/Cafe24Nyangi-B.woff2") format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f7f3ee;
+  color: #1a1208;
+  font-family: "SUIT", sans-serif;
+  padding: 84px 20px 120px;
+  max-width: 860px;
+  margin: 0 auto;
+  word-break: keep-all;
+}
+.title { font-size: 24px; font-weight: 800; margin: 0 0 10px; }
+.lead { font-size: 13.5px; line-height: 1.8; color: #6a5038; margin: 0 0 22px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.tab {
+  border: 1px solid #e0d5c5;
+  background: #fffdf8;
+  color: #6a5038;
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tabOn { background: #d2691e; border-color: #d2691e; color: #fff; }
+.desc { font-size: 13px; line-height: 1.75; color: #4a3020; margin: 0 0 18px; }
+.note { color: #d2691e; font-weight: 600; }
+
+/* ── 내비 목업 ── */
+.navMock {
+  border: 1px solid #e5d9c8;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f7f3ee;
+  margin-bottom: 18px;
+}
+.navRow1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(74, 58, 42, 0.12);
+  min-height: 52px;
+}
+.navApply { font-size: 13px; font-weight: 700; color: #1a1208; }
+.navRow2 { display: flex; gap: 18px; padding: 10px 18px; font-size: 12.5px; color: #8a6a50; }
+.navTabOn { color: #d2691e; font-weight: 700; border-bottom: 2px solid #d2691e; padding-bottom: 2px; }
+
+/* ── 큰 무대 ── */
+.stage {
+  border: 1px solid #e5d9c8;
+  border-radius: 10px;
+  background: #fffdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.foot { font-size: 11.5px; color: #9a9590; line-height: 1.7; }
+
+/* ── 로고 공통 ── */
+.logo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Cafe24NyangiW", "SUIT", sans-serif;
+  line-height: 1;
+  color: #1a1208;
+  user-select: none;
+}
+.row { flex-direction: row; align-items: center; gap: 0.18em; white-space: nowrap; }
+.word { display: inline-flex; }
+.ltr { display: inline-block; will-change: transform; }
+.heart { width: 0.92em; height: 0.85em; display: inline-block; overflow: visible; }
+.heartOutline { fill: none; stroke: #1a1208; stroke-width: 6; stroke-linejoin: round; stroke-linecap: round; }
+.heartScribble path { fill: none; stroke: #1a1208; stroke-width: 9; stroke-linecap: round; }
+
+/* ── ① 포스터 아치 ── */
+.vA { animation: aSway 5.2s ease-in-out infinite; transform-origin: 50% 20%; }
+.aTop { display: inline-flex; align-items: center; gap: 0.34em; margin-bottom: 0.34em; }
+.aI { font-size: 1.32em; }
+.aTop .heart { width: 1.18em; height: 1.09em; }
+.aArch { display: inline-flex; gap: 0.045em; }
+.aLtr {
+  display: inline-block;
+  transform: translateY(var(--ay)) rotate(var(--ar));
+  animation: aQuiver 2.6s ease-in-out calc(var(--i) * -0.37s) infinite;
+  will-change: transform;
+}
+@keyframes aSway {
+  0%, 100% { transform: rotate(-1.6deg); }
+  50% { transform: rotate(1.6deg); }
+}
+@keyframes aQuiver {
+  0%, 100% { transform: translateY(var(--ay)) rotate(var(--ar)); }
+  50% { transform: translateY(calc(var(--ay) - 0.05em)) rotate(calc(var(--ar) + 2.4deg)); }
+}
+
+/* ── ② 물결 ── */
+.waveL { animation: wave 1.9s ease-in-out calc(var(--i) * 0.13s) infinite; }
+@keyframes wave {
+  0%, 55%, 100% { transform: translateY(0); }
+  20% { transform: translateY(-0.16em); }
+  38% { transform: translateY(0.07em); }
+}
+.vB .heart { animation: wave 1.9s ease-in-out 0.065s infinite; }
+
+/* ── ③ 젤리 ── */
+.jellyL { animation: jelly 2.2s ease-in-out calc(var(--i) * 0.12s) infinite; transform-origin: 50% 78%; }
+@keyframes jelly {
+  0%, 100% { transform: rotate(-4.5deg); }
+  50% { transform: rotate(4.5deg); }
+}
+.vC .heart { animation: heartSwell 2.2s ease-in-out infinite; transform-origin: 50% 55%; }
+@keyframes heartSwell {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* ── ④ 데굴데굴 하트 ── */
+.vD .heart {
+  animation: roll 4.2s cubic-bezier(0.34, 1.3, 0.5, 1) infinite;
+  transform-origin: 50% 56%;
+}
+@keyframes roll {
+  0%, 52% { transform: rotate(0deg) translateY(0); }
+  60% { transform: rotate(118deg) translateY(-0.1em); }
+  68% { transform: rotate(242deg) translateY(0); }
+  76% { transform: rotate(360deg) translateY(-0.06em); }
+  82%, 100% { transform: rotate(360deg) translateY(0); }
+}
+
+/* ── ⑤ 유휴 홉 — 글자 하나씩 순번대로 폴짝 ── */
+.hopL { animation: hop 7.2s ease-in-out calc(var(--i) * 0.82s) infinite; transform-origin: 50% 100%; }
+@keyframes hop {
+  0%, 7.5%, 100% { transform: translateY(0) scaleY(1); }
+  2.2% { transform: translateY(0.04em) scaleY(0.92); }
+  4.6% { transform: translateY(-0.22em) scaleY(1.05); }
+  6.4% { transform: translateY(0.02em) scaleY(0.96); }
+}
+.vE .heart { animation: hop 7.2s ease-in-out 6.6s infinite; transform-origin: 50% 100%; }
+
+/* ── ⑥ 심장박동 + 팝 등장 (냥이체 B 대비) ── */
+.vF { font-family: "Cafe24NyangiB", "Cafe24NyangiW", "SUIT", sans-serif; }
+.popL {
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--i) * 0.07s) both;
+}
+@keyframes popIn {
+  0% { transform: scale(0) rotate(-12deg); opacity: 0; }
+  70% { transform: scale(1.18) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.vF .heart {
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.07s both,
+    beat 1.7s ease-in-out 0.8s infinite;
+  transform-origin: 50% 55%;
+}
+.vF .heartScribble path { stroke-width: 10; }
+@keyframes beat {
+  0%, 38%, 100% { transform: scale(1); }
+  10% { transform: scale(1.22); }
+  20% { transform: scale(1.02); }
+  28% { transform: scale(1.16); }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .page { padding-top: 72px; }
+  .stage { min-height: 190px; }
+  .stage .logo { font-size: 34px !important; }
+  .navRow2 { gap: 12px; font-size: 11.5px; }
+}
+
+/* 접근성 — 시스템이 모션 축소를 원하면 전 시안 정적 */
+@media (prefers-reduced-motion: reduce) {
+  .vA, .aLtr, .waveL, .jellyL, .hopL, .popL, .flipL, .badgeSpin, .hRoller,
+  .vB .heart, .vC .heart, .vD .heart, .vE .heart, .vF .heart, .vI .heart {
+    animation: none !important;
+  }
+  .popL { opacity: 1; transform: none; }
+}
+
+/* ── ⑦ 원형 뱃지 — 둘레 문구가 굴러간다 ── */
+.vG { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.badge { width: 4.4em; height: 4.4em; display: block; overflow: visible; }
+.badgeSpin { transform-origin: 60px 60px; animation: spin 18s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.badgeText {
+  font-family: "Cafe24NyangiW", sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  fill: #1a1208;
+}
+.badgeHeart { position: absolute; width: 1.5em; height: 1.4em; }
+.vG .heartOutline { stroke-width: 6.5; }
+
+/* ── ⑧ 곡선 산책 — 하트가 경로를 따라 구르며 지나간다 ── */
+.vH { position: relative; display: inline-flex; flex-direction: column; align-items: center; }
+.hTrack { position: relative; display: block; width: 100%; height: 1.15em; }
+.hRoller {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.8em;
+  height: 0.74em;
+  /* 글자 위를 지나는 완만한 아치 — 경로 끝에서 다시 처음으로 (offset-rotate auto = 구름) */
+  offset-path: path("M 0 26 C 60 -8 150 -8 210 26");
+  offset-rotate: auto;
+  animation: stroll 5.6s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+@keyframes stroll {
+  0%, 8% { offset-distance: 0%; opacity: 0; }
+  14% { opacity: 1; }
+  86% { opacity: 1; }
+  92%, 100% { offset-distance: 100%; opacity: 0; }
+}
+.hWord { gap: 0.18em; }
+.hHeartSlot { display: inline-flex; }
+/* 흐름 중 track 높이가 로고 폭을 흔들지 않게 폭은 글자 줄이 결정 */
+.vH .hTrack { pointer-events: none; }
+
+/* ── ⑨ 도미노 ── */
+.vI { perspective: 420px; }
+.flipL {
+  animation: domino 5.4s cubic-bezier(0.5, 0, 0.3, 1.2) calc(var(--i) * 0.09s) infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes domino {
+  0%, 62%, 100% { transform: rotateX(0deg); }
+  70% { transform: rotateX(-62deg); }
+  80% { transform: rotateX(12deg); }
+  88% { transform: rotateX(0deg); }
+}
+.vI .heart { animation: domino 5.4s cubic-bezier(0.5, 0, 0.3, 1.2) 0.09s infinite; transform-origin: 50% 100%; }

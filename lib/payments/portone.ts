@@ -23,6 +23,8 @@ export type PortonePayment = {
   paidAt?: string
   method?: { type?: string }
   channel?: { type?: string; pgProvider?: string }
+  /** 결제 요청 때 넘긴 고객 정보 — 브라우저가 일찍 닫혀도 원장에 이름을 남기는 폴백 */
+  customer?: { name?: string; phoneNumber?: string; email?: string }
   customData?: string
   failure?: { message?: string }
 }

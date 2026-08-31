@@ -1,6 +1,16 @@
-@import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css');
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* SUIT — 셀프호스트 **분할 서브셋** (2026-08-17 폰트 다이어트, 운영자 승인).
+   이력: CDN 정적 7종 ~1.19MB → 가변 1파일 610KB (2026-08-12) → unicode-range
+   5조각 (2026-08-17). 단일 610KB 는 랜딩 전송량의 39% 로 이미지 전부보다 컸다.
+   조각별 unicode-range 덕에 브라우저가 화면에 나오는 글자의 조각만 받는다 —
+   랜딩 실측 base+k1 = 206KB (-66%). family 명 "SUIT" 그대로라 소비 CSS 무변경.
+   @font-face 들은 ./suit-subset.css (자동 생성 — scripts/gen_suit_subsets.py).
+   ⚠ 구 SUIT-Variable.woff2 는 지우지 않는다 — /fonts/* 1년 immutable 캐시로
+     구 HTML 을 든 방문자가 여전히 참조한다. 새 조각은 suit-v2/ 이름공간.
+   ⚠ @import 는 다른 규칙보다 앞에 있어야 한다 (뒤에 오면 무효) */
+@import "./suit-subset.css";
 
 html {
   scroll-behavior: smooth;

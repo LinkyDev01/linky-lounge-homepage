@@ -100,7 +100,9 @@ export default function StudyForeignApplyPage() {
           body: JSON.stringify(payload),
         }
       )
-      trackStandard("Lead", { content_name: "study_foreign_apply_complete" })
+      // 세 번째 인자는 서버 미러(전환 API) 전용 — 픽셀 파라미터는 불변.
+      // 이 페이지는 linkylounge.com 이라 현재 픽셀 자체가 미로드(도메인 게이트)라 휴면 상태다
+      trackStandard("Lead", { content_name: "study_foreign_apply_complete" }, { phone: payload.phone })
       trackEvent("apply_complete", { program: "study_foreign", language: payload.language ?? "" })
       alert("신청이 완료되었습니다!")
       window.location.replace("https://buy.tosspayments.com/products/SCBnFcyXiE?shopId=prreBmgHJwPY")

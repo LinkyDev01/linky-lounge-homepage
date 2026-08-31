@@ -5,6 +5,8 @@ import styles from "../policy/page.module.css"
 export const metadata: Metadata = {
   title: "개인정보처리방침 · 레이지데이 북클럽",
   description: "주식회사 링키 레이지데이 북클럽 개인정보처리방침",
+  // 두 도메인 중복 콘텐츠 — 상대 canonical (metadataBase 호스트 분기, SEO 2026-08-12)
+  alternates: { canonical: "/privacy" },
 }
 
 /**

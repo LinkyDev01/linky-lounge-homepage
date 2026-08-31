@@ -7,7 +7,7 @@
 
 .heroSummary {
   background: #f0e9e0;
-  padding: 30px 24px 44px;
+  padding: 30px var(--lz-gutter, 24px) 44px;
   text-align: center;
 }
 .heroKicker {
@@ -49,7 +49,7 @@
 /* 종이 낱장 카드 — 일정 박스의 노이즈 SVG·워시테이프 문법 재사용 */
 .summaryCard {
   position: relative;
-  max-width: 420px; /* 오브제 고정폭 — 종이는 화면 따라 커지지 않는다 */
+  max-width: var(--lz-block, 420px); /* 오브제 고정폭 — 종이는 화면 따라 커지지 않는다 */
   margin: 34px auto 0;
   background-color: #fbfbfb;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -93,6 +93,15 @@
   font-variant-numeric: tabular-nums;
   word-break: keep-all;
 }
+/* 일정 값의 시간대 그룹 — **그룹은 통째로만 줄바꿈된다** (2026-08-17).
+   모바일 폭에서 자연 줄바꿈이 "일 10:30–13:30," 뒤를 잘라 오후 타임을 다음 줄로
+   보내면, 일요일에 오전 한 타임만 있는 것처럼 읽힌다 (운영자 "모바일에서는 일요일
+   통째로 줄바꿈해서 착오가 없게끔 해. 일요일 오전과 오후 모두 같은 줄에 노출되게").
+   구분자 '/'는 앞 그룹에 붙어 줄 끝에 남고, 그룹 사이 공백에서만 줄이 바뀐다. */
+.schedGroup {
+  white-space: nowrap;
+}
+
 .summarySubNote {
   display: block;
   margin-top: 3px;

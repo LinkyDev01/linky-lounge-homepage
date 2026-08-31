@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import * as PortOne from "@portone/server-sdk"
 import { getPayment, isPaid, paidAmountOf, cancelPayment } from "@/lib/payments/portone"
-import { findOrder, markPaid, markCancelled } from "@/lib/payments/orders"
+import { findOrder, markCancelled, recordOrder } from "@/lib/payments/orders"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 
 /**
@@ -72,12 +72,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 금액 재검증 — complete 라우트와 동일 기준 (원장 우선, 없으면 코드 재계산)
-    let expected: number | null = order?.amount_total ?? null
-    if (expected == null) {
-      const codes = parseOrderCodes(paymentId)
-      const items = codes ? resolveItems(codes) : null
-      expected = items && items.length > 0 ? totalOf(items) : null
-    }
+    const codes = parseOrderCodes(paymentId)
+    const items = codes ? resolveItems(codes) : null
+    const expected: number | null =
+      order?.amount_total ?? (items && items.length > 0 ? totalOf(items) : null)
     const paid = paidAmountOf(payment)
 
     if (expected == null) {
@@ -91,7 +89,21 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 200 })
     }
 
-    await markPaid(paymentId, payment.id || paymentId, payment.paidAt)
+    // 원장 — recordOrder 는 order_no 로 멱등이라 성공 화면이 이미 남겼으면 건너뛴다.
+    // 웹훅이 먼저 도착하는 경우(브라우저를 곧장 닫은 손님)가 이 경로의 존재 이유다:
+    // 배송지는 알 수 없지만 **결제 기록 자체가 사라지지는 않는다**.
+    if (items && items.length > 0) {
+      const r = await recordOrder({
+        orderNo: paymentId,
+        paymentKey: payment.id || paymentId,
+        amountTotal: expected,
+        items,
+        buyerName: payment.customer?.name || "",
+        buyerPhone: payment.customer?.phoneNumber,
+        approvedAt: payment.paidAt,
+      })
+      if (!r.ok) console.error(`[payment/webhook] 원장 기록 실패 (${paymentId}):`, r.error)
+    }
     return new NextResponse(null, { status: 200 })
   } catch (err) {
     console.error("[payment/webhook] 처리 오류:", err instanceof Error ? err.message : err)

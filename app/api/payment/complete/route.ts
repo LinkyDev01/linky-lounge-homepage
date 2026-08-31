@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getPayment, isPaid, paidAmountOf, cancelPayment, portoneServerReady } from "@/lib/payments/portone"
-import { findOrder, markPaid, markCancelled } from "@/lib/payments/orders"
+import { findOrder, markCancelled, recordOrder, type ShippingInput } from "@/lib/payments/orders"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 
 /**
@@ -13,10 +13,18 @@ import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
  *  3. 상태가 PAID 이고 금액이 일치할 때만 완료. 불일치면 **즉시 결제 취소**
  *
  * 멱등: 이미 approved_at 이 있는 주문은 그대로 성공 반환 (새로고침·중복 호출 안전)
+ *
+ * 원장 기록은 토스 승인 라우트(/api/lazyday/payment/confirm)와 **같은 함수**
+ * (lib/orders recordOrder)를 쓴다 — 스키마도 멱등 규칙도 두 PG 가 공유한다.
+ * ⚠ 기록 실패가 결제 응답을 깨뜨리지 않는다: 손님 돈은 이미 빠져나간 뒤다.
  */
 
 export async function POST(req: NextRequest) {
-  let body: { paymentId?: string }
+  let body: {
+    paymentId?: string
+    buyer?: { name?: string; phone?: string }
+    shipping?: ShippingInput
+  }
   try {
     body = await req.json()
   } catch {
@@ -48,13 +56,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "결제 내역을 확인하지 못했습니다." }, { status: 502 })
   }
 
+  // 주문 항목 — 금액 재계산의 근거이자 원장의 가격 스냅샷(R2) 원본
+  const codes = parseOrderCodes(paymentId)
+  const items = codes ? resolveItems(codes) : null
+
   // 기대 금액 — 원장 우선, 없으면 paymentId 코드로 재계산
-  let expected: number | null = order?.amount_total ?? null
-  if (expected == null) {
-    const codes = parseOrderCodes(paymentId)
-    const items = codes ? resolveItems(codes) : null
-    expected = items && items.length > 0 ? totalOf(items) : null
-  }
+  const expected: number | null =
+    order?.amount_total ?? (items && items.length > 0 ? totalOf(items) : null)
   if (expected == null) {
     console.error("[payment/complete] 기대 금액을 구할 수 없음:", paymentId)
     return NextResponse.json({ success: false, error: "주문번호가 올바르지 않습니다." }, { status: 400 })
@@ -75,7 +83,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "결제 금액이 일치하지 않습니다." }, { status: 400 })
   }
 
-  await markPaid(paymentId, payment.id || paymentId, payment.paidAt)
+  // 원장 — 던지지 않는다. 실패는 로그만 남기고 결제 응답은 그대로 성공
+  if (items && items.length > 0) {
+    try {
+      const r = await recordOrder({
+        orderNo: paymentId,
+        paymentKey: payment.id || paymentId,
+        amountTotal: expected,
+        items,
+        // 결제창에 넘긴 고객 정보를 폴백으로 — 브라우저가 일찍 닫혀 buyer 가 비어도 이름이 남는다
+        buyerName: body.buyer?.name?.trim() || payment.customer?.name || "",
+        buyerPhone: body.buyer?.phone || payment.customer?.phoneNumber,
+        approvedAt: payment.paidAt,
+        shipping: body.shipping,
+      })
+      if (!r.ok) console.error(`[payment/complete] 원장 기록 실패 (${paymentId}):`, r.error)
+    } catch (err) {
+      console.error(`[payment/complete] 원장 기록 예외 (${paymentId}):`, err)
+    }
+  }
 
   return NextResponse.json({
     success: true,

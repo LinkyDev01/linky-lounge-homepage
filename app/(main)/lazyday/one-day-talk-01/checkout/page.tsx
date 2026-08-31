@@ -23,6 +23,7 @@ import {
   portoneConfigured,
 } from "@/lib/payments/config"
 import styles from "./checkout.module.css"
+import { DeferredCss } from "@/components/common/DeferredCss"
 
 /**
  * 결제 — 토스페이먼츠 결제위젯 v2.
@@ -173,12 +174,27 @@ function CheckoutInner() {
     return { paymentId: data.paymentId, orderName: data.orderName, amount: data.amount }
   }
 
-  /** 결제 직전 이름·연락처 보관 — success 신청서 프리필 (리다이렉트는 같은 탭) */
+  /** 결제 직전 이름·연락처·배송지 보관 — 두 용도가 겹쳐 있다 (2026-08-11 / 08-18).
+   *  ① success 신청서 프리필 ② 승인 요청에 실려 **주문 원장**에 기록.
+   *  결제창 리다이렉트는 같은 탭이라 sessionStorage 가 살아 있다 (실패해도 폼은 빈 값으로 동작).
+   *  배송지는 종전에 결제사 metadata 에만 있어 우리 DB 로는 알 수 없었다. */
   function stashBuyer(orderId: string) {
     try {
       sessionStorage.setItem(
         "lz-buyer",
-        JSON.stringify({ orderId, name: buyerName.trim(), phone: buyerPhone.replace(/[^0-9]/g, "") }),
+        JSON.stringify({
+          orderId,
+          name: buyerName.trim(),
+          phone: buyerPhone.replace(/[^0-9]/g, ""),
+          ...(hasGoods
+            ? {
+                shipping: {
+                  method: useParcel ? "parcel" : "pickup",
+                  ...(useParcel ? { zip: zip.trim(), addr1: addr1.trim(), addr2: addr2.trim() } : {}),
+                },
+              }
+            : {}),
+        }),
       )
     } catch {}
   }
@@ -246,7 +262,9 @@ function CheckoutInner() {
     try {
       // 주문명에는 첫 상품의 옵션을 병기 — 운영자가 토스 내역에서 옵션 확인
       const firstOpt = entries[0]?.option
-      // paymentId(=orderId)는 서버 발급 — 원장에 주문이 남는다 (2026-08-31)
+      // orderId(=paymentId)는 **서버 발급** — 두 PG 공용 계약 (2026-08-31 포트원 이전).
+      // 종전에는 클라이언트가 buildOrderId 로 만들었다. 금액과 마찬가지로 주문번호도
+      // 서버가 정하는 편이 위변조 여지가 없다 (금액은 서버 카탈로그에서 재계산).
       const prepared = await prepareOrder()
       if (!prepared) {
         setPaying(false)
@@ -516,11 +534,8 @@ export default function CheckoutPage() {
     <main className={styles.page}>
       {/* 워크룸 서체 — Pretendard·Gothic A1 은 전역 미로드라 페이지에서 로드
           (레이지클럽 calendar/turtle 페이지와 같은 방식) */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
-      />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
+      <DeferredCss href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;600&display=swap" />
       <div className={styles.container}>
         <CheckoutNav />
         {/* useSearchParams는 Suspense 경계 필요 (Next 정적 프리렌더 규칙) */}

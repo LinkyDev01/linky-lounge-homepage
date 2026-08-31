@@ -9,7 +9,7 @@ import styles from "../NavBar.module.css"
  * (우리가 믿는 것/5회차/자유모임은 기수별 구성이 달라 탭에서 제외)
  */
 const navItems = [
-  { id: "book",     label: "선정도서" },
+  { id: "book",     label: "읽는 책" },
   { id: "feature",  label: "모임소개" },
   { id: "howto",    label: "진행방식" },
   { id: "schedule", label: "일정·장소" },

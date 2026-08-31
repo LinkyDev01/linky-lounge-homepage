@@ -1,9 +1,12 @@
 /* ── 다음 기수(4기) 오픈 알림 — 종이 낱장 카드 (운영자 확정 2026-07-13) ──
    HeroSummary summaryCard 문법 파생: #fbfbfb + 노이즈 SVG + 워시테이프,
-   단 기울기 없음(rotate 없이 수평). 클로징 CTA(A#f7f3ee) ↔ 브랜드 클로즈(A) 사이 B 밴드. */
+   단 기울기 없음(rotate 없이 수평).
+   배경: 2026-08-24 클로징이 A→B 로 재배정되면서(전체 교차 재편) 이 대비 밴드는
+   반대로 B→A — 클로징 CTA(B) ↔ 브랜드 클로즈(B) 사이 A 밴드가 됐다.
+   (closedEarly 모드에서만 렌더 — 지금은 미노출) */
 
 .section {
-  background: #f0e9e0;
+  background: #f7f3ee;
   padding: 48px 24px 56px;
 }
 
@@ -61,7 +64,8 @@
   padding: 12px 14px;
   border: 1px solid #d8c9b4;
   border-radius: 8px;
-  font-size: 14px;
+  /* 16px 미만이면 iOS 사파리가 포커스 순간 페이지를 자동 확대한다 (2026-08-25 전수 조사) */
+  font-size: 16px;
   background: #fffdf8;
   color: #1a1208;
 }

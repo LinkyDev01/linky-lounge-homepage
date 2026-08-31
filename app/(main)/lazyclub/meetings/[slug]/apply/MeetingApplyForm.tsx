@@ -42,6 +42,8 @@ type Meeting = {
   price: number | null
   payUrl: string
   sessions?: { week: string; date: string; work: string }[]
+  /** 알림톡 '비고' 칸 — 전달할 게 있는 모임만 채운다 (one-day-config 의 같은 필드) */
+  notice?: string
 }
 
 function formatPhone(value: string) {
@@ -148,6 +150,9 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
           meetingDate: meeting.date,
           meetingSessions,
           meetingDates, // 전환기 폴백 (위 주석)
+          // 알림톡 '비고' 칸 — 전달할 게 있는 모임만 one-day-config 에 notice 를 적는다.
+          // 없으면 빈 문자열이고, GAS 가 공백 한 칸으로 바꿔 보낸다(빈 변수는 발송이 깨진다).
+          notice: meeting.notice ?? "",
           // 결제를 우리가 띄우지 않아 주문번호가 없다 — 시트 '주문번호'는 비운다
           orderId: "",
           marketingConsent: marketingConsent ? "동의" : "미동의",

@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
       const r = await recordOrder({
         orderNo: paymentId,
         paymentKey: payment.id || paymentId,
+        provider: "portone",
         amountTotal: expected,
         items,
         // 결제창에 넘긴 고객 정보를 폴백으로 — 브라우저가 일찍 닫혀 buyer 가 비어도 이름이 남는다

@@ -31,9 +31,12 @@ export type ShippingInput = {
 }
 
 export type RecordOrderInput = {
-  /** 토스 orderId 원문 — R1, 발급 후 불변인 유일 식별자 */
+  /** 결제사 orderId 원문 — R1, 발급 후 불변인 유일 식별자 */
   orderNo: string
   paymentKey?: string
+  /** 어느 PG 로 결제됐는가. **환불은 결제한 PG 로만 된다** — 이 값이 그 라우팅 근거다.
+   *  생략 시 스키마 기본값 'toss' (2026-08-31 포트원 병존 이전 주문 전부) */
+  provider?: "toss" | "portone"
   /** 승인된 총액 (원) */
   amountTotal: number
   /** 카탈로그에서 해석한 항목 — 여기서 가격·이름을 **복사해 박는다** (R2) */
@@ -91,6 +94,8 @@ export async function recordOrder(input: RecordOrderInput): Promise<LedgerResult
       .insert({
         order_no: input.orderNo,
         payment_key: input.paymentKey ?? null,
+        // 생략하면 컬럼 기본값('toss')이 들어간다 — 토스 승인 경로는 넘기지 않는다
+        ...(input.provider ? { provider: input.provider } : {}),
         amount_total: input.amountTotal,
         orderer_name: input.buyerName || "(미입력)",
         orderer_phone: normalizePhone(input.buyerPhone),

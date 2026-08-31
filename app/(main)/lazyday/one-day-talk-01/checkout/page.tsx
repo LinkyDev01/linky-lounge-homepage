@@ -90,7 +90,7 @@ function CheckoutInner() {
   const [delivery, setDelivery] = useState<"pickup" | "parcel">("pickup")
   const useParcel = hasGoods && delivery === "parcel"
   const shipping = useParcel ? resolveItems([SHIPPING_CODE]) ?? [] : []
-  const codes = [...entries.map((e) => e.item.code), ...(useParcel ? [SHIPPING_CODE] : [])]
+  // 상품 코드 목록은 여기서 만들지 않는다 — 주문번호는 /api/payment/prepare 가 발급한다
   const items = [...baseItems, ...shipping]
   const amount = totalOf(items)
   const goodsSubtotal = totalOf(baseItems)

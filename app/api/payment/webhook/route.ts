@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
       const r = await recordOrder({
         orderNo: paymentId,
         paymentKey: payment.id || paymentId,
+        provider: "portone",
         amountTotal: expected,
         items,
         buyerName: payment.customer?.name || "",

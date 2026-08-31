@@ -33,6 +33,9 @@ export default async function MeetingApplyPage({ params }: { params: Promise<{ s
           price: m.price,
           payUrl: m.payUrl,
           sessions: m.sessions,
+          // 알림톡 '비고' 칸 — 전달할 게 있는 모임만 one-day-config 에 notice 를 적는다.
+          // ⚠ 여기서 안 넘기면 폼이 빈 값을 보내 그 줄이 영영 비어 있는다(조용한 유실).
+          notice: m.notice,
         }}
         />
       </main>

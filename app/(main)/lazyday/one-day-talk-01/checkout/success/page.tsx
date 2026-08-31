@@ -66,9 +66,13 @@ function SuccessInner() {
   const calledRef = useRef(false)
 
   const paymentKey = params.get("paymentKey") || ""
-  const orderId = params.get("orderId") || ""
+  // 포트원은 paymentId 를, 토스는 orderId 를 붙여 돌아온다 (둘 다 같은 주문번호 계약)
+  const portonePaymentId = params.get("paymentId") || ""
+  const orderId = params.get("orderId") || portonePaymentId
   const amount = Number(params.get("amount") || 0)
   const isReentry = params.get("reentry") === "1"
+  /** 포트원 경유 여부 — paymentId 로 왔거나 토스 파라미터(paymentKey)가 없으면 포트원 */
+  const viaPortone = portonePaymentId.length > 0 && !paymentKey
   // 승인 실패 시 같은 주문으로 다시 시도할 수 있게 orderId에서 상품 코드 복원
   const codes = parseOrderCodes(orderId)
   const items = codes ? resolveItems(codes) : null
@@ -90,7 +94,10 @@ function SuccessInner() {
       }
       return
     }
-    if (!paymentKey || !orderId || !amount) {
+    // 포트원은 서버가 결제를 조회해 검증하므로 paymentId 만 있으면 된다.
+    // 토스는 리다이렉트 3종(paymentKey·orderId·amount)이 모두 있어야 승인 가능
+    const paramsOk = viaPortone ? Boolean(portonePaymentId) : Boolean(paymentKey && orderId && amount)
+    if (!paramsOk) {
       setPhase("error")
       setErrorMsg("결제 정보가 올바르지 않습니다. 결제를 다시 시도해주세요.")
       return
@@ -99,11 +106,17 @@ function SuccessInner() {
     calledRef.current = true
     ;(async () => {
       try {
-        const res = await fetch("/api/lazyday/payment/confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentKey, orderId, amount }),
-        })
+        const res = viaPortone
+          ? await fetch("/api/payment/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentId: portonePaymentId }),
+            })
+          : await fetch("/api/lazyday/payment/confirm", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentKey, orderId, amount }),
+            })
         const result = await res.json().catch(() => null)
         if (!res.ok || !result?.success) {
           throw new Error(result?.error || "결제 승인에 실패했습니다.")

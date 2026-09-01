@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-     "mcp__Supabase",
+      "mcp__Supabase",
       "Bash(git add *)",
       "Bash(git commit *)",
       "mcp__Vercel__deploy_to_vercel",

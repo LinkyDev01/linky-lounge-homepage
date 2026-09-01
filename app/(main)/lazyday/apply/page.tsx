@@ -625,7 +625,7 @@ export default function ApplyPage() {
                     개인정보 보호법 제15조에 따라 동의를 받습니다.
                     <br />· 수집 항목: 신청서에 기재하신 정보
                     <br />· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영
-                    <br />· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)
+                    <br />· 보유 기간: 기수 종료 후 1년 (삭제를 요청하시면 지체 없이 파기)
                   </p>
                   </div>
                 </div>
@@ -757,7 +757,7 @@ export default function ApplyPage() {
                 <div className={styles.faqBodyInner}>
                   <div className={styles.consentDetail}>
                   <p className={styles.consentNote}>
-                    정보통신망법 제50조에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 제한이 없습니다.
+                    정보통신망법 제50조에 따른 광고성 정보 수신 동의입니다. 동의하지 않아도 신청과 참여에 제한이 없습니다. 동의하신 경우 안내를 위해 이름·연락처를 동의 철회 시까지 보관합니다.
                   </p>
                   </div>
                 </div>

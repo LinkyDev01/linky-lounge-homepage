@@ -492,6 +492,11 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
             />
             <span>마케팅 정보 수신에 동의합니다. (선택)</span>
           </label>
+          {/* 선택 동의로 남는 것을 명시 (2026-09-01) — 위 '보유 기간: 모임 종료 후 1년'
+              은 신청서 본문이고, 동의하신 분의 이름·연락처는 그 동의를 근거로 남는다 */}
+          <p className={form.consentNote}>
+            <span>동의하신 경우 안내를 위해 이름·연락처를 동의 철회 시까지 보관합니다.</span>
+          </p>
         </div>
 
         {errors._form && (

@@ -100,10 +100,16 @@ function CheckoutInner() {
   // 운영자가 상점관리자 결제 상세에서 확인 (별도 주문 DB 없음)
   const [buyerName, setBuyerName] = useState("")
   const [buyerPhone, setBuyerPhone] = useState("")
+  // 이메일 — **KG이니시스 V2 일반결제의 필수 항목**이다 (2026-08-31 결제창 실호출에서
+  // "구매자 이메일은 필수 입력입니다"로 거부됨). 토스는 요구하지 않지만 두 PG 가 같은
+  // 폼을 쓰므로 항상 받는다 — 영수증·결제 안내가 가는 자리이기도 하다
+  const [buyerEmail, setBuyerEmail] = useState("")
   const [zip, setZip] = useState("")
   const [addr1, setAddr1] = useState("")
   const [addr2, setAddr2] = useState("")
-  const buyerFilled = buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10
+  const emailFilled = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail.trim())
+  const buyerFilled =
+    buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10 && emailFilled
   const addressFilled = addr1.trim().length > 0
   const buyerReady = buyerFilled && (!useParcel || addressFilled)
 
@@ -231,6 +237,8 @@ function CheckoutInner() {
         customer: {
           fullName: buyerName.trim() || undefined,
           phoneNumber: buyerPhone.replace(/[^0-9]/g, "") || undefined,
+          // ⚠ 이니시스 V2 일반결제는 이메일이 없으면 결제창 자체가 안 열린다
+          email: buyerEmail.trim() || undefined,
         },
       })
       // code 가 있으면 실패 — 취소도 여기로 온다
@@ -390,6 +398,15 @@ function CheckoutInner() {
           placeholder="연락처 (010-0000-0000)"
           value={buyerPhone}
           onChange={(e) => setBuyerPhone(formatPhone(e.target.value))}
+        />
+        <input
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          className={styles.optionInput}
+          placeholder="이메일"
+          value={buyerEmail}
+          onChange={(e) => setBuyerEmail(e.target.value)}
         />
 
         {/* 배송지 — 택배 선택 시에만 (우편번호·주소·상세) */}

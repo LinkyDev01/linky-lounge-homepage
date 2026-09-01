@@ -6,7 +6,7 @@
 // ================================================================
 
 import { ONEDAY, sessionKey } from "@/app/(main)/lazyday/one-day-talk-01/oneday-shared"
-import { meetingCode } from "@/lib/order-catalog"
+import { meetingCode } from "@/lib/order-codes"
 
 export type OneDayCategory = "booktalk" | "movie" | "lecture" | "reading" | "documents"
 
@@ -55,6 +55,10 @@ export type OneDayMeeting = {
   description: string[]
   /** null = 가격 미정(구매 비활성, 2026-08-19) — 확정 전까지 임의로 만들지 않는다 */
   price: number | null
+  /** 주문 코드 — **oneday-shared 회차에 없는 모임**(4주 과정 등)이 결제되려면 필요하다.
+   *  단일 회차 모임은 비워 두면 work 대조로 d코드가 자동 유도된다(meetingOrderCode).
+   *  ⚠ 소문자 x 금지 — 주문번호가 코드를 x 로 잇는다 (lib/order-codes 주석 참조) */
+  orderCode?: string
   place: string
   contact: string
   /** 복수 회차(4주 과정 등, 2026-08-19). 있으면 캘린더에 각 회차가 개별 등록되고,
@@ -105,6 +109,8 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     // 본문은 상세 페이지가 centerBody 로 직접 구성 — 여기는 비움 (비로소와 같음)
     description: [],
     price: 120000, // 운영자 확정 2026-08-26
+    // 2026-08-31 결제 연결. 코드에 x 를 넣을 수 없어 slug(anxiety-…) 대신 c-calm
+    orderCode: "c-calm",
     // 포스터 원문 그대로. ⚠ **상세 주소는 넣지 않는다** (운영자 2026-08-26 확정) —
     // '확정되면 추가'가 아니라 이게 최종형이다. 다른 모임(사당역 링키라운지 등)처럼
     // 주소를 붙이려 들지 말 것.
@@ -140,10 +146,10 @@ export const ONE_DAY_MEETINGS: OneDayMeeting[] = [
     images: [{ src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", alt: "비로소, 나를 쥐어짜지 않는 법 포스터" }],
     // 본문은 상세 페이지가 centerBody 로 직접 구성(인사말 + 책 4권 + 진행자 소개) — 여기는 비움
     description: [],
-    // 12만원 확정 (운영자 2026-08-21). ⚠ **결제는 아직 안 열린다** — 이 모임은
-    // oneday-shared 회차 목록에 없어 주문 코드가 없다(meetingOrderCode → null).
-    // 상세 구매 버튼은 '가격 + 주문코드' 둘 다 있을 때만 결제로 간다 (meetings/[slug])
+    // 12만원 확정 (운영자 2026-08-21). 2026-08-31 결제 연결 — 심사 요건상 전 상품이
+    // 우리 결제창(→KG이니시스)으로 가야 해서 명시 주문 코드를 부여했다
     price: 120000,
+    orderCode: "c-squeeze",
     place: "사당역 링키라운지",
     contact: "contact@linkylounge.com",
     sessions: [
@@ -237,6 +243,8 @@ export function findMeeting(slug: string) {
 export function meetingOrderCode(slug: string): string | null {
   const m = findMeeting(slug)
   if (!m) return null
+  // 명시 코드가 있으면 그것이 정본 (4주 과정 — 회차 목록에 없어 대조로는 못 찾는다)
+  if (m.orderCode) return m.orderCode
   // 제목 파싱(『』) 폐지 — 제목 형식 변경(2026-08-21)으로 명시 work 필드 대조
   const s = ONEDAY.sessions.find((x) => x.work === m.work)
   return s ? meetingCode(sessionKey(s)) : null

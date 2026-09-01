@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { findMeeting } from "../../one-day-config"
+import { findMeeting , meetingOrderCode} from "../../one-day-config"
 import { ProductDetail } from "../../ProductDetail"
 // 서버 컴포넌트 — Shell("use client") 경유로 값을 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../../base-path"
@@ -26,9 +26,10 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   // 2026-08-21: 가격이 있어도 **주문 코드가 없으면 결제로 보내지 않는다** — 코드 없는
   // 모임에 buyHref 를 주면 엉뚱한 회차 신청 폼(/one-day-talk-01/apply)으로 새어 나간다
   // 2026-08-21 여정 전환(선신청 → 후결제): 구매하기는 **신청 폼**으로 간다.
-  // 결제는 폼 접수가 끝난 뒤 토스페이먼츠 상품 링크(payUrl)로 손님이 직접 넘어간다 —
-  // 그래서 판정 기준도 주문코드(code)가 아니라 **payUrl 유무**다
-  const unpriced = m.payUrl == null
+  // 2026-08-31: 결제 목적지가 토스페이먼츠 상품 링크 → **우리 결제창**(→KG이니시스)으로
+  // 바뀌었다(카드사 심사 요건 — 전 상품이 우리 도메인에서 결제돼야 한다). 여정은 그대로고
+  // 판정 기준만 payUrl → **주문코드**로 되돌린다. 코드가 없으면 결제할 수단이 없다.
+  const unpriced = meetingOrderCode(m.slug) == null || m.price == null
   // 하단 중앙 본문 — 모임별 콘텐츠. 없는 모임은 종전대로 우측 요약만 쓴다
   const body = BODIES[m.slug]
 

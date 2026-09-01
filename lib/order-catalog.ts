@@ -11,6 +11,8 @@
 
 import { ONEDAY, ONEDAY_PRICE, sessionKey } from "@/app/(main)/lazyday/one-day-talk-01/oneday-shared"
 import { GOODS } from "@/app/(main)/lazyclub/goods-config"
+import { ONE_DAY_MEETINGS } from "@/app/(main)/lazyclub/one-day-config"
+import { SHIPPING_CODE, meetingCode, goodsCode } from "./order-codes"
 
 export type OrderItem = {
   /** 주문 코드 — orderId·쿼리에 실린다. 토스 허용 문자 [a-zA-Z0-9-_] 만 사용 */
@@ -28,7 +30,6 @@ export type OrderItem = {
 /** 택배 배송비 — 우체국택배 편도 (운영자 확정 2026-08-12: 3,000 → 3,500원).
  *  ⚠ goods-config DELIVERY_RETURNS·terms 제11/13조·checkout 안내와 같은 값이어야 한다.
  *  주문 항목으로 취급해 서버 금액 검증(orderId 재계산)에 자동으로 포함시킨다. */
-export const SHIPPING_CODE = "ship"
 export const SHIPPING_FEE = 3500
 const SHIPPING_ITEM: OrderItem = {
   code: SHIPPING_CODE,
@@ -38,13 +39,9 @@ const SHIPPING_ITEM: OrderItem = {
   note: "제주·도서산간 추가",
 }
 
-/** 일회성 모임 코드: d + 회차키 (예: d823) / 굿즈 코드: g- + slug (예: g-coffee-mug) */
-export function meetingCode(key: number) {
-  return `d${key}`
-}
-export function goodsCode(slug: string) {
-  return `g-${slug}`
-}
+// 코드 생성기는 lib/order-codes 로 분리했다 — 상품 컨피그도 써야 해서 순환 import 가 된다.
+// 기존 import 경로를 깨지 않도록 여기서 그대로 재수출한다.
+export { meetingCode, goodsCode, SHIPPING_CODE } from "./order-codes"
 
 /** 전 상품 카탈로그 — 굿즈는 판매 중(open)만. **모임은 지난 회차도 남겨 둔다**:
  *  여기는 승인(confirm)의 금액 재계산에도 쓰여서, 결제 도중 시각이 경과한 주문의
@@ -58,6 +55,18 @@ export function catalog(): OrderItem[] {
     kind: "meeting" as const,
     note: `${s.month}/${s.day} ${s.time}`,
   }))
+  // 4주 과정 등 **회차 목록에 없는 모임** — 명시 orderCode 를 가진 것만. 모임과 마찬가지로
+  // 지난 것도 남긴다(승인 경계). 진입 차단은 checkout parseEntries 가 status 로 한다.
+  // 2026-08-31: 심사 요건(전 상품이 우리 결제창으로)을 채우려고 카탈로그에 합류시켰다
+  const courses: OrderItem[] = ONE_DAY_MEETINGS.filter((m) => m.orderCode && m.price != null).map((m) => ({
+    code: m.orderCode as string,
+    // 제목의 줄바꿈 방지 공백(\u00A0)은 결제창·영수증에서 깨져 보이므로 평문으로
+    name: m.title.replace(/\u00A0/g, " ").trim(),
+    price: m.price as number,
+    kind: "meeting" as const,
+    note: m.date,
+    img: m.thumbnail,
+  }))
   const goods: OrderItem[] = GOODS.filter((g) => g.status === "open" && g.price != null).map((g) => ({
     code: goodsCode(g.slug),
     name: g.name,
@@ -66,7 +75,7 @@ export function catalog(): OrderItem[] {
     note: "",
     img: g.img,
   }))
-  return [...meetings, ...goods, SHIPPING_ITEM]
+  return [...meetings, ...courses, ...goods, SHIPPING_ITEM]
 }
 
 export function findItem(code: string): OrderItem | undefined {

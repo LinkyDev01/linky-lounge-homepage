@@ -182,3 +182,36 @@ export async function PATCH(req: NextRequest) {
   // ⚠ 응답에 개인정보를 담지 않는다
   return NextResponse.json({ ok: true })
 }
+
+/**
+ * 삭제 요청 즉시 파기 (계획서 P3 잔여 항목).
+ *
+ * 방침 제3조 1호·제8조가 "삭제를 요청하는 경우 즉시 파기"를 약속한다. 정기 파기(R9)는
+ * 하루 한 번 도는 cron 이라 **요청을 받은 그 자리에서** 지울 수단이 따로 있어야 한다.
+ *
+ * ⚠ **되돌릴 수 없다.** 이름·전화·신청서 본문·메모·dedup_key·마케팅 동의를 비우고
+ *   `purged_at` 만 찍는다 — **행 자체는 남긴다**(지우면 시트와의 건수 대조가 깨지고
+ *   "왜 없어졌는지"도 안 남는다). 실제 동작은 DB 함수 `purge_application(uuid)` 정본.
+ * ⚠ **분류(triage)와 헷갈리지 말 것** — triage 는 열람 표시고 이건 개인정보 파기다.
+ *   그래서 같은 PATCH 에 얹지 않고 **메서드를 따로 뒀다**: 실수로 섞여 호출될 수 없다.
+ */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export async function DELETE(req: NextRequest) {
+  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const sb = supabaseAdmin()
+  if (!sb) return NextResponse.json({ error: "원장이 꺼져 있어요" }, { status: 503 })
+
+  // 형태를 먼저 본다 — 아니면 PG 가 uuid 캐스팅 에러를 뱉어 502 로 보이게 된다
+  const id = req.nextUrl.searchParams.get("id") || ""
+  if (!UUID.test(id)) return NextResponse.json({ error: "id 가 필요합니다" }, { status: 400 })
+
+  const { data, error } = await sb.rpc("purge_application", { target: id })
+  if (error) {
+    console.error("[admin/applications] DELETE", error.message)
+    return NextResponse.json({ error: "파기에 실패했어요" }, { status: 502 })
+  }
+  // false = 그런 행이 없거나 이미 파기됨. 둘 다 "지금 지울 것이 없다"라 실패가 아니다
+  return NextResponse.json({ ok: true, purged: data === true })
+}

@@ -41,6 +41,12 @@ export const PORTONE_CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY |
  *  Vercel 이 주는 신호다). 애초에 이 두 값은 **공개값**이다 — 결제창을 띄우려면
  *  모든 방문자 브라우저에 실려 나가야 하므로 감추는 것 자체가 성립하지 않는다.
  *  진짜 비밀은 PORTONE_API_SECRET·PORTONE_WEBHOOK_SECRET 이고 그쪽이 Secret 이다. */
+/** 포트원 채널이 **실연동인가**. 기본값은 false — 안전한 쪽이 기본이어야 한다.
+ *  테스트 채널도 결제를 '승인'하므로(손님 눈에는 성공, 실제 입금 0원) 실연동
+ *  전까지는 결제 화면이 그 사실을 반드시 말해야 한다. 실연동 전환 시
+ *  `NEXT_PUBLIC_PORTONE_LIVE=1` (Config 타입) 을 넣으면 안내가 사라진다. */
+export const PORTONE_IS_LIVE = (process.env.NEXT_PUBLIC_PORTONE_LIVE || "").trim() === "1"
+
 export function portoneConfigured() {
   return PORTONE_STORE_ID.length > 0 && PORTONE_CHANNEL_KEY.length > 0
 }

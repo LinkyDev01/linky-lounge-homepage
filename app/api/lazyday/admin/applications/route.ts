@@ -36,7 +36,7 @@ const KINDS = [
 
 /** 목록에서 빼는 이유. 값 집합은 여기서 강제한다 — DB 는 형태만 본다(0008).
  *  늘리려면 이 배열에 한 줄 추가하면 되고 마이그레이션은 필요 없다. */
-export const TRIAGE = ["test", "dummy", "typo", "duplicate", "paid"] as const
+export const TRIAGE = ["test", "typo", "dummy", "duplicate", "paid"] as const
 
 const PAGE = 30
 

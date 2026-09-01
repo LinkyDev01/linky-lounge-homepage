@@ -88,6 +88,19 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
     try {
       if (sessionStorage.getItem(doneKey)) setDone(true)
     } catch {}
+    // 결제 페이지에서 **뒤로가기**로 돌아오면 브라우저가 bfcache 로 이 페이지를
+    // "로더 켜진 채 떠난 그 상태" 그대로 되살린다 — useEffect 는 다시 안 돈다.
+    // pageshow(persisted)에서 로더를 걷고 doneKey 를 다시 읽어 완료 화면을 세운다
+    // (자동 이동 도입으로 생긴 함정, 2026-09-01).
+    const onShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return
+      setLoading(false)
+      try {
+        if (sessionStorage.getItem(doneKey)) setDone(true)
+      } catch {}
+    }
+    window.addEventListener("pageshow", onShow)
+    return () => window.removeEventListener("pageshow", onShow)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -203,8 +216,6 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
     } finally {
       clearTimeout(timer)
     }
-    setLoading(false)
-    setDone(true)
     // 결제 화면이 주문자 정보를 다시 묻지 않도록 넘겨 둔다 (운영자 2026-09-01
     // "굳이 2단계로 하지 말고"). 링크페이로 나가는 경우엔 우리 화면이 아니라 무의미하지만,
     // 경로가 바뀌어도(MEETING_PAY_ROUTE) 값은 남아 있는 편이 안전하다.
@@ -212,10 +223,29 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
     try {
       sessionStorage.setItem(doneKey, "1")
     } catch {}
+    // 접수 성공 → **결제 페이지로 바로 이동** (운영자 2026-09-01 자동 이동 승인).
+    // 종전 "직접 누르게"(2026-08-21)의 근거는 링크페이 시절의 외부 새 창·팝업 차단이었다 —
+    // 지금은 같은 탭의 우리 결제 페이지라 그 위험이 없다. 완료 화면(결제하기 버튼)은
+    // 없애지 않는다: 뒤로가기·재방문(doneKey 복원)과 링크페이 경로의 착지점이다.
+    // ⚠ done 을 세우지 않고 로더를 유지한 채 떠난다 — `if (done)` 분기가 로더보다
+    //   먼저라 done 을 세우면 완료 화면이 한 박자 스쳤다 사라진다. 이동이 막히는
+    //   예외 상황만 3초 뒤 로더를 걷고 완료 화면(수동 결제하기)으로 폴백한다.
+    if (!isLinkPay) {
+      setTimeout(() => {
+        setLoading(false)
+        setDone(true)
+      }, 3000)
+      window.location.assign(payHref)
+      return
+    }
+    setLoading(false)
+    setDone(true)
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior })
   }
 
-  // ── 접수 완료 → 결제 안내 (손님이 직접 누른다) ──
+  // ── 접수 완료 화면 — 정상 경로의 정거장이 아니다 (2026-09-01 자동 이동 이후).
+  //    여기 오는 경우: ① 결제 페이지에서 뒤로가기·재방문(doneKey 복원) ② 링크페이
+  //    경로(외부 새 창이라 손님이 직접 누른다) ③ 자동 이동이 막혔을 때의 폴백 ──
   if (done) {
     return (
       <div className={form.wrap}>

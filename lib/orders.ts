@@ -34,9 +34,10 @@ export type RecordOrderInput = {
   /** 결제사 orderId 원문 — R1, 발급 후 불변인 유일 식별자 */
   orderNo: string
   paymentKey?: string
-  /** 어느 PG 로 결제됐는가. **환불은 결제한 PG 로만 된다** — 이 값이 그 라우팅 근거다.
-   *  생략 시 스키마 기본값 'toss' (2026-08-31 포트원 병존 이전 주문 전부) */
-  provider?: "toss" | "portone"
+  /** 어느 PG 로 결제됐는가. 생략 시 스키마 기본값 'toss'.
+   *  2026-08-31~09-01 포트원 병존 기간의 잔재이며 지금은 toss 뿐이지만, 컬럼이
+   *  환불 라우팅 근거라 필드는 남겨 둔다 (PG 를 다시 늘릴 때 그대로 쓴다) */
+  provider?: "toss"
   /** 승인된 총액 (원) */
   amountTotal: number
   /** 카탈로그에서 해석한 항목 — 여기서 가격·이름을 **복사해 박는다** (R2) */

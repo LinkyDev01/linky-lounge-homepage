@@ -9,8 +9,7 @@ import styles from "../checkout.module.css"
 
 /**
  * 결제 실패 화면 — 두 PG 공용 (2026-08-31).
- *  · 토스: code/message/orderId 쿼리로 리다이렉트
- *  · 포트원: 결제창이 code/message 를 반환하면 checkout 이 여기로 보낸다
+ *  토스가 code/message/orderId 쿼리를 붙여 리다이렉트한다
  *    (paymentId 로도 올 수 있어 주문번호 파라미터를 둘 다 읽는다)
  * 사용자 취소는 오류가 아니라 이탈 — 문구를 구분한다.
  * 오류 코드·메시지는 **심사·디버깅에 필요하므로 화면에 그대로 노출**한다.
@@ -29,7 +28,7 @@ function FailInner() {
   const message = params.get("message") || ""
   const canceled = isCanceledCode(code, message)
   // 실패한 주문의 상품 코드 복원 — 같은 항목으로 바로 재시도
-  const codes = parseOrderCodes(params.get("orderId") || params.get("paymentId") || "")
+  const codes = parseOrderCodes(params.get("orderId") || "")
   const retryHref = codes ? `/one-day-talk-01/checkout?items=${codes.join(",")}` : "/one-day-talk-01/apply"
 
   return (

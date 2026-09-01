@@ -14,15 +14,6 @@ import {
   totalOf,
   type OrderItem,
 } from "@/lib/order-catalog"
-import {
-  FAIL_PATH,
-  PORTONE_CHANNEL_KEY,
-  PORTONE_STORE_ID,
-  SUCCESS_PATH,
-  PORTONE_IS_LIVE,
-  activePg,
-  portoneConfigured,
-} from "@/lib/payments/config"
 import styles from "./checkout.module.css"
 import { DeferredCss } from "@/components/common/DeferredCss"
 
@@ -41,10 +32,6 @@ const IS_TEST_KEY = !process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || process.env.NEXT
 // 커스텀 테마의 variantKey 를 env 로 받아 적용 (미설정 시 토스 기본 테마)
 const VARIANT_PAYMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_PAYMENT || "DEFAULT"
 const VARIANT_AGREEMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_AGREEMENT || "AGREEMENT"
-/** 신규 결제를 어느 PG 로 보낼지 — 환경변수만 바꾸면 코드 배포 없이 전환 (2026-08-31).
- *  포트원이면 위젯을 렌더하지 않고 결제 버튼이 곧장 이니시스 결제창을 띄운다 */
-const PG = activePg()
-
 type Entry = { item: OrderItem; option: string }
 
 /** 010-0000-0000 자동 하이픈 — apply·결제 후 신청서와 동일 문법 (2026-08-11 디버깅:
@@ -103,9 +90,8 @@ function CheckoutInner() {
   // 운영자가 상점관리자 결제 상세에서 확인 (별도 주문 DB 없음)
   const [buyerName, setBuyerName] = useState("")
   const [buyerPhone, setBuyerPhone] = useState("")
-  // 이메일 — **KG이니시스 V2 일반결제의 필수 항목**이다 (2026-08-31 결제창 실호출에서
-  // "구매자 이메일은 필수 입력입니다"로 거부됨). 토스는 요구하지 않지만 두 PG 가 같은
-  // 폼을 쓰므로 항상 받는다 — 영수증·결제 안내가 가는 자리이기도 하다
+  // 이메일 — 토스는 필수로 요구하지 않지만 받는다. 영수증·결제 안내가 가는 자리이고,
+  // 연락처 오입력 시 유일한 대체 연락 수단이다 (2026-08-31 신설)
   const [buyerEmail, setBuyerEmail] = useState("")
   const [zip, setZip] = useState("")
   const [addr1, setAddr1] = useState("")
@@ -123,11 +109,6 @@ function CheckoutInner() {
 
   useEffect(() => {
     if (entries.length === 0) return
-    // 포트원은 위젯을 렌더하지 않는다 — 결제 버튼이 곧장 이니시스 결제창을 띄운다
-    if (PG === "portone") {
-      setReady(true)
-      return
-    }
     let cancelled = false
     ;(async () => {
       try {
@@ -154,15 +135,14 @@ function CheckoutInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raw])
 
-  // 수령 방법 변경 → 결제 금액 갱신 (위젯은 재렌더하지 않고 금액만 바꾼다).
-  // 포트원은 요청 시점에 금액을 넘기므로 갱신할 위젯이 없다
+  // 수령 방법 변경 → 결제 금액 갱신 (위젯은 재렌더하지 않고 금액만 바꾼다)
   useEffect(() => {
-    if (!ready || PG === "portone") return
+    if (!ready) return
     widgetsRef.current?.setAmount({ currency: "KRW", value: amount }).catch(() => {})
   }, [amount, ready])
 
   /** 서버에서 paymentId 를 발급받고 주문을 원장에 남긴다 (클라이언트가 만들지 않는다).
-   *  실패 시 null — 결제를 진행하지 않는다 (2026-08-31 포트원 이전) */
+   *  실패 시 null — 결제를 진행하지 않는다 */
   async function prepareOrder(): Promise<{ paymentId: string; orderName: string; amount: number } | null> {
     const res = await fetch("/api/payment/prepare", {
       method: "POST",
@@ -208,64 +188,8 @@ function CheckoutInner() {
     } catch {}
   }
 
-  /** 포트원(KG이니시스) 결제 — ACTIVE_PG=portone 일 때 (2026-08-31) */
-  async function payWithPortone() {
-    if (paying) return
-    setPaying(true)
-    setError("")
-    try {
-      if (!portoneConfigured()) {
-        setError("결제 설정이 완료되지 않았습니다. 잠시 후 다시 시도해주세요.")
-        setPaying(false)
-        return
-      }
-      const prepared = await prepareOrder()
-      if (!prepared) {
-        setPaying(false)
-        return
-      }
-      stashBuyer(prepared.paymentId)
-      const firstOpt = entries[0]?.option
-      const PortOne = await import("@portone/browser-sdk/v2")
-      const res = await PortOne.requestPayment({
-        storeId: PORTONE_STORE_ID,
-        channelKey: PORTONE_CHANNEL_KEY,
-        paymentId: prepared.paymentId,
-        orderName: firstOpt ? `${prepared.orderName} (${firstOpt})` : prepared.orderName,
-        totalAmount: prepared.amount,
-        currency: "CURRENCY_KRW",
-        payMethod: "CARD",
-        // 모바일 결제창은 리다이렉트로 돌아온다 — 성공 화면이 서버 검증을 수행
-        redirectUrl: `${window.location.origin}${base}${SUCCESS_PATH}`,
-        customer: {
-          fullName: buyerName.trim() || undefined,
-          phoneNumber: buyerPhone.replace(/[^0-9]/g, "") || undefined,
-          // ⚠ 이니시스 V2 일반결제는 이메일이 없으면 결제창 자체가 안 열린다
-          email: buyerEmail.trim() || undefined,
-        },
-      })
-      // code 가 있으면 실패 — 취소도 여기로 온다
-      if (res?.code !== undefined) {
-        const canceled = /취소|cancel/i.test(res.message || "")
-        if (!canceled) {
-          const q = new URLSearchParams({ code: res.code || "", message: res.message || "" })
-          window.location.href = `${base}${FAIL_PATH}?${q.toString()}`
-          return
-        }
-        setPaying(false)
-        return
-      }
-      // PC 결제창은 리다이렉트 없이 여기로 돌아온다 — 성공 화면으로 이동해 서버 검증
-      window.location.href = `${base}${SUCCESS_PATH}?paymentId=${encodeURIComponent(prepared.paymentId)}`
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "결제 중 오류가 발생했습니다.")
-      reportClientError("portone_request", err instanceof Error ? err.message : "결제 요청 실패")
-      setPaying(false)
-    }
-  }
 
   async function handlePay() {
-    if (PG === "portone") return payWithPortone()
     const widgets = widgetsRef.current
     if (!widgets || paying) return
     setPaying(true)
@@ -273,9 +197,8 @@ function CheckoutInner() {
     try {
       // 주문명에는 첫 상품의 옵션을 병기 — 운영자가 토스 내역에서 옵션 확인
       const firstOpt = entries[0]?.option
-      // orderId(=paymentId)는 **서버 발급** — 두 PG 공용 계약 (2026-08-31 포트원 이전).
-      // 종전에는 클라이언트가 buildOrderId 로 만들었다. 금액과 마찬가지로 주문번호도
-      // 서버가 정하는 편이 위변조 여지가 없다 (금액은 서버 카탈로그에서 재계산).
+      // orderId 는 **서버 발급** (2026-08-31). 종전에는 클라이언트가 buildOrderId 로
+      // 만들었다. 금액과 마찬가지로 주문번호도 서버가 정하는 편이 위변조 여지가 없다.
       const prepared = await prepareOrder()
       if (!prepared) {
         setPaying(false)
@@ -472,17 +395,8 @@ function CheckoutInner() {
           </div>
         </div>
 
-        {/* 토스는 페이지 안에 위젯을 렌더하고, 포트원(이니시스)은 버튼을 누를 때
-            결제창이 뜬다 — 포트원일 땐 빈 상자를 두지 않는다 (2026-08-31) */}
-        {PG === "toss" && (
-          <>
-            <div id="toss-payment-methods" className={styles.widgetBox} />
-            <div id="toss-agreement" className={styles.agreementBox} />
-          </>
-        )}
-        {PG === "portone" && (
-          <p className={styles.optionNote}>결제하기를 누르면 신용카드 결제창이 열립니다.</p>
-        )}
+        <div id="toss-payment-methods" className={styles.widgetBox} />
+        <div id="toss-agreement" className={styles.agreementBox} />
 
         <button
           type="button"
@@ -501,12 +415,8 @@ function CheckoutInner() {
             : `₩${amount.toLocaleString()} 결제하기`}
         </button>
 
-        {/* 테스트 환경 고지 — **두 PG 모두**. 포트원 테스트 채널은 결제를 승인해서
-            손님 눈에는 성공으로 보이지만 실제 입금은 0원이다. 말하지 않으면 사고다 */}
-        {PG === "portone" && !PORTONE_IS_LIVE && (
-          <p className={styles.testNotice}>지금은 테스트 결제 환경입니다 — 실제 결제가 이루어지지 않습니다.</p>
-        )}
-        {PG === "toss" && IS_TEST_KEY && (
+        {/* 테스트 키로는 실결제가 안 된다 — 손님이 성공으로 오해하지 않게 반드시 말한다 */}
+        {IS_TEST_KEY && (
           <p className={styles.testNotice}>지금은 테스트 결제 환경입니다 — 실제 결제가 이루어지지 않습니다.</p>
         )}
         {error && <p className={styles.errorText}>{error}</p>}

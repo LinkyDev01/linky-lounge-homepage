@@ -7,9 +7,10 @@ import styles from "./applications.module.css"
 /**
  * 접수 원장 조회 (2026-09-01, 계획서 P3 — Stage A).
  *
- * **보는 곳이지 고치는 곳이 아니다.** 상태의 정본은 당분간 구글 시트라 이 화면은
- * status 를 렌더링하지 않고 쓰기 버튼도 두지 않는다 (쓰기는 P5 에서 "시트 기입 중단"
- * 합의 뒤에 연다). 화면 스스로 그 사실을 밝힌다.
+ * **진행 상태는 고치지 않는다.** 그 정본은 구글 시트라 이 화면은 status 를 렌더링하지도,
+ * 쓰지도 않는다 (P5 에서 "시트 기입 중단" 합의 뒤에 연다).
+ * **분류(triage)와 메모는 쓴다** — 테스트·더미·오기·중복신청·기결제자는 시트에 없는
+ * 개념이라 정본이 갈릴 일이 없다. 화면 머리가 그 경계를 스스로 밝힌다.
  *
  * 디자인은 **레이지클럽 베이스** (운영자 지시). 백지+잉크·13.2px·괘선 리스트·
  * 텍스트 링크. 유채색 UI 와 보더 버튼을 쓰지 않으므로 "손이 필요한 행"은
@@ -39,7 +40,21 @@ type Row = {
   purgeAfter: string | null
   purgedAt: string | null
   submittedAt: string
+  triage: string | null
+  triageNote: string | null
+  triagedAt: string | null
 }
+
+/** 목록에서 빼는 이유 — 운영자 지시(2026-09-01): "테스트 오기 더미 중복신청 기결제자 등으로
+ *  표기해야해 일반적으로 분류되는 것으로 명확하게". 파기가 아니라 열람 필터다. */
+const TRIAGE: { key: string; label: string; hint: string }[] = [
+  { key: "test",      label: "테스트",   hint: "우리가 넣은 검증용" },
+  { key: "dummy",     label: "더미",     hint: "내용이 없는 빈 접수" },
+  { key: "typo",      label: "오기",     hint: "잘못 적어 다시 낸 것" },
+  { key: "duplicate", label: "중복신청", hint: "같은 사람이 또 낸 것" },
+  { key: "paid",      label: "기결제자", hint: "이미 결제해 더 안 봐도 되는 건" },
+]
+const TRIAGE_LABEL: Record<string, string> = Object.fromEntries(TRIAGE.map((t) => [t.key, t.label]))
 
 const KIND_LABEL: Record<string, string> = {
   bookclub: "북클럽",
@@ -80,6 +95,10 @@ export default function AdminApplicationsPage() {
   const [q, setQ] = useState("")
   const [term, setTerm] = useState("")
   const [open, setOpen] = useState("")
+  const [triaged, setTriaged] = useState(false)
+  const [triagedCount, setTriagedCount] = useState(0)
+  const [noteDraft, setNoteDraft] = useState("")
+  const [saving, setSaving] = useState("")
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState("")
 
@@ -90,6 +109,7 @@ export default function AdminApplicationsPage() {
       const sp = new URLSearchParams()
       if (kind) sp.set("kind", kind)
       if (term) sp.set("q", term)
+      if (triaged) sp.set("triaged", "1")
       if (offset) sp.set("offset", String(offset))
       const res = await fetch(`/api/lazyday/admin/applications?${sp}`, { cache: "no-store" })
       if (res.status === 401) { router.replace("/lazyday/admin/login"); return }
@@ -97,6 +117,7 @@ export default function AdminApplicationsPage() {
       if (data.error) setFailed(data.error)
       setEnabled(data.enabled !== false)
       setSummary(data.summary ?? [])
+      setTriagedCount(data.triagedCount ?? 0)
       setHasMore(Boolean(data.hasMore))
       setRows((prev) => (offset ? [...prev, ...(data.rows ?? [])] : (data.rows ?? [])))
     } catch {
@@ -104,9 +125,29 @@ export default function AdminApplicationsPage() {
     } finally {
       setLoading(false)
     }
-  }, [kind, term, router])
+  }, [kind, term, triaged, router])
 
   useEffect(() => { void load(0) }, [load])
+
+  /** 분류·메모 저장. 낙관적으로 화면을 먼저 바꾸지 않는다 — 저장 실패를 눈치 못 채면
+   *  "뺐다고 생각한 행"이 그대로 남아 다음에 또 걸린다. */
+  const save = useCallback(async (id: string, patch: { triage?: string | null; note?: string }) => {
+    setSaving(id)
+    try {
+      const res = await fetch("/api/lazyday/admin/applications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...patch }),
+      })
+      if (!res.ok) { setFailed("저장에 실패했어요."); return }
+      await load(0)
+      setOpen("")
+    } catch {
+      setFailed("저장에 실패했어요.")
+    } finally {
+      setSaving("")
+    }
+  }, [load])
 
   return (
     <main className={styles.page}>
@@ -115,7 +156,8 @@ export default function AdminApplicationsPage() {
           <a href="/lazyday/admin" className={styles.back}>← 관리</a>
           <h1 className={styles.title}>접수 원장</h1>
           <p className={styles.origin}>
-            보기 전용입니다. 진행 상태의 정본은 <strong>구글 시트</strong>예요 — 여기서 고치지 않습니다.
+            <strong>진행 상태</strong>(미진행·결제완료·탈락…)의 정본은 <strong>구글 시트</strong>예요 — 여기서 고치지 않습니다.
+            여기서 다는 건 <strong>분류와 메모</strong>뿐이고, 그건 시트에 없는 값이라 부딪히지 않아요.
           </p>
         </div>
 
@@ -134,7 +176,7 @@ export default function AdminApplicationsPage() {
               </span>
             ))}
             <p className={styles.summaryNote}>
-              최근 7일 · <strong>DB 기준</strong>입니다. 시트와 맞는지는 이 숫자만으로는 알 수 없어요.
+              최근 7일 · <strong>DB 기준</strong>이고 분류해 뺀 건 빠져 있어요. 시트와 맞는지는 이 숫자만으로는 알 수 없습니다.
             </p>
           </div>
         )}
@@ -150,6 +192,14 @@ export default function AdminApplicationsPage() {
               {k ? (KIND_LABEL[k] ?? k) : "전체"}
             </button>
           ))}
+          {/* 지운 게 아니라 빼둔 것이므로 언제든 다시 꺼내 볼 수 있어야 한다 */}
+          <button
+            type="button"
+            className={`${styles.filter} ${styles.filterAside} ${triaged ? styles.filterOn : ""}`}
+            onClick={() => { setTriaged(!triaged); setOpen("") }}
+          >
+            분류해 뺀 건 {triagedCount > 0 && `(${triagedCount})`}
+          </button>
         </div>
 
         <div className={styles.searchRow}>
@@ -175,7 +225,7 @@ export default function AdminApplicationsPage() {
                 <button
                   type="button"
                   className={styles.rowBtn}
-                  onClick={() => setOpen(isOpen ? "" : r.id)}
+                  onClick={() => { setOpen(isOpen ? "" : r.id); setNoteDraft(r.triageNote ?? "") }}
                   aria-expanded={isOpen}
                 >
                   <span className={styles.who}>
@@ -189,6 +239,7 @@ export default function AdminApplicationsPage() {
                     {r.statusNote && <span className={styles.flag}>시트 없음</span>}
                     {r.gasBodyLost && <span className={styles.flag}>응답 유실</span>}
                     {r.payloadSrc === "sheet" && <span>시트에서 보정</span>}
+                    {r.triage && <span className={styles.tag}>{TRIAGE_LABEL[r.triage] ?? r.triage}</span>}
                   </span>
                 </button>
 
@@ -209,6 +260,50 @@ export default function AdminApplicationsPage() {
                           .join("\n")}
                       </p>
                     )}
+
+                    {/* ── 여기부터는 **우리가 단 것**이다. 위(접수 원문)와 자리를 나눠
+                        손님이 쓴 것과 섞이지 않게 한다 (운영자 "원본과 구분하고") ── */}
+                    <div className={styles.ops}>
+                      <p className={styles.opsCap}>목록에서 빼기 — 지우지 않고 기본 목록에서만 뺍니다</p>
+                      <div className={styles.opsRow}>
+                        {TRIAGE.map((t) => (
+                          <button
+                            key={t.key}
+                            type="button"
+                            title={t.hint}
+                            disabled={saving === r.id}
+                            className={`${styles.filter} ${r.triage === t.key ? styles.filterOn : ""}`}
+                            onClick={() => void save(r.id, { triage: r.triage === t.key ? null : t.key })}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                        {r.triage && (
+                          <button
+                            type="button"
+                            disabled={saving === r.id}
+                            className={styles.filter}
+                            onClick={() => void save(r.id, { triage: null })}
+                          >
+                            되돌리기
+                          </button>
+                        )}
+                      </div>
+
+                      <form
+                        className={styles.opsNote}
+                        onSubmit={(e) => { e.preventDefault(); void save(r.id, { note: noteDraft }) }}
+                      >
+                        <input
+                          className={styles.search}
+                          defaultValue={r.triageNote ?? ""}
+                          onChange={(e) => setNoteDraft(e.target.value)}
+                          placeholder="메모 (엔터로 저장)"
+                          aria-label="운영 메모"
+                          disabled={saving === r.id}
+                        />
+                      </form>
+                    </div>
                   </div>
                 )}
               </li>
@@ -218,7 +313,7 @@ export default function AdminApplicationsPage() {
 
         {!loading && enabled && rows.length === 0 && !failed && (
           <p className={styles.empty}>
-            {term || kind ? "조건에 맞는 접수가 없어요." : "아직 접수가 없어요."}
+            {triaged ? "분류해 뺀 건이 없어요." : term || kind ? "조건에 맞는 접수가 없어요." : "아직 접수가 없어요."}
           </p>
         )}
         {loading && <p className={styles.note}>불러오는 중…</p>}

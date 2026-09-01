@@ -103,3 +103,17 @@
   .meta { grid-column: 2 / 3; grid-row: 1; }
   .when { grid-column: 3 / 4; grid-row: 1; }
 }
+
+/* ── 분류·메모 (2026-09-01) ────────────────────────────────
+   ⚠ **우리가 단 것**이라 접수 원문과 자리를 나눈다 (운영자 "원본과 구분하고").
+   위쪽 괘선으로 끊고 한 단 들여, 손님이 쓴 값과 섞여 읽히지 않게 한다. */
+.ops { margin-top: 12px; padding: 10px 0 0 12px; border-top: 1px solid var(--ink); }
+.opsCap { margin: 0 0 8px; color: var(--muted); }
+.opsRow { display: flex; flex-wrap: wrap; gap: 0 14px; }
+.opsNote { margin-top: 10px; border-bottom: 1px solid var(--hair); }
+/* 분류 라벨 — 유채색을 못 쓰므로 괄호와 톤으로 구분한다 */
+.tag { color: var(--ink); }
+.tag::before { content: "["; }
+.tag::after { content: "]"; }
+/* '분류해 뺀 건' 토글은 종류 필터와 성격이 달라 한 칸 띄운다 */
+.filterAside { margin-left: auto; }

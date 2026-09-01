@@ -142,6 +142,12 @@ export async function recordApplication(input: RecordApplicationInput): Promise<
     const { endsOn, purgeAfter: purge } = retention(kind, body)
     const orderNo = str(body?.orderId) || null
     const trafficSrc = str(body?.trafficSrc) || null
+    // 마케팅 수신 동의(선택) — 이 값이 있으면 보유기간이 지나도 **이름·전화만** 남는다.
+    // 신청서 본문은 그대로 파기된다. 보유 근거가 이 동의라, 철회하면 연락처도 지워진다.
+    // ⚠ 필수 동의(consentAt)와 섞지 말 것 — 필수로 묶으면 위법이다(제22조, 0006 주석).
+    // 폼은 "동의"/"미동의" 문자열을 보낸다(GAS 시트 표기와 같은 값).
+    const marketingConsentAt =
+      str(body?.marketingConsent) === "동의" ? str(body?.consentAt) || new Date().toISOString() : null
 
     const row = {
       sid: input.sid || null,
@@ -161,6 +167,7 @@ export async function recordApplication(input: RecordApplicationInput): Promise<
       purge_after: purge,
       gas_body_lost: input.gasBodyLost ?? false,
       dedup_key: input.dedupKey || null,
+      marketing_consent_at: marketingConsentAt,
     }
 
     // 멱등 키가 있으면 upsert(무시), 없으면 그냥 insert.

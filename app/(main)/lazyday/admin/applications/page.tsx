@@ -17,8 +17,9 @@ import styles from "./applications.module.css"
  *
  * UX 판단
  *  · 운영자는 폰으로 본다 — 표가 아니라 괘선 리스트, 행 전체가 탭 대상
- *  · 스캔할 때 전화번호를 통째로 늘어놓지 않는다(어깨너머 노출) — 가운데를 가리고
- *    행을 펴면 전체가 보인다. 연락은 상세에서 하면 된다
+ *  · **전화번호는 목록에서 그대로 보여준다** (운영자 2026-09-01 "관리용이므로 휴대전화 필요해").
+ *    초안은 가운데를 가렸는데, 연락하려고 매번 행을 펴야 해서 관리 도구로는 손이 더 갔다.
+ *    이 화면은 쿠키로 막힌 관리자 전용이라 노출 대상이 열람자 본인뿐이다.
  *  · 파기된 행은 이름·전화가 이미 비어 있다 — 빈칸 대신 '파기됨'이라고 말해준다
  */
 
@@ -51,14 +52,6 @@ const KIND_LABEL: Record<string, string> = {
 }
 
 const FILTERS = ["", "bookclub", "oneday", "coffeebar", "notify", "interview_phone", "interview_written"]
-
-/** 010-1234-5678 → 010-****-5678. 스캔 중에는 가리고, 펴면 전체를 보여준다 */
-function maskPhone(p: string | null) {
-  if (!p) return null
-  const d = p.replace(/[^0-9]/g, "")
-  if (d.length < 8) return p
-  return `${d.slice(0, 3)}-****-${d.slice(-4)}`
-}
 
 function fmtPhone(p: string | null) {
   if (!p) return null
@@ -191,7 +184,7 @@ export default function AdminApplicationsPage() {
                   <span className={styles.when}>{fmtWhen(r.submittedAt)}</span>
                   <span className={styles.meta}>
                     <span>{KIND_LABEL[r.kind] ?? r.kind}</span>
-                    {!purged && r.phone && <span>{isOpen ? fmtPhone(r.phone) : maskPhone(r.phone)}</span>}
+                    {!purged && r.phone && <span>{fmtPhone(r.phone)}</span>}
                     {r.cohort && <span>{r.cohort}</span>}
                     {r.statusNote && <span className={styles.flag}>시트 없음</span>}
                     {r.gasBodyLost && <span className={styles.flag}>응답 유실</span>}

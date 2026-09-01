@@ -73,10 +73,12 @@ function extractIdentity(kind: ApplicationKind, body: Body) {
   return { name: name || null, phone: normalizePhone(phone) }
 }
 
-/** 오늘 + 1년 (YYYY-MM-DD, UTC). purge_after 폴백 — 산출 불가일 때만 쓴다 */
-function oneYearFromToday(): string {
-  const now = new Date()
-  return new Date(Date.UTC(now.getUTCFullYear() + 1, now.getUTCMonth(), now.getUTCDate()))
+/** 기준일 + 1년 (YYYY-MM-DD, UTC). purge_after 폴백 — 종료일을 산출 못 할 때만 쓴다.
+ *  기준일이 없거나 못 읽으면 오늘. */
+function oneYearFrom(iso?: string | null): string {
+  const base = iso ? new Date(iso) : new Date()
+  const d = isNaN(base.getTime()) ? new Date() : base
+  return new Date(Date.UTC(d.getUTCFullYear() + 1, d.getUTCMonth(), d.getUTCDate()))
     .toISOString()
     .slice(0, 10)
 }
@@ -95,7 +97,7 @@ function oneYearFromToday(): string {
  *   모임 폼은 `meetingSlug` → `meetingOrderCode()`, 결제 후 신청은 `orderId` →
  *   `parseOrderCodes()`. 이걸 빠뜨리면 조용히 null 이 되어 전건이 폴백으로 샌다.
  */
-function retention(kind: ApplicationKind, body: Body): { endsOn: string | null; purgeAfter: string } {
+function retention(kind: ApplicationKind, body: Body, submittedAt?: string | null): { endsOn: string | null; purgeAfter: string } {
   let endsOn: string | null = null
 
   if (kind === "oneday") {
@@ -110,7 +112,9 @@ function retention(kind: ApplicationKind, body: Body): { endsOn: string | null; 
     endsOn = seasonEndsOn()
   }
 
-  return { endsOn, purgeAfter: purgeAfter(endsOn) ?? oneYearFromToday() }
+  // 폴백은 **접수 시각 + 1년**이다 — 보정으로 들어온 지난 접수에 now() 를 쓰면
+  // 그 행만 보유기간이 늘어난다 (R9 위반 방향).
+  return { endsOn, purgeAfter: purgeAfter(endsOn) ?? oneYearFrom(submittedAt) }
 }
 
 export type RecordApplicationInput = {
@@ -128,6 +132,10 @@ export type RecordApplicationInput = {
   /** 운영 메모. GAS 호출이 실패해 **DB 가 유일한 흔적**인 행을 표시하는 데 쓴다
    *  (P2.5 대조에서 "시트에 없다"가 결함이 아니라 의도된 상태임을 알아볼 수 있어야 한다) */
   statusNote?: string | null
+  /** 원래 접수 시각 (ISO). P2.5 스윕이 시트의 '신청일자'를 실어 보낸다 —
+   *  지난 접수를 지금 보정하면서 now() 를 쓰면 접수 시각도, 거기서 파생되는
+   *  보유기간(접수+1년 폴백)도 통째로 늘어난다. 생략하면 now(). */
+  submittedAt?: string | null
   /** 로그인 사용자 (P4). 지금은 항상 undefined — R11 비회원이 기본 */
   userId?: string | null
 }
@@ -143,7 +151,7 @@ export async function recordApplication(input: RecordApplicationInput): Promise<
   const { kind, body } = input
   try {
     const { name, phone } = extractIdentity(kind, body)
-    const { endsOn, purgeAfter: purge } = retention(kind, body)
+    const { endsOn, purgeAfter: purge } = retention(kind, body, input.submittedAt)
     const orderNo = str(body?.orderId) || null
     const trafficSrc = str(body?.trafficSrc) || null
     // 마케팅 수신 동의(선택) — 이 값이 있으면 보유기간이 지나도 **이름·전화만** 남는다.
@@ -176,6 +184,8 @@ export async function recordApplication(input: RecordApplicationInput): Promise<
       dedup_key: input.dedupKey || null,
       marketing_consent_at: marketingConsentAt,
       status_note: input.statusNote ?? null,
+      // 생략하면 컬럼 기본값 now() — 스윕만 값을 싣는다
+      ...(input.submittedAt ? { submitted_at: input.submittedAt } : {}),
     }
 
     // 멱등 키가 있으면 upsert(무시), 없으면 그냥 insert.

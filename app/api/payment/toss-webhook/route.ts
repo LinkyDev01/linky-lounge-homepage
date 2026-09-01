@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getPaymentByOrderId } from "@/lib/payments/toss"
-import { markCancelled } from "@/lib/payments/orders"
+import { getPaymentByKey, getPaymentByOrderId } from "@/lib/payments/toss"
+import { findOrder, markCancelled } from "@/lib/payments/orders"
 import { recordOrder } from "@/lib/orders"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 
@@ -26,16 +26,16 @@ import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 
 export const dynamic = "force-dynamic"
 
-/** 이벤트 본문에서 주문번호를 꺼낸다 — 타입마다 위치가 다르다.
- *  DEPOSIT_CALLBACK: 최상위 orderId / PAYMENT_STATUS_CHANGED: data.orderId */
-function orderIdOf(body: unknown): string | null {
+/** 이벤트 본문에서 필드를 꺼낸다 — 타입마다 위치가 다르다.
+ *  DEPOSIT_CALLBACK: 최상위 / PAYMENT_STATUS_CHANGED: data 안 */
+function pick(body: unknown, key: string): string | null {
   if (typeof body !== "object" || body === null) return null
   const b = body as Record<string, unknown>
-  if (typeof b.orderId === "string" && b.orderId) return b.orderId
+  if (typeof b[key] === "string" && b[key]) return b[key] as string
   const data = b.data
   if (typeof data === "object" && data !== null) {
     const d = data as Record<string, unknown>
-    if (typeof d.orderId === "string" && d.orderId) return d.orderId
+    if (typeof d[key] === "string" && d[key]) return d[key] as string
   }
   return null
 }
@@ -49,14 +49,22 @@ export async function POST(req: NextRequest) {
     return new NextResponse(null, { status: 200 })
   }
 
-  const orderId = orderIdOf(body)
+  const orderId = pick(body, "orderId")
   if (!orderId) {
     // 주문과 무관한 이벤트(고객 상태 변경 등) — 수신만 확인
     return new NextResponse(null, { status: 200 })
   }
 
-  // 본문 불신 — 토스에 직접 물어본 결과만 쓴다
-  const payment = await getPaymentByOrderId(orderId)
+  // 본문 불신 — 토스에 직접 물어본 결과만 쓴다.
+  // ⚠ **paymentKey 조회를 우선**한다: 주문번호 조회는 상점 스코프를 타서 MID 구성에
+  //   따라 NOT_FOUND_MERCHANT 로 404 가 난다(2026-09-01 실측 — 취소 웹훅이 세 번 왔는데
+  //   전부 이 404 로 처리 보류됐다). paymentKey 는 본문에 실려 오고, 없으면 원장에서
+  //   찾고, 그래도 없을 때만 주문번호 조회로 폴백한다.
+  const keyFromBody = pick(body, "paymentKey")
+  const order = await findOrder(orderId)
+  const paymentKey = keyFromBody || order?.payment_key || null
+
+  const payment = paymentKey ? await getPaymentByKey(paymentKey) : await getPaymentByOrderId(orderId)
   if (!payment) {
     console.error(`[toss-webhook] 결제 조회 실패 — 처리 보류 (${orderId})`)
     return new NextResponse(null, { status: 200 })

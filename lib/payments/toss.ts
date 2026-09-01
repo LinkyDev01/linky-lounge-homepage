@@ -51,7 +51,31 @@ export async function confirmPayment(
 }
 
 /** 결제 취소 — ACTIVE_PG 와 무관하게 기존 토스 주문 환불에 쓴다 */
-/** 주문번호로 결제 조회 — **웹훅 검증의 진실 원천**.
+/** paymentKey 로 결제 조회 — **우선 경로**.
+ *  ⚠ 주문번호 조회(getPaymentByOrderId)는 상점 스코프를 타서 MID 구성에 따라
+ *  `NOT_FOUND_MERCHANT`("존재하지 않는 상점 정보 입니다")로 404 가 난다 —
+ *  2026-09-01 실측: 같은 시크릿 키로 confirm(paymentKey 기반)은 200 인데
+ *  GET /orders/{orderId} 만 404 였다. paymentKey 는 전역 유일이라 이 문제가 없다. */
+export async function getPaymentByKey(paymentKey: string): Promise<TossPayment | null> {
+  try {
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(paymentKey)}`, {
+      headers: { Authorization: authHeader() },
+      signal: AbortSignal.timeout(15_000),
+      cache: "no-store",
+    })
+    if (!res.ok) {
+      const body = await res.text().catch(() => "")
+      console.error(`[toss] paymentKey 조회 실패 ${res.status}:`, body.slice(0, 200))
+      return null
+    }
+    return (await res.json()) as TossPayment
+  } catch (err) {
+    console.error("[toss] paymentKey 조회 오류:", err instanceof Error ? err.message : err)
+    return null
+  }
+}
+
+/** 주문번호로 결제 조회 — paymentKey 를 모를 때의 폴백 (위 주의사항 참조).
  *  토스 웹훅은 포트원과 달리 서명(HMAC)이 없다. 그래서 본문을 믿지 않고 이 API 로
  *  다시 물어본 결과만 쓴다 (본문 위조로 원장을 오염시킬 수 없게).
  *  DEPOSIT_CALLBACK 의 `secret` 대조는 가상계좌 발급 응답을 우리가 저장해야 가능한데,

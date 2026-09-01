@@ -25,6 +25,7 @@ export { recordOrder, isLedgerEnabled, type ShippingInput, type RecordOrderInput
 export type LedgerOrder = {
   id: string
   order_no: string
+  payment_key: string | null
   amount_total: number
   approved_at: string | null
   status: string
@@ -37,7 +38,7 @@ export async function findOrder(orderNo: string): Promise<LedgerOrder | null> {
   try {
     const { data, error } = await sb
       .from("orders")
-      .select("id, order_no, amount_total, approved_at, status")
+      .select("id, order_no, payment_key, amount_total, approved_at, status")
       .eq("order_no", orderNo)
       .maybeSingle()
     if (error) {

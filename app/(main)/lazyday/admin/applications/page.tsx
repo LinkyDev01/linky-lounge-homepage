@@ -9,8 +9,9 @@ import styles from "./applications.module.css"
  *
  * **진행 상태는 고치지 않는다.** 그 정본은 구글 시트라 이 화면은 status 를 렌더링하지도,
  * 쓰지도 않는다 (P5 에서 "시트 기입 중단" 합의 뒤에 연다).
- * **분류(triage)와 메모는 쓴다** — 테스트·더미·오기·중복신청·기결제자는 시트에 없는
+ * **분류(triage)와 메모는 쓴다** — 테스트·오기·더미·중복신청·기결제자는 시트에 없는
  * 개념이라 정본이 갈릴 일이 없다. 화면 머리가 그 경계를 스스로 밝힌다.
+ * ⚠ 분류 중 **목록에서 빠지는 건 앞의 넷뿐**이다 — 기결제자는 표시만 하고 남는다.
  *
  * 디자인은 **레이지클럽 베이스** (운영자 지시). 백지+잉크·13.2px·괘선 리스트·
  * 텍스트 링크. 유채색 UI 와 보더 버튼을 쓰지 않으므로 "손이 필요한 행"은
@@ -45,14 +46,16 @@ type Row = {
   triagedAt: string | null
 }
 
-/** 목록에서 빼는 이유 — 운영자 지시(2026-09-01): "테스트 오기 더미 중복신청 기결제자 등으로
- *  표기해야해 일반적으로 분류되는 것으로 명확하게". 파기가 아니라 열람 필터다. */
-const TRIAGE: { key: string; label: string; hint: string }[] = [
-  { key: "test",      label: "테스트",   hint: "우리가 넣은 검증용" },
-  { key: "typo",      label: "오기",     hint: "잘못 적어 다시 낸 것" },
-  { key: "dummy",     label: "더미",     hint: "내용이 없는 빈 접수" },
-  { key: "duplicate", label: "중복신청", hint: "같은 사람이 또 낸 것" },
-  { key: "paid",      label: "기결제자", hint: "이미 결제해 더 안 봐도 되는 건" },
+/** 분류 — 운영자 지시(2026-09-01): "테스트 오기 더미 중복신청 기결제자 등으로 표기해야해
+ *  일반적으로 분류되는 것으로 명확하게". 파기가 아니라 열람 표시다.
+ *  ⚠ `hides` 로 두 종류가 갈린다 — **기결제자는 빼지 않는다**(운영자 "기결제자는 물론
+ *  기본제외대상이 아니지"). 허수가 아니라 가장 진짜인 접수라 표시만 하고 목록에 남는다. */
+const TRIAGE: { key: string; label: string; hint: string; hides: boolean }[] = [
+  { key: "test",      label: "테스트",   hint: "우리가 넣은 검증용",        hides: true },
+  { key: "typo",      label: "오기",     hint: "잘못 적어 다시 낸 것",      hides: true },
+  { key: "dummy",     label: "더미",     hint: "내용이 없는 빈 접수",       hides: true },
+  { key: "duplicate", label: "중복신청", hint: "같은 사람이 또 낸 것",      hides: true },
+  { key: "paid",      label: "기결제자", hint: "결제까지 끝난 건 — 목록에 그대로 남습니다", hides: false },
 ]
 const TRIAGE_LABEL: Record<string, string> = Object.fromEntries(TRIAGE.map((t) => [t.key, t.label]))
 
@@ -264,9 +267,27 @@ export default function AdminApplicationsPage() {
                     {/* ── 여기부터는 **우리가 단 것**이다. 위(접수 원문)와 자리를 나눠
                         손님이 쓴 것과 섞이지 않게 한다 (운영자 "원본과 구분하고") ── */}
                     <div className={styles.ops}>
+                      {/* 빼는 표시와 그냥 표시를 **줄을 나눠** 둔다 — 한 줄에 섞으면
+                          기결제자를 누르면 목록에서 사라진다고 오해한다 */}
                       <p className={styles.opsCap}>목록에서 빼기 — 지우지 않고 기본 목록에서만 뺍니다</p>
                       <div className={styles.opsRow}>
-                        {TRIAGE.map((t) => (
+                        {TRIAGE.filter((t) => t.hides).map((t) => (
+                          <button
+                            key={t.key}
+                            type="button"
+                            title={t.hint}
+                            disabled={saving === r.id}
+                            className={`${styles.filter} ${r.triage === t.key ? styles.filterOn : ""}`}
+                            onClick={() => void save(r.id, { triage: r.triage === t.key ? null : t.key })}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <p className={styles.opsCap2}>표시만 — 목록에 그대로 남습니다</p>
+                      <div className={styles.opsRow}>
+                        {TRIAGE.filter((t) => !t.hides).map((t) => (
                           <button
                             key={t.key}
                             type="button"
@@ -282,10 +303,10 @@ export default function AdminApplicationsPage() {
                           <button
                             type="button"
                             disabled={saving === r.id}
-                            className={styles.filter}
+                            className={`${styles.filter} ${styles.filterAside}`}
                             onClick={() => void save(r.id, { triage: null })}
                           >
-                            되돌리기
+                            분류 지우기
                           </button>
                         )}
                       </div>

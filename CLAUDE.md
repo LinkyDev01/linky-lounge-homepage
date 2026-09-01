@@ -76,7 +76,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 | `admin/applications` (화면+CSS) | **레이지클럽 베이스** (운영자 2026-09-01 "조회화면은 레이지클럽 베이스로") | §3 팔레트가 아니라 §9 개편 문법 — 백지+잉크·13.2px/1.5·괘선 리스트·**텍스트 링크만(보더 버튼·유채색 UI 0)**. §9 대로 기존 `.module.css` 를 import 하지 않고 토큰을 자체 선언한다 |
 | `app/api/lazyday/admin/backfill-applications` | GAS 스윕 전용 (P2.5) | 인증은 **헤더 `X-Backfill-Token`**(쿠키 아님 — 부르는 쪽이 Apps Script 서버다). ⚠ 원장이 꺼져 있으면 **503 을 돌려줘야 한다** — 200 을 주면 GAS 가 '보정됨'을 찍고 그 행을 영영 안 보낸다 |
 | `applications` 테이블 | 전 접수 원장 (0005) | `purge_after` NOT NULL — 산출 못 하면 접수+1년 폴백. `sid`·`dedup_key` 는 **컬럼 unique**(부분 인덱스 금지, 42P10) |
-| `applications.triage` (0008) | admin 화면이 유일한 소비자 | **파기가 아니라 열람 필터**(test·typo·dummy·duplicate·paid — 화면 버튼 순서 = 운영자가 말한 순서). 기본 목록은 `triage is null`, `?triaged=1` 로 꺼내 본다. ⚠ **진행 상태(status)와 섞지 말 것** — 그 정본은 시트, 여는 건 P5 |
+| `applications.triage` (0008·0009) | admin 화면이 유일한 소비자 | **파기가 아니라 열람 표시**. ⚠ 두 종류다 — **빼는 표시**(test·typo·dummy·duplicate)만 기본 목록에서 빠지고 **`paid`(기결제자)는 표시만 하고 남는다**(운영자 2026-09-01 "기결제자는 물론 기본제외대상이 아니지"). 어느 쪽인지는 라우트의 `HIDDEN` 배열이 정한다 — DB 는 형태만 본다. 기본 목록 = `triage is null or triage not in (HIDDEN)`, `?triaged=1` 로 빼둔 것만 꺼내 본다. ⚠ **진행 상태(status)와 섞지 말 것** — 그 정본은 시트, 여는 건 P5 |
 
 새 클래스 추가는 안전. **TSX 쌍 동기화**: `apply/**` 실↔프리뷰 TSX 는 별도 쌍 — 폼 필드·문구 변경 시 양쪽 반영.
 

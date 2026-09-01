@@ -40,11 +40,19 @@ await ctx.route('**', async (route) => {
       if (!['content-encoding', 'content-length', 'transfer-encoding'].includes(k.toLowerCase())) headers[k] = v
     })
     relayed++
+    if (/portone|inicis|kginicis/i.test(u)) console.log(`  [relay ${res.status}] ${u.slice(0, 110)}`)
     return route.fulfill({ status: res.status, headers, body: buf })
   } catch (e) {
     relayFail++
     return route.abort()
   }
+})
+
+// 결제창은 **팝업 창**으로 뜬다 (이니시스) — 새 페이지를 잡아 따로 캡처한다
+const popups = []
+ctx.on('page', async (pg) => {
+  popups.push(pg)
+  try { await pg.waitForLoadState('domcontentloaded', { timeout: 20000 }) } catch {}
 })
 
 const page = await ctx.newPage()
@@ -67,12 +75,16 @@ console.log('토스 위젯 iframe 수:', widgetFrames)
 
 await page.getByPlaceholder('이름').fill('테스트결제')
 await page.getByPlaceholder(/연락처/).fill('01012345678')
+// 이니시스 V2 는 이메일이 없으면 결제창이 안 열린다
+const email = page.getByPlaceholder('이메일')
+if (await email.count()) await email.fill('test@example.com')
 await page.waitForTimeout(800)
 
 const btn = page.locator('button', { hasText: '결제하기' }).first()
 console.log('결제 버튼 활성:', await btn.isEnabled().catch(() => null))
+console.log('--- 결제하기 클릭 ---')
 await btn.click().catch((e) => console.log('클릭 실패:', String(e).slice(0, 80)))
-await page.waitForTimeout(10000)
+await page.waitForTimeout(22000)
 
 console.log('prepare 호출:', JSON.stringify(prepared))
 console.log('토스 결제창 이동:', payNav.length, payNav.slice(0, 2))
@@ -80,4 +92,17 @@ console.log('최종 URL:', page.url().slice(0, 130))
 if (errors.length) console.log('콘솔 오류:', errors.slice(0, 6))
 
 await page.screenshot({ path: OUT })
+
+console.log('팝업(결제창) 수:', popups.length - 1)
+for (const [i, pg] of popups.slice(1).entries()) {
+  try {
+    await pg.waitForTimeout(3000)
+    const u = pg.url()
+    const t = await pg.title().catch(() => '')
+    console.log(`  팝업${i + 1}: ${t} | ${u.slice(0, 120)}`)
+    await pg.screenshot({ path: OUT.replace(/\.png$/, `-popup${i + 1}.png`) })
+  } catch (e) {
+    console.log(`  팝업${i + 1} 캡처 실패:`, String(e).slice(0, 80))
+  }
+}
 await browser.close()

@@ -49,8 +49,8 @@ type Row = {
  *  표기해야해 일반적으로 분류되는 것으로 명확하게". 파기가 아니라 열람 필터다. */
 const TRIAGE: { key: string; label: string; hint: string }[] = [
   { key: "test",      label: "테스트",   hint: "우리가 넣은 검증용" },
-  { key: "dummy",     label: "더미",     hint: "내용이 없는 빈 접수" },
   { key: "typo",      label: "오기",     hint: "잘못 적어 다시 낸 것" },
+  { key: "dummy",     label: "더미",     hint: "내용이 없는 빈 접수" },
   { key: "duplicate", label: "중복신청", hint: "같은 사람이 또 낸 것" },
   { key: "paid",      label: "기결제자", hint: "이미 결제해 더 안 봐도 되는 건" },
 ]

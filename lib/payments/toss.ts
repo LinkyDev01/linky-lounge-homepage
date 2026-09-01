@@ -51,6 +51,42 @@ export async function confirmPayment(
 }
 
 /** 결제 취소 — ACTIVE_PG 와 무관하게 기존 토스 주문 환불에 쓴다 */
+/** 주문번호로 결제 조회 — **웹훅 검증의 진실 원천**.
+ *  토스 웹훅은 포트원과 달리 서명(HMAC)이 없다. 그래서 본문을 믿지 않고 이 API 로
+ *  다시 물어본 결과만 쓴다 (본문 위조로 원장을 오염시킬 수 없게).
+ *  DEPOSIT_CALLBACK 의 `secret` 대조는 가상계좌 발급 응답을 우리가 저장해야 가능한데,
+ *  위젯이 발급을 대신하므로 우리에겐 그 값이 없다 — 재조회가 현실적인 검증 수단이다. */
+export async function getPaymentByOrderId(orderId: string): Promise<TossPayment | null> {
+  try {
+    const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}`, {
+      headers: { Authorization: authHeader() },
+      signal: AbortSignal.timeout(15_000),
+      cache: "no-store",
+    })
+    if (!res.ok) {
+      const body = await res.text().catch(() => "")
+      console.error(`[toss] 결제 조회 실패 ${res.status}:`, body.slice(0, 200))
+      return null
+    }
+    return (await res.json()) as TossPayment
+  } catch (err) {
+    console.error("[toss] 결제 조회 오류:", err instanceof Error ? err.message : err)
+    return null
+  }
+}
+
+export type TossPayment = {
+  paymentKey: string
+  orderId: string
+  orderName?: string
+  /** READY | IN_PROGRESS | WAITING_FOR_DEPOSIT | DONE | CANCELED | PARTIAL_CANCELED | ABORTED | EXPIRED */
+  status: string
+  totalAmount?: number
+  approvedAt?: string
+  method?: string
+  virtualAccount?: { customerName?: string; accountNumber?: string; bankCode?: string }
+}
+
 export async function cancelPayment(paymentKey: string, reason: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const res = await fetch(`${API_BASE}/${encodeURIComponent(paymentKey)}/cancel`, {

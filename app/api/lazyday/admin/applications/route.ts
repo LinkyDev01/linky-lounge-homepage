@@ -8,9 +8,11 @@ import { supabaseAdmin } from "@/lib/supabase-server"
  * 환불·탈락) 두 곳에서 고칠 수 있게 되는 순간 어느 쪽이 참인지 알 수 없어진다.
  * 상태 관리(PATCH status)는 P5(Stage B)에서 "시트 기입 중단" 합의 뒤에 연다.
  *
- * **다만 분류(triage)는 쓴다** (운영자 2026-09-01). 테스트·더미·오기·중복신청·기결제자는
- * **시트에 없는 개념**이라 정본 충돌이 없다 — "내가 훑다가 왜 뺐는가"의 기록이다.
- * 파기가 아니라 열람 필터다: 기본 목록에서만 빠지고 선택하면 보인다.
+ * **다만 분류(triage)는 쓴다** (운영자 2026-09-01). 테스트·오기·더미·중복신청·기결제자는
+ * **시트에 없는 개념**이라 정본 충돌이 없다 — "내가 훑다가 어떻게 봤는가"의 기록이다.
+ * 파기가 아니라 열람 표시다. ⚠ **그중 목록에서 빠지는 건 앞의 넷뿐**이다 —
+ * 기결제자는 허수가 아니라 가장 진짜인 접수라 표시만 하고 기본 목록에 그대로 남는다
+ * (운영자 "기결제자는 물론 기본제외대상이 아니지").
  *
  * ⚠ R13 감사 로그는 아직 두지 않는다 — **다만 근거를 정정한다(2026-09-01).**
  *   처음엔 "열람자가 1인이라 로그가 무의미"라고 적었는데 **사실이 아니다: 열람자는 2명**
@@ -34,9 +36,20 @@ const KINDS = [
   "bookclub", "oneday", "coffeebar", "notify", "interview_phone", "interview_written", "review",
 ] as const
 
-/** 목록에서 빼는 이유. 값 집합은 여기서 강제한다 — DB 는 형태만 본다(0008).
+/** 분류 값 집합. 여기서 강제한다 — DB 는 형태만 본다(0008).
  *  늘리려면 이 배열에 한 줄 추가하면 되고 마이그레이션은 필요 없다. */
 export const TRIAGE = ["test", "typo", "dummy", "duplicate", "paid"] as const
+
+/** 그중 **기본 목록에서 빼는** 값. `paid`(기결제자)는 여기 없다 —
+ *  운영자 2026-09-01 "기결제자는 물론 기본제외대상이 아니지".
+ *  기결제자는 허수가 아니라 **가장 진짜인 접수**라 빼면 안 된다. 표시만 하고 목록엔 남긴다.
+ *  즉 분류에는 두 종류가 있다: **빼는 표시**(test·typo·dummy·duplicate)와 **그냥 표시**(paid). */
+export const HIDDEN = ["test", "typo", "dummy", "duplicate"] as const
+
+/** 기본 목록의 조건: 분류가 없거나, 있어도 '빼는 표시'가 아닌 행.
+ *  ⚠ `not.in` 만으로는 **null 행이 통째로 빠진다**(SQL 에서 null not in (...) 은 null) —
+ *     그래서 `is.null` 을 or 로 함께 걸어야 한다. */
+const VISIBLE_OR = `triage.is.null,triage.not.in.(${HIDDEN.join(",")})`
 
 const PAGE = 30
 
@@ -62,9 +75,9 @@ export async function GET(req: NextRequest) {
     .range(offset, offset + PAGE) // 1건 더 받아 '더 보기' 여부를 판정한다
 
   if (kind && (KINDS as readonly string[]).includes(kind)) sel = sel.eq("kind", kind)
-  // 기본 목록은 **분류 안 된 행**이다. `?triaged=1` 이면 분류된 것만 따로 본다 —
-  // 지우는 게 아니라 빼두는 것이라 언제든 다시 꺼내 볼 수 있어야 한다
-  sel = sp.get("triaged") === "1" ? sel.not("triage", "is", null) : sel.is("triage", null)
+  // `?triaged=1` 이면 **빼둔 것만** 따로 본다 — 지우는 게 아니라 빼두는 것이라
+  // 언제든 다시 꺼내 볼 수 있어야 한다. 기결제자는 어느 쪽에도 안 걸린다(늘 기본 목록에)
+  sel = sp.get("triaged") === "1" ? sel.in("triage", [...HIDDEN]) : sel.or(VISIBLE_OR)
   if (days > 0) {
     const since = new Date(Date.now() - days * 86400_000).toISOString()
     sel = sel.gte("submitted_at", since)
@@ -92,14 +105,14 @@ export async function GET(req: NextRequest) {
   const { data: recent } = await sb
     .from("applications")
     .select("kind")
-    .is("triage", null) // 분류해 뺀 건 세지 않는다 — 세면 요약이 허수를 포함한다
+    .or(VISIBLE_OR) // 빼둔 건 세지 않는다 — 세면 요약이 허수를 포함한다. 기결제자는 센다
     .gte("submitted_at", since7)
     .limit(1000)
   // 몇 건을 빼뒀는지는 따로 알려준다 — 숨겼다는 사실 자체가 보여야 한다
   const { count: triagedCount } = await sb
     .from("applications")
     .select("id", { count: "exact", head: true })
-    .not("triage", "is", null)
+    .in("triage", [...HIDDEN])
   const counts = new Map<string, number>()
   for (const r of recent ?? []) counts.set(r.kind, (counts.get(r.kind) ?? 0) + 1)
 

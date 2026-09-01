@@ -86,6 +86,7 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 | `20260901140000_applications_marketing_retention.sql` | 마케팅 수신 동의자의 이름·전화는 파기에서 제외(동의 철회 시까지) + 철회 함수. 신청서 본문은 종전대로 종료+1년 파기 | ✔ | ✔ (2026-09-01) |
 | `20260901180000_funnel_content_name.sql` | funnel_events 에 `content_name` — 북클럽 신청서와 원데이 결제가 둘 다 'Lead' 로 섞이던 것을 갈라낸다. 과거 행은 null(소급 불가) | ✔ | ✔ (2026-09-01) |
 | `20260901203000_applications_triage.sql` | 접수 분류(triage·triage_note·triaged_at) + 부분 인덱스(`where triage is null`). **파기가 아니라 열람 필터** — 테스트·더미가 진짜 접수를 가리지 않게. 진행 상태(시트 정본)와 섞지 않는다 | ✔ | ✔ (2026-09-01) |
+| `20260901213000_triage_paid_comment.sql` | 주석만 정정 — 분류 중 **목록에서 빠지는 건 test·typo·dummy·duplicate 넷뿐**이고 `paid`(기결제자)는 표시만 하고 남는다(운영자 정정). 컬럼·인덱스·데이터 무변경 | ✔ | ✔ (2026-09-01) |
 
 ## 5. 운영 조회
 

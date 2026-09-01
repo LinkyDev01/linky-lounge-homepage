@@ -109,6 +109,8 @@
    위쪽 괘선으로 끊고 한 단 들여, 손님이 쓴 값과 섞여 읽히지 않게 한다. */
 .ops { margin-top: 12px; padding: 10px 0 0 12px; border-top: 1px solid var(--ink); }
 .opsCap { margin: 0 0 8px; color: var(--muted); }
+/* 두 번째 묶음(표시만) — 위 묶음과 붙지 않게 한 줄 띄운다 */
+.opsCap2 { margin: 12px 0 8px; color: var(--muted); }
 .opsRow { display: flex; flex-wrap: wrap; gap: 0 14px; }
 .opsNote { margin-top: 10px; border-bottom: 1px solid var(--hair); }
 /* 분류 라벨 — 유채색을 못 쓰므로 괄호와 톤으로 구분한다 */

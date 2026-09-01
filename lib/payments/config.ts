@@ -32,7 +32,15 @@ export const PORTONE_CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY |
  *  (2026-08-31 실측: env 를 넣고 Redeploy 했는데 청크가 600182B 로 동일,
  *   값은 여전히 `process.env.X||""` 참조 상태였다). 새 커밋을 푸시하거나
  *  Redeploy 대화상자에서 'Use existing Build Cache' 를 꺼야 반영된다.
- *  주입 여부 판정은 프로덕션 청크 grep — 설정된 값만 리터럴로 보인다 (§5). */
+ *  주입 여부 판정은 프로덕션 청크 grep — 설정된 값만 리터럴로 보인다 (§5).
+ *
+ *  ⚠⚠ **그리고 Vercel 에서 Type 을 `Config` 로 넣어야 한다. `Secret` 이면 안 된다.**
+ *  Secret 타입은 빌드 타임에 값이 노출되지 않아 `NEXT_PUBLIC_*` 이 **끝내 안 박힌다**
+ *  — 캐시를 꺼도, 새 커밋을 밀어도 소용없다(2026-08-31: 캐시 원인인 줄 알고 재빌드를
+ *  두 번 돌렸는데 계속 `||""` 였고, 진짜 원인이 이것이었다. Key 옆 경고 삼각형이
+ *  Vercel 이 주는 신호다). 애초에 이 두 값은 **공개값**이다 — 결제창을 띄우려면
+ *  모든 방문자 브라우저에 실려 나가야 하므로 감추는 것 자체가 성립하지 않는다.
+ *  진짜 비밀은 PORTONE_API_SECRET·PORTONE_WEBHOOK_SECRET 이고 그쪽이 Secret 이다. */
 export function portoneConfigured() {
   return PORTONE_STORE_ID.length > 0 && PORTONE_CHANNEL_KEY.length > 0
 }

@@ -23,6 +23,7 @@
  */
 
 import { supabaseAdmin, isLedgerEnabled } from "./supabase-server"
+import { isGasRejected } from "./gas"
 import { normalizePhone, meetingEndsOn, purgeAfter, type LedgerResult } from "./orders"
 import { parseOrderCodes } from "./order-catalog"
 import { meetingOrderCode } from "@/app/(main)/lazyclub/one-day-config"
@@ -206,9 +207,10 @@ export async function recordSafe(
   input: Omit<RecordApplicationInput, "kind"> & { gasData?: unknown },
 ): Promise<void> {
   if (!kind) return
-  // GAS 가 200 으로 실패를 알린 경우 — 시트에 행이 없으므로 DB 에도 남기지 않는다
-  const gasData = input.gasData as { success?: unknown } | null | undefined
-  if (gasData && gasData.success === false) return
+  // GAS 가 200 으로 실패를 알린 경우 — 시트에 행이 없으므로 DB 에도 남기지 않는다.
+  // 판정은 lib/gas 의 isGasRejected 하나로 통일한다 — 라우트의 응답 판정과 같은 규칙이라
+  // 두 곳에 따로 적어 두면 어긋나는 순간 한쪽만 새어 유령 행이 생긴다.
+  if (isGasRejected(input.gasData)) return
 
   try {
     const r = await recordApplication({ ...input, kind })

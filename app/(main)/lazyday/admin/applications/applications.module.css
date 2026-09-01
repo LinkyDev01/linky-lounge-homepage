@@ -113,6 +113,10 @@
 .opsCap2 { margin: 12px 0 8px; color: var(--muted); }
 .opsRow { display: flex; flex-wrap: wrap; gap: 0 14px; }
 .opsNote { margin-top: 10px; border-bottom: 1px solid var(--hair); }
+/* 파기 — 분류와 성격이 달라 괘선으로 한 번 더 끊는다. 유채색을 쓰지 않는 베이스라
+   위험은 색이 아니라 **자리와 2단계 확인**으로 표시한다 (§9) */
+.danger { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--hair); }
+.dangerCap { margin: 0 0 8px; color: var(--muted); }
 /* 분류 라벨 — 유채색을 못 쓰므로 괄호와 톤으로 구분한다 */
 .tag { color: var(--ink); }
 .tag::before { content: "["; }

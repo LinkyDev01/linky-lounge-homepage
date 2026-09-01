@@ -87,6 +87,7 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 | `20260901180000_funnel_content_name.sql` | funnel_events 에 `content_name` — 북클럽 신청서와 원데이 결제가 둘 다 'Lead' 로 섞이던 것을 갈라낸다. 과거 행은 null(소급 불가) | ✔ | ✔ (2026-09-01) |
 | `20260901203000_applications_triage.sql` | 접수 분류(triage·triage_note·triaged_at) + 부분 인덱스(`where triage is null`). **파기가 아니라 열람 필터** — 테스트·더미가 진짜 접수를 가리지 않게. 진행 상태(시트 정본)와 섞지 않는다 | ✔ | ✔ (2026-09-01) |
 | `20260901213000_triage_paid_comment.sql` | 주석만 정정 — 분류 중 **목록에서 빠지는 건 test·typo·dummy·duplicate 넷뿐**이고 `paid`(기결제자)는 표시만 하고 남는다(운영자 정정). 컬럼·인덱스·데이터 무변경 | ✔ | ✔ (2026-09-01) |
+| `20260902093000_purge_triage_note.sql` | 파기 함수 2종이 **운영 메모(`triage_note`)도 비우게** 한다 — 0008 이 함수보다 나중에 그 컬럼을 만들어 파기해도 메모만 남았다(dev 실측). 마케팅 동의 예외는 이름·전화에만 걸리므로 메모는 동의와 무관하게 비운다. 분류(`triage`)는 남긴다 | ✔ | ✔ (2026-09-02) |
 
 ## 5. 운영 조회
 

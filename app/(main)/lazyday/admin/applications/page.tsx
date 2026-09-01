@@ -102,6 +102,7 @@ export default function AdminApplicationsPage() {
   const [triagedCount, setTriagedCount] = useState(0)
   const [noteDraft, setNoteDraft] = useState("")
   const [saving, setSaving] = useState("")
+  const [confirmPurge, setConfirmPurge] = useState("")
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState("")
 
@@ -147,6 +148,23 @@ export default function AdminApplicationsPage() {
       setOpen("")
     } catch {
       setFailed("저장에 실패했어요.")
+    } finally {
+      setSaving("")
+    }
+  }, [load])
+
+  /** 삭제 요청 즉시 파기. **되돌릴 수 없다** — 그래서 두 번 눌러야 실행된다.
+   *  분류(save)와 자리도 메서드도 갈라 뒀다: 실수로 같이 눌릴 수 없게. */
+  const purge = useCallback(async (id: string) => {
+    setSaving(id)
+    try {
+      const res = await fetch(`/api/lazyday/admin/applications?id=${encodeURIComponent(id)}`, { method: "DELETE" })
+      if (!res.ok) { setFailed("파기에 실패했어요."); return }
+      setConfirmPurge("")
+      await load(0)
+      setOpen("")
+    } catch {
+      setFailed("파기에 실패했어요.")
     } finally {
       setSaving("")
     }
@@ -228,7 +246,7 @@ export default function AdminApplicationsPage() {
                 <button
                   type="button"
                   className={styles.rowBtn}
-                  onClick={() => { setOpen(isOpen ? "" : r.id); setNoteDraft(r.triageNote ?? "") }}
+                  onClick={() => { setOpen(isOpen ? "" : r.id); setNoteDraft(r.triageNote ?? ""); setConfirmPurge("") }}
                   aria-expanded={isOpen}
                 >
                   <span className={styles.who}>
@@ -324,6 +342,47 @@ export default function AdminApplicationsPage() {
                           disabled={saving === r.id}
                         />
                       </form>
+
+                      {/* ── 파기는 분류와 성격이 다르다(열람 표시 vs 개인정보 삭제).
+                          맨 아래 괘선 밑에 따로 두고 **두 번 눌러야** 실행된다 ── */}
+                      {!purged && (
+                        <div className={styles.danger}>
+                          {confirmPurge === r.id ? (
+                            <>
+                              <p className={styles.dangerCap}>
+                                이름·전화·신청서 내용을 지웁니다. <strong>되돌릴 수 없어요.</strong>
+                                {" "}행은 남고 &ldquo;파기됨&rdquo;으로 표시됩니다.
+                              </p>
+                              <div className={styles.opsRow}>
+                                <button
+                                  type="button"
+                                  disabled={saving === r.id}
+                                  className={`${styles.filter} ${styles.filterOn}`}
+                                  onClick={() => void purge(r.id)}
+                                >
+                                  파기합니다
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={saving === r.id}
+                                  className={styles.filter}
+                                  onClick={() => setConfirmPurge("")}
+                                >
+                                  취소
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              className={styles.filter}
+                              onClick={() => setConfirmPurge(r.id)}
+                            >
+                              삭제 요청 파기…
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

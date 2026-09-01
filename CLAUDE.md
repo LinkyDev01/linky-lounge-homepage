@@ -95,6 +95,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **스크린샷은 `node scripts/shot.mjs`** (boilerplate 재작성 금지, `--eval` 로 수치 검증). **networkidle 멈춤**: 외부 스크립트가 프록시에서 매달리면 30s 타임아웃 — waitUntil 'load' 폴백. 레이지클럽 트리는 폰트 요청까지 매달리므로 `ctx.route(외부, abort)` 로 끊고 캡처.
 - **dev 서버는 턴 사이 자주 죽는다**: 백그라운드 재기동 후 curl 200 폴링. pkill 후 exit 144 무해.
 - **`next-env.d.ts`**: 커밋 전 항상 `git checkout -- next-env.d.ts`.
+- **패키지 매니저는 npm 하나다 — `pnpm-lock.yaml` 을 되살리지 말 것.** Vercel 은 `packageManager` 필드가 없으면 **락파일을 보고 매니저를 고르고 pnpm 이 npm 보다 우선**한다. 2026-08-26 에 96바이트짜리 빈 `pnpm-lock.yaml` 스텁이 무관한 PR(#500)에 딸려 들어왔고, 그때부터 프로덕션 빌드가 **pnpm@10 으로 설치**되고 있었다(2026-09-02 빌드 로그 실측: `Detected pnpm-lock.yaml 9` → `Done in 11.7s using pnpm v10.28.0`). 그 스텁엔 패키지 목록이 없어 **매 빌드가 `package.json` 범위에서 새로 해석**했다 — 즉 **락이 아무것도 고정하지 않았고** 진짜 락파일(`package-lock.json` 154KB)은 무시됐다. 로컬(`npm ci`)과 프로덕션이 다른 버전으로 갈릴 수 있는 상태. 지웠으니 npm 으로 돌아온다. pnpm 으로 옮길 거라면 **빈 스텁이 아니라 진짜 락파일을 만들고 `package-lock.json` 을 지우는 별건 작업**으로.
 - **Vercel**: 프로젝트 `prj_iKxnwjdJoHtlXtEIBqxJ8uVjAmcy` / 팀 `team_Unc0jNsuK26xtE7mYRh09nRa` (유사 이름 프로젝트 다수 — 반드시 이 ID). 공유는 `get_access_to_vercel_url` 로 `_vercel_share` 토큰 — **배포 단위·~23h 만료, 새 푸시마다 재발급**, 만료 시각 명시. 배포 확인은 `list_deployments` READY + 프로덕션 `www.lazyday-bookclub.com` 폴링.
 - **이미지 최적화 꺼짐**(`unoptimized: true` — 운영자 확인 없이 끄지 말 것): 소스 파일 크기 = 전송량. 새 이미지는 **최대 노출 크기 ×2 로 미리 축소해 커밋**, 모달용 원본과 카드용 축소본은 별도 파일(`review-0N-card.webp` 선례).
 - **fixed/오버레이 요소를 새로 놓기 전 기존 fixed 지도 확인** — 헤더(top:0)·SectionIndicator(우측 도트)·스티키 CTA·PreviewBar(좌측). 겹침 사고 2회 선례(2026-08-24).

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import { activePg } from "@/lib/payments/config"
 import { SHIPPING_CODE, buildOrderId, orderNameFor, resolveItems, totalOf } from "@/lib/order-catalog"
 
 /**
@@ -8,9 +7,7 @@ import { SHIPPING_CODE, buildOrderId, orderNameFor, resolveItems, totalOf } from
  * 클라이언트는 상품 코드만 보낸다. 금액은 서버가 카탈로그에서 조회해 결정하며,
  * 클라이언트가 보낸 금액은 받지도 쓰지도 않는다 (위변조 차단).
  *
- * 응답의 paymentId 는 두 PG 공용:
- *  · 포트원 → PortOne.requestPayment({ paymentId })
- *  · 토스   → widgets.requestPayment({ orderId })
+ * 응답의 paymentId 는 토스 위젯의 requestPayment({ orderId }) 로 그대로 들어간다.
  * 형식은 lib/order-catalog 의 `lz-{code}x{code}-{ts}-{rand}` 계약 그대로라,
  * 승인 단계에서 코드만으로 금액을 재계산할 수 있다(원장과 무관한 이중 안전장치).
  *
@@ -60,11 +57,9 @@ export async function POST(req: NextRequest) {
   const amount = totalOf(items)
   const orderNo = buildOrderId(finalCodes)
   const orderName = orderNameFor(items)
-  const provider = activePg()
 
   return NextResponse.json({
     success: true,
-    provider,
     paymentId: orderNo,
     orderName,
     amount,

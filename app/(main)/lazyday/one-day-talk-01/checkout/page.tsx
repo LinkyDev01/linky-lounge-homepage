@@ -90,15 +90,14 @@ function CheckoutInner() {
   // 운영자가 상점관리자 결제 상세에서 확인 (별도 주문 DB 없음)
   const [buyerName, setBuyerName] = useState("")
   const [buyerPhone, setBuyerPhone] = useState("")
-  // 이메일 — 토스는 필수로 요구하지 않지만 받는다. 영수증·결제 안내가 가는 자리이고,
-  // 연락처 오입력 시 유일한 대체 연락 수단이다 (2026-08-31 신설)
-  const [buyerEmail, setBuyerEmail] = useState("")
+  // ⚠ 이메일은 받지 않는다 (운영자 2026-09-01 "필요없잖아"). 잠시 필수 칸으로 있었지만
+  //   토스에도, 우리 서버에도, 원장에도 넘기는 곳이 없어 받아서 버리는 값이었다.
+  //   결제 확인·모임 안내는 전부 알림톡과 전화로 나간다 — 다시 넣지 말 것.
   const [zip, setZip] = useState("")
   const [addr1, setAddr1] = useState("")
   const [addr2, setAddr2] = useState("")
-  const emailFilled = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail.trim())
   const buyerFilled =
-    buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10 && emailFilled
+    buyerName.trim().length > 0 && buyerPhone.replace(/[^0-9]/g, "").length >= 10
   const addressFilled = addr1.trim().length > 0
   const buyerReady = buyerFilled && (!useParcel || addressFilled)
 
@@ -324,15 +323,6 @@ function CheckoutInner() {
           placeholder="연락처 (010-0000-0000)"
           value={buyerPhone}
           onChange={(e) => setBuyerPhone(formatPhone(e.target.value))}
-        />
-        <input
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          className={styles.optionInput}
-          placeholder="이메일"
-          value={buyerEmail}
-          onChange={(e) => setBuyerEmail(e.target.value)}
         />
 
         {/* 배송지 — 택배 선택 시에만 (우편번호·주소·상세) */}

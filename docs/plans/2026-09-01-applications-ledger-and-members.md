@@ -71,7 +71,7 @@
 2. **GAS 성공 판정은 HTTP 가 아니다.** 실패도 **200 + `{success:false}`** 로 온다 — 화이트리스트 밖 type(`gas/linkyincdev-main.gs:278`), 필수항목 누락(`:291`·`:567`), **슬롯 중복(`:579`)**. `data?.success !== false` 일 때만 기록한다. 안 지키면 시트에 없는 **유령 행**이 쌓여 P3 대조가 무의미해진다. (302 유실 경로는 실행 확정이므로 무조건 기록 + `gasBodyLost:true`.)
 3. **RLS 정책 0개 유지.** enable+force+revoke, 브라우저 supabase-js 금지, 조회는 서버 라우트(service_role) 경유. **`NEXT_PUBLIC_SUPABASE_*` 절대 금지.** ⚠ 새 테이블마다 Supabase 어드바이저 **INFO 가 1건씩 는다 — 의도된 상태다**(DECISIONS:169). 이걸 결함으로 오인해 `create policy` 를 넣으면 `supabase/README.md:122-124` 의 명시 금지를 정면으로 어긴다.
 4. **마이그레이션**: append-only, **dev(`kfqtzxxtwokouvoqpebq`) → prod(`qdxnxdfebkgoxeqzfmji`)**. 적용은 **Supabase MCP** — 세션 시작 시 `ToolSearch` 로 확인하고 **없으면 운영자에게 알리고 대기**. ⚠ **이름으로만 찾지 말 것**: 서버가 `mcp__Supabase__*` 가 아니라 **UUID 네임스페이스**(`mcp__<uuid>__apply_migration`)로 붙는 세션이 있다 — `select:mcp__Supabase__apply_migration` 이 빈손이라고 "MCP 없음"으로 단정하면 안 된다(2026-09-01 실제로 그렇게 붙었다). `ToolSearch "supabase migration"` 처럼 **키워드로** 찾고, 호출 승인이 뜨면 운영자에게 승인을 요청한다. 적용 후 **`supabase/README.md` §4 표(`| 파일 | 내용 | dev | prod |`)에 행 추가는 필수** — SQL Editor 로 적용하면 `supabase_migrations.schema_migrations` 에 안 남아(DECISIONS:49 실측) 그 표가 **적용 이력의 유일한 정본**이다. ⚠ MCP `apply_migration` 은 기록을 남기긴 하지만 **자체 타임스탬프**로 남는다(2026-09-01 실측: 파일명 `20260901093000` ↔ 기록 `20260901121219`) — 파일↔적용 대응은 여전히 README §4 표로 잇는다. (MCP 는 2026-09-01 연결·승인·실사용 확인 — 세션마다 연결 여부만 재확인)
-5. **마이그레이션 SQL 관례**: 배너 주석 `-- 000N · <제목>` + '해소하는 것 / 지키는 결정' 문단(전례 `core_orders.sql:1-23`) → applications 는 **0005**, profiles 는 **0006**. `create extension if not exists pgcrypto;`(gen_random_uuid 쓰는 전례 파일이 매번 선언) · `create table/index if not exists` · `drop trigger if exists … ; create trigger …` · **`comment on` 으로 R# 근거**(인라인 `--` 는 DB 에 안 남는다).
+5. **마이그레이션 SQL 관례**: 배너 주석 `-- 000N · <제목>` + '해소하는 것 / 지키는 결정' 문단(전례 `core_orders.sql:1-23`) → applications 는 **0005**(적용 완료). ⚠ **0006·0007 은 이미 다른 작업이 썼다**(`20260901140000_applications_marketing_retention` · `20260901180000_funnel_content_name`) — **profiles 는 다음 번호로**, 붙이기 전 `ls supabase/migrations/` 로 실제 마지막 번호를 확인할 것. `create extension if not exists pgcrypto;`(gen_random_uuid 쓰는 전례 파일이 매번 선언) · `create table/index if not exists` · `drop trigger if exists … ; create trigger …` · **`comment on` 으로 R# 근거**(인라인 `--` 는 DB 에 안 남는다).
 6. **GAS 변경이 있는 Phase 는 §6 순서**: `gas/` main 병합 → `gas-deploy.yml` success 확인 → 프론트 병합. ⚠ 착수 전 **`node scripts/gas-sync.mjs check`** 로 드리프트 확인(걸리면 `pull` → 커밋이 선행). ⚠ 워크플로가 `script.googleapis.com` 503 으로 실패한 실사고가 있고(DECISIONS:45) **세션에는 재실행 권한이 없다** — 막히면 운영자에게 재실행을 요청하고 프론트 병합을 보류한다.
 7. **검증에서 시트를 오염시키지 않는다**: `INTERVIEW_GAS_URL` 미설정 목업 모드 + dev Supabase env. ⚠ 함정 3개 — ① 폼에 **`sim` 테스트 모드**가 있어 `/lazyday/admin/simulate` 경유로 열면 라우트를 아예 안 부른다(조용히 0행) ② **프리뷰 apply 폼(`preview/apply/**`)은 fetch 자체가 없다** — 반드시 실사이트 경로로 ③ 레이지클럽 트리는 Playwright 에서 폰트가 매달리므로 외부 요청 차단 필수.
 8. **`npm run build` 는 타입 게이트가 아니다** — `next.config.mjs:3-5` 가 `typescript:{ignoreBuildErrors:true}`. 실제 게이트는 **`npx tsc --noEmit` 하나뿐**이다.
@@ -115,7 +115,8 @@
 - **`interview/written`** — kind `interview_written`, dedup_key 가드 적용. ⚠ **catch 가 실패해도 `{success:true}` 를 돌려준다**(`:53-55`, 주석에 'UX 우선'). 시트에도 DB 에도 안 남는 **진짜 영구결손 경로**이고 스윕으로도 복구 불가(시트에 행이 없다) → **catch 안에서도 `recordApplication` 을 호출**해 DB 를 유일한 흔적으로 남긴다.
 - **`review`** — kind `review`. ⚠ 이 라우트만 구조가 다르다: `lib/gas.ts` 미사용, 원시 `fetch(redirect:"follow")`, env `REVIEW_GAS_URL`, **302 유실 판정 없음**, catch 가 `{success:true}` 로 삼킴 → written 과 같은 처리.
 - **P1 에서 기구현**: `lib/applications.ts` 가 P2 3종 kind·이름/전화 추출 맵·`writtenDedupKey()`(9자리 미만 → null 가드, 실측 완료)를 이미 갖고 있다 — P2 는 **라우트 3개에 `recordSafe` 배선**이 전부다.
-- ⚠ **별건 결함 (운영자 판단 대기, P2 범위 아님)**: 라우트가 GAS `{success:false}` 를 손님에게 `{success:true}` 로 돌려줘 **GAS 가 거절해도 완료 화면이 뜬다**(종전 동작 — P1 은 원장 유령행만 막았다). 슬롯 중복이 흔한 interview/book 에서 가장 아프다. 고치면 폼 실패 UX 가 갈리므로 운영자 판단 후 별건 PR 로.
+- ✔ **`apply` 는 해결됨** (2026-09-01, 운영자 "이건 절대 안 되지") — GAS 거절 시 손님에게 `{success:false}` 를 돌려주고 `markSubmitted` 도 건너뛴다. 판정은 `lib/gas.ts` 의 `isGasRejected()` 로 통일. `interview/book` 은 원래 `NextResponse.json(data)` 패스스루라 이미 거절이 전달된다.
+- ⚠ **`written`·`review` 의 catch 삼킴은 이 Phase 에서 함께 고친다** — 응답만 먼저 실패로 바꾸면 **손님은 실패를 보는데 시트·DB 어디에도 기록이 없다**. DB 기록(`recordApplication`)을 붙인 뒤에야 응답을 사실대로 바꿀 수 있다. 순서: 기록 먼저, 응답 나중.
 - 검증: P1 과 동일. 독립 PR.
 
 ---
@@ -168,7 +169,7 @@
 
 ### P4a. 카카오 + 구글
 
-1. **`profiles` 마이그레이션(0006)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
+1. **`profiles` 마이그레이션(다음 번호 — 0006·0007 은 사용됨, 위 불변 원칙 5 참조)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
    컬럼: `user_id` PK→auth.users cascade · `display_name` · `email` · `phone`(자기 신고, **키가 아니다**) · `phone_verified_at` · `age_verified_at`(만 14세) · `marketing_consent_at`(R10) · 타임스탬프.
    같은 파일에 **`create index if not exists orders_user_id_idx on public.orders (user_id) where user_id is not null;`** — '내 주문' 조회용 인덱스가 없다.
    **identities 테이블 불필요** — `auth.identities` 가 담는다.
@@ -210,7 +211,7 @@
 | ~~P0 직후~~ | ✔ 해소(2026-09-01) — 제6조 포함·즉시 시행 운영자 확정 |
 | ~~P1 착수 전~~ | ✔ 해소(2026-09-01) — MCP 승인·실사용, dev·prod 스키마 대조 완료(전 컬럼 동일) |
 | ~~P1 착수와 동시~~ | ✔ 안내 전달(2026-09-01 브리핑) — P4-0 준비물·약관 30일 리드타임. **운영자 실행은 진행 중** |
-| **지금 (P2 착수 전)** | ① **보유기간 고지 문구 통일** — 화면이 3갈래(신청·커피앤바 "동의 철회 시까지" / 레이지클럽 "모임 종료 후 1년" / 방침 "기수 종료 후 1년"). 코드는 방침 기준(종료+1년)으로 기구현, 화면 문구만 남음 ② **별건 결함 판단** — GAS 거절에도 완료 화면이 뜨는 문제(P2 절 참조)를 고칠지 |
+| ~~지금 (P2 착수 전)~~ | ✔ 해소(2026-09-01) — ① 보유기간 고지 문구는 **다른 세션이 정리 중**(운영자 "한 번에 할게") — 이 계획 범위 밖 ② 별건 결함은 **고치기로 확정, apply 반영 완료**(#557), written·review 는 P2 |
 | P2.5 | **시트 새로고침 → 메뉴 → 트리거 켜기** + 스크립트 속성 `SITE_URL`·토큰 / 후기는 범위 밖 확인 |
 | P3 | R13 감사 로그 생략 여부 판단 |
 | P4-0 | 개발자 앱 등록 / 약관·방침 2차 개정 문구 / 만 14세 정책 / **공개 로그인 입구 노선 확인**(community-spec 과 충돌) |

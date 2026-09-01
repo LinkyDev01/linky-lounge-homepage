@@ -216,6 +216,39 @@
   outline: none;
   border-color: var(--ink);
 }
+/* 주문자 정보 확인 행 — 앞 화면(신청서)에서 받아 온 이름·연락처 (2026-09-01).
+   입력칸 자리에 들어가므로 높이·좌우 여백을 .optionInput 과 맞춘다. 값은 잉크,
+   '수정'은 워크룸 링크 문법(텍스트 + 밑줄) — 유채색·버튼 면 없이 */
+.orderer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--hair);
+  margin-bottom: 8px;
+}
+.ordererValue {
+  font-size: 14px;
+  color: var(--ink);
+}
+.ordererEdit {
+  flex: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: "SUIT", sans-serif;
+  font-size: 12px;
+  color: var(--dim);
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+.ordererEdit:hover {
+  color: var(--ink);
+}
+
 .optionNote {
   font-family: "Gothic A1", sans-serif;
   font-weight: 300;

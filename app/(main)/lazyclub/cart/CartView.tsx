@@ -9,6 +9,7 @@ import { HOME, useToast, WorkroomShell } from "../Shell"
 import { useCart } from "../store"
 import { meetingOrderCode } from "../one-day-config"
 import { goodsCode } from "@/lib/order-catalog"
+import { CHECKOUT_PATH } from "@/lib/payments/config"
 import { useBasePath } from "@/hooks/use-base-path"
 import styles from "../home.module.css"
 
@@ -39,7 +40,7 @@ function CartBody() {
   const hasUnpriced = cart.items.some((i) => i.price == null)
   // 결제 가능한 항목만 체크아웃으로 넘긴다 (마감·가격 미정은 서버 검증에서 걸린다)
   const codes = cart.items.map((i) => orderCodeOf(i.id)).filter((c): c is string => c !== null)
-  const checkoutHref = `${base}/one-day-talk-01/checkout?items=${codes.join(",")}`
+  const checkoutHref = `${base}${CHECKOUT_PATH}?items=${codes.join(",")}`
 
   return (
     <main className={styles.content}>

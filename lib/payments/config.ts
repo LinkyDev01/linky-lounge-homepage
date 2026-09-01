@@ -45,7 +45,16 @@ export const TOSS_VARIANT_AGREEMENT = process.env.NEXT_PUBLIC_TOSS_VARIANT_AGREE
 export type MeetingPayRoute = "linkpay" | "widget"
 export const MEETING_PAY_ROUTE: MeetingPayRoute = "widget"
 
-/** 결제 결과 화면 경로 (호스트 base 는 호출부가 붙인다) */
-export const CHECKOUT_PATH = "/one-day-talk-01/checkout"
+/** 결제 화면 경로 (호스트 base 는 호출부가 붙인다).
+ *
+ *  ⚠ **하드코딩 금지 — 링크는 전부 이 상수로 만든다.** 카트·제품 상세·모임 신청 폼·
+ *  어드민 재진입 링크가 각자 문자열을 들고 있다가, 2026-09-01 주소 이전 때 네 군데를
+ *  따로 고쳐야 했다. 새 진입점이 생기면 여기서 가져다 쓸 것.
+ *
+ *  이전 이력 (2026-09-01, 운영자 "원데이토크랑 붙어있는 게 아니잖아"): 결제는
+ *  `/one-day-talk-01/checkout` 에 있었다 — 원데이 토크 1회차의 하위 경로인데
+ *  실제로는 제품·모임 결제까지 **전부** 이 화면을 지난다. 주소가 내용을 속이고 있었다.
+ *  구 주소는 middleware 의 301 원장이 영구히 받는다 (docs/url-policy.md §3). */
+export const CHECKOUT_PATH = "/checkout"
 export const SUCCESS_PATH = `${CHECKOUT_PATH}/success`
 export const FAIL_PATH = `${CHECKOUT_PATH}/fail`

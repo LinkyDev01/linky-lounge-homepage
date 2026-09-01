@@ -30,6 +30,8 @@ import {
   KAKAO_SUBMIT_LABEL,
   reportClientError,
 } from "@/app/(main)/lazyday/support"
+import { CHECKOUT_PATH } from "@/lib/payments/config"
+import { stashOrderer } from "@/lib/payments/orderer"
 import { TurtleLoader } from "../../../TurtleLoader"
 import styles from "../../../home.module.css"
 import form from "./meeting-apply.module.css"
@@ -64,7 +66,7 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
   const base = useBasePath()
   // 링크페이는 외부 주소(새 창), 우리 결제창은 같은 탭 — 아래 렌더가 갈린다
   const isLinkPay = Boolean(meeting.payUrl)
-  const payHref = meeting.payUrl ?? `${base}/one-day-talk-01/checkout?items=${meeting.orderCode}`
+  const payHref = meeting.payUrl ?? `${base}${CHECKOUT_PATH}?items=${meeting.orderCode}`
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -203,6 +205,10 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
     }
     setLoading(false)
     setDone(true)
+    // 결제 화면이 주문자 정보를 다시 묻지 않도록 넘겨 둔다 (운영자 2026-09-01
+    // "굳이 2단계로 하지 말고"). 링크페이로 나가는 경우엔 우리 화면이 아니라 무의미하지만,
+    // 경로가 바뀌어도(MEETING_PAY_ROUTE) 값은 남아 있는 편이 안전하다.
+    stashOrderer({ name, phone })
     try {
       sessionStorage.setItem(doneKey, "1")
     } catch {}

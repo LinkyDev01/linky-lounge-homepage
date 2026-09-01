@@ -77,3 +77,4 @@ lazy-club.com/<섹션>/<슬러그>
 |---|---|---|
 | 2026-08-21 | `shop`→`products` · `calendar`→`schedule` · `archive`→`records` | 섹션 = 내비 라벨 영문 대응어 확정 |
 | 2026-08-22 | 사람: `andongmin`→`00000001`→**`dmahn`** / `gorden`→`00000002`→**`gdcheon`** | 순번 표기는 반나절 만에 폐기 — 4개 구형 전부 원장에 |
+| 2026-09-01 | 결제: `/one-day-talk-01/checkout` → **`/checkout`** (success·fail 포함) | 원데이 토크 1회차의 하위 경로였지만 제품·모임 결제가 전부 이 화면을 지난다 — 주소가 내용을 속이고 있었다(운영자 "원데이토크랑 붙어있는 게 아니잖아"). 301 은 `middleware.ts` 의 `movedCheckout()` — 섹션·사람 표와 달리 **경로 단위 이전**이라 함수로 뒀다. 두 도메인·`/lazyday` 프리픽스 유무 전부 커버 |

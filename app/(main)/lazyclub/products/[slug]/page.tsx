@@ -5,6 +5,7 @@ import { ProductDetail } from "../../ProductDetail"
 // 서버 컴포넌트 — Shell("use client") 경유로 BASE 를 받으면 프록시가 찍힌다 (base-path 직수입)
 import { BASE } from "../../base-path"
 import { goodsCode } from "@/lib/order-catalog"
+import { CHECKOUT_PATH } from "@/lib/payments/config"
 
 /** 굿즈 상세 — 워크룸 상품 상세 구조 (docs/redesign/09 2순위).
  *  2026-08-11: 결제위젯 연결. 수령은 현장 수령 기본 + 택배 병행(운영자 "혹시 모르니
@@ -31,7 +32,7 @@ export default async function GoodsDetailPage({ params }: { params: Promise<{ sl
       sub="Product"
       description={g.description}
       fields={[{ label: "문의", lines: ["카카오톡 채널"], href: KAKAO_CHAT_URL }]}
-      buyHref={`/one-day-talk-01/checkout?items=${goodsCode(g.slug)}`}
+      buyHref={`${CHECKOUT_PATH}?items=${goodsCode(g.slug)}`}
       options={{
         // 색별 제품컷 — 칩 클릭 시 메인 사진 교체 (운영자 2026-08-11, 나열 폐기)
         colors: g.colors.map((hex, i) => ({ hex, name: g.colorNames[i] ?? hex, img: g.colorImgs?.[i] })),

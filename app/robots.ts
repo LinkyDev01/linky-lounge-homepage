@@ -26,6 +26,10 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         "/lazyday/preview",
         "/api/",
         // 결제(체크아웃·승인 결과)는 거래 페이지 — 검색 결과 노출 제외 (SEO 2026-08-12)
+        "/checkout",
+        "/lazyday/checkout",
+        // 구 주소 (2026-09-01 이전 전) — 301 이 받지만, 이미 색인된 주소가 다시 크롤되며
+        // 리다이렉트 체인을 타지 않게 남겨 둔다
         "/one-day-talk-01/checkout",
         "/lazyday/one-day-talk-01/checkout",
       ],

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { copyText } from "../../support"
+import { SUCCESS_PATH } from "@/lib/payments/config"
 import styles from "./status.module.css"
 
 /**
@@ -140,7 +141,7 @@ export default function AdminStatusPage() {
                   <button
                     className={styles.rescueCopy}
                     onClick={async () => {
-                      const url = `${window.location.origin}/one-day-talk-01/checkout/success?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
+                      const url = `${window.location.origin}${SUCCESS_PATH}?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
                       if (await copyText(url)) {
                         setCopiedNo(o.orderNo)
                         setTimeout(() => setCopiedNo(""), 2000)

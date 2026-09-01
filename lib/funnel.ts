@@ -27,6 +27,12 @@ export async function recordFunnelEvent(input: {
   eventName: string
   eventId: string
   trafficSrc?: string
+  /**
+   * 픽셀 custom_data.content_name — Lead 종류를 가른다 (2026-09-01).
+   * 북클럽 신청서(lazyday_bookclub_4)와 원데이 결제완료(OneDayTalk_신청완료)가
+   * 둘 다 'Lead' 로 들어와 집계에서 섞이던 문제를 여기서 푼다.
+   */
+  contentName?: string
   /** 초 단위 Unix (CAPI 라우트가 클램프한 값) */
   eventTimeSec: number
 }): Promise<void> {
@@ -42,6 +48,9 @@ export async function recordFunnelEvent(input: {
         // DB check 와 같은 형태만 통과 — 어긋나면 출처 미상(null)으로 남긴다
         traffic_src:
           input.trafficSrc && /^[a-z0-9_-]{1,32}$/.test(input.trafficSrc) ? input.trafficSrc : null,
+        // 한글 상품명이 들어오므로 문자 종류는 제한하지 않고 길이만 자른다 (DB check 와 같은 기준)
+        content_name:
+          input.contentName && input.contentName.length <= 100 ? input.contentName : null,
         occurred_at: new Date(input.eventTimeSec * 1000).toISOString(),
       },
       { onConflict: "event_id", ignoreDuplicates: true },

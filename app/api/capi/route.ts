@@ -145,11 +145,24 @@ export async function POST(req: NextRequest) {
   // ── 퍼널 계측 (2026-08-26) — 유입 출처별 결제시작/제출 자체 집계.
   //    Meta 토큰과 **무관하게** 남긴다(그래서 토큰 게이트보다 앞). 개인정보 0,
   //    event_id 멱등, 실패해도 절대 던지지 않는다 (lib/funnel.ts).
-  const trafficSrcRaw = (body.custom_data as Record<string, unknown> | undefined)?.traffic_src
+  const cd = body.custom_data as Record<string, unknown> | undefined
+  const trafficSrcRaw = cd?.traffic_src
+  // ⚠ 서버 폴백 (2026-09-01) — 클라이언트가 못 보냈을 때만 쿠키에서 건진다.
+  //   localStorage 가 막힌 환경(프라이빗 모드·인앱 WebView)에서 결제시작의 19% 가
+  //   출처 없이 기록되던 문제의 마지막 안전망이다. lib/traffic-src.ts 가 저장할 때
+  //   같은 이름의 쿠키에도 써 두므로 여기서 그대로 읽힌다 (_fbp·_fbc 와 같은 방식).
+  //   ⚠ **클라이언트 값이 우선** — 그쪽이 만료 판정까지 거친 값이라 더 정확하다.
+  const trafficSrc =
+    typeof trafficSrcRaw === "string" ? trafficSrcRaw : req.cookies.get("lazyday_src")?.value
+
+  // Lead 는 북클럽 신청서와 원데이 결제완료가 섞여 들어온다 — content_name 으로 가른다
+  const contentNameRaw = cd?.content_name
+
   await recordFunnelEvent({
     eventName,
     eventId,
-    trafficSrc: typeof trafficSrcRaw === "string" ? trafficSrcRaw : undefined,
+    trafficSrc,
+    contentName: typeof contentNameRaw === "string" ? contentNameRaw : undefined,
     eventTimeSec: eventTime,
   })
 

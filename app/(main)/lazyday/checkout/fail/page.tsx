@@ -1,9 +1,10 @@
 "use client"
 
+import { CHECKOUT_PATH } from "@/lib/payments/config"
 import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { LazydayLink } from "@/components/common/LazydayLink"
-import { KAKAO_CHAT_URL } from "../../../support"
+import { KAKAO_CHAT_URL } from "../../support"
 import { parseOrderCodes } from "@/lib/order-catalog"
 import styles from "../checkout.module.css"
 
@@ -29,7 +30,7 @@ function FailInner() {
   const canceled = isCanceledCode(code, message)
   // 실패한 주문의 상품 코드 복원 — 같은 항목으로 바로 재시도
   const codes = parseOrderCodes(params.get("orderId") || "")
-  const retryHref = codes ? `/one-day-talk-01/checkout?items=${codes.join(",")}` : "/one-day-talk-01/apply"
+  const retryHref = codes ? `${CHECKOUT_PATH}?items=${codes.join(",")}` : "/one-day-talk-01/apply"
 
   return (
     <div className={styles.stateBox}>

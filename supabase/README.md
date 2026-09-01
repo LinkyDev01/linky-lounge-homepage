@@ -112,7 +112,8 @@ select i.name_snapshot, i.kind, i.unit_price
 select purge_expired_participants();
 ```
 
-재진입 링크: `https://www.lazyday-bookclub.com/one-day-talk-01/checkout/success?orderId=<order_no>&reentry=1`
+재진입 링크: `https://www.lazyday-bookclub.com/checkout/success?orderId=<order_no>&reentry=1`
+(구 주소 `/one-day-talk-01/checkout/success` 도 301 로 살아 있다 — 2026-09-01 이전)
 
 ## 6. 하지 말 것
 

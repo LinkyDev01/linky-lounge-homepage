@@ -1,5 +1,6 @@
 "use client"
 
+import { CHECKOUT_PATH } from "@/lib/payments/config"
 import { Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react"
 import { useSearchParams } from "next/navigation"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -15,11 +16,11 @@ import {
   KAKAO_SUBMIT_LABEL,
   copyText,
   reportClientError,
-} from "../../../support"
+} from "../../support"
 import { parseOrderCodes, resolveItems } from "@/lib/order-catalog"
-import { ONEDAY, sessionDateLabel, sessionKey } from "../../oneday-shared"
-import applyStyles from "../../../apply/page.module.css"
-import cal from "../../apply/oneday.module.css"
+import { ONEDAY, sessionDateLabel, sessionKey } from "../../one-day-talk-01/oneday-shared"
+import applyStyles from "../../apply/page.module.css"
+import cal from "../../one-day-talk-01/apply/oneday.module.css"
 import styles from "../checkout.module.css"
 
 /**
@@ -81,7 +82,7 @@ function SuccessInner() {
   // 승인 실패 시 같은 주문으로 다시 시도할 수 있게 orderId에서 상품 코드 복원
   const codes = parseOrderCodes(orderId)
   const items = codes ? resolveItems(codes) : null
-  const retryHref = codes ? `/one-day-talk-01/checkout?items=${codes.join(",")}` : "/one-day-talk-01/apply"
+  const retryHref = codes ? `${CHECKOUT_PATH}?items=${codes.join(",")}` : "/one-day-talk-01/apply"
   // 굿즈가 섞여 있으면 완료 문구를 수령 안내로 (배송은 결제 때 입력한 배송지로)
   const hasGoods = items?.some((i) => i.kind === "goods") ?? false
   const sessions = meetingSessionsOf(codes)

@@ -69,7 +69,24 @@ const LAZYCLUB_LIVE = false
 // PG(토스 결제위젯) 심사 대비 화이트리스트 (2026-08-11): 심사관이 lazy-club.com에서
 // 상품 → 신청 → 결제위젯 → 약관·개인정보처리방침까지 도달할 수 있어야 한다.
 // 이 프리픽스만 북클럽 도메인과 같은 방식(내부 /lazyday/*)으로 열고, 나머지는 coming-soon 유지.
-const LAZYCLUB_OPEN_PREFIXES = ["/one-day-talk-01", "/policy", "/privacy", "/terms"]
+const LAZYCLUB_OPEN_PREFIXES = ["/one-day-talk-01", "/checkout", "/policy", "/privacy", "/terms"]
+
+/** 결제 주소 이전 (2026-09-01): `/one-day-talk-01/checkout` → `/checkout`.
+ *  결제 화면은 원데이 토크 1회차의 하위가 아니라 제품·모임이 **전부** 지나는 자리인데
+ *  주소만 그 회차에 매달려 있었다 (운영자: "원데이토크랑 붙어있는 게 아니잖아").
+ *  ⚠ **301 원장 — 지우지 않는다** (docs/url-policy.md §3). 카톡·문자로 공유된 결제
+ *  링크와 검색 색인이 구 주소에 걸려 있다. success·fail 하위까지 함께 받는다.
+ *  `/lazyday` 프리픽스 유무 양쪽을 다 처리한다 — 북클럽 도메인은 깔끔한 경로로,
+ *  직접 접근은 `/lazyday/...` 로 들어온다 */
+function movedCheckout(pathname: string): string | null {
+  for (const prefix of ["", "/lazyday"]) {
+    const old = `${prefix}/one-day-talk-01/checkout`
+    if (pathname === old || pathname.startsWith(`${old}/`)) {
+      return `${prefix}/checkout${pathname.slice(old.length)}`
+    }
+  }
+  return null
+}
 
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]
@@ -79,6 +96,16 @@ export function middleware(req: NextRequest) {
   if (LINKYLOUNGE_HOSTS.has(host) && (pathname === "/lazyday" || pathname.startsWith("/lazyday/"))) {
     const clean = pathname === "/lazyday" ? "/" : pathname.slice("/lazyday".length)
     return NextResponse.redirect(new URL(clean + req.nextUrl.search, BOOKCLUB_ORIGIN), 301)
+  }
+
+  // 결제 주소 이전 301 (2026-09-01) — 모든 호스트 공통. 링크페이·카톡으로 나간 구
+  // 주소가 살아 있어야 하고, rewrite 로 두 주소를 다 살리면 색인이 갈라진다(§4).
+  // clone() 이 search 를 들고 가므로 ?items=… 와 utm 이 보존된다.
+  const movedPay = movedCheckout(pathname)
+  if (movedPay) {
+    const to = req.nextUrl.clone()
+    to.pathname = movedPay
+    return NextResponse.redirect(to, 301)
   }
 
   // 레이지 클럽 도메인: 랜딩(인트로) 단계 — 페이지 요청 전부를 랜딩으로 (api 제외).

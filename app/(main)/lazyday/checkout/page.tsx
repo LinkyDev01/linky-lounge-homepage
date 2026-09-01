@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation"
 import { loadTossPayments, ANONYMOUS, type TossPaymentsWidgets } from "@tosspayments/tosspayments-sdk"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { useBasePath } from "@/hooks/use-base-path"
-import { reportClientError } from "../../support"
-import { TOSS_DOCS_TEST_CLIENT_KEY, findSession, isPastSession } from "../oneday-shared"
+import { reportClientError } from "../support"
+import { FAIL_PATH, SUCCESS_PATH } from "@/lib/payments/config"
+import { clearOrderer, readOrderer } from "@/lib/payments/orderer"
+import { TOSS_DOCS_TEST_CLIENT_KEY, findSession, isPastSession } from "../one-day-talk-01/oneday-shared"
 import {
   SHIPPING_CODE,
   SHIPPING_FEE,
@@ -93,6 +95,23 @@ function CheckoutInner() {
   // ⚠ 이메일은 받지 않는다 (운영자 2026-09-01 "필요없잖아"). 잠시 필수 칸으로 있었지만
   //   토스에도, 우리 서버에도, 원장에도 넘기는 곳이 없어 받아서 버리는 값이었다.
   //   결제 확인·모임 안내는 전부 알림톡과 전화로 나간다 — 다시 넣지 말 것.
+  // 앞 화면(모임 신청서)에서 이미 받은 이름·연락처를 끌어와 **다시 묻지 않는다**
+  // (운영자 2026-09-01 "굳이 2단계로 하지 말고"). 값이 있으면 입력칸 대신 확인 한 줄만
+  // 띄우고, '수정'을 누르면 종전 입력칸으로 돌아간다.
+  // ⚠ 마운트 후 읽는다 — useState 초깃값으로 쓰면 서버 렌더(항상 빈 값)와 어긋나
+  //   하이드레이션 불일치가 난다 (LazyclubLink·useBasePath 와 같은 규율).
+  const [prefilled, setPrefilled] = useState(false)
+  useEffect(() => {
+    const o = readOrderer()
+    if (!o) return
+    setBuyerName(o.name)
+    setBuyerPhone(formatPhone(o.phone))
+    setPrefilled(true)
+  }, [])
+  function editOrderer() {
+    clearOrderer() // 안 지우면 새로고침에 다시 채워진다
+    setPrefilled(false)
+  }
   const [zip, setZip] = useState("")
   const [addr1, setAddr1] = useState("")
   const [addr2, setAddr2] = useState("")
@@ -209,8 +228,8 @@ function CheckoutInner() {
       await widgets.requestPayment({
         orderId,
         orderName: firstOpt ? name.replace(/^([^—]+)/, `$1(${firstOpt}) `) : name,
-        successUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/success`,
-        failUrl: `${window.location.origin}${base}/one-day-talk-01/checkout/fail`,
+        successUrl: `${window.location.origin}${base}${SUCCESS_PATH}`,
+        failUrl: `${window.location.origin}${base}${FAIL_PATH}`,
         customerName: buyerName.trim(),
         customerMobilePhone: buyerPhone.replace(/[^0-9]/g, ""),
         // 수령 방법·배송지 — 상점관리자 결제 상세의 metadata 로 확인 (주문 DB 없음)
@@ -309,21 +328,35 @@ function CheckoutInner() {
         )}
 
         <p className={styles.optionTitle}>주문자 정보</p>
-        <input
-          type="text"
-          className={styles.optionInput}
-          placeholder="이름"
-          value={buyerName}
-          onChange={(e) => setBuyerName(e.target.value)}
-        />
-        <input
-          type="tel"
-          inputMode="numeric"
-          className={styles.optionInput}
-          placeholder="연락처 (010-0000-0000)"
-          value={buyerPhone}
-          onChange={(e) => setBuyerPhone(formatPhone(e.target.value))}
-        />
+        {/* 신청서에서 이미 받은 경우 — 다시 입력받지 않고 확인만 (2026-09-01) */}
+        {prefilled ? (
+          <div className={styles.orderer}>
+            <span className={styles.ordererValue}>
+              {buyerName} · {buyerPhone}
+            </span>
+            <button type="button" className={styles.ordererEdit} onClick={editOrderer}>
+              수정
+            </button>
+          </div>
+        ) : (
+          <>
+            <input
+              type="text"
+              className={styles.optionInput}
+              placeholder="이름"
+              value={buyerName}
+              onChange={(e) => setBuyerName(e.target.value)}
+            />
+            <input
+              type="tel"
+              inputMode="numeric"
+              className={styles.optionInput}
+              placeholder="연락처 (010-0000-0000)"
+              value={buyerPhone}
+              onChange={(e) => setBuyerPhone(formatPhone(e.target.value))}
+            />
+          </>
+        )}
 
         {/* 배송지 — 택배 선택 시에만 (우편번호·주소·상세) */}
         {useParcel && (
@@ -355,7 +388,9 @@ function CheckoutInner() {
         )}
 
         <p className={styles.optionNote}>
-          {!hasGoods
+          {prefilled
+            ? "신청서에 입력하신 정보입니다. 다르면 수정해주세요."
+            : !hasGoods
             ? "결제 확인·모임 안내에 사용됩니다."
             : useParcel
             ? "입력하신 배송지로 발송해 드립니다."

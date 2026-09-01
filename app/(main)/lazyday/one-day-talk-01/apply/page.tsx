@@ -7,6 +7,7 @@ import styles from "../../apply/page.module.css"
 import { ONEDAY, isPastSession, sessionDateLabel, sessionKey, type OnedaySession } from "../oneday-shared"
 import { useBasePath } from "@/hooks/use-base-path"
 import { meetingCode } from "@/lib/order-catalog"
+import { CHECKOUT_PATH } from "@/lib/payments/config"
 import cal from "./oneday.module.css"
 
 /**
@@ -149,7 +150,7 @@ export default function OnedayApplyPage() {
     setSessionsError("")
   }
 
-  const checkoutHref = `${base}/one-day-talk-01/checkout?items=${[...pickedKeys]
+  const checkoutHref = `${base}${CHECKOUT_PATH}?items=${[...pickedKeys]
     .sort((a, b) => a - b)
     .map(meetingCode)
     .join(",")}`

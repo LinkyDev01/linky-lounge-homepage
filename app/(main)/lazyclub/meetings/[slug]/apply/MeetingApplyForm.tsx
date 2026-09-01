@@ -41,8 +41,10 @@ type Meeting = {
   date: string
   place: string
   price: number | null
-  /** 주문 코드 — 폼이 useBasePath 로 결제창 URL 을 조립한다 (2026-08-31) */
-  orderCode: string
+  /** 토스 링크페이 주소 — MEETING_PAY_ROUTE="linkpay" 일 때만 온다 */
+  payUrl?: string
+  /** 주문 코드 — 우리 결제창으로 갈 때만. 폼이 useBasePath 로 URL 을 조립한다 */
+  orderCode?: string
   sessions?: { week: string; date: string; work: string }[]
   /** 알림톡 '비고' 칸 — 전달할 게 있는 모임만 채운다 (one-day-config 의 같은 필드) */
   notice?: string
@@ -58,8 +60,11 @@ function formatPhone(value: string) {
 export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
   // 결제창 URL — 호스트마다 base 가 다르다 (lazy-club.com 은 루트, 북클럽은 /lazyday).
   // 카트의 checkoutHref 와 같은 문법 (2026-08-31 결제 목적지 내부화)
+  const [payCopied, setPayCopied] = useState(false)
   const base = useBasePath()
-  const checkoutHref = `${base}/one-day-talk-01/checkout?items=${meeting.orderCode}`
+  // 링크페이는 외부 주소(새 창), 우리 결제창은 같은 탭 — 아래 렌더가 갈린다
+  const isLinkPay = Boolean(meeting.payUrl)
+  const payHref = meeting.payUrl ?? `${base}/one-day-talk-01/checkout?items=${meeting.orderCode}`
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -227,11 +232,36 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
             </div>
           )}
         </div>
-        {/* 2026-08-31: 외부 결제 링크(새 창) → **같은 사이트의 결제창**으로. 새 창이 아니라
-            같은 탭으로 가므로 인앱 브라우저·팝업 차단 구제(주소 복사)도 필요 없어졌다 */}
-        <a href={checkoutHref} className={form.actionBtn}>
-          결제하기
-        </a>
+        {/* 목적지가 둘이라 렌더도 갈린다 (MEETING_PAY_ROUTE).
+            · 링크페이(외부): 새 창 + 주소 복사 구제 — 인앱 브라우저·팝업 차단 환경 대비
+            · 우리 결제창(내부): 같은 탭이라 구제가 필요 없다 */}
+        {isLinkPay ? (
+          <>
+            <a href={payHref} target="_blank" rel="noopener noreferrer" className={form.actionBtn}>
+              결제하기
+            </a>
+            <p className={form.infoNote}>
+              결제 페이지는 새 창에서 열립니다. 창이 열리지 않으면 아래 주소를 복사해 브라우저에
+              붙여넣어 주세요.
+            </p>
+            <p className={form.payUrlLine}>
+              <span className={form.payUrlText}>{payHref}</span>
+              <button
+                type="button"
+                className={form.linkBtn}
+                onClick={async () => {
+                  setPayCopied(await copyText(payHref))
+                }}
+              >
+                {payCopied ? "복사됨" : "주소 복사"}
+              </button>
+            </p>
+          </>
+        ) : (
+          <a href={payHref} className={form.actionBtn}>
+            결제하기
+          </a>
+        )}
         <p className={form.infoNote}>
           결제가 끝나면 창을 닫으셔도 좋아요. 문제가 있으면{" "}
           <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer">

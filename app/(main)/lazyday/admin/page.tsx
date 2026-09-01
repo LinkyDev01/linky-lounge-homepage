@@ -276,6 +276,7 @@ export default function AdminPage() {
           <div className={styles.headerActions}>
             <button className={styles.iconBtn} onClick={loadBlocks} title="새로고침">↺</button>
             {/* 운영 상태 점검 (2026-08-06) */}
+            <a className={styles.logoutBtn} href="/lazyday/admin/applications">접수 원장</a>
             <a className={styles.logoutBtn} href="/lazyday/admin/status">상태 점검</a>
             <a className={styles.logoutBtn} href="/lazyday/admin/simulate">흐름 테스트</a>
             <button className={styles.logoutBtn} onClick={logout}>로그아웃</button>

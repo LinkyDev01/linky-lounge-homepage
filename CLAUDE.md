@@ -73,6 +73,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 | `preview/preview.module.css` | 프리뷰 트리 허브 (10개 파일) | 수정 전 import grep |
 
 | `lib/applications.ts` | 접수 라우트 4개 공유 (P2 에서 3개 더) | `classifyApply`(GAS type 화이트리스트와 값 집합 일치)·`recordSafe`(유령행 차단 규율). GAS `doPost` 분기를 고치면 여기도 같이 |
+| `admin/applications` (화면+CSS) | **레이지클럽 베이스** (운영자 2026-09-01 "조회화면은 레이지클럽 베이스로") | §3 팔레트가 아니라 §9 개편 문법 — 백지+잉크·13.2px/1.5·괘선 리스트·**텍스트 링크만(보더 버튼·유채색 UI 0)**. §9 대로 기존 `.module.css` 를 import 하지 않고 토큰을 자체 선언한다 |
 | `app/api/lazyday/admin/backfill-applications` | GAS 스윕 전용 (P2.5) | 인증은 **헤더 `X-Backfill-Token`**(쿠키 아님 — 부르는 쪽이 Apps Script 서버다). ⚠ 원장이 꺼져 있으면 **503 을 돌려줘야 한다** — 200 을 주면 GAS 가 '보정됨'을 찍고 그 행을 영영 안 보낸다 |
 | `applications` 테이블 | 전 접수 원장 (0005) | `purge_after` NOT NULL — 산출 못 하면 접수+1년 폴백. `sid`·`dedup_key` 는 **컬럼 unique**(부분 인덱스 금지, 42P10) |
 
@@ -97,6 +98,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **이미지 최적화 꺼짐**(`unoptimized: true` — 운영자 확인 없이 끄지 말 것): 소스 파일 크기 = 전송량. 새 이미지는 **최대 노출 크기 ×2 로 미리 축소해 커밋**, 모달용 원본과 카드용 축소본은 별도 파일(`review-0N-card.webp` 선례).
 - **fixed/오버레이 요소를 새로 놓기 전 기존 fixed 지도 확인** — 헤더(top:0)·SectionIndicator(우측 도트)·스티키 CTA·PreviewBar(좌측). 겹침 사고 2회 선례(2026-08-24).
 - **GAS 는 실패도 `200 + {success:false}` 로 준다** — 화이트리스트 밖 type·필수항목 누락·슬롯 중복이 전부 이 모양이다. 원장에 기록할 때는 반드시 `data?.success !== false` 로 거를 것(`recordSafe` 가 강제). 안 거르면 **시트에 없는 유령 행**이 쌓여 P2.5 대조가 통째로 무의미해진다. 판정은 `lib/gas.ts` 의 **`isGasRejected()` 하나로 통일** — 응답 판정(라우트)과 기록 판정(`recordSafe`)이 같은 함수를 쓴다. ⚠ **거절이면 손님에게도 `{success:false}` 를 돌려주고 `markSubmitted` 도 부르지 않는다**(2026-09-01 수정) — 폼 5개는 이미 `!res.ok || !result?.success` 로 판정해 구제 화면을 띄운다. ✔ **접수 라우트 4개 전부 적용됨**(2026-09-01, P2) — `written`·`review` 의 catch 삼킴도 제거했다. 순서가 규율이다: **기록 먼저(DB 가 유일한 흔적), 응답 나중(사실대로)**. ⚠ `review` 는 GAS 프로젝트가 별도(`REVIEW_GAS_URL`·`gas/review.gs`)이고 **`gas/project.json` 매핑 밖이라 자동 배포되지 않는다** — 배포본과 레포 파일이 어긋날 수 있다. **단 후기 접수는 현재 받지 않는다**(운영자 2026-09-01) — `/review` 는 사이트 어디서도 링크하지 않는 직접 전달용 주소라 지금은 유입이 0이다. 따라서 배포본 확인은 **접수를 다시 열기 직전**에 하면 된다(실제 제출 1건 → 완료 화면 확인). 그때까지 이 라우트 변경은 프로덕션에 영향이 없다
+- **supabase-js 의 `.select()` 문자열은 타입 수준에서 파싱된다** — `"a, b" + "c"` 처럼 이어 붙이면 행 타입을 못 뽑아 **필드 접근이 전부 컴파일 에러**가 된다(`GenericStringError`). 길어도 **한 줄 리터럴**로 쓸 것
 - **GAS→우리 서버 방향은 전용 토큰이다** — `BACKFILL_TOKEN`(Vercel env = GAS 스크립트 속성, 같은 값) + GAS 속성 `SITE_URL`. `ADMIN_TOKEN`(우리→GAS 한 방향)을 재사용하지 않는다: 과거 두 값이 불일치해 사고가 났다. **service_role 키는 GAS 에 절대 두지 않는다** — GAS 는 우리 라우트를 부를 뿐이고 DB 접근은 라우트가 한다
 - **`pkill -f <패턴>` 은 자기 명령줄까지 매칭한다** — `pkill -f "next dev"` 나 `pkill -f mock-gas.mjs` 를 쓰면 그 문자열이 든 **셸 자신이 죽어 exit 144** 로 끝나고 **뒤 명령이 통째로 실행되지 않는다**(heredoc 파일 쓰기가 조용히 누락돼 옛 파일로 검증하는 사고가 났다). `ps -eo pid,args | grep '패[턴]'` 로 PID 를 뽑아 `kill` 하거나, 아예 **다른 포트로 띄울 것**. 살아남아야 하는 백그라운드는 `setsid … < /dev/null &`
 - **한 SELECT 안의 독립 서브쿼리는 평가 순서가 보장되지 않는다** — `select (파기함수()), (그 행 상태)` 로 한 번에 재면 파기 **전** 값을 읽어 거짓 실패로 보인다. 부작용이 있는 함수와 그 결과 관측은 **쿼리를 나눠서**

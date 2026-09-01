@@ -82,6 +82,7 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 | `20260818120000_harden_functions.sql` | 파기 함수 EXECUTE 를 service_role 만으로 회수 + set_updated_at search_path 고정 (dev 어드바이저 지적) | ✔ | ✔ |
 | `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ✔ (2026-08-26) |
 | `20260826060000_funnel_events.sql` | 퍼널 계측 — 유입 출처별 결제시작/제출 집계. 개인정보 0, event_id 멱등, RLS 거부 | ✔ | ✔ |
+| `20260901093000_applications.sql` | 접수 원장(applications) — 시트 단일 저장의 이중화. sid 멱등, purge_after NOT NULL, R9 파기 2종(정기·단건) + pg_cron, RLS 거부 | ✔ | ✔ (2026-09-01) |
 
 ## 5. 운영 조회
 

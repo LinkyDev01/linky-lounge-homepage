@@ -121,6 +121,29 @@ export function seasonYear(): number {
   return Number((SEASON.deadline ?? "2026-01-01").split("-")[0])
 }
 
+/**
+ * 기수 종료일 (YYYY-MM-DD) — 마지막 회차인 5회차 날짜.
+ *
+ * **왜 필요한가.** 이 파일에는 종료일의 **기계 판독 필드가 없었다** — 있는 건 표기용
+ * `periodLabel`("9/9 – 11/1")·`fifth.date`("11/1 (일)")·`deadline`(=마감일, 종료일이 아님)뿐이라
+ * R9 파기 기준일(기수 종료 + 1년)을 코드로 산출할 방법이 없었다. 접수 원장(applications)의
+ * `purge_after` 가 NOT NULL 이라 이 값이 없으면 북클럽 접수 전건이 "접수 + 1년" 폴백으로
+ * 새고, 그건 개인정보처리방침 제3조("기수 종료 후 1년")보다 **이르게 지우는** 쪽이라
+ * 운영 데이터가 먼저 사라진다. (0001 의 pg_cron 주석이 정한 방향 — 일찍 지우는 사고는 없어야 한다.)
+ *
+ * `fifth.date` 는 "11/1 (일)" 처럼 연도가 없으므로 `seasonYear()`(deadline 파생)를 붙인다.
+ * ⚠ 기수가 해를 넘기면(마감 12월 / 5회차 1월) 월이 역전하므로 그때만 +1년 한다.
+ */
+export function seasonEndsOn(): string | null {
+  const md = SEASON.fifth.date.split(" ")[0] // "11/1 (일)" → "11/1"
+  const [m, d] = md.split("/").map(Number)
+  if (!m || !d) return null
+  const deadlineMonth = Number((SEASON.deadline ?? "").split("-")[1])
+  // 마감보다 이른 달 = 해를 넘긴 기수 (예: 마감 12/20, 5회차 1/15)
+  const year = seasonYear() + (deadlineMonth && m < deadlineMonth ? 1 : 0)
+  return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
+}
+
 export function calendarData(): CalendarData {
   const year = seasonYear()
   const meetings: CalendarMeeting[] = SEASON.sessions.flatMap((s, i) =>

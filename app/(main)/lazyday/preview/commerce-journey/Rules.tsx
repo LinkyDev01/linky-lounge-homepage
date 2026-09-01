@@ -62,7 +62,7 @@ export const RULES: Rule[] = [
     text: "기수제 모임은 개별 약관이 우선하며, 신청·인터뷰·결제·참가 확정의 다단계를 거친다.",
     src: "약관 제4조 2항 + 현행 북클럽 운영",
     impact: "기수제를 orders 하나로 표현할 수 없다. applications(신청·인터뷰) 를 별도로 두고 결제 시 orders 와 연결.",
-    ok: false,
+    ok: true,
   },
   {
     id: "R7",

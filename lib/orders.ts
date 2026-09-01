@@ -48,14 +48,21 @@ export type RecordOrderInput = {
   shipping?: ShippingInput
 }
 
-/** 전화번호 정규화 — 숫자만. 키가 아니라 조회용 속성이라 형식만 통일한다 (결정 4) */
-function normalizePhone(v?: string) {
+/** 전화번호 정규화 — 숫자만. 키가 아니라 조회용 속성이라 형식만 통일한다 (결정 4).
+ *  ⚠ **9자리 미만이면 null** — 접수 원장의 dedup_key 를 만들 때 이 null 을 반드시
+ *  가드해야 한다(`"written:null"` 이 되면 비정상 번호 접수가 서로를 덮어쓴다).
+ *  GAS 의 normPhone 에는 이 길이 컷오프가 없다는 차이도 알아 둘 것.
+ *  export 이유: lib/applications.ts 가 같은 정규화를 써야 두 원장의 전화 표기가 갈리지 않는다 */
+export function normalizePhone(v?: string) {
   const digits = (v || "").replace(/[^0-9]/g, "")
   return digits.length >= 9 ? digits : null
 }
 
-/** 모임 코드(dNNN) → 그 모임의 종료일(YYYY-MM-DD). R9 파기 기준일 계산에 쓴다 */
-function meetingEndsOn(code: string): string | null {
+/** 모임 코드(dNNN) → 그 모임의 종료일(YYYY-MM-DD). R9 파기 기준일 계산에 쓴다.
+ *  ⚠ **dNNN 주문 코드만 받는다 — meetingSlug 가 아니다.** slug 로 부르면 조용히 null 이
+ *  되어 파기 기준일이 폴백으로 새 버린다. slug 는 meetingOrderCode(), orderId 는
+ *  parseOrderCodes() 를 먼저 거칠 것 (lib/applications.ts 가 그렇게 쓴다) */
+export function meetingEndsOn(code: string): string | null {
   const m = /^d([0-9]+)$/.exec(code)
   if (!m) return null
   const s = ONEDAY.sessions.find((x) => sessionKey(x) === Number(m[1]))
@@ -65,8 +72,10 @@ function meetingEndsOn(code: string): string | null {
   return `${ONEDAY.year}-${mm}-${dd}`
 }
 
-/** 종료일 + 1년 = 파기 예정일 (R9). 종료일을 모르면 null — 파기 잡이 건너뛴다 */
-function purgeAfter(endsOn: string | null): string | null {
+/** 종료일 + 1년 = 파기 예정일 (R9). 종료일을 모르면 null.
+ *  participants 는 null 이면 파기 잡이 건너뛰지만, applications 는 purge_after 가
+ *  NOT NULL 이라 호출부가 접수일+1년으로 폴백한다 (0005 결정 2) */
+export function purgeAfter(endsOn: string | null): string | null {
   if (!endsOn) return null
   const [y, m, d] = endsOn.split("-").map(Number)
   const dt = new Date(Date.UTC(y + 1, m - 1, d))

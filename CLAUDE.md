@@ -72,6 +72,9 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 | `lazyday/lounge-info/page.tsx` | lazyday 밖 `(main)/lounge-info/page.module.css` import | 라운지 오시는길과 교차 |
 | `preview/preview.module.css` | 프리뷰 트리 허브 (10개 파일) | 수정 전 import grep |
 
+| `lib/applications.ts` | 접수 라우트 4개 공유 (P2 에서 3개 더) | `classifyApply`(GAS type 화이트리스트와 값 집합 일치)·`recordSafe`(유령행 차단 규율). GAS `doPost` 분기를 고치면 여기도 같이 |
+| `applications` 테이블 | 전 접수 원장 (0005) | `purge_after` NOT NULL — 산출 못 하면 접수+1년 폴백. `sid`·`dedup_key` 는 **컬럼 unique**(부분 인덱스 금지, 42P10) |
+
 새 클래스 추가는 안전. **TSX 쌍 동기화**: `apply/**` 실↔프리뷰 TSX 는 별도 쌍 — 폼 필드·문구 변경 시 양쪽 반영.
 
 **공유 데이터 — 프리뷰/레이지클럽 경로가 프로덕션 결제를 좌우한다**: `lazyclub/goods-config.ts` 와 `one-day-talk-01/oneday-shared.ts` 의 가격·slug·status 는 `lib/order-catalog.ts` → `/api/lazyday/payment/confirm` 이 **결제 승인 금액을 재계산하는 근거**다(주문 DB 없음 — 카탈로그가 과거 주문의 금액 근거). 가격 변경은 ① 진행 중 결제 없는 시각에 ② DECISIONS 에 전/후 값·시각 기록 후. (설계: `/lazyday/preview/commerce-journey`)
@@ -92,6 +95,9 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **Vercel**: 프로젝트 `prj_iKxnwjdJoHtlXtEIBqxJ8uVjAmcy` / 팀 `team_Unc0jNsuK26xtE7mYRh09nRa` (유사 이름 프로젝트 다수 — 반드시 이 ID). 공유는 `get_access_to_vercel_url` 로 `_vercel_share` 토큰 — **배포 단위·~23h 만료, 새 푸시마다 재발급**, 만료 시각 명시. 배포 확인은 `list_deployments` READY + 프로덕션 `www.lazyday-bookclub.com` 폴링.
 - **이미지 최적화 꺼짐**(`unoptimized: true` — 운영자 확인 없이 끄지 말 것): 소스 파일 크기 = 전송량. 새 이미지는 **최대 노출 크기 ×2 로 미리 축소해 커밋**, 모달용 원본과 카드용 축소본은 별도 파일(`review-0N-card.webp` 선례).
 - **fixed/오버레이 요소를 새로 놓기 전 기존 fixed 지도 확인** — 헤더(top:0)·SectionIndicator(우측 도트)·스티키 CTA·PreviewBar(좌측). 겹침 사고 2회 선례(2026-08-24).
+- **GAS 는 실패도 `200 + {success:false}` 로 준다** — 화이트리스트 밖 type·필수항목 누락·슬롯 중복이 전부 이 모양이다. 원장에 기록할 때는 반드시 `data?.success !== false` 로 거를 것(`recordSafe` 가 강제). 안 거르면 **시트에 없는 유령 행**이 쌓여 P2.5 대조가 통째로 무의미해진다. ⚠ 별건: 라우트는 이 값을 보지 않고 **손님에게는 `{success:true}` 를 돌려준다**(종전부터 그랬다) — GAS 가 거절해도 완료 화면이 뜬다. 미해결, DECISIONS 참조
+- **`pkill -f <패턴>` 은 자기 명령줄까지 매칭한다** — `pkill -f "next dev"` 나 `pkill -f mock-gas.mjs` 를 쓰면 그 문자열이 든 **셸 자신이 죽어 exit 144** 로 끝나고 **뒤 명령이 통째로 실행되지 않는다**(heredoc 파일 쓰기가 조용히 누락돼 옛 파일로 검증하는 사고가 났다). `ps -eo pid,args | grep '패[턴]'` 로 PID 를 뽑아 `kill` 하거나, 아예 **다른 포트로 띄울 것**. 살아남아야 하는 백그라운드는 `setsid … < /dev/null &`
+- **한 SELECT 안의 독립 서브쿼리는 평가 순서가 보장되지 않는다** — `select (파기함수()), (그 행 상태)` 로 한 번에 재면 파기 **전** 값을 읽어 거짓 실패로 보인다. 부작용이 있는 함수와 그 결과 관측은 **쿼리를 나눠서**
 - **sed 광역 치환 금지** — 고유 컨텍스트 포함 치환만. **rm 전 파일별 import grep** (JourneyStepper 오삭제 선례). **JSX 래퍼 추가 직후 tsc** — 구문 에러가 6분 타임아웃처럼 보인다.
 - **`gh` CLI 없음** — `mcp__github__*` 사용.
 - **클로징 검증**: SeasonCountCta 는 IO threshold .6 — `scrollTo(맨아래)` 로는 뷰포트 위로 빠져나가 발화 안 함. `scrollIntoView` 로 화면 중앙에.

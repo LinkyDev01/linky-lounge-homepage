@@ -285,13 +285,21 @@ export default function ApplyPage() {
     } catch {}
 
     // content_name 을 기수 식별자로 (운영자 2026-08-18) — 광고 리포트에서 기수별로
-    // 갈라 보려면 값이 코드화돼 있어야 한다. 발화 위치·조건은 종전 그대로(서버 접수 성공 후).
+    // 갈라 보려면 값이 코드화돼 있어야 한다. 발화 **위치**는 종전 그대로(서버 접수 성공 후).
     // 세 번째 인자는 서버 미러(전환 API) 전용 — 픽셀 파라미터는 위 그대로 불변이다
-    trackStandard(
-      "Lead",
-      { content_name: "lazyday_bookclub_4" },
-      { phone, trafficSrc: readTrafficSrc() ?? undefined }, // trafficSrc: 퍼널 계측용 (2026-08-26)
-    )
+    //
+    // ⚠ 시뮬레이션 제외 (2026-09-01) — 서면·예약에는 처음부터 있던 가드가 여기만 빠져 있어
+    //   관리자 테스트가 실제 전환·funnel_events 에 섞였다. 표본이 작아(출처별 Lead 한 자릿수)
+    //   몇 건만 섞여도 판단이 흔들린다.
+    //   2026-08-18 '발화 조건 변경 금지' 결정의 근거였던 **광고 세트 B3 학습은
+    //   InitiateCheckout 기준**이라(아래 trackApplyCtaClick 주석) Lead 와는 무관하다.
+    if (!sim) {
+      trackStandard(
+        "Lead",
+        { content_name: "lazyday_bookclub_4" },
+        { phone, trafficSrc: readTrafficSrc() ?? undefined }, // trafficSrc: 퍼널 계측용 (2026-08-26)
+      )
+    }
     trackEvent("apply_complete", { program: "book_club" })
     setSubmitted(true)
   }

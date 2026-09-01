@@ -13,6 +13,18 @@
 > **브랜치**: Phase 마다 **새 이름**으로 — `git fetch origin main && git checkout -B claude/<주제> origin/main`.
 > 병합된 브랜치명을 다시 밀지 않는다(CLAUDE.md: 병합된 PR 재사용 불가).
 
+## 진행 현황 (2026-09-01 현재)
+
+| Phase | 상태 |
+|---|---|
+| P0 방침 개정 | ✔ 완료·배포 (2026-09-01, #552) |
+| P1 applications + 패스스루 이중화 | ✔ 완료·배포 (2026-09-01, #554) |
+| **P2 전용 라우트 3종** | **← 다음** |
+| P2.5 → P5 | 대기 |
+
+> 각 Phase 를 끝내면 **같은 PR 에서 이 문서를 현재화**한다 — 완료 섹션은 결과·확정 판단·잔여
+> 항목으로 압축하고, 상세는 DECISIONS·실파일(정본)로 넘긴다.
+
 ---
 
 ## Context
@@ -58,7 +70,7 @@
 1. **GAS(시트) = 1차 정본.** DB 기록 실패가 접수 응답을 깨뜨리지 않는다 — `lib/orders.ts:22-24` 의 `LedgerResult`(던지지 않음 / env 미설정 시 `{ok:true,skipped:"disabled"}` / 23505=duplicate 성공).
 2. **GAS 성공 판정은 HTTP 가 아니다.** 실패도 **200 + `{success:false}`** 로 온다 — 화이트리스트 밖 type(`gas/linkyincdev-main.gs:278`), 필수항목 누락(`:291`·`:567`), **슬롯 중복(`:579`)**. `data?.success !== false` 일 때만 기록한다. 안 지키면 시트에 없는 **유령 행**이 쌓여 P3 대조가 무의미해진다. (302 유실 경로는 실행 확정이므로 무조건 기록 + `gasBodyLost:true`.)
 3. **RLS 정책 0개 유지.** enable+force+revoke, 브라우저 supabase-js 금지, 조회는 서버 라우트(service_role) 경유. **`NEXT_PUBLIC_SUPABASE_*` 절대 금지.** ⚠ 새 테이블마다 Supabase 어드바이저 **INFO 가 1건씩 는다 — 의도된 상태다**(DECISIONS:169). 이걸 결함으로 오인해 `create policy` 를 넣으면 `supabase/README.md:122-124` 의 명시 금지를 정면으로 어긴다.
-4. **마이그레이션**: append-only, **dev(`kfqtzxxtwokouvoqpebq`) → prod(`qdxnxdfebkgoxeqzfmji`)**. 적용은 **Supabase MCP** — 세션 시작 시 `ToolSearch "select:mcp__Supabase__apply_migration"` 로 확인하고 **없으면 운영자에게 알리고 대기**. 적용 후 **`supabase/README.md` §4 표(`| 파일 | 내용 | dev | prod |`)에 행 추가는 필수** — SQL Editor 로 적용하면 `supabase_migrations.schema_migrations` 에 안 남아(DECISIONS:49 실측) 그 표가 **적용 이력의 유일한 정본**이다.
+4. **마이그레이션**: append-only, **dev(`kfqtzxxtwokouvoqpebq`) → prod(`qdxnxdfebkgoxeqzfmji`)**. 적용은 **Supabase MCP** — 세션 시작 시 `ToolSearch` 로 확인하고 **없으면 운영자에게 알리고 대기**. ⚠ **이름으로만 찾지 말 것**: 서버가 `mcp__Supabase__*` 가 아니라 **UUID 네임스페이스**(`mcp__<uuid>__apply_migration`)로 붙는 세션이 있다 — `select:mcp__Supabase__apply_migration` 이 빈손이라고 "MCP 없음"으로 단정하면 안 된다(2026-09-01 실제로 그렇게 붙었다). `ToolSearch "supabase migration"` 처럼 **키워드로** 찾고, 호출 승인이 뜨면 운영자에게 승인을 요청한다. 적용 후 **`supabase/README.md` §4 표(`| 파일 | 내용 | dev | prod |`)에 행 추가는 필수** — SQL Editor 로 적용하면 `supabase_migrations.schema_migrations` 에 안 남아(DECISIONS:49 실측) 그 표가 **적용 이력의 유일한 정본**이다. ⚠ MCP `apply_migration` 은 기록을 남기긴 하지만 **자체 타임스탬프**로 남는다(2026-09-01 실측: 파일명 `20260901093000` ↔ 기록 `20260901121219`) — 파일↔적용 대응은 여전히 README §4 표로 잇는다. (MCP 는 2026-09-01 연결·승인·실사용 확인 — 세션마다 연결 여부만 재확인)
 5. **마이그레이션 SQL 관례**: 배너 주석 `-- 000N · <제목>` + '해소하는 것 / 지키는 결정' 문단(전례 `core_orders.sql:1-23`) → applications 는 **0005**, profiles 는 **0006**. `create extension if not exists pgcrypto;`(gen_random_uuid 쓰는 전례 파일이 매번 선언) · `create table/index if not exists` · `drop trigger if exists … ; create trigger …` · **`comment on` 으로 R# 근거**(인라인 `--` 는 DB 에 안 남는다).
 6. **GAS 변경이 있는 Phase 는 §6 순서**: `gas/` main 병합 → `gas-deploy.yml` success 확인 → 프론트 병합. ⚠ 착수 전 **`node scripts/gas-sync.mjs check`** 로 드리프트 확인(걸리면 `pull` → 커밋이 선행). ⚠ 워크플로가 `script.googleapis.com` 503 으로 실패한 실사고가 있고(DECISIONS:45) **세션에는 재실행 권한이 없다** — 막히면 운영자에게 재실행을 요청하고 프론트 병합을 보류한다.
 7. **검증에서 시트를 오염시키지 않는다**: `INTERVIEW_GAS_URL` 미설정 목업 모드 + dev Supabase env. ⚠ 함정 3개 — ① 폼에 **`sim` 테스트 모드**가 있어 `/lazyday/admin/simulate` 경유로 열면 라우트를 아예 안 부른다(조용히 0행) ② **프리뷰 apply 폼(`preview/apply/**`)은 fetch 자체가 없다** — 반드시 실사이트 경로로 ③ 레이지클럽 트리는 Playwright 에서 폰트가 매달리므로 외부 요청 차단 필수.
@@ -69,141 +81,31 @@
 
 ---
 
-## P0. 개인정보처리방침 Supabase 수탁자 고지 (즉시, 단독 PR)
+## P0. 개인정보처리방침 Supabase 수탁자 고지 — ✔ 완료 (2026-09-01, #552)
 
-운영자 확정: **지금 바로.** 2026-08-18 주문 원장 배선 때부터 이미 사실과 달랐다.
+`app/(main)/lazyday/privacy/page.tsx` 단독 수정(사본 없는 단일 파일 — lazyclub 셸의 `/privacy` 까지 한 번에). 양 도메인 프로덕션 확인 완료. 상세는 DECISIONS 2026-09-01 행.
 
-- `app/(main)/lazyday/privacy/page.tsx` 제5조 위탁 목록에 추가 — 현재 Google LLC·Vercel·솔라피·토스페이먼츠 4곳뿐, **Supabase 없음**: `<li>Supabase, Inc.: 주문·신청 정보의 저장·관리 (데이터베이스 호스팅)</li>`
-- 제6조(국외 이전): 프로젝트 리전이 **ap-northeast-2(서울)** — 고지 필요 여부를 운영자에게 확인.
-- 제12조 시행일 갱신.
-- ⚠ **제12조가 "시행 7일 전부터 고지"를 약속한다** — 공지 시점을 운영자와 맞춘다.
-- ⚠ 문구는 운영자 소유. 초안 제시 → 확인 후 반영.
+- 제5조: `Supabase, Inc.: 주문·신청 정보의 저장·관리 (데이터베이스 호스팅)` 추가.
+- 제6조 **포함 — 운영자 확정.** 저장 리전은 서울(ap-northeast-2)이라 데이터는 국내지만, 법 제28조의8 ①의 "국외로 제공(**조회되는 경우를 포함한다**)"에 따라 미국 법인의 운영·기술지원 접근 가능성을 보수적으로 고지(저장 국가·위치 병기). 같은 항 3호(방침 공개 갈음)로 **추가 동의 불요**.
+- 제12조 **즉시 시행(9/1) — 운영자 확정**(7일 예고안 기각). 자기모순 방지 단서 "정보주체에게 불리하지 않은 변경은 고지와 동시에 시행한다"를 같은 조에 명시.
 
 ---
 
-## P1. `applications` 테이블 + 패스스루 라우트 이중화
+## P1. `applications` 테이블 + 패스스루 라우트 이중화 — ✔ 완료 (2026-09-01, #554)
 
-### P1-1. 마이그레이션 `supabase/migrations/20260901HHMMSS_applications.sql` (0005)
+**정본 파일 3개** (스펙 상세·SQL 원문은 이 문서가 아니라 실파일이 정본이다):
+- `supabase/migrations/20260901093000_applications.sql` (0005) — **dev·prod 적용 완료**, README §4 표 갱신. 설계 판단 4건(컬럼 unique·purge_after NOT NULL·형태 check·행 남기고 비우는 파기)은 배너 주석에 보존.
+- `lib/applications.ts` — `classifyApply`(화이트리스트, GAS doPost 분기와 값 집합 일치) · `recordApplication` · `recordSafe`(유령행 차단 규율) · `writtenDedupKey`(null 가드). P2 3종 kind·추출 맵까지 선반영.
+- `app/api/lazyday/apply/route.ts` — 삽입 3지점(dev 목업 / GAS 성공 / 302 유실) + sid 발급·GAS 동봉.
 
-```sql
-create extension if not exists pgcrypto;
+**실행 중 확정된 판단**
+- 보유기간 택1 → **`seasonEndsOn()` 신설 채택**(`season-config.ts`) — 기수 종료+1년, 방침 제3조와 같은 기준. 접수+1년 폴백은 방침보다 **이르게** 지우는 쪽이라 기각. 원데이는 slug→`meetingOrderCode()` / orderId→`parseOrderCodes()` 로 dNNN 을 거친다(slug 직접 투입 시 조용히 null — 실측).
+- dev·prod 스키마 대조는 **MCP 로 직접 수행, 전 컬럼 동일 확인** — 운영자 부탁 불필요해짐.
+- `lib/orders.ts` 의 `normalizePhone`·`meetingEndsOn`·`purgeAfter` export 전환, `Rules.tsx` R6 → 충족.
 
-create table if not exists public.applications (
-  id            uuid primary key default gen_random_uuid(),
-  sid           text unique,                 -- 제출 ID — 시트와 공유하는 멱등 키 (P1 부터 발급)
-  kind          text not null check (kind ~ '^[a-z_]{1,32}$'),  -- 형태만 검사 (아래 근거)
-  name          text,
-  phone         text,
-  payload       jsonb not null default '{}',
-  payload_src   text not null default 'route' check (payload_src in ('route','sheet')),
-  order_no      text,
-  user_id       uuid references auth.users(id) on delete set null,  -- R11
-  cohort        text,
-  traffic_src   text,
-  status        text not null default 'received' check (status in
-                ('received','unpaid','paid','refunded','rejected','done')),
-  status_note   text,
-  ends_on       date,
-  purge_after   date not null,               -- ⚠ NOT NULL
-  purged_at     timestamptz,
-  gas_body_lost boolean not null default false,
-  dedup_key     text unique,                 -- ⚠ 부분 인덱스 아님
-  submitted_at  timestamptz not null default now(),
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now()
-);
-create index if not exists applications_kind_idx  on public.applications (kind, submitted_at desc);
-create index if not exists applications_phone_idx on public.applications (phone);
-create index if not exists applications_purge_idx on public.applications (purge_after) where purged_at is null;
-drop trigger if exists applications_set_updated_at on public.applications;
-create trigger applications_set_updated_at before update on public.applications
-  for each row execute function public.set_updated_at();
+**검증** — 로컬 PG16 리허설(제약 8종·파기 2종·재실행 안전·anon 전면거부) → dev 스모크 → prod 구조확인(21컬럼·RLS force·정책 0·cron active, 쓰기 없이) → 목 GAS 로 라우트 4경로 실측(정상 기록 / **200+`success:false` 기록 차단** / 302 무조건 기록+`gas_body_lost` / `apply_draft` 는 sid·기록 둘 다 없음) → tsc.
 
-create or replace function public.purge_expired_applications() returns integer
-  language plpgsql security definer set search_path = public as $$
-declare removed integer;
-begin
-  update public.applications
-     set name=null, phone=null, payload='{}', status_note=null,
-         dedup_key=null,                     -- ⚠ 전화번호 원문이 여기 들어 있다
-         purged_at=now()
-   where purge_after < current_date and purged_at is null;
-  get diagnostics removed = row_count;
-  return removed;
-end; $$;
-revoke execute on function public.purge_expired_applications() from public, anon, authenticated;
-grant  execute on function public.purge_expired_applications() to service_role;
-
--- 단건 즉시 파기 (삭제 요청 — R9 후단·방침 제3조 1호·제8조)
-create or replace function public.purge_application(target uuid) returns boolean
-  language plpgsql security definer set search_path = public as $$
-begin
-  update public.applications
-     set name=null, phone=null, payload='{}', status_note=null, dedup_key=null, purged_at=now()
-   where id = target and purged_at is null;
-  return found;
-end; $$;
-revoke execute on function public.purge_application(uuid) from public, anon, authenticated;
-grant  execute on function public.purge_application(uuid) to service_role;
-
-alter table public.applications enable row level security;
-alter table public.applications force  row level security;
-revoke all on public.applications from anon, authenticated;
-
-comment on table  public.applications is 'R6 · 신청·인터뷰 접수 원장 (주문 아님). 시트가 1차 정본, 이 표는 이중화';
-comment on column public.applications.sid         is '시트와 공유하는 제출 ID — P2.5 스윕의 멱등 키';
-comment on column public.applications.payload_src is 'route=라우트가 보낸 body 원문 / sheet=스윕이 시트 헤더에서 역구성';
-comment on column public.applications.purge_after is 'R9 · 모임 종료+1년, 산출 불가 시 접수+1년';
-comment on column public.applications.user_id     is 'R11 · 비회원이 기본이라 nullable';
-```
-
-pg_cron: 전례(`20260818150000`) 복제 — `do $$ begin perform cron.unschedule('r9-purge-applications'); exception when others then null; end $$;` → `select cron.schedule('r9-purge-applications','30 18 * * *', $$select public.purge_expired_applications()$$);`
-
-**설계 판단 4건 (근거와 함께 못박는다)**
-1. **`dedup_key`·`sid` 는 컬럼 unique.** 부분 유니크 인덱스는 PostgREST 가 술어를 못 보내 **42P10** 으로 실패하고, 그 실패는 LedgerResult 규율에 삼켜져 **에러 없이 영구히 작동하지 않는다.** Postgres 는 NULL 을 서로 distinct 로 보므로 컬럼 unique 로도 의미가 같다(전례 `funnel_events.event_id`).
-2. **`purge_after` NOT NULL.** null 이면 그 행의 개인정보가 **영원히 남는다**(`participants` 와 달리 전 접수가 들어오는 테이블이라 규모가 다르다). 산출 불가 시 `submitted_at + 1년` 폴백. `lib/orders.ts:69-74` 의 **`purgeAfter(endsOn)` 가 이미 +1년을 정확히 계산**한다 — 새로 쓰지 말고 export 해서 재사용.
-3. **`kind` 는 열거 check 가 아니라 형태 check.** 열거로 두면 스키마와 `classifyApply` 두 곳에 값 집합이 중복돼 어긋나는 순간 **23514 로 조용히 실패**한다. `funnel_events` 가 같은 문제를 "화이트리스트는 애플리케이션이 강제, DB 는 형태만 검사"(`funnel_events.sql:28-29`)로 풀었다 — 같은 판단을 따른다.
-4. **`payload_src`** 로 라우트 기록과 스윕 보정을 구분한다. 같은 컬럼이 '원문 스냅샷'과 '시트 역구성'을 동시에 뜻하면 대조 감사의 근거가 흐려진다.
-
-**purge_after kind 별 정책** (코드 상수 + `comment on` 양쪽)
-
-| kind | ends_on | purge_after |
-|---|---|---|
-| oneday · bookclub | 모임/시즌 종료일 | ends_on + 1년 (R9) |
-| coffeebar · interview_* · review · notify | null | **접수 + 1년** |
-
-⚠ **ends_on 산출 함정**
-- `meetingEndsOn(code)`(`lib/orders.ts:58-66`)는 **`dNNN` 주문 코드만** 받는다 — meetingSlug 가 아니다. oneday 두 경로 어느 쪽도 dNNN 을 담지 않는다 → slug 면 `meetingOrderCode(slug)`(`one-day-config.ts:243`), orderId 면 `parseOrderCodes`(`lib/order-catalog.ts:112`) 경유.
-- **`season-config.ts` 에 시즌 종료일의 기계 판독 필드가 없다**(있는 건 표기용 `periodLabel`·`fifth.date`·`deadline`=마감일). 택1: **(권장) `seasonEndsOn()` 신설**(`seasonYear()` + `SEASON.fifth.date` 파싱) / bookclub 도 접수+1년 보수 기본.
-- ⚠ **화면 고지가 세 갈래로 갈려 있다** — 북클럽 신청·커피앤바는 "**동의 철회 시까지**"(`apply/page.tsx:628`, `CoffeeBarForm.tsx:465`), 레이지클럽 모임은 "모임 종료 후 1년", 방침 제3조는 "기수 종료 후 1년". **코드가 고지와 어긋나면 안 된다** — 정책 표를 확정하기 전에 운영자에게 문구 통일을 확인받는다.
-- ⚠ **삭제 요청 즉시 파기**는 cron 으로 충족되지 않는다 → 위 `purge_application(uuid)` + P3 운영 절차.
-- ⚠ **R8(5년 보존) 교차**: oneday payload 에 주문·금액이 있을 수 있으나 **금액의 정본은 `orders`/`order_items`** 이고 applications 에는 `order_no` 가 남으므로 실질 결손 없음 — "applications 는 5년 보존 대상이 아니다"를 주석에 명시.
-
-### P1-2. `lib/applications.ts` 신설
-
-`lib/orders.ts` 규격 복제(머리 주석: 왜 생겼나 / 원칙 / 스키마 경로 / 규칙 링크).
-
-- **선행**: `lib/orders.ts` 의 `normalizePhone`(`:52`)·`meetingEndsOn`(`:58`)·`purgeAfter`(`:69`)는 **module-private → export** 로. (`lib/payments/orders.ts:23` 의 재수출 shim 은 건드릴 이유 없음.)
-- `classifyApply(body): Kind | null` — `type` → kind. **미지 type·`apply_draft`·`admin_*` 는 null(스킵 + `console.warn`)**. ⚠ `apply_draft` 는 `SAVE_DRAFT=false` 로 꺼져 있는 죽은 경로이고 GAS 도 거절한다 — **이 경로에서는 sid 발급도 하지 말 것**(시트에 안 남아 영구 미보정 행이 된다).
-- `recordApplication({kind, body, sid, orderNo?, userId?, gasBodyLost?, payloadSrc?})` — `supabaseAdmin()` null → skipped:"disabled" / name·phone 은 **kind 별 추출 맵**(라우트마다 필드명이 다르다. **review 는 phone 이 아예 없다** — 전화 기반 매칭에서 영구히 제외됨을 주석에) / upsert 는 `onConflict:"sid"`(+`ignoreDuplicates`) 또는 written 은 `dedup_key` / 전체 try/catch → `{ok:false,error}`.
-- **`dedup_key` null 가드**: `const np = normalizePhone(phone); const dedupKey = np ? \`written:${np}\` : null` — ⚠ `normalizePhone` 은 **9자리 미만이면 null** 이라 가드 없이 결합하면 `"written:null"` 이 되어 비정상 번호 접수가 전부 서로를 덮어쓴다(=유실). GAS 의 `normPhone`(`gas/…:184`)은 길이 컷오프가 없다는 차이도 주석에.
-- **`traffic_src` 는 coalesce 의미로** — GAS written 재제출은 1~9열만 갱신해 **최초 유입을 보존**한다(`gas/…:714-718` "최초 유입이 공이다"). 무조건 덮어쓰면 시트와 값이 갈린다.
-- **`recordSafe(kind, body, opts)` 헬퍼를 함께 둔다** — 삽입 지점이 **라우트당 3곳(dev 목업 / GAS 성공 / 302 유실) × 라우트 4개 = 10~12곳**이라 복붙 누락이 난다.
-- **타임아웃**: `.abortSignal()` 은 **쿼리 빌더 인스턴스별로** 걸어야 한다(postgrest-js 가 빌더에 저장). 5s 권장하되 ⚠ **응답 지연의 주범은 DB 가 아니다** — `gasPostJson` 의 최초 POST 에는 타임아웃이 없고(`lib/gas.ts:75-80`) 302 결과 재조회가 **8s×3 + 대기**라 최악 27초까지 간다. **P1 착수 전 Vercel 함수 타임아웃(`vercel.json`/route segment config)을 확인**할 것.
-- ⚠ `supabaseAdmin()` 은 모듈 레벨 캐시 + env 를 로드 시 1회만 읽는다 — **로컬 검증에서 env 를 바꾸면 dev 서버 재시작** 필요.
-
-### P1-3. `app/api/lazyday/apply/route.ts`
-
-- 삽입 **3지점**(dev 목업 / GAS 성공 / 302 유실). 성공 경로는 **불변 원칙 2**(`data?.success !== false`), 유실 경로는 무조건 + `gasBodyLost:true`.
-- `sid = crypto.randomUUID()` 를 **P1 부터** 발급해 GAS payload 에 함께 보낸다(GAS 가 아직 무시해도 무해).
-- ⚠ `markSubmitted` 와 **실패를 한 덩어리로 묶지 말 것**(그건 orders 쪽 기존 로직이다). 로그 접두어도 `[lazyday/apply]` vs `[apply-ledger]` 로 분리.
-
-### P1 검증·배포
-
-0. **로컬 PG16 리허설** — 이 환경에 PostgreSQL 16 + pgcrypto 가 설치돼 있다(DECISIONS:170 에 같은 선례). 자격 없이도 제약·파기 함수·재실행 안전성을 먼저 실증한다.
-1. **dev 적용 전** 운영자에게 dev·prod 스키마 대조를 부탁(README §3 표가 낡아 8/18 문구 그대로다) → MCP 로 dev 적용 → insert·unique 충돌·`purge_expired_applications()`·`purge_application()`·anon revoke 실측 → prod → **README §4 표 갱신**.
-2. 로컬 목업 + dev Supabase → **실사이트 경로**로 4폼 제출(sim 금지·프리뷰 폼 금지·레이지클럽은 외부 차단) → kind·payload·purge_after·sid 확인 + **`{success:false}` 흉내로 유령 행이 안 생기는지**.
-3. `npx tsc --noEmit`(유일한 타입 게이트) → PR → 병합 → 프로덕션 확인. **Rules.tsx R6 → ok:true**, CLAUDE.md §4, DECISIONS 를 같은 PR 에.
+**잔여 1건**: route→Supabase **실기록 미검증** — service_role 키는 MCP 가 주지 않는다(의도된 제한). 실패해도 로그만 남고 접수는 성립하는 설계라 병합했고, **첫 실접수 때 prod `applications` 를 MCP 로 조회해 닫는다.**
 
 ---
 
@@ -212,6 +114,8 @@ pg_cron: 전례(`20260818150000`) 복제 — `do $$ begin perform cron.unschedul
 - **`interview/book`** — kind `interview_phone`. ⚠ GAS 응답을 검사하지 않고 흘린다(`:44-45`). **슬롯 중복이 흔한 경로**라 불변 원칙 2 가드가 특히 중요.
 - **`interview/written`** — kind `interview_written`, dedup_key 가드 적용. ⚠ **catch 가 실패해도 `{success:true}` 를 돌려준다**(`:53-55`, 주석에 'UX 우선'). 시트에도 DB 에도 안 남는 **진짜 영구결손 경로**이고 스윕으로도 복구 불가(시트에 행이 없다) → **catch 안에서도 `recordApplication` 을 호출**해 DB 를 유일한 흔적으로 남긴다.
 - **`review`** — kind `review`. ⚠ 이 라우트만 구조가 다르다: `lib/gas.ts` 미사용, 원시 `fetch(redirect:"follow")`, env `REVIEW_GAS_URL`, **302 유실 판정 없음**, catch 가 `{success:true}` 로 삼킴 → written 과 같은 처리.
+- **P1 에서 기구현**: `lib/applications.ts` 가 P2 3종 kind·이름/전화 추출 맵·`writtenDedupKey()`(9자리 미만 → null 가드, 실측 완료)를 이미 갖고 있다 — P2 는 **라우트 3개에 `recordSafe` 배선**이 전부다.
+- ⚠ **별건 결함 (운영자 판단 대기, P2 범위 아님)**: 라우트가 GAS `{success:false}` 를 손님에게 `{success:true}` 로 돌려줘 **GAS 가 거절해도 완료 화면이 뜬다**(종전 동작 — P1 은 원장 유령행만 막았다). 슬롯 중복이 흔한 interview/book 에서 가장 아프다. 고치면 폼 실패 UX 가 갈리므로 운영자 판단 후 별건 PR 로.
 - 검증: P1 과 동일. 독립 PR.
 
 ---
@@ -303,10 +207,10 @@ pg_cron: 전례(`20260818150000`) 복제 — `do $$ begin perform cron.unschedul
 
 | 시점 | 내용 |
 |---|---|
-| **P0 직후** | 방침 문구 확인(제5조·제6조) + **시행 7일 전 공지** 시점 |
-| **P1 착수 전** | **Supabase MCP 커넥터 재연결** — 없으면 시작 불가 / dev·prod 스키마 대조 |
-| **P1 착수와 동시** | P4-0 안내문 전달(개발자 앱·약관 30일 리드타임) — 병렬 진행해야 P4 가 안 밀린다 |
-| P1 중 | 보유기간 고지 문구 통일(동의 철회 시까지 ↔ 종료 후 1년) / bookclub 정책 택1 |
+| ~~P0 직후~~ | ✔ 해소(2026-09-01) — 제6조 포함·즉시 시행 운영자 확정 |
+| ~~P1 착수 전~~ | ✔ 해소(2026-09-01) — MCP 승인·실사용, dev·prod 스키마 대조 완료(전 컬럼 동일) |
+| ~~P1 착수와 동시~~ | ✔ 안내 전달(2026-09-01 브리핑) — P4-0 준비물·약관 30일 리드타임. **운영자 실행은 진행 중** |
+| **지금 (P2 착수 전)** | ① **보유기간 고지 문구 통일** — 화면이 3갈래(신청·커피앤바 "동의 철회 시까지" / 레이지클럽 "모임 종료 후 1년" / 방침 "기수 종료 후 1년"). 코드는 방침 기준(종료+1년)으로 기구현, 화면 문구만 남음 ② **별건 결함 판단** — GAS 거절에도 완료 화면이 뜨는 문제(P2 절 참조)를 고칠지 |
 | P2.5 | **시트 새로고침 → 메뉴 → 트리거 켜기** + 스크립트 속성 `SITE_URL`·토큰 / 후기는 범위 밖 확인 |
 | P3 | R13 감사 로그 생략 여부 판단 |
 | P4-0 | 개발자 앱 등록 / 약관·방침 2차 개정 문구 / 만 14세 정책 / **공개 로그인 입구 노선 확인**(community-spec 과 충돌) |
@@ -315,8 +219,8 @@ pg_cron: 전례(`20260818150000`) 복제 — `do $$ begin perform cron.unschedul
 
 ## 실행 시작
 
-**P0 → P1 → P2 → P2.5 → P3 → P4a → (P4b) → P5**, 각 Phase 독립 PR. 위 '불변 원칙' 11개는 전 구간 적용.
+**~~P0~~ → ~~P1~~ → 🔜 P2 → P2.5 → P3 → P4a → (P4b) → P5**, 각 Phase 독립 PR. 위 '불변 원칙' 11개는 전 구간 적용.
 
-⚠ **P1 은 Supabase MCP 가 붙어 있어야 시작된다** — 세션 시작 시 `ToolSearch "select:mcp__Supabase__apply_migration"` 로 확인하고 없으면 운영자에게 알리고 대기.
+⚠ Supabase MCP 게이트는 **2026-09-01 승인·실사용으로 해소** — 다만 마이그레이션이 있는 Phase(P2.5 의 admin 라우트는 무관, P4a 의 0006)는 세션마다 연결 여부를 다시 확인하고 끊겨 있으면 운영자에게 알리고 대기(불변 원칙 4).
 
 ⚠ 이 문서는 2026-09-01 시점의 코드를 근거로 쓰였다. 인용된 파일·줄 번호는 어긋날 수 있으니 **고치기 전 해당 파일을 직접 열어 확인**하고, 문서와 코드가 다르면 **코드를 믿고 문서를 고쳐 같은 PR 에 담는다**.

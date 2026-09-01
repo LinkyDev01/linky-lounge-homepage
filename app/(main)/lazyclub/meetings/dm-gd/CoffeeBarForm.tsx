@@ -461,8 +461,8 @@ export function CoffeeBarForm() {
               <p className={cb.consentNote}>
                 <span>개인정보 보호법 제15조에 따라 동의를 받습니다.</span>
                 <span>· 수집 항목: 신청서에 기재하신 정보</span>
-                <span>· 이용 목적: 신청 접수, 인터뷰 진행 및 결과 안내, 반 배정 및 모임 운영</span>
-                <span>· 보유 기간: 동의 철회 시까지 (철회 시 지체 없이 파기)</span>
+                <span>· 이용 목적: 신청 접수 및 일정 안내</span>
+                <span>· 보유 기간: 접수 후 1년 (삭제를 요청하시면 지체 없이 파기)</span>
               </p>
             </div>
           </div>
@@ -477,6 +477,11 @@ export function CoffeeBarForm() {
             />
             <span>마케팅 정보 수신에 동의합니다. (선택)</span>
           </label>
+          {/* 선택 동의로 남는 것을 명시 — 신청서는 보유기간이 지나면 파기되지만
+              동의하신 분의 이름·연락처는 그 동의를 근거로 남는다 (2026-09-01) */}
+          <p className={cb.consentNote}>
+            <span>동의하신 경우 안내를 위해 이름·연락처를 동의 철회 시까지 보관합니다.</span>
+          </p>
         </div>
 
         {errors._form && (

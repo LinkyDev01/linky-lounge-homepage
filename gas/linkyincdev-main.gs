@@ -45,6 +45,14 @@ var DRAFT_SHEET  = "임시저장"; // 신청 1단계 임시저장 (2026-07-27) �
 // (LAZYCLUB_ONEDAY_SHEET). 북클럽 시트의 이 탭은 이전 이전(以前) 기록 보관용으로 남는다.
 var ONEDAY_SHEET = "1회성 모임"; // (과거 기록 탭 — 신규 접수는 여기로 오지 않는다)
 
+// ── P2.5 결손 0 보정 (2026-09-01) ────────────────────────────────
+// 프론트가 접수마다 발급하는 제출 ID(sid)를 시트에도 같이 남긴다. 시트와 DB 가 같은
+// 키를 공유하면 "시트에 있으면 DB 에도 반드시 있다"를 스윕으로 강제할 수 있다.
+// ⚠ 최초 sid 가 공이다 — 서면 재제출은 행을 덮어쓰지만 이 값은 보존한다
+//   (DB 쪽도 dedup_key upsert 라 최초 행이 유지돼, 그래야 양쪽이 같은 키를 가리킨다).
+var SID_HEADER   = "제출 ID";
+var SWEPT_HEADER = "DB 반영"; // 보정 완료 표시 — 빈 칸인 행만 다시 보낸다
+
 // 확인 완료: 운영 캘린더 "레이지데이북클럽 인터뷰" (라이브 일정과 대조 검증됨)
 var CALENDAR_ID = "8c67d5250aeba2aa08f4c8f8811fc6b965b7c44d57ca968378ae2d90575b8008@group.calendar.google.com";
 
@@ -302,6 +310,7 @@ function handleNotify(d) {
   ensureColumn(sheet, "전화번호");
   ensureColumn(sheet, "마케팅 동의");
   ensureColumn(sheet, "동의 시각");
+  ensureColumn(sheet, SID_HEADER);
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
   row[col["신청일자"]]    = new Date();
@@ -309,6 +318,7 @@ function handleNotify(d) {
   row[col["전화번호"]]    = d.phone || "";
   row[col["마케팅 동의"]] = d.marketingConsent || "";
   row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
+  row[col[SID_HEADER]]    = d.sid || "";
   prependRow(sheet, row);
   if (d.consentAt && col["동의 시각"] != null) {
     sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
@@ -344,6 +354,7 @@ function handleCoffeeBar(d) {
   ensureColumn(sheet, "자기소개");
   ensureColumn(sheet, "마케팅 동의");
   ensureColumn(sheet, "동의 시각");
+  ensureColumn(sheet, SID_HEADER);
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
   row[col["신청일자"]]          = new Date();
@@ -354,6 +365,7 @@ function handleCoffeeBar(d) {
   row[col["자기소개"]]          = d.intro || "";
   row[col["마케팅 동의"]]       = d.marketingConsent || "";
   row[col["동의 시각"]]         = d.consentAt ? new Date(d.consentAt) : "";
+  row[col[SID_HEADER]]          = d.sid || "";
   prependRow(sheet, row);
   if (d.consentAt && col["동의 시각"] != null) {
     sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
@@ -403,6 +415,7 @@ function handleOnedayApply(d) {
   ensureColumn(sheet, "인스타그램");
   ensureColumn(sheet, "마케팅 동의");
   ensureColumn(sheet, "동의 시각");
+  ensureColumn(sheet, SID_HEADER);
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
   row[col["신청일자"]]    = new Date();
@@ -421,6 +434,7 @@ function handleOnedayApply(d) {
   row[col["인스타그램"]]  = d.instagram || "";
   row[col["마케팅 동의"]] = d.marketingConsent || "";
   row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
+  row[col[SID_HEADER]]    = d.sid || "";
   prependRow(sheet, row);
   if (d.consentAt && col["동의 시각"] != null) {
     sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
@@ -511,6 +525,7 @@ function handleApply(d) {
 
   // 새 컬럼 보장 후 인덱스 계산 (row 배열 길이에 새 컬럼이 포함되도록 순서 중요)
   APPLY_COLUMNS.forEach(function (h) { ensureColumn(sheet, h); });
+  ensureColumn(sheet, SID_HEADER); // P2.5 — 시트↔DB 공유 키
   var col = colIndexMap(sheet);
   var row = new Array(sheet.getLastColumn()).fill("");
 
@@ -527,6 +542,7 @@ function handleApply(d) {
   row[col["희망 요일"]]   = d.preferredDays || "";
   row[col["동의 시각"]]   = d.consentAt ? new Date(d.consentAt) : "";
   row[col["불가 요일"]]   = d.unavailableDays || "";
+  row[col[SID_HEADER]]    = d.sid || "";
   prependRow(sheet, row);
   if (d.consentAt && col["동의 시각"] != null) {
     sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
@@ -590,10 +606,16 @@ function handlePhoneBooking(d) {
     ["예약일시", "이름", "전화번호", "인터뷰 일시", "진행 여부", "비고"]);
   // 유입 출처 (2026-08-26) — 운영 중인 시트에는 위 헤더 배열이 안 먹으므로 ensureColumn 으로.
   var pSrcIdx = ensureColumn(phoneSheet, "유입 출처"); // 0-based
+  // ⚠ 이 탭은 고정 6칸 prependRow 라 뒤쪽 칸은 값 범위 밖이다 — 유입 출처와 같은 방식으로
+  //   행을 넣은 뒤 셀에 따로 쓰고 헤더 서식 상속을 끊는다 (P2.5 제약 5)
+  var pSidIdx = ensureColumn(phoneSheet, SID_HEADER);
   prependRow(phoneSheet, [new Date(), d.name, d.phone, start, "대기", ""]);
   var pSrcCell = phoneSheet.getRange(2, pSrcIdx + 1); // 헤더 서식 상속 끊기 (위와 같은 이유)
   pSrcCell.setBackground(null).setFontColor(null).setFontWeight("normal");
   if (d.trafficSrc) pSrcCell.setValue(d.trafficSrc);
+  var pSidCell = phoneSheet.getRange(2, pSidIdx + 1);
+  pSidCell.setBackground(null).setFontColor(null).setFontWeight("normal");
+  if (d.sid) pSidCell.setValue(d.sid);
   var pCol = colIndexMap(phoneSheet);
   phoneSheet.getRange(2, (pCol["인터뷰 일시"] != null ? pCol["인터뷰 일시"] : 3) + 1)
     .setNumberFormat(SLOT_FMT);
@@ -708,6 +730,10 @@ function handleWritten(d) {
   //   ⚠ 헤더를 ensureColumn 으로 만든다. 위 getOrCreateSheet 의 헤더 배열은 **시트가
   //     없을 때만** 쓰인다 — 운영 중인 시트에는 배열에 칸을 더해도 컬럼이 안 생긴다.
   var srcIdx = ensureColumn(sheet, "유입 출처"); // 0-based
+  // 제출 ID — 유입 출처와 같은 자리 규칙(1~9열 밖)이라 재제출 setValues 가 건드리지 않는다.
+  // **최초 sid 가 공이다**: DB 쪽도 dedup_key upsert(ignoreDuplicates)라 최초 행이
+  // 유지되므로, 시트가 최초 sid 를 지켜야 양쪽이 같은 키를 가리킨다 (P2.5 제약 4).
+  var wSidIdx = ensureColumn(sheet, SID_HEADER);
 
   var rowValues = [new Date(), d.name || "", d.phone || "",
     a.q1 || "", a.q2 || "", a.q3 || "", a.q4 || "", a.q5 || "", a.q6 || ""];
@@ -718,6 +744,10 @@ function handleWritten(d) {
     sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
     var cur = sheet.getRange(existingRow, srcIdx + 1);
     if (!String(cur.getValue()).trim() && d.trafficSrc) cur.setValue(d.trafficSrc);
+    // 최초 sid 는 덮어쓰지 않는다. 다만 이 기능 이전의 옛 행은 비어 있으니 그때만 채운다
+    // (안 채우면 그 행은 스윕이 영영 짚지 못한다).
+    var curSid = sheet.getRange(existingRow, wSidIdx + 1);
+    if (!String(curSid.getValue()).trim() && d.sid) curSid.setValue(d.sid);
   } else {
     prependRow(sheet, rowValues);
     // prependRow 는 값 범위에만 서식을 초기화한다 — 그 밖인 이 칸도 헤더 서식(굵게·배경)을
@@ -725,6 +755,9 @@ function handleWritten(d) {
     var srcCell = sheet.getRange(2, srcIdx + 1);
     srcCell.setBackground(null).setFontColor(null).setFontWeight("normal");
     if (d.trafficSrc) srcCell.setValue(d.trafficSrc);
+    var wSidCell = sheet.getRange(2, wSidIdx + 1);
+    wSidCell.setBackground(null).setFontColor(null).setFontWeight("normal");
+    if (d.sid) wSidCell.setValue(d.sid);
   }
 
   updateMainStatus(d.phone, { "인터뷰 상태": "O" });
@@ -1475,6 +1508,185 @@ function colorPaidRows(sheetName) {
 }
 
 // ── 관리 메뉴 ───────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// P2.5 · 결손 0 보정 루프 (2026-09-01)
+//
+// 원리: 접수마다 프론트가 sid 를 발급해 **시트와 DB 양쪽에** 남긴다. 이 스윕이
+// 시트를 훑어 아직 DB 로 안 간 행을 보정 엔드포인트로 밀면 "시트에 있으면 DB 에도
+// 반드시 있다"가 성립한다.
+//
+// ⚠ 이 루프가 없애는 것은 **'GAS 성공 + DB 실패'** 뿐이다. GAS 자체가 실패한 접수는
+//   시트에도 없으므로 여기서 살릴 수 없다 — 그 경로는 라우트가 DB 에 직접 남긴다(P2).
+//
+// ⚠ 후기(review)는 범위 밖이다. **별도 Apps Script 프로젝트**(gas/review.gs)이고
+//   gas/project.json 매핑에 없어 자동 배포 대상도 아니다.
+//
+// 필요한 스크립트 속성 (운영자가 1회 입력)
+//   SITE_URL         https://www.lazyday-bookclub.com
+//   BACKFILL_TOKEN   보정 엔드포인트 전용 토큰 (Vercel 의 BACKFILL_TOKEN 과 같은 값)
+//   ⚠ service_role 키는 **절대 여기 두지 않는다** — 그 키는 RLS 를 통째로 우회한다.
+//      GAS 는 우리 서버 라우트를 부를 뿐이고, DB 접근은 그 라우트가 한다.
+//   ⚠ ADMIN_TOKEN 을 재사용하지 않는다: 그건 '우리 사이트 → GAS' 한 방향 계약이고
+//      과거 두 값이 불일치해 사고가 난 적이 있다. 역방향은 전용 토큰으로 분리한다.
+// ═══════════════════════════════════════════════════════════════════
+
+// 스윕 대상 — 시트 ↔ kind. 값 집합은 lib/applications.ts 의 ApplicationKind 와 맞춘다.
+function sweepTargets() {
+  return [
+    { file: "bookclub", sheet: MAIN_SHEET,               kind: "bookclub" },
+    { file: "bookclub", sheet: NOTIFY_SHEET,             kind: "notify" },
+    { file: "bookclub", sheet: PHONE_SHEET,              kind: "interview_phone" },
+    { file: "bookclub", sheet: WRITTEN_SHEET,            kind: "interview_written" },
+    { file: "lazyclub", sheet: LAZYCLUB_COFFEEBAR_SHEET, kind: "coffeebar" },
+    { file: "lazyclub", sheet: LAZYCLUB_ONEDAY_SHEET,    kind: "oneday" }
+  ];
+}
+
+var SWEEP_BATCH = 50; // 한 번에 보낼 행 수 — 6분 상한과 UrlFetch 페이로드 크기 대비
+
+function sweepApplicationsToDb() {
+  var siteUrl = String(_PROPS.getProperty("SITE_URL") || "").replace(/\/+$/, "");
+  var token   = _PROPS.getProperty("BACKFILL_TOKEN") || "";
+  if (!siteUrl || !token) {
+    Logger.log("스윕 중단 — 스크립트 속성 SITE_URL / BACKFILL_TOKEN 이 없습니다");
+    return { skipped: "unconfigured" };
+  }
+
+  // ⚠ lazyclubSs() 를 부르지 않는다 — 속성이 비었거나 파일이 지워졌으면 **새 스프레드시트를
+  //   만들고 운영자에게 메일까지 보낸다**. 시간 트리거가 그걸 반복하면 빈 파일이 쌓인다.
+  //   여기서는 속성을 직접 읽고, 없으면 그 파일 몫만 조용히 건너뛴다 (P2.5 제약 7).
+  var books = {};
+  try { books.bookclub = SpreadsheetApp.openById(SHEET_ID); }
+  catch (err) { Logger.log("북클럽 시트를 열지 못했습니다 — 건너뜁니다"); }
+  var lazyclubId = _PROPS.getProperty("LAZYCLUB_SHEET_ID") || "";
+  if (lazyclubId) {
+    try { books.lazyclub = SpreadsheetApp.openById(lazyclubId); }
+    catch (err) { Logger.log("레이지클럽 시트를 열지 못했습니다 — 건너뜁니다"); }
+  }
+
+  var total = { scanned: 0, sent: 0, upserted: 0, failed: 0 };
+
+  sweepTargets().forEach(function (t) {
+    var doc = books[t.file];
+    if (!doc) return;
+    var sheet = doc.getSheetByName(t.sheet);
+    // 없는 탭·빈 탭은 건너뛴다 — 빈 시트는 getLastColumn()이 0이라 ensureColumn 이 던진다
+    if (!sheet || sheet.getLastRow() < 2 || sheet.getLastColumn() < 1) return;
+
+    var values = sheet.getDataRange().getValues();
+    var headers = values[0].map(function (h) { return String(h).trim(); });
+    var sidIdx = headers.indexOf(SID_HEADER);
+    if (sidIdx === -1) return; // 아직 sid 를 받지 않는 탭 — 보낼 게 없다
+
+    // ⚠ "최근 N행"으로 자르지 않는다 — 이 시트들은 메뉴 정렬·인터뷰 일정순 재정렬·
+    //   서면 재제출 제자리 갱신 때문에 **행 순서를 믿을 수 없다**. 전체를 훑는다 (제약 6).
+    var sweptIdx = headers.indexOf(SWEPT_HEADER);
+    var pending = [];
+    for (var r = 1; r < values.length; r++) {
+      var sid = String(values[r][sidIdx] || "").trim();
+      if (!sid) continue;                                        // 구행 — 스윕 대상 아님
+      if (sweptIdx !== -1 && String(values[r][sweptIdx] || "").trim()) continue; // 이미 보정됨
+      var payload = {};
+      for (var c = 0; c < headers.length; c++) {
+        if (!headers[c] || c === sidIdx || c === sweptIdx) continue;
+        var v = values[r][c];
+        if (v instanceof Date) v = v.toISOString();
+        if (v !== "" && v != null) payload[headers[c]] = String(v);
+      }
+      pending.push({
+        rowIndex: r + 1, // 1-based 시트 행번호
+        row: {
+          sid: sid,
+          kind: t.kind,
+          name: String(values[r][headers.indexOf("이름")] || ""),
+          phone: String(values[r][headers.indexOf("전화번호")] || values[r][headers.indexOf("연락처")] || ""),
+          payload: payload
+        }
+      });
+      if (pending.length >= SWEEP_BATCH) break; // 남은 건 다음 실행에서 (6분 상한)
+    }
+    if (!pending.length) return;
+    total.scanned += pending.length;
+
+    var res = postBackfill(siteUrl, token, pending.map(function (p) { return p.row; }));
+    total.sent += pending.length;
+    if (!res.ok) { total.failed += pending.length; return; }
+    total.upserted += (res.upserted || 0);
+
+    // 보정 성공한 행만 표시한다 — 실패한 배치는 다음 실행에서 다시 시도된다
+    var markIdx = sweptIdx !== -1 ? sweptIdx : ensureColumn(sheet, SWEPT_HEADER);
+    var stamp = new Date();
+    pending.forEach(function (p) {
+      // ⚠ 위에서 값을 읽고 POST 하는 사이(수 초) 새 접수가 들어오면 prependRow 가 2행에
+      //   삽입해 **행이 통째로 한 칸씩 밀린다** — 그대로 찍으면 엉뚱한 행에 '보정됨'이
+      //   달려 그 행은 영영 안 보내지고, 진짜 행은 다음에 또 보내진다.
+      //   표시 직전에 그 행의 sid 를 다시 읽어 **일치할 때만** 찍는다. 어긋나면 건너뛰고
+      //   다음 실행에서 다시 잡는다(보정은 sid upsert 라 중복 전송이 무해하다).
+      var check = String(sheet.getRange(p.rowIndex, sidIdx + 1).getValue() || "").trim();
+      if (check !== p.row.sid) return;
+      var cell = sheet.getRange(p.rowIndex, markIdx + 1);
+      cell.setBackground(null).setFontColor(null).setFontWeight("normal");
+      cell.setValue(stamp);
+    });
+  });
+
+  // ⚠ 로그에 개인정보를 남기지 않는다 — 건수까지만
+  Logger.log("스윕 완료 — 대상 " + total.scanned + " / 전송 " + total.sent +
+             " / 반영 " + total.upserted + " / 실패 " + total.failed);
+  return total;
+}
+
+/** 보정 엔드포인트 호출. 던지지 않고 결과를 돌려준다 — 한 배치 실패가 스윕 전체를 죽이면 안 된다 */
+function postBackfill(siteUrl, token, rows) {
+  try {
+    var res = UrlFetchApp.fetch(siteUrl + "/api/lazyday/admin/backfill-applications", {
+      method: "post",
+      contentType: "application/json",
+      headers: { "X-Backfill-Token": token },
+      payload: JSON.stringify({ rows: rows }),
+      muteHttpExceptions: true, // 4xx/5xx 를 예외가 아니라 응답으로 받아 코드를 로깅한다
+      followRedirects: true
+    });
+    var code = res.getResponseCode();
+    if (code < 200 || code >= 300) {
+      Logger.log("보정 실패 HTTP " + code); // 본문은 찍지 않는다 (개인정보가 섞일 수 있다)
+      return { ok: false };
+    }
+    var body = JSON.parse(res.getContentText() || "{}");
+    if (body.success === false) { Logger.log("보정 거절 — 서버가 실패로 응답"); return { ok: false }; }
+    return { ok: true, upserted: body.upserted || 0 };
+  } catch (err) {
+    Logger.log("보정 호출 예외: " + err.message);
+    return { ok: false };
+  }
+}
+
+/** 메뉴에서 지금 1회 실행 */
+function sweepNowWithAlert() {
+  var r = sweepApplicationsToDb();
+  if (r && r.skipped === "unconfigured") {
+    SpreadsheetApp.getUi().alert(
+      "스크립트 속성이 없습니다.\n\n확장 프로그램 → Apps Script → 프로젝트 설정 →\n" +
+      "스크립트 속성에 SITE_URL 과 BACKFILL_TOKEN 을 넣어주세요.");
+    return;
+  }
+  SpreadsheetApp.getUi().alert(
+    "DB 보정 완료\n\n대상 " + r.scanned + "건 / 반영 " + r.upserted + "건 / 실패 " + r.failed + "건");
+}
+
+/** 1시간마다 자동 실행 (중복 등록 방지) */
+function enableSweepTrigger() {
+  var exists = ScriptApp.getProjectTriggers().some(function (t) {
+    return t.getHandlerFunction() === "sweepApplicationsToDb";
+  });
+  if (!exists) {
+    ScriptApp.newTrigger("sweepApplicationsToDb").timeBased().everyHours(1).create();
+  }
+  SpreadsheetApp.getUi().alert(exists
+    ? "DB 보정 자동 실행이 이미 켜져 있습니다."
+    : "DB 보정 자동 실행이 켜졌습니다 (1시간마다).");
+}
+
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("레이지데이 관리")
@@ -1486,6 +1698,10 @@ function onOpen() {
     .addSeparator()
     .addItem("지금 리마인드 점검 (미예약 24h)", "remindPendingNow")
     .addItem("자동 리마인드 켜기 (15:30~22:00)", "enableInterviewReminder")
+    .addSeparator()
+    .addSeparator()
+    .addItem("DB 보정 지금 실행", "sweepNowWithAlert")
+    .addItem("DB 보정 자동 실행 켜기 (1시간마다)", "enableSweepTrigger")
     .addSeparator()
     .addItem("시트 서식·정리 (최초 1회)", "applySheetFormatting")
     .addItem("자동 백업 켜기 (매일 4시)", "enableDailyBackup")

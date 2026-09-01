@@ -6,6 +6,8 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 
 **세션 시작 시 반드시**: ① 이 문서 ② `docs/DECISIONS.md`(운영자 결정 로그). 보류 항목을 새 지시 없이 부활시키거나 확정 결정을 임의 번복하지 않는다.
 
+**진행 중 계획**: `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다.
+
 **명령어**: dev `npm run dev` · `npx tsc --noEmit` · `npm run build` · `npm run lint`. 테스트 스위트 없음 — 검증은 tsc + `scripts/shot.mjs` + 배포 curl 마커.
 **GitHub**: `LinkyDev01/linky-lounge-homepage` (mcp__github). 브랜치는 main 분기, `claude/<주제>`.
 

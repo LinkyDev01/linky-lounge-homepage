@@ -33,6 +33,7 @@ import {
 import { TurtleLoader } from "../../../TurtleLoader"
 import styles from "../../../home.module.css"
 import form from "./meeting-apply.module.css"
+import { useBasePath } from "@/hooks/use-base-path"
 
 type Meeting = {
   slug: string
@@ -40,7 +41,8 @@ type Meeting = {
   date: string
   place: string
   price: number | null
-  payUrl: string
+  /** 주문 코드 — 폼이 useBasePath 로 결제창 URL 을 조립한다 (2026-08-31) */
+  orderCode: string
   sessions?: { week: string; date: string; work: string }[]
   /** 알림톡 '비고' 칸 — 전달할 게 있는 모임만 채운다 (one-day-config 의 같은 필드) */
   notice?: string
@@ -54,6 +56,10 @@ function formatPhone(value: string) {
 }
 
 export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
+  // 결제창 URL — 호스트마다 base 가 다르다 (lazy-club.com 은 루트, 북클럽은 /lazyday).
+  // 카트의 checkoutHref 와 같은 문법 (2026-08-31 결제 목적지 내부화)
+  const base = useBasePath()
+  const checkoutHref = `${base}/one-day-talk-01/checkout?items=${meeting.orderCode}`
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -63,7 +69,6 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
   /** 접수 실패 시 카카오로 대신 보낼 원문 (북클럽 구제 문법 — 복사 버튼과 짝) */
   const [failedText, setFailedText] = useState("")
   const [failCopied, setFailCopied] = useState(false)
-  const [payCopied, setPayCopied] = useState(false)
 
   const clearError = (k: string) => setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
 
@@ -222,27 +227,11 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
             </div>
           )}
         </div>
-        <a href={meeting.payUrl} target="_blank" rel="noopener noreferrer" className={form.actionBtn}>
+        {/* 2026-08-31: 외부 결제 링크(새 창) → **같은 사이트의 결제창**으로. 새 창이 아니라
+            같은 탭으로 가므로 인앱 브라우저·팝업 차단 구제(주소 복사)도 필요 없어졌다 */}
+        <a href={checkoutHref} className={form.actionBtn}>
           결제하기
         </a>
-        {/* 결제 링크 구제 (리스크 C) — 인앱 브라우저·팝업 차단으로 새 창이 안 열리는
-            환경이 있다. 주소를 눈에 보이게 두고 복사까지 제공해 손으로 열 수 있게 한다 */}
-        <p className={form.infoNote}>
-          결제 페이지는 새 창에서 열립니다. 창이 열리지 않으면 아래 주소를 복사해 브라우저에
-          붙여넣어 주세요.
-        </p>
-        <p className={form.payUrlLine}>
-          <span className={form.payUrlText}>{meeting.payUrl}</span>
-          <button
-            type="button"
-            className={form.linkBtn}
-            onClick={async () => {
-              setPayCopied(await copyText(meeting.payUrl))
-            }}
-          >
-            {payCopied ? "복사됨" : "주소 복사"}
-          </button>
-        </p>
         <p className={form.infoNote}>
           결제가 끝나면 창을 닫으셔도 좋아요. 문제가 있으면{" "}
           <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer">

@@ -67,7 +67,9 @@ function parseEntries(raw: string): Entry[] {
     if (code === SHIPPING_CODE || seen.has(code)) continue
     const item = resolveItems([code])?.[0]
     if (!item) continue
-    if (item.kind === "meeting") {
+    // 단일 회차(dNNN)만 일정으로 걸러낸다 — 4주 과정(c-…)은 회차 목록에 없고
+    // 판매 상태로 판단하므로, 여기서 Number("-calm")=NaN 으로 떨어뜨리면 안 된다
+    if (item.kind === "meeting" && /^d[0-9]+$/.test(code)) {
       const s = findSession(Number(code.slice(1)))
       if (!s || s.closed === true || isPastSession(s)) continue
     }

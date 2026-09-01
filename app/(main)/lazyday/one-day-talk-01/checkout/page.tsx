@@ -19,6 +19,7 @@ import {
   PORTONE_CHANNEL_KEY,
   PORTONE_STORE_ID,
   SUCCESS_PATH,
+  PORTONE_IS_LIVE,
   activePg,
   portoneConfigured,
 } from "@/lib/payments/config"
@@ -500,6 +501,11 @@ function CheckoutInner() {
             : `₩${amount.toLocaleString()} 결제하기`}
         </button>
 
+        {/* 테스트 환경 고지 — **두 PG 모두**. 포트원 테스트 채널은 결제를 승인해서
+            손님 눈에는 성공으로 보이지만 실제 입금은 0원이다. 말하지 않으면 사고다 */}
+        {PG === "portone" && !PORTONE_IS_LIVE && (
+          <p className={styles.testNotice}>지금은 테스트 결제 환경입니다 — 실제 결제가 이루어지지 않습니다.</p>
+        )}
         {PG === "toss" && IS_TEST_KEY && (
           <p className={styles.testNotice}>지금은 테스트 결제 환경입니다 — 실제 결제가 이루어지지 않습니다.</p>
         )}

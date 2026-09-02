@@ -270,6 +270,7 @@
 | P2.5 | **시트 새로고침 → 메뉴 → 트리거 켜기** + 스크립트 속성 `SITE_URL`·토큰 / 후기는 범위 밖 확인 |
 | ~~P3~~ | ✔ 해소(2026-09-01) — R13 감사 로그는 **생략, 근거 정정**: 열람자는 2명이지만 `ADMIN_SECRET` 이 공유 단일 값이라 주체를 구분할 수 없다 → **사람별 식별(P4 소셜 로그인)이 선행**. DECISIONS 기록 |
 | P4-0 | 개발자 앱 등록 / 약관·방침 2차 개정 문구 / 만 14세 정책 / **공개 로그인 입구 노선 확인**(community-spec 과 충돌) |
+| **관리 도메인 (지금, 병합 전)** | Vercel 프로젝트 → Settings → Domains → **`admin.lazy-club.com`** 추가 + 등록기관 DNS **`CNAME admin → cname.vercel-dns.com`**. 인증서가 뜨면 `curl -sI https://admin.lazy-club.com/lazyday/admin/login` 이 200 — 그 뒤에 관리 호스트 PR 병합(DECISIONS 2026-09-02) |
 | P4a | ✔ 해소(2026-09-02) — ① Redirect URLs 등록 ② `SUPABASE_ANON_KEY` 설정 ③ 구글 Client ID 정정(`supabase-prod` 가 앞에 붙어 `invalid_client` 였다)·카카오 공급자 활성화 **모두 실측 확인** ④ 상시 공개 가입 확정 ⑤ 본진 = 레이지클럽 도메인 확정. **남은 것은 화면 프리뷰 승인 하나** |
 | P5 | "시트 '진행 상태' 기입 중단" 선언 |
 

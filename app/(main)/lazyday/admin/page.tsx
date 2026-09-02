@@ -82,7 +82,7 @@ export default function AdminPage() {
     setLoading(true)
     try {
       const res = await fetch("/api/lazyday/admin/blocks")
-      if (res.status === 401) { router.replace("/lazyday/admin/login"); return }
+      if (res.status === 401) { router.replace("/admin/login"); return }
       const data = await res.json()
       const slots: BlockEvent[] = data.bookedSlots || []
       setBlocks(slots)
@@ -261,7 +261,7 @@ export default function AdminPage() {
   // ── 로그아웃 ────────────────────────────────────────────────
   async function logout() {
     await fetch("/api/lazyday/admin/auth", { method: "DELETE" })
-    router.replace("/lazyday/admin/login")
+    router.replace("/admin/login")
   }
 
   const vb = visibleBlocks()
@@ -276,9 +276,9 @@ export default function AdminPage() {
           <div className={styles.headerActions}>
             <button className={styles.iconBtn} onClick={loadBlocks} title="새로고침">↺</button>
             {/* 운영 상태 점검 (2026-08-06) */}
-            <a className={styles.logoutBtn} href="/lazyday/admin/applications">접수 원장</a>
-            <a className={styles.logoutBtn} href="/lazyday/admin/status">상태 점검</a>
-            <a className={styles.logoutBtn} href="/lazyday/admin/simulate">흐름 테스트</a>
+            <a className={styles.logoutBtn} href="/admin/applications">접수 원장</a>
+            <a className={styles.logoutBtn} href="/admin/status">상태 점검</a>
+            <a className={styles.logoutBtn} href="/admin/simulate">흐름 테스트</a>
             <button className={styles.logoutBtn} onClick={logout}>로그아웃</button>
           </div>
         </header>

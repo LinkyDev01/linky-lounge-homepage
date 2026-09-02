@@ -1,8 +1,8 @@
 "use client"
 
-import Link from "next/link"
 import { SIM_LABEL, type SimMode } from "../../sim"
 import { BOOKCLUB_ORIGIN } from "@/lib/site"
+import { AdminShell } from "../AdminShell"
 import styles from "./simulate.module.css"
 
 /**
@@ -62,8 +62,10 @@ const STEPS: Step[] = [
 
 export default function SimulatePage() {
   return (
-    <main className={styles.page}>
+    <AdminShell>
+    <main className={`${styles.page} ${styles.embedded}`}>
       <div className={styles.container}>
+        {/* '상태 점검' 링크는 셸 내비가 대신한다 (CRM-7) */}
         <header className={styles.header}>
           <div>
             <h1 className={styles.title}>신청 흐름 테스트</h1>
@@ -71,7 +73,6 @@ export default function SimulatePage() {
               실제 신청자와 <strong>똑같은 화면</strong>을 그대로 밟으면서 성공·실패 상황을 확인합니다.
             </p>
           </div>
-          <Link href="/admin/status" className={styles.navLink}>상태 점검</Link>
         </header>
 
         <p className={styles.notice}>
@@ -102,5 +103,6 @@ export default function SimulatePage() {
         </p>
       </div>
     </main>
+    </AdminShell>
   )
 }

@@ -70,6 +70,8 @@ export type AppRow = {
   traffic_src: string | null; payload: Record<string, unknown>; payload_src: string; status: string; status_note: string | null
   gas_body_lost: boolean; purged_at: string | null; submitted_at: string; triage: string | null; triage_note: string | null
   marketing_consent_at: string | null; user_id: string | null
+  /** 0012 시트 거울 — 없으면(스윕 전) payload 의 시트 원문으로 폴백 */
+  sheet_progress?: string | null; sheet_interview_status?: string | null; sheet_interview_type?: string | null; sheet_synced_at?: string | null
 }
 export type OrderRow = {
   id: string; order_no: string; amount_total: number; status: string; orderer_name: string; orderer_phone: string | null
@@ -127,11 +129,12 @@ function deriveEntries(apps: AppRow[], orders: OrderRow[]): CohortEntry[] {
     let sheetProgress: string | null = null
     let interview: "phone" | "written" | null = null
     for (const r of rows) {
-      const p = str(r.payload["진행 상태"])
+      // 거울 컬럼(CRM-2, 매시 갱신) > 스윕이 처음 실어 온 payload 원문 > DB status
+      const p = str(r.sheet_progress) ?? str(r.payload["진행 상태"])
       const s = stageFromProgress(p) ?? stageFromDbStatus(r.status)
       if (p) sheetProgress = p
       if (s && STAGE_RANK[s] > STAGE_RANK[stage]) stage = s
-      const t = str(r.payload["interviewType"]) ?? str(r.payload["인터뷰 방식"])
+      const t = str(r.sheet_interview_type) ?? str(r.payload["interviewType"]) ?? str(r.payload["인터뷰 방식"])
       if (t) interview = /전화|phone/i.test(t) ? "phone" : /서면|written/i.test(t) ? "written" : interview
     }
     // 인터뷰 접수 행 — 예약(전화)·제출(서면). 시트 상태가 더 앞서 있으면 그쪽이 이긴다
@@ -145,7 +148,7 @@ function deriveEntries(apps: AppRow[], orders: OrderRow[]): CohortEntry[] {
         interview = interview ?? "phone"
       }
       // 시트 '인터뷰 상태' O = 완료
-      for (const r of rows) if (str(r.payload["인터뷰 상태"]) === "O" && STAGE_RANK[stage] < STAGE_RANK.interviewed) stage = "interviewed"
+      for (const r of rows) if ((str(r.sheet_interview_status) ?? str(r.payload["인터뷰 상태"])) === "O" && STAGE_RANK[stage] < STAGE_RANK.interviewed) stage = "interviewed"
     }
     // 결제 사실은 주문 원장이 가장 확실하다 — 북클럽 항목이 있으면 최소 paid
     if (orders.some((o) => o.status === "paid" && (o.order_items ?? []).some((it) => it.kind === "meeting" && /북클럽/.test(it.name_snapshot)))) {
@@ -260,7 +263,7 @@ export function assemble(apps: AppRow[], orders: OrderRow[], profiles: ProfileRo
   return out.sort((a, b) => (b.lastActivityAt ?? "").localeCompare(a.lastActivityAt ?? ""))
 }
 
-const APP_SELECT = "id, kind, name, phone, order_no, cohort, traffic_src, payload, payload_src, status, status_note, gas_body_lost, purged_at, submitted_at, triage, triage_note, marketing_consent_at, user_id"
+const APP_SELECT = "id, kind, name, phone, order_no, cohort, traffic_src, payload, payload_src, status, status_note, gas_body_lost, purged_at, submitted_at, triage, triage_note, marketing_consent_at, user_id, sheet_progress, sheet_interview_status, sheet_interview_type, sheet_synced_at"
 const ORDER_SELECT = "id, order_no, amount_total, status, orderer_name, orderer_phone, approved_at, created_at, application_submitted_at, user_id, order_items ( name_snapshot, quantity, kind )"
 const PROFILE_SELECT = "user_id, display_name, email, phone, marketing_consent_at"
 

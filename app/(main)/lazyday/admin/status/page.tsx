@@ -68,6 +68,8 @@ export default function AdminStatusPage() {
 
   const allOk = checks?.every((c) => c.ok) ?? false
   const badCount = checks?.filter((c) => !c.ok).length ?? 0
+  // 손볼 것 먼저 (서버가 준 순서는 그 안에서 유지 — 안정 정렬)
+  const sorted = checks && [...checks].sort((a, b) => Number(a.ok) - Number(b.ok))
 
   return (
     <AdminShell>
@@ -99,10 +101,14 @@ export default function AdminStatusPage() {
 
         {loading && !checks && <p className={styles.loading}>신청·인터뷰 경로를 확인하는 중입니다…</p>}
 
+        {/* 손볼 항목이 위로 온다 — 아래로 스크롤해 찾지 않게 (UX, 2026-09-02).
+            상태는 색점이 아니라 **글자**다: 색만으로 말하면 색각 이상·흑백에서 사라진다 */}
         <ul className={styles.list}>
-          {checks?.map((c) => (
+          {sorted?.map((c) => (
             <li key={c.key} className={styles.item}>
-              <span className={`${styles.dot} ${c.ok ? styles.dotOk : styles.dotBad}`} aria-hidden />
+              <span className={`${styles.dot} ${c.ok ? styles.dotOk : styles.dotBad}`}>
+                {c.ok ? "정상" : "확인 필요"}
+              </span>
               <div className={styles.itemBody}>
                 <p className={styles.itemLabel}>
                   {c.label}

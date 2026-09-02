@@ -1,132 +1,63 @@
-/* 신청 흐름 테스트 메뉴 (2026-08-06) — admin/status와 같은 톤 */
+/* 신청 흐름 테스트 — 레이지클럽 베이스(§9)로 재도색 (2026-09-02, 운영자 지시).
+   규율: 유채색 UI 0 · 보더 버튼 0(전부 텍스트 링크) · **라운드 0** · 그림자 0 ·
+        상자 대신 괘선. 토큰은 §9 대로 자체 선언(crm.module.css 를 import 하지 않는다).
+   종전에는 주황 알약 버튼 9개가 화면을 지배해 **무엇이 어떤 결과인지**보다 버튼이 먼저 보였다.
+   지금은 케이스와 기대 결과가 한 행으로 읽히고, 버튼은 그 행의 텍스트 링크다. */
 
 .page {
-  min-height: 100vh;
-  background: #f7f3ee;
-  padding: 28px 18px 64px;
+  --ink: #1a1208;
+  --muted: #8a7660;
+  --hair: rgba(26, 18, 8, 0.22);
+  --hair2: rgba(26, 18, 8, 0.1);
+  color: var(--ink);
+  font-size: 13.2px;
+  line-height: 1.5;
   word-break: keep-all;
+  text-wrap: pretty;
+  padding: 18px 16px 60px; /* 셸 밖(옛 직접 진입) 대비 */
 }
-/* 관리 셸 안에 들어온 상태 (CRM-7) — 셸이 배경·여백·높이를 준다 */
-.embedded { min-height: 0; padding: 0; background: transparent; }
-.embedded .container { margin: 0; }
+/* 관리 셸 안에 들어온 상태 (CRM-7) */
+.embedded { padding: 0; }
 
-.container {
-  max-width: 720px;
-  margin: 0 auto;
-}
+.container { max-width: 720px; }
+
 .header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-.title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1a1208;
-  margin: 0 0 6px;
-  letter-spacing: -0.02em;
-}
-.sub {
-  font-size: 13px;
-  color: #8a6a50;
-  margin: 0;
-  line-height: 1.6;
-}
-.sub strong { color: #4a3020; font-weight: 700; }
-.navLink {
-  flex-shrink: 0;
-  font-size: 12.5px;
-  color: #8a6a50;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  padding-top: 4px;
-}
-.navLink:hover { color: #d2691e; }
-
-.notice {
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #4a3020;
-  margin: 0 0 22px;
-}
-.notice strong { color: #d2691e; font-weight: 700; }
-
-.card {
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 14px;
-  padding: 18px 18px 16px;
-  margin-bottom: 14px;
-}
-.cardTitle {
-  font-size: 15.5px;
-  font-weight: 700;
-  color: #1a1208;
-  margin: 0 0 4px;
-}
-.cardDesc {
-  font-size: 12.5px;
-  color: #8a7660;
-  margin: 0 0 14px;
-  line-height: 1.6;
-}
-.caseList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.caseRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
 }
-.caseBtn {
-  flex-shrink: 0;
-  min-width: 150px;
-  text-align: center;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffffff;
-  background: #d2691e;
-  border: 1.5px solid #d2691e;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: background 0.15s ease;
-}
-.caseBtn:hover { background: #b8571a; border-color: #b8571a; }
-.caseExpect {
-  flex: 1;
-  min-width: 180px;
-  font-size: 12.5px;
-  color: #6a5038;
-  line-height: 1.6;
-}
+.title { margin: 0; font-size: 18px; font-weight: 400; }
+.sub { margin: 0; color: var(--muted); }
+.navLink { color: var(--muted); }
+.navLink:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
 
-.foot {
-  margin: 22px 0 0;
-  font-size: 12.5px;
-  color: #8a7660;
-  line-height: 1.7;
-}
-.foot a {
-  color: #8a6a50;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.foot a:hover { color: #d2691e; }
+.notice { margin: 12px 0 0; color: var(--muted); }
 
-@media (max-width: 520px) {
-  .caseBtn { min-width: 100%; }
-  .caseExpect { min-width: 100%; }
+/* 단계 — 카드가 아니라 괘선으로 나눈 블록 */
+.card { padding: 16px 0 0; }
+.cardTitle { margin: 0; font-size: 14px; font-weight: 600; }
+.cardDesc { margin: 2px 0 6px; color: var(--muted); }
+
+/* 케이스 한 행 = 무엇을 누르면 · 무엇이 보여야 하는가 */
+.caseList { list-style: none; margin: 0; padding: 0; }
+.caseRow {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 2px 12px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hair2);
+}
+.caseBtn { white-space: nowrap; }
+.caseBtn:hover { border-bottom: 1px solid var(--ink); }
+.caseExpect { color: var(--muted); min-width: 0; }
+
+.foot { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--hair); color: var(--muted); }
+.foot a { text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 767px) {
+  .caseRow { grid-template-columns: 1fr; }
 }

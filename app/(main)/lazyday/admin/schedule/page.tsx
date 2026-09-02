@@ -278,7 +278,8 @@ export default function AdminPage() {
 
         {/* 안내 */}
         <p className={styles.guide}>
-          빈 슬롯을 <strong>클릭 또는 드래그</strong>해 선택 → 하단 확인 바에서 차단 적용 &middot; 주황 슬롯 클릭 시 삭제
+          {/* ⚠ 문구가 색을 가리키면 안 된다 — 재도색으로 주황이 사라졌다 (2026-09-02) */}
+          빈 슬롯을 <strong>클릭 또는 드래그</strong>해 선택 → 하단 확인 바에서 차단 적용 &middot; 차단된 슬롯을 다시 누르면 삭제
         </p>
 
         {/* 툴바 */}
@@ -291,19 +292,18 @@ export default function AdminPage() {
             <button className={styles.navBtn} onClick={() => setWeekOffset(w => w+1)}>다음 주 →</button>
           </div>
 
-          {/* 캘린더 필터 */}
+          {/* 캘린더 필터 — 텍스트 링크, 선택된 것만 밑줄 (§9: 보더 버튼 0·유채색 0, 2026-09-02) */}
           <div className={styles.filters}>
             {([
-              { key: "all",       label: "전체",    color: "#8a6a50" },
-              { key: "block",     label: "차단",    color: "#d2691e" },
-              { key: "interview", label: "예약 인터뷰", color: "#4a7fa5" },
-            ] as const).map(({ key, label, color }) => (
+              { key: "all",       label: "전체" },
+              { key: "block",     label: "차단" },
+              { key: "interview", label: "예약 인터뷰" },
+            ] as const).map(({ key, label }) => (
               <button
                 key={key}
                 className={[styles.filterBtn, filter === key ? styles.filterBtnActive : ""].join(" ")}
                 onClick={() => setFilter(key)}
               >
-                <span className={styles.filterDot} style={{ background: filter === key ? "#fff" : color }} />
                 {label}
               </button>
             ))}
@@ -362,15 +362,18 @@ export default function AdminPage() {
           )}
 
           {/* 범례 */}
+          {/* 범례 — 색점이 아니라 **슬롯과 같은 채움을 그대로 축소한 견본**이다 (2026-09-02).
+              색으로만 말하면 색각 이상·흑백에서 두 상태가 하나로 보인다:
+              차단=잉크 채움 · 예약=사선 해칭 · 선택 중=잉크 테두리 */}
           <div className={styles.legend}>
             <span className={styles.legendItem}>
-              <span className={styles.legendDot} style={{ background: "#d2691e" }} /> 차단됨
+              <span className={`${styles.legendDot} ${styles.slotBlocked}`} /> 차단됨
             </span>
             <span className={styles.legendItem}>
-              <span className={styles.legendDot} style={{ background: "#4a7fa5" }} /> 예약된 인터뷰
+              <span className={`${styles.legendDot} ${styles.slotInterview}`} /> 예약된 인터뷰
             </span>
             <span className={styles.legendItem}>
-              <span className={styles.legendDot} style={{ background: "rgba(210,105,30,0.25)", outline: "1.5px solid #d2691e" }} /> 선택 중
+              <span className={`${styles.legendDot} ${styles.slotPending}`} /> 선택 중
             </span>
           </div>
         </div>

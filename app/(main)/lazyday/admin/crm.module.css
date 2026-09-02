@@ -1,0 +1,170 @@
+/* 관리 셸 + 고객관리 (2026-09-02, 대시보드 CRM-3) — 통합안(프리뷰 admin-crm) 이식.
+ * CRM형(HubSpot·Attio) 정보 구조 × 레이지클럽 베이스(§9): 백지+잉크 · 13.2px/1.5 · 괘선 · 텍스트 링크.
+ * 유채색 UI 0 — 강조는 굵기·괘선·위치로. §9 규율대로 기존 .module.css 를 import 하지 않고 토큰을 자체 선언. */
+
+.root {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --paper2: #f0e9e0;
+  --muted: #8a7660;
+  --hair: rgba(26, 18, 8, 0.22);
+  --hair2: rgba(26, 18, 8, 0.1);
+  --suit: "SUIT", -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--suit);
+  font-size: 13.2px;
+  line-height: 1.5;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.root a { color: inherit; text-decoration: none; }
+.root button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.muted { color: var(--muted); }
+.strong { font-weight: 600; }
+.err { padding: 14px 0; color: var(--ink); font-weight: 600; }
+
+/* ── 셸: 좌 내비 + 본문 ──────────────────────────────────────── */
+.shell { display: grid; grid-template-columns: 168px 1fr; min-height: 100vh; }
+.nav {
+  border-right: 1px solid var(--hair); padding: 18px 14px;
+  display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; align-self: start; height: 100vh;
+}
+.brand { font-size: 15px; margin: 0 0 14px; }
+.brand small { display: block; color: var(--muted); font-size: 12px; }
+.navItem { padding: 4px 0; color: var(--muted); display: block; }
+.navItem:hover { color: var(--ink); }
+.navOn { color: var(--ink); font-weight: 600; }
+.navSep { height: 1px; background: var(--hair2); margin: 8px 0; }
+.navFoot { margin-top: auto; color: var(--muted); font-size: 12px; }
+.navFoot button { color: var(--muted); }
+.navFoot button:hover { color: var(--ink); }
+.main { padding: 18px 22px 60px; min-width: 0; }
+
+.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+.h1 { margin: 0; font-size: 18px; font-weight: 400; }
+.headActions { margin-left: auto; display: flex; gap: 14px; }
+.headActions button, .headActions a { color: var(--muted); }
+.headActions button:hover, .headActions a:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
+.origin { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
+
+/* ── 홈 ─────────────────────────────────────────────────────── */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 22px; padding: 14px 0; border-bottom: 1px solid var(--hair); }
+.card { padding: 6px 0; }
+.num { font-size: 24px; line-height: 1.1; }
+.cap { color: var(--muted); }
+.sec { padding: 16px 0 0; }
+.secTitle { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+.list { list-style: none; margin: 0; padding: 0; }
+.li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 9px 0; border-bottom: 1px solid var(--hair2); }
+.li .sub { grid-column: 1 / -1; color: var(--muted); }
+.liWho { font-size: 14px; }
+.liWho:hover { border-bottom: 1px solid var(--ink); }
+
+/* ── 뷰 탭 · 필터 · 검색 (텍스트 링크만) ─────────────────────── */
+.views { display: flex; flex-wrap: wrap; gap: 0 16px; padding: 10px 0 0; }
+.view { color: var(--muted); padding-bottom: 3px; border-bottom: 1px solid transparent; }
+.view:hover { color: var(--ink); }
+.viewOn { color: var(--ink); border-bottom-color: var(--ink); }
+.search { width: 100%; border: 0; border-bottom: 1px solid var(--ink); background: transparent; font: inherit; color: inherit; padding: 6px 0; margin: 6px 0 0; }
+.search:focus { outline: 0; }
+.search::placeholder { color: #bcbcbc; }
+
+/* ── 고객 테이블 ─────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; font-weight: 400; color: var(--muted); padding: 8px 10px 6px 0; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+.table td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--hair2); vertical-align: top; }
+.table tbody tr { cursor: pointer; }
+.table tbody tr:hover td:first-child { text-decoration: underline; text-underline-offset: 3px; }
+.trOn td { background: var(--paper2); }
+.groupRow td { padding: 14px 0 4px; border-bottom: 1px solid var(--ink); color: var(--muted); cursor: default; }
+.name { font-size: 14px; }
+.flag { font-weight: 600; }
+.stage { white-space: nowrap; }
+.stageStrong { font-weight: 600; }
+.empty { padding: 18px 0; color: var(--muted); }
+
+/* ── 레코드 (3열) ────────────────────────────────────────────── */
+.record { display: grid; grid-template-columns: 240px 1fr 260px; gap: 0 26px; padding-top: 10px; }
+.colL, .colR { min-width: 0; }
+.colM { min-width: 0; border-left: 1px solid var(--hair2); border-right: 1px solid var(--hair2); padding: 0 22px; }
+.recHead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 12px 0 8px; border-bottom: 1px solid var(--ink); }
+.recName { font-size: 20px; margin: 0; font-weight: 400; }
+.recActions { display: flex; flex-wrap: wrap; gap: 0 14px; padding: 8px 0 0; }
+.recActions button, .recActions a { color: var(--muted); }
+.recActions button:hover, .recActions a:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
+
+/* 활동 기록 초안 (CRM-5) — §9 문법: 테두리 상자가 아니라 괘선 한 줄, 버튼도 텍스트 링크 */
+.draft { padding: 10px 0 0; border-top: 1px solid var(--hair2); margin-top: 8px; }
+.draftHint { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
+.draftBox {
+  width: 100%; font: inherit; color: var(--ink); background: transparent;
+  border: 0; border-bottom: 1px solid var(--hair); border-radius: 0;
+  padding: 4px 0; resize: vertical; outline: none;
+}
+.draftBox:focus { border-bottom-color: var(--ink); }
+.draftBox::placeholder { color: var(--muted); }
+.draftActions { display: flex; gap: 14px; padding: 8px 0 0; }
+.draftActions button:hover { border-bottom: 1px solid currentColor; }
+.draftActions button:disabled { color: var(--muted); cursor: default; border-bottom: 0; }
+.attr { margin: 0; padding: 8px 0; border-bottom: 1px solid var(--hair2); display: grid; grid-template-columns: 78px 1fr; gap: 4px 10px; }
+.attr dt { color: var(--muted); }
+.attr dd { margin: 0; }
+.blockTitle { margin: 14px 0 4px; font-size: 12px; color: var(--muted); letter-spacing: 0.02em; }
+.assoc { padding: 8px 0; border-bottom: 1px solid var(--hair2); }
+.assocHead { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.assocItem { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 4px 0; }
+.assocItem .sub { grid-column: 1 / -1; color: var(--muted); }
+.tabs { display: flex; flex-wrap: wrap; gap: 0 14px; padding: 8px 0; border-bottom: 1px solid var(--hair); }
+.tab { color: var(--muted); padding-bottom: 3px; border-bottom: 1px solid transparent; }
+.tabOn { color: var(--ink); border-bottom-color: var(--ink); }
+.timeline { list-style: none; margin: 0; padding: 0; }
+.tl { display: grid; grid-template-columns: 82px 1fr; gap: 0 12px; padding: 10px 0; border-bottom: 1px solid var(--hair2); }
+.tlTime { color: var(--muted); white-space: nowrap; }
+.tlType { color: var(--muted); font-size: 12px; }
+/* 우리가 남긴 기록의 작성자 (CRM-5 · R13) */
+.tlWho { color: var(--muted); font-size: 12px; }
+.tlUp { font-weight: 600; }
+.tlDetail { color: var(--muted); }
+.noteBox { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--hair); min-height: 22px; white-space: pre-wrap; }
+
+/* ── 슬라이드 패널 ───────────────────────────────────────────── */
+.panel {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100%);
+  background: var(--paper); border-left: 1px solid var(--ink); padding: 16px 20px 40px; overflow-y: auto; z-index: 50;
+  box-shadow: -12px 0 30px rgba(26, 18, 8, 0.06);
+}
+.panelBar { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.panelBar button, .panelBar a { color: var(--muted); }
+.panelBar button:hover, .panelBar a:hover { color: var(--ink); }
+.dim { position: fixed; inset: 0; background: rgba(26, 18, 8, 0.12); z-index: 40; }
+
+/* ── 모바일 ──────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* ⚠ grid-template-rows 를 안 주면 min-height:100vh 의 남는 높이가 두 행에 균등 배분돼 내비 아래 큰 공백이 생긴다(390 실측 200px+) */
+  .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .nav { position: static; height: auto; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 14px; padding: 10px 15px; border-right: 0; border-bottom: 1px solid var(--hair); }
+  .nav .brand, .navSep, .navFoot { display: none; }
+  .navItem { white-space: nowrap; padding: 2px 0; }
+  .main { padding: 12px 15px 60px; }
+  .record { grid-template-columns: 1fr; }
+  .colM { border: 0; padding: 0; margin-top: 8px; }
+  .table th:nth-child(n+4), .table td:nth-child(n+4) { display: none; }
+}
+
+/* ── 칸반 (CRM-4) — 열 = 단계, 카드 = 이름 + 속성, 열 상단 건수. 읽기 전용(정본은 시트) ── */
+.seg { display: flex; gap: 14px; color: var(--muted); }
+.segOn { color: var(--ink); border-bottom: 1px solid var(--ink); }
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(168px, 1fr); gap: 0 14px; overflow-x: auto; padding: 8px 0 16px; scroll-snap-type: x proximity; }
+.col { min-width: 0; scroll-snap-align: start; }
+.colHead { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--ink); }
+.count { color: var(--muted); }
+.kcard { display: block; width: 100%; padding: 9px 0; border-bottom: 1px solid var(--hair2); }
+.kcard:hover .kName { text-decoration: underline; text-underline-offset: 3px; }
+.kName { font-size: 14px; }
+.kMeta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 8px; }
+.kFlag { font-weight: 600; color: var(--ink); }
+.colEmpty { color: var(--muted); padding: 9px 0; }
+.todayGroup { margin: 12px 0 2px; color: var(--muted); font-size: 12px; }
+@media (max-width: 767px) { .board { grid-auto-columns: 78vw; scroll-snap-type: x mandatory; } }

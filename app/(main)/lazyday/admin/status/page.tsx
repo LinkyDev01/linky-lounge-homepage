@@ -4,12 +4,14 @@ import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { copyText } from "../../support"
 import { SUCCESS_PATH } from "@/lib/payments/config"
+import { BOOKCLUB_ORIGIN } from "@/lib/site"
+import { AdminShell } from "../AdminShell"
 import styles from "./status.module.css"
 
 /**
  * 운영 상태 점검 페이지 (운영자 지시 2026-08-06 "오류사항 확인할 수 있는 페이지").
  * 과거 로그 저장소가 아니라, 열 때마다 신청·인터뷰 경로를 실제로 찔러
- * "지금 문제 있나"를 즉답한다. /lazyday/admin 과 같은 쿠키로 보호된다.
+ * "지금 문제 있나"를 즉답한다. /admin 과 같은 쿠키로 보호된다 (관리 호스트 admin.lazy-club.com).
  */
 
 type Check = { key: string; label: string; ok: boolean; detail: string; ms?: number; hint?: string }
@@ -39,7 +41,7 @@ export default function AdminStatusPage() {
     try {
       const res = await fetch("/api/lazyday/admin/health", { cache: "no-store" })
       if (res.status === 401) {
-        router.replace("/lazyday/admin/login")
+        router.replace("/admin/login")
         return
       }
       const data = await res.json()
@@ -66,22 +68,21 @@ export default function AdminStatusPage() {
 
   const allOk = checks?.every((c) => c.ok) ?? false
   const badCount = checks?.filter((c) => !c.ok).length ?? 0
+  // 손볼 것 먼저 (서버가 준 순서는 그 안에서 유지 — 안정 정렬)
+  const sorted = checks && [...checks].sort((a, b) => Number(a.ok) - Number(b.ok))
 
   return (
-    <main className={styles.page}>
+    <AdminShell>
+    <main className={`${styles.page} ${styles.embedded}`}>
       <div className={styles.container}>
+        {/* 다른 화면으로 가는 링크는 셸 내비에 있다 — 여기 있던 '차단 관리'는 /admin 을 가리켰는데
+            그 자리는 CRM-3 에서 대시보드 홈이 됐다(달력은 /admin/schedule). 낡은 링크째 걷어낸다 (CRM-7) */}
         <header className={styles.header}>
           <h1 className={styles.title}>운영 상태 점검</h1>
           <div className={styles.headerActions}>
             <button className={styles.refreshBtn} onClick={run} disabled={loading}>
               {loading ? "점검 중..." : "다시 점검"}
             </button>
-            <a className={styles.linkBtn} href="/lazyday/admin/simulate">
-              신청 흐름 테스트
-            </a>
-            <a className={styles.linkBtn} href="/lazyday/admin">
-              차단 관리
-            </a>
           </div>
         </header>
 
@@ -100,10 +101,14 @@ export default function AdminStatusPage() {
 
         {loading && !checks && <p className={styles.loading}>신청·인터뷰 경로를 확인하는 중입니다…</p>}
 
+        {/* 손볼 항목이 위로 온다 — 아래로 스크롤해 찾지 않게 (UX, 2026-09-02).
+            상태는 색점이 아니라 **글자**다: 색만으로 말하면 색각 이상·흑백에서 사라진다 */}
         <ul className={styles.list}>
-          {checks?.map((c) => (
+          {sorted?.map((c) => (
             <li key={c.key} className={styles.item}>
-              <span className={`${styles.dot} ${c.ok ? styles.dotOk : styles.dotBad}`} aria-hidden />
+              <span className={`${styles.dot} ${c.ok ? styles.dotOk : styles.dotBad}`}>
+                {c.ok ? "정상" : "확인 필요"}
+              </span>
               <div className={styles.itemBody}>
                 <p className={styles.itemLabel}>
                   {c.label}
@@ -141,7 +146,9 @@ export default function AdminStatusPage() {
                   <button
                     className={styles.rescueCopy}
                     onClick={async () => {
-                      const url = `${window.location.origin}${SUCCESS_PATH}?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
+                      // 손님에게 보내는 링크 — 관리 화면은 admin.lazy-club.com 에서 뜨므로
+                      // window.location.origin 을 쓰면 관리 주소가 새어 나가 손님 쪽에서 404 (2026-09-02)
+                      const url = `${BOOKCLUB_ORIGIN}${SUCCESS_PATH}?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
                       if (await copyText(url)) {
                         setCopiedNo(o.orderNo)
                         setTimeout(() => setCopiedNo(""), 2000)
@@ -173,5 +180,6 @@ export default function AdminStatusPage() {
         </section>
       </div>
     </main>
+    </AdminShell>
   )
 }

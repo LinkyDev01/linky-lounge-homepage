@@ -83,7 +83,15 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 | `20260818150000_r9_purge_schedule.sql` | pg_cron 으로 R9 파기 매일 자동 실행 (03:30 KST) | ✔ | ✔ (2026-08-26) |
 | `20260826060000_funnel_events.sql` | 퍼널 계측 — 유입 출처별 결제시작/제출 집계. 개인정보 0, event_id 멱등, RLS 거부 | ✔ | ✔ |
 | `20260901093000_applications.sql` | 접수 원장(applications) — 시트 단일 저장의 이중화. sid 멱등, purge_after NOT NULL, R9 파기 2종(정기·단건) + pg_cron, RLS 거부 | ✔ | ✔ (2026-09-01) |
-| `20260901140000_applications_marketing_retention.sql` | 마케팅 수신 동의자의 이름·전화는 파기에서 제외(동의 철회 시까지) + 철회 함수. 신청서 본문은 종전대로 종료+1년 파기 | **미적용** | **미적용** |
+| `20260901140000_applications_marketing_retention.sql` | 마케팅 수신 동의자의 이름·전화는 파기에서 제외(동의 철회 시까지) + 철회 함수. 신청서 본문은 종전대로 종료+1년 파기 | ✔ | ✔ (2026-09-01) |
+| `20260901180000_funnel_content_name.sql` | funnel_events 에 `content_name` — 북클럽 신청서와 원데이 결제가 둘 다 'Lead' 로 섞이던 것을 갈라낸다. 과거 행은 null(소급 불가) | ✔ | ✔ (2026-09-01) |
+| `20260901203000_applications_triage.sql` | 접수 분류(triage·triage_note·triaged_at) + 부분 인덱스(`where triage is null`). **파기가 아니라 열람 필터** — 테스트·더미가 진짜 접수를 가리지 않게. 진행 상태(시트 정본)와 섞지 않는다 | ✔ | ✔ (2026-09-01) |
+| `20260901213000_triage_paid_comment.sql` | 주석만 정정 — 분류 중 **목록에서 빠지는 건 test·typo·dummy·duplicate 넷뿐**이고 `paid`(기결제자)는 표시만 하고 남는다(운영자 정정). 컬럼·인덱스·데이터 무변경 | ✔ | ✔ (2026-09-01) |
+| `20260902093000_purge_triage_note.sql` | 파기 함수 2종이 **운영 메모(`triage_note`)도 비우게** 한다 — 0008 이 함수보다 나중에 그 컬럼을 만들어 파기해도 메모만 남았다(dev 실측). 마케팅 동의 예외는 이름·전화에만 걸리므로 메모는 동의와 무관하게 비운다. 분류(`triage`)는 남긴다 | ✔ | ✔ (2026-09-02) |
+| `20260902120000_profiles.sql` | 회원 원장(profiles) — 소셜 로그인 계정(auth.users)의 우리 쪽 행. PK=auth.users.id **cascade**(탈퇴=파기), 전화는 키가 아님, 만 14세·마케팅 동의는 시각으로. RLS 전면 거부 — 본인 행도 서버 라우트(service_role)만 읽는다. + `orders`·`applications` 의 `user_id` 부분 인덱스 2개 | ✔ | ✔ (2026-09-02) |
+| `20260902150000_applications_sheet_mirror.sql` | 접수 원장에 시트 '진행 상태'·'인터뷰 상태'·'인터뷰 방식' **읽기 거울** 4컬럼(원문 3 + synced_at). GAS 스윕이 매시 비추고 `status` 는 번역해 읽기용으로만 갱신 — **정본은 여전히 시트**(P5 전). 개인정보 아님 → 파기 함수 무변경 | ✔ | ✔ (2026-09-02) |
+| `20260902183000_customer_activities.sql` | 사람 단위 활동 기록(메모·통화·문자, CRM-5). ⚠ **개인정보가 들어가는 자리라 파기 2종을 같은 파일에서** — 새 함수 `purge_expired_customer_activities()`(정기, 기존 cron 잡이 접수와 함께 부르게 갱신) + `purge_application` 을 **`(uuid, text)` 로 교체**(옛 1인자 함수는 `drop` — 오버로드로 남기면 라우트가 옛 시그니처를 불러 활동이 영영 안 지워진다). 적용 순서는 **마이그레이션 먼저, 코드 배포 나중** | ✔ | ✔ (2026-09-02) |
+| `20260902210000_profiles_avatar.sql` | 회원 프로필 사진 URL(`profiles.avatar_url`). **파일이 아니라 주소만** 담는다 — 보관·파기 대상을 늘리지 않고, 소셜에서 사진을 바꾸면 그대로 따라간다. ⚠ **파기 함수 무변경**: `profiles` 는 PK 가 `auth.users.id` cascade 라 탈퇴가 곧 파기다(0011). dev 실증 완료 | ✔ | ✔ (2026-09-02) |
 
 ## 5. 운영 조회
 

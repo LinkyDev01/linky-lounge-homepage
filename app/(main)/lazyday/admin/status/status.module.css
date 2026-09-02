@@ -1,223 +1,113 @@
-/* 운영 상태 점검 페이지 (2026-08-06) — admin 톤(밝은 오트) 유지, 전용 CSS */
+/* 운영 상태 점검 — 레이지클럽 베이스(§9)로 재도색 (2026-09-02, 운영자 "톤앤매너가
+   레이지클럽 디자인시스템이나 CRM 의 의도와 안 맞아. 라운드 처리는 안 할 거고, UX 최적화 중요").
+   규율: 유채색 UI 0 · 보더 버튼 0(전부 텍스트 링크) · **라운드 0** · 그림자 0 ·
+        상자 대신 괘선. 토큰은 §9 대로 자체 선언한다(crm.module.css 를 import 하지 않는다 —
+        복사이지 공유가 아니다). 셸이 배경·여백을 주므로 이 화면은 색면을 갖지 않는다. */
 
 .page {
-  min-height: 100vh;
-  background: #f7f3ee;
-  padding: 28px 16px 64px;
+  --ink: #1a1208;
+  --muted: #8a7660;
+  --hair: rgba(26, 18, 8, 0.22);
+  --hair2: rgba(26, 18, 8, 0.1);
+  color: var(--ink);
+  font-size: 13.2px;
+  line-height: 1.5;
   word-break: keep-all;
+  text-wrap: pretty;
+  padding: 18px 16px 60px; /* 셸 밖(옛 직접 진입) 대비 최소 여백 */
 }
-.container {
-  max-width: 620px;
-  margin: 0 auto;
-}
+/* 관리 셸 안에 들어온 상태 (CRM-7) — 셸이 배경·여백·높이를 준다 */
+.embedded { padding: 0; }
+
+.container { max-width: 620px; }
+
+/* ── 머리 ── */
 .header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 18px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
 }
-.title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #1a1208;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-.headerActions {
-  display: flex;
-  gap: 8px;
-}
+.title { margin: 0; font-size: 18px; font-weight: 400; }
+.headerActions { margin-left: auto; display: flex; gap: 14px; }
 .refreshBtn,
 .linkBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  border-radius: 8px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--muted);
   cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s ease;
 }
-.refreshBtn {
-  color: #fff;
-  background: #d2691e;
-  border: 1.5px solid #d2691e;
-}
-.refreshBtn:hover:not(:disabled) { background: #b8571a; }
-.refreshBtn:disabled { opacity: 0.6; cursor: default; }
-.linkBtn {
-  color: #8a6a50;
-  background: transparent;
-  border: 1.5px solid #e5d9c8;
-}
-.linkBtn:hover { color: #d2691e; border-color: #d2691e; }
+.refreshBtn:hover,
+.linkBtn:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
+.refreshBtn:disabled { cursor: default; border-bottom: 0; }
 
-.summary {
-  padding: 14px 16px;
-  border-radius: 12px;
-  font-size: 14.5px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-}
-.summaryOk { background: #eef4ea; color: #3f6b3a; }
-.summaryBad { background: #fbeee6; color: #a04d16; }
-.time {
-  font-size: 12px;
-  font-weight: 500;
-  color: #8a7660;
-  font-variant-numeric: tabular-nums;
-}
+/* ── 한 줄 요약 — 색면이 아니라 글자로 말한다 ── */
+.summary { padding: 12px 0; border-bottom: 1px solid var(--hair); }
+.summaryOk { color: var(--muted); }
+.summaryBad { font-weight: 600; }
+.time { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.loading { padding: 14px 0; color: var(--muted); }
+.failed { padding: 14px 0; font-weight: 600; }
 
-.loading, .failed {
-  font-size: 14px;
-  color: #8a7660;
-  margin: 0 0 16px;
-}
-.failed { color: #a04d16; }
-
-.list {
-  list-style: none;
-  margin: 0 0 22px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+/* ── 점검 항목 — 카드가 아니라 괘선 리스트 ── */
+.list { list-style: none; margin: 0; padding: 0; }
 .item {
-  display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 12px;
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair2);
 }
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-.dotOk { background: #5b8f52; }
-.dotBad { background: #d2691e; }
+/* 상태는 색점이 아니라 **글자**다 — 색만으로 말하면 색각 이상·흑백에서 사라진다 */
+.dot { font-size: 12px; white-space: nowrap; }
+.dotOk { color: var(--muted); }
+.dotBad { color: var(--ink); font-weight: 600; }
 .itemBody { min-width: 0; }
-.itemLabel {
-  margin: 0 0 3px;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #1a1208;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.ms {
-  font-size: 12px;
-  font-weight: 500;
-  color: #8a7660;
-  font-variant-numeric: tabular-nums;
-}
-.itemDetail {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #4a3020;
-}
-.itemHint {
-  margin: 6px 0 0;
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: #a04d16;
-}
+.itemLabel { margin: 0; font-size: 14px; }
+.ms { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.itemDetail { margin: 2px 0 0; color: var(--muted); }
+.itemHint { margin: 2px 0 0; }
 
-.note {
-  padding: 14px 16px;
-  background: #f0e9e0;
-  border-radius: 12px;
-}
-.noteTitle {
-  margin: 0 0 6px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #8a6a50;
-}
-.noteText {
-  margin: 0 0 6px;
-  font-size: 12.5px;
-  line-height: 1.7;
-  color: #6a5038;
-}
-.noteText:last-child { margin-bottom: 0; }
-
-/* ── 구제 대상 (신청서 미제출 주문, 2026-08-18 주문 원장) ── */
-.rescue {
-  margin-top: 22px;
-  padding: 18px 18px 14px;
-  background: #fff7ee;
-  border: 1px solid #f0d9bd;
-  border-radius: 12px;
-}
-.rescueTitle {
-  margin: 0 0 12px;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #a04d16;
-}
-.rescueList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+/* ── 구제 대상 (신청서 미제출 주문) ── */
+.rescue { padding: 18px 0 0; }
+.rescueTitle { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+.rescueList { list-style: none; margin: 0; padding: 0; }
 .rescueItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  background: #fffdf8;
-  border: 1px solid #eee2d0;
-  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hair2);
 }
 .rescueBody { min-width: 0; }
-.rescueName {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1208;
-}
-.rescuePhone { font-weight: 400; color: #8a6a50; }
-.rescueMeta {
-  margin: 3px 0 0;
-  font-size: 12.5px;
-  color: #8a7660;
-  word-break: keep-all;
-}
+.rescueName { margin: 0; font-size: 14px; }
+.rescuePhone { color: var(--muted); }
+.rescueMeta { margin: 2px 0 0; color: var(--muted); }
 .rescueCopy {
-  flex-shrink: 0;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 14px;
-  background: #d2691e;
-  color: #fffdf8;
-  font-size: 13px;
-  font-weight: 700;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--muted);
   cursor: pointer;
+  white-space: nowrap;
 }
-.rescueCopy:hover { background: #b8571a; }
-.rescueNote {
-  margin: 12px 0 0;
-  font-size: 12px;
-  color: #9a9590;
-}
-@media (max-width: 480px) {
-  .rescueItem { flex-direction: column; align-items: stretch; }
-  .rescueCopy { width: 100%; }
+.rescueCopy:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
+.rescueNote { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+
+/* ── 참고 ── */
+.note { padding: 16px 0 0; border-top: 1px solid var(--hair); margin-top: 18px; }
+.noteTitle { margin: 0 0 4px; color: var(--muted); font-size: 12px; }
+.noteText { margin: 0 0 6px; color: var(--muted); }
+
+@media (max-width: 767px) {
+  .item { grid-template-columns: 1fr; }
+  .dot { order: -1; }
+  .rescueItem { grid-template-columns: 1fr; }
+  .rescueCopy { justify-self: start; }
 }

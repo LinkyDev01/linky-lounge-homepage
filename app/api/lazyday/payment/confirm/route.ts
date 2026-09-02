@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 import { recordOrder, type ShippingInput } from "@/lib/orders"
+import { sessionUserIdSafe } from "@/lib/auth-server"
 
 /**
  * 토스페이먼츠 결제 승인 (2026-08-11, 결제위젯 연동).
@@ -114,6 +115,10 @@ async function ledger(
     const r = await recordOrder({
       orderNo: orderId,
       paymentKey,
+      // 로그인 결제면 계정에 잇는다 (P4). 비로그인이면 null — 비회원 결제가 기본이다(R11).
+      // ⚠ 가상계좌는 이 라우트가 아니라 웹훅이 기록하므로 계정이 붙지 않는다 →
+      //   마이페이지의 '주문 연결'(주문번호+전화)로 회수한다.
+      userId: await sessionUserIdSafe(),
       amountTotal: amount,
       items,
       buyerName: body.buyer?.name?.trim() || "",

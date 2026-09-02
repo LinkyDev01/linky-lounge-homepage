@@ -107,3 +107,22 @@ export async function gasPostJson(url: string, payload: unknown) {
 export function isGasExecuted(err: unknown) {
   return !!(err && typeof err === "object" && (err as { executed?: boolean }).executed)
 }
+
+/**
+ * GAS 가 **실행은 됐는데 거절한** 경우인지 — 실패도 **HTTP 200 + `{success:false}`** 로 온다.
+ * 화이트리스트 밖 type · 필수항목 누락 · 인터뷰 슬롯 중복이 전부 이 모양이다.
+ *
+ * ⚠ 이 값을 보지 않으면 두 가지가 동시에 깨진다:
+ *   ① **시트에 없는 접수를 손님에게 "완료"라고 알린다** (2026-09-01 운영자 지시로 수정)
+ *   ② 원장에 시트에 없는 **유령 행**이 쌓여 대조가 무의미해진다
+ * 그래서 응답 판정(라우트)과 기록 판정(lib/applications 의 recordSafe) 양쪽이 이걸 쓴다.
+ */
+export function isGasRejected(data: unknown) {
+  return !!(data && typeof data === "object" && (data as { success?: unknown }).success === false)
+}
+
+/** GAS 거절 사유 — **로그 전용**. 내부 문구라 손님에게 그대로 보여주지 않는다 */
+export function gasRejectReason(data: unknown) {
+  const e = (data as { error?: unknown } | null | undefined)?.error
+  return typeof e === "string" && e ? e : "(사유 없음)"
+}

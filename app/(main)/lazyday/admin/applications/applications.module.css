@@ -1,0 +1,127 @@
+/* 접수 원장 조회 (2026-09-01, 계획서 P3 · Stage A)
+ *
+ * **레이지클럽 베이스** (운영자 지시 "조회화면은 레이지클럽 베이스로"):
+ * 백지 + 잉크, 13.2px/1.5, 괘선 리스트(border-bottom 1px), 텍스트 링크만.
+ * ⚠ CLAUDE.md §9 — 개편 범위 CSS 는 **기존 .module.css 를 import 하지 않는다.**
+ *   그래서 토큰을 여기서 다시 선언한다(복사이지 공유가 아니다).
+ * ⚠ 유채색 UI 0 · 보더 버튼 0 — 강조는 색이 아니라 **괘선·굵기·여백**으로 낸다.
+ */
+
+.page {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --muted: #8a7660;
+  --hair: rgba(26, 18, 8, 0.22);
+  --suit: "SUIT", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--suit);
+  font-size: 13.2px;
+  line-height: 1.5;
+  padding: 0 15px 60px;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+
+/* 관리 셸(AdminShell) 안에 들어갈 때 — 셸이 배경·여백을 이미 주므로 이중 패딩·100vh 를 끈다 (CRM-6) */
+.embedded { min-height: 0; padding: 0; }
+.page a { color: inherit; text-decoration: none; }
+.page a:hover { border-bottom: 1px solid var(--ink); padding-bottom: 3px; }
+
+/* ── 머리 ────────────────────────────────────────────────── */
+.head { padding: 22px 0 14px; border-bottom: 1px solid var(--ink); }
+.back { display: inline-block; margin-bottom: 14px; color: var(--muted); }
+.title { margin: 0; font-size: 18px; line-height: 1.5; font-weight: 400; }
+/* 상태 정본이 어디인지 화면이 스스로 밝힌다 — 이 화면은 '보는 곳'이지 '고치는 곳'이 아니다 */
+.origin { margin: 4px 0 0; color: var(--muted); }
+
+/* ── 요약 (최근 7일) ──────────────────────────────────────── */
+.summary { display: flex; flex-wrap: wrap; gap: 0 18px; padding: 12px 0; border-bottom: 1px solid var(--hair); }
+.summaryItem { display: flex; align-items: baseline; gap: 5px; }
+.summaryNum { font-size: 18px; line-height: 1; }
+.summaryCap { color: var(--muted); }
+.summaryNote { width: 100%; margin: 6px 0 0; color: var(--muted); }
+
+/* ── 거르기 (텍스트 링크 — 보더 버튼 금지) ──────────────────── */
+.filters { display: flex; flex-wrap: wrap; gap: 0 14px; padding: 12px 0 0; }
+.filter {
+  border: 0; background: none; padding: 0 0 3px; margin: 0 0 6px;
+  font: inherit; color: var(--muted); cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+.filter:hover { color: var(--ink); }
+.filterOn { color: var(--ink); border-bottom-color: var(--ink); }
+
+.searchRow { padding: 6px 0 14px; border-bottom: 1px solid var(--ink); }
+.searchRow form { border-bottom: 1px solid var(--ink); }
+.search {
+  width: 100%; border: 0; border-radius: 0; background: var(--paper);
+  font: inherit; color: inherit; padding: 4px 0;
+}
+.search::placeholder { color: #bcbcbc; }
+.search:focus { outline: 0; }
+
+/* ── 리스트 ──────────────────────────────────────────────── */
+.list { list-style: none; margin: 0; padding: 0; }
+.row { border-bottom: 1px solid var(--hair); }
+/* 행 전체가 눌린다 — 손가락이 큰 화면에서 링크만 노리게 하지 않는다 */
+.rowBtn {
+  width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px;
+  border: 0; background: none; padding: 12px 0; margin: 0;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.rowBtn:hover .who { border-bottom: 1px solid var(--ink); }
+.who { font-size: 15px; justify-self: start; }
+.when { color: var(--muted); white-space: nowrap; }
+.meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0 10px; color: var(--muted); }
+/* 손이 필요한 행은 색이 아니라 굵기로 (유채색 금지) */
+.flag { color: var(--ink); font-weight: 600; }
+
+/* ── 상세 (행을 눌렀을 때만) ─────────────────────────────── */
+.detail { padding: 0 0 14px; }
+.detailGrid { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; }
+.detailGrid dt { color: var(--muted); }
+.detailGrid dd { margin: 0; overflow-wrap: anywhere; }
+.payload {
+  margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid var(--hair);
+  white-space: pre-wrap; overflow-wrap: anywhere; color: var(--muted);
+}
+
+.more { display: block; width: 100%; border: 0; background: none; font: inherit;
+        color: var(--ink); padding: 16px 0; cursor: pointer; border-bottom: 1px solid var(--ink); }
+.empty, .note { padding: 22px 0; color: var(--muted); }
+
+/* 데스크톱 — 한 줄에 더 많이 보이게. 컨테이너 폭만 잡고 문법은 그대로 */
+@media (min-width: 768px) {
+  .page { padding-inline: 24px; }
+  .inner { max-width: 900px; margin: 0 auto; }
+  /* 이름 옆에 메타를 붙이고 시각만 오른쪽 끝으로 민다.
+     1fr 1fr 로 두면 2열이 화면 한가운데서 시작해 이름과 메타가 멀어지고
+     한 행으로 안 읽힌다 (390 에서는 두 줄이라 문제가 없었다). */
+  .rowBtn { grid-template-columns: max-content 1fr auto; align-items: baseline; }
+  /* 한 행 = 한 줄. 390 에서는 줄바꿈이 자연스럽지만 데스크톱에선 눈이 세로로 훑는다 */
+  .meta { grid-column: 2 / 3; grid-row: 1; }
+  .when { grid-column: 3 / 4; grid-row: 1; }
+}
+
+/* ── 분류·메모 (2026-09-01) ────────────────────────────────
+   ⚠ **우리가 단 것**이라 접수 원문과 자리를 나눈다 (운영자 "원본과 구분하고").
+   위쪽 괘선으로 끊고 한 단 들여, 손님이 쓴 값과 섞여 읽히지 않게 한다. */
+.ops { margin-top: 12px; padding: 10px 0 0 12px; border-top: 1px solid var(--ink); }
+.opsCap { margin: 0 0 8px; color: var(--muted); }
+/* 두 번째 묶음(표시만) — 위 묶음과 붙지 않게 한 줄 띄운다 */
+.opsCap2 { margin: 12px 0 8px; color: var(--muted); }
+.opsRow { display: flex; flex-wrap: wrap; gap: 0 14px; }
+.opsNote { margin-top: 10px; border-bottom: 1px solid var(--hair); }
+/* 파기 — 분류와 성격이 달라 괘선으로 한 번 더 끊는다. 유채색을 쓰지 않는 베이스라
+   위험은 색이 아니라 **자리와 2단계 확인**으로 표시한다 (§9) */
+.danger { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--hair); }
+.dangerCap { margin: 0 0 8px; color: var(--muted); }
+/* 분류 라벨 — 유채색을 못 쓰므로 괄호와 톤으로 구분한다 */
+.tag { color: var(--ink); }
+.tag::before { content: "["; }
+.tag::after { content: "]"; }
+/* '분류해 뺀 건' 토글은 종류 필터와 성격이 달라 한 칸 띄운다 */
+.filterAside { margin-left: auto; }

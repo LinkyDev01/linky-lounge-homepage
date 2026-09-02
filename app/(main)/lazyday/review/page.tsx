@@ -56,11 +56,15 @@ export default function ReviewPage() {
     }
 
     try {
-      await fetch(SUBMIT_URL, {
+      const res = await fetch(SUBMIT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       })
+      // ⚠ 종전에는 응답을 **확인하지 않고** 무조건 완료 화면으로 갔다 — 접수가 실패해도
+      //   손님은 "감사해요"를 보고 떠났고 후기는 사라졌다. 다른 폼 4개와 같은 판정을 쓴다.
+      const result = await res.json().catch(() => null)
+      if (!res.ok || !result?.success) throw new Error("submit failed")
       setSubmitted(true)
     } catch {
       setError("제출 중 오류가 발생했어요. 다시 시도해 주세요.")

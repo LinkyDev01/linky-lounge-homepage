@@ -23,6 +23,8 @@
  */
 
 import { supabaseAdmin, isLedgerEnabled } from "./supabase-server"
+import { isGasRejected } from "./gas"
+import { sessionUserIdSafe } from "./auth-server"
 import { normalizePhone, meetingEndsOn, purgeAfter, type LedgerResult } from "./orders"
 import { parseOrderCodes } from "./order-catalog"
 import { meetingOrderCode } from "@/app/(main)/lazyclub/one-day-config"
@@ -72,10 +74,12 @@ function extractIdentity(kind: ApplicationKind, body: Body) {
   return { name: name || null, phone: normalizePhone(phone) }
 }
 
-/** 오늘 + 1년 (YYYY-MM-DD, UTC). purge_after 폴백 — 산출 불가일 때만 쓴다 */
-function oneYearFromToday(): string {
-  const now = new Date()
-  return new Date(Date.UTC(now.getUTCFullYear() + 1, now.getUTCMonth(), now.getUTCDate()))
+/** 기준일 + 1년 (YYYY-MM-DD, UTC). purge_after 폴백 — 종료일을 산출 못 할 때만 쓴다.
+ *  기준일이 없거나 못 읽으면 오늘. */
+function oneYearFrom(iso?: string | null): string {
+  const base = iso ? new Date(iso) : new Date()
+  const d = isNaN(base.getTime()) ? new Date() : base
+  return new Date(Date.UTC(d.getUTCFullYear() + 1, d.getUTCMonth(), d.getUTCDate()))
     .toISOString()
     .slice(0, 10)
 }
@@ -94,7 +98,7 @@ function oneYearFromToday(): string {
  *   모임 폼은 `meetingSlug` → `meetingOrderCode()`, 결제 후 신청은 `orderId` →
  *   `parseOrderCodes()`. 이걸 빠뜨리면 조용히 null 이 되어 전건이 폴백으로 샌다.
  */
-function retention(kind: ApplicationKind, body: Body): { endsOn: string | null; purgeAfter: string } {
+function retention(kind: ApplicationKind, body: Body, submittedAt?: string | null): { endsOn: string | null; purgeAfter: string } {
   let endsOn: string | null = null
 
   if (kind === "oneday") {
@@ -109,7 +113,9 @@ function retention(kind: ApplicationKind, body: Body): { endsOn: string | null; 
     endsOn = seasonEndsOn()
   }
 
-  return { endsOn, purgeAfter: purgeAfter(endsOn) ?? oneYearFromToday() }
+  // 폴백은 **접수 시각 + 1년**이다 — 보정으로 들어온 지난 접수에 now() 를 쓰면
+  // 그 행만 보유기간이 늘어난다 (R9 위반 방향).
+  return { endsOn, purgeAfter: purgeAfter(endsOn) ?? oneYearFrom(submittedAt) }
 }
 
 export type RecordApplicationInput = {
@@ -124,6 +130,13 @@ export type RecordApplicationInput = {
   gasBodyLost?: boolean
   /** route=라우트 원문 / sheet=P2.5 스윕이 시트에서 역구성 */
   payloadSrc?: "route" | "sheet"
+  /** 운영 메모. GAS 호출이 실패해 **DB 가 유일한 흔적**인 행을 표시하는 데 쓴다
+   *  (P2.5 대조에서 "시트에 없다"가 결함이 아니라 의도된 상태임을 알아볼 수 있어야 한다) */
+  statusNote?: string | null
+  /** 원래 접수 시각 (ISO). P2.5 스윕이 시트의 '신청일자'를 실어 보낸다 —
+   *  지난 접수를 지금 보정하면서 now() 를 쓰면 접수 시각도, 거기서 파생되는
+   *  보유기간(접수+1년 폴백)도 통째로 늘어난다. 생략하면 now(). */
+  submittedAt?: string | null
   /** 로그인 사용자 (P4). 지금은 항상 undefined — R11 비회원이 기본 */
   userId?: string | null
 }
@@ -139,15 +152,18 @@ export async function recordApplication(input: RecordApplicationInput): Promise<
   const { kind, body } = input
   try {
     const { name, phone } = extractIdentity(kind, body)
-    const { endsOn, purgeAfter: purge } = retention(kind, body)
+    const { endsOn, purgeAfter: purge } = retention(kind, body, input.submittedAt)
     const orderNo = str(body?.orderId) || null
     const trafficSrc = str(body?.trafficSrc) || null
     // 마케팅 수신 동의(선택) — 이 값이 있으면 보유기간이 지나도 **이름·전화만** 남는다.
     // 신청서 본문은 그대로 파기된다. 보유 근거가 이 동의라, 철회하면 연락처도 지워진다.
     // ⚠ 필수 동의(consentAt)와 섞지 말 것 — 필수로 묶으면 위법이다(제22조, 0006 주석).
     // 폼은 "동의"/"미동의" 문자열을 보낸다(GAS 시트 표기와 같은 값).
+    // ⚠ 후기 폼만 필드명이 `marketing` 이다(다른 폼은 `marketingConsent`) — 둘 다 읽지 않으면
+    //   후기 동의자만 조용히 누락된다.
+    const marketingRaw = str(body?.marketingConsent) || str(body?.marketing)
     const marketingConsentAt =
-      str(body?.marketingConsent) === "동의" ? str(body?.consentAt) || new Date().toISOString() : null
+      marketingRaw === "동의" ? str(body?.consentAt) || new Date().toISOString() : null
 
     const row = {
       sid: input.sid || null,
@@ -168,6 +184,9 @@ export async function recordApplication(input: RecordApplicationInput): Promise<
       gas_body_lost: input.gasBodyLost ?? false,
       dedup_key: input.dedupKey || null,
       marketing_consent_at: marketingConsentAt,
+      status_note: input.statusNote ?? null,
+      // 생략하면 컬럼 기본값 now() — 스윕만 값을 싣는다
+      ...(input.submittedAt ? { submitted_at: input.submittedAt } : {}),
     }
 
     // 멱등 키가 있으면 upsert(무시), 없으면 그냥 insert.
@@ -206,12 +225,18 @@ export async function recordSafe(
   input: Omit<RecordApplicationInput, "kind"> & { gasData?: unknown },
 ): Promise<void> {
   if (!kind) return
-  // GAS 가 200 으로 실패를 알린 경우 — 시트에 행이 없으므로 DB 에도 남기지 않는다
-  const gasData = input.gasData as { success?: unknown } | null | undefined
-  if (gasData && gasData.success === false) return
+  // GAS 가 200 으로 실패를 알린 경우 — 시트에 행이 없으므로 DB 에도 남기지 않는다.
+  // 판정은 lib/gas 의 isGasRejected 하나로 통일한다 — 라우트의 응답 판정과 같은 규칙이라
+  // 두 곳에 따로 적어 두면 어긋나는 순간 한쪽만 새어 유령 행이 생긴다.
+  if (isGasRejected(input.gasData)) return
 
   try {
-    const r = await recordApplication({ ...input, kind })
+    // 로그인 상태면 이 접수를 계정에 잇는다 (P4). 호출부가 명시로 넘기면 그 값이 우선.
+    // ⚠ **여기 한 곳에서만 해석한다** — 삽입 지점이 라우트당 3~4곳이라 호출부마다
+    //   넘기게 하면 하나만 빠져도 그 경로의 접수가 조용히 비회원으로 남는다.
+    //   recordApplication 을 직접 부르는 P2.5 스윕(서버-서버)은 세션이 없어 영향받지 않는다.
+    const userId = input.userId !== undefined ? input.userId : await sessionUserIdSafe()
+    const r = await recordApplication({ ...input, kind, userId })
     if (!r.ok) console.error(`[apply-ledger] 기록 실패 (${kind}/${input.sid ?? "-"}):`, r.error)
   } catch (err) {
     console.error(`[apply-ledger] 기록 예외 (${kind}/${input.sid ?? "-"}):`, err)
@@ -225,5 +250,15 @@ export function writtenDedupKey(phone?: string): string | null {
   const np = normalizePhone(phone)
   return np ? `written:${np}` : null
 }
+
+/**
+ * GAS 호출 자체가 실패해 **시트에 행이 없는** 접수의 표식.
+ *
+ * 이런 행은 P2.5 스윕이 영원히 보정하지 못한다(시트에 대응 행이 없다). 결함이 아니라
+ * **의도된 유일 흔적**이라는 뜻이라, 대조에서 "시트에 없음"을 결함으로 세지 않도록 표시한다.
+ * 손님에게는 실패를 알리므로(재제출·카카오 구제) 중복 접수가 뒤따를 수 있다 — 운영자가
+ * 이 표식으로 그 쌍을 알아본다.
+ */
+export const GAS_FAILED_NOTE = "GAS 호출 실패 — 시트에 없음 (DB 가 유일한 흔적)"
 
 export { isLedgerEnabled }

@@ -19,8 +19,13 @@
 |---|---|
 | P0 방침 개정 | ✔ 완료·배포 (2026-09-01, #552) |
 | P1 applications + 패스스루 이중화 | ✔ 완료·배포 (2026-09-01, #554) |
-| **P2 전용 라우트 3종** | **← 다음** |
-| P2.5 → P5 | 대기 |
+| P2 전용 라우트 3종 | ✔ 완료·배포 (2026-09-01, #561) |
+| P2.5 결손 0 보정 루프 | 코드 완료 · **운영자 설정 대기** (스크립트 속성 2개 + 트리거 켜기) |
+| P3 Admin 조회 전용 | ✔ 완료·배포 (2026-09-01, #565) |
+| P3b 분류·메모 (허수 걸러내기) | ✔ 완료·배포 (2026-09-01, #567 · 순서 #568 · 기결제자 정정 #569) |
+| P3c 삭제 요청 즉시 파기 | ✔ 완료·배포 (2026-09-02, #571) |
+| **P4 회원 (카카오+구글)** | **← 다음** · P4-0 준비물이 선행 |
+| P5 Admin 상태 관리 | 대기 (P3 가동 2~4주 뒤) |
 
 > 각 Phase 를 끝내면 **같은 PR 에서 이 문서를 현재화**한다 — 완료 섹션은 결과·확정 판단·잔여
 > 항목으로 압축하고, 상세는 DECISIONS·실파일(정본)로 넘긴다.
@@ -71,7 +76,7 @@
 2. **GAS 성공 판정은 HTTP 가 아니다.** 실패도 **200 + `{success:false}`** 로 온다 — 화이트리스트 밖 type(`gas/linkyincdev-main.gs:278`), 필수항목 누락(`:291`·`:567`), **슬롯 중복(`:579`)**. `data?.success !== false` 일 때만 기록한다. 안 지키면 시트에 없는 **유령 행**이 쌓여 P3 대조가 무의미해진다. (302 유실 경로는 실행 확정이므로 무조건 기록 + `gasBodyLost:true`.)
 3. **RLS 정책 0개 유지.** enable+force+revoke, 브라우저 supabase-js 금지, 조회는 서버 라우트(service_role) 경유. **`NEXT_PUBLIC_SUPABASE_*` 절대 금지.** ⚠ 새 테이블마다 Supabase 어드바이저 **INFO 가 1건씩 는다 — 의도된 상태다**(DECISIONS:169). 이걸 결함으로 오인해 `create policy` 를 넣으면 `supabase/README.md:122-124` 의 명시 금지를 정면으로 어긴다.
 4. **마이그레이션**: append-only, **dev(`kfqtzxxtwokouvoqpebq`) → prod(`qdxnxdfebkgoxeqzfmji`)**. 적용은 **Supabase MCP** — 세션 시작 시 `ToolSearch` 로 확인하고 **없으면 운영자에게 알리고 대기**. ⚠ **이름으로만 찾지 말 것**: 서버가 `mcp__Supabase__*` 가 아니라 **UUID 네임스페이스**(`mcp__<uuid>__apply_migration`)로 붙는 세션이 있다 — `select:mcp__Supabase__apply_migration` 이 빈손이라고 "MCP 없음"으로 단정하면 안 된다(2026-09-01 실제로 그렇게 붙었다). `ToolSearch "supabase migration"` 처럼 **키워드로** 찾고, 호출 승인이 뜨면 운영자에게 승인을 요청한다. 적용 후 **`supabase/README.md` §4 표(`| 파일 | 내용 | dev | prod |`)에 행 추가는 필수** — SQL Editor 로 적용하면 `supabase_migrations.schema_migrations` 에 안 남아(DECISIONS:49 실측) 그 표가 **적용 이력의 유일한 정본**이다. ⚠ MCP `apply_migration` 은 기록을 남기긴 하지만 **자체 타임스탬프**로 남는다(2026-09-01 실측: 파일명 `20260901093000` ↔ 기록 `20260901121219`) — 파일↔적용 대응은 여전히 README §4 표로 잇는다. (MCP 는 2026-09-01 연결·승인·실사용 확인 — 세션마다 연결 여부만 재확인)
-5. **마이그레이션 SQL 관례**: 배너 주석 `-- 000N · <제목>` + '해소하는 것 / 지키는 결정' 문단(전례 `core_orders.sql:1-23`) → applications 는 **0005**, profiles 는 **0006**. `create extension if not exists pgcrypto;`(gen_random_uuid 쓰는 전례 파일이 매번 선언) · `create table/index if not exists` · `drop trigger if exists … ; create trigger …` · **`comment on` 으로 R# 근거**(인라인 `--` 는 DB 에 안 남는다).
+5. **마이그레이션 SQL 관례**: 배너 주석 `-- 000N · <제목>` + '해소하는 것 / 지키는 결정' 문단(전례 `core_orders.sql:1-23`) → applications 는 **0005**(적용 완료). ⚠ **0006·0007 은 이미 다른 작업이 썼다**(`20260901140000_applications_marketing_retention` · `20260901180000_funnel_content_name`) — **profiles 는 다음 번호로**, 붙이기 전 `ls supabase/migrations/` 로 실제 마지막 번호를 확인할 것. `create extension if not exists pgcrypto;`(gen_random_uuid 쓰는 전례 파일이 매번 선언) · `create table/index if not exists` · `drop trigger if exists … ; create trigger …` · **`comment on` 으로 R# 근거**(인라인 `--` 는 DB 에 안 남는다).
 6. **GAS 변경이 있는 Phase 는 §6 순서**: `gas/` main 병합 → `gas-deploy.yml` success 확인 → 프론트 병합. ⚠ 착수 전 **`node scripts/gas-sync.mjs check`** 로 드리프트 확인(걸리면 `pull` → 커밋이 선행). ⚠ 워크플로가 `script.googleapis.com` 503 으로 실패한 실사고가 있고(DECISIONS:45) **세션에는 재실행 권한이 없다** — 막히면 운영자에게 재실행을 요청하고 프론트 병합을 보류한다.
 7. **검증에서 시트를 오염시키지 않는다**: `INTERVIEW_GAS_URL` 미설정 목업 모드 + dev Supabase env. ⚠ 함정 3개 — ① 폼에 **`sim` 테스트 모드**가 있어 `/lazyday/admin/simulate` 경유로 열면 라우트를 아예 안 부른다(조용히 0행) ② **프리뷰 apply 폼(`preview/apply/**`)은 fetch 자체가 없다** — 반드시 실사이트 경로로 ③ 레이지클럽 트리는 Playwright 에서 폰트가 매달리므로 외부 요청 차단 필수.
 8. **`npm run build` 는 타입 게이트가 아니다** — `next.config.mjs:3-5` 가 `typescript:{ignoreBuildErrors:true}`. 실제 게이트는 **`npx tsc --noEmit` 하나뿐**이다.
@@ -109,18 +114,19 @@
 
 ---
 
-## P2. 전용 라우트 3종
+## P2. 전용 라우트 3종 — ✔ 완료 (2026-09-01, #561)
 
 - **`interview/book`** — kind `interview_phone`. ⚠ GAS 응답을 검사하지 않고 흘린다(`:44-45`). **슬롯 중복이 흔한 경로**라 불변 원칙 2 가드가 특히 중요.
 - **`interview/written`** — kind `interview_written`, dedup_key 가드 적용. ⚠ **catch 가 실패해도 `{success:true}` 를 돌려준다**(`:53-55`, 주석에 'UX 우선'). 시트에도 DB 에도 안 남는 **진짜 영구결손 경로**이고 스윕으로도 복구 불가(시트에 행이 없다) → **catch 안에서도 `recordApplication` 을 호출**해 DB 를 유일한 흔적으로 남긴다.
 - **`review`** — kind `review`. ⚠ 이 라우트만 구조가 다르다: `lib/gas.ts` 미사용, 원시 `fetch(redirect:"follow")`, env `REVIEW_GAS_URL`, **302 유실 판정 없음**, catch 가 `{success:true}` 로 삼킴 → written 과 같은 처리.
 - **P1 에서 기구현**: `lib/applications.ts` 가 P2 3종 kind·이름/전화 추출 맵·`writtenDedupKey()`(9자리 미만 → null 가드, 실측 완료)를 이미 갖고 있다 — P2 는 **라우트 3개에 `recordSafe` 배선**이 전부다.
-- ⚠ **별건 결함 (운영자 판단 대기, P2 범위 아님)**: 라우트가 GAS `{success:false}` 를 손님에게 `{success:true}` 로 돌려줘 **GAS 가 거절해도 완료 화면이 뜬다**(종전 동작 — P1 은 원장 유령행만 막았다). 슬롯 중복이 흔한 interview/book 에서 가장 아프다. 고치면 폼 실패 UX 가 갈리므로 운영자 판단 후 별건 PR 로.
+- ✔ **`apply` 는 해결됨** (2026-09-01, 운영자 "이건 절대 안 되지") — GAS 거절 시 손님에게 `{success:false}` 를 돌려주고 `markSubmitted` 도 건너뛴다. 판정은 `lib/gas.ts` 의 `isGasRejected()` 로 통일. `interview/book` 은 원래 `NextResponse.json(data)` 패스스루라 이미 거절이 전달된다.
+- ⚠ **`written`·`review` 의 catch 삼킴은 이 Phase 에서 함께 고친다** — 응답만 먼저 실패로 바꾸면 **손님은 실패를 보는데 시트·DB 어디에도 기록이 없다**. DB 기록(`recordApplication`)을 붙인 뒤에야 응답을 사실대로 바꿀 수 있다. 순서: 기록 먼저, 응답 나중.
 - 검증: P1 과 동일. 독립 PR.
 
 ---
 
-## P2.5. 결손 0 보정 루프
+## P2.5. 결손 0 보정 루프 — 코드 완료 (2026-09-01, #563·#564) · **운영자 설정 대기**
 
 **원리**: 접수마다 sid(P1 부터) → 시트·DB 공유 → GAS 시간 트리거 스윕이 시트를 훑어 보정 엔드포인트로 밀고 sid upsert → **시트에 있으면 DB 에 반드시 생긴다.**
 
@@ -144,7 +150,7 @@
 
 ---
 
-## P3. Admin 조회 전용 (Stage A — 쓰기 API 미배포)
+## P3. Admin 조회 전용 (Stage A — 쓰기 API 미배포) — ✔ 완료 (2026-09-01, #565)
 
 - `app/api/lazyday/admin/applications/route.ts` — **GET only**. 쿠키 `lazyday_admin`===`ADMIN_SECRET`, `if (!sb) return {enabled:false, rows:[]}`, 필터(kind·기간·이름/전화), 페이지네이션, snake→camel 은 라우트에서.
 - `app/(main)/lazyday/admin/applications/page.tsx` — status 페이지 패턴. **status 는 렌더링하지 않고** "상태 정본: 구글 시트" 배지.
@@ -153,22 +159,71 @@
 - ⚠ **R13 후반부**("관리자는 service_role 로 우회하되 **감사 로그를 남긴다**", `Rules.tsx:114`) — 이 화면은 이름·전화를 조회하면서 열람 기록을 남기지 않는다. 남기지 않기로 한다면 **그 판단과 근거를 계획서·DECISIONS 에 명시**해 R13 과의 차이를 드러낸다.
 - 검증: preview + Playwright 스모크.
 
+### P3b. 분류(triage)·메모 — ✔ 완료 (2026-09-01, #567)
+
+운영자 지시: "ux최적화라 함은 필터링과 검색과 마킹/메모 등이지 않을까 / **원본과 구분하고,
+허수데이터등을 거를 수 있게**" → 첫 안(허수·확인함·보류)은 반려("하나도 의미있지 않잖아")되고
+분류 체계를 운영자가 직접 지정했다: **테스트 · 오기 · 더미 · 중복신청 · 기결제자**.
+
+**경계선 (P5 와 갈리는 지점)** — *시트에 있는 것은 쓰지 않고, 시트에 없는 것만 쓴다.*
+진행 상태(미진행·결제완료·탈락…)는 시트가 정본이라 P5 까지 손대지 않는다. 분류·메모는
+**시트에 없는 개념**("내가 훑다가 왜 뺐는가")이라 두 곳이 갈릴 일이 없어 지금 열 수 있다.
+⚠ `paid`(기결제자)가 시트의 '결제완료'와 겹쳐 보이지만 뜻이 다르다 — 시트는 **상태 선언**,
+여기는 **더 안 봐도 된다는 열람 표시**다.
+
+- **파기가 아니다** (운영자 "파기가 아니라 보기에서 기본 제외, 선택해서 볼 수는 있음").
+  행은 그대로 두고 기본 목록에서만 뺀다 — 지우면 시트와의 건수 대조가 깨지고 왜 없어졌는지도 안 남는다.
+  분류된 행도 보유기간(R9) 파기 대상인 것은 그대로다.
+- ⚠ **분류에는 두 종류가 있다** (운영자 정정 2026-09-01: "기결제자는 물론 기본제외대상이 아니지").
+  **빼는 표시**(test·typo·dummy·duplicate)만 기본 목록에서 빠지고, **`paid`(기결제자)는 표시만 하고 남는다** —
+  허수가 아니라 **가장 진짜인 접수**라 오히려 자주 봐야 하는 행이다. 어느 쪽인지는 **라우트의 `HIDDEN` 배열**이
+  정한다(DB 는 형태만 본다). 화면도 "목록에서 빼기"/"표시만" 두 묶음으로 줄을 나눠 오해를 막는다.
+  마이그레이션 **0009** 는 이 정정을 컬럼 주석에 반영한 것뿐이다(데이터·인덱스 무변경).
+- 마이그레이션 **0008** `20260901203000_applications_triage.sql` — `triage`(형태 check)·`triage_note`·
+  `triaged_at` + 부분 인덱스 `where triage is null`(기본 목록이 가장 잦은 조회). 값 집합은 라우트가 강제(0005 kind 와 같은 판단).
+- 라우트: 기본 `triage is null`, `?triaged=1` 이면 분류된 것만. 요약(최근 7일)에서 분류 건은 빠지고
+  **몇 건을 뺐는지는 따로 보여준다** — 숨겼다는 사실 자체가 보여야 한다. `PATCH` 는 **`triage`·`triage_note`·`triaged_at` 만** 쓴다(status 아님, 파기 아님).
+- 화면: 접수 원문 아래 괘선으로 자리를 나눈 `ops` 블록(운영자 "원본과 구분하고"). 유채색 UI 를 쓰지 않는
+  레이지클럽 베이스라 분류 표시는 대괄호 태그(`[중복신청]`)로.
+- **잔여(P3 에서 넘어옴)**: ① ~~`purge_application(uuid)` 단건 파기 버튼~~ → ✔ **완료(2026-09-02, #571)** ②
+  스윕 결과(received/upserted/skipped)를 DB 에 무개인정보 행으로 남겨 대조를 닫는 건 P2.5 가동 뒤 재판단.
+
+### P3c. 삭제 요청 즉시 파기 — ✔ 완료 (2026-09-02, #571)
+
+방침 제3조 1호·제8조가 "삭제를 요청하는 경우 즉시 파기"를 약속하는데, 정기 파기(R9)는 하루 한 번
+도는 cron 이라 **요청받은 자리에서** 지울 수단이 없었다.
+
+- 라우트 `DELETE ?id=<uuid>` → `purge_application(uuid)`. **PATCH 에 얹지 않고 메서드를 나눴다** —
+  분류(열람 표시)와 파기(개인정보 삭제)가 실수로 섞여 호출될 수 없게. uuid 형태를 먼저 봐서
+  잘못된 id 가 502(PG 캐스팅 에러)로 보이지 않게 한다. 이미 파기된 행은 `{ok:true, purged:false}`.
+- 화면: 상세 맨 아래 괘선 밑, **두 번 눌러야** 실행(삭제 요청 파기… → "되돌릴 수 없어요" → 파기합니다/취소).
+  유채색을 쓰지 않는 베이스라 위험은 색이 아니라 **자리와 확인 단계**로 표시한다.
+- ⚠ **작업 중 발견한 결함 — 마이그레이션 0010 으로 수정.** 0008 이 `triage_note` 를 파기 함수보다
+  **나중에** 만들어, 파기해도 **메모만 살아남았다**(dev 실측: 이름·전화·payload 는 비었는데 메모는 그대로).
+  메모는 우리가 쓰지만 개인정보가 들어가는 자리다. 파기 함수 2종이 `triage_note` 도 비우게 고쳤다 —
+  정기 파기의 마케팅 예외는 **이름·전화에만** 걸리므로 메모는 동의와 무관하게 비운다. 분류(`triage`)는 남긴다.
+- 검증(dev): 단건 파기 → 전 항목 비움·분류 유지·두 번째 호출 `false` / 정기 파기 동의자 → 이름·전화 유지·메모 비움 /
+  미동의자 → 전부 비움. dev·prod 0010 적용.
+- **아직 없는 것**: 마케팅 수신 **철회** 버튼(`withdraw_marketing_consent(phone)` 은 0006 에 있으나 미배선) — 별건.
+
 ---
 
 ## P4. 회원 — P4a 카카오+구글 → P4b 네이버(후속)
 
 ### P4-0. 선행 (P1 착수와 **동시에** 안내 — 리드타임이 길다)
 
-- **의존성**: `@supabase/ssr` **미설치** → `npm i @supabase/ssr`. ⚠ **락파일이 둘이다** — `package-lock.json`(실제) + `pnpm-lock.yaml`(96바이트 빈 스텁). `packageManager` 필드도 `vercel.json` 도 없어 **Vercel 이 pnpm 을 감지해 빈 락파일로 설치를 시도할 위험**이 있다. 의존성 추가 전에 이 상태를 정리할지 판단할 것.
+- **의존성**: `@supabase/ssr` **미설치** → `npm i @supabase/ssr`. ~~락파일이 둘이다~~ → ✔ **해소(2026-09-02, #572)**. 위험이 아니라 **이미 벌어지고 있던 일**이었다 — 빌드 로그 실측 결과 Vercel 이 실제로 **pnpm@10 으로 설치**하고 있었고, 그 96바이트 스텁엔 패키지 목록이 없어 **매 빌드가 `package.json` 범위에서 새로 해석**했다(락이 아무것도 고정하지 않았고 진짜 `package-lock.json` 은 무시됐다). 스텁을 지워 npm + `package-lock.json` 으로 되돌렸다. 이제 의존성 추가는 `npm i` 로 안전하다.
 - **약관 개정** — 현행 약관에 **회원 조항이 없다**: `TermsBody.tsx:90` 제7조① "**별도의 회원가입 없이 구매할 수 있습니다**"가 '회원'이 나오는 유일한 문장이고 제2조 정의에 '회원'·'계정'이 없다. 수정 지점은 **`app/(main)/lazyday/terms/TermsBody.tsx` 한 곳**(lazyclub/terms 가 직접 import — 사본 금지 명시). ⚠ **제3조③: 7일 전 공지, 불리 변경은 30일 전** — 회원 조항 신설은 30일 해석 여지가 있다.
 - ⚠ **용어 충돌**: `/lazyday/policy`(기수제 약관)의 '회원'은 **기수 참가자**를 뜻하는데, 설계 정본 용어집은 "회원 = 소셜 로그인 계정 보유자"다. 같은 단어가 두 문서에서 다른 뜻이 된다 → 정리(예: 계정 보유자='회원', 기수 참가자='참가자')를 개정에 포함.
 - **만 14세** — 소셜 로그인은 나이를 묻지 않는다(법 제22조의2). `docs/community-spec-2026-07.md:73` 이 이미 1차 과제로 적어 뒀다 → **최초 로그인 직후 확인 체크(시각 저장)** 를 약관 개정과 같은 배포에.
-- ⚠ **노선 확인 필요**: `community-spec-2026-07.md:10·32` 는 "**공개 '회원가입' 버튼이 없는 사이트** — 인터뷰 합격자에게만 문이 열리는 구조가 '선별의 서사'의 기술적 완성형"이라고 적었다. 이번 계획은 탑네비에 **상시 공개 로그인 입구**를 둔다. 명세는 초안·미결이라 확정 번복은 아니지만 **브랜드 서사 판단이므로 운영자에게 확인**한다.
+- ✔ **해소(2026-09-02) — 상시 공개 가입 확정.** 아래 문단은 그때의 미결 기록이다: ~~⚠ **노선 확인 필요**: `community-spec-2026-07.md:10·32` 는 "**공개 '회원가입' 버튼이 없는 사이트** — 인터뷰 합격자에게만 문이 열리는 구조가 '선별의 서사'의 기술적 완성형"이라고 적었다. 이번 계획은 탑네비에 **상시 공개 로그인 입구**를 둔다. 명세는 초안·미결이라 확정 번복은 아니지만 **브랜드 서사 판단이므로 운영자에게 확인**한다.~~ → 운영자 "가입 자체는 상시여야 해. 공개로" (DECISIONS 2026-09-02). 선별은 없어지지 않고 신청 절차로 자리를 옮긴다 — 화면 문구가 '가입=입회'로 읽히지 않게.
 - **운영자 준비물**: Kakao/Google(후속 Naver) 개발자 앱 + 키, Redirect URI `https://<ref>.supabase.co/auth/v1/callback`(dev·prod 각각), Supabase provider 활성화 + Redirect URLs 에 **두 도메인 + preview**, Vercel env **`SUPABASE_ANON_KEY`**(신규, 서버 전용 → **Type=Secret** 로 넣고 재배포만으로 반영. `NEXT_PUBLIC_*` 이 아니므로 빌드 캐시 함정과 무관).
 
 ### P4a. 카카오 + 구글
 
-1. **`profiles` 마이그레이션(0006)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
+> **진행: 1~3 완료 (2026-09-02, PR 준비) — 4~9 는 다음.** 스키마(0011 dev·prod 적용)·서버 세션 헬퍼·라우트 4종이 붙었다. 화면(진입점·마이페이지)과 user_id 스탬핑은 아직 없고, **운영자 설정 2건**(Supabase Redirect URLs · Vercel `SUPABASE_ANON_KEY`)이 있어야 실로그인이 가능하다. 설정 전까지는 `isAuthEnabled()` 가 false 라 `/api/auth/me` 가 `{enabled:false}` 로 답하고 로그인 입구를 그리지 않는다 — 배포해도 사이트 동작은 종전 그대로다.
+
+1. **`profiles` 마이그레이션 — ✔ 완료 (0011 `20260902120000_profiles.sql`, dev·prod 적용 2026-09-02. 다음 번호 = 0013 — 0012 는 시트 거울, CRM-2)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
    컬럼: `user_id` PK→auth.users cascade · `display_name` · `email` · `phone`(자기 신고, **키가 아니다**) · `phone_verified_at` · `age_verified_at`(만 14세) · `marketing_consent_at`(R10) · 타임스탬프.
    같은 파일에 **`create index if not exists orders_user_id_idx on public.orders (user_id) where user_id is not null;`** — '내 주문' 조회용 인덱스가 없다.
    **identities 테이블 불필요** — `auth.identities` 가 담는다.
@@ -185,7 +240,8 @@
 6. `app/(main)/lazyday/mypage/page.tsx` + `app/api/lazyday/mypage/*` — 내 주문·내 신청·주문 연결 폼. 서버 라우트가 세션→user_id 필터로 R13("본인은 자기 행만")을 강제.
    ⚠ **R3 한계**: link-order 는 `orders.orderer_phone`(주문자)로 매칭하므로 **대리 결제 건은 결제한 사람에게만 연결된다** — '내 주문/내 신청' 문구가 이를 오해시키지 않게.
 7. `app/api/lazyday/mypage/link-order/route.ts` — orderNo+phone **둘 다 일치할 때만** user_id set(+같은 order_no 의 applications). **전화 단독 매칭 금지**(R11).
-8. ⚠ **도메인이 갈리면 세션도 갈린다** — lazy-club.com 과 lazyday-bookclub.com 은 eTLD+1 이 달라 쿠키를 공유하지 못하는데 셸도 checkout 도 두 도메인에서 열린다. **계정(profiles)은 하나지만 로그인은 도메인별 1회**라는 한계를 운영자에게 사전 고지하고, 노선(회원을 북클럽 도메인 하나로 통일 vs 도메인별 독립 로그인)을 정해 DECISIONS 에 남긴다.
+8. ✔ **노선 확정(2026-09-02): 회원의 본진 = 레이지클럽 도메인.** 로그인 입구·`/mypage` 는 `lazy-club.com` 기준으로 만들고, 북클럽 도메인에서도 같은 계정으로 열되 **세션은 도메인별**이다. 데이터는 한 DB — 도메인이 정하는 건 입구 위치와 쿠키뿐(DECISIONS 2026-09-02).
+   ⚠ **도메인이 갈리면 세션도 갈린다** — lazy-club.com 과 lazyday-bookclub.com 은 eTLD+1 이 달라 쿠키를 공유하지 못하는데 셸도 checkout 도 두 도메인에서 열린다. **계정(profiles)은 하나지만 로그인은 도메인별 1회**라는 한계를 운영자에게 사전 고지하고, 노선(회원을 북클럽 도메인 하나로 통일 vs 도메인별 독립 로그인)을 정해 DECISIONS 에 남긴다.
 9. 검증: dev + localhost redirect 로 **실계정 카카오·구글 로그인 실측**(auth.users·auth.identities·profiles) → 프리필·스탬핑·link-order 4조합 → **두 도메인 각각 `/mypage` 200** → preview 스크린샷 승인 → 프로덕션 후 운영자 계정 1회.
 
 ### P4b. 네이버 (spike 게이트)
@@ -210,17 +266,19 @@
 | ~~P0 직후~~ | ✔ 해소(2026-09-01) — 제6조 포함·즉시 시행 운영자 확정 |
 | ~~P1 착수 전~~ | ✔ 해소(2026-09-01) — MCP 승인·실사용, dev·prod 스키마 대조 완료(전 컬럼 동일) |
 | ~~P1 착수와 동시~~ | ✔ 안내 전달(2026-09-01 브리핑) — P4-0 준비물·약관 30일 리드타임. **운영자 실행은 진행 중** |
-| **지금 (P2 착수 전)** | ① **보유기간 고지 문구 통일** — 화면이 3갈래(신청·커피앤바 "동의 철회 시까지" / 레이지클럽 "모임 종료 후 1년" / 방침 "기수 종료 후 1년"). 코드는 방침 기준(종료+1년)으로 기구현, 화면 문구만 남음 ② **별건 결함 판단** — GAS 거절에도 완료 화면이 뜨는 문제(P2 절 참조)를 고칠지 |
+| ~~지금 (P2 착수 전)~~ | ✔ 해소(2026-09-01) — ① 보유기간 고지 문구는 **다른 세션이 정리 중**(운영자 "한 번에 할게") — 이 계획 범위 밖 ② 별건 결함은 **고치기로 확정, apply 반영 완료**(#557), written·review 는 P2 |
 | P2.5 | **시트 새로고침 → 메뉴 → 트리거 켜기** + 스크립트 속성 `SITE_URL`·토큰 / 후기는 범위 밖 확인 |
-| P3 | R13 감사 로그 생략 여부 판단 |
+| ~~P3~~ | ✔ 해소(2026-09-01) — R13 감사 로그는 **생략, 근거 정정**: 열람자는 2명이지만 `ADMIN_SECRET` 이 공유 단일 값이라 주체를 구분할 수 없다 → **사람별 식별(P4 소셜 로그인)이 선행**. DECISIONS 기록 |
 | P4-0 | 개발자 앱 등록 / 약관·방침 2차 개정 문구 / 만 14세 정책 / **공개 로그인 입구 노선 확인**(community-spec 과 충돌) |
-| P4a | 도메인별 세션 노선 확정 · 프리뷰 스크린샷 승인 |
+| **관리 도메인 (지금, 병합 전)** | Vercel 프로젝트 → Settings → Domains → **`admin.lazy-club.com`** 추가 + 등록기관 DNS **`CNAME admin → cname.vercel-dns.com`**. 인증서가 뜨면 `curl -sI https://admin.lazy-club.com/lazyday/admin/login` 이 200 — 그 뒤에 관리 호스트 PR 병합(DECISIONS 2026-09-02) |
+| P4a | ✔ 해소(2026-09-02) — ① Redirect URLs 등록 ② `SUPABASE_ANON_KEY` 설정 ③ 구글 Client ID 정정(`supabase-prod` 가 앞에 붙어 `invalid_client` 였다)·카카오 공급자 활성화 **모두 실측 확인** ④ 상시 공개 가입 확정 ⑤ 본진 = 레이지클럽 도메인 확정. **남은 것은 화면 프리뷰 승인 하나** |
 | P5 | "시트 '진행 상태' 기입 중단" 선언 |
 
 ## 실행 시작
 
-**~~P0~~ → ~~P1~~ → 🔜 P2 → P2.5 → P3 → P4a → (P4b) → P5**, 각 Phase 독립 PR. 위 '불변 원칙' 11개는 전 구간 적용.
+**~~P0~~ → ~~P1~~ → ~~P2~~ → ~~P2.5(코드)~~ → ~~P3~~ → ~~P3b~~ → ~~P3c~~ → 🔜 P4a(스키마·라우트 완료 / 화면 남음) → (P4b) → P5**, 각 Phase 독립 PR.
+⚠ P2.5 는 **코드만 끝났고 운영자 설정(스크립트 속성 2개 + 트리거 켜기)이 남아** 아직 돌지 않는다 — 켜진 뒤 첫 스윕을 DB 에서 확인해야 닫힌다. 위 '불변 원칙' 11개는 전 구간 적용.
 
-⚠ Supabase MCP 게이트는 **2026-09-01 승인·실사용으로 해소** — 다만 마이그레이션이 있는 Phase(P2.5 의 admin 라우트는 무관, P4a 의 0006)는 세션마다 연결 여부를 다시 확인하고 끊겨 있으면 운영자에게 알리고 대기(불변 원칙 4).
+⚠ Supabase MCP 게이트는 **2026-09-01 승인·실사용으로 해소** — 다만 마이그레이션이 있는 Phase(P2.5 의 admin 라우트는 무관, P4a 의 0011)는 세션마다 연결 여부를 다시 확인하고 끊겨 있으면 운영자에게 알리고 대기(불변 원칙 4).
 
 ⚠ 이 문서는 2026-09-01 시점의 코드를 근거로 쓰였다. 인용된 파일·줄 번호는 어긋날 수 있으니 **고치기 전 해당 파일을 직접 열어 확인**하고, 문서와 코드가 다르면 **코드를 믿고 문서를 고쳐 같은 PR 에 담는다**.

@@ -1,12 +1,12 @@
 # CLAUDE.md — linky-lounge-homepage AI 작업 가이드
 
-**링키라운지**(linkylounge.com) + **레이지데이 북클럽**(lazyday-bookclub.com) + **레이지클럽**(lazy-club.com).
-Next.js 16 App Router · CSS Modules · TypeScript · Vercel. 작업 중심은 레이지데이 북클럽.
+**링키라운지**(linkylounge.com) + **레이지클럽**(lazy-club.com) ⊃ **레이지데이 북클럽**(lazyday-bookclub.com).
+Next.js 16 App Router · CSS Modules · TypeScript · Vercel. **브랜드 위계: 레이지클럽이 상위, 북클럽은 그 안의 프로그램 하나**(운영자 2026-09-02) — 트래픽은 아직 북클럽이 크지만 회원·관리·인증 등 **장기 관리 단위의 이름·도메인·설명은 레이지클럽 기준**. 코드 트리 `app/(main)/lazyday/**` 가 북클럽 도메인의 본체인 것은 그대로다.
 linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교차만 주의).
 
 **세션 시작 시 반드시**: ① 이 문서 ② `docs/DECISIONS.md`(운영자 결정 로그). 보류 항목을 새 지시 없이 부활시키거나 확정 결정을 임의 번복하지 않는다.
 
-**진행 중 계획**: `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다.
+**진행 중 계획**: `docs/handoff/2026-09-02-dashboard-to-next-session.md`(**세션 인수인계 — 먼저 읽는다**: 현재 상태·다음 할 일 순서·운영자 대기) · `docs/admin-crm/02-build-plan.md`(대시보드 PR 순서표) · `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다.
 
 **명령어**: dev `npm run dev` · `npx tsc --noEmit` · `npm run build` · `npm run lint`. 테스트 스위트 없음 — 검증은 tsc + `scripts/shot.mjs` + 배포 curl 마커.
 **GitHub**: `LinkyDev01/linky-lounge-homepage` (mcp__github). 브랜치는 main 분기, `claude/<주제>`.
@@ -26,7 +26,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 ## 2. 프로젝트 지도
 
 - **레이지클럽** `app/(main)/lazyclub/**` (2026-08-21 프리뷰 졸업). `base-path.ts` 의 `BASE="/lazyclub"`, 홈 `HOME="/lazyclub/all"` (⚠ 트리 루트 아님 — 루트는 랜딩 coming-soon 과 겹침). lazy-club.com 은 이 트리가 도메인 루트(미들웨어 rewrite), 북클럽 도메인에선 `/lazyclub/*`(noindex, 운영자 검토용). 슬러그 = 내비 라벨 영문 대응(all·meetings·products·people·schedule·records) — **URL 규율은 `docs/url-policy.md` 정본**, 슬러그 신설·변경 전 필독. ⚠ 내부 링크는 `LazyclubLink`(`LazydayLink` 아님). ⚠ `lib/order-catalog.ts` 가 `lazyclub/goods-config` import (프로덕션 결제 — §4 데이터 지도).
-- **도메인**: lazyday-bookclub.com → 미들웨어가 `/lazyday/*` rewrite. `linkylounge.com/lazyday/*` 는 301. `/lazyday/admin*` 은 `lazyday_admin` 쿠키(=ADMIN_SECRET).
+- **도메인**: lazyday-bookclub.com → 미들웨어가 `/lazyday/*` rewrite. `linkylounge.com/lazyday/*` 는 301. `/lazyday/admin*` 은 `lazyday_admin` 쿠키(=ADMIN_SECRET). **관리 화면은 `admin.lazy-club.com/admin/*` 전용**(운영자 2026-09-02, 내부 트리는 `/lazyday/admin/*` 그대로 rewrite). `/admin` = 대시보드 홈(`AdminShell` 내비 6: 홈·고객·접수·주문·일정·도구), 차단 달력은 `/admin/schedule`, 고객은 `/admin/customers[/키]`. 새 관리 화면은 `admin/crm.module.css` 토큰(§9)만 쓴다 — 손님 도메인 3종의 `/admin*` 은 그리로 **307**, 관리 호스트는 관리 트리 외 전부 404. 쿠키가 host-only 라 관리 호스트에서 1회 로그인. **관리자 로그인 = 소셜 계정(카카오·구글) + `ADMIN_EMAILS` 허용 목록**(2026-09-02) — 비밀번호 경로는 `ADMIN_PASSWORD` env 가 있는 동안만. 관리 호스트 콜백 `https://admin.lazy-club.com/api/auth/callback` 이 Supabase Redirect URLs 에 있어야 한다. 프리뷰(vercel.app)·localhost 는 `/admin/*`·`/lazyday/admin/*` 둘 다 열린다. 도메인 역할표는 `lib/site.ts`. `/api/*` 는 미들웨어 밖이라 관리 API·GAS `SITE_URL`(북클럽) 무변경.
 - **히어로** = `HeroBreathingPoster`(모션, HeroParallax 가 렌더, `useChromeIntro.HOLD_ENABLED=true`). 진입 안무: 포스터만 → 그어짐 끝 무렵 내비·푸터·본문 → +3초 스티키 CTA. 검수대 `preview/hero-check`. 포스터 내부 작업은 `docs/env-notes.md` 필독.
 - **실사이트 랜딩** `app/(main)/lazyday/page.tsx`: 전체가 `LandingShell`(내비+푸터, landing-shell.module.css, 데스크톱 확장은 `--lz-*` 변수 주입) 안. 내비 탭 5개: 함께 읽는 책·모임소개·진행방식·일정·장소·후기·FAQ. **섹션 순서·배경 (2026-08-24 재배열, 7섹션 완전 교차)**: Hero(+HeroSummary) → 함께 읽는 책(B) → 모임소개(A, FeatureQuietSection) → **진행 방식(B, ProcessSection — 01 자기소개(규칙 원문 모달)·02 오프닝/질문(레이지 노트 4장 모달, 후기 모달과 동일 UI — 단일 이미지는 넘김 없음)·03 서로의 페이지·04 마무리)** → 일정·장소(A) → 후기(B, ReviewsSection 캐러셀+핀치줌 모달) → FAQ(A) → 클로징(B). **섹션 제목 서식은 전 섹션 '함께 읽는 책' 기준 통일(2026-08-24)** — 32px/800 좌정렬 + 주황 괘선 56×1.5, ≤480px 26px.
 - **고아 보존**(렌더 안 함 — 삭제 금지): About·Closing·Rules·Vibe·FeatureBoxSection·FifthSessionSection·HowToSection·HowToBrief·NavBar·BrandCloseSection + 프리뷰 쪽 NavBarV2·Footer·HowToSectionV2·ClosingSectionV2·구 preview/ReviewsSection.
@@ -73,7 +73,11 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 | `preview/preview.module.css` | 프리뷰 트리 허브 (10개 파일) | 수정 전 import grep |
 
 | `lib/applications.ts` | 접수 라우트 4개 공유 (P2 에서 3개 더) | `classifyApply`(GAS type 화이트리스트와 값 집합 일치)·`recordSafe`(유령행 차단 규율). GAS `doPost` 분기를 고치면 여기도 같이 |
-| `applications` 테이블 | 전 접수 원장 (0005) | `purge_after` NOT NULL — 산출 못 하면 접수+1년 폴백. `sid`·`dedup_key` 는 **컬럼 unique**(부분 인덱스 금지, 42P10) |
+| `admin/applications` (화면+CSS) | **레이지클럽 베이스** (운영자 2026-09-01 "조회화면은 레이지클럽 베이스로") | §3 팔레트가 아니라 §9 개편 문법 — 백지+잉크·13.2px/1.5·괘선 리스트·**텍스트 링크만(보더 버튼·유채색 UI 0)**. §9 대로 기존 `.module.css` 를 import 하지 않고 토큰을 자체 선언한다 |
+| `app/api/lazyday/admin/backfill-applications` | GAS 스윕 전용 (P2.5) | 인증은 **헤더 `X-Backfill-Token`**(쿠키 아님 — 부르는 쪽이 Apps Script 서버다). ⚠ 원장이 꺼져 있으면 **503 을 돌려줘야 한다** — 200 을 주면 GAS 가 '보정됨'을 찍고 그 행을 영영 안 보낸다 |
+| `applications` 테이블 | 전 접수 원장 (0005) | **0012 시트 거울 4컬럼**(`sheet_progress`·`sheet_interview_status`·`sheet_interview_type`·`sheet_synced_at`)은 GAS 스윕만 쓴다 — 관리 화면·라우트가 쓰면 안 된다(정본은 시트, `status` 도 P5 전엔 스윕이 번역해 넣는 읽기값). `purge_after` NOT NULL — 산출 못 하면 접수+1년 폴백. `sid`·`dedup_key` 는 **컬럼 unique**(부분 인덱스 금지, 42P10). ⚠ **개인정보가 들어갈 수 있는 컬럼을 추가하면 파기 함수 2종**(`purge_expired_applications`·`purge_application`)**도 같은 PR 에서 고친다** — 0008 이 `triage_note` 를 함수보다 나중에 만들어 **파기해도 메모만 남았다**(2026-09-02 발견, 0010 로 수정) |
+| `customer_activities` 테이블 (0013) | 고객 레코드 화면(메모·통화·문자)만 | **고객 표가 아니다** — 사람은 여전히 파생이고 `person_key` 는 `lib/customers.ts` 의 묶음 키다. 키 규칙의 정본은 **`appPersonKey()` 하나** (활동 기록과 단건 파기가 같은 값을 만들어야 한다 — SQL 에 다시 적지 않는다). ⚠ **`purge_application` 은 `(uuid, text)` 2인자다** — 옛 1인자 함수는 drop 됐다(오버로드로 남기면 라우트가 옛 시그니처를 불러 활동이 에러 없이 안 지워진다). 파기 라우트는 **이름·전화가 비워지기 전에** 키를 읽어 넘겨야 한다 |
+| `applications.triage` (0008·0009) | admin 화면이 유일한 소비자 | **파기가 아니라 열람 표시**. ⚠ 두 종류다 — **빼는 표시**(test·typo·dummy·duplicate)만 기본 목록에서 빠지고 **`paid`(기결제자)는 표시만 하고 남는다**(운영자 2026-09-01 "기결제자는 물론 기본제외대상이 아니지"). 어느 쪽인지는 라우트의 `HIDDEN` 배열이 정한다 — DB 는 형태만 본다. 기본 목록 = `triage is null or triage not in (HIDDEN)`, `?triaged=1` 로 빼둔 것만 꺼내 본다. ⚠ **진행 상태(status)와 섞지 말 것** — 그 정본은 시트, 여는 건 P5 |
 
 새 클래스 추가는 안전. **TSX 쌍 동기화**: `apply/**` 실↔프리뷰 TSX 는 별도 쌍 — 폼 필드·문구 변경 시 양쪽 반영.
 
@@ -91,14 +95,19 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **`NEXT_PUBLIC_*` 설정 여부는 프로덕션 번들로 확인한다**: Next 는 **설정된** 값만 리터럴로 인라인하고, 미설정은 `t.default.env.NEXT_PUBLIC_X||""` 참조로 남긴다. 청크를 받아 grep 하면 Vercel 콘솔 없이 주입 여부를 판정할 수 있다 (2026-08-31 포트원 공개키 미설정 확인).
 - **스크린샷은 `node scripts/shot.mjs`** (boilerplate 재작성 금지, `--eval` 로 수치 검증). **networkidle 멈춤**: 외부 스크립트가 프록시에서 매달리면 30s 타임아웃 — waitUntil 'load' 폴백. 레이지클럽 트리는 폰트 요청까지 매달리므로 `ctx.route(외부, abort)` 로 끊고 캡처.
 - **dev 서버는 턴 사이 자주 죽는다**: 백그라운드 재기동 후 curl 200 폴링. pkill 후 exit 144 무해.
+- **`useSearchParams()` 는 `<Suspense>` 안에서만** — 클라이언트 페이지에서 그냥 쓰면 로컬 dev 는 멀쩡한데 **프리렌더에서 빌드가 깨진다**(`missing-suspense-with-csr-bailout`, 2026-09-02 Vercel ERROR 실측 — 프리뷰 레이아웃이 `headers()` 를 써도 페이지는 정적 생성 대상). 기본 export 가 `<Suspense fallback={null}><Inner/></Suspense>` 로 감싸고 Inner 에서 읽을 것. **푸시 전 `npm run build`** 가 이걸 잡는다 — tsc 는 못 잡는다.
 - **`next-env.d.ts`**: 커밋 전 항상 `git checkout -- next-env.d.ts`.
+- **패키지 매니저는 npm 하나다 — `pnpm-lock.yaml` 을 되살리지 말 것.** Vercel 은 `packageManager` 필드가 없으면 **락파일을 보고 매니저를 고르고 pnpm 이 npm 보다 우선**한다. 2026-08-26 에 96바이트짜리 빈 `pnpm-lock.yaml` 스텁이 무관한 PR(#500)에 딸려 들어왔고, 그때부터 프로덕션 빌드가 **pnpm@10 으로 설치**되고 있었다(2026-09-02 빌드 로그 실측: `Detected pnpm-lock.yaml 9` → `Done in 11.7s using pnpm v10.28.0`). 그 스텁엔 패키지 목록이 없어 **매 빌드가 `package.json` 범위에서 새로 해석**했다 — 즉 **락이 아무것도 고정하지 않았고** 진짜 락파일(`package-lock.json` 154KB)은 무시됐다. 로컬(`npm ci`)과 프로덕션이 다른 버전으로 갈릴 수 있는 상태. 지웠으니 npm 으로 돌아온다. pnpm 으로 옮길 거라면 **빈 스텁이 아니라 진짜 락파일을 만들고 `package-lock.json` 을 지우는 별건 작업**으로.
 - **Vercel**: 프로젝트 `prj_iKxnwjdJoHtlXtEIBqxJ8uVjAmcy` / 팀 `team_Unc0jNsuK26xtE7mYRh09nRa` (유사 이름 프로젝트 다수 — 반드시 이 ID). 공유는 `get_access_to_vercel_url` 로 `_vercel_share` 토큰 — **배포 단위·~23h 만료, 새 푸시마다 재발급**, 만료 시각 명시. 배포 확인은 `list_deployments` READY + 프로덕션 `www.lazyday-bookclub.com` 폴링.
 - **이미지 최적화 꺼짐**(`unoptimized: true` — 운영자 확인 없이 끄지 말 것): 소스 파일 크기 = 전송량. 새 이미지는 **최대 노출 크기 ×2 로 미리 축소해 커밋**, 모달용 원본과 카드용 축소본은 별도 파일(`review-0N-card.webp` 선례).
 - **fixed/오버레이 요소를 새로 놓기 전 기존 fixed 지도 확인** — 헤더(top:0)·SectionIndicator(우측 도트)·스티키 CTA·PreviewBar(좌측). 겹침 사고 2회 선례(2026-08-24).
-- **GAS 는 실패도 `200 + {success:false}` 로 준다** — 화이트리스트 밖 type·필수항목 누락·슬롯 중복이 전부 이 모양이다. 원장에 기록할 때는 반드시 `data?.success !== false` 로 거를 것(`recordSafe` 가 강제). 안 거르면 **시트에 없는 유령 행**이 쌓여 P2.5 대조가 통째로 무의미해진다. ⚠ 별건: 라우트는 이 값을 보지 않고 **손님에게는 `{success:true}` 를 돌려준다**(종전부터 그랬다) — GAS 가 거절해도 완료 화면이 뜬다. 미해결, DECISIONS 참조
+- **GAS 는 실패도 `200 + {success:false}` 로 준다** — 화이트리스트 밖 type·필수항목 누락·슬롯 중복이 전부 이 모양이다. 원장에 기록할 때는 반드시 `data?.success !== false` 로 거를 것(`recordSafe` 가 강제). 안 거르면 **시트에 없는 유령 행**이 쌓여 P2.5 대조가 통째로 무의미해진다. 판정은 `lib/gas.ts` 의 **`isGasRejected()` 하나로 통일** — 응답 판정(라우트)과 기록 판정(`recordSafe`)이 같은 함수를 쓴다. ⚠ **거절이면 손님에게도 `{success:false}` 를 돌려주고 `markSubmitted` 도 부르지 않는다**(2026-09-01 수정) — 폼 5개는 이미 `!res.ok || !result?.success` 로 판정해 구제 화면을 띄운다. ✔ **접수 라우트 4개 전부 적용됨**(2026-09-01, P2) — `written`·`review` 의 catch 삼킴도 제거했다. 순서가 규율이다: **기록 먼저(DB 가 유일한 흔적), 응답 나중(사실대로)**. ⚠ `review` 는 GAS 프로젝트가 별도(`REVIEW_GAS_URL`·`gas/review.gs`)이고 **`gas/project.json` 매핑 밖이라 자동 배포되지 않는다** — 배포본과 레포 파일이 어긋날 수 있다. **단 후기 접수는 현재 받지 않는다**(운영자 2026-09-01) — `/review` 는 사이트 어디서도 링크하지 않는 직접 전달용 주소라 지금은 유입이 0이다. 따라서 배포본 확인은 **접수를 다시 열기 직전**에 하면 된다(실제 제출 1건 → 완료 화면 확인). 그때까지 이 라우트 변경은 프로덕션에 영향이 없다
+- **supabase-js 의 `.select()` 문자열은 타입 수준에서 파싱된다** — `"a, b" + "c"` 처럼 이어 붙이면 행 타입을 못 뽑아 **필드 접근이 전부 컴파일 에러**가 된다(`GenericStringError`). 길어도 **한 줄 리터럴**로 쓸 것
+- **GAS→우리 서버 방향은 전용 토큰이다** — `BACKFILL_TOKEN`(Vercel env = GAS 스크립트 속성, 같은 값) + GAS 속성 `SITE_URL`. `ADMIN_TOKEN`(우리→GAS 한 방향)을 재사용하지 않는다: 과거 두 값이 불일치해 사고가 났다. **service_role 키는 GAS 에 절대 두지 않는다** — GAS 는 우리 라우트를 부를 뿐이고 DB 접근은 라우트가 한다
 - **`pkill -f <패턴>` 은 자기 명령줄까지 매칭한다** — `pkill -f "next dev"` 나 `pkill -f mock-gas.mjs` 를 쓰면 그 문자열이 든 **셸 자신이 죽어 exit 144** 로 끝나고 **뒤 명령이 통째로 실행되지 않는다**(heredoc 파일 쓰기가 조용히 누락돼 옛 파일로 검증하는 사고가 났다). `ps -eo pid,args | grep '패[턴]'` 로 PID 를 뽑아 `kill` 하거나, 아예 **다른 포트로 띄울 것**. 살아남아야 하는 백그라운드는 `setsid … < /dev/null &`
 - **한 SELECT 안의 독립 서브쿼리는 평가 순서가 보장되지 않는다** — `select (파기함수()), (그 행 상태)` 로 한 번에 재면 파기 **전** 값을 읽어 거짓 실패로 보인다. 부작용이 있는 함수와 그 결과 관측은 **쿼리를 나눠서**
 - **sed 광역 치환 금지** — 고유 컨텍스트 포함 치환만. **rm 전 파일별 import grep** (JourneyStepper 오삭제 선례). **JSX 래퍼 추가 직후 tsc** — 구문 에러가 6분 타임아웃처럼 보인다.
+- **env 를 지워서 경로를 닫을 때 `undefined === undefined` 를 조심할 것** — `password !== process.env.ADMIN_PASSWORD` 는 env 를 지우는 순간 **본문 없는 요청(`{}`)을 통과**시킨다(양쪽 다 `undefined`). 2026-09-02 실증: 종전 관리자 비밀번호 라우트에 `{}` POST → 200 + 관리자 쿠키. **비밀값 비교는 ① env 가 설정됐는지 ② 입력이 문자열인지를 먼저 확인**하고 비교한다. '이 env 를 지우면 기능이 꺼진다'는 설계는 지우기 전에 그 코드가 정말 닫히는지 실측할 것.
 - **`gh` CLI 없음** — `mcp__github__*` 사용.
 - **클로징 검증**: SeasonCountCta 는 IO threshold .6 — `scrollTo(맨아래)` 로는 뷰포트 위로 빠져나가 발화 안 함. `scrollIntoView` 로 화면 중앙에.
 - **포스터·서체 파이프라인·웹킷 검증** → `docs/env-notes.md` **필독** (빌드타임 포스터 배치, SUIT/포스터 서브셋 재생성, immutable 헤더, DeferredCss, 웹킷 특이점).
@@ -132,4 +141,5 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 > 정본: `docs/redesign/` 문서군(v3) — 개편 범위(레이지클럽 홈·일회성 모임)에서 기존 규칙과 충돌 시 그쪽이 우선. 작업 시 `docs/redesign/README.md`·`01-decisions.md` 필독.
 
 - 개편 범위에선 §3 대신 02(토큰)·03(레이아웃)·04(레퍼런스) 적용: 검증 뷰포트 390/768/1280 3종, 제로베이스 구현(기존 UI 문법 재사용 의무 없음), 장식 도형 0·블롭 금지, 정적 골격 승인 전 모션 금지, 신규 CSS 는 기존 .module.css import 금지. 철칙 5개·DECISIONS 기록은 그대로.
+- **라운드 처리 0 · 유채색 UI 0 · 보더 버튼 0 · 그림자 0**(운영자 2026-09-02 "라운드처리는 안할거고"). 상자 대신 괘선, 버튼 대신 텍스트 링크. **상태를 색으로만 말하지 않는다** — 채움 농도·질감(해칭)·글자 라벨로. 색각 이상·흑백에서 사라지지 않는 것이 UX 로도 낫다(선례: 관리 달력의 차단=잉크 채움 / 예약=사선 해칭 / 선택 중=테두리, 상태 점검의 '정상·확인 필요' 글자). ⚠ **문구가 색을 가리키면 안 된다**("주황 슬롯 클릭 시 삭제" 같은 안내는 재도색과 함께 고친다).
 - **로고 종결(추가 로고 작업 금지)**: 마스터 `public/assets/logo/lazyday_logo.svg` + `logo-mono-ink.svg`·`logo-mono-cream.svg`. 화면 노출=mono-ink / 색면 위=mono-cream / 파비콘·OG·개편 홈=원본 풀컬러. 리컬러·임의 색 교체 금지.

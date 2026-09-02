@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { gasPostJson, isGasExecuted } from "@/lib/gas"
+import { gasPostJson, isGasExecuted, isGasRejected, gasRejectReason } from "@/lib/gas"
 import { markApplicationSubmitted } from "@/lib/orders"
 import { classifyApply, recordSafe } from "@/lib/applications"
 
@@ -36,8 +36,21 @@ export async function POST(req: NextRequest) {
   try {
     // GAS 간헐 404 대응 — 미실행이 확실할 때만 1회 재시도 (lib/gas.ts)
     const data = await gasPostJson(GAS_URL, sid ? { ...body, sid } : body)
-    // ⚠ GAS 는 실패도 200 + {success:false} 로 돌려준다 — recordSafe 가 그 경우를 거른다.
-    //   여기서 걸러내지 않으면 시트에 없는 유령 행이 쌓여 P2.5 대조가 무의미해진다.
+
+    // ⚠ GAS 는 **실패도 200 + {success:false}** 로 돌려준다 (화이트리스트 밖 type ·
+    //   필수항목 누락 · 슬롯 중복). 종전에는 이 값을 보지 않고 무조건 성공을 돌려줘
+    //   **시트에 없는 접수에 완료 화면이 떴다** — 손님은 접수됐다고 믿는데 우리 쪽엔
+    //   아무 기록이 없다. 운영자 지시(2026-09-01) "이건 절대 안 되지"로 막는다.
+    //   폼들은 이미 `!res.ok || !result?.success` 로 판정해 구제 화면(카카오 원문 복사)을
+    //   띄우므로, 라우트가 사실대로 알리기만 하면 된다.
+    if (isGasRejected(data)) {
+      // 사유는 GAS 내부 문구라 로그까지만 — 손님 화면은 폼이 가진 구제 원문이 담당한다
+      console.warn(`[lazyday/apply] GAS 거절 (${kind ?? "미분류"}):`, gasRejectReason(data))
+      // ⚠ markSubmitted 를 부르지 않는다 — 거절인데 원장에 "신청서 냄"이 찍히면
+      //   결제만 하고 신청 안 한 손님을 찾는 구제 쿼리가 그 손님을 놓친다.
+      return NextResponse.json({ success: false, error: "신청 접수에 실패했습니다." })
+    }
+
     await recordSafe(kind, { body, sid, gasData: data })
     await markSubmitted(body)
     return NextResponse.json({ success: true })

@@ -223,7 +223,7 @@
 
 > **진행: 1~3 완료 (2026-09-02, PR 준비) — 4~9 는 다음.** 스키마(0011 dev·prod 적용)·서버 세션 헬퍼·라우트 4종이 붙었다. 화면(진입점·마이페이지)과 user_id 스탬핑은 아직 없고, **운영자 설정 2건**(Supabase Redirect URLs · Vercel `SUPABASE_ANON_KEY`)이 있어야 실로그인이 가능하다. 설정 전까지는 `isAuthEnabled()` 가 false 라 `/api/auth/me` 가 `{enabled:false}` 로 답하고 로그인 입구를 그리지 않는다 — 배포해도 사이트 동작은 종전 그대로다.
 
-1. **`profiles` 마이그레이션 — ✔ 완료 (0011 `20260902120000_profiles.sql`, dev·prod 적용 2026-09-02. 다음 번호 = 0012)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
+1. **`profiles` 마이그레이션 — ✔ 완료 (0011 `20260902120000_profiles.sql`, dev·prod 적용 2026-09-02. 다음 번호 = 0013 — 0012 는 시트 거울, CRM-2)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
    컬럼: `user_id` PK→auth.users cascade · `display_name` · `email` · `phone`(자기 신고, **키가 아니다**) · `phone_verified_at` · `age_verified_at`(만 14세) · `marketing_consent_at`(R10) · 타임스탬프.
    같은 파일에 **`create index if not exists orders_user_id_idx on public.orders (user_id) where user_id is not null;`** — '내 주문' 조회용 인덱스가 없다.
    **identities 테이블 불필요** — `auth.identities` 가 담는다.

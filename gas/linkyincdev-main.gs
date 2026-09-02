@@ -1633,31 +1633,81 @@ function sweepApplicationsToDb() {
   // ⚠ 로그에 개인정보를 남기지 않는다 — 건수까지만
   Logger.log("스윕 완료 — 대상 " + total.scanned + " / 전송 " + total.sent +
              " / 반영 " + total.upserted + " / 실패 " + total.failed);
+
+  // 진행 상태 거울 (CRM-2) — 보정과 별개로 매시 전 행의 시트 값을 DB 에 비춘다.
+  // 던지지 않는다: 거울이 실패해도 보정 결과는 이미 확정됐다.
+  try { total.mirror = syncProgressToDb(siteUrl, token, books.bookclub); }
+  catch (err) { Logger.log("상태 거울 예외: " + err.message); }
+  return total;
+}
+
+// ── 시트 '진행 상태' → DB 읽기 거울 (2026-09-02, 고객관리 대시보드 CRM-2) ─────────────
+//   정본은 시트 그대로다. 대시보드가 파이프라인(접수→인터뷰→합격·미결제→결제→참가/탈락)을
+//   그리려면 시트에만 있는 '진행 상태'·'인터뷰 상태'·'인터뷰 방식'이 DB 에서 읽혀야 해서,
+//   신청현황의 **sid 가 있는 전 행**을 매시 보낸다 ('DB 반영' 표시와 무관 — 보정은 1회,
+//   거울은 매번). 서버는 값이 바뀐 행만 갱신한다.
+//   ⚠ 인증·경로 규율은 보정과 같다 — 같은 토큰, /api/lazyday/admin/sync-status.
+var MIRROR_BATCH = 200;
+
+function syncProgressToDb(siteUrl, token, doc) {
+  if (!doc) return { skipped: "no-sheet" };
+  var sheet = doc.getSheetByName(MAIN_SHEET);
+  if (!sheet || sheet.getLastRow() < 2 || sheet.getLastColumn() < 1) return { skipped: "empty" };
+  var values = sheet.getDataRange().getValues();
+  var headers = values[0].map(function (h) { return String(h).trim(); });
+  var sidIdx = headers.indexOf(SID_HEADER);
+  if (sidIdx === -1) return { skipped: "no-sid" };
+  var pIdx = headers.indexOf(PROGRESS_HEADER);
+  var sIdx = headers.indexOf(INTERVIEW_STATUS_HEADER);
+  var tIdx = headers.indexOf("인터뷰 방식");
+
+  var rows = [];
+  for (var r = 1; r < values.length; r++) {
+    var sid = String(values[r][sidIdx] || "").trim();
+    if (!sid) continue; // 구행(sid 없음)은 DB 에도 없다
+    rows.push({
+      sid: sid,
+      progress:        pIdx === -1 ? "" : String(values[r][pIdx] || "").trim(),
+      interviewStatus: sIdx === -1 ? "" : String(values[r][sIdx] || "").trim(),
+      interviewType:   tIdx === -1 ? "" : String(values[r][tIdx] || "").trim()
+    });
+  }
+  var total = { rows: rows.length, updated: 0, failed: 0 };
+  for (var i = 0; i < rows.length; i += MIRROR_BATCH) {
+    var res = postJson(siteUrl, "/api/lazyday/admin/sync-status", token, { rows: rows.slice(i, i + MIRROR_BATCH) });
+    if (!res.ok) { total.failed += Math.min(MIRROR_BATCH, rows.length - i); continue; }
+    total.updated += (res.body.updated || 0);
+  }
+  Logger.log("상태 거울 — 행 " + total.rows + " / 갱신 " + total.updated + " / 실패 " + total.failed);
   return total;
 }
 
 /** 보정 엔드포인트 호출. 던지지 않고 결과를 돌려준다 — 한 배치 실패가 스윕 전체를 죽이면 안 된다 */
 function postBackfill(siteUrl, token, rows) {
+  var res = postJson(siteUrl, "/api/lazyday/admin/backfill-applications", token, { rows: rows });
+  return res.ok ? { ok: true, upserted: res.body.upserted || 0 } : { ok: false };
+}
+
+/** 역방향 토큰으로 우리 서버 라우트에 JSON 을 POST. 던지지 않고 { ok, body } 를 돌려준다 —
+ *  한 배치 실패가 스윕 전체를 죽이면 안 된다. 본문은 로그에 찍지 않는다(개인정보가 섞일 수 있다) */
+function postJson(siteUrl, path, token, payload) {
   try {
-    var res = UrlFetchApp.fetch(siteUrl + "/api/lazyday/admin/backfill-applications", {
+    var res = UrlFetchApp.fetch(siteUrl + path, {
       method: "post",
       contentType: "application/json",
       headers: { "X-Backfill-Token": token },
-      payload: JSON.stringify({ rows: rows }),
+      payload: JSON.stringify(payload),
       muteHttpExceptions: true, // 4xx/5xx 를 예외가 아니라 응답으로 받아 코드를 로깅한다
       followRedirects: true
     });
     var code = res.getResponseCode();
-    if (code < 200 || code >= 300) {
-      Logger.log("보정 실패 HTTP " + code); // 본문은 찍지 않는다 (개인정보가 섞일 수 있다)
-      return { ok: false };
-    }
+    if (code < 200 || code >= 300) { Logger.log(path + " 실패 HTTP " + code); return { ok: false, body: {} }; }
     var body = JSON.parse(res.getContentText() || "{}");
-    if (body.success === false) { Logger.log("보정 거절 — 서버가 실패로 응답"); return { ok: false }; }
-    return { ok: true, upserted: body.upserted || 0 };
+    if (body.success === false) { Logger.log(path + " 거절 — 서버가 실패로 응답"); return { ok: false, body: body }; }
+    return { ok: true, body: body };
   } catch (err) {
-    Logger.log("보정 호출 예외: " + err.message);
-    return { ok: false };
+    Logger.log(path + " 호출 예외: " + err.message);
+    return { ok: false, body: {} };
   }
 }
 

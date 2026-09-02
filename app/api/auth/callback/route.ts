@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { displayNameOf, supabaseSession } from "@/lib/auth-server"
+import { avatarUrlOf, displayNameOf, supabaseSession } from "@/lib/auth-server"
 import { supabaseAdmin } from "@/lib/supabase-server"
 import { safeNext, withLoginFlag } from "../_next"
 
@@ -38,21 +38,36 @@ export async function GET(req: NextRequest) {
   const user = data.user
   const admin = supabaseAdmin()
   if (admin) {
-    // 첫 로그인: 행 생성 (있으면 건드리지 않음). 이후: 이메일만 auth 와 맞춘다
+    // 첫 로그인: 행 생성 (있으면 건드리지 않음).
+    // 이후: **정본이 우리 밖에 있는 값만** 맞춘다 — 이메일은 auth, 프로필 사진은 소셜.
+    // 표시 이름은 본인이 고칠 수 있는 필드라 재로그인이 소셜 값으로 덮지 않는다.
     const { error: insErr } = await admin
       .from("profiles")
       .upsert(
-        { user_id: user.id, email: user.email ?? null, display_name: displayNameOf(user) },
+        {
+          user_id: user.id,
+          email: user.email ?? null,
+          display_name: displayNameOf(user),
+          avatar_url: avatarUrlOf(user), // 0014 — URL 만 담는다(파일을 복사하지 않는다)
+        },
         { onConflict: "user_id", ignoreDuplicates: true },
       )
     if (insErr) console.error("[auth/callback] profiles insert failed", insErr.message)
-    else if (user.email) {
-      const { error: updErr } = await admin
-        .from("profiles")
-        .update({ email: user.email })
-        .eq("user_id", user.id)
-        .neq("email", user.email)
-      if (updErr) console.error("[auth/callback] profiles email sync failed", updErr.message)
+    else {
+      // ⚠ 값이 같으면 쓰지 않는다 — 매 로그인마다 updated_at 을 흔들지 않기 위해
+      //   (CRM-2 의 시트 미러와 같은 규율). 두 컬럼을 따로 neq 로 걸면 AND 가 되어
+      //   한쪽만 바뀐 경우를 놓치므로, 한 번 읽어 비교하고 달라진 것만 보낸다.
+      const { data: row } = await admin.from("profiles").select("email, avatar_url").eq("user_id", user.id).maybeSingle()
+      const email = user.email ?? null
+      const avatar = avatarUrlOf(user)
+      const patch: Record<string, string | null> = {}
+      if (row && row.email !== email) patch.email = email
+      // 동의를 철회해 사진이 없어지면 우리 쪽에서도 지운다(null 로 맞춘다)
+      if (row && row.avatar_url !== avatar) patch.avatar_url = avatar
+      if (Object.keys(patch).length) {
+        const { error: updErr } = await admin.from("profiles").update(patch).eq("user_id", user.id)
+        if (updErr) console.error("[auth/callback] profiles sync failed", updErr.message)
+      }
     }
   } else {
     console.warn("[auth/callback] ledger disabled — profiles row not written", user.id)

@@ -70,6 +70,21 @@ export async function getSessionUser(): Promise<User | null> {
   return data.user
 }
 
+/** 소셜 프로필 사진 URL (2026-09-02) — Supabase 가 `avatar_url` 로 표준화하지만
+ *  공급자에 따라 `picture` 로만 오는 경우가 있어 둘 다 본다.
+ *  ⚠ **URL 만 들고 있는다** — 이미지를 우리 쪽에 복사하지 않는다(0014 결정 1).
+ *  ⚠ 값이 없으면 null 이 정상이다: 손님이 '프로필 사진' 선택 동의를 거부해도 로그인은 성립한다. */
+export function avatarUrlOf(user: User): string | null {
+  const m = (user.user_metadata ?? {}) as Record<string, unknown>
+  for (const k of ["avatar_url", "picture"]) {
+    const v = m[k]
+    // https 만 받는다 — 공급자가 주는 값이라 신뢰하지만, 화면이 그대로 <img src> 에 넣으므로
+    // 스킴을 검사해 data:·javascript: 가 흘러들 여지를 없앤다
+    if (typeof v === "string" && v.startsWith("https://")) return v.slice(0, 500)
+  }
+  return null
+}
+
 /** 소셜 프로필에서 표시 이름 하나를 고른다 — 카카오는 `name`(닉네임), 구글은 `full_name`.
  *  없으면 이메일 앞부분, 그것도 없으면 null (화면이 '회원'으로 대체) */
 export function displayNameOf(user: User): string | null {

@@ -106,6 +106,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **`pkill -f <패턴>` 은 자기 명령줄까지 매칭한다** — `pkill -f "next dev"` 나 `pkill -f mock-gas.mjs` 를 쓰면 그 문자열이 든 **셸 자신이 죽어 exit 144** 로 끝나고 **뒤 명령이 통째로 실행되지 않는다**(heredoc 파일 쓰기가 조용히 누락돼 옛 파일로 검증하는 사고가 났다). `ps -eo pid,args | grep '패[턴]'` 로 PID 를 뽑아 `kill` 하거나, 아예 **다른 포트로 띄울 것**. 살아남아야 하는 백그라운드는 `setsid … < /dev/null &`
 - **한 SELECT 안의 독립 서브쿼리는 평가 순서가 보장되지 않는다** — `select (파기함수()), (그 행 상태)` 로 한 번에 재면 파기 **전** 값을 읽어 거짓 실패로 보인다. 부작용이 있는 함수와 그 결과 관측은 **쿼리를 나눠서**
 - **sed 광역 치환 금지** — 고유 컨텍스트 포함 치환만. **rm 전 파일별 import grep** (JourneyStepper 오삭제 선례). **JSX 래퍼 추가 직후 tsc** — 구문 에러가 6분 타임아웃처럼 보인다.
+- **env 를 지워서 경로를 닫을 때 `undefined === undefined` 를 조심할 것** — `password !== process.env.ADMIN_PASSWORD` 는 env 를 지우는 순간 **본문 없는 요청(`{}`)을 통과**시킨다(양쪽 다 `undefined`). 2026-09-02 실증: 종전 관리자 비밀번호 라우트에 `{}` POST → 200 + 관리자 쿠키. **비밀값 비교는 ① env 가 설정됐는지 ② 입력이 문자열인지를 먼저 확인**하고 비교한다. '이 env 를 지우면 기능이 꺼진다'는 설계는 지우기 전에 그 코드가 정말 닫히는지 실측할 것.
 - **`gh` CLI 없음** — `mcp__github__*` 사용.
 - **클로징 검증**: SeasonCountCta 는 IO threshold .6 — `scrollTo(맨아래)` 로는 뷰포트 위로 빠져나가 발화 안 함. `scrollIntoView` 로 화면 중앙에.
 - **포스터·서체 파이프라인·웹킷 검증** → `docs/env-notes.md` **필독** (빌드타임 포스터 배치, SUIT/포스터 서브셋 재생성, immutable 헤더, DeferredCss, 웹킷 특이점).

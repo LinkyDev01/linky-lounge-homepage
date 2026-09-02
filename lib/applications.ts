@@ -24,6 +24,7 @@
 
 import { supabaseAdmin, isLedgerEnabled } from "./supabase-server"
 import { isGasRejected } from "./gas"
+import { sessionUserIdSafe } from "./auth-server"
 import { normalizePhone, meetingEndsOn, purgeAfter, type LedgerResult } from "./orders"
 import { parseOrderCodes } from "./order-catalog"
 import { meetingOrderCode } from "@/app/(main)/lazyclub/one-day-config"
@@ -230,7 +231,12 @@ export async function recordSafe(
   if (isGasRejected(input.gasData)) return
 
   try {
-    const r = await recordApplication({ ...input, kind })
+    // 로그인 상태면 이 접수를 계정에 잇는다 (P4). 호출부가 명시로 넘기면 그 값이 우선.
+    // ⚠ **여기 한 곳에서만 해석한다** — 삽입 지점이 라우트당 3~4곳이라 호출부마다
+    //   넘기게 하면 하나만 빠져도 그 경로의 접수가 조용히 비회원으로 남는다.
+    //   recordApplication 을 직접 부르는 P2.5 스윕(서버-서버)은 세션이 없어 영향받지 않는다.
+    const userId = input.userId !== undefined ? input.userId : await sessionUserIdSafe()
+    const r = await recordApplication({ ...input, kind, userId })
     if (!r.ok) console.error(`[apply-ledger] 기록 실패 (${kind}/${input.sid ?? "-"}):`, r.error)
   } catch (err) {
     console.error(`[apply-ledger] 기록 예외 (${kind}/${input.sid ?? "-"}):`, err)

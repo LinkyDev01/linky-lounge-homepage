@@ -359,9 +359,13 @@ function AccountMenu() {
           ) : me.loggedIn ? (
             <>
               <p className={styles.accountWho}>{me.displayName || "회원"}님</p>
-              <a className={styles.accountLink} href={`${BASE}/mypage`}>
+              {/* ⚠ 마이페이지는 **트리 안 경로라 `LazyclubLink`** 다 — plain <a> 로 두면
+                  lazy-club.com 에서 `/lazyclub/mypage` 로 가서 미들웨어의 301(프리픽스 제거)을
+                  한 번 더 타고 돌아온다. 위의 로그인·로그아웃이 plain 인 것은 그쪽이
+                  `/api/*`(미들웨어 matcher 밖)라서지, 링크 종류가 달라서가 아니다. */}
+              <LazyclubLink href={`${BASE}/mypage`} className={styles.accountLink}>
                 마이페이지
-              </a>
+              </LazyclubLink>
               <button type="button" className={styles.accountLink} onClick={signOut}>
                 로그아웃
               </button>

@@ -1525,3 +1525,61 @@
 }
 .accountLink:hover { text-decoration: underline; }
 .accountNote { margin: 4px 0 0; font-size: 11px; opacity: 0.6; white-space: normal; max-width: 180px; }
+
+/* ── 마이페이지 (2026-09-02, 계획서 P4a-6·7) — 내 주문 · 내 신청 · 주문 연결.
+      카트(.cartList/.cartRow)와 같은 문법: 640px 폭 · 잉크 1px 괘선 · 밑줄 링크만.
+      장식 0, 새 색 0 — 워크룸 토큰(--ink/--paper/--gothic)만 쓴다 ── */
+.myBlock { max-width: 640px; padding: 0 0 34px; }
+.myLead { margin: 0 0 4px; font-family: var(--gothic); font-weight: 600; font-size: 15px; line-height: 1.5; }
+.myNote { margin: 8px 0 0; font-size: 13px; line-height: 1.7; opacity: 0.7; }
+.myNote a { text-decoration: underline; text-underline-offset: 4.5px; }
+.myH2 {
+  margin: 0 0 6px;
+  font-family: var(--gothic);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.5;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ink);
+}
+.myLinks { display: flex; flex-wrap: wrap; gap: 16px; padding: 10px 0 0; }
+.myLink {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+}
+.myLink:disabled { cursor: default; opacity: 0.5; }
+
+/* 주문·신청 한 건 */
+.myRow { padding: 12px 0; border-bottom: 1px solid var(--ink); }
+.myRowHead { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; opacity: 0.7; }
+.myItems { list-style: none; margin: 4px 0 0; padding: 0; }
+.myItems li { font-family: var(--gothic); font-weight: 600; font-size: 15px; line-height: 1.6; }
+.myItemNote { font-weight: 400; opacity: 0.7; }
+.myItemLine { margin: 4px 0 0; font-family: var(--gothic); font-weight: 600; font-size: 15px; line-height: 1.6; }
+.myRowFoot { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-top: 6px; }
+.myOrderNo { font-size: 12px; opacity: 0.55; word-break: break-all; }
+
+/* 주문 연결 폼 — 입력칸은 상자가 아니라 밑줄 한 줄 */
+.myForm { display: flex; flex-direction: column; gap: 14px; padding: 12px 0 0; }
+.myField { display: flex; flex-direction: column; gap: 4px; }
+.myField > span { font-size: 13px; opacity: 0.7; }
+.myInput {
+  width: 100%;
+  max-width: 320px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 5px 0;
+  outline: none;
+}
+.myInput::placeholder { opacity: 0.45; }
+.myMsg { margin: 0; font-size: 13px; line-height: 1.7; }

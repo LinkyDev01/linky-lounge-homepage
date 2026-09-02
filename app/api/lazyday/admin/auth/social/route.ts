@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getSessionUser } from "@/lib/auth-server"
 import { safeNext } from "@/app/api/auth/_next"
+import { ADMIN_COOKIE, LEGACY_WHO_COOKIE, adminCookieOptions, signAdminToken } from "@/lib/admin-session"
 
 /**
  * 관리자 로그인 — 소셜 계정 + 허용 이메일 (2026-09-02, 사람별 식별 · R13).
@@ -10,10 +11,8 @@ import { safeNext } from "@/app/api/auth/_next"
  *
  * 왜 이렇게: 종전 관리자 로그인은 두 사람이 **비밀번호 하나**를 나눠 썼고 쿠키만으로는 누가 봤는지
  * 구분할 수 없었다(R13 미이행, DECISIONS 2026-09-01). 이제 관리자 = "허용 목록에 있는 이메일로
- * 소셜 로그인한 사람"이고, 누구인지는 `lazyday_admin_who` 쿠키(httpOnly)로 라우트가 안다.
- *
- * ⚠ 관리자 쿠키 값(`lazyday_admin` = ADMIN_SECRET)은 종전과 같다 — 미들웨어·관리 라우트 5곳이 그 값을
- *   비교하므로 이번엔 발급 경로만 바꾼다. 값 자체를 사람별 서명 토큰으로 바꾸는 건 후속.
+ * 소셜 로그인한 사람"이고, 누구인지는 **서명 토큰 안의 who**(lib/admin-session, 2026-09-02)로 라우트가 안다.
+ *   (같은 날 앞선 버전은 `lazyday_admin_who` 별도 쿠키에 실었는데 서명이 없어 바꿔 끼울 수 있었다 — 폐지.)
  * ⚠ `ADMIN_EMAILS` (Vercel env, Secret): 쉼표로 구분한 이메일. 비어 있으면 소셜 로그인은 항상 거절 —
  *   비밀번호 경로(`ADMIN_PASSWORD` 가 있는 동안만)로 들어갈 수 있다.
  * ⚠ 이 라우트는 관리 호스트(admin.lazy-club.com)에서 돈다 — Supabase Redirect URLs 에
@@ -52,8 +51,8 @@ export async function GET(req: NextRequest) {
   }
 
   const res = to(redirect === "/" ? "/admin" : redirect)
-  const opts = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, maxAge: 60 * 60 * 24 * 7, path: "/" }
-  res.cookies.set("lazyday_admin", SECRET, opts)
-  res.cookies.set("lazyday_admin_who", email, opts) // R13 — 누가 봤는가. 관리 라우트가 로그에 쓴다
+  // R13 — 누가 봤는가: who(이메일)가 서명된 토큰 안에 실린다. 관리 라우트는 adminWho() 로 읽는다
+  res.cookies.set(ADMIN_COOKIE, await signAdminToken(email), adminCookieOptions())
+  res.cookies.set(LEGACY_WHO_COOKIE, "", { maxAge: 0, path: "/" }) // 옛 쿠키 청소
   return res
 }

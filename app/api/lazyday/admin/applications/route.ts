@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { adminWho } from "@/lib/admin-session"
 import { supabaseAdmin } from "@/lib/supabase-server"
 import { appPersonKey } from "@/lib/customers"
 
@@ -25,12 +26,9 @@ import { appPersonKey } from "@/lib/customers"
  *     사람별 admin 시크릿을 나누는 별건 작업이 먼저다. (DECISIONS 에 함께 기록)
  */
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
 
-function isAuthorized(req: NextRequest) {
-  const cookie = req.cookies.get("lazyday_admin")?.value
-  return Boolean(ADMIN_SECRET) && cookie === ADMIN_SECRET
-}
+/** 관리자 게이트 — 서명 토큰 검증 (lib/admin-session). 옛 시크릿-원문 쿠키는 통과하지 못한다 */
+const isAuthorized = (req: NextRequest) => adminWho(req).then(Boolean)
 
 /** 화면이 거를 수 있는 종류 — lib/applications 의 ApplicationKind 와 같은 집합 */
 const KINDS = [
@@ -55,7 +53,7 @@ const VISIBLE_OR = `triage.is.null,triage.not.in.(${HIDDEN.join(",")})`
 const PAGE = 30
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const sb = supabaseAdmin()
   // 원장이 꺼져 있어도 화면은 열려야 한다 — 무엇이 문제인지 화면이 말해준다
@@ -150,7 +148,7 @@ export async function GET(req: NextRequest) {
  * 파기도 하지 않는다(triage 는 열람 필터일 뿐이다).
  */
 export async function PATCH(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const sb = supabaseAdmin()
   if (!sb) return NextResponse.json({ error: "원장이 꺼져 있어요" }, { status: 503 })
@@ -199,7 +197,7 @@ export async function PATCH(req: NextRequest) {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function DELETE(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const sb = supabaseAdmin()
   if (!sb) return NextResponse.json({ error: "원장이 꺼져 있어요" }, { status: 503 })

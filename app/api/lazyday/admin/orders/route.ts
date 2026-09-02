@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { adminWho } from "@/lib/admin-session"
 import { supabaseAdmin } from "@/lib/supabase-server"
 import { normalizePhone } from "@/lib/orders"
 
@@ -7,14 +8,14 @@ import { normalizePhone } from "@/lib/orders"
  * orders + order_items 를 그대로 보여 준다(법정 5년 원장, R8). **쓰기 없음** — 환불·취소는 토스 쪽이 정본이고
  * 여기 status 는 승인 라우트·웹훅이 적는 값이다. 다른 관리 라우트와 같은 쿠키 인증, 캐시 금지.
  */
-const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
-const isAuthorized = (req: NextRequest) => Boolean(ADMIN_SECRET) && req.cookies.get("lazyday_admin")?.value === ADMIN_SECRET
+/** 관리자 게이트 — 서명 토큰 검증 (lib/admin-session). 옛 시크릿-원문 쿠키는 통과하지 못한다 */
+const isAuthorized = (req: NextRequest) => adminWho(req).then(Boolean)
 
 const STATUSES = ["paid", "refunded", "partially_refunded", "cancelled"] as const
 
 export async function GET(req: NextRequest) {
   const headers = { "Cache-Control": "private, no-store" }
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers })
   const sb = supabaseAdmin()
   if (!sb) return NextResponse.json({ ok: false, error: "ledger disabled" }, { status: 503, headers })
 

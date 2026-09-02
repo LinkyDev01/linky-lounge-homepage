@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { adminWho } from "@/lib/admin-session"
 import { supabaseAdmin } from "@/lib/supabase-server"
 
 /**
@@ -10,10 +11,8 @@ import { supabaseAdmin } from "@/lib/supabase-server"
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
 
-function isAuthorized(req: NextRequest) {
-  const cookie = req.cookies.get("lazyday_admin")?.value
-  return ADMIN_SECRET && cookie === ADMIN_SECRET
-}
+/** 관리자 게이트 — 서명 토큰 검증 (lib/admin-session). 옛 시크릿-원문 쿠키는 통과하지 못한다 */
+const isAuthorized = (req: NextRequest) => adminWho(req).then(Boolean)
 
 type Check = {
   key: string
@@ -35,7 +34,7 @@ async function timed<T>(fn: () => Promise<T>): Promise<[T | null, number, string
 }
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const checks: Check[] = []
 

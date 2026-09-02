@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { adminWho } from "@/lib/admin-session"
 import { supabaseAdmin } from "@/lib/supabase-server"
 
 /**
@@ -12,15 +13,12 @@ import { supabaseAdmin } from "@/lib/supabase-server"
  *   전체 NULL 을 세면 굿즈 주문이 영원히 구제 대상으로 잡힌다.
  */
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
 
-function isAuthorized(req: NextRequest) {
-  const cookie = req.cookies.get("lazyday_admin")?.value
-  return ADMIN_SECRET && cookie === ADMIN_SECRET
-}
+/** 관리자 게이트 — 서명 토큰 검증 (lib/admin-session). 옛 시크릿-원문 쿠키는 통과하지 못한다 */
+const isAuthorized = (req: NextRequest) => adminWho(req).then(Boolean)
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const sb = supabaseAdmin()
   if (!sb) return NextResponse.json({ enabled: false, orders: [] })

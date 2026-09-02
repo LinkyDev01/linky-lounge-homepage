@@ -85,7 +85,7 @@ export type RecordInput = {
   personKey: string
   kind: ActivityKind
   body: string
-  /** 남긴 관리자 — `lazyday_admin_who` 쿠키. 비밀번호로 들어온 사람은 알 수 없어 null */
+  /** 남긴 관리자 — 서명 토큰의 who(이메일). 비밀번호로 들어온 사람은 알 수 없어 null */
   who?: string | null
   /** 나중에 적는 경우 (기본은 지금) */
   occurredAt?: string | null

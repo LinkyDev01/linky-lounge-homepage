@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { adminWho } from "@/lib/admin-session"
 import { listCustomers, getCustomer } from "@/lib/customers"
 
 /**
@@ -6,16 +7,15 @@ import { listCustomers, getCustomer } from "@/lib/customers"
  *   GET /api/lazyday/admin/customers?q=&limit=      목록 (최근 활동순)
  *   GET /api/lazyday/admin/customers?key=<전화|u:uuid> 상세 (타임라인·주문·접수)
  *
- * 인증은 다른 관리 라우트와 같은 `lazyday_admin` 쿠키. 사람별 식별(소셜 로그인+허용 목록)로
- * 바꾸는 건 별도 PR — 그때 이 검사 한 줄만 바뀐다.
+ * 인증은 다른 관리 라우트와 같은 관리자 서명 토큰(lib/admin-session) — who 는 소셜 로그인 이메일.
  * 응답에 개인정보가 담기므로 캐시 금지. 단계의 정본은 시트 — 응답의 `origin` 이 그 사실을 실어 화면이 밝힌다.
  */
-const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
-const isAuthorized = (req: NextRequest) => Boolean(ADMIN_SECRET) && req.cookies.get("lazyday_admin")?.value === ADMIN_SECRET
+/** 관리자 게이트 — 서명 토큰 검증 (lib/admin-session). 옛 시크릿-원문 쿠키는 통과하지 못한다 */
+const isAuthorized = (req: NextRequest) => adminWho(req).then(Boolean)
 
 export async function GET(req: NextRequest) {
   const headers = { "Cache-Control": "private, no-store" }
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers })
   const sp = req.nextUrl.searchParams
   const key = sp.get("key")
   const origin = "단계의 정본은 구글 시트 — 여기 값은 DB 와 스윕이 실어 온 시트 값에서 읽어 파생한 것"

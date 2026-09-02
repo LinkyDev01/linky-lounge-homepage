@@ -1,7 +1,7 @@
 # CLAUDE.md — linky-lounge-homepage AI 작업 가이드
 
-**링키라운지**(linkylounge.com) + **레이지데이 북클럽**(lazyday-bookclub.com) + **레이지클럽**(lazy-club.com).
-Next.js 16 App Router · CSS Modules · TypeScript · Vercel. 작업 중심은 레이지데이 북클럽.
+**링키라운지**(linkylounge.com) + **레이지클럽**(lazy-club.com) ⊃ **레이지데이 북클럽**(lazyday-bookclub.com).
+Next.js 16 App Router · CSS Modules · TypeScript · Vercel. **브랜드 위계: 레이지클럽이 상위, 북클럽은 그 안의 프로그램 하나**(운영자 2026-09-02) — 트래픽은 아직 북클럽이 크지만 회원·관리·인증 등 **장기 관리 단위의 이름·도메인·설명은 레이지클럽 기준**. 코드 트리 `app/(main)/lazyday/**` 가 북클럽 도메인의 본체인 것은 그대로다.
 linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교차만 주의).
 
 **세션 시작 시 반드시**: ① 이 문서 ② `docs/DECISIONS.md`(운영자 결정 로그). 보류 항목을 새 지시 없이 부활시키거나 확정 결정을 임의 번복하지 않는다.

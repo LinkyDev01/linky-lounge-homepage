@@ -20,13 +20,14 @@
 
 import { supabaseAdmin } from "./supabase-server"
 import { normalizePhone } from "./orders"
+import { listActivities, ACTIVITY_LABEL, type ActivityKind } from "./customer-activities"
 
 export type Stage =
   | "received" | "interview_booked" | "interviewed" | "accepted_unpaid" | "paid" | "attending" | "hold" | "rejected" | "refunded"
 
 export type Activity = {
   at: string
-  type: "apply" | "interview" | "order" | "note" | "system"
+  type: "apply" | "interview" | "order" | "note" | "system" | "contact"
   title: string
   detail?: string | null
   amount?: number | null
@@ -34,6 +35,17 @@ export type Activity = {
   upcoming?: boolean
   /** 원장 행 참조 — 화면이 접수 원장/주문으로 건너뛸 때 */
   ref?: { table: "applications" | "orders"; id: string }
+  /** 우리가 남긴 기록(CRM-5)일 때만 — 누가 남겼는지 */
+  who?: string | null
+}
+
+/**
+ * 접수 행 → 사람 묶음 키. **이 규칙이 키의 유일한 정본이다** (CRM-5).
+ * 활동 기록(customer_activities.person_key)과 단건 파기가 같은 값을 만들어야 하므로
+ * 인라인으로 두지 않고 함수로 뽑았다 — 두 곳에 같은 식을 적으면 어긋나는 순간 한쪽만 샌다.
+ */
+export function appPersonKey(a: { phone?: string | null; user_id?: string | null; id: string }) {
+  return normalizePhone(a.phone ?? undefined) ?? (a.user_id ? `u:${a.user_id}` : `a:${a.id}`)
 }
 
 export type CohortEntry = {
@@ -205,7 +217,7 @@ export function assemble(apps: AppRow[], orders: OrderRow[], profiles: ProfileRo
   const profileByUser = new Map(profiles.map((p) => [p.user_id, p]))
 
   for (const a of apps) {
-    const key = normalizePhone(a.phone ?? undefined) ?? (a.user_id ? `u:${a.user_id}` : `a:${a.id}`)
+    const key = appPersonKey(a)
     const x = g(key); x.apps.push(a)
     if (a.user_id && profileByUser.has(a.user_id)) x.profile = profileByUser.get(a.user_id)
   }
@@ -328,5 +340,32 @@ export async function getCustomer(key: string): Promise<{ ok: true; customer: Cu
   const p = userIds.length ? await profQ.in("user_id", userIds) : phone ? await profQ.eq("phone", phone) : { data: [], error: null }
   if (p.error) return { ok: false, error: p.error.message }
   const list = assemble(apps, ords, (p.data ?? []) as ProfileRow[], true)
-  return { ok: true, customer: list[0] ?? null }
+  const customer = list[0] ?? null
+  if (!customer) return { ok: true, customer: null }
+
+  // 우리가 남긴 활동(CRM-5)을 타임라인에 합친다 — 상세에서만. 목록은 사람 수가 많아 부르지 않는다.
+  const rows = await listActivities(customer.key)
+  if (rows.length) {
+    // 메모는 종류 라벨('메모')이 곧 제목이라 두 번 적히므로 **본문을 제목 자리에** 둔다.
+    // 통화·문자는 '연락' 아래 어느 쪽인지가 제목이라 겹치지 않는다.
+    const acts: Activity[] = rows.map((r) => {
+      const isNote = r.kind === "note"
+      const purged = Boolean(r.purged_at)
+      return {
+        at: r.occurred_at,
+        type: isNote ? "note" : "contact",
+        title: isNote
+          ? (purged ? "(파기됨)" : (r.body ?? ""))
+          : (ACTIVITY_LABEL[r.kind as ActivityKind] ?? r.kind),
+        detail: isNote ? null : (purged ? "(파기됨)" : r.body),
+        who: r.who,
+      }
+    })
+    customer.activities = [...(customer.activities ?? []), ...acts]
+      .sort((a, b) => Number(!!b.upcoming) - Number(!!a.upcoming) || b.at.localeCompare(a.at))
+    // 최근 활동 시각도 다시 — 연락한 것도 활동이다 (파기 이벤트만 제외하는 기존 규칙 유지)
+    customer.lastActivityAt =
+      customer.activities.find((a) => !a.upcoming && !(a.type === "system" && a.title === "개인정보 파기됨"))?.at ?? null
+  }
+  return { ok: true, customer }
 }

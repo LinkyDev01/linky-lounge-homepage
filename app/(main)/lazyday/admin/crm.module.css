@@ -126,7 +126,8 @@
 
 /* ── 모바일 ──────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .shell { grid-template-columns: 1fr; }
+  /* ⚠ grid-template-rows 를 안 주면 min-height:100vh 의 남는 높이가 두 행에 균등 배분돼 내비 아래 큰 공백이 생긴다(390 실측 200px+) */
+  .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .nav { position: static; height: auto; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 14px; padding: 10px 15px; border-right: 0; border-bottom: 1px solid var(--hair); }
   .nav .brand, .navSep, .navFoot { display: none; }
   .navItem { white-space: nowrap; padding: 2px 0; }

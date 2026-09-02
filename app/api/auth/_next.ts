@@ -11,9 +11,12 @@ export function safeNext(raw: string | null | undefined): string {
   return v.slice(0, 512)
 }
 
-/** `next` 에 `?login=…` 표식을 붙인다 (이미 쿼리가 있으면 & 로) */
-export function withLoginFlag(next: string, flag: "failed" | "ok"): string {
-  return `${next}${next.includes("?") ? "&" : "?"}login=${flag}`
+/** `next` 에 `?login=…` 표식을 붙인다 (이미 쿼리가 있으면 & 로).
+ *  `reason` 은 실패 사유 코드(`[a-z0-9:_-]`, lib/auth-server.ts `exchangeFailReason`·`authConfigProblem`) —
+ *  관리자 로그인 화면이 풀어 말한다. 회원 화면은 아직 안 읽는다(있어도 무해) */
+export function withLoginFlag(next: string, flag: "failed" | "ok", reason?: string | null): string {
+  const q = `login=${flag}${reason ? `&reason=${encodeURIComponent(reason)}` : ""}`
+  return `${next}${next.includes("?") ? "&" : "?"}${q}`
 }
 
 /**

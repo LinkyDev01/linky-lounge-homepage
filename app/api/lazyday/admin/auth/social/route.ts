@@ -25,22 +25,27 @@ const ALLOW = (process.env.ADMIN_EMAILS ?? "").split(",").map((s) => s.trim().to
 export async function GET(req: NextRequest) {
   const redirect = safeNext(req.nextUrl.searchParams.get("redirect") || "/admin")
   const to = (path: string) => NextResponse.redirect(new URL(path, req.nextUrl.origin), 302)
-  const deny = (why: string) => to(`/admin/login?denied=${why}&redirect=${encodeURIComponent(redirect)}`)
+  // reason = 콜백·시작 라우트가 단 실패 사유 코드(lib/auth-server.ts) — 화면이 풀어 말한다. 모양 밖의 값은 버린다
+  const REASON_RE = /^[a-z0-9:_-]{1,32}$/
+  const deny = (why: string, reason?: string | null) =>
+    to(`/admin/login?denied=${why}${reason && REASON_RE.test(reason) ? `&reason=${reason}` : ""}&redirect=${encodeURIComponent(redirect)}`)
 
   if (!SECRET) return deny("unconfigured")
   const user = await getSessionUser()
   if (!user) {
     // ⚠ 세션이 없는 이유는 셋인데 종전에는 전부 'nosession' 한 마디로 뭉개졌다 —
     //   화면만 보고는 어디가 끊겼는지 알 수 없어 진단에 라운드를 쓴다. 갈라서 말한다.
-    //   ① exchange — 콜백이 code 교환에 실패해 `login=failed` 를 달고 왔다
-    //      (Supabase Redirect URLs·PKCE 쿠키·만료된 code 중 하나)
+    //   ① exchange — 콜백(또는 시작 라우트)이 실패해 `login=failed&reason=…` 을 달고 왔다
+    //      (reason: malformed·missing = 환경변수 / verifier = PKCE 쿠키 없음 / flowstate = 만료·재사용된 code /
+    //       network·key = 서버가 Supabase 에 못 붙음 / provider·nocode = 소셜 쪽이 code 없이 돌려보냄)
     //   ② nocookie — 세션 쿠키가 아예 없다 (브라우저가 저장하지 못했거나 호스트가 다르다)
     //   ③ nosession — 쿠키는 있는데 auth 서버가 무효라고 답했다 (만료·위조)
     const exchangeFailed = req.nextUrl.searchParams.get("login") === "failed"
+    const reason = exchangeFailed ? req.nextUrl.searchParams.get("reason") : null
     const hasSessionCookie = req.cookies.getAll().some((c) => /^sb-.+-auth-token(\.\d+)?$/.test(c.name))
     const why = exchangeFailed ? "exchange" : hasSessionCookie ? "nosession" : "nocookie"
-    console.warn(`[admin/auth/social] 세션 없음 (${why})`)
-    return deny(why)
+    console.warn(`[admin/auth/social] 세션 없음 (${why}${reason ? "/" + reason : ""})`)
+    return deny(why, reason)
   }
   const email = (user.email ?? "").toLowerCase()
   if (!email || !ALLOW.includes(email)) {

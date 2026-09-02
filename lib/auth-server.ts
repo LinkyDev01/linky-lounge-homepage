@@ -31,16 +31,50 @@
 import { cookies } from "next/headers"
 import { createServerClient } from "@supabase/ssr"
 import type { SupabaseClient, User } from "@supabase/supabase-js"
+import { apiKeyProblem, describeApiKey, normalizeApiKey, type ApiKeyProblem } from "./supabase-key"
 
-const URL = process.env.SUPABASE_URL
-const ANON_KEY = process.env.SUPABASE_ANON_KEY
-
-/** 소셜 로그인이 켜져 있는가 (환경변수 두 개가 모두 설정됐는가) */
-export function isAuthEnabled() {
-  return Boolean(URL && ANON_KEY)
+const URL = process.env.SUPABASE_URL?.trim()
+// ⚠ 값이 있어도 **키 모양이 아니면 꺼진 것으로** 본다 (2026-09-02, lib/supabase-key.ts 머리말):
+//   대시보드의 마스킹 표시값(`eyJhbGciOiJIUzI•••…`)이 들어가면 헤더에 못 실려 요청이 나가지도 않는데,
+//   `Boolean(ANON_KEY)` 만 보던 종전 판정은 이를 "켜짐"으로 읽어 하루 종일 원인을 못 찾았다.
+const RAW_ANON = process.env.SUPABASE_ANON_KEY
+const ANON_PROBLEM: ApiKeyProblem | null = apiKeyProblem(RAW_ANON, "anon")
+const ANON_KEY = ANON_PROBLEM ? null : normalizeApiKey(RAW_ANON)
+if (RAW_ANON && ANON_PROBLEM) {
+  // 콜드 스타트마다 한 줄 — Vercel 런타임 로그에서 바로 보이게. 값은 찍지 않는다
+  console.error(`[auth] SUPABASE_ANON_KEY 가 키 모양이 아니라 소셜 로그인을 끕니다 (${ANON_PROBLEM}: ${describeApiKey(RAW_ANON)})`)
 }
 
-/** 요청 쿠키에 묶인 세션 클라이언트. 요청마다 새로 만든다(공유 금지). 미설정이면 null */
+/** 설정이 어디서 막혔나 — null 이면 정상.
+ *  "missing" = URL 또는 키가 비어 있음 · "malformed" = 키에 헤더 불가 문자(마스킹 •·따옴표…) ·
+ *  "wrongrole" = anon 자리에 service_role 키. 로그인 시작·콜백이 이 코드를 `reason` 으로 돌려보낸다 */
+export function authConfigProblem(): ApiKeyProblem | null {
+  if (!URL) return "missing"
+  return ANON_PROBLEM
+}
+
+/** 소셜 로그인이 켜져 있는가 (URL·키가 있고 키가 키 모양인가) */
+export function isAuthEnabled() {
+  return authConfigProblem() === null
+}
+
+/** 콜백의 code 교환 실패를 **화면이 말할 수 있는 짧은 코드**로 (2026-09-02).
+ *  Vercel 로그가 막혀 있어도(요금 한도) 로그인 화면이 원인을 말하게 — 하루를 쓴 교훈.
+ *  ⚠ 순서가 중요: ByteString 오류는 AuthRetryableFetchError 로 감싸여 오므로 이름보다 메시지를 먼저 본다.
+ *  코드 집합은 `[a-z0-9:_-]` 만 — 소비하는 쪽(social 라우트)이 그 밖의 값을 버린다 */
+export function exchangeFailReason(
+  error: { name?: string; message?: string; status?: number; code?: string } | null | undefined,
+): string {
+  if (!error) return "nouser"
+  const msg = error.message ?? ""
+  if (/ByteString|invalid header|Invalid character in header/i.test(msg)) return "key" // 환경변수 값이 헤더에 못 실림
+  if (error.name === "AuthPKCECodeVerifierMissingError" || error.code === "bad_code_verifier" || /code verifier/i.test(msg)) return "verifier"
+  if (error.name === "AuthRetryableFetchError") return "network"
+  if (error.code === "flow_state_not_found" || error.code === "flow_state_expired" || /flow state/i.test(msg)) return "flowstate"
+  return error.status ? `api:${error.status}` : "api"
+}
+
+/** 요청 쿠키에 묶인 세션 클라이언트. 요청마다 새로 만든다(공유 금지). 미설정·키 모양 오류면 null */
 export async function supabaseSession(): Promise<SupabaseClient | null> {
   if (!URL || !ANON_KEY) return null
   const store = await cookies()

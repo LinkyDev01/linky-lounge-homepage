@@ -14,7 +14,7 @@
 | 관리 호스트 `admin.lazy-club.com` | 손님 3도메인 `/admin*` → 307. 관리 호스트는 `/admin/*` 만, 나머지 404 | `curl -sI https://www.lazyday-bookclub.com/admin` → 307 |
 | 관리 화면 | `/admin` 홈(칸반+오늘 할 일) · `/admin/customers[/키]`(활동 남기기 포함, CRM-5) · `/admin/orders` · `/admin/applications` · `/admin/schedule`(차단 달력) · `/admin/status` · `/admin/simulate` — **6종 전부 한 셸, §9 톤(라운드 0·유채색 0)**(CRM-7 #587) | 로그인 필요 — 운영자 확인 |
 | 관리 API | `/api/lazyday/admin/{customers,today,orders,applications,activities,blocks,health,orders/unsubmitted,sync-status,backfill-applications}` — 게이트는 **서명 토큰**(`lib/admin-session.ts`) | 무쿠키 401 |
-| 회원 | `/api/auth/{signin/[provider],callback,signout,me}` (복귀 주소는 `lz_auth_next` 쿠키, #591) · `profiles`(0011 + 0014 avatar_url) · 계정 패널·`/mypage`·`/api/lazyday/mypage{,/link-order,/consents}` · Supabase Google·Kakao 켜짐 · `SUPABASE_ANON_KEY` 설정됨. ⚠ **구글 로그인은 아직 실패** — Supabase auth 로그 `invalid_client: The provided client secret is invalid`(13:11·13:51). 코드 문제가 아니라 Supabase 에 저장된 구글 클라이언트 비밀이 틀린 것(§5) | `curl https://www.lazy-club.com/api/auth/me` → `{"enabled":true,...}` · 실패 원인은 Supabase MCP `query_logs`(auth_logs, error) |
+| 회원 | `/api/auth/{signin/[provider],callback,signout,me}` (복귀 주소는 `lz_auth_next` 쿠키, #591) · `profiles`(0011 + 0014 avatar_url) · 계정 패널·`/mypage`·`/api/lazyday/mypage{,/link-order,/consents}` · Supabase Google·Kakao 켜짐(구글 비밀은 17:53Z 에 고쳐져 `user_signedup` 이 찍힘). ⚠ **소셜 로그인은 아직 실패 — 원인 확정(2026-09-02 저녁, Vercel 런타임 로그)**: Vercel `SUPABASE_ANON_KEY` 가 대시보드 **마스킹 표시값**(`eyJhbGciOiJIUzI•••…`)이라 `apikey` 헤더 ByteString 오류로 `/auth/v1/token` 요청이 **나가지도 않았다**(Supabase 로그엔 흔적 0). 코드 결함 아님(로컬 재현 정상). 저녁 PR 이 키 모양 검사(`lib/supabase-key.ts`) + 로그인 화면 사유 표시(`reason=malformed`)를 넣었다 — **운영자가 키를 재입력하면 풀린다**(§5 1번) | 키 재입력 전: `curl https://www.lazy-club.com/api/auth/me` → `{"enabled":false,...}`(검사가 끈 상태) · 재입력 후 `enabled:true` + 로그인 성공 |
 | DB (prod `qdxnxdfebkgoxeqzfmji`) | 마이그레이션 0001~**0014** 적용(0013 `customer_activities`, 0014 `profiles.avatar_url`). `applications` 10행(전부 route 유입, **시트 스윕 0회**), `profiles` 0행 | Supabase MCP `execute_sql` · `list_migrations` |
 | GAS | 스윕(`sweepApplicationsToDb`) + 거울(`syncProgressToDb`) 배포됨(run #25 success). **트리거는 운영자가 아직 안 켬** | `select count(*) filter (where sheet_synced_at is not null) from applications` → 0 이면 아직 |
 
@@ -36,7 +36,7 @@
 > 오늘 계획했던 3-1~3-5 는 **전부 병합됐다**: 소셜 로그인 준비물 안내(3-1) · CRM-7(#587) · CRM-5(#588) · 마이페이지(#589) · 만 14세·마케팅 철회(#592) · 방침 회원 조항(#590) · 서명 토큰(저녁 PR). 아래가 진짜 남은 것이다.
 
 ### 3-1. (먼저) 운영자 준비물이 끝났는지 실측 — §5 표대로
-구글 비밀 재입력 → `query_logs` 에 새 `invalid_client` 가 없고 두 분이 로그인 성공 → `ADMIN_PASSWORD` 삭제. 스윕 트리거 → `sheet_synced_at` 건수 > 0. 끝나기 전엔 대시보드 파이프라인에 합격·미결제·탈락이 비어 보인다(정상).
+`SUPABASE_ANON_KEY` 재입력(§5 1번 — 구글 비밀은 이미 고쳐짐) → `/api/auth/me` 가 `enabled:true` → 두 분이 로그인 성공(`auth.users.last_sign_in_at`·`profiles` 행) → `ADMIN_PASSWORD` 삭제. 스윕 트리거 → `sheet_synced_at` 건수 > 0. 끝나기 전엔 대시보드 파이프라인에 합격·미결제·탈락이 비어 보인다(정상).
 
 ### 3-2. 약관(이용약관) 회원 조항 — 30일 예고
 방침(개인정보처리방침)은 #590 으로 끝났지만 **이용약관**(`app/(main)/lazyday/terms/TermsBody.tsx`, 레이지클럽이 직접 import)엔 아직 회원 조항이 없다(제7조① "별도의 회원가입 없이"). 브랜드 카피는 운영자 소유 — **초안을 제안해 운영자가 확정**한 뒤 시행일을 30일 뒤로 두고 배포. 용어 정리(계정 보유자='회원', 기수 참가자='참가자')도 이때.
@@ -60,15 +60,16 @@ Supabase 커스텀 OAuth 공급자에 네이버 등록(authorize/token/userinfo)
 - 리허설 스크립트 `scripts/customers-test.mjs` 는 `npx tsx` 로만 돈다(strip-types 는 확장자 없는 import 를 못 푼다). 로직을 바꾸면 여기부터.
 - 시트 값의 집합: 진행 상태 = 미진행·미결제·결제완료·환불·탈락 (GAS `PROGRESS_OPTIONS`), 인터뷰 상태 = O·대기·X.
 - **관리 목 쿠키**: `lazyday_admin=devsecret` 은 더 이상 통과하지 않는다(서명 토큰). `ADMIN_SECRET=devsecret npx tsx scripts/admin-token-test.mjs --mint` 로 찍은 값을 쿠키에 넣을 것.
+- **환경변수 값이 헤더에 못 실리면 Supabase 로그에 아무것도 안 남는다** — 마스킹 `•`·비ASCII 문자가 든 `SUPABASE_ANON_KEY` 는 fetch 가 요청 전에 던진다(`Cannot convert argument to a ByteString`). auth·edge 로그를 뒤지기 전에 **Vercel 런타임 로그**(`get_runtime_logs`, query `auth/callback`)부터. 이제 로그인 화면이 `reason=` 으로 말해 준다(CLAUDE.md §5).
 - **병렬 세션**: 같은 날 두 세션이 같은 레포에 PR 을 올리면 로컬 `origin/main` 참조가 금세 낡는다 — 작업 시작 전 `git fetch origin main` 과 GitHub 커밋 목록 확인을 습관으로. 다른 세션이 이미 한 일을 다시 하지 말 것(오늘 CRM-5·7 이 그랬다).
 
 ## 5. 운영자 대기 항목 (다음 세션이 첫 브리핑에서 다시 물을 것)
 
 | 순서 | 어디서 | 무엇을 | 확인 방법 |
 |---|---|---|---|
-| 1 | Supabase → Authentication → Providers → **Google** | Client Secret 을 비우고 Google Cloud 클라이언트의 보안 비밀(`GOCSPX-…`)을 다시 붙여넣기 → Save | `query_logs`(auth_logs)에 새 `invalid_client` 가 없다 |
+| 1 | Vercel env (Production·Preview) | **`SUPABASE_ANON_KEY` 를 진짜 값으로 재입력** — 지금 값은 대시보드 마스킹 표시값(`eyJhbGciOiJIUzI•••…`). Supabase → Project Settings → API Keys → Legacy anon key **'표시'** 후 전체 복사(`eyJ…` 로 시작해 `…xthTEc` 로 끝나는 한 줄, 공백 없이) → 저장 → **Redeploy**(서버 env 라 재배포로 충분). 구글 비밀은 17:53Z 에 이미 고쳐짐 | `curl https://admin.lazy-club.com/api/auth/me` → `{"enabled":true,…}` · 로그인 화면에 `reason=malformed` 문구가 더 안 뜸 |
 | 2 | Vercel env | `ADMIN_EMAILS`(두 분 이메일, 쉼표, Secret) → Redeploy | 소셜 로그인 성공 |
-| 3 | Supabase → URL Configuration → Redirect URLs | `https://admin.lazy-club.com/api/auth/callback` 있는지 | 〃 |
+| 3 | Supabase → URL Configuration → Redirect URLs | ✔ 확인됨 — `auth.flow_state.referrer` 에 `https://admin.lazy-club.com/api/auth/callback` 이 검증된 값으로 찍혀 있다 | — |
 | 4 | `admin.lazy-club.com/admin/login` | 두 분 각각 카카오·구글로 로그인 성공 | — |
 | 5 | Vercel env | 4 뒤 `ADMIN_PASSWORD` 삭제 → Redeploy (가드 #586 병합됨 — 지워도 구멍 없음) | 비밀번호 폼 401 |
 | 6 | 구글 시트 메뉴 | 스크립트 속성 `SITE_URL`·`BACKFILL_TOKEN` → "DB 보정 자동 실행 켜기(1시간마다)" | prod `applications.sheet_synced_at` not null 건수 > 0 |
@@ -82,7 +83,8 @@ Supabase 커스텀 OAuth 공급자에 네이버 등록(authorize/token/userinfo)
 lib/customers.ts                 고객 파생(assemble·listCustomers·getCustomer·listCustomersDetailed)
 lib/admin-today.ts               오늘 할 일 8종 파생
 lib/site.ts                      도메인 역할표(BOOKCLUB_ORIGIN·ADMIN_HOST)
-lib/auth-server.ts               회원 세션(서버 전용) · sessionUserIdSafe · avatarUrlOf
+lib/auth-server.ts               회원 세션(서버 전용) · sessionUserIdSafe · avatarUrlOf · authConfigProblem · exchangeFailReason
+lib/supabase-key.ts              Supabase 키 모양 검사(순수) — 리허설 scripts/auth-key-test.mjs
 lib/admin-session.ts             관리자 서명 토큰(signAdminToken·verifyAdminToken·adminWho) — Edge+Node 공용
 lib/customer-activities.ts       활동 기록(CRM-5) — customer_activities(0013)
 app/(main)/lazyday/admin/AdminShell.tsx · crm.module.css · page.tsx(홈) · customers/{page,[key]/page,parts}.tsx · orders/page.tsx · schedule/page.tsx(옛 달력)

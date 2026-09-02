@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { avatarUrlOf, displayNameOf, supabaseSession } from "@/lib/auth-server"
+import { authConfigProblem, avatarUrlOf, displayNameOf, exchangeFailReason, supabaseSession } from "@/lib/auth-server"
 import { supabaseAdmin } from "@/lib/supabase-server"
 import { safeNext, withLoginFlag, AUTH_NEXT_COOKIE, authNextCookieOptions } from "../_next"
 
@@ -21,8 +21,10 @@ export async function GET(req: NextRequest) {
   // Redirect URLs 허용 목록과 어긋나 Site URL 로 튕기기 때문이다(_next.ts 주석).
   // ⚠ `?next=` 도 아직 읽는다: 이 배포 직전에 시작된 로그인이 옛 형식으로 돌아올 수 있다.
   const next = safeNext(req.cookies.get(AUTH_NEXT_COOKIE)?.value ?? sp.get("next"))
-  const back = (flag?: "failed") => {
-    const res = NextResponse.redirect(new URL(flag ? withLoginFlag(next, flag) : next, req.nextUrl.origin), 302)
+  // 실패는 **사유 코드**를 달아 돌려보낸다 (2026-09-02) — 종전엔 `login=failed` 한 마디라 Vercel 로그 없이는
+  // 환경변수 오류·PKCE 쿠키 없음·만료된 code 를 구분할 수 없었고, 로그가 막힌 날 하루를 썼다.
+  const back = (flag?: "failed", reason?: string) => {
+    const res = NextResponse.redirect(new URL(flag ? withLoginFlag(next, flag, reason) : next, req.nextUrl.origin), 302)
     res.cookies.set(AUTH_NEXT_COOKIE, "", { ...authNextCookieOptions, maxAge: 0 }) // 다 썼으면 지운다
     return res
   }
@@ -30,15 +32,16 @@ export async function GET(req: NextRequest) {
   const code = sp.get("code")
   if (!code || sp.get("error")) {
     console.warn("[auth/callback] no code", sp.get("error"), sp.get("error_description"))
-    return back("failed")
+    return back("failed", sp.get("error") ? "provider" : "nocode")
   }
   const sb = await supabaseSession()
-  if (!sb) return back("failed")
+  if (!sb) return back("failed", authConfigProblem() ?? "disabled")
 
   const { data, error } = await sb.auth.exchangeCodeForSession(code)
   if (error || !data.user) {
-    console.error("[auth/callback] exchange failed", error?.message)
-    return back("failed")
+    const reason = exchangeFailReason(error)
+    console.error("[auth/callback] exchange failed", reason, error?.message)
+    return back("failed", reason)
   }
 
   const user = data.user

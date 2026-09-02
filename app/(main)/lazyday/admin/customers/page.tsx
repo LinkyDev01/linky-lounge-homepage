@@ -78,7 +78,8 @@ export default function CustomersPage() {
         </tbody>
       </table>
       <p className={styles.origin}>{data?.origin}</p>
-      {peek && <RecordPanel c={peek} onClose={() => setPeek(null)} />}
+      {/* 기록을 남기면 그 사람만 다시 읽는다 (CRM-5) — 목록 전체를 새로 부르지 않는다 */}
+      {peek && <RecordPanel c={peek} onClose={() => setPeek(null)} onSaved={() => open(peek)} />}
     </AdminShell>
   )
 }

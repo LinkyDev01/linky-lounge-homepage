@@ -94,6 +94,20 @@
 .recActions { display: flex; flex-wrap: wrap; gap: 0 14px; padding: 8px 0 0; }
 .recActions button, .recActions a { color: var(--muted); }
 .recActions button:hover, .recActions a:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
+
+/* 활동 기록 초안 (CRM-5) — §9 문법: 테두리 상자가 아니라 괘선 한 줄, 버튼도 텍스트 링크 */
+.draft { padding: 10px 0 0; border-top: 1px solid var(--hair2); margin-top: 8px; }
+.draftHint { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
+.draftBox {
+  width: 100%; font: inherit; color: var(--ink); background: transparent;
+  border: 0; border-bottom: 1px solid var(--hair); border-radius: 0;
+  padding: 4px 0; resize: vertical; outline: none;
+}
+.draftBox:focus { border-bottom-color: var(--ink); }
+.draftBox::placeholder { color: var(--muted); }
+.draftActions { display: flex; gap: 14px; padding: 8px 0 0; }
+.draftActions button:hover { border-bottom: 1px solid currentColor; }
+.draftActions button:disabled { color: var(--muted); cursor: default; border-bottom: 0; }
 .attr { margin: 0; padding: 8px 0; border-bottom: 1px solid var(--hair2); display: grid; grid-template-columns: 78px 1fr; gap: 4px 10px; }
 .attr dt { color: var(--muted); }
 .attr dd { margin: 0; }
@@ -109,6 +123,8 @@
 .tl { display: grid; grid-template-columns: 82px 1fr; gap: 0 12px; padding: 10px 0; border-bottom: 1px solid var(--hair2); }
 .tlTime { color: var(--muted); white-space: nowrap; }
 .tlType { color: var(--muted); font-size: 12px; }
+/* 우리가 남긴 기록의 작성자 (CRM-5 · R13) */
+.tlWho { color: var(--muted); font-size: 12px; }
 .tlUp { font-weight: 600; }
 .tlDetail { color: var(--muted); }
 .noteBox { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--hair); min-height: 22px; white-space: pre-wrap; }

@@ -17,7 +17,7 @@ export const KIND_LABEL: Record<string, string> = {
   bookclub: "북클럽 신청", oneday: "원데이 토크", coffeebar: "커피앤바", notify: "기수 알림",
   interview_phone: "전화 인터뷰", interview_written: "서면 인터뷰", review: "후기",
 }
-const TYPE_LABEL: Record<Activity["type"], string> = { apply: "접수", interview: "인터뷰", order: "주문", note: "메모", system: "시스템" }
+const TYPE_LABEL: Record<Activity["type"], string> = { apply: "접수", interview: "인터뷰", order: "주문", note: "메모", system: "시스템", contact: "연락" }
 const SOURCE_LABEL: Record<string, string> = { profile: "인스타 프로필", ad_direct: "광고 직행", referral: "지인 소개" }
 
 export const fmtPhone = (p: string | null) => (p ? p.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3") : "—")
@@ -34,7 +34,68 @@ export function PersonFlags({ c }: { c: Customer }) {
 }
 export const primaryStage = (c: Customer) => c.entries[0]?.stage
 
-export function RecordHead({ c }: { c: Customer }) {
+/**
+ * 활동 기록 초안 (CRM-5) — '전화 걸기'·'문자 보내기'를 누르면 tel:/sms: 가 열리는 것과 **함께**
+ * 이 폼이 뜬다. 저장은 운영자가 '남기기'를 눌러야 일어난다.
+ * ⚠ 자동으로 남기지 않는 이유: 링크를 누른 것과 실제로 통화한 것은 다르고, 문자는 눌러도
+ *   발송 여부를 우리가 알 수 없다 (운영자 2026-09-02 "수동"). 거짓 기록이 쌓이지 않게.
+ */
+const DRAFT_HINT: Record<"note" | "call" | "sms", string> = {
+  note: "메모 — 나중에 이 사람을 볼 때 필요한 것",
+  call: "통화 기록 — 무슨 이야기를 했는지",
+  sms: "문자 기록 — 무엇을 보냈는지",
+}
+
+function ActivityDraft({ personKey, kind, onDone, onCancel }: {
+  personKey: string; kind: "note" | "call" | "sms"; onDone: () => void; onCancel: () => void
+}) {
+  const [body, setBody] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [failed, setFailed] = useState("")
+
+  async function save() {
+    if (!body.trim() || saving) return
+    setSaving(true); setFailed("")
+    try {
+      const res = await fetch("/api/lazyday/admin/activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ personKey, kind, body }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data?.ok) { setFailed(data?.error || "기록에 실패했어요"); return }
+      setBody("")
+      onDone()
+    } catch {
+      setFailed("기록에 실패했어요")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className={styles.draft}>
+      <p className={styles.draftHint}>{DRAFT_HINT[kind]}</p>
+      <textarea
+        className={styles.draftBox}
+        value={body}
+        autoFocus
+        rows={3}
+        maxLength={2000}
+        placeholder="여기에 적으면 이 사람의 타임라인에 남습니다"
+        onChange={(e) => setBody(e.target.value)}
+      />
+      {failed && <p className={styles.err}>{failed}</p>}
+      <div className={styles.draftActions}>
+        <button onClick={save} disabled={saving || !body.trim()} className={styles.strong}>{saving ? "남기는 중…" : "남기기"}</button>
+        <button onClick={onCancel} className={styles.muted}>취소</button>
+      </div>
+    </div>
+  )
+}
+
+export function RecordHead({ c, onSaved }: { c: Customer; onSaved?: () => void }) {
+  const [draft, setDraft] = useState<"note" | "call" | "sms" | null>(null)
   return (
     <>
       <div className={styles.recHead}>
@@ -43,10 +104,20 @@ export function RecordHead({ c }: { c: Customer }) {
         <PersonFlags c={c} />
       </div>
       <div className={styles.recActions}>
-        {c.phone && <a href={`tel:${c.phone}`}>전화 걸기</a>}
-        {c.phone && <a href={`sms:${c.phone}`}>문자 보내기</a>}
+        {/* 링크의 기본 동작(tel:/sms: 열기)은 그대로 두고 초안만 함께 연다 */}
+        {c.phone && <a href={`tel:${c.phone}`} onClick={() => setDraft("call")}>전화 걸기</a>}
+        {c.phone && <a href={`sms:${c.phone}`} onClick={() => setDraft("sms")}>문자 보내기</a>}
+        <button onClick={() => setDraft("note")}>메모 남기기</button>
         {c.applications?.[0] && <a href={`/admin/applications?q=${encodeURIComponent(c.phone ?? c.name ?? "")}`}>접수 원장에서 보기</a>}
       </div>
+      {draft && (
+        <ActivityDraft
+          personKey={c.key}
+          kind={draft}
+          onCancel={() => setDraft(null)}
+          onDone={() => { setDraft(null); onSaved?.() }}
+        />
+      )}
     </>
   )
 }
@@ -124,7 +195,7 @@ export function Timeline({ c }: { c: Customer }) {
   return (
     <>
       <div className={styles.tabs}>
-        {(["all", "apply", "interview", "order", "note", "system"] as const).map((k) => (
+        {(["all", "apply", "interview", "order", "contact", "note", "system"] as const).map((k) => (
           <button key={k} className={`${styles.tab} ${f === k ? styles.tabOn : ""}`} onClick={() => setF(k)}>{k === "all" ? "전체" : TYPE_LABEL[k]}</button>
         ))}
       </div>
@@ -136,6 +207,8 @@ export function Timeline({ c }: { c: Customer }) {
               <div className={styles.tlType}>{TYPE_LABEL[a.type]}</div>
               <div className={a.upcoming ? styles.tlUp : ""}>{a.title}{a.amount ? ` · ${won(a.amount)}` : ""}</div>
               {a.detail && <div className={styles.tlDetail}>{a.detail}</div>}
+              {/* 우리가 남긴 기록만 '누가' 를 갖는다 (CRM-5 · R13) */}
+              {a.who && <div className={styles.tlWho}>{a.who}</div>}
             </span>
           </li>
         ))}
@@ -146,10 +219,10 @@ export function Timeline({ c }: { c: Customer }) {
 }
 
 /** 3열 레코드 전체 (페이지) */
-export function Record3({ c }: { c: Customer }) {
+export function Record3({ c, onSaved }: { c: Customer; onSaved?: () => void }) {
   return (
     <>
-      <RecordHead c={c} />
+      <RecordHead c={c} onSaved={onSaved} />
       <div className={styles.record}>
         <div className={styles.colL}><Attributes c={c} /></div>
         <div className={styles.colM}><Timeline c={c} /></div>
@@ -161,13 +234,13 @@ export function Record3({ c }: { c: Customer }) {
 }
 
 /** 패널용 축약 (빠르게 보기) */
-export function RecordPanel({ c, onClose }: { c: Customer; onClose: () => void }) {
+export function RecordPanel({ c, onClose, onSaved }: { c: Customer; onClose: () => void; onSaved?: () => void }) {
   return (
     <>
       <div className={styles.dim} onClick={onClose} />
       <aside className={styles.panel}>
         <div className={styles.panelBar}><a href={`/admin/customers/${encodeURIComponent(c.key)}`}>전체 보기 →</a><button onClick={onClose}>닫기 ✕</button></div>
-        <RecordHead c={c} />
+        <RecordHead c={c} onSaved={onSaved} />
         <Attributes c={c} />
         <p className={styles.blockTitle}>연관</p>
         <Associations c={c} />

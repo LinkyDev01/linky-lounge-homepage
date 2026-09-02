@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-server"
+import { appPersonKey } from "@/lib/customers"
 
 /**
  * 접수 원장 조회 (2026-09-01, 계획서 P3 — Stage A).
@@ -207,7 +208,13 @@ export async function DELETE(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id") || ""
   if (!UUID.test(id)) return NextResponse.json({ error: "id 가 필요합니다" }, { status: 400 })
 
-  const { data, error } = await sb.rpc("purge_application", { target: id })
+  // 삭제 요청은 사람 단위다 — 그 사람의 활동 기록(CRM-5)도 같은 트랜잭션에서 비우도록
+  // 묶음 키를 넘긴다. ⚠ 파기가 이름·전화를 비우므로 **비우기 전에** 읽어야 한다.
+  //    키 규칙의 정본은 lib/customers.ts 의 appPersonKey 하나다 (SQL 에 다시 적지 않는다).
+  const { data: row } = await sb.from("applications").select("id, phone, user_id").eq("id", id).maybeSingle()
+  const personKey = row ? appPersonKey(row) : null
+
+  const { data, error } = await sb.rpc("purge_application", { target: id, person_key: personKey })
   if (error) {
     console.error("[admin/applications] DELETE", error.message)
     return NextResponse.json({ error: "파기에 실패했어요" }, { status: 502 })

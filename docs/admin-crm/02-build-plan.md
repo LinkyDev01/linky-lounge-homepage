@@ -12,7 +12,7 @@
 | CRM-5 | 활동 남기기 | 메모·통화·문자를 **사람 단위 새 표**(0013 `customer_activities`)에. 저장은 **수동** — 링크를 누르면 초안이 뜨고 '남기기'를 눌러야 남는다(누른 것과 실제로 통화한 것은 다르다). 파기 2종 같은 PR: 새 함수 `purge_expired_customer_activities()` + `purge_application` 을 `(uuid, text)` 로 교체(**옛 1인자 함수는 drop** — 오버로드로 남기면 조용히 안 지워진다) | ✔ #588 |
 | CRM-6 | 주문 탭 · 접수를 셸 안으로 | `/admin/orders`(orders 원장 표, 읽기) + `/api/lazyday/admin/orders` · 접수 원장 페이지를 `AdminShell` 안에(`.embedded`). 일정(달력 흡수)·상태 점검·흐름 테스트의 셸 편입은 CRM-7 | ✔ #583 |
 | CRM-7 | 일정 · 도구 셸 편입 | 차단 달력(`/admin/schedule`)·상태 점검·흐름 테스트를 셸 안으로 — 세 CSS 에 `.embedded`(배경·높이·여백을 셸에 넘김) + 확인 바·토스트의 뷰포트 기준 `left:50%` 를 본문 중앙으로 보정. 화면 안의 이동 링크·로그아웃은 내비가 대신하므로 제거(status 의 '차단 관리'는 `/admin` 을 가리키던 낡은 링크였다) | ✔ #587 |
-| — | 관리자 인증 교체 | 소셜 로그인 + 허용 이메일(`ADMIN_EMAILS`) → 종전 쿠키 + `lazyday_admin_who`. 비밀번호 경로는 `ADMIN_PASSWORD` 가 있는 동안만. 쿠키 값의 사람별 서명 토큰화·GAS `ADMIN_TOKEN` 계약은 후속 | 진행 |
+| — | 관리자 인증 교체 | 소셜 로그인 + 허용 이메일(`ADMIN_EMAILS`)(#584) → 비밀번호 가드(#586) → **쿠키 값을 서명 토큰으로**(who·만료 7일, `lib/admin-session.ts`; who 쿠키 폐지). GAS `ADMIN_TOKEN` 계약은 쿠키와 무관해 그대로 | ✔ (토큰 PR 2026-09-02 저녁) |
 | — | P5 | 시트 '진행 상태' 기입 중단 합의 → 칸반 드래그(쓰기) 개통 | 운영자 합의 후 |
 
 ## 데이터 원칙 (CRM-1 에서 못 박은 것)

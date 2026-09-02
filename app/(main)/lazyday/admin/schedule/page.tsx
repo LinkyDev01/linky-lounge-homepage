@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { AdminShell } from "../AdminShell"
 import styles from "../admin.module.css"
 
 // ── 상수 ────────────────────────────────────────────────────────
@@ -258,28 +259,20 @@ export default function AdminPage() {
     }
   }
 
-  // ── 로그아웃 ────────────────────────────────────────────────
-  async function logout() {
-    await fetch("/api/lazyday/admin/auth", { method: "DELETE" })
-    router.replace("/admin/login")
-  }
+  // 로그아웃·화면 이동은 셸 내비가 맡는다 (CRM-7)
 
   const vb = visibleBlocks()
 
   return (
-    <main className={styles.page}>
+    <AdminShell>
+    <main className={`${styles.page} ${styles.embedded}`}>
       <div className={styles.container}>
 
-        {/* 헤더 */}
+        {/* 헤더 — 다른 화면으로 가는 링크와 로그아웃은 셸 내비에 있다 (CRM-7) */}
         <header className={styles.header}>
           <h1 className={styles.title}>인터뷰 차단 시간 관리</h1>
           <div className={styles.headerActions}>
             <button className={styles.iconBtn} onClick={loadBlocks} title="새로고침">↺</button>
-            {/* 운영 상태 점검 (2026-08-06) */}
-            <a className={styles.logoutBtn} href="/admin/applications">접수 원장</a>
-            <a className={styles.logoutBtn} href="/admin/status">상태 점검</a>
-            <a className={styles.logoutBtn} href="/admin/simulate">흐름 테스트</a>
-            <button className={styles.logoutBtn} onClick={logout}>로그아웃</button>
           </div>
         </header>
 
@@ -439,5 +432,6 @@ export default function AdminPage() {
       {/* 토스트 */}
       {toast && <div className={styles.toast}>{toast}</div>}
     </main>
+    </AdminShell>
   )
 }

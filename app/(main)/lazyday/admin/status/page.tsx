@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { copyText } from "../../support"
 import { SUCCESS_PATH } from "@/lib/payments/config"
 import { BOOKCLUB_ORIGIN } from "@/lib/site"
+import { AdminShell } from "../AdminShell"
 import styles from "./status.module.css"
 
 /**
@@ -69,20 +70,17 @@ export default function AdminStatusPage() {
   const badCount = checks?.filter((c) => !c.ok).length ?? 0
 
   return (
-    <main className={styles.page}>
+    <AdminShell>
+    <main className={`${styles.page} ${styles.embedded}`}>
       <div className={styles.container}>
+        {/* 다른 화면으로 가는 링크는 셸 내비에 있다 — 여기 있던 '차단 관리'는 /admin 을 가리켰는데
+            그 자리는 CRM-3 에서 대시보드 홈이 됐다(달력은 /admin/schedule). 낡은 링크째 걷어낸다 (CRM-7) */}
         <header className={styles.header}>
           <h1 className={styles.title}>운영 상태 점검</h1>
           <div className={styles.headerActions}>
             <button className={styles.refreshBtn} onClick={run} disabled={loading}>
               {loading ? "점검 중..." : "다시 점검"}
             </button>
-            <a className={styles.linkBtn} href="/admin/simulate">
-              신청 흐름 테스트
-            </a>
-            <a className={styles.linkBtn} href="/admin">
-              차단 관리
-            </a>
           </div>
         </header>
 
@@ -176,5 +174,6 @@ export default function AdminStatusPage() {
         </section>
       </div>
     </main>
+    </AdminShell>
   )
 }

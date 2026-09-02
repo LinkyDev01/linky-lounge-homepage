@@ -6,6 +6,10 @@
   padding: 28px 18px 64px;
   word-break: keep-all;
 }
+/* 관리 셸 안에 들어온 상태 (CRM-7) — 셸이 배경·여백·높이를 준다 */
+.embedded { min-height: 0; padding: 0; background: transparent; }
+.embedded .container { margin: 0; }
+
 .container {
   max-width: 720px;
   margin: 0 auto;

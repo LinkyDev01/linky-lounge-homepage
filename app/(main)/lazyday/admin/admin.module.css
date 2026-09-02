@@ -10,6 +10,16 @@
   font-family: inherit;
 }
 
+/* 관리 셸 안에 들어온 상태 (CRM-7) — 셸이 배경·여백·높이를 준다.
+ * 셸 본문은 좌정렬 전폭이라 가운데 정렬(margin:auto)도 푼다. */
+.embedded { min-height: 0; padding: 0; background-color: transparent; }
+.embedded .container { max-width: none; margin: 0; padding: 0; }
+/* ⚠ 하단 고정 바·토스트는 뷰포트 기준(left:50%)이라 셸 안에서는 내비 폭(168px)의 절반만큼
+ * 왼쪽으로 치우친다 — 본문 영역의 가운데로 되돌린다. 모바일(≤767)은 내비가 위로 가므로 보정 없음. */
+@media (min-width: 768px) {
+  .embedded .confirmBar, .embedded .toast { left: calc(50% + 84px); }
+}
+
 .container {
   max-width: 900px;
   margin: 0 auto;

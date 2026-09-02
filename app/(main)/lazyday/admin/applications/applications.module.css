@@ -25,6 +25,8 @@
   text-wrap: pretty;
 }
 
+/* 관리 셸(AdminShell) 안에 들어갈 때 — 셸이 배경·여백을 이미 주므로 이중 패딩·100vh 를 끈다 (CRM-6) */
+.embedded { min-height: 0; padding: 0; }
 .page a { color: inherit; text-decoration: none; }
 .page a:hover { border-bottom: 1px solid var(--ink); padding-bottom: 3px; }
 

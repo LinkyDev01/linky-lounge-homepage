@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./applications.module.css"
+import { AdminShell } from "../AdminShell"
 
 /**
  * 접수 원장 조회 (2026-09-01, 계획서 P3 — Stage A).
@@ -171,10 +172,10 @@ export default function AdminApplicationsPage() {
   }, [load])
 
   return (
-    <main className={styles.page}>
+    <AdminShell>
+    <main className={`${styles.page} ${styles.embedded}`}>
       <div className={styles.inner}>
         <div className={styles.head}>
-          <a href="/admin" className={styles.back}>← 관리</a>
           <h1 className={styles.title}>접수 원장</h1>
           <p className={styles.origin}>
             <strong>진행 상태</strong>(미진행·결제완료·탈락…)의 정본은 <strong>구글 시트</strong>예요 — 여기서 고치지 않습니다.
@@ -404,5 +405,6 @@ export default function AdminApplicationsPage() {
         )}
       </div>
     </main>
+    </AdminShell>
   )
 }

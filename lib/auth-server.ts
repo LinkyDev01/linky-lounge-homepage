@@ -70,6 +70,18 @@ export async function getSessionUser(): Promise<User | null> {
   return data.user
 }
 
+/** 라우트에서 원장에 user_id 를 찍을 때 쓰는 안전 조회 — **절대 던지지 않는다**.
+ *  세션 조회가 느리거나 깨져도 접수·결제 기록이 실패하면 안 된다(비회원이 기본, R11).
+ *  ⚠ 요청 스코프 밖(웹훅·배치)에서 부르면 cookies() 가 던지므로 여기서 삼킨다. */
+export async function sessionUserIdSafe(): Promise<string | null> {
+  try {
+    const user = await getSessionUser()
+    return user?.id ?? null
+  } catch {
+    return null
+  }
+}
+
 /** 소셜 프로필 사진 URL (2026-09-02) — Supabase 가 `avatar_url` 로 표준화하지만
  *  공급자에 따라 `picture` 로만 오는 경우가 있어 둘 다 본다.
  *  ⚠ **URL 만 들고 있는다** — 이미지를 우리 쪽에 복사하지 않는다(0014 결정 1).

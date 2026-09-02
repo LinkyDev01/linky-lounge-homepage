@@ -46,6 +46,10 @@ export type RecordOrderInput = {
   buyerPhone?: string
   approvedAt?: string
   shipping?: ShippingInput
+  /** 로그인 결제면 그 계정 (P4). 비회원이 기본이라 nullable — R11.
+   *  ⚠ 가상계좌는 토스가 서버로 직접 부르는 웹훅이라 세션 쿠키가 없다 → 여기 null 로
+   *    남고 마이페이지의 '주문 연결'로만 회수된다. */
+  userId?: string | null
 }
 
 /** 전화번호 정규화 — 숫자만. 키가 아니라 조회용 속성이라 형식만 통일한다 (결정 4).
@@ -109,6 +113,7 @@ export async function recordOrder(input: RecordOrderInput): Promise<LedgerResult
         amount_total: input.amountTotal,
         orderer_name: input.buyerName || "(미입력)",
         orderer_phone: normalizePhone(input.buyerPhone),
+        user_id: input.userId ?? null,
         approved_at: input.approvedAt ?? new Date().toISOString(),
       })
       .select("id")

@@ -134,9 +134,7 @@ export function WorkroomShell({
         </LazyclubLink>
         {/* 1행 우: 아이콘 3종 — 자체 드로잉 SVG (푸터 SNS와 같은 문법: currentColor, 1.2 스트로크) */}
         <div className={styles.navIcons}>
-          <button type="button" className={styles.navIconBtn} aria-label="계정" onClick={() => notify()}>
-            <AccountIcon />
-          </button>
+          <AccountMenu />
           <LazyclubLink href={`${BASE}/cart`} className={styles.navIconBtn} aria-label="카트">
             <CartIcon />
           </LazyclubLink>
@@ -273,6 +271,116 @@ export function WorkroomShell({
         </div>
       )}
 
+    </div>
+  )
+}
+
+/** 계정 메뉴 (2026-09-02, 계획서 P4a) — 내비의 계정 아이콘이 여는 작은 패널.
+ *
+ *  **왜 아이콘에 붙였나**: `aria-label="계정"` 버튼이 이미 있었고(그동안 준비 중 토스트),
+ *  옆에 '로그인' 글자를 붙이면 16px 아이콘 3개로 맞춰 둔 행이 깨진다.
+ *
+ *  ⚠ **로그인·로그아웃은 plain `<a>`/fetch 다 — `LazyclubLink` 를 쓰면 안 된다.**
+ *    그 컴포넌트는 `${useBasePath()}${href}` 로 감싸므로 브랜치 프리뷰에서
+ *    `/lazyday/api/auth/...` 라는 없는 경로가 되고, `/api/*` 는 미들웨어 matcher 밖이라
+ *    구제되지 않는다.
+ *
+ *  ⚠ 세션 조회는 **패널을 처음 열 때 한 번**만 한다 — 모든 페이지 로드마다 부르면
+ *    쓰지도 않을 요청이 페이지당 1건씩 는다.
+ *
+ *  소셜 로그인이 꺼져 있으면(`enabled:false`) 종전처럼 준비 중 토스트를 띄운다 —
+ *  환경변수 미설정으로 조용히 꺼지는 규율(lib/auth-server.ts)을 화면도 따른다. */
+type Me = { enabled: boolean; loggedIn: boolean; displayName?: string | null }
+
+function AccountMenu() {
+  const { notify } = useToast()
+  const [open, setOpen] = useState(false)
+  const [me, setMe] = useState<Me | null>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open || me) return
+    let alive = true
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d: Me) => alive && setMe(d))
+      .catch(() => alive && setMe({ enabled: false, loggedIn: false }))
+    return () => {
+      alive = false
+    }
+  }, [open, me])
+
+  // 바깥 클릭·Esc 로 닫기 (열려 있을 때만 듣는다)
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false)
+    document.addEventListener("mousedown", onDown)
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("mousedown", onDown)
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [open])
+
+  /** 로그인 뒤 돌아올 자리 = 지금 보던 페이지 (같은 오리진 경로만 — 라우트가 한 번 더 검증한다) */
+  const nextParam = () =>
+    encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname + window.location.search)
+
+  const signOut = async () => {
+    await fetch("/api/auth/signout", { method: "POST" }).catch(() => {})
+    setOpen(false)
+    window.location.reload()
+  }
+
+  return (
+    <div className={styles.accountWrap} ref={wrapRef}>
+      <button
+        type="button"
+        className={styles.navIconBtn}
+        aria-label="계정"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <AccountIcon />
+      </button>
+      {open && (
+        <div className={styles.accountPanel} role="menu">
+          {!me ? (
+            <p className={styles.accountNote}>불러오는 중…</p>
+          ) : !me.enabled ? (
+            <p className={styles.accountNote}>
+              <button type="button" className={styles.accountLink} onClick={() => notify()}>
+                준비 중입니다
+              </button>
+            </p>
+          ) : me.loggedIn ? (
+            <>
+              <p className={styles.accountWho}>{me.displayName || "회원"}님</p>
+              <a className={styles.accountLink} href={`${BASE}/mypage`}>
+                마이페이지
+              </a>
+              <button type="button" className={styles.accountLink} onClick={signOut}>
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <a className={styles.accountLink} href={`/api/auth/signin/kakao?next=${nextParam()}`}>
+                카카오로 로그인
+              </a>
+              <a className={styles.accountLink} href={`/api/auth/signin/google?next=${nextParam()}`}>
+                구글로 로그인
+              </a>
+              {/* 문구 주의: 로그인은 '입회'가 아니다 — 모임 참가는 신청 절차가 정한다
+                  (운영자 2026-09-02: 가입은 상시 공개, 선별은 신청 절차로) */}
+              <p className={styles.accountNote}>주문·신청 내역을 한자리에서 볼 수 있어요.</p>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

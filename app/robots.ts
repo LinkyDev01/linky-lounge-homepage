@@ -31,6 +31,10 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         // 결제(체크아웃·승인 결과)는 거래 페이지 — 검색 결과 노출 제외 (SEO 2026-08-12)
         "/checkout",
         "/lazyday/checkout",
+        // 마이페이지 — 본인 세션에서만 뜨는 개인 화면 (2026-09-02, 계획서 P4a).
+        // lazy-club.com 에선 /mypage, 북클럽 도메인에선 /lazyclub/mypage 로 열린다
+        "/mypage",
+        "/lazyclub/mypage",
         // 구 주소 (2026-09-01 이전 전) — 301 이 받지만, 이미 색인된 주소가 다시 크롤되며
         // 리다이렉트 체인을 타지 않게 남겨 둔다
         "/one-day-talk-01/checkout",

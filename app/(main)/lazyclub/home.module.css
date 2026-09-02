@@ -1490,3 +1490,38 @@
 @media (prefers-reduced-motion: reduce) {
   .shipLayer, .shipBack { transition: none; }
 }
+
+/* ── 계정 메뉴 (2026-09-02, 계획서 P4a) — 내비 계정 아이콘이 여는 패널.
+      워크룸 문법 그대로: 종이색 면 + 잉크 1px 선, 글자 링크만, 장식 0.
+      헤더가 fixed(z-index 99)라 패널은 그 안에서 absolute 로 아이콘 아래에 매달린다 ── */
+.accountWrap { position: relative; display: flex; align-items: center; }
+.accountPanel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -4px;
+  min-width: 168px;
+  padding: 10px 12px 9px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 13.2px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.accountWho { margin: 0 0 2px; font-weight: 600; }
+.accountLink {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.accountLink:hover { text-decoration: underline; }
+.accountNote { margin: 4px 0 0; font-size: 11px; opacity: 0.6; white-space: normal; max-width: 180px; }

@@ -73,7 +73,7 @@
 | GAS 스크립트 속성 `SITE_URL`·`BACKFILL_TOKEN` + 시트 메뉴 "DB 보정 자동 실행 켜기" | 이게 꺼져 있으면 파이프라인에 합격·미결제·탈락이 안 뜬다(시트에만 있는 값) | prod `applications.sheet_synced_at` not null 건수 |
 | Vercel env `ADMIN_EMAILS`(Secret) | 관리자 소셜 로그인 허용 목록 | 로그인 페이지에서 소셜 로그인 성공 |
 | Supabase Redirect URLs 에 `https://admin.lazy-club.com/api/auth/callback` | 관리 호스트로 콜백이 돌아와야 한다 | 〃 |
-| 확인 뒤 `ADMIN_PASSWORD` 삭제 | 공유 비밀번호 제거 | 로그인 페이지 비밀번호 폼이 401 |
+| 확인 뒤 `ADMIN_PASSWORD` 삭제 | 공유 비밀번호 제거 | 로그인 페이지 비밀번호 폼이 401. ⚠ **가드 PR 병합 뒤에 지울 것** — 그전에 지우면 빈 요청에 관리자 쿠키가 발급된다(DECISIONS 2026-09-02 결함수정 행) |
 | 약관 회원 조항 초안 | 30일 예고 리드타임 | — |
 
 ## 6. 파일 지도 (오늘 만든 것)

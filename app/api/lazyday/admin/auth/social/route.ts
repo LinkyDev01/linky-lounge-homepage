@@ -30,11 +30,25 @@ export async function GET(req: NextRequest) {
 
   if (!SECRET) return deny("unconfigured")
   const user = await getSessionUser()
-  if (!user) return deny("nosession")
+  if (!user) {
+    // ⚠ 세션이 없는 이유는 셋인데 종전에는 전부 'nosession' 한 마디로 뭉개졌다 —
+    //   화면만 보고는 어디가 끊겼는지 알 수 없어 진단에 라운드를 쓴다. 갈라서 말한다.
+    //   ① exchange — 콜백이 code 교환에 실패해 `login=failed` 를 달고 왔다
+    //      (Supabase Redirect URLs·PKCE 쿠키·만료된 code 중 하나)
+    //   ② nocookie — 세션 쿠키가 아예 없다 (브라우저가 저장하지 못했거나 호스트가 다르다)
+    //   ③ nosession — 쿠키는 있는데 auth 서버가 무효라고 답했다 (만료·위조)
+    const exchangeFailed = req.nextUrl.searchParams.get("login") === "failed"
+    const hasSessionCookie = req.cookies.getAll().some((c) => /^sb-.+-auth-token(\.\d+)?$/.test(c.name))
+    const why = exchangeFailed ? "exchange" : hasSessionCookie ? "nosession" : "nocookie"
+    console.warn(`[admin/auth/social] 세션 없음 (${why})`)
+    return deny(why)
+  }
   const email = (user.email ?? "").toLowerCase()
   if (!email || !ALLOW.includes(email)) {
-    console.warn("[admin/auth/social] 허용 목록 밖 이메일 로그인 시도")
-    return deny("notallowed")
+    // ⚠ 허용 목록이 비어 있는 것과 목록 밖 계정인 것은 원인이 다르다 — 갈라서 말한다
+    //   (env 미설정이면 아무리 맞는 계정으로 눌러도 통과할 수 없다)
+    console.warn(`[admin/auth/social] 거절 — ALLOW ${ALLOW.length}건, 이메일 ${email ? "있음" : "없음"}`)
+    return deny(ALLOW.length === 0 ? "noallowlist" : !email ? "noemail" : "notallowed")
   }
 
   const res = to(redirect === "/" ? "/admin" : redirect)

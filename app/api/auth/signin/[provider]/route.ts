@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { isAuthEnabled, supabaseSession } from "@/lib/auth-server"
-import { safeNext, AUTH_NEXT_COOKIE, authNextCookieOptions } from "../../_next"
+import { authConfigProblem, supabaseSession } from "@/lib/auth-server"
+import { safeNext, withLoginFlag, AUTH_NEXT_COOKIE, authNextCookieOptions } from "../../_next"
 
 /**
  * 소셜 로그인 시작 — `GET /api/auth/signin/kakao?next=/lazyclub/all` (계획서 P4a-3).
@@ -23,23 +23,25 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ provider: s
   if (!PROVIDERS.has(provider)) {
     return NextResponse.json({ ok: false, error: "unknown provider" }, { status: 404 })
   }
-  if (!isAuthEnabled()) {
-    return NextResponse.json({ ok: false, error: "auth disabled" }, { status: 503 })
-  }
   const next = safeNext(req.nextUrl.searchParams.get("next"))
+  // 실패는 돌아갈 곳으로 **사유를 달아** 보낸다 (2026-09-02) — 종전의 503 JSON 은 링크를 누른 사람이
+  // 날 JSON 을 보는 모양이었고, 미설정과 키 모양 오류(마스킹 •)를 구분하지 못했다.
+  const fail = (reason: string) => NextResponse.redirect(new URL(withLoginFlag(next, "failed", reason), req.nextUrl.origin), 302)
+  const problem = authConfigProblem()
+  if (problem) return fail(problem)
   // ⚠ 쿼리를 붙이지 않는다 — Supabase 의 Redirect URLs 는 쿼리를 포함한 URL 전체를 비교하므로
   //   `?next=` 가 붙으면 등록값과 어긋나 Site URL 로 튕긴다. 돌아갈 곳은 쿠키로 넘긴다(_next.ts).
   const redirectTo = new URL("/api/auth/callback", req.nextUrl.origin)
 
   const sb = await supabaseSession()
-  if (!sb) return NextResponse.json({ ok: false, error: "auth disabled" }, { status: 503 })
+  if (!sb) return fail("disabled")
   const { data, error } = await sb.auth.signInWithOAuth({
     provider: provider as "kakao" | "google",
     options: { redirectTo: redirectTo.toString() },
   })
   if (error || !data.url) {
     console.error("[auth/signin] signInWithOAuth failed", provider, error?.message)
-    return NextResponse.redirect(new URL(`${next}${next.includes("?") ? "&" : "?"}login=failed`, req.nextUrl.origin), 302)
+    return fail("start")
   }
   const res = NextResponse.redirect(data.url, 302)
   res.cookies.set(AUTH_NEXT_COOKIE, next, authNextCookieOptions)

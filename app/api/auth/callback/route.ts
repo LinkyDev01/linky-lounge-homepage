@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { avatarUrlOf, displayNameOf, supabaseSession } from "@/lib/auth-server"
 import { supabaseAdmin } from "@/lib/supabase-server"
-import { safeNext, withLoginFlag } from "../_next"
+import { safeNext, withLoginFlag, AUTH_NEXT_COOKIE, authNextCookieOptions } from "../_next"
 
 /**
  * 소셜 로그인 복귀 — 공급자 → Supabase → 여기 (계획서 P4a-3).
@@ -17,9 +17,15 @@ import { safeNext, withLoginFlag } from "../_next"
  */
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams
-  const next = safeNext(sp.get("next"))
-  const back = (flag?: "failed") =>
-    NextResponse.redirect(new URL(flag ? withLoginFlag(next, flag) : next, req.nextUrl.origin), 302)
+  // 돌아갈 경로는 **쿠키**가 정본이다 (2026-09-02) — redirectTo 에 쿼리를 붙이면 Supabase 의
+  // Redirect URLs 허용 목록과 어긋나 Site URL 로 튕기기 때문이다(_next.ts 주석).
+  // ⚠ `?next=` 도 아직 읽는다: 이 배포 직전에 시작된 로그인이 옛 형식으로 돌아올 수 있다.
+  const next = safeNext(req.cookies.get(AUTH_NEXT_COOKIE)?.value ?? sp.get("next"))
+  const back = (flag?: "failed") => {
+    const res = NextResponse.redirect(new URL(flag ? withLoginFlag(next, flag) : next, req.nextUrl.origin), 302)
+    res.cookies.set(AUTH_NEXT_COOKIE, "", { ...authNextCookieOptions, maxAge: 0 }) // 다 썼으면 지운다
+    return res
+  }
 
   const code = sp.get("code")
   if (!code || sp.get("error")) {

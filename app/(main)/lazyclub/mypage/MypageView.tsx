@@ -21,7 +21,7 @@ import { LazyclubLink } from "../LazyclubLink"
 import { BASE, HOME, WorkroomShell } from "../Shell"
 import styles from "../home.module.css"
 
-type Me = { enabled: boolean; loggedIn: boolean; displayName?: string | null; phone?: string | null }
+type Me = { enabled: boolean; loggedIn: boolean; displayName?: string | null; phone?: string | null; ageVerified?: boolean; marketingConsent?: boolean }
 type Order = {
   orderNo: string
   amountTotal: number
@@ -72,6 +72,16 @@ function MypageBody() {
     const d = (await r.json()) as { orders: Order[]; applications: Application[] }
     setOrders(d.orders)
     setApps(d.applications)
+  }
+
+  /** 동의를 바꾼 뒤 세션만 다시 읽는다 — 주문·신청은 그대로라 다시 부르지 않는다 */
+  const reloadMe = async () => {
+    try {
+      const r = await fetch("/api/auth/me", { cache: "no-store" })
+      setMe((await r.json()) as Me)
+    } catch {
+      /* 화면의 값이 잠깐 옛것으로 남을 뿐이라 실패를 알리지 않는다 */
+    }
   }
 
   useEffect(() => {
@@ -189,10 +199,98 @@ function MypageBody() {
             <p className={styles.myNote}>진행 상황은 접수 때 남긴 연락처로 따로 안내드려요.</p>
           </section>
 
+          <AccountConsents me={me} onSaved={reloadMe} />
+
           <LinkOrder onLinked={load} />
         </>
       )}
     </main>
+  )
+}
+
+/**
+ * 계정 — 만 14세 확인과 마케팅 수신 동의 (계획서 P4a 후속).
+ *
+ * ⚠ **만 14세 확인은 되돌리는 버튼을 두지 않는다.** "만 14세 이상"은 시간이 지나 뒤집히는
+ *   사실이 아니라 되돌릴 개념이 없다. 잘못 눌렀다면 문의하는 경로로 안내한다(라우트도 true 만 받는다).
+ * ⚠ **수신 동의는 켜고 끄는 것이 대칭이다** — 철회를 어렵게 만들면 법 제22조의 취지에 어긋난다.
+ *   철회하면 접수 때 남긴 동의까지 함께 지워진다(라우트가 그렇게 한다) — 화면이 그 사실을 밝힌다.
+ */
+function AccountConsents({ me, onSaved }: { me: Me; onSaved: () => Promise<void> }) {
+  const [busy, setBusy] = useState<"age" | "marketing" | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
+
+  const patch = async (which: "age" | "marketing", body: Record<string, unknown>) => {
+    if (busy) return
+    setBusy(which)
+    setMsg(null)
+    try {
+      const r = await fetch("/api/lazyday/mypage/consents", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      const d = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string }
+      if (!d.ok) {
+        setMsg(d.error || "저장하지 못했어요.")
+        return
+      }
+      await onSaved()
+      setMsg(which === "age" ? "확인했어요." : body.marketingConsent ? "수신 동의했어요." : "수신을 철회했어요.")
+    } catch {
+      setMsg("저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.")
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <section className={styles.myBlock}>
+      <h2 className={styles.myH2}>계정</h2>
+
+      <div className={styles.myRow}>
+        <div className={styles.myRowHead}>
+          <span>만 14세 이상 확인</span>
+          <span>{me.ageVerified ? "확인됨" : "미확인"}</span>
+        </div>
+        {me.ageVerified ? (
+          <p className={styles.myNote}>확인이 끝났어요. 되돌려야 한다면 contact@linkylounge.com 으로 알려 주세요.</p>
+        ) : (
+          <>
+            <p className={styles.myNote}>
+              만 14세 미만은 법정대리인 동의가 있어야 가입할 수 있어요. 아직 확인 전이에요.
+            </p>
+            <div className={styles.myLinks}>
+              <button className={styles.myLink} disabled={busy === "age"} onClick={() => patch("age", { ageVerified: true })}>
+                {busy === "age" ? "확인 중…" : "만 14세 이상입니다"}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className={styles.myRow}>
+        <div className={styles.myRowHead}>
+          <span>마케팅 수신</span>
+          <span>{me.marketingConsent ? "동의함" : "동의 안 함"}</span>
+        </div>
+        <p className={styles.myNote}>
+          새 모임·행사 소식을 이름·연락처로 보내드려요. 선택 사항이고, 동의하지 않아도 신청·결제에 제한이 없어요.
+          {me.marketingConsent && " 철회하면 접수하실 때 남기신 수신 동의도 함께 지워져요."}
+        </p>
+        <div className={styles.myLinks}>
+          <button
+            className={styles.myLink}
+            disabled={busy === "marketing"}
+            onClick={() => patch("marketing", { marketingConsent: !me.marketingConsent })}
+          >
+            {busy === "marketing" ? "저장 중…" : me.marketingConsent ? "수신 철회하기" : "수신 동의하기"}
+          </button>
+        </div>
+      </div>
+
+      {msg && <p className={styles.myMsg}>{msg}</p>}
+    </section>
   )
 }
 

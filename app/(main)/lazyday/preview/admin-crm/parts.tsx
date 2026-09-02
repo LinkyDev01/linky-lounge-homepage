@@ -23,12 +23,13 @@ export const NAV: { key: Section; label: string }[] = [
   { key: "tools", label: "도구" },
 ]
 
-export function Shell({ section, onSection, variant, children }: { section: Section; onSection: (s: Section) => void; variant: string; children: ReactNode }) {
+export function Shell({ section, onSection, variant, navOverride, children }: { section: Section; onSection: (s: Section) => void; variant: string; navOverride?: Section[]; children: ReactNode }) {
+  const items = navOverride ? NAV.filter((n) => navOverride.includes(n.key)) : NAV
   return (
     <div className={styles.shell}>
       <nav className={styles.nav}>
         <p className={styles.brand}>레이지클럽 관리<small>admin.lazy-club.com · {variant}안</small></p>
-        {NAV.map((n) => (
+        {items.map((n) => (
           <button key={n.key} className={`${styles.navItem} ${section === n.key ? styles.navOn : ""}`} onClick={() => onSection(n.key)}>
             {n.label}
           </button>

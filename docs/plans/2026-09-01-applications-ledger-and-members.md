@@ -221,7 +221,9 @@
 
 ### P4a. 카카오 + 구글
 
-1. **`profiles` 마이그레이션(다음 번호 = 0011 — 0006~0010 은 사용됨, 위 불변 원칙 5 참조)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
+> **진행: 1~3 완료 (2026-09-02, PR 준비) — 4~9 는 다음.** 스키마(0011 dev·prod 적용)·서버 세션 헬퍼·라우트 4종이 붙었다. 화면(진입점·마이페이지)과 user_id 스탬핑은 아직 없고, **운영자 설정 2건**(Supabase Redirect URLs · Vercel `SUPABASE_ANON_KEY`)이 있어야 실로그인이 가능하다. 설정 전까지는 `isAuthEnabled()` 가 false 라 `/api/auth/me` 가 `{enabled:false}` 로 답하고 로그인 입구를 그리지 않는다 — 배포해도 사이트 동작은 종전 그대로다.
+
+1. **`profiles` 마이그레이션 — ✔ 완료 (0011 `20260902120000_profiles.sql`, dev·prod 적용 2026-09-02. 다음 번호 = 0012)** — 테이블 + **`drop trigger if exists`/`create trigger` set_updated_at**(초안은 updated_at 을 선언만 하고 트리거를 안 걸어 값이 고정됐다) + **실행 가능한 SQL 로 RLS**(초안은 주석이라 **RLS 꺼진 채 이메일이 담길 뻔했다**) + `comment on`.
    컬럼: `user_id` PK→auth.users cascade · `display_name` · `email` · `phone`(자기 신고, **키가 아니다**) · `phone_verified_at` · `age_verified_at`(만 14세) · `marketing_consent_at`(R10) · 타임스탬프.
    같은 파일에 **`create index if not exists orders_user_id_idx on public.orders (user_id) where user_id is not null;`** — '내 주문' 조회용 인덱스가 없다.
    **identities 테이블 불필요** — `auth.identities` 가 담는다.
@@ -267,12 +269,12 @@
 | P2.5 | **시트 새로고침 → 메뉴 → 트리거 켜기** + 스크립트 속성 `SITE_URL`·토큰 / 후기는 범위 밖 확인 |
 | ~~P3~~ | ✔ 해소(2026-09-01) — R13 감사 로그는 **생략, 근거 정정**: 열람자는 2명이지만 `ADMIN_SECRET` 이 공유 단일 값이라 주체를 구분할 수 없다 → **사람별 식별(P4 소셜 로그인)이 선행**. DECISIONS 기록 |
 | P4-0 | 개발자 앱 등록 / 약관·방침 2차 개정 문구 / 만 14세 정책 / **공개 로그인 입구 노선 확인**(community-spec 과 충돌) |
-| P4a | 도메인별 세션 노선 확정 · 프리뷰 스크린샷 승인 |
+| P4a **(지금)** | ① **Supabase → Authentication → URL Configuration → Redirect URLs** 에 두 도메인 콜백 등록 ② **Vercel env `SUPABASE_ANON_KEY`**(Type=**Secret**) + 재배포 ③ 도메인별 세션 노선 확정 ④ 공개 로그인 입구 노선(community-spec 충돌) ⑤ 화면 프리뷰 승인 |
 | P5 | "시트 '진행 상태' 기입 중단" 선언 |
 
 ## 실행 시작
 
-**~~P0~~ → ~~P1~~ → ~~P2~~ → ~~P2.5(코드)~~ → ~~P3~~ → ~~P3b~~ → 🔜 P4a → (P4b) → P5**, 각 Phase 독립 PR.
+**~~P0~~ → ~~P1~~ → ~~P2~~ → ~~P2.5(코드)~~ → ~~P3~~ → ~~P3b~~ → ~~P3c~~ → 🔜 P4a(스키마·라우트 완료 / 화면 남음) → (P4b) → P5**, 각 Phase 독립 PR.
 ⚠ P2.5 는 **코드만 끝났고 운영자 설정(스크립트 속성 2개 + 트리거 켜기)이 남아** 아직 돌지 않는다 — 켜진 뒤 첫 스윕을 DB 에서 확인해야 닫힌다. 위 '불변 원칙' 11개는 전 구간 적용.
 
 ⚠ Supabase MCP 게이트는 **2026-09-01 승인·실사용으로 해소** — 다만 마이그레이션이 있는 Phase(P2.5 의 admin 라우트는 무관, P4a 의 0011)는 세션마다 연결 여부를 다시 확인하고 끊겨 있으면 운영자에게 알리고 대기(불변 원칙 4).

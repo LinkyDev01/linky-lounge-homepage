@@ -177,3 +177,34 @@ export function RecordPanel({ c, onClose }: { c: Customer; onClose: () => void }
     </>
   )
 }
+
+/** 기수 파이프라인 칸반 (CRM-4) — 열 = 단계, 카드 → 레코드 페이지. 읽기 전용: 정본은 시트 */
+export const STAGE_ORDER: Stage[] = ["received", "interview_booked", "interviewed", "accepted_unpaid", "paid", "attending", "hold", "rejected", "refunded"]
+export function Kanban({ customers, cohort }: { customers: Customer[]; cohort: string }) {
+  const cols = STAGE_ORDER.map((s) => ({ stage: s, list: customers.filter((c) => c.entries.find((e) => e.cohort === cohort)?.stage === s) }))
+    .filter((col) => col.list.length || !["hold", "refunded"].includes(col.stage))
+  return (
+    <div className={styles.board}>
+      {cols.map(({ stage, list }) => (
+        <div key={stage} className={styles.col}>
+          <div className={styles.colHead}><span>{STAGE_LABEL[stage]}</span><span className={styles.count}>{list.length}</span></div>
+          {list.map((c) => {
+            const e = c.entries.find((x) => x.cohort === cohort)!
+            return (
+              <a key={c.key} className={styles.kcard} href={`/admin/customers/${encodeURIComponent(c.key)}`}>
+                <div className={styles.kName}>{c.name ?? "(이름 없음)"}</div>
+                <div className={styles.kMeta}>
+                  {e.interview && <span>{e.interview === "phone" ? "전화" : "서면"}</span>}
+                  <span>{fmtDate(e.since)}~</span>
+                  {c.member && <span>회원</span>}
+                  {c.flags.length ? <span className={styles.kFlag}>손볼 것</span> : null}
+                </div>
+              </a>
+            )
+          })}
+          {!list.length && <div className={styles.colEmpty}>—</div>}
+        </div>
+      ))}
+    </div>
+  )
+}

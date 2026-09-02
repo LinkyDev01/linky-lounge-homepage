@@ -87,3 +87,19 @@ assert.ok(purged && purged.name === null && purged.phone === null, "파기행만
 assert.deepEqual(list.filter((c) => c.name).map((c) => c.name).slice(0, 5), ["문가은", "서연", "최민서", "오태양", "박지훈"])
 
 console.log("customers-test: ok —", list.length, "명,", list.map((c) => `${c.name ?? "(파기)"}:${c.entries[0]?.stage ?? "-"}`).join(" · "))
+
+// ── 오늘 할 일 파생 (CRM-4) ───────────────────────────────────────────
+const { deriveToday } = await import("../lib/admin-today.ts")
+const today = deriveToday(list, now)
+const kinds = (name) => today.filter((t) => t.name === name).map((t) => t.kind)
+assert.deepEqual(kinds("서연"), ["interview_today", "age_unverified"], "내일 전화 인터뷰 → 인터뷰 예정 (+ 회원이라 만 14세 미확인)")
+assert.ok(kinds("박지훈").includes("unpaid"), "시트 '미결제' → 합격 후 미결제")
+assert.deepEqual(kinds("오태양"), ["unsubmitted"])
+assert.deepEqual(kinds("문가은").sort(), ["dup", "gas_failed"])
+assert.equal(today.filter((t) => t.kind === "age_unverified").length, 3, "회원 3명(서연·최민서·로그인만) 전부 만 14세 미확인")
+// 인터뷰 완료 3일 경과 결과 미기록: 박지훈은 시트 값이 있어 제외. 한소희 같은 케이스를 합성
+const hs = { ...by["박지훈"], key: "01011112222", name: "한소희", entries: [{ cohort: "4기", stage: "interviewed", sheetProgress: null, interview: "phone", since: iso(now - 200 * H) }], lastInterviewAt: iso(now - 4 * 24 * H), flags: [], activities: [] }
+assert.deepEqual(deriveToday([hs], now).map((t) => t.kind), ["result_missing"], "인터뷰 4일 전, 시트 비어 있음 → 결과 미기록")
+const hs2 = { ...hs, lastInterviewAt: iso(now - 2 * 24 * H) }
+assert.deepEqual(deriveToday([hs2], now), [], "2일 전이면 아직 아님")
+console.log("today-test: ok —", today.map((t) => `${t.name}:${t.kind}`).join(" · "))

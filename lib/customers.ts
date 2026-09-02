@@ -52,8 +52,12 @@ export type Customer = {
   phone: string | null
   email: string | null
   member: boolean
+  /** 회원의 만 14세 확인 시각 유무 — 비회원은 null (해당 없음) */
+  ageVerified: boolean | null
   marketingConsent: boolean
   source: string | null
+  /** 가장 최근에 **끝난** 인터뷰(전화 예약 시각 지남·서면 제출) 시각 — 결과 미기록 감지용 */
+  lastInterviewAt: string | null
   entries: CohortEntry[]
   flags: ("gas_failed" | "unsubmitted" | "dup" | "purged")[]
   note: string | null
@@ -78,7 +82,7 @@ export type OrderRow = {
   approved_at: string | null; created_at: string; application_submitted_at: string | null; user_id: string | null
   order_items: { name_snapshot: string; quantity: number; kind: string }[] | null
 }
-export type ProfileRow = { user_id: string; display_name: string | null; email: string | null; phone: string | null; marketing_consent_at: string | null }
+export type ProfileRow = { user_id: string; display_name: string | null; email: string | null; phone: string | null; marketing_consent_at: string | null; age_verified_at?: string | null }
 
 const KIND_LABEL: Record<string, string> = {
   bookclub: "북클럽 신청", oneday: "원데이 토크 신청", coffeebar: "커피앤바 신청", notify: "다음 기수 알림 신청",
@@ -239,6 +243,8 @@ export function assemble(apps: AppRow[], orders: OrderRow[], profiles: ProfileRo
       key, name, phone,
       email: x.profile?.email ?? null,
       member: Boolean(x.profile),
+      ageVerified: x.profile ? Boolean(x.profile.age_verified_at) : null,
+      lastInterviewAt: acts.find((a) => a.type === "interview" && !a.upcoming)?.at ?? null,
       marketingConsent: Boolean(x.profile?.marketing_consent_at || live.some((a) => a.marketing_consent_at)),
       source: live.map((a) => a.traffic_src).find(Boolean) ?? null,
       entries: deriveEntries(live, x.orders),
@@ -265,7 +271,7 @@ export function assemble(apps: AppRow[], orders: OrderRow[], profiles: ProfileRo
 
 const APP_SELECT = "id, kind, name, phone, order_no, cohort, traffic_src, payload, payload_src, status, status_note, gas_body_lost, purged_at, submitted_at, triage, triage_note, marketing_consent_at, user_id, sheet_progress, sheet_interview_status, sheet_interview_type, sheet_synced_at"
 const ORDER_SELECT = "id, order_no, amount_total, status, orderer_name, orderer_phone, approved_at, created_at, application_submitted_at, user_id, order_items ( name_snapshot, quantity, kind )"
-const PROFILE_SELECT = "user_id, display_name, email, phone, marketing_consent_at"
+const PROFILE_SELECT = "user_id, display_name, email, phone, marketing_consent_at, age_verified_at"
 
 /** 고객 목록 — 최근 활동순. 분류로 뺀 접수(test·typo·dummy·duplicate)는 사람을 만들지 않는다 */
 export async function listCustomers(opts: { q?: string; limit?: number } = {}): Promise<{ ok: true; customers: Customer[] } | { ok: false; error: string }> {
@@ -285,6 +291,19 @@ export async function listCustomers(opts: { q?: string; limit?: number } = {}): 
   }
   if (opts.limit) customers = customers.slice(0, opts.limit)
   return { ok: true, customers }
+}
+
+/** 전원 상세(활동·주문·접수 포함) — 오늘 할 일 파생(lib/admin-today)이 쓴다. 서버 안에서만 부른다(응답으로 내보내지 않는다) */
+export async function listCustomersDetailed(): Promise<{ ok: true; customers: Customer[] } | { ok: false; error: string }> {
+  const sb = supabaseAdmin()
+  if (!sb) return { ok: false, error: "ledger disabled" }
+  const [a, o, p] = await Promise.all([
+    sb.from("applications").select(APP_SELECT).or("triage.is.null,triage.not.in.(test,typo,dummy,duplicate)").order("submitted_at", { ascending: false }).limit(2000),
+    sb.from("orders").select(ORDER_SELECT).order("created_at", { ascending: false }).limit(2000),
+    sb.from("profiles").select(PROFILE_SELECT).limit(2000),
+  ])
+  if (a.error || o.error || p.error) return { ok: false, error: a.error?.message ?? o.error?.message ?? p.error?.message ?? "query failed" }
+  return { ok: true, customers: assemble((a.data ?? []) as AppRow[], (o.data ?? []) as OrderRow[], (p.data ?? []) as ProfileRow[], true) }
 }
 
 /** 고객 상세 — key 는 정규화 전화 또는 `u:<user_id>` */

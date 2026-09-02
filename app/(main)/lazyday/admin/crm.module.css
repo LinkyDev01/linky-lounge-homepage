@@ -135,3 +135,19 @@
   .colM { border: 0; padding: 0; margin-top: 8px; }
   .table th:nth-child(n+4), .table td:nth-child(n+4) { display: none; }
 }
+
+/* ── 칸반 (CRM-4) — 열 = 단계, 카드 = 이름 + 속성, 열 상단 건수. 읽기 전용(정본은 시트) ── */
+.seg { display: flex; gap: 14px; color: var(--muted); }
+.segOn { color: var(--ink); border-bottom: 1px solid var(--ink); }
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(168px, 1fr); gap: 0 14px; overflow-x: auto; padding: 8px 0 16px; scroll-snap-type: x proximity; }
+.col { min-width: 0; scroll-snap-align: start; }
+.colHead { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--ink); }
+.count { color: var(--muted); }
+.kcard { display: block; width: 100%; padding: 9px 0; border-bottom: 1px solid var(--hair2); }
+.kcard:hover .kName { text-decoration: underline; text-underline-offset: 3px; }
+.kName { font-size: 14px; }
+.kMeta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 8px; }
+.kFlag { font-weight: 600; color: var(--ink); }
+.colEmpty { color: var(--muted); padding: 9px 0; }
+.todayGroup { margin: 12px 0 2px; color: var(--muted); font-size: 12px; }
+@media (max-width: 767px) { .board { grid-auto-columns: 78vw; scroll-snap-type: x mandatory; } }

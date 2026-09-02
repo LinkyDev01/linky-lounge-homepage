@@ -35,15 +35,17 @@ type ReviewCard = {
 }
 
 const photoCards: ReviewCard[] = [
-  // 2026-08-27 추가분 — 운영자 지시로 **맨 앞**(260827-01)과 **맨 뒤**(260827-02)에 나눠 배치.
-  // 규격은 종전과 동일(원본 JPG → 모달용 세로 1440px webp q82 + 카드용 가로 700px).
+  // 배열 순서 = **후기의 밀도 순**(운영자 2026-08-30 "정성껏 쓰고 사려깊은 후기를 앞으로").
+  // 앞머리 r9·r1·r3·r7 은 네 문항을 모두 채우고 인용·추천 이유까지 적은 글이고,
+  // 꼬리 r8·r10 은 문항당 한 줄이다 (운영자 지시로 260830-01 맨 앞 · 260830-02 맨 뒤 ·
+  // 260827-02 뒤로). 규격은 종전과 동일 — 모달용 세로 1440px webp q82 + 카드용 가로 700px.
   // ⚠ 순서를 바꿀 땐 레이지클럽 `WorkroomHome.tsx` 의 ARCHIVE_SLIDES 도 같이 —
   //   자동 연동이 아니라 같은 이미지를 쓰는 **수동 사본**이다.
   {
-    id: "r7",
-    photo: "/linky-lounge/book-club/reviews/review-07.webp",
-    photoCard: "/linky-lounge/book-club/reviews/review-07-card.webp",
-    caption: "2026. 8. 27의 기록",
+    id: "r9",
+    photo: "/linky-lounge/book-club/reviews/review-09.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-09-card.webp",
+    caption: "2026. 8. 30의 기록",
   },
   {
     id: "r1",
@@ -52,15 +54,21 @@ const photoCards: ReviewCard[] = [
     caption: "2026. 7. 15의 기록",
   },
   {
-    id: "r2",
-    photo: "/linky-lounge/book-club/reviews/review-02.webp",
-    photoCard: "/linky-lounge/book-club/reviews/review-02-card.webp",
-    caption: "2026. 7. 12의 기록",
-  },
-  {
     id: "r3",
     photo: "/linky-lounge/book-club/reviews/review-03.webp",
     photoCard: "/linky-lounge/book-club/reviews/review-03-card.webp",
+    caption: "2026. 7. 12의 기록",
+  },
+  {
+    id: "r7",
+    photo: "/linky-lounge/book-club/reviews/review-07.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-07-card.webp",
+    caption: "2026. 8. 27의 기록",
+  },
+  {
+    id: "r2",
+    photo: "/linky-lounge/book-club/reviews/review-02.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-02-card.webp",
     caption: "2026. 7. 12의 기록",
   },
   {
@@ -69,13 +77,6 @@ const photoCards: ReviewCard[] = [
     photoCard: "/linky-lounge/book-club/reviews/review-04-card.webp",
     caption: "2026. 7. 12의 기록",
   },
-  // 2026-08-09 추가분 (운영자 제공 원본 JPG → 세로 1440px webp q82, 기존 4장과 같은 규격)
-  {
-    id: "r5",
-    photo: "/linky-lounge/book-club/reviews/review-05.webp",
-    photoCard: "/linky-lounge/book-club/reviews/review-05-card.webp",
-    caption: "2026. 8. 9의 기록",
-  },
   {
     id: "r6",
     photo: "/linky-lounge/book-club/reviews/review-06.webp",
@@ -83,10 +84,22 @@ const photoCards: ReviewCard[] = [
     caption: "2026. 8. 9의 기록",
   },
   {
+    id: "r5",
+    photo: "/linky-lounge/book-club/reviews/review-05.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-05-card.webp",
+    caption: "2026. 8. 9의 기록",
+  },
+  {
     id: "r8",
     photo: "/linky-lounge/book-club/reviews/review-08.webp",
     photoCard: "/linky-lounge/book-club/reviews/review-08-card.webp",
     caption: "2026. 8. 27의 기록",
+  },
+  {
+    id: "r10",
+    photo: "/linky-lounge/book-club/reviews/review-10.webp",
+    photoCard: "/linky-lounge/book-club/reviews/review-10-card.webp",
+    caption: "2026. 8. 30의 기록",
   },
 ]
 

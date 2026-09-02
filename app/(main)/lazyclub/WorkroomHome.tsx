@@ -93,26 +93,30 @@ export const PAST_SEASONS = [
   },
 ]
 
-/** 기록 = **멤버 후기 사진 6장** (운영자 2026-08-21 정정 — 직전엔 종료된 모임 포스터였으나
- *  "기록이미지에는 레이지데이 북클럽 랜딩페이지에 있는 후기 이미지 여섯 장으로 교체해").
+/** 기록 = **멤버 후기 사진 10장** (운영자 2026-08-21 정정 — 직전엔 종료된 모임 포스터였으나
+ *  "기록이미지에는 … 후기 이미지 여섯 장으로 교체해" — 이후 후기가 늘며 10장).
  *  실사이트 ReviewsSection(app/(main)/lazyday/ReviewsSection.tsx)의 photoCard(카드용
  *  700px 축소본)·caption 을 그대로 가져온다 — 새 이미지 생성·재생산 없음(단일 출처).
  *  caption 이 마침 "…의 기록"이라 이 섹션 이름과 자연히 맞아떨어진다.
  *  클릭 시 실사이트 후기 섹션(#reviews)으로 — 사진별 개별 목적지가 없어 공통 앵커 */
 // src = 캐러셀(카드용 700px 축소본) / photo = 모달 원본(세로 1440px) — 실사이트와 같은 배역
 const ARCHIVE_SLIDES = [
-  { key: "r7", title: "2026. 8. 27의 기록" },
-  { key: "r1", title: "2026. 7. 15의 기록" },
-  { key: "r2", title: "2026. 7. 12의 기록" },
-  { key: "r3", title: "2026. 7. 12의 기록" },
-  { key: "r4", title: "2026. 7. 12의 기록" },
-  { key: "r5", title: "2026. 8. 9의 기록" },
-  { key: "r6", title: "2026. 8. 9의 기록" },
-  { key: "r8", title: "2026. 8. 27의 기록" },
+  { key: "r9", num: "09", title: "2026. 8. 30의 기록" },
+  { key: "r1", num: "01", title: "2026. 7. 15의 기록" },
+  { key: "r3", num: "03", title: "2026. 7. 12의 기록" },
+  { key: "r7", num: "07", title: "2026. 8. 27의 기록" },
+  { key: "r2", num: "02", title: "2026. 7. 12의 기록" },
+  { key: "r4", num: "04", title: "2026. 7. 12의 기록" },
+  { key: "r6", num: "06", title: "2026. 8. 9의 기록" },
+  { key: "r5", num: "05", title: "2026. 8. 9의 기록" },
+  { key: "r8", num: "08", title: "2026. 8. 27의 기록" },
+  { key: "r10", num: "10", title: "2026. 8. 30의 기록" },
 ].map((r) => ({
   ...r,
-  src: `/linky-lounge/book-club/reviews/review-0${r.key.slice(1)}-card.webp`,
-  photo: `/linky-lounge/book-club/reviews/review-0${r.key.slice(1)}.webp`,
+  // ⚠ 파일번호는 key 에서 계산하지 않고 **명시한다** — 예전 `review-0${r.key.slice(1)}`
+  //   조립은 r10 부터 `review-010` 이 되어 깨졌다 (DECISIONS 2026-08-27 예고, 08-30 발동).
+  src: `/linky-lounge/book-club/reviews/review-${r.num}-card.webp`,
+  photo: `/linky-lounge/book-club/reviews/review-${r.num}.webp`,
 }))
 
 /** 기록(후기) 캐러셀 + 모달 — 홈 '기록' 섹션과 /archive(기록) 페이지가 공유

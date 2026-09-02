@@ -15,6 +15,7 @@ const LINKYLOUNGE_HOSTS = new Set([
 ])
 // 책클럽 정본 오리진·관리 호스트는 lib/site.ts 가 단일 출처 (2026-09-02)
 import { BOOKCLUB_ORIGIN, ADMIN_HOST, ADMIN_ORIGIN } from "@/lib/site"
+import { ADMIN_COOKIE, verifyAdminToken } from "@/lib/admin-session"
 
 /** 관리 경로 → 관리 트리 내부의 나머지 경로. `/admin/x` · `/lazyday/admin/x` → `/x`,
  *  인덱스(`/admin`)는 `""`. 관리 경로가 아니면 null (2026-09-02 관리 호스트 분리) */
@@ -99,7 +100,7 @@ function movedCheckout(pathname: string): string | null {
   return null
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]
   const { pathname } = req.nextUrl
 
@@ -270,10 +271,10 @@ export function middleware(req: NextRequest) {
 
   // 2) 관리자 인증 — 실제 경로(/lazyday/admin) 기준으로 검사
   if (effectivePath.startsWith("/lazyday/admin") && effectivePath !== "/lazyday/admin/login") {
-    const cookie = req.cookies.get("lazyday_admin")?.value
-    // 앞뒤 공백·줄바꿈 방어 — auth/blocks 라우트와 동일 규칙 (2026-07-29)
-    const secret = process.env.ADMIN_SECRET?.trim()
-    if (!secret || cookie !== secret) {
+    // 서명 토큰 검증 (lib/admin-session, 2026-09-02) — 옛 시크릿-원문 쿠키는 여기서 걸려 로그인으로 간다.
+    // 시크릿 미설정이면 verify 가 항상 null 이라 관리 트리는 닫힌 채다 (종전과 같은 안전 방향)
+    const claims = await verifyAdminToken(req.cookies.get(ADMIN_COOKIE)?.value)
+    if (!claims) {
       // 로그인 주소는 어느 호스트에서든 깔끔한 `/admin/login` (위 rewrite 가 받는다).
       // redirect 는 주소창 경로 그대로 — 관리 호스트에선 `/admin/...`, 프리뷰에선 `/lazyday/admin/...` 도 유효
       const loginUrl = req.nextUrl.clone()

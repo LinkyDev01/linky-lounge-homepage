@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { adminWho } from "@/lib/admin-session"
 import { cookies } from "next/headers"
 import { gasGetJson, gasPostJson } from "@/lib/gas"
 
@@ -7,10 +8,8 @@ const GAS_URL      = process.env.INTERVIEW_GAS_URL
 const ADMIN_SECRET = process.env.ADMIN_SECRET?.trim()
 const ADMIN_TOKEN  = ADMIN_SECRET // GAS 스크립트 속성 ADMIN_TOKEN과 같은 값이어야 함
 
-function isAuthorized(req: NextRequest) {
-  const cookie = req.cookies.get("lazyday_admin")?.value
-  return ADMIN_SECRET && cookie === ADMIN_SECRET
-}
+/** 관리자 게이트 — 서명 토큰 검증 (lib/admin-session). 옛 시크릿-원문 쿠키는 통과하지 못한다 */
+const isAuthorized = (req: NextRequest) => adminWho(req).then(Boolean)
 
 /** GAS GET URL 생성 — 토큰을 쿼리로 안전하게 실어 보낸다 (2026-07-29).
  *  구현: 문자열 접합(`?adminToken=`)은 ① 토큰에 &·#·+·공백 등이 있으면 값이 잘리고
@@ -23,7 +22,7 @@ function gasGetUrl(base: string, token: string) {
 
 // GET: 이벤트 목록 (ID 포함)
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
   // GAS가 간헐적으로 HTML 오류 페이지를 주므로 재시도 + 원인 노출 (lib/gas.ts)
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
 
 // POST: 차단 시간 추가
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
   const { start, end, title } = await req.json()
@@ -59,7 +58,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE: 이벤트 삭제
 export async function DELETE(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAuthorized(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   if (!GAS_URL) return NextResponse.json({ error: "GAS URL 미설정" }, { status: 500 })
 
   const { id } = await req.json()

@@ -4,12 +4,13 @@ import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { copyText } from "../../support"
 import { SUCCESS_PATH } from "@/lib/payments/config"
+import { BOOKCLUB_ORIGIN } from "@/lib/site"
 import styles from "./status.module.css"
 
 /**
  * 운영 상태 점검 페이지 (운영자 지시 2026-08-06 "오류사항 확인할 수 있는 페이지").
  * 과거 로그 저장소가 아니라, 열 때마다 신청·인터뷰 경로를 실제로 찔러
- * "지금 문제 있나"를 즉답한다. /lazyday/admin 과 같은 쿠키로 보호된다.
+ * "지금 문제 있나"를 즉답한다. /admin 과 같은 쿠키로 보호된다 (관리 호스트 admin.lazy-club.com).
  */
 
 type Check = { key: string; label: string; ok: boolean; detail: string; ms?: number; hint?: string }
@@ -39,7 +40,7 @@ export default function AdminStatusPage() {
     try {
       const res = await fetch("/api/lazyday/admin/health", { cache: "no-store" })
       if (res.status === 401) {
-        router.replace("/lazyday/admin/login")
+        router.replace("/admin/login")
         return
       }
       const data = await res.json()
@@ -76,10 +77,10 @@ export default function AdminStatusPage() {
             <button className={styles.refreshBtn} onClick={run} disabled={loading}>
               {loading ? "점검 중..." : "다시 점검"}
             </button>
-            <a className={styles.linkBtn} href="/lazyday/admin/simulate">
+            <a className={styles.linkBtn} href="/admin/simulate">
               신청 흐름 테스트
             </a>
-            <a className={styles.linkBtn} href="/lazyday/admin">
+            <a className={styles.linkBtn} href="/admin">
               차단 관리
             </a>
           </div>
@@ -141,7 +142,9 @@ export default function AdminStatusPage() {
                   <button
                     className={styles.rescueCopy}
                     onClick={async () => {
-                      const url = `${window.location.origin}${SUCCESS_PATH}?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
+                      // 손님에게 보내는 링크 — 관리 화면은 admin.lazy-club.com 에서 뜨므로
+                      // window.location.origin 을 쓰면 관리 주소가 새어 나가 손님 쪽에서 404 (2026-09-02)
+                      const url = `${BOOKCLUB_ORIGIN}${SUCCESS_PATH}?orderId=${encodeURIComponent(o.orderNo)}&reentry=1`
                       if (await copyText(url)) {
                         setCopiedNo(o.orderNo)
                         setTimeout(() => setCopiedNo(""), 2000)

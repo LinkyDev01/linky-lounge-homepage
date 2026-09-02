@@ -3,6 +3,7 @@
 import { useState, type FormEvent, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import styles from "./login.module.css"
+import { safeNext } from "@/app/api/auth/_next"
 
 function LoginForm() {
   const [password, setPassword] = useState("")
@@ -22,8 +23,9 @@ function LoginForm() {
     })
     const data = await res.json()
     if (data.success) {
-      const redirect = searchParams.get("redirect") || "/lazyday/admin"
-      router.replace(redirect)
+      // 같은 오리진 경로만 — 로그인 링크는 누구나 만들어 보낼 수 있다 (open redirect 차단, 2026-09-02)
+      const redirect = safeNext(searchParams.get("redirect") || "/admin")
+      router.replace(redirect === "/" ? "/admin" : redirect)
     } else {
       setError(data.error || "오류가 발생했습니다.")
       setLoading(false)

@@ -13,7 +13,18 @@ const LINKYLOUNGE_HOSTS = new Set([
   "linkylounge.com",
   "www.linkylounge.com",
 ])
-const BOOKCLUB_ORIGIN = "https://www.lazyday-bookclub.com" // 책클럽 정본(현 Vercel primary)
+// 책클럽 정본 오리진·관리 호스트는 lib/site.ts 가 단일 출처 (2026-09-02)
+import { BOOKCLUB_ORIGIN, ADMIN_HOST, ADMIN_ORIGIN } from "@/lib/site"
+
+/** 관리 경로 → 관리 트리 내부의 나머지 경로. `/admin/x` · `/lazyday/admin/x` → `/x`,
+ *  인덱스(`/admin`)는 `""`. 관리 경로가 아니면 null (2026-09-02 관리 호스트 분리) */
+function adminRest(p: string): string | null {
+  for (const prefix of ["/lazyday/admin", "/admin"]) {
+    if (p === prefix) return ""
+    if (p.startsWith(prefix + "/")) return p.slice(prefix.length)
+  }
+  return null
+}
 
 // 레이지 클럽 신규 도메인 (운영자 2026-08-06 구입) — coming soon 단계:
 // 모든 페이지 요청을 coming soon 페이지로 rewrite (자산·API는 matcher/분기에서 제외)
@@ -91,6 +102,35 @@ function movedCheckout(pathname: string): string | null {
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0]
   const { pathname } = req.nextUrl
+
+  // ── 관리 호스트 분리 (운영자 2026-09-02 "관리자페이지가 같은 도메인에 슬러그로 있다는 사실이 걸려") ──
+  //   관리 화면은 admin.lazy-club.com 에서만 `/admin/*` 로 열린다 (내부 트리는 종전대로 /lazyday/admin/*).
+  //   A) 손님 도메인 3종의 `/admin*`·`/lazyday/admin*` 은 관리 호스트로 **307** — 301 이 아닌 이유:
+  //      운영자 전용 트래픽이라 SEO 가치가 없고, 되돌릴 때 두 운영자 브라우저에 영구 캐시가 남지 않게.
+  //      linkylounge→북클럽→관리 2단 체인도 여기서 1홉으로 끝난다(아래 컷오버 블록보다 앞).
+  //   B) 관리 호스트는 관리 트리 말고 아무것도 열지 않는다 — 손님 사이트의 별칭이 되면 안 된다.
+  //   ⚠ `/api/*` 는 matcher 밖이라 이 분기와 무관 — 관리 API 는 쿠키/토큰으로 자기 인증하고,
+  //     GAS 보정 스윕이 부르는 SITE_URL(북클럽) 도 그대로다.
+  //   프리뷰(vercel.app)·localhost 는 어느 집합에도 없어 `/admin/*`·`/lazyday/admin/*` 둘 다 열린다(가드는 동일).
+  const adminPath = adminRest(pathname)
+  const isCustomerHost = BOOKCLUB_HOSTS.has(host) || LINKYLOUNGE_HOSTS.has(host) || LAZYCLUB_HOSTS.has(host)
+  if (isCustomerHost && adminPath !== null) {
+    return NextResponse.redirect(new URL(`/admin${adminPath}${req.nextUrl.search}`, ADMIN_ORIGIN), 307)
+  }
+  if (host === ADMIN_HOST) {
+    if (pathname === "/") {
+      const to = req.nextUrl.clone()
+      to.pathname = "/admin"
+      return NextResponse.redirect(to, 307)
+    }
+    if (adminPath === null) return new NextResponse(null, { status: 404 })
+    if (pathname.startsWith("/lazyday/admin")) {
+      // 내부 프리픽스를 손으로 친 경우 → 정본 주소로
+      const to = req.nextUrl.clone()
+      to.pathname = `/admin${adminPath}`
+      return NextResponse.redirect(to, 308)
+    }
+  }
 
   // 컷오버: linkylounge.com/lazyday/* → 새 도메인으로 301 (책클럽만 이관, /lazyday 밖은 그대로)
   if (LINKYLOUNGE_HOSTS.has(host) && (pathname === "/lazyday" || pathname.startsWith("/lazyday/"))) {
@@ -221,6 +261,11 @@ export function middleware(req: NextRequest) {
     rewriteUrl = req.nextUrl.clone()
     rewriteUrl.pathname = pathname === "/" ? "/lazyday" : `/lazyday${pathname}`
     effectivePath = rewriteUrl.pathname
+  } else if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    // 관리 호스트·프리뷰·localhost 의 깔끔한 관리 경로 → 내부 트리 (손님 호스트는 위에서 이미 307)
+    rewriteUrl = req.nextUrl.clone()
+    rewriteUrl.pathname = `/lazyday${pathname}`
+    effectivePath = rewriteUrl.pathname
   }
 
   // 2) 관리자 인증 — 실제 경로(/lazyday/admin) 기준으로 검사
@@ -229,9 +274,11 @@ export function middleware(req: NextRequest) {
     // 앞뒤 공백·줄바꿈 방어 — auth/blocks 라우트와 동일 규칙 (2026-07-29)
     const secret = process.env.ADMIN_SECRET?.trim()
     if (!secret || cookie !== secret) {
+      // 로그인 주소는 어느 호스트에서든 깔끔한 `/admin/login` (위 rewrite 가 받는다).
+      // redirect 는 주소창 경로 그대로 — 관리 호스트에선 `/admin/...`, 프리뷰에선 `/lazyday/admin/...` 도 유효
       const loginUrl = req.nextUrl.clone()
-      loginUrl.pathname = isBookclub ? "/admin/login" : "/lazyday/admin/login"
-      loginUrl.searchParams.set("redirect", isBookclub ? pathname : effectivePath)
+      loginUrl.pathname = "/admin/login"
+      loginUrl.searchParams.set("redirect", pathname)
       return NextResponse.redirect(loginUrl)
     }
   }

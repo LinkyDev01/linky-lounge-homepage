@@ -2,13 +2,17 @@
 
 import Link from "next/link"
 import { SIM_LABEL, type SimMode } from "../../sim"
+import { BOOKCLUB_ORIGIN } from "@/lib/site"
 import styles from "./simulate.module.css"
 
 /**
  * 신청·인터뷰 흐름 체험 테스트 (운영자 지시 2026-08-06).
  * 실제 신청자와 똑같은 화면을 그대로 밟으면서 성공/실패 케이스를 눈으로 확인한다.
  * 이 메뉴로 들어간 화면은 서버를 호출하지 않아 시트·캘린더·알림톡에 아무것도 남지 않는다.
- * (경로가 /lazyday/admin/* 이라 미들웨어의 관리자 로그인 보호를 그대로 받는다)
+ * (경로가 /admin/* 이라 미들웨어의 관리자 로그인 보호를 그대로 받는다)
+ * 2026-09-02 관리 호스트 분리: 신청 화면은 관리 호스트(admin.lazy-club.com)에 없으므로
+ * 진입 링크는 북클럽 도메인 절대 URL 이다 — 프리뷰 빌드의 sim 검증은 그 프리뷰 호스트에서
+ * `/apply?sim=ok` 처럼 직접 입력한다.
  */
 
 type Step = {
@@ -24,7 +28,7 @@ const STEPS: Step[] = [
     key: "apply",
     title: "1단계 · 북클럽 신청",
     desc: "인적사항 입력 → 제출 → 완료 화면(인터뷰로 넘어가는 버튼)",
-    href: "/lazyday/apply",
+    href: `${BOOKCLUB_ORIGIN}/apply`,
     cases: [
       { mode: "ok", expect: "제출 성공 → '신청해주셔서 감사합니다' 완료 화면" },
       { mode: "fail", expect: "제출 실패 안내가 뜨고 입력값이 그대로 남는지" },
@@ -35,7 +39,7 @@ const STEPS: Step[] = [
     key: "written",
     title: "2단계 · 서면 인터뷰",
     desc: "6개 문항 작성 → 제출. 실패 시 작성 내용 복사·문의 링크 확인",
-    href: "/lazyday/apply/interview/written",
+    href: `${BOOKCLUB_ORIGIN}/apply/interview/written`,
     cases: [
       { mode: "ok", expect: "제출 성공 → 완료 화면" },
       { mode: "fail", expect: "실패 배너 + '작성 내용 전체 복사' + 카카오 문의 링크" },
@@ -46,7 +50,7 @@ const STEPS: Step[] = [
     key: "schedule",
     title: "2단계 · 전화 인터뷰 예약",
     desc: "날짜·시간 선택 → 예약. 슬롯이 없거나 조회가 실패하는 경우까지",
-    href: "/lazyday/apply/interview/schedule",
+    href: `${BOOKCLUB_ORIGIN}/apply/interview/schedule`,
     cases: [
       { mode: "ok", expect: "예약 성공 → 예약 완료 화면" },
       { mode: "fail", expect: "예약 실패 안내 + 카카오 문의 링크" },
@@ -67,7 +71,7 @@ export default function SimulatePage() {
               실제 신청자와 <strong>똑같은 화면</strong>을 그대로 밟으면서 성공·실패 상황을 확인합니다.
             </p>
           </div>
-          <Link href="/lazyday/admin/status" className={styles.navLink}>상태 점검</Link>
+          <Link href="/admin/status" className={styles.navLink}>상태 점검</Link>
         </header>
 
         <p className={styles.notice}>
@@ -93,7 +97,7 @@ export default function SimulatePage() {
         ))}
 
         <p className={styles.foot}>
-          실제 접수까지 확인하려면 테스트 모드 없이 <a href="/lazyday/apply">신청 페이지</a>에서 진행하시면 됩니다.
+          실제 접수까지 확인하려면 테스트 모드 없이 <a href={`${BOOKCLUB_ORIGIN}/apply`}>신청 페이지</a>에서 진행하시면 됩니다.
           (이 경우 시트·캘린더에 실제로 기록됩니다)
         </p>
       </div>

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { headers } from "next/headers"
+import { ADMIN_HOST } from "@/lib/site"
 
 /**
  * robots.txt — 세 도메인(링키라운지·레이지데이 북클럽·레이지클럽)이 한 앱을
@@ -9,6 +10,8 @@ import { headers } from "next/headers"
  */
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const host = ((await headers()).get("host") || "").toLowerCase()
+  // 관리 호스트는 통째로 색인 제외 — 손님 사이트가 아니다 (2026-09-02 admin.lazy-club.com 분리)
+  if (host === ADMIN_HOST) return { rules: { userAgent: "*", disallow: "/" } }
   const isBookclub = host.includes("lazyday-bookclub.com")
   const base = isBookclub
     ? "https://www.lazyday-bookclub.com"

@@ -28,7 +28,7 @@ export function SimBanner({ mode }: { mode: SimMode | null }) {
       <strong style={{ color: "#ffc590" }}>테스트 모드 · {SIM_LABEL[mode]}</strong>
       {" — 실제로 저장·발송되지 않습니다."}{" "}
       <a
-        href="/lazyday/admin/simulate"
+        href="/admin/simulate"
         style={{ color: "#f0ebe5", textDecoration: "underline", textUnderlineOffset: 3 }}
       >
         테스트 메뉴로

@@ -116,7 +116,7 @@ export default function AdminApplicationsPage() {
       if (triaged) sp.set("triaged", "1")
       if (offset) sp.set("offset", String(offset))
       const res = await fetch(`/api/lazyday/admin/applications?${sp}`, { cache: "no-store" })
-      if (res.status === 401) { router.replace("/lazyday/admin/login"); return }
+      if (res.status === 401) { router.replace("/admin/login"); return }
       const data = await res.json()
       if (data.error) setFailed(data.error)
       setEnabled(data.enabled !== false)
@@ -174,7 +174,7 @@ export default function AdminApplicationsPage() {
     <main className={styles.page}>
       <div className={styles.inner}>
         <div className={styles.head}>
-          <a href="/lazyday/admin" className={styles.back}>← 관리</a>
+          <a href="/admin" className={styles.back}>← 관리</a>
           <h1 className={styles.title}>접수 원장</h1>
           <p className={styles.origin}>
             <strong>진행 상태</strong>(미진행·결제완료·탈락…)의 정본은 <strong>구글 시트</strong>예요 — 여기서 고치지 않습니다.

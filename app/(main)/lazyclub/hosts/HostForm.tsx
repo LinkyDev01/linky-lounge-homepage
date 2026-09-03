@@ -32,7 +32,7 @@ import {
 import { TurtleLoader } from "../TurtleLoader"
 import h from "./hosts.module.css"
 
-const FORMATS = ["원데이 토크", "4주 과정", "기수제", "아직 미정"] as const
+const FORMATS = ["원데이 토크", "4주 과정", "정기 모임", "아직 미정"] as const
 const DONE_KEY = "lzc-host-applied"
 
 function formatPhone(value: string) {
@@ -161,7 +161,7 @@ export function HostForm() {
       <section className={h.section} id="apply">
         <h2 className={h.sectionTitle}>모임 기획서</h2>
         <div className={h.done}>
-          <p>기획서가 잘 도착했습니다. 차례로 읽고, 협의 일정을 연락드리겠습니다.</p>
+          <p>기획서가 잘 도착했습니다. 차례로 읽고 연락드리겠습니다.</p>
           <p className={h.infoNote}>
             덧붙이고 싶은 이야기가 있다면{" "}
             <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer">
@@ -185,7 +185,7 @@ export function HostForm() {
       <h2 className={h.sectionTitle}>모임 기획서</h2>
       <p className={h.formIntro}>
         아래에 바로 써서 보낼 수 있습니다. 정해진 양식은 없고, 파일은 따로 받지 않습니다. 보여 주고
-        싶은 자료가 있다면 링크로 남겨 주시면 됩니다.
+        싶은 자료가 있다면 링크로 남겨 주세요.
       </p>
 
       <form onSubmit={handleSubmit} noValidate>
@@ -227,7 +227,7 @@ export function HostForm() {
             모임 한 줄<span className={h.required}>*</span>
           </label>
           <p className={h.fieldHint}>
-            제목이 정해졌다면 제목을, 아직이라면 함께 읽고 볼 작품의 이름이어도 좋습니다.
+            제목이어도, 함께 볼 책이나 영화의 이름이어도 좋습니다.
           </p>
           <input
             id="title"
@@ -267,8 +267,8 @@ export function HostForm() {
             기획<span className={h.required}>*</span>
           </label>
           <p className={h.fieldHint}>
-            길이도 형식도 자유입니다. 무엇을 함께 읽고 볼지, 한 회를 어떻게 열지, 왜 이 모임을 열고
-            싶은지가 읽히면 이야기가 한결 빨라집니다.
+            길이도 형식도 자유입니다. 무엇을 함께 보고 이야기 나눌지, 한 회를 어떻게 진행할지, 왜 이
+            모임을 열고 싶은지가 담겨 있으면 이야기가 빨라집니다.
           </p>
           <textarea
             id="plan"
@@ -283,7 +283,7 @@ export function HostForm() {
           <label htmlFor="intro" className={h.fieldLabel}>
             소개<span className={h.required}>*</span>
           </label>
-          <p className={h.fieldHint}>이력을 나열하기보다, 어떤 사람인지가 보이는 소개면 충분합니다.</p>
+          <p className={h.fieldHint}>어떤 사람인지 알 수 있는 소개면 충분합니다.</p>
           <textarea
             id="intro"
             name="intro"
@@ -296,8 +296,8 @@ export function HostForm() {
         <div className={h.field}>
           <label htmlFor="links" className={h.fieldLabel}>참고 링크</label>
           <p className={h.fieldHint}>
-            포트폴리오나 글, 인스타그램처럼 보여 주고 싶은 것이 있다면 주소를 남깁니다. 여러 개라면 줄을
-            바꿔 적습니다.
+            포트폴리오나 글, 인스타그램처럼 보여 주고 싶은 것이 있다면 주소를 남겨 주세요. 여러 개라면
+            줄을 바꿔 적습니다.
           </p>
           <textarea id="links" name="links" className={`${h.textarea} ${h.textareaShort}`} />
         </div>
@@ -309,7 +309,7 @@ export function HostForm() {
             name="availability"
             type="text"
             className={h.input}
-            placeholder="10월 이후 평일 저녁, 주말 오전처럼 적어 주시면 됩니다."
+            placeholder="10월 이후 평일 저녁, 주말 오전처럼 적어 주세요."
           />
         </div>
 

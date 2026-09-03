@@ -31,8 +31,15 @@ export async function GET(req: NextRequest) {
 
   const code = sp.get("code")
   if (!code || sp.get("error")) {
-    console.warn("[auth/callback] no code", sp.get("error"), sp.get("error_description"))
-    return back("failed", sp.get("error") ? "provider" : "nocode")
+    // Supabase 가 **공급자 단계**에서 실패하면 code 없이 `error=server_error&error_description=Unable to exchange
+    // external code…` 로 돌려보낸다 — 원인(invalid_client 등)은 Supabase auth 로그에만 있다. 손님이 동의 화면에서
+    // 취소한 것(access_denied)과 갈라 말해야 운영자가 Supabase 공급자 설정(Client Secret)을 의심할 수 있다
+    // (2026-09-03 카카오 — "거절했어요(동의 취소 등)" 한 마디에 "카카오 된다"로 읽혔다).
+    const err = sp.get("error")
+    const desc = sp.get("error_description") ?? ""
+    console.warn("[auth/callback] no code", err, sp.get("error_code"), desc)
+    const reason = !err ? "nocode" : err === "access_denied" ? "cancelled" : /exchange external code/i.test(desc) ? "providerconfig" : "provider"
+    return back("failed", reason)
   }
   const sb = await supabaseSession()
   if (!sb) return back("failed", authConfigProblem() ?? "disabled")

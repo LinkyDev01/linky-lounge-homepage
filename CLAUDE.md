@@ -4,7 +4,7 @@
 Next.js 16 App Router · CSS Modules · TypeScript · Vercel. **브랜드 위계: 레이지클럽이 상위, 북클럽은 그 안의 프로그램 하나**(운영자 2026-09-02) — 트래픽은 아직 북클럽이 크지만 회원·관리·인증 등 **장기 관리 단위의 이름·도메인·설명은 레이지클럽 기준**. 코드 트리 `app/(main)/lazyday/**` 가 북클럽 도메인의 본체인 것은 그대로다.
 linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교차만 주의).
 
-**세션 시작 시 반드시**: ① 이 문서 ② `docs/DECISIONS.md`(운영자 결정 로그). 보류 항목을 새 지시 없이 부활시키거나 확정 결정을 임의 번복하지 않는다.
+**세션 시작 시 반드시**: ① 이 문서 ② `docs/DECISIONS.md`(운영자 결정 로그). 북클럽 브랜드 철학·디자인 근거는 `docs/brand/lazyday/`(philosophy·design-system) — 이 문서와 충돌 시 이 문서 우선. 보류 항목을 새 지시 없이 부활시키거나 확정 결정을 임의 번복하지 않는다.
 
 **진행 중 계획**: `docs/handoff/2026-09-02-dashboard-to-next-session.md`(**세션 인수인계 — 먼저 읽는다**: 현재 상태·다음 할 일 순서·운영자 대기) · `docs/admin-crm/02-build-plan.md`(대시보드 PR 순서표) · `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다.
 
@@ -34,6 +34,8 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **단일 출처 컨피그**: `season-config.ts`(기수·기간·마감·가격·회차·장소 — **기수 전환은 이 파일만**) · `book-config.ts`(기수별 책 4권) · `philosophy-content.tsx`(확정 원고) · `preview/preview-config.ts`(파생) · `one-day-talk-01/oneday-shared.ts`(원데이 일정·가격·orderId 계약 — confirm 이 금액 재검증하므로 §4 데이터 지도 참조).
 
 ## 3. 디자인 시스템 (레이지데이)
+
+> 근거·실측값·전체 지도는 `docs/brand/lazyday/design-system.md`. 여기는 매 세션 지킬 압축 규칙만.
 
 **팔레트** — 이 색만. 새 색은 운영자 승인.
 

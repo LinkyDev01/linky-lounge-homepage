@@ -15,11 +15,15 @@
  *      `https://www.lazyday-bookclub.com`(결제 완료 화면이 이 도메인일 수 있다), 프리뷰 vercel.app
  *   ③ 같은 앱에 카카오톡 채널 `_gixaAX` 연결
  *
- * ⚠ 채널 ID 는 레이지클럽·북클럽 **공용 채널** 하나다(`_gixaAX`, Shell·LandingShell 이 같은 값).
- *   `_cuWDn` 은 링키라운지 채널 — 여기 쓰면 안 된다.
+ * ⚠ **채널이 셋이다 — 섞지 말 것** (운영자 2026-09-03 "레이지데이 북클럽 말고 레이지클럽은 이거야"):
+ *   · `_HjJxaX` = **레이지클럽** (이 파일이 쓰는 값. 채널 소개가 우리 브랜드 문장 그대로다)
+ *   · `_gixaAX` = 레이지데이 북클럽 (1:1 문의 창구 `KAKAO_CHAT_URL`·기수 알림·JsonLd 가 쓴다)
+ *   · `_cuWDn`  = 링키라운지 (공간 사이트)
+ *   이 버튼이 붙는 세 자리(레이지클럽 홈·레이지클럽 모임 신청 완료·결제 완료)는 전부
+ *   레이지클럽 브랜드 범위라 레이지클럽 채널을 쓴다.
  */
 
-export const KAKAO_CHANNEL_PUBLIC_ID = "_gixaAX"
+export const KAKAO_CHANNEL_PUBLIC_ID = "_HjJxaX"
 /** 채널 홈 — SDK 가 없을 때의 폴백. 이 페이지에도 카카오가 그리는 '채널 추가' 버튼이 있다 */
 export const KAKAO_CHANNEL_URL = `https://pf.kakao.com/${KAKAO_CHANNEL_PUBLIC_ID}`
 

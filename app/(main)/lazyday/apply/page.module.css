@@ -180,6 +180,19 @@
   letter-spacing: 0;
 }
 
+/* 토요일 오전 반 추가로 열이 3→4 (2026-09-03). 390px 에서 기본 패딩(8px 6px)이면 표가
+   카드 안폭(308px)을 8px 넘쳤다 — 실측 316px. 서식(글자 크기·괘선·정렬)은 그대로 두고
+   좌우 패딩과 빈 첫 열만 줄여 넣는다. 시간대(.schThTime)는 nowrap 이라 줄이 안 갈린다. */
+@media (max-width: 480px) {
+  .scheduleTable th,
+  .scheduleTable td {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+  .schThEmpty { width: 40px; }
+  .schTdLabel { padding-left: 2px; }
+}
+
 /* 진행 장소 — 일정과 동급 블록(.ruledBlock, 위에서 정의). 값 서식은
    preview/apply-info-designs 의 .ruledValue/.valueSubInk 원본과 diff 0.
    (멤버십 가격 행은 2026-08-25 전화 인터뷰 예약 페이지로 이관) */

@@ -6,7 +6,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 
 **세션 시작 시 반드시**: ① 이 문서 ② `docs/DECISIONS.md`(운영자 결정 로그). 북클럽 브랜드 철학·디자인 근거는 `docs/brand/lazyday/`(philosophy·design-system) — 이 문서와 충돌 시 이 문서 우선. 보류 항목을 새 지시 없이 부활시키거나 확정 결정을 임의 번복하지 않는다.
 
-**진행 중 계획**: `docs/handoff/2026-09-02-dashboard-to-next-session.md`(**세션 인수인계 — 먼저 읽는다**: 현재 상태·다음 할 일 순서·운영자 대기) · `docs/admin-crm/02-build-plan.md`(대시보드 PR 순서표) · `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다. · `docs/plans/2026-09-03-host-recruitment-page.md` — 모임장 모집(lazy-club.com `/hosts`) + 북클럽 원형 모임 페이지(`/meetings/lazyday-bookclub`) 기획 v3 — **레이지클럽은 모임장이 자기 모임을 직접 기획해 가져오고 협의로 확정하는 구조. 페이 미고지. 레퍼런스 참고 안 함**(운영자 2026-09-03). **운영자 결정 10건 대기(§9) — 확정 전 구현 금지**.
+**진행 중 계획**: `docs/handoff/2026-09-02-dashboard-to-next-session.md`(**세션 인수인계 — 먼저 읽는다**: 현재 상태·다음 할 일 순서·운영자 대기) · `docs/admin-crm/02-build-plan.md`(대시보드 PR 순서표) · `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다. · `docs/plans/2026-09-03-host-recruitment-page.md` — 모임장 모집(lazy-club.com `/hosts`) + 북클럽 원형 모임 페이지(`/meetings/lazyday-bookclub`) 기획 v3 — **레이지클럽은 모임장이 자기 모임을 직접 기획해 가져오고 협의로 확정하는 구조. 페이 미고지. 레퍼런스 참고 안 함**(운영자 2026-09-03). **안내 페이지+접수란 초안 구현됨** `app/(main)/lazyclub/hosts/`(noindex·진입 링크 없음, kind `host`·GAS `handleHost`). ⚠ 북클럽 철학 4축을 레이지클럽 철학으로 쓰지 않는다 — 근거는 브랜드 3문단과 §9. 병합 전 방침 개정 선행. 나머지 결정은 계획서 §9·§12.
 
 **브랜드·디자인·페이지 정의서**: `docs/brand/`(01 철학 · 02 디자인 시스템 · 03 페이지) — 새 화면·카피·페이지 작업 전에 읽는다. 규칙 정본은 여전히 이 문서·DECISIONS·docs/redesign 이고, 정의서는 그 '왜'를 묶은 것.
 
@@ -148,3 +148,13 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - 개편 범위에선 §3 대신 02(토큰)·03(레이아웃)·04(레퍼런스) 적용: 검증 뷰포트 390/768/1280 3종, 제로베이스 구현(기존 UI 문법 재사용 의무 없음), 장식 도형 0·블롭 금지, 정적 골격 승인 전 모션 금지, 신규 CSS 는 기존 .module.css import 금지. 철칙 5개·DECISIONS 기록은 그대로.
 - **라운드 처리 0 · 유채색 UI 0 · 보더 버튼 0 · 그림자 0**(운영자 2026-09-02 "라운드처리는 안할거고"). 상자 대신 괘선, 버튼 대신 텍스트 링크. **상태를 색으로만 말하지 않는다** — 채움 농도·질감(해칭)·글자 라벨로. 색각 이상·흑백에서 사라지지 않는 것이 UX 로도 낫다(선례: 관리 달력의 차단=잉크 채움 / 예약=사선 해칭 / 선택 중=테두리, 상태 점검의 '정상·확인 필요' 글자). ⚠ **문구가 색을 가리키면 안 된다**("주황 슬롯 클릭 시 삭제" 같은 안내는 재도색과 함께 고친다).
 - **로고 종결(추가 로고 작업 금지)**: 마스터 `public/assets/logo/lazyday_logo.svg` + `logo-mono-ink.svg`·`logo-mono-cream.svg`. 화면 노출=mono-ink / 색면 위=mono-cream / 파비콘·OG·개편 홈=원본 풀컬러. 리컬러·임의 색 교체 금지.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

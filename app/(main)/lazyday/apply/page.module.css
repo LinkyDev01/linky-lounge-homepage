@@ -874,6 +874,8 @@
   gap: 22px;
 }
 .stepPaneHidden { display: none; }
+/* 단계 전환·오류 안내의 스크롤 착지점 — 화면 맨 위에 딱 붙지 않게 숨구멍 (2026-09-03) */
+.stepAnchor { scroll-margin-top: 12px; }
 
 /* ── 캘린더 토글 — 감싸는 회색 괘선 제거 + 좌측 오렌지 라인 캘린더 아이콘 ── */
 .calFaqList { border-top: none; }

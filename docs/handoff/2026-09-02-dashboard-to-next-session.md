@@ -67,8 +67,8 @@ Supabase 커스텀 OAuth 공급자에 네이버 등록(authorize/token/userinfo)
 
 | 순서 | 어디서 | 무엇을 | 확인 방법 |
 |---|---|---|---|
-| 1 | Vercel env (Production·Preview) | **`SUPABASE_ANON_KEY` 를 진짜 값으로 재입력** — 지금 값은 대시보드 마스킹 표시값(`eyJhbGciOiJIUzI•••…`). Supabase → Project Settings → API Keys → Legacy anon key **'표시'** 후 전체 복사(`eyJ…` 로 시작해 `…xthTEc` 로 끝나는 한 줄, 공백 없이) → 저장 → **Redeploy**(서버 env 라 재배포로 충분). 구글 비밀은 17:53Z 에 이미 고쳐짐 | `curl https://admin.lazy-club.com/api/auth/me` → `{"enabled":true,…}` · 로그인 화면에 `reason=malformed` 문구가 더 안 뜸 |
-| 2 | Vercel env | `ADMIN_EMAILS`(두 분 이메일, 쉼표, Secret) → Redeploy | 소셜 로그인 성공 |
+| 1 | Vercel env (Production·Preview) | **`SUPABASE_ANON_KEY` 를 진짜 값으로 재입력** — 지금 값은 대시보드 마스킹 표시값(`eyJhbGciOiJIUzI•••…`). Supabase → Project Settings → API Keys → Legacy anon key **'표시'** 후 전체 복사(`eyJ…` 로 시작해 `…xthTEc` 로 끝나는 한 줄, 공백 없이) → **Type=Config**(공개키 — 값이 보여야 복붙 사고를 눈으로 잡는다) → 저장 → **Redeploy**(서버 env 라 재배포로 충분). 구글 비밀은 17:53Z 에 이미 고쳐짐 | `curl https://admin.lazy-club.com/api/auth/me` → `{"enabled":true,…}` · 로그인 화면에 `reason=malformed` 문구가 더 안 뜸 |
+| 2 | Vercel env | `ADMIN_EMAILS` — 쉼표로 여러 개(개수 제한 없음, 공백·대소문자 무관, 소셜 공급자가 주는 이메일과 같아야 함), Type=Config → Redeploy | 소셜 로그인 성공 |
 | 3 | Supabase → URL Configuration → Redirect URLs | ✔ 확인됨 — `auth.flow_state.referrer` 에 `https://admin.lazy-club.com/api/auth/callback` 이 검증된 값으로 찍혀 있다 | — |
 | 4 | `admin.lazy-club.com/admin/login` | 두 분 각각 카카오·구글로 로그인 성공 | — |
 | 5 | Vercel env | 4 뒤 `ADMIN_PASSWORD` 삭제 → Redeploy (가드 #586 병합됨 — 지워도 구멍 없음) | 비밀번호 폼 401 |

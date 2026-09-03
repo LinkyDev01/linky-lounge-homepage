@@ -1,7 +1,7 @@
 "use client"
 
 /**
- * 모임 기획서 접수란 (2026-09-03 초안).
+ * 모임 기획서 접수란 (2026-09-03 초안 · 2차: 가독성·문체).
  *
  * 서식은 레이지클럽 폼 문법(meetings/[slug]/apply/MeetingApplyForm) — 값은 hosts.module.css 에
  * 자체 선언(§9 미임포트). 여정 규율도 같다:
@@ -17,6 +17,8 @@
  *
  * payload 계약 (GAS handleHost 와 값 집합 일치): type:"host" / name / phone / title / format /
  *   plan / intro / links / availability / consentAt. 마케팅 동의는 받지 않는다(모임장 접수에 무관).
+ *
+ * ⚠ 안내문·힌트는 초안 — 운영자 교체 대상.
  */
 
 import { useEffect, useState } from "react"
@@ -30,7 +32,7 @@ import {
 import { TurtleLoader } from "../TurtleLoader"
 import h from "./hosts.module.css"
 
-const FORMATS = ["원데이 토크", "4주 과정", "기수제", "아직 정하지 않음"] as const
+const FORMATS = ["원데이 토크", "4주 과정", "기수제", "아직 미정"] as const
 const DONE_KEY = "lzc-host-applied"
 
 function formatPhone(value: string) {
@@ -71,10 +73,10 @@ export function HostForm() {
     const availability = v("availability")
 
     const next: Record<string, string> = {}
-    if (!name) next.name = "이름을 입력해 주세요."
-    if (!phone) next.phone = "연락처를 입력해 주세요."
+    if (!name) next.name = "이름을 적어 주세요."
+    if (!phone) next.phone = "연락처를 적어 주세요."
     if (!title) next.title = "모임을 한 줄로 적어 주세요."
-    if (!format) next.format = "형식을 골라 주세요."
+    if (!format) next.format = "형식을 하나 골라 주세요."
     if (!plan) next.plan = "기획을 적어 주세요."
     if (!intro) next.intro = "소개를 적어 주세요."
     if (!privacyConsent) next.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
@@ -139,8 +141,8 @@ export function HostForm() {
       setFailCopied(false)
       setErrors({
         _form: timedOut
-          ? "응답이 늦어 접수 여부를 확인하지 못했습니다. 입력하신 내용은 그대로 남아 있으니 잠시 후 한 번만 다시 제출해 주세요. 중복으로 접수되어도 저희가 정리합니다."
-          : "일시적인 오류로 기획서가 접수되지 않았습니다. 입력하신 내용은 그대로 남아 있으니 잠시 후 다시 눌러 주세요.",
+          ? "응답이 늦어져 접수 여부를 확인하지 못했습니다. 적으신 내용은 그대로 남아 있으니 잠시 뒤 한 번만 다시 보내 주세요. 두 번 접수되더라도 저희가 정리하겠습니다."
+          : "일시적인 문제로 기획서가 접수되지 않았습니다. 적으신 내용은 그대로 남아 있으니 잠시 뒤 다시 보내 주세요.",
       })
       reportClientError(timedOut ? "lzc_host_timeout" : "lzc_host_submit")
       return
@@ -157,15 +159,15 @@ export function HostForm() {
   if (done) {
     return (
       <section className={h.section} id="apply">
-        <span className={h.sectionLabel}>모임 기획서</span>
+        <h2 className={h.sectionTitle}>모임 기획서</h2>
         <div className={h.done}>
-          <p>기획서가 접수되었습니다. 순차 확인 후 협의 일정을 안내드립니다.</p>
+          <p>기획서가 잘 도착했습니다. 차례로 읽고, 협의 일정을 연락드리겠습니다.</p>
           <p className={h.infoNote}>
-            내용을 고치거나 덧붙일 것이 있으면{" "}
+            덧붙이고 싶은 이야기가 있다면{" "}
             <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer">
               카카오톡 채널
             </a>
-            로 알려 주세요.
+            로 보내 주셔도 좋습니다.
           </p>
         </div>
       </section>
@@ -180,13 +182,13 @@ export function HostForm() {
         </div>
       )}
 
-      <span className={h.sectionLabel}>모임 기획서</span>
-      <p className={h.sectionBody}>
-        아래에 직접 작성해 접수합니다. 형식은 자유이고, 파일은 받지 않습니다. 보여 줄 자료가 있으면
-        링크로 남겨 주시면 됩니다.
+      <h2 className={h.sectionTitle}>모임 기획서</h2>
+      <p className={h.formIntro}>
+        아래에 바로 써서 보낼 수 있습니다. 정해진 양식은 없고, 파일은 따로 받지 않습니다. 보여 주고
+        싶은 자료가 있다면 링크로 남겨 주시면 됩니다.
       </p>
 
-      <form onSubmit={handleSubmit} noValidate style={{ marginTop: 26 }}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className={h.field}>
           <label htmlFor="name" className={h.fieldLabel}>
             이름<span className={h.required}>*</span>
@@ -224,7 +226,9 @@ export function HostForm() {
           <label htmlFor="title" className={h.fieldLabel}>
             모임 한 줄<span className={h.required}>*</span>
           </label>
-          <p className={h.fieldHint}>제목이어도, 함께 읽고 볼 것의 이름이어도 좋습니다.</p>
+          <p className={h.fieldHint}>
+            제목이 정해졌다면 제목을, 아직이라면 함께 읽고 볼 작품의 이름이어도 좋습니다.
+          </p>
           <input
             id="title"
             name="title"
@@ -263,8 +267,8 @@ export function HostForm() {
             기획<span className={h.required}>*</span>
           </label>
           <p className={h.fieldHint}>
-            형식은 자유입니다. 무엇을 함께 읽고 보는지, 한 회를 어떻게 여는지, 왜 이 모임인지가
-            담겨 있으면 협의가 빨라집니다.
+            길이도 형식도 자유입니다. 무엇을 함께 읽고 볼지, 한 회를 어떻게 열지, 왜 이 모임을 열고
+            싶은지가 읽히면 이야기가 한결 빨라집니다.
           </p>
           <textarea
             id="plan"
@@ -279,7 +283,7 @@ export function HostForm() {
           <label htmlFor="intro" className={h.fieldLabel}>
             소개<span className={h.required}>*</span>
           </label>
-          <p className={h.fieldHint}>이력보다 결이 보이는 소개면 충분합니다.</p>
+          <p className={h.fieldHint}>이력을 나열하기보다, 어떤 사람인지가 보이는 소개면 충분합니다.</p>
           <textarea
             id="intro"
             name="intro"
@@ -291,8 +295,11 @@ export function HostForm() {
 
         <div className={h.field}>
           <label htmlFor="links" className={h.fieldLabel}>참고 링크</label>
-          <p className={h.fieldHint}>포트폴리오, 글, 인스타그램 등 주소. 여러 개면 줄을 바꿔 적습니다.</p>
-          <textarea id="links" name="links" className={h.textarea} style={{ minHeight: 60 }} />
+          <p className={h.fieldHint}>
+            포트폴리오나 글, 인스타그램처럼 보여 주고 싶은 것이 있다면 주소를 남깁니다. 여러 개라면 줄을
+            바꿔 적습니다.
+          </p>
+          <textarea id="links" name="links" className={`${h.textarea} ${h.textareaShort}`} />
         </div>
 
         <div className={h.field}>
@@ -302,7 +309,7 @@ export function HostForm() {
             name="availability"
             type="text"
             className={h.input}
-            placeholder="예: 10월 이후 평일 저녁, 주말 오전"
+            placeholder="10월 이후 평일 저녁, 주말 오전처럼 적어 주시면 됩니다."
           />
         </div>
 
@@ -341,7 +348,7 @@ export function HostForm() {
                   setFailCopied(await copyText(failedText))
                 }}
               >
-                {failCopied ? "복사됐습니다" : "기획서 내용 복사"}
+                {failCopied ? "복사했습니다" : "기획서 내용 복사"}
               </button>
               <a
                 href={KAKAO_CHAT_URL}
@@ -356,7 +363,7 @@ export function HostForm() {
         )}
 
         <button type="submit" className={h.actionBtn} disabled={loading}>
-          {loading ? "로딩 중" : "제출"}
+          {loading ? "로딩 중" : "보내기"}
         </button>
       </form>
     </section>

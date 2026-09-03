@@ -68,9 +68,10 @@ const KIND_LABEL: Record<string, string> = {
   interview_phone: "전화 인터뷰",
   interview_written: "서면 인터뷰",
   review: "후기",
+  host: "모임장 기획서",
 }
 
-const FILTERS = ["", "bookclub", "oneday", "coffeebar", "notify", "interview_phone", "interview_written"]
+const FILTERS = ["", "bookclub", "oneday", "coffeebar", "notify", "interview_phone", "interview_written", "host"]
 
 function fmtPhone(p: string | null) {
   if (!p) return null

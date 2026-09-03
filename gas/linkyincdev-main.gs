@@ -140,6 +140,7 @@ var WRITTEN_QUESTIONS = [
 var LAZYCLUB_SHEET_NAME = "레이지클럽 신청 관리";
 var LAZYCLUB_COFFEEBAR_SHEET = "커피앤바";
 var LAZYCLUB_ONEDAY_SHEET    = "원데이 토크";
+var LAZYCLUB_HOST_SHEET      = "모임장 기획서"; // lazyclub/hosts 접수란 (2026-09-03)
 
 function lazyclubSs() {
   var id = _PROPS.getProperty("LAZYCLUB_SHEET_ID") || "";
@@ -281,6 +282,7 @@ function doPost(e) {
     if (type === "notify")          return handleNotify(data);
     if (type === "coffeebar")       return handleCoffeeBar(data);
     if (type === "oneday")          return handleOnedayApply(data);
+    if (type === "host")            return handleHost(data);
     if (type === "" || type === "apply") return handleApply(data); // type 없음 = 신청 폼(기존 계약)
 
     // ⚠️ 예전엔 모르는 type이 전부 handleApply로 흘러들어, 오타나 구버전 GAS가 모르는
@@ -381,6 +383,61 @@ function handleCoffeeBar(d) {
           "희망 날짜와 시간대: " + (d.preferredWhen || "-") + "\n" +
           "자기소개: " + (d.intro || "-") + "\n\n" +
           "📄 스프레드시트('" + LAZYCLUB_COFFEEBAR_SHEET + "' 탭):\n" + lazyclubSheetUrl()
+  });
+
+  return jsonResponse({ success: true });
+}
+
+// ── 모임장 기획서 → 레이지클럽 파일 '모임장 기획서' 탭 (2026-09-03) ──
+// 프론트 lazyclub/hosts (payload: type:"host"/name/phone/title/format/plan/intro/links/
+// availability/consentAt/sid). 결제·기수 없음. 페이 관련 칸 없음(운영자: 미고지).
+// lib/applications.ts classifyApply 의 "host" 와 값 집합이 같아야 한다.
+function handleHost(d) {
+  if (!d.name || !d.phone || !d.title || !d.plan) {
+    return jsonResponse({ success: false, error: "필수 항목 누락" });
+  }
+  var sheet = lazyclubSheet(LAZYCLUB_HOST_SHEET);
+  ensureColumn(sheet, "이름");
+  ensureColumn(sheet, "전화번호");
+  ensureColumn(sheet, "모임 한 줄");
+  ensureColumn(sheet, "형식");
+  ensureColumn(sheet, "기획");
+  ensureColumn(sheet, "소개");
+  ensureColumn(sheet, "참고 링크");
+  ensureColumn(sheet, "가능한 시기");
+  ensureColumn(sheet, "동의 시각");
+  ensureColumn(sheet, SID_HEADER);
+  var col = colIndexMap(sheet);
+  var row = new Array(sheet.getLastColumn()).fill("");
+  row[col["신청일자"]]   = new Date();
+  row[col["이름"]]       = d.name || "";
+  row[col["전화번호"]]   = d.phone || "";
+  row[col["모임 한 줄"]] = d.title || "";
+  row[col["형식"]]       = d.format || "";
+  row[col["기획"]]       = d.plan || "";
+  row[col["소개"]]       = d.intro || "";
+  row[col["참고 링크"]]  = d.links || "";
+  row[col["가능한 시기"]] = d.availability || "";
+  row[col["동의 시각"]]  = d.consentAt ? new Date(d.consentAt) : "";
+  row[col[SID_HEADER]]   = d.sid || "";
+  prependRow(sheet, row);
+  if (d.consentAt && col["동의 시각"] != null) {
+    sheet.getRange(2, col["동의 시각"] + 1).setNumberFormat("yyyy-mm-dd hh:mm");
+  }
+
+  MailApp.sendEmail({
+    to: ADMIN_EMAIL,
+    subject: "[레이지클럽] 모임장 기획서 — " + (d.name || "?") + "님 · " + (d.title || ""),
+    body: "모임 기획서가 접수되었습니다. 협의 일정을 잡아 주세요.\n\n" +
+          "이름: " + (d.name || "-") + "\n" +
+          "연락처: " + (d.phone || "-") + "\n" +
+          "모임 한 줄: " + (d.title || "-") + "\n" +
+          "형식: " + (d.format || "-") + "\n" +
+          "가능한 시기: " + (d.availability || "-") + "\n" +
+          "참고 링크: " + (d.links || "-") + "\n\n" +
+          "[기획]\n" + (d.plan || "-") + "\n\n" +
+          "[소개]\n" + (d.intro || "-") + "\n\n" +
+          "📄 스프레드시트('" + LAZYCLUB_HOST_SHEET + "' 탭):\n" + lazyclubSheetUrl()
   });
 
   return jsonResponse({ success: true });

@@ -15,7 +15,7 @@ export const STAGE_LABEL: Record<Stage, string> = {
 }
 export const KIND_LABEL: Record<string, string> = {
   bookclub: "북클럽 신청", oneday: "원데이 토크", coffeebar: "커피앤바", notify: "기수 알림",
-  interview_phone: "전화 인터뷰", interview_written: "서면 인터뷰", review: "후기",
+  interview_phone: "전화 인터뷰", interview_written: "서면 인터뷰", review: "후기", host: "모임장 기획서",
 }
 const TYPE_LABEL: Record<Activity["type"], string> = { apply: "접수", interview: "인터뷰", order: "주문", note: "메모", system: "시스템", contact: "연락" }
 const SOURCE_LABEL: Record<string, string> = { profile: "인스타 프로필", ad_direct: "광고 직행", referral: "지인 소개" }

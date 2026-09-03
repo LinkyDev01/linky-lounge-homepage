@@ -30,6 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
       { url: `${b}/`, changeFrequency: "weekly", priority: 1 },
       { url: `${b}/one-day-talk-01/apply`, changeFrequency: "weekly", priority: 0.8 },
+      // 모임장 안내 + 기획서 접수 (운영자 승인 2026-09-03)
+      { url: `${b}/hosts`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${b}/policy`, changeFrequency: "yearly", priority: 0.2 },
       { url: `${b}/terms`, changeFrequency: "yearly", priority: 0.2 },
       { url: `${b}/privacy`, changeFrequency: "yearly", priority: 0.2 },

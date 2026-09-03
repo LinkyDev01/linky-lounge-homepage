@@ -49,7 +49,10 @@ function timeFootLines(): string[] {
       lines.push(`${names} 오전 ${slots[0]}`)
       lines.push(`${names} 오후 ${slots[1]}`)
     } else {
-      lines.push(`${names} 저녁 ${g.time}`)
+      // 단일 슬롯은 시작 시각으로 시간대를 정한다 — 토요일 10:30 이 '저녁'으로 찍히지 않게 (2026-09-03)
+      const hour = Number(g.time.split(":")[0])
+      const part = hour < 12 ? "오전" : hour < 17 ? "오후" : "저녁"
+      lines.push(`${names} ${part} ${g.time}`)
     }
   }
   return lines

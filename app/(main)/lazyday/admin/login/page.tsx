@@ -49,7 +49,9 @@ function LoginForm() {
     : reason === "verifier" ? "로그인 시작 쿠키가 없어요 — 뒤로 가기·새로고침으로 돌아오거나 다른 브라우저에서 이어 간 경우예요. 버튼을 다시 눌러 주세요."
     : reason === "flowstate" ? "로그인 코드가 만료됐거나 이미 사용됐어요 — 버튼을 다시 눌러 주세요."
     : reason === "network" ? "Supabase 인증 서버에 연결하지 못했어요 — 잠시 후 다시 시도해 주세요."
-    : reason === "provider" ? "소셜 서비스가 로그인을 거절했어요(동의 취소 등) — 다시 시도해 주세요."
+    : reason === "providerconfig" ? "Supabase 가 소셜 서비스에서 토큰을 받지 못했어요 — 대개 Supabase → Authentication → Providers 에 넣은 그 공급자의 Client ID/Client Secret 불일치예요(Supabase auth 로그에 invalid_client). 카카오는 '카카오 로그인 → 보안 → Client Secret' 코드(활성화 '사용함'), 구글은 Google Cloud 클라이언트의 보안 비밀을 다시 붙여넣어 주세요."
+    : reason === "cancelled" ? "소셜 서비스에서 로그인을 취소했어요 — 다시 시도해 주세요."
+    : reason === "provider" ? "소셜 서비스가 로그인을 거절했어요 — 다시 시도해 주세요."
     : reason === "nocode" ? "소셜 서비스에서 로그인 코드 없이 돌아왔어요 — 버튼을 다시 눌러 주세요."
     : reason === "start" ? "로그인을 시작하지 못했어요 — 잠시 후 다시 시도해 주세요."
     : `로그인 교환에 실패했어요${reason ? ` (사유 ${reason})` : ""}. Supabase 의 Redirect URLs 에 이 주소가 있는지 확인해 주세요 — https://admin.lazy-club.com/api/auth/callback`

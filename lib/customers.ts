@@ -98,7 +98,7 @@ export type ProfileRow = { user_id: string; display_name: string | null; email: 
 
 const KIND_LABEL: Record<string, string> = {
   bookclub: "북클럽 신청", oneday: "원데이 토크 신청", coffeebar: "커피앤바 신청", notify: "다음 기수 알림 신청",
-  interview_phone: "전화 인터뷰 예약", interview_written: "서면 인터뷰 제출", review: "후기",
+  interview_phone: "전화 인터뷰 예약", interview_written: "서면 인터뷰 제출", review: "후기", host: "모임장 기획서",
 }
 
 /** 시트 '진행 상태' → 단계. 시트 값 집합은 GAS PROGRESS_OPTIONS 와 같다 (미진행·미결제·결제완료·환불·탈락) */

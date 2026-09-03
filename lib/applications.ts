@@ -39,6 +39,8 @@ export type ApplicationKind =
   | "interview_phone"
   | "interview_written"
   | "review"
+  /** 모임장 기획서 (lazyclub/hosts, 2026-09-03) — 주문·기수 없음, 보유는 접수+1년 폴백 */
+  | "host"
 
 type Body = Record<string, unknown> | null | undefined
 
@@ -62,6 +64,7 @@ export function classifyApply(body: Body): ApplicationKind | null {
   if (type === "notify") return "notify"
   if (type === "coffeebar") return "coffeebar"
   if (type === "oneday") return "oneday"
+  if (type === "host") return "host"
   return null
 }
 

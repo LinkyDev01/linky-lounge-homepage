@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
+import { KakaoFollowButton } from "@/components/common/KakaoFollowButton"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { trackStandard } from "@/lib/meta-pixel"
 import { readTrafficSrc } from "@/lib/traffic-src"
@@ -249,6 +250,14 @@ function SuccessInner() {
         </FadeUp>
         <FadeUp delay={0.6}>
           <p className={`${applyStyles.successCloser} ${cal.doneCloser}`}>레이지데이 북클럽에서 곧 만나요.</p>
+        </FadeUp>
+        {/* 카카오톡 채널 간편 추가 (운영자 2026-09-03) — 결제까지 마친 직후, 가장 잘 눌리는 자리 */}
+        <FadeUp delay={0.75}>
+          <p className={styles.channelFollow}>
+            새 모임 소식은 카카오톡으로 받아보세요.
+            <br />
+            <KakaoFollowButton className={styles.channelFollowBtn} />
+          </p>
         </FadeUp>
       </div>
     </main>

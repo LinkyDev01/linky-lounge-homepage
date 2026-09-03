@@ -433,3 +433,21 @@
     font-size: 16px;
   }
 }
+
+/* ── 결제 완료 화면: 카카오톡 채널 간편 추가 (2026-09-03) — 어두운 완료 화면(#111009)의
+   본문색으로 한 줄. 버튼은 밑줄 텍스트만 — 그 화면의 둥근 보더 버튼(successSecondaryLink)은
+   북클럽 문법이라 여기선 쓰지 않는다 ── */
+.channelFollow { margin: 0; font-size: 13.5px; line-height: 1.8; color: #c8b8a8; }
+.channelFollow a { color: #f0ebe5; text-decoration: underline; text-underline-offset: 4px; }
+.channelFollowBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: #f0ebe5;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.channelFollowBtn:disabled { cursor: default; opacity: 0.6; }

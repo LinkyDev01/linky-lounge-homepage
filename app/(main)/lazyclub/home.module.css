@@ -1060,6 +1060,29 @@
   border-top: 1px solid var(--ink);
   margin-top: 65px;
 }
+/* ── 카카오톡 채널 간편 추가 — 홈 맨 끝 한 줄 (2026-09-03). 위 섹션들과 같은 1px 괘선,
+   버튼은 사이트 표준 밑줄 링크 한 벌(.page a:hover 와 같은 값) — §9 유채색 0·보더 버튼 0 ── */
+.channelFollow {
+  border-top: 1px solid var(--ink);
+  margin-top: 65px;
+  padding-top: 24px;
+  font-family: var(--suit);
+  font-size: 13.2px;
+  line-height: 1.5;
+}
+.channelFollow p { margin: 0; }
+.channelFollowBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+.channelFollowBtn:disabled { cursor: default; opacity: 0.6; }
 
 /* 기수 진열 /meetings 변형 — 데스크톱은 현재 기수만 (운영자 2026-08-21 정정: 홈은
    전 기수 종전대로, 이 규칙은 .shopCurrentOnly 안에서만). 지난 기수는 DOM 에 남겨
@@ -1253,6 +1276,7 @@
   .shopCurrentOnly .seasonPast { display: grid; }
   .calendarBlock { margin-top: 40px; padding-top: 20px; }
   .homeEndRule { margin-top: 45px; }
+  .channelFollow { margin-top: 45px; }
   .booksBottom { margin-top: 40px; }
   .recordsPage { margin-bottom: 45px; }
 

@@ -16,6 +16,7 @@ import { RecordsLightbox } from "./RecordsLightbox"
 import { ArrowIcon, BASE, BOOKCLUB_BOOK_URL, BOOKCLUB_URL, SaveIcon, StatusOverlay, useToast, WorkroomShell } from "./Shell"
 import { useSaved } from "./store"
 import styles from "./home.module.css"
+import { KakaoFollowButton } from "@/components/common/KakaoFollowButton"
 
 type NavLang = "ko" | "en"
 
@@ -580,6 +581,14 @@ function HomeContent() {
         <RecordsCarousel />
       </section>
       )}
+
+      {/* 카카오톡 채널 간편 추가 (운영자 2026-09-03) — 홈을 끝까지 본 사람에게 한 줄.
+          §9 텍스트 링크만 — 카카오 노란 버튼은 쓰지 않는다 (KakaoFollowButton 주석) */}
+      <section className={styles.channelFollow}>
+        <p>
+          새 모임 소식을 카카오톡으로 받아보세요. <KakaoFollowButton className={styles.channelFollowBtn} />
+        </p>
+      </section>
 
       {/* 전체보기 최하단 마감 괘선 (운영자 2026-08-21) — 아카이브 아래가 진짜 끝 */}
       <div className={styles.homeEndRule} aria-hidden="true" />

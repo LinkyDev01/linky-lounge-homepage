@@ -32,6 +32,7 @@ import {
 } from "@/app/(main)/lazyday/support"
 import { CHECKOUT_PATH } from "@/lib/payments/config"
 import { stashOrderer } from "@/lib/payments/orderer"
+import { KakaoFollowButton } from "@/components/common/KakaoFollowButton"
 import { TurtleLoader } from "../../../TurtleLoader"
 import styles from "../../../home.module.css"
 import form from "./meeting-apply.module.css"
@@ -304,6 +305,10 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
             카카오톡 채널
           </a>
           로 알려주세요.
+        </p>
+        {/* 카카오톡 채널 간편 추가 (운영자 2026-09-03) — 참여를 결정한 직후가 가장 잘 눌린다 */}
+        <p className={form.infoNote}>
+          새 모임 소식은 카카오톡으로 받아보세요. <KakaoFollowButton className={form.linkBtn} />
         </p>
       </div>
     )

@@ -18,7 +18,7 @@
  * payload 계약 (GAS handleHost 와 값 집합 일치): type:"host" / name / phone / title / format /
  *   plan / intro / links / availability / consentAt. 마케팅 동의는 받지 않는다(모임장 접수에 무관).
  *
- * ⚠ 안내문·힌트는 초안 — 운영자 교체 대상.
+ * ⚠ 안내문·힌트는 초안 — 운영자 교체 대상. 4차(2026-09-03): 책·영화 언급 제거, 문장 호흡을 원고에 맞춤.
  */
 
 import { useEffect, useState } from "react"
@@ -161,7 +161,7 @@ export function HostForm() {
       <section className={h.section} id="apply">
         <h2 className={h.sectionTitle}>모임 기획서</h2>
         <div className={h.done}>
-          <p>기획서가 잘 도착했습니다. 차례로 읽고 연락드리겠습니다.</p>
+          <p>기획서가 잘 도착했습니다. 차례로 읽어 보고 연락드리겠습니다.</p>
           <p className={h.infoNote}>
             덧붙이고 싶은 이야기가 있다면{" "}
             <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer">
@@ -184,7 +184,7 @@ export function HostForm() {
 
       <h2 className={h.sectionTitle}>모임 기획서</h2>
       <p className={h.formIntro}>
-        아래에 바로 써서 보낼 수 있습니다. 정해진 양식은 없고, 파일은 따로 받지 않습니다. 보여 주고
+        아래에 바로 작성해 보내실 수 있습니다. 정해진 양식은 없고 파일은 따로 받지 않으니, 보여 주고
         싶은 자료가 있다면 링크로 남겨 주세요.
       </p>
 
@@ -227,7 +227,7 @@ export function HostForm() {
             모임 한 줄<span className={h.required}>*</span>
           </label>
           <p className={h.fieldHint}>
-            제목이어도, 함께 볼 책이나 영화의 이름이어도 좋습니다.
+            제목이어도 좋고, 아직 제목이 없다면 모임을 떠올리게 하는 한 줄이어도 좋습니다.
           </p>
           <input
             id="title"
@@ -267,8 +267,8 @@ export function HostForm() {
             기획<span className={h.required}>*</span>
           </label>
           <p className={h.fieldHint}>
-            길이도 형식도 자유입니다. 무엇을 함께 보고 이야기 나눌지, 한 회를 어떻게 진행할지, 왜 이
-            모임을 열고 싶은지가 담겨 있으면 이야기가 빨라집니다.
+            길이도 형식도 자유롭게 적어 주세요. 어떤 이야기를 나누고 싶은지, 한 번의 모임을 어떻게
+            이끌어 가고 싶은지, 그리고 왜 이 모임을 열고 싶은지가 담겨 있다면 이야기가 한결 수월해집니다.
           </p>
           <textarea
             id="plan"
@@ -283,7 +283,7 @@ export function HostForm() {
           <label htmlFor="intro" className={h.fieldLabel}>
             소개<span className={h.required}>*</span>
           </label>
-          <p className={h.fieldHint}>어떤 사람인지 알 수 있는 소개면 충분합니다.</p>
+          <p className={h.fieldHint}>어떤 분인지 알 수 있는 소개면 충분합니다. 이력을 나열하지 않으셔도 괜찮습니다.</p>
           <textarea
             id="intro"
             name="intro"
@@ -297,7 +297,7 @@ export function HostForm() {
           <label htmlFor="links" className={h.fieldLabel}>참고 링크</label>
           <p className={h.fieldHint}>
             포트폴리오나 글, 인스타그램처럼 보여 주고 싶은 것이 있다면 주소를 남겨 주세요. 여러 개라면
-            줄을 바꿔 적습니다.
+            줄을 바꿔 적어 주시면 됩니다.
           </p>
           <textarea id="links" name="links" className={`${h.textarea} ${h.textareaShort}`} />
         </div>

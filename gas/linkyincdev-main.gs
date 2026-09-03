@@ -78,16 +78,19 @@ var KAKAO_TEMPLATE_PHONE   = "KA01TP260508044527472ApL7vKEq4ZE"; // 전화 인�
 var KAKAO_TEMPLATE_WRITTEN = "KA01TP260508044618959Levf57dcz2q"; // 서면 인터뷰 제출 완료
 var KAKAO_TEMPLATE_REMIND  = "KA01TP260622024010341GGWbJcYzjak"; // 전화 인터뷰 당일 리마인더
 
-// ── 레이지클럽 모임 신청 완료 알림톡 (2026-08-31, 운영자 지급) ──────────────
+// ── 레이지클럽 모임 결제 완료 알림톡 (2026-08-31 지급 · 2026-09-03 검수 승인 완료) ──
 // ⚠ **채널이 북클럽과 다르다.** 위 KAKAO_PFID 는 북클럽 채널이고, 레이지클럽은 별도
 //   채널을 쓴다 — 그래서 sendKakaoAlimtalk 에 pfId 를 넘기는 인자를 뒀다(4번째).
 //   채널을 안 갈아끼우면 "템플릿이 이 발신프로필에 없다"로 조용히 실패한다.
-// ⚠ **아직 승인 전이다** (운영자 2026-08-31 "아직 승인은 안 났는데 미리 반영할게").
-//   승인 전에는 Solapi 가 에러를 돌려주고 발송이 실패하는데, 아래 호출부는 **SMS 폴백을
-//   붙이지 않으므로** 손님에게 아무것도 안 나간다(승인 전 오발송 방지). 접수·시트·메일은
-//   종전대로 진행된다. 승인이 나면 코드 변경 없이 그대로 발송된다.
+// **발송 시점 = 결제 완료** (운영자 2026-09-03 "결제완료되면 반영되어야 해"). 본문이
+//   "신청 및 결제 확인되었습니다"라서 신청 폼 제출 시점(결제 전)에 보내면 거짓 안내가 된다.
+//   그래서 handleOnedayApply 가 아니라 **handlePaidNotify**(type:"paid") 가 보낸다 —
+//   부르는 쪽은 우리 서버의 결제 승인 라우트와 토스 웹훅(가상계좌 입금)이다.
+// **SMS 폴백은 두지 않는다** — 알림톡이 실패하면 시트에 '실패'로 남기고 끝낸다.
+//   결제 완료 안내를 문자로 대체하면 요금이 붙고, 실패 사유(변수·채널)를 가려 버린다.
 var KAKAO_PFID_LAZYCLUB           = "KA01PF260831065614085Y3w41QKym0u"; // 레이지클럽 채널
 var KAKAO_TEMPLATE_LAZYCLUB_APPLY = "KA01TP260831070822208VLuwoxsTYW7"; // 템플릿 코드 JZvGf8LJM5
+var LAZYCLUB_PAID_NOTIFY_SHEET    = "결제 알림 발송"; // 레이지클럽 파일 탭 — 주문번호 기준 중복 방지 원장
 
 // 전화 인터뷰 3시간 전 리마인더 자동 발송 스위치. 템플릿 승인 완료 → 알림톡 예약 발송 ON.
 var ENABLE_REMINDER = true;
@@ -281,6 +284,7 @@ function doPost(e) {
     if (type === "notify")          return handleNotify(data);
     if (type === "coffeebar")       return handleCoffeeBar(data);
     if (type === "oneday")          return handleOnedayApply(data);
+    if (type === "paid")            return handlePaidNotify(data); // 결제 완료 알림톡 (서버→GAS, 2026-09-03)
     if (type === "" || type === "apply") return handleApply(data); // type 없음 = 신청 폼(기존 계약)
 
     // ⚠️ 예전엔 모르는 type이 전부 handleApply로 흘러들어, 오타나 구버전 GAS가 모르는
@@ -457,44 +461,114 @@ function handleOnedayApply(d) {
           "📄 스프레드시트('" + LAZYCLUB_ONEDAY_SHEET + "' 탭):\n" + lazyclubSheetUrl()
   });
 
-  // ── 신청자에게 카카오 알림톡 (레이지클럽 채널, 2026-08-31) ──────────────
-  // ⚠ **SMS 폴백을 일부러 붙이지 않았다.** 다른 핸들러(handleApply 등)는 알림톡 실패 시
-  //   문자로 대체하지만, 이 템플릿은 아직 승인 전이라 항상 실패한다 — 폴백을 달면
-  //   승인도 나기 전에 문자가 나가고 요금까지 붙는다. 승인 뒤 폴백이 필요하면 그때 추가.
-  // ⚠ 실패해도 **접수 결과에 영향 없다** — 아래 return 은 발송 성공 여부와 무관하다
-  //   (시트·관리자 메일은 이미 끝났다). ledger·CAPI 와 같은 규율.
-  // 템플릿 본문 (운영자 2026-08-31 지급) — 변수는 셋이다:
-  //   #{이름}님, 안녕하세요. 레이지클럽입니다.
-  //   「#{모임}」 신청 및 결제 확인되었습니다. 감사합니다.
-  //   (…단톡방 초대 링크는 첫 모임 일주일 전에 발송…)
-  //   #{비고}
-  //   (…궁금한 점이 생기시면 언제든…)
-  // ⚠ **알림톡 변수는 빈 값이면 치환 실패로 발송이 통째로 깨진다.** 그래서 셋 다
-  //   폴백을 둔다 — 값이 없어도 최소한 하이픈이 들어가 문장이 무너지지 않는다.
-  // ⚠ 「」 는 템플릿 본문에 이미 있으므로 #{모임} 에는 **제목만** 넣는다(괄호 금지).
-  //   프론트가 보내는 meetingTitle 은 nbsp 를 뗀 평문이라 그대로 쓰면 된다.
-  var npOneday = normPhone(d.phone);
-  if (npOneday) {
-    sendKakaoAlimtalk(
-      npOneday,
-      KAKAO_TEMPLATE_LAZYCLUB_APPLY,
-      {
-        "#{이름}": d.name || "고객",
-        "#{모임}": d.meetingTitle || d.meetingDates || "신청하신 모임",
-        // 비고 = **전달할 게 있을 때만** 채우는 칸이다 (운영자 2026-08-31 "말 그대로
-        // 전달할 게 있는 경우에만 안내할거야"). 상시 정보(일시 등)를 넣는 자리가 아니다.
-        // 값은 프론트가 모임별 notice 로 실어 보낸다 — one-day-config 의 그 모임에
-        // notice 를 적으면 나가고, 안 적으면 아래 폴백이 나간다.
-        // ⚠ 폴백은 **엔대시 한 글자**다 (운영자 2026-08-31 "하다못해 엔대시라도 넣으려고").
-        //   알림톡은 변수가 비면 치환 실패로 발송이 통째로 깨지는데, 공백 한 칸은 게이트웨이가
-        //   빈 값으로 볼 여지가 있어 보이는 글자를 둔다. 공백만 적어 보낸 경우도 같이 막는다.
-        "#{비고}": noticeOrDash(d.notice)
-      },
-      KAKAO_PFID_LAZYCLUB
-    );
-  }
-
+  // ⚠ 여기서는 **알림톡을 보내지 않는다** (2026-09-03). 레이지클럽 모임은 "선신청 → 후결제"라
+  //   이 시점엔 결제가 안 끝났는데, 템플릿 본문이 "신청 및 결제 확인되었습니다"다.
+  //   2026-08-31~09-02 사이엔 여기서 보냈다 — 결제 안 한 손님에게도 결제 확인이 나갔다.
+  //   결제 완료 알림톡은 handlePaidNotify(type:"paid") 가 담당한다.
   return jsonResponse({ success: true });
+}
+
+// ── 레이지클럽 모임 결제 완료 알림톡 (2026-09-03) ─────────────────────────
+// 부르는 쪽: 우리 서버 **만** — /api/lazyday/payment/confirm(카드·간편결제 승인 직후) 과
+//   /api/payment/toss-webhook(가상계좌 입금 완료). 브라우저가 직접 부르지 않는다.
+// payload: type:"paid" / orderId / name / phone / meetings:[{ title, notice }]
+//   meetings 는 서버가 주문번호의 상품 코드에서 복원한 **모임 항목만**(제품·배송비 제외).
+//   새 모임을 one-day-config 에 추가하면 카탈로그 → 주문 코드 → 여기까지 자동으로 흐른다 —
+//   모임마다 손댈 것이 없다 (운영자 2026-09-03 "모임 추가될 때 매번 자동반영").
+//
+// **중복 방지가 핵심이다.** 같은 결제에 대해 승인 라우트와 웹훅(PAYMENT_STATUS_CHANGED DONE)이
+//   둘 다 부를 수 있고, 손님이 성공 페이지를 새로고침하면 승인 라우트가 또 부를 수 있다.
+//   → 레이지클럽 파일 '결제 알림 발송' 탭을 **주문번호 원장**으로 쓴다: 이미 있으면 보내지 않는다.
+//   → 조회와 기록 사이에 다른 실행이 끼지 못하게 LockService 로 직렬화한다 (시트는 원자적이지 않다).
+//   실패한 발송은 '결과' 칸에 실패로 남기되 행은 남긴다 — 자동 재시도는 하지 않는다
+//   (재시도 = 같은 손님에게 두 번 갈 위험. 실패 건은 운영자가 시트에서 보고 수동 대응).
+//
+// 템플릿 본문 (운영자 2026-08-31 지급, 2026-09-03 검수 승인) — 변수는 셋이다:
+//   #{이름}님, 안녕하세요. 레이지클럽입니다.
+//   「#{모임}」 신청 및 결제 확인되었습니다. 감사합니다.
+//   (…단톡방 초대 링크는 첫 모임 일주일 전에 발송…)
+//   #{비고}
+//   (…궁금한 점이 생기시면 언제든…)
+// ⚠ **알림톡 변수는 빈 값이면 치환 실패로 발송이 통째로 깨진다.** 셋 다 폴백을 둔다.
+// ⚠ 「」 는 템플릿 본문에 이미 있으므로 #{모임} 에는 **제목만** 넣는다(괄호 금지).
+// ⚠ #{비고} 는 **전달할 게 있을 때만** 채우는 칸 (운영자 2026-08-31) — one-day-config 의
+//   notice 를 서버가 실어 보낸다. 없으면 엔대시 한 글자(noticeOrDash, DECISIONS 2026-08-31).
+// 한 주문에 모임이 여럿이면 모임마다 한 통씩 나간다 (템플릿이 모임 하나를 말하는 문장이라).
+function handlePaidNotify(d) {
+  var orderId = String(d.orderId || "").trim();
+  var np = normPhone(d.phone);
+  var meetings = Array.isArray(d.meetings) ? d.meetings : [];
+  if (!orderId) return jsonResponse({ success: false, error: "주문번호 누락" });
+  if (!np)      return jsonResponse({ success: false, error: "전화번호 누락" });
+  if (meetings.length === 0) return jsonResponse({ success: false, error: "모임 항목 없음" });
+
+  var lock = LockService.getScriptLock();
+  // 30초를 못 얻으면 다른 실행이 같은 일을 하고 있을 가능성이 크다 — 보내지 않고 물러난다
+  //   (두 번 보내는 것보다 안 보내는 쪽이 낫다. 시트에 행이 없으면 운영자가 알아볼 수 있다)
+  if (!lock.tryLock(30000)) {
+    return jsonResponse({ success: false, error: "잠금 획득 실패 — 동시 실행 중" });
+  }
+  try {
+    var sheet = lazyclubSheet(LAZYCLUB_PAID_NOTIFY_SHEET);
+    ensureColumn(sheet, "주문번호");
+    ensureColumn(sheet, "이름");
+    ensureColumn(sheet, "전화번호");
+    ensureColumn(sheet, "모임");
+    ensureColumn(sheet, "결과");
+    var col = colIndexMap(sheet);
+
+    if (paidNotifyAlreadySent(sheet, col["주문번호"], orderId)) {
+      Logger.log("결제 알림톡 중복 차단: " + orderId);
+      return jsonResponse({ success: true, duplicate: true });
+    }
+
+    var results = [];
+    for (var i = 0; i < meetings.length; i++) {
+      var m = meetings[i] || {};
+      // 제목의 줄바꿈 방지 공백(\u00A0)은 알림톡에서 깨져 보일 수 있어 평문 공백으로
+      var title = String(m.title || "").replace(/\u00A0/g, " ").trim() || "신청하신 모임";
+      var ok = sendKakaoAlimtalk(
+        np,
+        KAKAO_TEMPLATE_LAZYCLUB_APPLY,
+        {
+          "#{이름}": d.name || "고객",
+          "#{모임}": title,
+          "#{비고}": noticeOrDash(m.notice)
+        },
+        KAKAO_PFID_LAZYCLUB
+      );
+      results.push({ title: title, ok: ok });
+    }
+
+    // 결과와 무관하게 행을 남긴다 — 실패 행도 같은 주문의 재발송을 막는 원장이다
+    var row = new Array(sheet.getLastColumn()).fill("");
+    row[col["신청일자"]] = new Date();
+    row[col["주문번호"]] = orderId;
+    row[col["이름"]]     = d.name || "";
+    row[col["전화번호"]] = np;
+    row[col["모임"]]     = results.map(function (r) { return r.title; }).join(" / ");
+    row[col["결과"]]     = results.map(function (r) { return r.ok ? "발송" : "실패"; }).join(" / ");
+    prependRow(sheet, row);
+
+    var sentCount = results.filter(function (r) { return r.ok; }).length;
+    return jsonResponse({ success: true, sent: sentCount, total: results.length });
+  } catch (err) {
+    return jsonResponse({ success: false, error: err.message });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** '결제 알림 발송' 탭에 이 주문번호 행이 이미 있는가 (헤더 제외, 열 하나만 읽는다) */
+function paidNotifyAlreadySent(sheet, colIdx, orderId) {
+  if (colIdx == null) return false;
+  var last = sheet.getLastRow();
+  if (last < 2) return false;
+  var values = sheet.getRange(2, colIdx + 1, last - 1, 1).getValues();
+  for (var i = 0; i < values.length; i++) {
+    if (String(values[i][0]).trim() === orderId) return true;
+  }
+  return false;
 }
 
 // ── 신청 폼 → 신청현황 ──────────────────────────────────────

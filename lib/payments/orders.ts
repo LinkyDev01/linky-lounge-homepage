@@ -29,6 +29,9 @@ export type LedgerOrder = {
   amount_total: number
   approved_at: string | null
   status: string
+  /** 결제 완료 알림톡용 (2026-09-03) — 가상계좌 입금 시점엔 이 값이 유일한 연락처다 */
+  orderer_name: string | null
+  orderer_phone: string | null
 }
 
 /** 주문번호로 원장 행 조회. 미설정·미기록·오류 어느 쪽이든 null (호출부는 코드 재계산으로 진행) */
@@ -38,7 +41,7 @@ export async function findOrder(orderNo: string): Promise<LedgerOrder | null> {
   try {
     const { data, error } = await sb
       .from("orders")
-      .select("id, order_no, payment_key, amount_total, approved_at, status")
+      .select("id, order_no, payment_key, amount_total, approved_at, status, orderer_name, orderer_phone")
       .eq("order_no", orderNo)
       .maybeSingle()
     if (error) {

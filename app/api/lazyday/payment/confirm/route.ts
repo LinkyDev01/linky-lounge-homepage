@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
 import { recordOrder, type ShippingInput } from "@/lib/orders"
 import { sessionUserIdSafe } from "@/lib/auth-server"
+import { notifyMeetingPaid } from "@/lib/paid-alimtalk"
 
 /**
  * 토스페이먼츠 결제 승인 (2026-08-11, 결제위젯 연동).
@@ -72,6 +73,12 @@ export async function POST(req: NextRequest) {
 
     if (res.ok) {
       await ledger(orderId, paymentKey, expected, items, body, data?.approvedAt)
+      // 결제 완료 알림톡 (2026-09-03). **DONE 일 때만** — 가상계좌는 여기서 WAITING_FOR_DEPOSIT 로
+      // 돌아오고 입금은 나중이라, 그 건은 토스 웹훅이 DONE 을 받았을 때 보낸다.
+      // 새로고침으로 다시 오면 ALREADY_PROCESSED 분기라 여기 안 들어온다. 실패해도 응답 불변.
+      if (data?.status === "DONE") {
+        await notifyMeetingPaid({ orderId, items, name: body.buyer?.name, phone: body.buyer?.phone })
+      }
       return NextResponse.json({
         success: true,
         orderName: data?.orderName,

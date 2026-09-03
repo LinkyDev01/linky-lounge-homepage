@@ -77,6 +77,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 | `app/api/lazyday/admin/backfill-applications` | GAS 스윕 전용 (P2.5) | 인증은 **헤더 `X-Backfill-Token`**(쿠키 아님 — 부르는 쪽이 Apps Script 서버다). ⚠ 원장이 꺼져 있으면 **503 을 돌려줘야 한다** — 200 을 주면 GAS 가 '보정됨'을 찍고 그 행을 영영 안 보낸다 |
 | `applications` 테이블 | 전 접수 원장 (0005) | **0012 시트 거울 4컬럼**(`sheet_progress`·`sheet_interview_status`·`sheet_interview_type`·`sheet_synced_at`)은 GAS 스윕만 쓴다 — 관리 화면·라우트가 쓰면 안 된다(정본은 시트, `status` 도 P5 전엔 스윕이 번역해 넣는 읽기값). `purge_after` NOT NULL — 산출 못 하면 접수+1년 폴백. `sid`·`dedup_key` 는 **컬럼 unique**(부분 인덱스 금지, 42P10). ⚠ **개인정보가 들어갈 수 있는 컬럼을 추가하면 파기 함수 2종**(`purge_expired_applications`·`purge_application`)**도 같은 PR 에서 고친다** — 0008 이 `triage_note` 를 함수보다 나중에 만들어 **파기해도 메모만 남았다**(2026-09-02 발견, 0010 로 수정) |
 | `customer_activities` 테이블 (0013) | 고객 레코드 화면(메모·통화·문자)만 | **고객 표가 아니다** — 사람은 여전히 파생이고 `person_key` 는 `lib/customers.ts` 의 묶음 키다. 키 규칙의 정본은 **`appPersonKey()` 하나** (활동 기록과 단건 파기가 같은 값을 만들어야 한다 — SQL 에 다시 적지 않는다). ⚠ **`purge_application` 은 `(uuid, text)` 2인자다** — 옛 1인자 함수는 drop 됐다(오버로드로 남기면 라우트가 옛 시그니처를 불러 활동이 에러 없이 안 지워진다). 파기 라우트는 **이름·전화가 비워지기 전에** 키를 읽어 넘겨야 한다 |
+| `lib/paid-alimtalk.ts` → GAS `handlePaidNotify`(type `paid`) | 결제 승인 라우트(`confirm`, status DONE)·토스 웹훅(DONE) 둘 다 부른다 | **레이지클럽 모임 결제 완료 알림톡**(2026-09-03). 중복 차단은 **GAS 의 '결제 알림 발송' 탭(주문번호)+LockService** 한 곳 — 서버에서 막지 않는다. 모임 목록은 주문번호→카탈로그 복원이라 새 모임은 orderCode 만 있으면 자동. ⚠ `handleOnedayApply` 는 알림톡을 보내지 않는다(선신청→후결제라 결제 전이다) — 되살리지 말 것 |
 | `applications.triage` (0008·0009) | admin 화면이 유일한 소비자 | **파기가 아니라 열람 표시**. ⚠ 두 종류다 — **빼는 표시**(test·typo·dummy·duplicate)만 기본 목록에서 빠지고 **`paid`(기결제자)는 표시만 하고 남는다**(운영자 2026-09-01 "기결제자는 물론 기본제외대상이 아니지"). 어느 쪽인지는 라우트의 `HIDDEN` 배열이 정한다 — DB 는 형태만 본다. 기본 목록 = `triage is null or triage not in (HIDDEN)`, `?triaged=1` 로 빼둔 것만 꺼내 본다. ⚠ **진행 상태(status)와 섞지 말 것** — 그 정본은 시트, 여는 건 P5 |
 
 새 클래스 추가는 안전. **TSX 쌍 동기화**: `apply/**` 실↔프리뷰 TSX 는 별도 쌍 — 폼 필드·문구 변경 시 양쪽 반영.
@@ -121,6 +122,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 - **handleApply payload**: name/gender/age/phone/interviewType/greeting/instagram/referral/marketingConsent/consentAt/preferredDays(현재 빈 값)/unavailableDays. 시트는 헤더 이름 매핑(열 순서 무관, `ensureColumn` 자동 생성, 한국어 헤더 관례). **동의 분리(2026-07-27)**: privacyConsent 는 프론트 검증만, marketingConsent 는 선택 마케팅 수신 — 필수화하거나 운영 연락을 여기 걸면 위법(개인정보 보호법 제22조).
 - 프론트 화면 변경은 GAS 무관 — "건드려야 하나?"는 payload 계약 변경 여부로 판단.
 - **전화 인터뷰 24h 리마인드**: `remindPendingInterviews` — 상세 규칙·적용 절차는 `docs/gas-interview-remind-setup.md`. ⚠ 슬롯 규칙은 `apply/interview/schedule/page.tsx` 14~26행과 값 동일 유지. ⚠ 트리거는 자동 생성 안 됨 — 시트 메뉴에서 1회 등록.
+- **결제 완료 알림톡(레이지클럽)**: 서버 → GAS `type:"paid"` (`lib/paid-alimtalk.ts`). 채널·템플릿 ID 는 GAS 상수 `KAKAO_PFID_LAZYCLUB`·`KAKAO_TEMPLATE_LAZYCLUB_APPLY`. 변수 3종 `#{이름}`·`#{모임}`·`#{비고}` — 비고는 one-day-config `notice`, 없으면 엔대시. ⚠ 새 type 이라 **GAS 새 버전이 먼저** 배포돼야 한다.
 - **폼 필드 추가 절차**: ① 실 apply ② preview/apply(쌍 동기화) ③ handleApply(`ensureColumn`+row+메일) ④ 시트 수동 작업 불필요 안내 ⑤ **GAS 새 버전 확인 후에 프론트 병합** — 뒤집히면 새 필드 값이 조용히 유실.
 
 ## 7. 운영자 커뮤니케이션 규약

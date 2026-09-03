@@ -3,6 +3,7 @@ import { getPaymentByKey, getPaymentByOrderId } from "@/lib/payments/toss"
 import { findOrder, markCancelled } from "@/lib/payments/orders"
 import { recordOrder } from "@/lib/orders"
 import { parseOrderCodes, resolveItems, totalOf } from "@/lib/order-catalog"
+import { notifyMeetingPaid } from "@/lib/paid-alimtalk"
 
 /**
  * 토스페이먼츠 웹훅 (2026-09-01, 가상계좌 도입).
@@ -107,6 +108,16 @@ export async function POST(req: NextRequest) {
     approvedAt: payment.approvedAt,
   })
   if (!r.ok) console.error(`[toss-webhook] 원장 기록 실패 (${orderId}):`, r.error)
+
+  // 결제 완료 알림톡 (2026-09-03). 카드 결제도 DONE 웹훅이 한 번 더 오지만 GAS 가 주문번호로
+  // 중복을 막는다. 전화번호는 승인 때 원장에 남긴 값(orderer_phone) — 가상계좌 입금 시점엔
+  // 손님이 사이트에 없어 이 값이 유일한 연락처다. 원장이 꺼져 있거나 비어 있으면 못 보낸다(로그).
+  await notifyMeetingPaid({
+    orderId,
+    items,
+    name: order?.orderer_name || payment.virtualAccount?.customerName,
+    phone: order?.orderer_phone,
+  })
 
   return new NextResponse(null, { status: 200 })
 }

@@ -175,8 +175,9 @@ export function MeetingApplyForm({ meeting }: { meeting: Meeting }) {
           meetingDate: meeting.date,
           meetingSessions,
           meetingDates, // 전환기 폴백 (위 주석)
-          // 알림톡 '비고' 칸 — 전달할 게 있는 모임만 one-day-config 에 notice 를 적는다.
-          // 없으면 빈 문자열이고, GAS 가 공백 한 칸으로 바꿔 보낸다(빈 변수는 발송이 깨진다).
+          // 알림톡 '비고' — 2026-09-03 부터 알림톡은 **결제 완료 시점**에 서버가 보내며
+          // notice 도 서버가 one-day-config 에서 직접 읽는다(lib/paid-alimtalk). 이 값은
+          // 시트 계약 호환용으로만 남긴다 — GAS 의 oneday 핸들러는 더 이상 알림톡을 보내지 않는다.
           notice: meeting.notice ?? "",
           // 결제를 우리가 띄우지 않아 주문번호가 없다 — 시트 '주문번호'는 비운다
           orderId: "",

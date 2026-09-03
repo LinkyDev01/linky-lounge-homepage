@@ -22,10 +22,11 @@
  *   써진다(`/api/auth/me` 가 그 자리). 미들웨어에 세션 갱신을 두지 않는 이유:
  *   페이지는 세션을 읽지 않고, 읽는 곳은 전부 라우트 핸들러라서다.
  *
- * 필요한 환경변수 (Vercel · Production/Preview 모두 · **Type=Secret**, 서버 런타임에
- * 읽으므로 재배포만으로 반영):
+ * 필요한 환경변수 (Vercel · Production/Preview 모두 · 서버 런타임에 읽으므로 재배포만으로 반영):
  *   SUPABASE_URL          (원장과 공유)
- *   SUPABASE_ANON_KEY     Project Settings → API → anon (public)
+ *   SUPABASE_ANON_KEY     Project Settings → API Keys → Legacy anon key — **'표시' 후 전체 복사**
+ *                         Type 은 **Config**(공개키라 숨길 이유가 없고, 값이 보여야 마스킹 `•••` 같은
+ *                         복붙 사고를 눈으로 잡는다 — 2026-09-02 실측). Secret 이어도 동작은 같다.
  */
 
 import { cookies } from "next/headers"

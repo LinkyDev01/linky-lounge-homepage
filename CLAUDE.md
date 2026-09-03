@@ -8,6 +8,8 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 
 **진행 중 계획**: `docs/handoff/2026-09-02-dashboard-to-next-session.md`(**세션 인수인계 — 먼저 읽는다**: 현재 상태·다음 할 일 순서·운영자 대기) · `docs/admin-crm/02-build-plan.md`(대시보드 PR 순서표) · `docs/plans/2026-09-01-applications-ledger-and-members.md` — 접수 시트+DB 이중화 · 회원(profiles·소셜 로그인) · DB 관리 화면 (P0~P5, 단계별 독립 PR). 이 범위의 작업은 그 문서를 먼저 읽는다.
 
+**브랜드·디자인·페이지 정의서**: `docs/brand/`(01 철학 · 02 디자인 시스템 · 03 페이지) — 새 화면·카피·페이지 작업 전에 읽는다. 규칙 정본은 여전히 이 문서·DECISIONS·docs/redesign 이고, 정의서는 그 '왜'를 묶은 것.
+
 **명령어**: dev `npm run dev` · `npx tsc --noEmit` · `npm run build` · `npm run lint`. 테스트 스위트 없음 — 검증은 tsc + `scripts/shot.mjs` + 배포 curl 마커.
 **GitHub**: `LinkyDev01/linky-lounge-homepage` (mcp__github). 브랜치는 main 분기, `claude/<주제>`.
 

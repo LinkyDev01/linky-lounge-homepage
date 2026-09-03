@@ -70,7 +70,8 @@ Supabase 커스텀 OAuth 공급자에 네이버 등록(authorize/token/userinfo)
 |---|---|---|---|
 | 1 | Supabase → Authentication → Providers → **Kakao** | **Client Secret 재입력** — Client ID = 카카오 앱 **REST API 키**, Client Secret = 카카오 개발자 → 제품 설정 → 카카오 로그인 → **보안 → Client Secret 코드**(활성화 상태 **'사용함'**). 둘 다 다시 붙여넣고 Save. 어제 11:01·17:58 엔 통과했고 2026-09-03 00:59 부터 `invalid_client` — 그 사이 어느 한쪽이 바뀜 | `query_logs`(auth_logs)에 새 `invalid_client` 가 없고 카카오 계정의 `auth.users.last_sign_in_at` 이 채워짐 · 로그인 화면에 `reason=providerconfig` 문구가 더 안 뜸 |
 | ✔ | Vercel env | `SUPABASE_ANON_KEY` 진짜 값 재입력 — **끝남(2026-09-03 00:5x)**. 참고: Type 은 Config(공개키 — 값이 보여야 복붙 사고를 눈으로 잡는다) | `/api/auth/me` → `enabled:true` 확인됨 |
-| 2 | Vercel env | `ADMIN_EMAILS` — 쉼표로 여러 개(개수 제한 없음, 공백·대소문자 무관, 소셜 공급자가 주는 이메일과 같아야 함), Type=Config → Redeploy. 구글 계정은 통과했으니 **카카오 계정 이메일**(`mxcknxck@naver.com`)이 들어 있는지만 확인 | 카카오 로그인 뒤 관리자 화면 진입 |
+| 2 | Vercel env | `ADMIN_EMAILS` — 쉼표로 여러 개(개수 제한 없음, 공백·대소문자 무관, 소셜 공급자가 주는 이메일과 같아야 함), Type=Config → Redeploy. 구글 계정은 통과했음. **운영자 지시(2026-09-03)**: 카카오 계정 `linkylounge@gmail.com`·`josehoon88@naver.com` 추가 — 카카오는 카카오계정에 등록된 이메일이 넘어오므로 그 주소여야 통과. 기존 카카오 계정 `mxcknxck@naver.com` 도 목록에 있는지 확인 | 카카오 로그인 뒤 관리자 화면 진입 |
+| 2-1 | 카카오 개발자 → 앱 설정 | **개인정보처리방침 URL** 에 `https://www.lazy-club.com/privacy` 등록 (방침 9/3 개정으로 카카오 항목 명시됨 — 구글 브랜딩 검증과 같은 주소) | 카카오 로그인 동의 화면 하단에 방침 링크 |
 | ✔ | Supabase → URL Configuration → Redirect URLs | 확인됨 — `auth.flow_state.referrer` 에 `https://admin.lazy-club.com/api/auth/callback` 이 검증된 값으로 찍혀 있다 | — |
 | 3 | `admin.lazy-club.com/admin/login` | 구글 ✔(2026-09-03 00:59Z) · **카카오 계정 로그인 성공(1번 뒤)** | `select email, last_sign_in_at from auth.users` 두 행 다 채워짐 |
 | 4 | Vercel env | 3 뒤 `ADMIN_PASSWORD` 삭제 → Redeploy (가드 #586 병합됨 — 지워도 구멍 없음) | 비밀번호 폼 401 |

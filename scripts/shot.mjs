@@ -85,6 +85,11 @@ try {
     await page.locator(`button:has-text("${text}"), [role=tab]:has-text("${text}"), a:has-text("${text}")`).first().click()
     await page.waitForTimeout(500)
   }
+  // --click-selector <css> — 글자 없는 아이콘 버튼(aria-label 만 있는 계정·카트 등)은 --click 으로 못 잡는다 (2026-09-03)
+  for (const css of optAll('click-selector')) {
+    await page.locator(css).first().click()
+    await page.waitForTimeout(500)
+  }
 
   if (evalExpr) {
     const result = await page.evaluate(evalExpr)

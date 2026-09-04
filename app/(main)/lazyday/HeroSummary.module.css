@@ -122,3 +122,11 @@
   color: #8a7660;
   word-break: keep-all;
 }
+
+/* 마감 반 — 취소선 + 옅은 색 (2026-09-03 토요일 오전만 모집). 색만으로 말하지 않는다 */
+.schedClosed {
+  color: #a08b70;
+  text-decoration: line-through;
+  text-decoration-color: rgba(26, 18, 8, 0.32);
+  text-decoration-thickness: 1px;
+}

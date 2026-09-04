@@ -28,12 +28,14 @@ function dayScheduleGroups() {
   }
   const DOW = ["일", "월", "화", "수", "목", "금", "토"]
   return groups.map((g) => {
+    // 그룹의 모든 요일이 마감이면 마감 그룹 — 취소선·옅은 색 (2026-09-03)
+    const closed = g.labels.every((l) => SEASON.days.find((d) => d.label === l)?.closed)
     // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
     const names = g.labels
       .map((l) => l.replace("요일", ""))
       .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
       .join("·")
-    return `${names} ${g.time}`
+    return { text: `${names} ${g.time}`, closed }
   })
 }
 
@@ -98,12 +100,13 @@ export function HeroSummary() {
             {/* 그룹 하나가 통째로 다음 줄로 — 구분자 '/'는 **앞 그룹에 붙여** 줄 끝에
                 남기고, 그룹 사이 공백에서만 줄바꿈이 일어나게 한다 */}
             {dayScheduleGroups().map((g, i, all) => (
-              <Fragment key={g}>
+              <Fragment key={g.text}>
                 {/* ⚠ 줄바꿈 기회가 되는 공백은 nowrap 그룹 **바깥**에 둔다 —
                     안에 넣으면 그 공백까지 안 끊겨 두 그룹이 한 줄로 붙는다 */}
                 {i > 0 ? " " : null}
                 <span className={styles.schedGroup}>
-                  {g}
+                  {/* 마감 반은 취소선·옅은 색 — 구분자 '/'는 밖에 두어 같이 그어지지 않게 */}
+                  <span className={g.closed ? styles.schedClosed : undefined}>{g.text}</span>
                   {i < all.length - 1 ? " /" : ""}
                 </span>
               </Fragment>

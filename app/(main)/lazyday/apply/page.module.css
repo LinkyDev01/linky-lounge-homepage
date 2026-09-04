@@ -955,3 +955,14 @@
   text-underline-offset: 3px;
 }
 .rescueLink:hover { color: #d2691e; }
+
+/* 마감 반 표기 (2026-09-03 토요일 오전만 모집) — 취소선 + 옅은 색. 열 헤더는 .scheduleTable .schThDay(0,2,0)보다
+   이겨야 하므로 같은 명시도로 */
+.scheduleTable .schClosed {
+  color: #a08b70;
+  text-decoration: line-through;
+  text-decoration-color: rgba(26, 18, 8, 0.32);
+  text-decoration-thickness: 1px;
+}
+.slotClosed { opacity: 0.55; cursor: not-allowed; }
+.slotClosed .radioText { text-decoration: line-through; text-decoration-color: rgba(26, 18, 8, 0.4); }

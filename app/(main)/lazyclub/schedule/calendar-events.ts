@@ -120,12 +120,12 @@ const PROGRAMS: ClubProgram[] = [
     id: "season-4",
     category: "bookclub",
     title: `레이지데이 북클럽 ${SEASON.name}`,
-    schedule: `${SEASON.periodLabel} (격주 ${SEASON.days.map((d) => d.label.replace("요일", "")).join("·")}, 정규 4회 + ${SEASON.fifth.label})`,
+    schedule: `${SEASON.periodLabel} (격주 ${SEASON.days.filter((d) => !d.closed).map((d) => d.label.replace("요일", "")).join("·")}, 정규 4회 + ${SEASON.fifth.label}${SEASON.days.some((d) => d.closed) ? ` · ${SEASON.days.filter((d) => d.closed).map((d) => d.label.replace("요일", "")).join("·")} 마감` : ""})`,
     // 일요일은 오전·오후 2슬롯이라 config 가 time 을 ", " 로 이어 둔다 → 줄로 나눠 표기
     times: SEASON.days.flatMap((d) => {
       const parts = d.time.split(",").map((t) => t.trim())
       return parts.map((t, i) =>
-        parts.length > 1 ? `${d.label} ${i === 0 ? "오전" : "오후"} ${t}` : `${d.label} ${t}`,
+        (parts.length > 1 ? `${d.label} ${i === 0 ? "오전" : "오후"} ${t}` : `${d.label} ${t}`) + (d.closed ? " · 마감" : ""),
       )
     }),
     // 라운드 106(운영자): 레이지데이 북클럽은 캘린더에서 가격을 노출하지 않는다

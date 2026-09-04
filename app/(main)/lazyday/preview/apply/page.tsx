@@ -172,7 +172,9 @@ export default function PreviewApplyPage() {
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
     // 전부 불가면 참여 자체가 불가능 — 실수 방지
-    if (unavailableDays.length === SEASON.unavailableDaySlots.length)
+    // 마감 반은 어차피 못 고르니 **모집 중인 반**만 놓고 "전부 불가"를 본다 (2026-09-03)
+    const openSlots = SEASON.unavailableDaySlots.filter((s) => !s.closed).map((s) => s.label)
+    if (openSlots.length > 0 && openSlots.every((label) => unavailableDays.includes(label)))
       newErrors.unavailableDays = "모든 요일을 선택하면 참여 가능한 요일이 없어요. 참여 가능한 요일은 남겨주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!privacyConsent) newErrors.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
@@ -314,7 +316,7 @@ export default function PreviewApplyPage() {
                   <tr>
                     <th className={styles.schThEmpty} />
                     {SEASON.days.map((d) => (
-                      <th key={d.label} className={styles.schThDay}>
+                      <th key={d.label} className={`${styles.schThDay}${d.closed ? ` ${styles.schClosed}` : ""}`}>
                         {d.label}<br />
                         {d.time.split(", ").map((t) => (
                           <span key={t} className={styles.schThTime}>{t}</span>
@@ -328,7 +330,7 @@ export default function PreviewApplyPage() {
                     <tr key={s.label}>
                       <td className={styles.schTdLabel}>{s.label}</td>
                       {s.dates.map((date, i) => (
-                        <td key={i} className={styles.schTdDate}>{date}</td>
+                        <td key={i} className={`${styles.schTdDate}${SEASON.days[i]?.closed ? ` ${styles.schClosed}` : ""}`}>{date}</td>
                       ))}
                     </tr>
                   ))}
@@ -574,15 +576,17 @@ export default function PreviewApplyPage() {
               <p className={styles.dayHint}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
               <div className={styles.dayGrid}>
                 {SEASON.unavailableDaySlots.map((slot) => (
-                  <label key={slot.label} className={styles.radioLabel}>
+                  <label key={slot.label} className={`${styles.radioLabel}${slot.closed ? ` ${styles.slotClosed}` : ""}`}>
                     <input
                       type="checkbox"
                       checked={unavailableDays.includes(slot.label)}
                       onChange={() => toggleUnavailableDay(slot.label)}
+                      disabled={!!slot.closed}
                     />
                     <span className={styles.dayCol}>
                       <span className={styles.radioText}>{slot.label}</span>
-                      <span className={styles.daySlotTime}>{slot.time}</span>
+                      {/* 마감 반은 글자로도 말한다 — 색·취소선만으로 상태를 전하지 않는다 */}
+                      <span className={styles.daySlotTime}>{slot.closed ? `${slot.time} · 마감` : slot.time}</span>
                     </span>
                   </label>
                 ))}

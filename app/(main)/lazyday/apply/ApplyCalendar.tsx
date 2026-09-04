@@ -30,7 +30,7 @@ const ROUND_LABEL = ["1st", "2nd", "3rd", "4th"]
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 
 // 요일을 시간대별로 묶어 세 줄로: "화·수 저녁 19:30–22:30" / "일 오전 10:30–13:30" / "일 오후 14:30–17:30" (운영자 지시 2026-07-27)
-function timeFootLines(): string[] {
+function timeFootLines(): { text: string; closed: boolean }[] {
   const dowIdx = (label: string) => DOW_LABELS.indexOf(label.replace("요일", ""))
   const groups: { labels: string[]; time: string }[] = []
   for (const d of SEASON.days) {
@@ -38,21 +38,23 @@ function timeFootLines(): string[] {
     if (g) g.labels.push(d.label)
     else groups.push({ labels: [d.label], time: d.time })
   }
-  const lines: string[] = []
+  const lines: { text: string; closed: boolean }[] = []
   for (const g of groups) {
+    // 그룹의 모든 요일이 마감이면 취소선·옅은 색 (2026-09-03)
+    const closed = g.labels.every((l) => SEASON.days.find((d) => d.label === l)?.closed)
     const names = g.labels
       .map((l) => l.replace("요일", ""))
       .sort((a, b) => dowIdx(a) - dowIdx(b))
       .join("·")
     const slots = g.time.split(", ")
     if (slots.length === 2) {
-      lines.push(`${names} 오전 ${slots[0]}`)
-      lines.push(`${names} 오후 ${slots[1]}`)
+      lines.push({ text: `${names} 오전 ${slots[0]}`, closed })
+      lines.push({ text: `${names} 오후 ${slots[1]}`, closed })
     } else {
       // 단일 슬롯은 시작 시각으로 시간대를 정한다 — 토요일 10:30 이 '저녁'으로 찍히지 않게 (2026-09-03)
       const hour = Number(g.time.split(":")[0])
       const part = hour < 12 ? "오전" : hour < 17 ? "오후" : "저녁"
-      lines.push(`${names} ${part} ${g.time}`)
+      lines.push({ text: `${names} ${part} ${g.time}`, closed })
     }
   }
   return lines
@@ -114,12 +116,14 @@ export function ApplyCalendar() {
                   const mIdx = meeting ? markerIndex.get(meeting.date) ?? 0 : 0
                   // 회차별 오렌지/그레이 교차: 1·3회차 오렌지, 2·4회차 그레이
                   const orange = meeting ? meeting.round % 2 === 1 : true
+                    // 마감 반의 날짜 — 마커·회차표를 옅게, 날짜는 일반 굵기 (2026-09-03)
+                    const closed = !!meeting?.closed
                   const ellipseColor = orange ? "#d2691e" : "#8a7660"
                   const tagColor = orange ? "#b8571a" : "#8a7660"
                   return (
                     <div key={ci} className={styles.calCell}>
                       {inMonth && (
-                        <span className={meeting || isFree ? styles.calDayNumMeet : styles.calDayNum}>
+                        <span className={(meeting && !closed) || isFree ? styles.calDayNumMeet : styles.calDayNum}>
                           {day}
                         </span>
                       )}
@@ -130,6 +134,7 @@ export function ApplyCalendar() {
                             className={styles.calMarker}
                             style={{
                               transform: `translate(-50%, -50%) rotate(${MARK_ROT[mIdx % MARK_ROT.length]}deg)`,
+                                opacity: closed ? 0.3 : 1,
                             }}
                             aria-hidden
                           >
@@ -150,6 +155,7 @@ export function ApplyCalendar() {
                             style={{
                               color: tagColor,
                               transform: `rotate(${TAG_ROT[mIdx % TAG_ROT.length]}deg)`,
+                                opacity: closed ? 0.3 : 1,
                             }}
                           >
                             {ROUND_LABEL[meeting.round - 1]}
@@ -194,7 +200,7 @@ export function ApplyCalendar() {
       })}
 
       {timeFootLines().map((line) => (
-          <p key={line} className={styles.calTimeFoot}>{line}</p>
+          <p key={line.text} className={`${styles.calTimeFoot}${line.closed ? ` ${styles.calTimeFootClosed}` : ""}`}>{line.text}</p>
         ))}
       <p className={styles.calNote}>*반 배정이 진행되나, 다른 반으로 변경 참여가 가능합니다.</p>
       <p className={styles.calNote}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>

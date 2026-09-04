@@ -24,6 +24,8 @@ import {
   reportClientError,
 } from "@/app/(main)/lazyday/support"
 import { TurtleLoader } from "../../../TurtleLoader"
+import { LazyclubLink } from "../../../LazyclubLink"
+import { BASE } from "../../../base-path"
 import h from "../hosts-v2.module.css"
 
 const FORMATS = ["원데이 토크", "4주 과정", "정기 모임", "아직 미정"] as const
@@ -184,14 +186,14 @@ export function HostPlanFlow() {
     return (
       <div className={h.flow}>
         <div className={h.done}>
-          <p className={h.q}>기획서가 잘 도착했습니다.</p>
-          <p>차례로 읽어 보고 연락드리겠습니다.</p>
+          <p className={h.q}>잘 받았습니다.</p>
+          <p>찬찬히 읽고 연락드리겠습니다.</p>
           <p className={h.infoNote}>
-            덧붙이고 싶은 이야기가 있다면{" "}
+            덧붙이고 싶은 말이 있으면{" "}
             <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer">
               카카오톡 채널
             </a>
-            로 보내 주셔도 좋습니다.
+            로 보내 주셔도 됩니다.
           </p>
         </div>
       </div>
@@ -223,7 +225,7 @@ export function HostPlanFlow() {
       {step === 1 && (
         <>
           <p className={h.q}>먼저 이름과 연락처를 남겨 주세요.</p>
-          <p className={h.hint}>협의 일정은 이 번호로 안내드립니다.</p>
+          <p className={h.hint}>이 번호로 연락드립니다.</p>
           <div className={h.field}>
             <label htmlFor="name" className={h.fieldLabel}>
               이름<span className={h.required}>*</span>
@@ -252,8 +254,8 @@ export function HostPlanFlow() {
 
       {step === 2 && (
         <>
-          <p className={h.q}>어떤 모임인지 한 줄로 적어 주세요.</p>
-          <p className={h.hint}>제목이어도 좋고, 아직 제목이 없다면 모임을 떠올리게 하는 한 줄이어도 좋습니다.</p>
+          <p className={h.q}>어떤 모임인가요? 한 줄이면 됩니다.</p>
+          <p className={h.hint}>제목이 있으면 제목을, 아직 없다면 모임이 떠오르는 한 줄을 적어 주세요.</p>
           <div className={h.field}>
             <label htmlFor="title" className={h.fieldLabel}>
               모임 한 줄<span className={h.required}>*</span>
@@ -287,8 +289,8 @@ export function HostPlanFlow() {
         <>
           <p className={h.q}>모임을 어떻게 그리고 계신지 들려주세요.</p>
           <p className={h.hint}>
-            길이도 형식도 자유롭게 적어 주세요. 어떤 이야기를 나누고 싶은지, 한 번의 모임을 어떻게 이끌어 가고
-            싶은지, 그리고 왜 이 모임을 열고 싶은지가 담겨 있다면 이야기가 한결 수월해집니다.
+            길이도 형식도 자유입니다. 어떤 이야기를 나누고 싶은지, 한 번의 모임을 어떻게 이끌어 갈지, 왜 이
+            모임을 열고 싶은지가 담겨 있으면 만나서 나눌 이야기가 한결 빨라집니다.
           </p>
           <div className={h.field}>
             <label htmlFor="plan" className={h.fieldLabel}>
@@ -302,8 +304,8 @@ export function HostPlanFlow() {
 
       {step === 4 && (
         <>
-          <p className={h.q}>어떤 분인지 소개해 주세요.</p>
-          <p className={h.hint}>이력을 나열하지 않으셔도 괜찮습니다. 어떤 분인지 알 수 있는 소개면 충분합니다.</p>
+          <p className={h.q}>어떤 분인지 들려주세요.</p>
+          <p className={h.hint}>이력은 없어도 됩니다. 어떤 분인지 알 수 있으면 충분합니다.</p>
           <div className={h.field}>
             <label htmlFor="intro" className={h.fieldLabel}>
               소개<span className={h.required}>*</span>
@@ -316,11 +318,11 @@ export function HostPlanFlow() {
 
       {step === 5 && (
         <>
-          <p className={h.q}>더 보여 주고 싶은 것이 있다면 남겨 주세요.</p>
-          <p className={h.hint}>둘 다 비워 두셔도 됩니다. 파일은 따로 받지 않으니, 자료가 있다면 주소로 남겨 주세요.</p>
+          <p className={h.q}>더 보여 주고 싶은 것이 있다면</p>
+          <p className={h.hint}>둘 다 비워 두셔도 됩니다. 파일은 받지 않으니 자료가 있으면 주소로 남겨 주세요.</p>
           <div className={h.field}>
             <label htmlFor="links" className={h.fieldLabel}>참고 링크</label>
-            <p className={h.hint}>포트폴리오나 글, 인스타그램처럼 보여 주고 싶은 것이 있다면 주소를. 여러 개라면 줄을 바꿔 적어 주시면 됩니다.</p>
+            <p className={h.hint}>포트폴리오나 글, 인스타그램 주소. 여러 개면 줄을 바꿔 적어 주세요.</p>
             <textarea id="links" name="links" className={`${h.textarea} ${h.textareaShort}`} value={d.links} onChange={(e) => set("links", e.target.value)} />
           </div>
           <div className={h.field}>
@@ -340,8 +342,8 @@ export function HostPlanFlow() {
 
       {step === 6 && (
         <>
-          <p className={h.q}>홈과 모임 목록에서는 이렇게 보입니다.</p>
-          <p className={h.hint}>협의를 거쳐 모임 페이지가 만들어지면, 이 자리에 이렇게 놓입니다.</p>
+          <p className={h.q}>홈과 모임 목록에는 이렇게 놓입니다.</p>
+          <p className={h.hint}>만나서 이야기를 나눈 뒤 모임 페이지가 만들어지면 이 모습으로 올라갑니다.</p>
           {/* 홈 리스트 항목 문법 — 카테고리 자리에 모임장 이름(운영자 2026-08-21 "카테고리에 이름을") */}
           <article className={h.previewItem} aria-label="모임 목록 미리보기">
             <figure className={h.previewFigure} />
@@ -354,7 +356,7 @@ export function HostPlanFlow() {
               {d.intro.trim() && <p className={h.previewIntro}>{d.intro.trim()}</p>}
             </div>
           </article>
-          <p className={h.previewNote}>이미지 자리는 비워 두었습니다.</p>
+          <p className={h.previewNote}>포스터는 그때 함께 준비합니다.</p>
 
           <div className={h.consent}>
             <label htmlFor="privacyConsent" className={h.consentLabel}>
@@ -408,7 +410,9 @@ export function HostPlanFlow() {
             이전
           </button>
         ) : (
-          <span />
+          <LazyclubLink href={`${BASE}/hosts/v2`} className={h.linkBtn}>
+            안내로 돌아가기
+          </LazyclubLink>
         )}
         {step < TOTAL ? (
           <button

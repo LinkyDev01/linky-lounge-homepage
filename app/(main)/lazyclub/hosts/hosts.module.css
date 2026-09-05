@@ -1,18 +1,18 @@
 /* ================================================================
- * 모임장 안내 + 모임 기획서 접수 (2026-09-03 초안 · 2차: 가독성 개선)
+ * 모임장 페이지 — /hosts(안내) · /hosts/apply(기획서). v2 시안(2026-09-04)이 09-05 승인으로 실사이트가 됐다.
  *
- * 신규 CSS — 기존 .module.css 미임포트 (§9). 값은 트리 문법에서 가져온다:
- *   · 읽기 컬럼 460px = personBlock / nsqBodyInner
- *   · 구간 제목 18px Gothic A1 600 = 리스트 제목(.itemTitle) — 트리의 유일한 제목 예외
- *   · 헤어라인 rgba(26,18,8,.18) = 02 §2 얇은 구분선 / 구간 시작 1px 잉크 = 02 §5
- *   · 라벨 SUIT letter-spacing .03em / 입력 16px 무테 하단 헤어라인 / 잉크 칩 제출
+ * 운영자 지적 3건(09-03)에 대한 응답:
+ *   ① 텍스트만의 피로 — 체계의 전제("색은 콘텐츠에서 발생")대로 **지난 모임 포스터 스트립**을 증거로 놓는다.
+ *      브랜드 문장은 본문에서 뺀다(푸터가 이미 갖고 있다). 모션은 셸 공통 외 0 — 정적 골격 승인 전.
+ *   ② 단일 스크롤 — 안내는 한 화면(세 단락 + 절차 3행), 기획서는 별도 페이지에서 **한 화면에 질문 하나**.
+ *   ③ 리더 모집 — "누구나"가 아니라 브랜드를 함께 쓸 사람. 마지막 걸음에서 자기 모임이 홈 리스트에
+ *      어떻게 놓이는지 **미리보기**로 보여 준다(플랫폼의 가치가 설명 없이 체감되는 자리).
+ *
+ * 신규 CSS — 기존 .module.css 미임포트(§9). 값은 트리 문법에서 가져온다:
+ *   포스터 스트립 = 홈 캐러셀(간격 15, 4:5, 도트 8px 잉크·비활성 .4) · 리스트 항목 = .item(5컬럼, gap 15,
+ *   12px 0, 잉크 1px, 썸네일 2/5 3:4 ph-gray, 카테고리 SUIT, 제목 Gothic A1 18/600)
+ *   제목 24/18 Gothic A1 600, 본문 14.5/1.85, 라벨 SUIT 12.5 .03em, 입력 16px 무테 하단 헤어라인, 잉크 칩.
  * 라운드 0 · 유채색 0 · 보더 버튼 0 · 그림자 0.
- *
- * 2차 (운영자 "에디토리얼은 좋지만 가독성이 바닥") — 바꾼 것:
- *   · 본문 13.2 → 14.5px, 행간 1.85. 구간 제목을 11px 라벨에서 18px 제목으로
- *   · 키·값 가로 2열(키 96px)을 **세로 적층**으로 — 390px 에서 값 칸이 240px 로 눌려 줄이 잘게 끊겼다
- *   · 행 구분은 잉크 1px 대신 헤어라인, 구간 사이 여백 45 → 64px
- *   · 폼 라벨 11 → 12.5px, 힌트 12 → 13.5px, 필드 간격 26 → 36px, 긴 입력칸은 위아래 헤어라인으로 영역 표시
  * ================================================================ */
 
 .wrap {
@@ -25,63 +25,129 @@
   text-wrap: pretty;
 }
 
-/* ── 머리 ── */
 .headline {
   font-family: var(--gothic);
   font-weight: 600;
   font-size: 24px;
   line-height: 1.35;
-  margin: 6px 0 28px;
+  margin: 6px 0 34px;
 }
 
-/* 브랜드 문장 — 명조 (모임 상세 본문 nsqBodyText 와 같은 값), 나머지는 고딕 */
-.brandLine {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 15.5px;
-  line-height: 1.9;
-  margin: 0 0 24px;
+/* ── 지난 모임 포스터 스트립 — 본문 컬럼(460)보다 넓게, 콘텐츠 패딩(15px) 안에서 전폭 ── */
+.stripBlock { margin: 0 0 56px; }
+.stripLabel {
+  display: block;
+  font-family: var(--suit);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  margin: 0 0 12px;
 }
-.para { margin: 0 0 20px; }
-.para:last-child { margin-bottom: 0; }
+.strip {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* 컬럼 밖으로 나가는 전폭 — .content 의 15px 패딩까지 */
+  margin: 0 -15px;
+  padding: 0 15px;
+}
+.strip::-webkit-scrollbar { display: none; }
+.card {
+  flex: 0 0 150px;
+  scroll-snap-align: start;
+  margin: 0;
+}
+.card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+  background: var(--ph-gray);
+}
+.cardCap {
+  margin: 8px 0 0;
+  font-family: var(--suit);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  color: #6d6459;
+}
+@media (min-width: 721px) {
+  .card { flex-basis: 190px; }
+}
 
-/* ── 구간 ── */
-.section { margin: 64px 0 0; }
+/* ── 세 단락 ── */
+.section { margin: 0 0 44px; }
 .sectionTitle {
   font-family: var(--gothic);
   font-weight: 600;
   font-size: 18px;
   line-height: 1.5;
-  margin: 0 0 14px;
+  margin: 0 0 10px;
 }
+.para { margin: 0; }
 
-/* 항목 — 세로 적층, 헤어라인 구분 */
-.items { margin: 22px 0 0; border-top: 1px solid var(--ink); }
-.item {
-  padding: 18px 0;
+/* 절차 3행 — 헤어라인 */
+.steps { margin: 0 0 48px; border-top: 1px solid var(--ink); }
+.step {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
   border-bottom: 1px solid rgba(26, 18, 8, 0.18);
 }
-.item:last-child { border-bottom: 1px solid var(--ink); }
-.itemTitle {
-  display: block;
-  font-weight: 500;
-  margin: 0 0 4px;
-}
-.itemBody { margin: 0; }
-
-/* 절차 — 번호는 제목 앞에 작은 SUIT 숫자 */
+.step:last-child { border-bottom: 1px solid var(--ink); }
 .stepNum {
+  flex: 0 0 22px;
   font-family: var(--suit);
   font-size: 12px;
   letter-spacing: 0.06em;
-  margin-right: 10px;
-  position: relative;
-  top: -1px;
+  padding-top: 4px;
 }
+.stepBody { margin: 0; }
+.stepTitle { font-weight: 500; margin-right: 8px; }
 
-/* ── 폼 ── */
-.formIntro { margin: 0 0 32px; }
-.field { margin-bottom: 36px; }
+/* 기획서로 가는 링크 — 밑줄 텍스트 + ↗ */
+.cta { margin: 0; }
+.ctaLink {
+  font-family: var(--gothic);
+  font-weight: 600;
+  font-size: 18px;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1px;
+}
+.ctaLink:hover { text-decoration-thickness: 1px; }
+.ctaArrow { margin-left: 5px; position: relative; top: 1px; display: inline-block; }
+.ctaNote { margin: 10px 0 0; font-size: 13.5px; color: #6d6459; line-height: 1.7; }
+
+/* ── 기획서 흐름 (/hosts/apply) ── */
+.flow {
+  max-width: 460px;
+  margin: 0 auto;
+  padding-bottom: 65px;
+  font-size: 14.5px;
+  line-height: 1.85;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+.progress { display: flex; align-items: center; gap: 12px; margin: 4px 0 34px; }
+.dots { display: flex; gap: 8px; }
+.dot { width: 8px; height: 8px; background: var(--ink); opacity: 0.4; }
+.dotOn { opacity: 1; }
+.progressCap { font-family: var(--suit); font-size: 11px; letter-spacing: 0.03em; }
+
+.q {
+  font-family: var(--gothic);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+.hint { margin: 0 0 22px; font-size: 13.5px; line-height: 1.7; color: #6d6459; }
+
+.field { margin-bottom: 30px; }
 .fieldLabel {
   display: block;
   margin: 0 0 8px;
@@ -89,7 +155,6 @@
   font-size: 12.5px;
   letter-spacing: 0.03em;
 }
-.fieldHint { margin: 0 0 10px; font-size: 13.5px; line-height: 1.7; color: #6d6459; }
 .required { color: #a22525; margin-left: 2px; }
 .input,
 .textarea {
@@ -99,29 +164,27 @@
   border-radius: 0;
   padding: 4px 0 8px;
   font: inherit;
-  /* 16px 미만이면 iOS 사파리가 포커스 순간 자동 확대 (2026-08-25 사이트 전역 기준) */
-  font-size: 16px;
+  font-size: 16px; /* iOS 자동 확대 방지 */
   line-height: 1.6;
   background: transparent;
   color: var(--ink);
 }
-/* 긴 입력칸은 위아래 헤어라인으로 영역을 표시한다 — 밑줄 하나면 빈 화면이 어디까지 칸인지 안 보인다 */
 .textarea {
   display: block;
   border-top: 1px solid rgba(26, 18, 8, 0.18);
   padding: 12px 0;
-  min-height: 170px;
+  min-height: 200px;
   resize: vertical;
 }
-.textareaTall { min-height: 280px; }
+.textareaTall { min-height: 320px; }
 .textareaShort { min-height: 88px; }
 .input::placeholder,
 .textarea::placeholder { color: #bcbcbc; }
 .input:focus,
 .textarea:focus { outline: 0; border-bottom-color: var(--ink); }
 .inputError { border-bottom-color: #a22525; }
+.errorText { margin: 8px 0 0; font-size: 13px; color: #a22525; }
 
-/* 선택지 — 각진 헤어라인 박스, 선택 시 잉크 반전 */
 .choices { display: flex; gap: 8px; flex-wrap: wrap; }
 .choice {
   min-width: 52px;
@@ -136,31 +199,10 @@
   line-height: 1.4;
 }
 .choice:hover { border-color: var(--ink); }
-.choiceOn {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
-}
+.choiceOn { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-/* 동의 */
-.consent { margin: 44px 0 0; border-top: 1px solid var(--ink); padding-top: 20px; }
-.consentLabel {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-  margin-bottom: 8px;
-}
-.consentLabel input { margin: 6px 0 0; accent-color: var(--ink); }
-.consentNote { margin: 2px 0 14px 24px; font-size: 13px; line-height: 1.7; color: #6d6459; }
-.consentNote span { display: block; }
-
-/* 오류·구제 */
-.errorText { margin: 8px 0 0; font-size: 13px; color: #a22525; }
-.formError { margin: 0 0 8px; font-size: 13.5px; color: #a22525; }
-.rescue { margin: 22px 0 0; border: 1px solid rgba(26, 18, 8, 0.35); padding: 16px; }
-.rescueActions { display: flex; align-items: center; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
-.infoNote { margin: 12px 0 0; font-size: 13.5px; line-height: 1.7; color: #6d6459; }
+/* 걸음 이동 */
+.nav { display: flex; align-items: center; justify-content: space-between; margin-top: 34px; }
 .linkBtn {
   background: none;
   border: 0;
@@ -172,8 +214,6 @@
   text-underline-offset: 4.5px;
   text-decoration-thickness: 0.8px;
 }
-
-/* 제출 — 잉크 칩 */
 .actionBtn {
   display: inline-block;
   background: var(--ink);
@@ -185,12 +225,53 @@
   border: 0;
   border-radius: 0;
   cursor: pointer;
-  margin-top: 34px;
 }
 .actionBtn:hover { opacity: 0.85; }
 .actionBtn:disabled { opacity: 0.5; cursor: default; }
 
-/* 제출 중 전면 로더 */
+/* ── 마지막 걸음: 홈 리스트 항목 미리보기 (.item 문법) ── */
+.previewItem {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  padding: 12px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  margin: 0 0 8px;
+}
+.previewFigure {
+  grid-column: 1 / 3;
+  aspect-ratio: 3 / 4;
+  background: var(--ph-gray);
+  margin: 0;
+}
+.previewBody { grid-column: 3 / 6; display: flex; flex-direction: column; gap: 6px; }
+.previewCat { font-family: var(--suit); line-height: 1; font-size: 13.2px; }
+.previewTitle { font-family: var(--gothic); font-size: 18px; line-height: 1.5; font-weight: 600; }
+.previewMeta { margin: 0; font-size: 13.2px; }
+.previewIntro {
+  margin: 4px 0 0;
+  font-size: 13.2px;
+  line-height: 1.6;
+  color: #6d6459;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.previewNote { margin: 0 0 30px; font-size: 13px; color: #6d6459; line-height: 1.7; }
+
+.consent { margin: 30px 0 0; border-top: 1px solid var(--ink); padding-top: 20px; }
+.consentLabel { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin-bottom: 8px; }
+.consentLabel input { margin: 6px 0 0; accent-color: var(--ink); }
+.consentNote { margin: 2px 0 14px 24px; font-size: 13px; line-height: 1.7; color: #6d6459; }
+.consentNote span { display: block; }
+
+.rescue { margin: 22px 0 0; border: 1px solid rgba(26, 18, 8, 0.35); padding: 16px; }
+.formError { margin: 0 0 8px; font-size: 13.5px; color: #a22525; }
+.rescueActions { display: flex; align-items: center; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+.infoNote { margin: 12px 0 0; font-size: 13.5px; line-height: 1.7; color: #6d6459; }
+
 .busy {
   position: fixed;
   inset: 0;
@@ -200,7 +281,4 @@
   align-items: center;
   justify-content: center;
 }
-
-/* 접수 완료 */
-.done { padding: 4px 0 0; }
 .done p { margin: 0 0 14px; }

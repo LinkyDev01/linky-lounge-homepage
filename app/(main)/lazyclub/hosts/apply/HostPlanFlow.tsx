@@ -1,10 +1,10 @@
 "use client"
 
 /**
- * 모임 기획서 — 한 화면에 질문 하나 (v2 시안, 2026-09-04).
+ * 모임 기획서 — 한 화면에 질문 하나 (/hosts/apply. v2 시안 2026-09-04 → 09-05 승인).
  *
- * v1(HostForm)의 접수 계약을 그대로 쓴다: type:"host" / name / phone / title / format / plan / intro /
- * links / availability / consentAt → /api/lazyday/apply → GAS handleHost + 원장. 시안 구분용 `source` 만 더한다.
+ * 접수 계약: type:"host" / name / phone / title / format / plan / intro / links / availability / consentAt
+ * → /api/lazyday/apply → GAS handleHost + 원장. `source:"hosts-steps"` 는 원장 payload 용 표식(GAS 는 무시).
  *
  * 흐름 (북클럽 서면 인터뷰의 '한 페이지에 질문 하나 + 진행 점' 문법을 §9 백지+잉크로):
  *   1 이름·연락처 → 2 모임 한 줄·형식 → 3 기획 → 4 소개 → 5 참고 링크·가능한 시기 →
@@ -23,14 +23,14 @@ import {
   KAKAO_SUBMIT_LABEL,
   reportClientError,
 } from "@/app/(main)/lazyday/support"
-import { TurtleLoader } from "../../../TurtleLoader"
-import { LazyclubLink } from "../../../LazyclubLink"
-import { BASE } from "../../../base-path"
-import h from "../hosts-v2.module.css"
+import { TurtleLoader } from "../../TurtleLoader"
+import { LazyclubLink } from "../../LazyclubLink"
+import { BASE } from "../../base-path"
+import h from "../hosts.module.css"
 
 const FORMATS = ["원데이 토크", "4주 과정", "정기 모임", "아직 미정"] as const
-const DRAFT_KEY = "lzc-host-v2-draft"
-const DONE_KEY = "lzc-host-v2-applied"
+const DRAFT_KEY = "lzc-host-draft"
+const DONE_KEY = "lzc-host-applied"
 const TOTAL = 6
 
 type Draft = {
@@ -130,7 +130,7 @@ export function HostPlanFlow() {
       intro: d.intro.trim(),
       links: d.links.trim(),
       availability: d.availability.trim(),
-      source: "hosts-v2",
+      source: "hosts-steps",
       consentAt: new Date().toISOString(),
     }
     try {
@@ -168,7 +168,7 @@ export function HostPlanFlow() {
           ? "응답이 늦어져 접수 여부를 확인하지 못했습니다. 적으신 내용은 그대로 남아 있으니 잠시 뒤 한 번만 다시 보내 주세요. 두 번 접수되더라도 저희가 정리하겠습니다."
           : "일시적인 문제로 기획서가 접수되지 않았습니다. 적으신 내용은 그대로 남아 있으니 잠시 뒤 다시 보내 주세요.",
       })
-      reportClientError(timedOut ? "lzc_host_v2_timeout" : "lzc_host_v2_submit")
+      reportClientError(timedOut ? "lzc_host_timeout" : "lzc_host_submit")
       return
     } finally {
       clearTimeout(timer)
@@ -395,7 +395,7 @@ export function HostPlanFlow() {
                 >
                   {failCopied ? "복사했습니다" : "기획서 내용 복사"}
                 </button>
-                <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" onClick={() => reportClientError("lzc_host_v2_kakao")}>
+                <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" onClick={() => reportClientError("lzc_host_kakao")}>
                   {KAKAO_SUBMIT_LABEL}
                 </a>
               </div>
@@ -410,7 +410,7 @@ export function HostPlanFlow() {
             이전
           </button>
         ) : (
-          <LazyclubLink href={`${BASE}/hosts/v2`} className={h.linkBtn}>
+          <LazyclubLink href={`${BASE}/hosts`} className={h.linkBtn}>
             안내로 돌아가기
           </LazyclubLink>
         )}

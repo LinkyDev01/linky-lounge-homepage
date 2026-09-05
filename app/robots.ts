@@ -35,6 +35,9 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         // lazy-club.com 에선 /mypage, 북클럽 도메인에선 /lazyclub/mypage 로 열린다
         "/mypage",
         "/lazyclub/mypage",
+        // 모임장 기획서 폼 — 안내(/hosts)는 색인, 폼 페이지만 제외 (2026-09-05)
+        "/hosts/apply",
+        "/lazyclub/hosts/apply",
         // 구 주소 (2026-09-01 이전 전) — 301 이 받지만, 이미 색인된 주소가 다시 크롤되며
         // 리다이렉트 체인을 타지 않게 남겨 둔다
         "/one-day-talk-01/checkout",

@@ -27,21 +27,30 @@ import c from "./season-count-cta.module.css"
  * 보였다. → **화면에 들어올 때마다 재생**으로 변경 (나갔다 들어오면 다시 1부터).
  * 재생 중 재진입은 무시, 나가면 타이머를 걷어 어중간한 숫자로 멈추지 않게 한다.
  *
- * 2026-08-13 리타이밍 (운영자 "가속도 먹여서 좀 더 빠르게 / 앞부분에서 감속해서
- * 4까지 와 / 총 애니메이션 시간을 30% 정도 줄여"): 균일 180ms 간격을 **등비수열**로
- * 바꿔 앞이 가장 느리고 뒤로 갈수록 빨라지게 했다. 210 → 139 → 91ms.
- * 총 1120ms → 780ms (−30.4%).
+ * 2026-08-13 리타이밍: 균일 180ms 간격을 등비수열 **가속**으로 (210 → 139 → 91ms).
+ *
+ * 2026-09-05 방향 정정 (운영자 "1부터 4까지 4기로 고정되는 그 룰렛형태는 현재 등속으로
+ * 보이는데 룰렛머신처럼 수렴하는 형태로 자연스럽게 해줘"): 가속은 룰렛의 **반대**였다.
+ * 룰렛은 빠르게 돌다 느려지며 한 칸에 앉는다 → 간격을 easeIn 곡선에 태워 **감속**으로
+ * 뒤집었다. 69 → 172 → 259ms + 스프링 340ms (총 840ms).
+ * 종전 2026-08-13 지시("앞부분에서 감속해서 4까지 와")와도 이쪽이 맞는다.
  */
 
 const TARGET = Number((SEASON.name.match(/\d+/) ?? ["4"])[0]) // "4기" → 4
 
-/** 간격이 매 단계 STEP_RATIO 배로 줄어든다 = 뒤로 갈수록 가속 */
-const STEP_HOLD = 210 // "1" → "2" 첫 간격 (가장 길다)
-const STEP_RATIO = 0.66 // 이후 간격 배율
-const SETTLE_MS = 340 // 마지막 기수 스프링
-const SWAP_MS = 120 // 중간 숫자 교체 모션
-/** k 번째 교체 시각 (k=1 → "2" 노출). 등비수열 부분합 */
-const stepAt = (k: number) => Math.round((STEP_HOLD * (1 - Math.pow(STEP_RATIO, k))) / (1 - STEP_RATIO))
+/** 룰렛 머신처럼 **수렴**한다 — 간격이 매 단계 벌어지며 마지막 기수에 내려앉는다 (2026-09-05).
+ *  교체 시각을 easeIn 곡선(t^EASE_P)에 태우면 앞은 촘촘하고 뒤로 갈수록 느려진다.
+ *  ⚠ 종전(2026-08-13)은 등비수열 **가속**(210→139→91ms)이라 수렴의 반대였고,
+ *    3틱뿐이라 눈에는 등속으로 읽혔다 (운영자 "현재 등속으로 보이는데"). */
+const SPIN_MS = 500 // "1" 노출 → 마지막 기수 등장까지
+const EASE_P = 1.8 // 클수록 초반이 빠르고 끝이 더 느려진다
+const SETTLE_MS = 340 // 마지막 기수 스프링 (내려앉는 순간)
+const SWAP_MAX_MS = 130 // 중간 숫자 교체 모션 상한
+const STEPS = Math.max(1, TARGET - 1)
+/** k 번째 교체 시각 (k=1 → "2" 노출). 간격: 69 → 172 → 259ms */
+const stepAt = (k: number) => Math.round(SPIN_MS * Math.pow(k / STEPS, EASE_P))
+/** 교체 모션은 그 앞 간격보다 짧아야 다음 틱과 겹치지 않는다 */
+const swapMs = (k: number) => Math.max(60, Math.min(SWAP_MAX_MS, stepAt(k) - stepAt(k - 1) - 10))
 
 export function SeasonCountCta() {
   const numRef = useRef<HTMLSpanElement>(null)
@@ -72,13 +81,14 @@ export function SeasonCountCta() {
     const play = () => {
       playing = true
       el.textContent = "1"
-      // 1 → 2 → 3 (짧게 튀어 오르며 교체 — 간격이 점점 좁아진다)
+      // 1 → 2 → 3 (짧게 튀어 오르며 교체 — 간격이 점점 벌어진다 = 느려지는 구간)
       for (let n = 2; n < TARGET; n++) {
+        const k = n - 1
         timers.push(
           setTimeout(() => {
             el.textContent = String(n)
-            animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: SWAP_MS, ease: "out(2)" })
-          }, stepAt(n - 1)),
+            animate(el, { translateY: [6, 0], opacity: [0.4, 1], duration: swapMs(k), ease: "out(2)" })
+          }, stepAt(k)),
         )
       }
       // 마지막 기수 — 스프링으로 한 번 크게 앉는다

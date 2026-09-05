@@ -93,6 +93,7 @@ Supabase 대시보드의 **SQL Editor** 에 파일 내용을 붙여 넣고 Run �
 | `20260902183000_customer_activities.sql` | 사람 단위 활동 기록(메모·통화·문자, CRM-5). ⚠ **개인정보가 들어가는 자리라 파기 2종을 같은 파일에서** — 새 함수 `purge_expired_customer_activities()`(정기, 기존 cron 잡이 접수와 함께 부르게 갱신) + `purge_application` 을 **`(uuid, text)` 로 교체**(옛 1인자 함수는 `drop` — 오버로드로 남기면 라우트가 옛 시그니처를 불러 활동이 영영 안 지워진다). 적용 순서는 **마이그레이션 먼저, 코드 배포 나중** | ✔ | ✔ (2026-09-02) |
 | `20260902210000_profiles_avatar.sql` | 회원 프로필 사진 URL(`profiles.avatar_url`). **파일이 아니라 주소만** 담는다 — 보관·파기 대상을 늘리지 않고, 소셜에서 사진을 바꾸면 그대로 따라간다. ⚠ **파기 함수 무변경**: `profiles` 는 PK 가 `auth.users.id` cascade 라 탈퇴가 곧 파기다(0011). dev 실증 완료 | ✔ | ✔ (2026-09-02) |
 | `20260905090000_bookclub_class_assignments.sql` | 북클럽 반배정(고객 공유용 `/classes`) 원장 — 한 행 = 반\|이름, 순서 보존. **레포가 public 이라 명단은 DB 에만**(시드는 SQL 로 직접). 이름 파기 함수 + 기존 cron 잡이 세 함수 호출. RLS 거부 | ✔ | ✔ (2026-09-05) |
+| `20260905120000_bookclub_class_access.sql` | 반배정 열람 암호(기수당 1행, sha256). **env 대신 DB** — 운영자가 Vercel 에 넣고 재배포해야 열리는 것을 피한다. 개인정보 아님(파기 대상 아님). RLS 거부 | ✔ | ✔ (2026-09-05) |
 
 ## 5. 운영 조회
 

@@ -10,6 +10,8 @@ export type SeasonDay = {
   label: string
   /** 시간대 표기 (예: "19:30–22:30") */
   time: string
+  /** 마감된 반 — 화면엔 취소선·옅은 색으로 남기고 선택은 막는다 (2026-09-03) */
+  closed?: boolean
 }
 
 export type SeasonSession = {
@@ -43,30 +45,32 @@ export const SEASON = {
    *  "시점이 밀리더라도 화 수 일 순서대로"). 실제 회차는 수요일에 시작해 일 → 다음 주 화 진행이라
    *  같은 행에서 화요일 날짜가 수·일보다 늦다 — 의도된 배열.
    *  일요일은 오전·오후 2슬롯 (time을 ", "로 구분 — 표에서는 줄로 나눠 렌더) */
-  /** (2026-09-03) 토요일 오전 반 추가 — 순서는 요일 순 **화·수·토·일**. 토요일은 각 회차의
-   *  마지막 날(화요일 다음 주 토요일)이라 dates 에서 토 날짜가 그 행의 최댓값이다. */
+  /** (2026-09-03) 토요일 오전 반 추가 → 같은 날 화·수·일 **마감**. 모집 중인 토요일을 **첫 순서**로
+   *  (운영자 "랜딩 히어로에서는 토요일 오전 반을 첫 번째로 노출"). 마감 반은 `closed` 로 남겨 화면엔
+   *  취소선·옅은 색으로 보이고 선택은 막힌다 — 배열에서 지우면 월력 마커·시트 기록이 같이 사라진다.
+   *  토요일은 각 회차의 마지막 날(화요일 다음 주 토요일)이라 dates 에서 그 행의 최댓값이다. */
   days: [
-    { label: "화요일", time: "19:30–22:30" },
-    { label: "수요일", time: "19:30–22:30" },
     { label: "토요일", time: "10:30–13:30" },
-    { label: "일요일", time: "10:30–13:30, 14:30–17:30" },
+    { label: "화요일", time: "19:30–22:30", closed: true },
+    { label: "수요일", time: "19:30–22:30", closed: true },
+    { label: "일요일", time: "10:30–13:30, 14:30–17:30", closed: true },
   ] as SeasonDay[],
   /** 신청 폼 '참여 불가 요일' 선택지 — 일요일은 오전·오후 슬롯 분리, 나열 순서는 화·수 관례.
    *  time은 체크카드에 회색 보조 표기 (운영자 지시 2026-07-27) */
   unavailableDaySlots: [
-    { label: "화요일", time: "19:30–22:30" },
-    { label: "수요일", time: "19:30–22:30" },
     { label: "토요일 오전", time: "10:30–13:30" },
-    { label: "일요일 오전", time: "10:30–13:30" },
-    { label: "일요일 오후", time: "14:30–17:30" },
-  ],
-  /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서(**화·수·토·일**). 격주, 회차 시작 = 수요일이라
-   *  각 행의 화요일 날짜가 수·일보다 늦고, 토요일(2026-09-03 추가)은 그보다도 뒤다 (운영자 지시 2026-07-27) */
+    { label: "화요일", time: "19:30–22:30", closed: true },
+    { label: "수요일", time: "19:30–22:30", closed: true },
+    { label: "일요일 오전", time: "10:30–13:30", closed: true },
+    { label: "일요일 오후", time: "14:30–17:30", closed: true },
+  ] as Array<{ label: string; time: string; closed?: boolean }>,
+  /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서(**토·화·수·일**, 2026-09-03 토 첫 순서).
+   *  격주, 회차 시작 = 수요일이라 화요일 날짜가 수·일보다 늦고 토요일은 그보다도 뒤다 (운영자 지시 2026-07-27) */
   sessions: [
-    { label: "1회차", dates: ["9/15", "9/9", "9/19", "9/13"] },
-    { label: "2회차", dates: ["9/29", "9/23", "10/3", "9/27"] },
-    { label: "3회차", dates: ["10/13", "10/7", "10/17", "10/11"] },
-    { label: "4회차", dates: ["10/27", "10/21", "10/31", "10/25"] },
+    { label: "1회차", dates: ["9/19", "9/15", "9/9", "9/13"] },
+    { label: "2회차", dates: ["10/3", "9/29", "9/23", "9/27"] },
+    { label: "3회차", dates: ["10/17", "10/13", "10/7", "10/11"] },
+    { label: "4회차", dates: ["10/31", "10/27", "10/21", "10/25"] },
   ] as SeasonSession[],
   /** 5회차 (자유모임) — 기수마다 구성이 달라질 수 있음 */
   fifth: {
@@ -75,7 +79,7 @@ export const SEASON = {
     timeLabel: "19:00–22:00",
   },
   /** 안내 문구 */
-  regularNote: "1–4회차 · 9월 9일부터 격주, 화·수·토·일 선택",
+  regularNote: "1–4회차 · 9월 19일부터 격주 토요일 오전 (화·수·일 반 마감)",
   freeNote: "5회차 · 정규 4회 이후 진행",
   /** 장소 */
   location: {
@@ -103,6 +107,8 @@ export type CalendarMeeting = {
   day: number
   /** 1~4 회차 번호 */
   round: number
+  /** 마감된 반의 날짜 — 마커를 옅게 그린다 */
+  closed: boolean
 }
 export type CalendarMonth = {
   /** "9월" */
@@ -151,9 +157,9 @@ export function seasonEndsOn(): string | null {
 export function calendarData(): CalendarData {
   const year = seasonYear()
   const meetings: CalendarMeeting[] = SEASON.sessions.flatMap((s, i) =>
-    s.dates.map((d) => {
+    s.dates.map((d, di) => {
       const [month, day] = d.split("/").map(Number)
-      return { date: d, month, day, round: i + 1 }
+      return { date: d, month, day, round: i + 1, closed: !!SEASON.days[di]?.closed }
     }),
   )
   // fifth.date "11/1 (일)" → 11/1

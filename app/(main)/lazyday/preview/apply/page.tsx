@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, type FormEvent, type ReactNode } from "react"
+import { flushSync } from "react-dom"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
@@ -11,6 +12,33 @@ import { JourneyStepper } from "../JourneyStepper"
 import { PREVIEW } from "../preview-config"
 import { SEASON } from "../../season-config"
 import { ApplyCalendar } from "../../apply/ApplyCalendar"
+
+/** 스크롤 애니메이션 — 모션 감소 설정이면 즉시 이동 (레이지클럽 IntroOverlay·IdleShuffle 과 같은 판정) */
+const scrollBehavior = (): ScrollBehavior =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth"
+
+/** 오류 칸으로 스크롤 + 입력 칸이면 포커스(스크롤은 한 번만) — 키보드·스크린리더도 같은 칸으로 */
+function scrollToField(el: Element | null, block: ScrollLogicalPosition = "center") {
+  if (!el) return
+  el.scrollIntoView({ behavior: scrollBehavior(), block })
+  if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
+    el.focus({ preventScroll: true })
+  }
+}
+
+/** 팬 전환을 **동기 커밋**한 뒤 스크롤 (2026-09-03). display:none 팬 안의 요소는 scrollIntoView 가
+ *  무시되므로 — 2단계에서 제출했다가 1단계 필수값 누락으로 되돌아올 때 화면이 맨 아래에 남던 결함 —
+ *  setStep 을 flushSync 로 감싸 먼저 보이게 만든 다음 부른다. */
+function showStepThenScroll(
+  setStep: (s: 1 | 2) => void,
+  step: 1 | 2,
+  el: Element | null,
+  block: ScrollLogicalPosition,
+) {
+  flushSync(() => setStep(step))
+  scrollToField(el, block)
+}
+
 
 type Errors = Partial<Record<
   "name" | "gender" | "age" | "phone" | "unavailableDays" | "interviewType" | "privacyConsent" | "_form",
@@ -120,12 +148,12 @@ export default function PreviewApplyPage() {
           : firstKey === "interviewType"
           ? document.getElementById("interviewType-group")
           : document.querySelector(`[name="${firstKey}"]`)
-      target?.scrollIntoView({ behavior: "smooth", block: "center" })
+      scrollToField(target)
       return
     }
     setErrors({})
-    setStep(2)
-    window.scrollTo({ top: 0, behavior: "smooth" })
+    // 페이지 맨 위(로고)가 아니라 진행 표시(스텝퍼)로 — 그 바로 아래가 2단계 첫 필드다
+    showStepThenScroll(setStep, 2, document.getElementById("apply-stepper"), "start")
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -144,7 +172,9 @@ export default function PreviewApplyPage() {
     if (!age) newErrors.age = "나이를 입력해주세요."
     if (!phone) newErrors.phone = "전화번호를 입력해주세요."
     // 전부 불가면 참여 자체가 불가능 — 실수 방지
-    if (unavailableDays.length === SEASON.unavailableDaySlots.length)
+    // 마감 반은 어차피 못 고르니 **모집 중인 반**만 놓고 "전부 불가"를 본다 (2026-09-03)
+    const openSlots = SEASON.unavailableDaySlots.filter((s) => !s.closed).map((s) => s.label)
+    if (openSlots.length > 0 && openSlots.every((label) => unavailableDays.includes(label)))
       newErrors.unavailableDays = "모든 요일을 선택하면 참여 가능한 요일이 없어요. 참여 가능한 요일은 남겨주세요."
     if (!interviewType) newErrors.interviewType = "인터뷰 방식을 선택해주세요."
     if (!privacyConsent) newErrors.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
@@ -154,7 +184,6 @@ export default function PreviewApplyPage() {
       const firstKey = Object.keys(newErrors)[0]
       // 필수 항목은 전부 1단계에 있다 — 누락이면 1단계로 되돌린다
       const step1Keys = ["name", "gender", "age", "phone", "interviewType", "privacyConsent"]
-      if (step1Keys.includes(firstKey)) setStep(1)
       const target =
         firstKey === "privacyConsent"
           ? document.getElementById("privacyConsent")
@@ -163,7 +192,8 @@ export default function PreviewApplyPage() {
           : firstKey === "unavailableDays"
           ? document.getElementById("unavailableDays-group")
           : document.querySelector(`[name="${firstKey}"]`)
-      target?.scrollIntoView({ behavior: "smooth", block: "center" })
+      // ⚠ setStep 과 같은 틱에 scrollIntoView 를 부르면 대상이 아직 display:none 팬 안이라 무시된다
+      showStepThenScroll(setStep, step1Keys.includes(firstKey) ? 1 : 2, target, "center")
       return
     }
 
@@ -174,10 +204,13 @@ export default function PreviewApplyPage() {
     await new Promise((r) => setTimeout(r, 900))
     if (simulateFail) {
       setLoading(false)
-      setErrors({
-        _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '다음'을 다시 눌러주세요.",
-      })
-      document.getElementById("form-error-anchor")?.scrollIntoView({ behavior: "smooth", block: "center" })
+      // flushSync: 박스가 렌더되기 전에 스크롤하면 짧은 문서에 클램프된다 (실 페이지와 동일)
+      flushSync(() =>
+        setErrors({
+          _form: "일시적인 오류로 신청이 접수되지 않았어요. 입력하신 내용은 그대로 남아 있으니, 잠시 후 '다음'을 다시 눌러주세요.",
+        }),
+      )
+      document.getElementById("form-error-anchor")?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })
       return
     }
 
@@ -263,7 +296,9 @@ export default function PreviewApplyPage() {
               <span className={styles.headerSeason}>3기</span> 신청하기
             </h1>
             {/* 개선: 신청 여정 스텝퍼 */}
-            <JourneyStepper current={1} />
+            <div id="apply-stepper" className={styles.stepAnchor}>
+              <JourneyStepper current={1} />
+            </div>
           </div>
         </FadeUp>
 
@@ -281,7 +316,7 @@ export default function PreviewApplyPage() {
                   <tr>
                     <th className={styles.schThEmpty} />
                     {SEASON.days.map((d) => (
-                      <th key={d.label} className={styles.schThDay}>
+                      <th key={d.label} className={`${styles.schThDay}${d.closed ? ` ${styles.schClosed}` : ""}`}>
                         {d.label}<br />
                         {d.time.split(", ").map((t) => (
                           <span key={t} className={styles.schThTime}>{t}</span>
@@ -295,7 +330,7 @@ export default function PreviewApplyPage() {
                     <tr key={s.label}>
                       <td className={styles.schTdLabel}>{s.label}</td>
                       {s.dates.map((date, i) => (
-                        <td key={i} className={styles.schTdDate}>{date}</td>
+                        <td key={i} className={`${styles.schTdDate}${SEASON.days[i]?.closed ? ` ${styles.schClosed}` : ""}`}>{date}</td>
                       ))}
                     </tr>
                   ))}
@@ -541,15 +576,17 @@ export default function PreviewApplyPage() {
               <p className={styles.dayHint}>*참여인원 변동에 따라 모임 일정은 통합·추가 개설될 수 있습니다.</p>
               <div className={styles.dayGrid}>
                 {SEASON.unavailableDaySlots.map((slot) => (
-                  <label key={slot.label} className={styles.radioLabel}>
+                  <label key={slot.label} className={`${styles.radioLabel}${slot.closed ? ` ${styles.slotClosed}` : ""}`}>
                     <input
                       type="checkbox"
                       checked={unavailableDays.includes(slot.label)}
                       onChange={() => toggleUnavailableDay(slot.label)}
+                      disabled={!!slot.closed}
                     />
                     <span className={styles.dayCol}>
                       <span className={styles.radioText}>{slot.label}</span>
-                      <span className={styles.daySlotTime}>{slot.time}</span>
+                      {/* 마감 반은 글자로도 말한다 — 색·취소선만으로 상태를 전하지 않는다 */}
+                      <span className={styles.daySlotTime}>{slot.closed ? `${slot.time} · 마감` : slot.time}</span>
                     </span>
                   </label>
                 ))}
@@ -647,8 +684,7 @@ export default function PreviewApplyPage() {
                   className={styles.backButton}
                   disabled={loading}
                   onClick={() => {
-                    setStep(1)
-                    window.scrollTo({ top: 0, behavior: "smooth" })
+                    showStepThenScroll(setStep, 1, document.getElementById("apply-stepper"), "start")
                   }}
                 >
                   이전

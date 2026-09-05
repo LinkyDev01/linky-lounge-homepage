@@ -874,6 +874,8 @@
   gap: 22px;
 }
 .stepPaneHidden { display: none; }
+/* 단계 전환·오류 안내의 스크롤 착지점 — 화면 맨 위에 딱 붙지 않게 숨구멍 (2026-09-03) */
+.stepAnchor { scroll-margin-top: 12px; }
 
 /* ── 캘린더 토글 — 감싸는 회색 괘선 제거 + 좌측 오렌지 라인 캘린더 아이콘 ── */
 .calFaqList { border-top: none; }
@@ -953,3 +955,14 @@
   text-underline-offset: 3px;
 }
 .rescueLink:hover { color: #d2691e; }
+
+/* 마감 반 표기 (2026-09-03 토요일 오전만 모집) — 취소선 + 옅은 색. 열 헤더는 .scheduleTable .schThDay(0,2,0)보다
+   이겨야 하므로 같은 명시도로 */
+.scheduleTable .schClosed {
+  color: #a08b70;
+  text-decoration: line-through;
+  text-decoration-color: rgba(26, 18, 8, 0.32);
+  text-decoration-thickness: 1px;
+}
+.slotClosed { opacity: 0.55; cursor: not-allowed; }
+.slotClosed .radioText { text-decoration: line-through; text-decoration-color: rgba(26, 18, 8, 0.4); }

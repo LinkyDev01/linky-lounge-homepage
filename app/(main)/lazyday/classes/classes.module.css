@@ -41,12 +41,28 @@
 .table tr:last-child td { border-bottom: 0; }
 
 .foot { margin-top: 40px; padding-top: 12px; border-top: 1px solid var(--hair); color: var(--muted); font-size: 12px; }
+.empty { margin-top: 28px; color: var(--muted); }
 
-/* ── 열람 암호 ── */
-.gate { margin-top: 28px; }
-.gateNote { margin: 0 0 18px; color: var(--muted); }
-.field { display: grid; gap: 6px; }
-.label { color: var(--muted); font-size: 12px; }
+/* ── 열람 암호 모달 (운영자 2026-09-05 "그 자리 모달에서 입력") ──────────────
+ * 그림자 0 · 라운드 0 (§9) — 떠 있음은 그림자가 아니라 **1px 잉크 테두리와 종이색 면**이 말한다.
+ * 스크림은 잉크의 낮은 알파: 유채색을 들이지 않으면서 뒤를 눌러 준다. */
+.scrim {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(26, 18, 8, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal {
+  width: 100%; max-width: 320px;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--ink); border-radius: 0;
+  padding: 22px 20px 20px;
+  font-family: var(--suit); font-size: 13.2px; line-height: 1.5;
+  word-break: keep-all;
+}
+.modalTitle { margin: 0; font-size: 15px; font-weight: 600; }
+.modalNote { margin: 6px 0 18px; color: var(--muted); }
+
 .input {
   width: 100%; box-sizing: border-box;
   font: inherit; font-size: 16px; /* iOS 자동 확대 방지 — 입력칸은 16px 이상 (사이트 전역 규칙) */
@@ -54,14 +70,16 @@
   border: 0; border-bottom: 1px solid var(--ink); border-radius: 0;
   padding: 8px 0; outline: none;
   text-transform: uppercase; /* 대소문자 무관 — 서버도 대문자로 맞춰 비교한다 */
+  letter-spacing: 0.08em;
 }
-.input::placeholder { color: var(--muted); text-transform: none; }
-.actions { margin-top: 18px; display: flex; align-items: baseline; gap: 16px; }
+.input:focus { border-bottom-width: 2px; padding-bottom: 7px; }
+
+.error { margin: 10px 0 0; font-weight: 600; }
+.actions { margin-top: 18px; display: flex; justify-content: flex-end; }
 /* 유일한 채움 버튼 = 제출 (§9 `.actionBtn` 문법: 잉크 채움 · 종이색 글자 · 라운드 0) */
 .submit {
   font: inherit; font-size: 13.2px; color: var(--paper); background: var(--ink);
-  border: 0; border-radius: 0; padding: 4px 10px; cursor: pointer;
+  border: 0; border-radius: 0; padding: 5px 12px; cursor: pointer;
 }
-.submit:hover { text-decoration: underline; text-underline-offset: 3px; }
-.error { margin: 10px 0 0; color: var(--ink); font-weight: 600; }
-.empty { margin-top: 28px; color: var(--muted); }
+.submit:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
+.submit:disabled { opacity: 0.4; cursor: not-allowed; }

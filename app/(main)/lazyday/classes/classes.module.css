@@ -1,0 +1,67 @@
+/* 반배정 열람 (2026-09-05) — 관리 화면(admin/crm.module.css)과 같은 §9 문법: 백지+잉크 · 13.2px/1.5 ·
+ * 괘선 · 텍스트 링크. 라운드 0 · 유채색 0 · 그림자 0. §9 규율대로 기존 .module.css 를 import 하지 않고
+ * 토큰을 자체 선언한다 (관리 CSS 는 관리 트리 전용 — 손님 페이지가 물면 관리 화면을 고칠 때 여기가 흔들린다). */
+
+.root {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --muted: #8a7660;
+  --hair: rgba(26, 18, 8, 0.22);
+  --hair2: rgba(26, 18, 8, 0.1);
+  --suit: "SUIT", -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--suit);
+  font-size: 13.2px;
+  line-height: 1.5;
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+
+.main { max-width: 460px; margin: 0 auto; padding: 48px 20px 64px; }
+
+.head { padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+.h1 { margin: 0; font-size: 18px; font-weight: 400; }
+.sub { margin: 4px 0 0; color: var(--muted); }
+
+/* ── 반 블록 = 운영자 서식 한 덩어리: (N명) 머리 → 반|이름 표 ── */
+.block { margin-top: 28px; }
+.blockHead { margin: 0 0 6px; font-size: 13.2px; font-weight: 600; }
+.blockHead .count { font-weight: 400; color: var(--muted); margin-right: 8px; }
+.blockHead .time { font-weight: 400; color: var(--muted); margin-left: 6px; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th {
+  text-align: left; font-weight: 400; color: var(--muted);
+  padding: 8px 10px 6px 0; border-bottom: 1px solid var(--ink); white-space: nowrap;
+}
+.table td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hair2); vertical-align: top; }
+.table td:first-child { color: var(--muted); white-space: nowrap; width: 1%; }
+.table tr:last-child td { border-bottom: 0; }
+
+.foot { margin-top: 40px; padding-top: 12px; border-top: 1px solid var(--hair); color: var(--muted); font-size: 12px; }
+
+/* ── 열람 암호 ── */
+.gate { margin-top: 28px; }
+.gateNote { margin: 0 0 18px; color: var(--muted); }
+.field { display: grid; gap: 6px; }
+.label { color: var(--muted); font-size: 12px; }
+.input {
+  width: 100%; box-sizing: border-box;
+  font: inherit; font-size: 16px; /* iOS 자동 확대 방지 — 입력칸은 16px 이상 (사이트 전역 규칙) */
+  color: var(--ink); background: transparent;
+  border: 0; border-bottom: 1px solid var(--ink); border-radius: 0;
+  padding: 8px 0; outline: none;
+  text-transform: uppercase; /* 대소문자 무관 — 서버도 대문자로 맞춰 비교한다 */
+}
+.input::placeholder { color: var(--muted); text-transform: none; }
+.actions { margin-top: 18px; display: flex; align-items: baseline; gap: 16px; }
+/* 유일한 채움 버튼 = 제출 (§9 `.actionBtn` 문법: 잉크 채움 · 종이색 글자 · 라운드 0) */
+.submit {
+  font: inherit; font-size: 13.2px; color: var(--paper); background: var(--ink);
+  border: 0; border-radius: 0; padding: 4px 10px; cursor: pointer;
+}
+.submit:hover { text-decoration: underline; text-underline-offset: 3px; }
+.error { margin: 10px 0 0; color: var(--ink); font-weight: 600; }
+.empty { margin-top: 28px; color: var(--muted); }

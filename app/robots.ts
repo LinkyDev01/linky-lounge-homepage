@@ -35,6 +35,9 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         // lazy-club.com 에선 /mypage, 북클럽 도메인에선 /lazyclub/mypage 로 열린다
         "/mypage",
         "/lazyclub/mypage",
+        // 반배정 열람 — 멤버에게 링크로 주는 암호 페이지 (2026-09-05). 북클럽 도메인 /classes
+        "/classes",
+        "/lazyday/classes",
         // 모임장 기획서 폼 — 안내(/hosts)는 색인, 폼 페이지만 제외 (2026-09-05)
         "/hosts/apply",
         "/lazyclub/hosts/apply",

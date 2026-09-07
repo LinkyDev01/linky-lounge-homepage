@@ -19,7 +19,7 @@ export type RevealVariant = "snap" | "sweep" | "capsule" | "pop"
  * ⚠ **밑줄은 <a> 의 ::after 한 줄**이다(글자별 text-decoration 아님). 글자가 팝(transform)할 때
  *   밑줄까지 같이 튀면 안 되고(운영자), 글자를 inline-block 으로 두면 부모의 text-decoration 은
  *   그 위에 그려지지 않는다. 그래서 변형되지 않는 <a> 가 절대배치 밑줄을 갖는다 — 위치는
- *   실측으로 다른 링크의 밑줄(offset 3px·1px)과 픽셀 일치시켰다(blink-link.module.css `--ul-bottom`).
+ *   실측으로 다른 링크의 밑줄(offset 3px·1px)에 맞췄다(blink-link.module.css `--ul-bottom` — 굵기 동일, 위치 반픽셀 차).
  * ⚠ 4글자 전용 — 켜지는 구간(25%)이 키프레임에 박혀 있다. 두 단어가 다 4글자다.
  * ⚠ 사람 목록 카드(.personCard)에서는 점멸하지 않는다 — 카드는 링크 강조를 전부 푸는 자리라
  *   home.module.css 가 글자·밑줄을 평문으로 되돌린다.

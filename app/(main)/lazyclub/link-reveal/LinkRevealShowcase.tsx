@@ -4,8 +4,7 @@ import { Children, cloneElement, isValidElement, useState, type ReactNode } from
 import { WorkroomShell } from "../Shell"
 import { HostIntro } from "../HostIntro"
 import { PEOPLE } from "../people-config"
-import { DeferredCss } from "@/components/common/DeferredCss"
-import { BlinkLink, type RevealVariant } from "./BlinkLink"
+import { BlinkLink, type RevealVariant } from "../BlinkLink"
 import styles from "./link-reveal.module.css"
 
 /**
@@ -52,8 +51,7 @@ export function LinkRevealShowcase() {
 
   return (
     <WorkroomShell>
-      {/* Gothic A1 800 — 셸은 700 까지만 싣는다. 이 시안만 한 단계 위 굵기가 필요하다 (schedule·turtle 선례) */}
-      <DeferredCss href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@800&display=swap" />
+      {/* Gothic A1 800 은 셸(fonts-inline.css)이 싣는다 — 실이식(2026-09-07)과 함께 추가 */}
       <div className={styles.page}>
         <header className={styles.head}>
           <h1>약력 링크 점멸 시안</h1>

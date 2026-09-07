@@ -658,6 +658,11 @@
      같은 굵기로 (운영자 2026-08-21 "볼드 처리 안 되게 모두 동일한 서식으로") */
   font-weight: inherit;
 }
+/* 점멸 링크(BlinkLink, 2026-09-07)도 카드에선 평문 — 글자 점멸·::after 밑줄을 끈다.
+   특이도 (0,3,1) 로 blink-link.module 의 a.blink[data-variant](0,2,1) 을 확실히 이긴다 */
+.personCard .nsqHostText a[data-variant] { font-weight: inherit; }
+.personCard .nsqHostText a[data-variant]::after { display: none; }
+.personCard .nsqHostText a[data-variant] span { animation: none; color: inherit; }
 
 @media all and (max-width: 720px) {
   /* 모바일은 1열 — 2열로 쪼개면 사진(38%)과 텍스트가 같이 설 폭이 안 나온다 */

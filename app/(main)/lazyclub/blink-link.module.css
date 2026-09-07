@@ -1,0 +1,99 @@
+/* 한 글자씩 깜빡이는 링크 (2026-09-07) — 인물 약력 링크(.nsqHostText a: Gothic A1 700, 밑줄 offset 3px)와
+ * 같은 자리에서 **굵기 한 단계 위(800)** + 글자별 스텝 점멸. 채택안 D(글자 팝, 호버 중 무한반복).
+ * §9: 라운드 0 · 유채색 0 · 그림자 0. (C안 캡슐만 마크의 빙고 써클 문법이라 둥글다 — 시안 비교용)
+ *
+ * ⚠ 밑줄 = <a>::after 한 줄. 이유 둘:
+ *   ① 글자(span)가 inline-block 이라 부모 text-decoration 이 그 위에 그려지지 않는다(픽셀 실측 0행)
+ *   ② 글자에 밑줄을 주면 글자가 팝(transform)할 때 밑줄까지 튄다 — 운영자 "밑줄까지 팝은 안 되게"
+ *   변형되지 않는 <a> 가 절대배치 밑줄을 가지면 둘 다 해결된다. `--ul-bottom` 은 다른 링크의
+ *   네이티브 밑줄(offset 3px · 굵기 1px)과 **실측으로 맞춘 값**(굵기 동일, 위치는 2x 에서 device 1px 차) — 바꾸지 말 것.
+ * ⚠ 선택자가 a.blink[data-variant](0,2,1)인 이유: `.nsqHostText a { font-weight: 700 }`(0,1,1)이
+ *   .blink(0,1,0)를 이겨 800 이 안 먹혔다(실측 700). */
+
+a.blink[data-variant] {
+  --ink: #1a1208;
+  --step: 0.5s;          /* 글자당 0.5초 (운영자) */
+  --cycle: 2s;           /* 4글자 × 0.5초 */
+  --ul-bottom: 3px;      /* 밑줄 위치 — 실측: 다른 링크의 네이티브 밑줄은 글자 바닥에서 3.5px 아래(반픽셀 자리).
+                            절대배치 1px 상자는 1px 단위로 스냅돼 2·2.5·3px 가 전부 같은 자리(4px 아래)에 그려지고
+                            3.5px 부턴 글자와 맞닿는다(2x·3x 캡처 스윕, 2026-09-07). 0.5px 차이는 1x 에선 0,
+                            2x 에선 device 1px — 굵기(1px)는 동일. 정수 3px 로 둔다 */
+  position: relative;
+  font-weight: 800;      /* 다른 링크 700 대비 한 단계 위 */
+  text-decoration: none; /* 밑줄은 ::after */
+  white-space: nowrap;
+  display: inline-block;
+}
+/* 밑줄 — 글자와 무관하게 <a> 폭 전체에 상시. 글자가 꺼져 있어도 '여기가 링크'라는 폭이 남는다 */
+a.blink[data-variant]::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: var(--ul-bottom);
+  height: 1px;
+  background: var(--ink);
+  pointer-events: none;
+}
+.letter {
+  display: inline-block;
+  color: transparent;    /* 꺼진 글자 = 배경색과 동일 (운영자 "옅게도 아니고, 배경색과 동일하게"). 자리는 차지한다 */
+  animation: blinkOn var(--cycle) step-end infinite;
+  animation-delay: calc(var(--i) * var(--step));
+}
+/* 4글자 전용 — 켜지는 구간이 1/4 (25%). 글자 수가 달라지면 이 값을 나눠야 한다 */
+@keyframes blinkOn {
+  0%, 24.99% { color: var(--ink); }
+  25%, 100% { color: transparent; }
+}
+
+/* ── 호버 공통: 점멸을 멈추고 전부 켠다 ── */
+.blink:hover .letter,
+.blink:focus-visible .letter,
+.blink:active .letter {
+  animation: none;
+  color: var(--ink);
+}
+
+/* ── D. 글자 팝 (채택) — 커서를 대고 있는 동안 **무한반복**(운영자 "커서 올리면 글자 팝이 무한반복").
+ *   사이클 0.6s: 앞 0.28s 에 scale 1.24 팝(오버레이 '확정 팝'과 같은 값) + 0.32s 쉼.
+ *   쉼을 아예 없애면 네 글자가 계속 떨려 '팝'이 아니라 '진동'이 되고, 1s(종전)는 쉼이 길어
+ *   한 번 튀고 멈춘 것처럼 읽혔다. 40ms 스태거로 왼→오 물결. 밑줄(::after)은 <a> 쪽이라 안 튄다 ── */
+.pop:hover .letter,
+.pop:focus-visible .letter {
+  animation: letterPop 0.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation-delay: calc(var(--i) * 40ms);
+  color: var(--ink);
+}
+@keyframes letterPop {
+  0%   { transform: scale(1); }
+  22%  { transform: scale(1.24); }
+  47%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+/* ── 시안 비교용 A·B·C (실사이트 미사용, /lazyclub/link-reveal 스위처) ── */
+/* A 일제 점등: 호버 공통 규칙이 전부 */
+.sweep .letter { transition: color 0s; }
+.sweep:hover .letter,
+.sweep:focus-visible .letter { transition-delay: calc(var(--i) * 60ms); }
+.capsule::before {
+  content: "";
+  position: absolute;
+  inset: -0.18em -0.28em -0.12em;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  pointer-events: none;
+  clip-path: inset(0 100% 0 0);
+}
+.capsule:hover::before,
+.capsule:focus-visible::before { animation: capsuleDraw 0.34s steps(4, jump-start) forwards; }
+@keyframes capsuleDraw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.capsule:hover::after,
+.capsule:focus-visible::after { opacity: 0; } /* 캡슐이 그어지는 동안 밑줄은 잠시 뗀다 */
+
+/* 모션 축소 — 점멸 없이 전부 켜진 800 굵기 링크 */
+@media (prefers-reduced-motion: reduce) {
+  .letter { animation: none; color: var(--ink); }
+  .pop:hover .letter { animation: none; }
+  .capsule::before { display: none; }
+}

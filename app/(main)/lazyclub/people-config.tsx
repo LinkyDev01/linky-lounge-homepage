@@ -11,11 +11,14 @@
 //   (`/lazyclub/meetings/dm-gd`)으로 간다 — 종전 목적지(wine21·위키백과) 교체. 운영자 지시이자,
 //   그 페이지의 "네그로니는 없습니다 / 네비올로도 없습니다"와 짝을 이루는 농담이다.
 //   내부 링크라 새 탭으로 열지 않는다(같은 파일의 레이지클럽 링크와 같은 취급).
+//   2026-09-07: 이 두 링크만 **BlinkLink**(한 글자씩 점멸·800·호버 팝) — 원문은 그대로, 링크의 옷만 다르다.
+//   목록 카드(.personCard)에서는 점멸하지 않는다(home.module.css 가 평문으로 되돌린다).
 // ⚠ 서버 컴포넌트에서 문자열 보간해도 안전하도록 base-path 에서 직수입
 //   (Shell("use client") 경유 금지 — base-path.ts 헤더의 프록시 버그 주석 참조)
 // ================================================================
 
 import { BASE, BOOKCLUB_URL, HOME } from "./base-path"
+import { BlinkLink } from "./BlinkLink"
 
 export type Person = {
   slug: string
@@ -83,7 +86,7 @@ export const PEOPLE: Person[] = [
           O2O
         </a>{" "}
         서비스를 출시했고, 현재는 주로 레이지데이 북클럽에서 독서모임장으로 출현하는 것으로 알려져 있으며,{" "}
-        <a href={`${BASE}/meetings/dm-gd`}>네비올로</a>{" "}
+        <BlinkLink href={`${BASE}/meetings/dm-gd`} text="네비올로" />{" "}
         품종의 포도주를 즐겨 마시고 싶어 하는 것으로 전해진다.
       </p>
     ),
@@ -121,7 +124,7 @@ export const PEOPLE: Person[] = [
         을 암기하여 3×3×3 큐브를 10초대에 맞추는 등 비범한 재능을 보였다. 2024년
         처음 출전한 마블런 10km에서 47분의 기록을 달성한 후 미련 없이 달리기를 관두었으며, 현재 가장
         좋아하는 칵테일은{" "}
-        <a href={`${BASE}/meetings/dm-gd`}>네그로니</a>
+        <BlinkLink href={`${BASE}/meetings/dm-gd`} text="네그로니" />
         로 알려져 있다.
       </p>
     ),

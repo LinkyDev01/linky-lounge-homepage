@@ -25,7 +25,7 @@ const VARIANTS: { key: RevealVariant; label: string; desc: string }[] = [
   { key: "snap", label: "A 일제 점등", desc: "커서를 대면 네 글자가 한 번에 켜진다. 그 밖엔 아무것도 더하지 않는다." },
   { key: "sweep", label: "B 순차 점등", desc: "왼쪽부터 한 글자씩 60ms 간격으로 켜진다 — 스텝, 페이드 없음." },
   { key: "capsule", label: "C 찾은 단어에 동그라미", desc: "전부 켜지며 워드서치의 '찾았다' 캡슐이 왼쪽 끝부터 4단계로 그어진다." },
-  { key: "pop", label: "D 글자 팝", desc: "전부 켜지며 글자마다 한 번 1.24배 튀었다 돌아온다 (40ms 스태거)." },
+  { key: "pop", label: "D 글자 팝 (채택)", desc: "전부 켜지며 글자마다 1.24배 튀는 물결이 1초마다 반복된다 (40ms 스태거). 커서를 대고 있는 동안 계속." },
 ]
 
 function isCoffeeLink(el: React.ReactElement<{ href?: string }>) {
@@ -47,7 +47,7 @@ function swapCoffeeLinks(node: ReactNode, variant: RevealVariant): ReactNode {
 }
 
 export function LinkRevealShowcase() {
-  const [variant, setVariant] = useState<RevealVariant>("capsule")
+  const [variant, setVariant] = useState<RevealVariant>("pop")
   const current = VARIANTS.find((v) => v.key === variant)!
 
   return (
@@ -57,7 +57,7 @@ export function LinkRevealShowcase() {
       <div className={styles.page}>
         <header className={styles.head}>
           <h1>약력 링크 점멸 시안</h1>
-          <p>네비올로 · 네그로니 → 커피앤바. 쉴 때 한 글자씩 0.5초, 굵기 800(다른 링크 700). 커서를 대면 전부.</p>
+          <p>네비올로 · 네그로니 → 커피앤바. 쉴 때 한 글자씩만 검게, 나머지는 배경색(투명). 0.5초 순환, 굵기 800(다른 링크 700). 커서를 대면 전부.</p>
         </header>
 
         <nav className={styles.switch} aria-label="호버 반응 시안">

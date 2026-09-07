@@ -6,7 +6,8 @@
 /* ⚠ 선택자가 a.blink[data-variant](0,2,1)인 이유: 약력 본문의 `.nsqHostText a { font-weight: 700 }`(0,1,1)
  *   이 .blink(0,1,0) 을 이겨 800 이 안 먹혔다(실측: 계산값 700). 클래스 하나 더로 앞선다 */
 a.blink[data-variant] {
-  --dim: 0.22;          /* 꺼진 글자 = 헤어라인 알파 (home.module --hair 와 같은 값) */
+  --dim: 0;             /* 꺼진 글자 = 완전 투명 = 배경색과 동일 (운영자 2026-09-07 "옅게도 아니고, 배경색과 동일하게").
+                           자리는 그대로 차지해 단어 폭·밑줄은 남는다 */
   --step: 0.5s;         /* 글자당 0.5초 (운영자) */
   --cycle: 2s;          /* 4글자 × 0.5초 */
   position: relative;
@@ -69,15 +70,19 @@ a.blink[data-variant] {
 .capsule:hover,
 .capsule:focus-visible { text-decoration-color: transparent; }
 
-/* ── D. 글자 팝 — 켜지는 순간 1회 scale 1.24 (오버레이의 '확정 팝'과 같은 값), 40ms 스태거 ── */
+/* ── D. 글자 팝 — 커서를 대고 있는 동안 **반복**(운영자 2026-09-07 "D가 반복되게").
+ *   한 사이클 1s: 앞 0.28s 에 scale 1.24 팝(오버레이 '확정 팝'과 같은 값), 나머지는 쉼 —
+ *   쉼 없이 돌리면 네 글자가 계속 떨려 '팝'이 아니라 '진동'이 된다. 40ms 스태거로 왼→오 물결 ── */
 .pop:hover .letter,
 .pop:focus-visible .letter {
-  animation: letterPop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: letterPop 1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   animation-delay: calc(var(--i) * 40ms);
+  opacity: 1;
 }
 @keyframes letterPop {
   0%   { transform: scale(1); }
-  45%  { transform: scale(1.24); }
+  13%  { transform: scale(1.24); }
+  28%  { transform: scale(1); }
   100% { transform: scale(1); }
 }
 

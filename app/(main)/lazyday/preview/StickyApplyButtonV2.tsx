@@ -37,7 +37,7 @@ export function StickyApplyButtonV2() {
         >
           {SEASON.next} 오픈 알림 신청
           <span className={styles.applyBtnSub}>
-            *{SEASON.next} 진행 일정: 9.7 - 11.1
+            *{SEASON.next} 진행 일정: {SEASON.nextStartLabel}
           </span>
         </button>
       </div>

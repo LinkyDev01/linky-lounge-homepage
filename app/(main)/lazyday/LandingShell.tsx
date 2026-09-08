@@ -6,6 +6,7 @@ import { LazydayLink } from "@/components/common/LazydayLink"
 import { LazydayMark } from "./LazydayMark"
 import { CHROME_NOSCRIPT_CSS, useChromeIntro } from "./useChromeIntro"
 import { trackApplyCtaClick } from "@/lib/meta-pixel"
+import { SEASON } from "./season-config"
 import s from "./landing-shell.module.css"
 
 /**
@@ -138,9 +139,18 @@ export function LandingShell({
         </nav>
 
         <nav className={s.navMenu} aria-label="바로가기">
-          <LazydayLink href="/apply" className={s.navApply} onClick={() => trackApplyCtaClick()}>
-            신청하기
-          </LazydayLink>
+          {/* 마감(다음 기수 알림 모드)이면 신청이 아니라 알림 폼으로 — 마감 뒤에도 이 자리가
+              /apply 로 열려 있으면 '모집 중' 신호가 되고, trackApplyCtaClick(InitiateCheckout)이
+              계속 발화해 광고 세트 지표까지 오염된다 (2026-09-08). */}
+          {SEASON.status === "closedEarly" ? (
+            <a href="#notify" className={s.navApply}>
+              {SEASON.next} 알림
+            </a>
+          ) : (
+            <LazydayLink href="/apply" className={s.navApply} onClick={() => trackApplyCtaClick()}>
+              신청하기
+            </LazydayLink>
+          )}
         </nav>
       </header>
 

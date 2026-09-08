@@ -65,8 +65,11 @@ export function HeroSummary() {
 
   const closedEarly = SEASON.status === "closedEarly"
   // showDeadline=false: D-day 카운트는 숨기고 '모집 중'만 — 마감일이 지나면 '마감'은 표기 (자동 종료)
+  // '조기'는 마감일 **전에** 닫았을 때만 (실 HeroSummary 와 쌍 동기화, 2026-09-08)
   const kicker = closedEarly
-    ? `${PREVIEW.season} 모집 조기 마감`
+    ? SEASON.closedReason === "early"
+      ? `${PREVIEW.season} 모집 조기 마감`
+      : `${PREVIEW.season} 모집이 마감되었어요`
     : d !== null && d < 0
     ? `${PREVIEW.season} 모집이 마감되었어요`
     : !SEASON.showDeadline || d === null

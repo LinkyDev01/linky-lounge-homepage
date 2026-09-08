@@ -1,5 +1,13 @@
 /* 5기 포스터 — 두 장이 엇갈려 맞물려 도는 프리뷰 (운영자 2026-09-08)
- * 배경 #eeeeee 지정, 20초 1회전, 한 장은 시계·한 장은 반시계, 회전 원점은 캔버스 중심.
+ * 배경 #eeeeee 지정, 회전 원점은 캔버스 중심, 한 장은 시계·한 장은 반시계.
+ * 겹침 순서는 작은 쪽(반시계)이 앞 — TSX 의 DOM 순서가 정한다.
+ * 속도는 **A안 3구간 프로파일**(운영자 "a로 갈게"):
+ *   0–6s   12°/s 유지        읽는 구간 (1바퀴 30초)
+ *   6–24s  12 → 54 등가속    읽으려 할 즈음 빨라진다 (α 2.333°/s²)
+ *   24–40s 54 → 60 완만      상한 (1바퀴 6초 — 선풍기는 그 6배다, α 0.375°/s²)
+ * 40초 뒤엔 **60°/s 정속**으로 이어 붙인다 — 인트로 누적이 1578°(4.38바퀴)라
+ * 그 자리에서 되감으면 138° 가 튄다. 인트로(누적)와 정속(6초 1바퀴, 이음매 없음)을
+ * 겹친 요소 둘로 나눠 중첩 transform 으로 곱해 그 튐을 없앤다.
  * 프리뷰 전용 CSS — 실사이트 .module.css 는 import 하지 않는다. */
 
 .page {
@@ -21,25 +29,121 @@
   overflow: hidden;
 }
 
+/* 인트로 회전(누적) · 정속 회전 두 겹 — 중첩이라 transform 이 곱해진다 */
+.spin,
+.steady {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
 .layer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transform-origin: 50% 50%;
-  will-change: transform;
 }
 
-/* 20s / 1회전 · 등속 · 무한 */
-.cw  { animation: spinCw  20s linear infinite; }
-.ccw { animation: spinCcw 20s linear infinite; }
+/* 인트로 40초 — 끝 각도를 유지(forwards)하고, 그 위에 정속이 40초 지연으로 얹힌다 */
+.spinCw  { animation: introCw  40s linear forwards; }
+.spinCcw { animation: introCcw 40s linear forwards; }
+.steadyCw  { animation: steadyCw  6s linear 40s infinite; }
+.steadyCcw { animation: steadyCcw 6s linear 40s infinite; }
 
-@keyframes spinCw  { from { transform: rotate(0deg); }    to { transform: rotate(360deg); } }
-@keyframes spinCcw { from { transform: rotate(0deg); }    to { transform: rotate(-360deg); } }
+/* 구간 공식을 1초 간격으로 샘플링한 값 — 0–6s 는 등속이라 간격이 일정하고 6s 부터 벌어진다 */
+@keyframes introCw {
+  0% { transform: rotate(-0.0deg); }
+  2.5% { transform: rotate(-12.0deg); }
+  5% { transform: rotate(-24.0deg); }
+  7.5% { transform: rotate(-36.0deg); }
+  10% { transform: rotate(-48.0deg); }
+  12.5% { transform: rotate(-60.0deg); }
+  15% { transform: rotate(-72.0deg); }
+  17.5% { transform: rotate(-85.2deg); }
+  20% { transform: rotate(-100.7deg); }
+  22.5% { transform: rotate(-118.5deg); }
+  25% { transform: rotate(-138.7deg); }
+  27.5% { transform: rotate(-161.2deg); }
+  30% { transform: rotate(-186.0deg); }
+  32.5% { transform: rotate(-213.2deg); }
+  35% { transform: rotate(-242.7deg); }
+  37.5% { transform: rotate(-274.5deg); }
+  40% { transform: rotate(-308.7deg); }
+  42.5% { transform: rotate(-345.2deg); }
+  45% { transform: rotate(-384.0deg); }
+  47.5% { transform: rotate(-425.2deg); }
+  50% { transform: rotate(-468.7deg); }
+  52.5% { transform: rotate(-514.5deg); }
+  55% { transform: rotate(-562.7deg); }
+  57.5% { transform: rotate(-613.2deg); }
+  60% { transform: rotate(-666.0deg); }
+  62.5% { transform: rotate(-720.2deg); }
+  65% { transform: rotate(-774.8deg); }
+  67.5% { transform: rotate(-829.7deg); }
+  70% { transform: rotate(-885.0deg); }
+  72.5% { transform: rotate(-940.7deg); }
+  75% { transform: rotate(-996.8deg); }
+  77.5% { transform: rotate(-1053.2deg); }
+  80% { transform: rotate(-1110.0deg); }
+  82.5% { transform: rotate(-1167.2deg); }
+  85% { transform: rotate(-1224.8deg); }
+  87.5% { transform: rotate(-1282.7deg); }
+  90% { transform: rotate(-1341.0deg); }
+  92.5% { transform: rotate(-1399.7deg); }
+  95% { transform: rotate(-1458.8deg); }
+  97.5% { transform: rotate(-1518.2deg); }
+  100% { transform: rotate(-1578.0deg); }
+}
+@keyframes introCcw {
+  0% { transform: rotate(0.0deg); }
+  2.5% { transform: rotate(12.0deg); }
+  5% { transform: rotate(24.0deg); }
+  7.5% { transform: rotate(36.0deg); }
+  10% { transform: rotate(48.0deg); }
+  12.5% { transform: rotate(60.0deg); }
+  15% { transform: rotate(72.0deg); }
+  17.5% { transform: rotate(85.2deg); }
+  20% { transform: rotate(100.7deg); }
+  22.5% { transform: rotate(118.5deg); }
+  25% { transform: rotate(138.7deg); }
+  27.5% { transform: rotate(161.2deg); }
+  30% { transform: rotate(186.0deg); }
+  32.5% { transform: rotate(213.2deg); }
+  35% { transform: rotate(242.7deg); }
+  37.5% { transform: rotate(274.5deg); }
+  40% { transform: rotate(308.7deg); }
+  42.5% { transform: rotate(345.2deg); }
+  45% { transform: rotate(384.0deg); }
+  47.5% { transform: rotate(425.2deg); }
+  50% { transform: rotate(468.7deg); }
+  52.5% { transform: rotate(514.5deg); }
+  55% { transform: rotate(562.7deg); }
+  57.5% { transform: rotate(613.2deg); }
+  60% { transform: rotate(666.0deg); }
+  62.5% { transform: rotate(720.2deg); }
+  65% { transform: rotate(774.8deg); }
+  67.5% { transform: rotate(829.7deg); }
+  70% { transform: rotate(885.0deg); }
+  72.5% { transform: rotate(940.7deg); }
+  75% { transform: rotate(996.8deg); }
+  77.5% { transform: rotate(1053.2deg); }
+  80% { transform: rotate(1110.0deg); }
+  82.5% { transform: rotate(1167.2deg); }
+  85% { transform: rotate(1224.8deg); }
+  87.5% { transform: rotate(1282.7deg); }
+  90% { transform: rotate(1341.0deg); }
+  92.5% { transform: rotate(1399.7deg); }
+  95% { transform: rotate(1458.8deg); }
+  97.5% { transform: rotate(1518.2deg); }
+  100% { transform: rotate(1578.0deg); }
+}
+@keyframes steadyCw  { from { transform: rotate(0deg); }  to { transform: rotate(-360deg); } }
+@keyframes steadyCcw { from { transform: rotate(0deg); }  to { transform: rotate(360deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .cw, .ccw { animation: none; }
+  .spinCw, .spinCcw, .steadyCw, .steadyCcw { animation: none; }
 }
 
 .caption {

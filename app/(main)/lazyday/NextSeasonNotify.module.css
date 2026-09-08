@@ -172,3 +172,13 @@
   text-decoration: none;
   word-break: keep-all;
 }
+
+/* 다음 기수 진행 일정 한 줄 — 각주 위계(11px/#9a9590)로 조용히 (2026-09-08) */
+.schedule {
+  margin: 6px 0 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9a9590;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}

@@ -32,36 +32,40 @@ const TAG_ROT = [-5, 4, 6, -4, 5, -6, 4, -5, 6, -4, -6, 5, 4]
 const ROUND_LABEL = ["1st", "2nd", "3rd", "4th"]
 const DOW_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 
-// 요일을 시간대별로 묶어 세 줄로: "화·수 저녁 19:30–22:30" / "일 오전 10:30–13:30" / "일 오후 14:30–17:30" (운영자 지시 2026-07-27)
-// 같은 시간대 요일은 주중 순서(일월화수목금토)로 정렬 — '화·수' (운영자 지시 2026-07-24).
+// 요일이 아니라 **슬롯 단위**로 묶어 세 줄로: "화·수 저녁 19:30–22:30" / "토·일 오전
+// 10:30–13:30" / "일 오후 14:30–17:30" (운영자 2026-09-08 "토요일이 앞에 있을 이유도 없고
+// 토/일이 분리될 이유도 없어"). 요일 통째로 묶던 종전 방식은 일요일만 슬롯이 둘이라
+// 같은 오전인 토요일이 따로 떨어졌다.
+// 주 시작을 **월요일**로 본다 — 일요일 시작이면 '토·일' 이 '일·토' 로 갈린다.
+const DOW_MON = ["월", "화", "수", "목", "금", "토", "일"]
 function timeFootLines(): { text: string; closed: boolean }[] {
-  const dowIdx = (label: string) => DOW_LABELS.indexOf(label.replace("요일", ""))
-  const groups: { labels: string[]; time: string }[] = []
-  for (const d of SEASON.days) {
-    const g = groups.find((x) => x.time === d.time)
-    if (g) g.labels.push(d.label)
-    else groups.push({ labels: [d.label], time: d.time })
+  const dowIdx = (label: string) => DOW_MON.indexOf(label.replace("요일", ""))
+  // 시간대는 시작 시각으로 — 토요일 10:30 이 '저녁'으로 찍히지 않게 (2026-09-03)
+  const partOf = (slot: string) => {
+    const hour = Number(slot.split(":")[0])
+    return hour < 12 ? "오전" : hour < 17 ? "오후" : "저녁"
   }
-  const lines: { text: string; closed: boolean }[] = []
-  for (const g of groups) {
+  const groups: { labels: string[]; slot: string; part: string }[] = []
+  for (const d of SEASON.days) {
+    for (const slot of d.time.split(", ")) {
+      const part = partOf(slot)
+      const g = groups.find((x) => x.slot === slot && x.part === part)
+      if (g) g.labels.push(d.label)
+      else groups.push({ labels: [d.label], slot, part })
+    }
+  }
+  // 줄 순서 = 그룹에서 가장 이른 요일 (월요일 시작) → 화·수 저녁 → 토·일 오전 → 일 오후
+  const earliest = (g: { labels: string[] }) => Math.min(...g.labels.map(dowIdx))
+  groups.sort((a, b) => earliest(a) - earliest(b) || a.slot.localeCompare(b.slot))
+  return groups.map((g) => {
     // 그룹의 모든 요일이 마감이면 취소선·옅은 색 (2026-09-03)
     const closed = g.labels.every((l) => SEASON.days.find((d) => d.label === l)?.closed)
     const names = g.labels
       .map((l) => l.replace("요일", ""))
       .sort((a, b) => dowIdx(a) - dowIdx(b))
       .join("·")
-    const slots = g.time.split(", ")
-    if (slots.length === 2) {
-      lines.push({ text: `${names} 오전 ${slots[0]}`, closed })
-      lines.push({ text: `${names} 오후 ${slots[1]}`, closed })
-    } else {
-      // 단일 슬롯은 시작 시각으로 시간대를 정한다 — 토요일 10:30 이 '저녁'으로 찍히지 않게 (2026-09-03)
-      const hour = Number(g.time.split(":")[0])
-      const part = hour < 12 ? "오전" : hour < 17 ? "오후" : "저녁"
-      lines.push({ text: `${names} ${part} ${g.time}`, closed })
-    }
-  }
-  return lines
+    return { text: `${names} ${g.part} ${g.slot}`, closed }
+  })
 }
 
 export function ScheduleSectionV2() {

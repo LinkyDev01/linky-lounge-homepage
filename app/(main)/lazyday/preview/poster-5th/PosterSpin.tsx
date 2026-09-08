@@ -8,30 +8,31 @@ import styles from "./PosterSpin.module.css"
  * 원본은 4050×4050 PNG 두 장 — 전송량 때문에 1800px WebP 로 축소해 커밋했다(§5).
  *
  * 겹침 순서는 **작은 쪽(반시계)이 앞** — 시계 레이어를 먼저 깔고 반시계를 위에.
- * 속도는 A안 3구간 프로파일(운영자 "a로 갈게") — 값과 근거는 CSS 머리말에.
+ * 속도·크기 프로파일과 잘림 방지 계산은 CSS 머리말에.
  *
- * ⚠ 요소가 **두 겹**인 이유: 인트로는 40초 동안 1578°(4.38바퀴)를 도는데 그
- *   자리에서 되감으면 138° 가 튄다. 바깥(.spin)이 인트로를 forwards 로 끝 각도에
- *   세워 두고, 안쪽(.steady)이 40초 뒤부터 6초 1바퀴 정속을 돌린다 — 정속은
- *   360° 단위라 이음매가 없다. 중첩 transform 이라 두 회전이 곱해진다.
+ * ⚠ 겹이 셋인 이유: 크기(등감소) · 인트로 회전(누적) · 정속 회전을 각각 다른
+ *   요소에 걸어 **중첩 transform 으로 곱한다**. 한 요소에 여러 애니메이션이
+ *   같은 transform 을 쓰면 마지막 것만 남는다.
  */
 export function PosterSpin() {
   return (
     <div className={styles.page}>
       <div className={styles.stage} id="poster-stage">
-        <div className={`${styles.spin} ${styles.spinCw}`}>
-          <div className={`${styles.steady} ${styles.steadyCw}`}>
-            <img src="/assets/lazyday/season05/poster-spin-cw.webp" alt="레이지데이 북클럽 5기 포스터 (시계방향)" className={styles.layer} />
+        <div className={`${styles.shrink} ${styles.shrinkBox}`}>
+          <div className={`${styles.spin} ${styles.spinCw}`}>
+            <div className={`${styles.steady} ${styles.steadyCw}`}>
+              <img src="/assets/lazyday/season05/poster-spin-cw.webp" alt="레이지데이 북클럽 5기 포스터 (시계방향)" className={styles.layer} />
+            </div>
           </div>
-        </div>
-        <div className={`${styles.spin} ${styles.spinCcw}`}>
-          <div className={`${styles.steady} ${styles.steadyCcw}`}>
-            <img src="/assets/lazyday/season05/poster-spin-ccw.webp" alt="레이지데이 북클럽 5기 포스터 (반시계방향)" className={styles.layer} />
+          <div className={`${styles.spin} ${styles.spinCcw}`}>
+            <div className={`${styles.steady} ${styles.steadyCcw}`}>
+              <img src="/assets/lazyday/season05/poster-spin-ccw.webp" alt="레이지데이 북클럽 5기 포스터 (반시계방향)" className={styles.layer} />
+            </div>
           </div>
         </div>
       </div>
       <p className={styles.caption}>
-        읽기 6초(1바퀴 30초) → 24초까지 가속 → 상한 1바퀴 6초 · 배경 #eeeeee
+        읽기 6초 · 35초까지 가속(1바퀴 4.3초) · 마지막 5초 등속 · 24–35초 크기 등감소 1.00→0.60
       </p>
     </div>
   )

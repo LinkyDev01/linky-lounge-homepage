@@ -12,30 +12,33 @@ import styles from "./preview.module.css"
  * 데이터는 season-config 단일 출처. D-day는 마운트 후 계산(빌드 박제 방지).
  */
 
-// 요일을 시간대별로 묶어 ["화·수 19:30–22:30", "일 10:30–13:30, 14:30–17:30"] 로.
-// (수·일·화처럼 같은 시간이 떨어져 있어도 묶는다 — 등장 순서 유지)
-// ⚠ **한 문자열로 잇지 않는다** (2026-08-17). 모바일에서 자연 줄바꿈이 일요일 그룹
-//   **안쪽**을 잘라 "일 10:30–13:30," 까지만 첫 줄에 남기고 "14:30–17:30" 을 다음 줄로
-//   보냈다 — 일요일에 오전 한 타임만 있는 것처럼 읽힌다 (운영자 "모바일에서는 일요일
-//   통째로 줄바꿈해서 착오가 없게끔 해"). 그룹 단위로 넘겨 오전·오후가 늘 같은 줄에
-//   붙어 있게 한다 (렌더에서 그룹마다 white-space: nowrap).
+// 슬롯 단위로 묶어 ["화·수 19:30–22:30", "토·일 10:30–13:30", "일 14:30–17:30"] 로
+// (운영자 2026-09-08 "토요일이 앞에 있을 이유도 없고 토/일이 분리될 이유도 없어").
+// ⚠ 종전엔 요일의 시간 문자열 통째로 묶고 일요일 두 슬롯을 한 줄에 콤마로 이었다 —
+//   모바일에서 그 줄이 그룹 **안쪽**에서 잘려 "일 10:30–13:30," 까지만 첫 줄에 남는
+//   사고가 있었다(2026-08-17). 이제 슬롯마다 줄이 갈리므로 그 위험 자체가 없다.
+// 주 시작은 **월요일** — 일요일 시작이면 '토·일' 이 '일·토' 로 갈린다.
 function dayScheduleGroups() {
-  const groups: { labels: string[]; time: string }[] = []
+  const DOW_MON = ["월", "화", "수", "목", "금", "토", "일"]
+  const dowIdx = (label: string) => DOW_MON.indexOf(label.replace("요일", ""))
+  const groups: { labels: string[]; slot: string }[] = []
   for (const d of SEASON.days) {
-    const g = groups.find((x) => x.time === d.time)
-    if (g) g.labels.push(d.label)
-    else groups.push({ labels: [d.label], time: d.time })
+    for (const slot of d.time.split(", ")) {
+      const g = groups.find((x) => x.slot === slot)
+      if (g) g.labels.push(d.label)
+      else groups.push({ labels: [d.label], slot })
+    }
   }
-  const DOW = ["일", "월", "화", "수", "목", "금", "토"]
+  const earliest = (g: { labels: string[] }) => Math.min(...g.labels.map(dowIdx))
+  groups.sort((a, b) => earliest(a) - earliest(b) || a.slot.localeCompare(b.slot))
   return groups.map((g) => {
     // 그룹의 모든 요일이 마감이면 마감 그룹 — 취소선·옅은 색 (2026-09-03)
     const closed = g.labels.every((l) => SEASON.days.find((d) => d.label === l)?.closed)
-    // 같은 시간대 요일은 주중 순서로 — '화·수' (운영자 지시 2026-07-24)
     const names = g.labels
       .map((l) => l.replace("요일", ""))
-      .sort((a, b) => DOW.indexOf(a) - DOW.indexOf(b))
+      .sort((a, b) => dowIdx(a) - dowIdx(b))
       .join("·")
-    return { text: `${names} ${g.time}`, closed }
+    return { text: `${names} ${g.slot}`, closed }
   })
 }
 

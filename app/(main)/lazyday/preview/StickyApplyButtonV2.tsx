@@ -26,20 +26,13 @@ export function StickyApplyButtonV2() {
       ? `${PREVIEW.season} 신청 (오늘 마감)`
       : `${PREVIEW.season} 신청 (마감일까지 D-${d})`
 
-  // 조기마감 모드 — 실 StickyApplyButton/ApplyButton과 동일 값 (쌍 동기화)
+  // 마감 모드 — 실 ApplyButton 과 동일 값 (쌍 동기화, 2026-09-08 회색 '모집 마감' 복원)
   if (SEASON.status === "closedEarly") {
     return (
       <div className={styles.fixedButtonContainer}>
-        <button
-          type="button"
-          className={`${styles.applyButton} ${styles.applyButtonTwoLine}`}
-          onClick={() => window.dispatchEvent(new CustomEvent("lazyday:notify-cta"))}
-        >
-          {SEASON.next} 오픈 알림 신청
-          <span className={styles.applyBtnSub}>
-            *{SEASON.next} 진행 일정: {SEASON.nextStartLabel}
-          </span>
-        </button>
+        <span className={styles.applyButtonClosed} aria-disabled="true">
+          {PREVIEW.season} 모집 마감
+        </span>
       </div>
     )
   }

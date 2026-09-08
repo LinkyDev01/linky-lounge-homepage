@@ -18,20 +18,16 @@ export function ApplyButton({ className = "", short = false }: { className?: str
     return () => clearInterval(t)
   }, [])
 
-  // 조기마감 모드: 살아있는 주황 버튼 그대로, 액션만 4기 알림으로 전환 (운영자 확정 2026-07-13)
-  // 클릭은 커스텀 이벤트 — NextSeasonNotify가 받아 '폼 유효하면 제출 / 아니면 #notify 스크롤' 판단
+  // 마감 모드: **2기 때 쓰던 회색 '모집 마감' 표기를 되살린다** (운영자 2026-09-08
+  // "모집 알림 받기 대신에 마감으로 회색처리하고 클릭 링크 없앤 거 … 그걸로 살려봐").
+  // 원본은 커밋 5001afd — <span class=applyButtonClosed aria-disabled> 로 클릭이 아예 없다
+  // (CSS 에 pointer-events:none·cursor:default). 알림 신청은 페이지 안 #notify 폼과
+  // 상단 내비 '5기 알림' 링크로 남는다.
   if (SEASON.status === "closedEarly") {
     return (
-      <button
-        type="button"
-        className={`${styles.applyButton} ${styles.applyButtonTwoLine} ${className}`}
-        onClick={() => window.dispatchEvent(new CustomEvent("lazyday:notify-cta"))}
-      >
-        {SEASON.next} 오픈 알림 신청
-        <span className={styles.applyBtnSub}>
-          *{SEASON.next} 진행 일정: {SEASON.nextStartLabel}
-        </span>
-      </button>
+      <span className={`${styles.applyButtonClosed} ${className}`} aria-disabled="true">
+        {SEASON.name} 모집 마감
+      </span>
     )
   }
 

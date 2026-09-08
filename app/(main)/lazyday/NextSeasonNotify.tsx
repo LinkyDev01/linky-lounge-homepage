@@ -125,6 +125,11 @@ export function NextSeasonNotify() {
               <br />
               {SEASON.next} 소식을 가장 먼저 받아보세요.
             </p>
+            {/* 다음 기수 진행 일정 — 종전엔 스티키 CTA 둘째 줄에 있었는데, 그 버튼이 회색
+                '모집 마감' 표기로 바뀌며(2026-09-08) 표시할 자리가 사라져 이리로 옮겼다. */}
+            <p className={styles.schedule}>
+              {SEASON.next} 진행 일정: {SEASON.nextStartLabel}
+            </p>
             <form
               className={styles.form}
               onSubmit={(e) => {

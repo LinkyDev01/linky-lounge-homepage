@@ -120,7 +120,8 @@ export function NextSeasonNotify() {
           <>
             <p className={styles.title}>{SEASON.next} 오픈 알림</p>
             <p className={styles.lead}>
-              {SEASON.name}는 조기 마감되었습니다.
+              {/* '조기'는 마감일 전에 닫았을 때만 — 마감일 경과로 닫힌 기수엔 붙이지 않는다 (2026-09-08) */}
+              {SEASON.name}는 {SEASON.closedReason === "early" ? "조기 마감" : "마감"}되었습니다.
               <br />
               {SEASON.next} 소식을 가장 먼저 받아보세요.
             </p>

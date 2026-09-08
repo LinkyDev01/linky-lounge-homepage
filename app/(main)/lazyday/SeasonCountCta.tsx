@@ -135,7 +135,7 @@ export function SeasonCountCta() {
         </h2>
       ) : (
         <p className={c.titleStatic}>
-          {SEASON.status === "closedEarly"
+          {SEASON.status === "closedEarly" && SEASON.closedReason === "early"
             ? `${SEASON.name} 모집이 조기 마감되었습니다.`
             : `${SEASON.name} 모집이 마감되었습니다.`}
         </p>

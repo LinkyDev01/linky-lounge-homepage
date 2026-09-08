@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { season1Config, season2Config, season3Config, season4Config } from "../book-config"
 import type { SeasonConfig } from "../book-config"
+import { seasonPhase } from "../season-config"
 import bstyles from "../BookSection.module.css"
 import styles from "./preview.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -31,6 +32,12 @@ export function BookSectionV2() {
   const season = SEASONS[seasonIdx]
   const books = season.books
   const isCurrent = seasonIdx === 0
+  // 현재 기수의 리드 문구는 **날짜에서** 정한다 — 수동 플래그는 시작일이 지나도 안 넘어갔다.
+  // 마운트 후 계산(빌드 박제 방지)이라, 그 전 한 프레임은 book-config 플래그가 그대로 쓰인다.
+  const [phase, setPhase] = useState<"upcoming" | "ongoing" | "past" | null>(null)
+  useEffect(() => { setPhase(seasonPhase()) }, [])
+  const upcoming = isCurrent && phase ? phase === "upcoming" : !!season.upcoming
+  const ongoing = isCurrent && phase ? phase === "ongoing" : !!season.ongoing
 
   // 활성 세그먼트 위치 측정 → 주황 썸이 미끄러져 이동
   useLayoutEffect(() => {
@@ -96,9 +103,9 @@ export function BookSectionV2() {
           </div>
           {/* 현재 기수 강조 리드 */}
           <p className={styles.bookLead}>
-            {season.upcoming ? (
+            {upcoming ? (
               <>다가오는 <strong>{season.label}</strong>에 함께 읽을 네 권</>
-            ) : season.ongoing ? (
+            ) : ongoing ? (
               <><strong>{season.label}</strong>에 읽고 있는 책</>
             ) : isCurrent ? (
               <>이번 시즌, <strong>{season.label}</strong>에 함께 읽는 네 권</>

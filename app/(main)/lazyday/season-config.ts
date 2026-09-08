@@ -102,6 +102,37 @@ export const SEASON = {
   },
 }
 
+/** 현재 기수의 진행 단계 — **책 섹션 리드 문구**가 이걸로 갈린다 (2026-09-08).
+ *  종전엔 `book-config` 의 `upcoming`/`ongoing` **수동 플래그**라, 기수가 시작해도
+ *  "다가오는 4기"가 그대로 남았다(운영자가 손으로 뒤집기 전까지). 날짜에서 뽑아 저절로 넘어가게 한다.
+ *  ⚠ 마운트 후 호출할 것 — 빌드 시점에 박제되면 같은 문제가 된다 (D-day 와 같은 규율). */
+export function seasonPhase(): "upcoming" | "ongoing" | "past" {
+  const year = seasonYear()
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const at = (md: string, endOfDay = false) => {
+    const [m, d] = md.split("/").map(Number)
+    if (!m || !d) return NaN
+    return new Date(`${year}-${pad(m)}-${pad(d)}T${endOfDay ? "23:59:59" : "00:00:00"}+09:00`).getTime()
+  }
+  // 1회차는 요일별로 날짜가 흩어져 있다 — 가장 이른 날이 기수의 시작이다
+  const starts = (SEASON.sessions[0]?.dates ?? []).map((d) => at(d)).filter(Number.isFinite)
+  const start = starts.length ? Math.min(...starts) : NaN
+  const endStr = seasonEndsOn()
+  const end = endStr ? new Date(`${endStr}T23:59:59+09:00`).getTime() : NaN
+  const now = Date.now()
+  if (Number.isFinite(start) && now < start) return "upcoming"
+  if (Number.isFinite(end) && now > end) return "past"
+  return "ongoing"
+}
+
+/** 신청 접수가 닫혔는가 — 알림 모드이거나 마감일이 지났으면 닫힘.
+ *  ⚠ 서버(라우트)에서도 부른다: 화면 링크를 다 닫아도 `/apply` 직접 접근·옛 링크가 남는다. */
+export function isApplyClosed(): boolean {
+  if (SEASON.status === "closedEarly") return true
+  const d = daysUntilDeadline()
+  return d !== null && d < 0
+}
+
 /** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수). deadline이 null이면 null (마감 미표기) */
 export function daysUntilDeadline(): number | null {
   if (!SEASON.deadline) return null

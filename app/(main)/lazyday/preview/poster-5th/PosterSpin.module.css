@@ -1,0 +1,51 @@
+/* 5기 포스터 — 두 장이 엇갈려 맞물려 도는 프리뷰 (운영자 2026-09-08)
+ * 배경 #eeeeee 지정, 20초 1회전, 한 장은 시계·한 장은 반시계, 회전 원점은 캔버스 중심.
+ * 프리뷰 전용 CSS — 실사이트 .module.css 는 import 하지 않는다. */
+
+.page {
+  min-height: 100vh;
+  background: #eeeeee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 0 56px;
+}
+
+/* 정사각 무대 — 뷰포트 짧은 변에 맞춘다. 회전하며 모서리가 밖으로 나가므로 overflow 는 감춘다 */
+.stage {
+  position: relative;
+  width: min(92vw, 76vh, 860px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* 20s / 1회전 · 등속 · 무한 */
+.cw  { animation: spinCw  20s linear infinite; }
+.ccw { animation: spinCcw 20s linear infinite; }
+
+@keyframes spinCw  { from { transform: rotate(0deg); }    to { transform: rotate(360deg); } }
+@keyframes spinCcw { from { transform: rotate(0deg); }    to { transform: rotate(-360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cw, .ccw { animation: none; }
+}
+
+.caption {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #6b6b6b;
+  text-align: center;
+  letter-spacing: -0.01em;
+}

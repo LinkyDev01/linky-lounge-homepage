@@ -9,7 +9,9 @@
 
 .heroWrapper {
     position: relative;
-    background: #ffffff;
+    /* 히어로 밴드(HeroSpinPoster)가 덮지만, 첫 페인트에 흰 띠가 스치지 않게 같은 톤으로
+       맞춘다 — 섹션 배경 B (2026-09-09 "홈페이지 섹션 배경컬러와 통일"). */
+    background: #f0e9e0;
 }
 
 .mainImage {

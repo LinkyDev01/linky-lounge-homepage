@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { gasPostJson, isGasExecuted, isGasRejected, gasRejectReason } from "@/lib/gas"
 import { markApplicationSubmitted } from "@/lib/orders"
 import { classifyApply, recordSafe } from "@/lib/applications"
-import { SEASON, isApplyClosed } from "@/app/(main)/lazyday/season-config"
+import { isApplyClosed, applyClosedMessage } from "@/app/(main)/lazyday/season-config"
 
 const GAS_URL = process.env.INTERVIEW_GAS_URL
 const IS_DEV  = process.env.NODE_ENV === "development"
@@ -21,11 +21,12 @@ export async function POST(req: NextRequest) {
 
   // 모집이 닫힌 뒤의 북클럽 접수는 여기서 끊는다 (2026-09-08). 화면 링크를 다 닫아도
   // `/apply` 직접 접근·검색 유입·예전에 공유된 링크가 남아, 마감된 기수에 신청이 쌓인다.
-  // ⚠ **`kind === "bookclub"` 만** — 이 라우트는 5기 오픈 알림(`notify`)·커피앤바·원데이·
-  //   모임장 접수도 함께 받는다. 통째로 막으면 알림 신청이 같이 죽는다.
+  // ⚠ **`kind === "bookclub"` 만** — 이 라우트는 오픈 알림(`notify`)·커피앤바·원데이·
+  //   모임장 접수도 함께 받는다. 통째로 막으면 그것들이 같이 죽는다.
+  // 문구는 `applyClosedMessage()` — 상태마다 사실이 달라서다(마감 / 아직 안 열림 / 잠금).
   if (kind === "bookclub" && isApplyClosed()) {
     return NextResponse.json(
-      { success: false, error: `${SEASON.name} 모집이 마감되었습니다.` },
+      { success: false, error: applyClosedMessage() },
       { status: 403 },
     )
   }

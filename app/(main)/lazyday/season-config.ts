@@ -162,6 +162,15 @@ export const NOTIFY_SEASON = SEASON.status === "upcoming" ? SEASON.name : SEASON
 /** 알림 폼이 안내하는 **일정** — 오픈 전이면 이번 기수의 기간이 곧 그 일정이다. */
 export const NOTIFY_SCHEDULE = SEASON.status === "upcoming" ? SEASON.periodLabel : SEASON.nextStartLabel
 
+/** 접수를 안 받는 이유를 한 문장으로 — 라우트 403 응답이 쓴다.
+ *  ⚠ 상태마다 사실이 다르다: locked/upcoming 은 **마감이 아니다**(5기는 모집을 연 적이 없다).
+ *  "N기 모집이 마감되었습니다"를 상태와 무관하게 쓰면 거짓말이 된다 (2026-09-09). */
+export function applyClosedMessage(): string {
+  if (SEASON.status === "locked") return "지금은 신청을 받지 않습니다."
+  if (SEASON.status === "upcoming") return `${SEASON.name} 모집은 아직 열리지 않았습니다.`
+  return `${SEASON.name} 모집이 마감되었습니다.`
+}
+
 /** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수). deadline이 null이면 null (마감 미표기) */
 export function daysUntilDeadline(): number | null {
   if (!SEASON.deadline) return null

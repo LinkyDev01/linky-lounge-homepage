@@ -10,7 +10,7 @@ import styles from "../../apply/page.module.css"
 import pstyles from "../preview.module.css"
 import { JourneyStepper } from "../JourneyStepper"
 import { PREVIEW } from "../preview-config"
-import { SEASON } from "../../season-config"
+import { SEASON, NOTIFY_MODE, NOTIFY_SEASON } from "../../season-config"
 import { ApplyCalendar } from "../../apply/ApplyCalendar"
 
 /** 스크롤 애니메이션 — 모션 감소 설정이면 즉시 이동 (레이지클럽 IntroOverlay·IdleShuffle 과 같은 판정) */
@@ -281,7 +281,7 @@ export default function PreviewApplyPage() {
   // 신청이 쌓인다. 서버(`/api/lazyday/apply`)도 같은 판정으로 막는다 — 여긴 안내가 일이다.
   // ⚠ 판정은 **정적 플래그**만 본다(마감일 경과는 서버가 맡는다) — 날짜로 갈리면 SSR 과
   //   클라이언트가 달라 폼이 한 프레임 깜빡인다.
-  if (SEASON.status === "closedEarly") {
+  if (NOTIFY_MODE) {
     return (
       <main className={styles.successPage}>
         <div className={styles.successInner}>
@@ -298,15 +298,15 @@ export default function PreviewApplyPage() {
           </FadeUp>
           <FadeUp delay={0.3}>
             <p className={styles.successBody}>
-              다음 기수 소식을 기다리고 계셨다면,
+              {SEASON.status === "upcoming" ? "모집이 열리는 대로 알려드릴게요," : "다음 기수 소식을 기다리고 계셨다면,"}
               <br />
-              {SEASON.next} 오픈 알림을 신청해주세요.
+              {NOTIFY_SEASON} 오픈 알림을 신청해주세요.
             </p>
           </FadeUp>
           <FadeUp delay={0.45}>
             <div className={styles.successActions}>
               <LazydayLink href={"/lazyday/preview#notify"} className={styles.successPrimaryLink}>
-                {SEASON.next} 오픈 알림 신청
+                {NOTIFY_SEASON} 오픈 알림 신청
               </LazydayLink>
             </div>
           </FadeUp>

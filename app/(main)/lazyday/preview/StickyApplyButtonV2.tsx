@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import styles from "../page.module.css"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
-import { SEASON } from "../season-config"
+import { SEASON, NOTIFY_SEASON, NOTIFY_SCHEDULE } from "../season-config"
 
 /** 개선안: 스티키 CTA에 마감 D-day 자동 표기 (마감일은 preview-config에서 계산) */
 export function StickyApplyButtonV2() {
@@ -26,7 +26,28 @@ export function StickyApplyButtonV2() {
       ? `${PREVIEW.season} 신청 (오늘 마감)`
       : `${PREVIEW.season} 신청 (마감일까지 D-${d})`
 
-  // 마감 모드 — 실 ApplyButton 과 동일 값 (쌍 동기화, 2026-09-08 회색 '모집 마감' 복원)
+  // 알림 모드 — 실 ApplyButton 과 동일 값 (쌍 동기화)
+  // 오픈 전(upcoming): 살아있는 주황 버튼, 액션만 알림 폼으로. 클릭은 커스텀 이벤트 —
+  // NextSeasonNotify 가 받아 '폼 유효하면 제출 / 아니면 #notify 스크롤'.
+  if (SEASON.status === "upcoming") {
+    return (
+      <div className={styles.fixedButtonContainer}>
+        <button
+          type="button"
+          className={`${styles.applyButton} ${styles.applyButtonTwoLine}`}
+          onClick={() => window.dispatchEvent(new CustomEvent("lazyday:notify-cta"))}
+        >
+          {NOTIFY_SEASON} 오픈 알림 신청
+          <span className={styles.applyBtnSub}>
+            *{NOTIFY_SEASON} 진행 일정: {NOTIFY_SCHEDULE}
+          </span>
+        </button>
+      </div>
+    )
+  }
+
+  // 마감 모드 — 2026-09-08 회색 '모집 마감' 복원
+
   if (SEASON.status === "closedEarly") {
     return (
       <div className={styles.fixedButtonContainer}>

@@ -21,26 +21,33 @@ export type SeasonSession = {
 
 export const SEASON = {
   /** 기수 고유명 (예: "4기") */
-  name: "4기",
+  name: "5기",
   /** 다음 기수 고유명 */
-  next: "5기",
+  next: "6기",
+  /** 기수 연도 — 종전엔 deadline 에서 뽑았는데, 모집 전(deadline: null)이면 폴백("2026-01-01")으로
+   *  새서 **파기 기준일(seasonEndsOn)이 엉뚱한 해**가 된다. 명시 필드로 못 박는다 (2026-09-09). */
+  year: 2026,
   /** 모집 상태 — "closedEarly"면 랜딩 전체가 마감+다음 기수 알림 모드 (운영자 지시 2026-07-13).
    *  ⚠ 플래그 이름은 '조기'지만 실제로 하는 일은 **알림 모드 스위치**다 — 문구는 closedReason 이 가른다.
-   *  (2026-09-08) 4기 마감 → 5기 오픈 알림 모드 (운영자 "기존에 했던 4기 모집알림 형태로 5기 모집으로"). */
-  status: "closedEarly" as "open" | "closedEarly",
+   *  (2026-09-08) 4기 마감 → 5기 오픈 알림 모드 (운영자 "기존에 했던 4기 모집알림 형태로 5기 모집으로").
+   *  (2026-09-09) **"upcoming" 신설** — 5기 일정은 공개하되 접수는 아직 안 연 상태
+   *  (운영자 "일정만 노출, 접수는 알림받기 유지"). closedEarly 와 다른 점은 **문구**다:
+   *  마감이 아니라 모집 예정이므로 "마감" 문구가 붙으면 안 되고, 알림 폼이 안내하는 기수도
+   *  '다음 기수'가 아니라 '이번 기수'다 (NOTIFY_SEASON). 접수 차단은 둘 다 동일. */
+  status: "upcoming" as "open" | "closedEarly" | "upcoming",
   /** 왜 닫혔나 — "deadline"(마감일 경과) | "early"(마감일 전 조기 마감). 화면 문구를 가른다.
    *  4기는 마감일(9/7)이 지나 닫혔으므로 "조기 마감"이 아니라 그냥 "마감"이다 (2026-09-08). */
   closedReason: "deadline" as "deadline" | "early",
   /** 다음 기수 진행 일정 표기 (스티키 CTA 주석 줄) — 4기 종료(11/1) **다음 주**부터 같은 요일
    *  구성(수→일→화→토, 격주 4회 + 자유 1회)으로 계산: 수 11/4 시작 … 자유모임 일 12/27 종료
    *  (운영자 2026-09-08 "끝나는 그 이어서 다음 주로 일정 잡아. 같은 모임 요일 구성으로 열 거야"). */
-  nextStartLabel: "11.4 - 12.27",
+  nextStartLabel: "",
   /** 알림 완료 화면의 카카오 채널 */
   notifyKakaoUrl: "https://pf.kakao.com/_gixaAX",
   /** 시즌 기간 표기 */
-  periodLabel: "9/9 – 11/1",
+  periodLabel: "11/4 – 12/27",
   /** 신청 마감일 (KST, 23:59까지). null이면 마감 개념 자체가 없음 */
-  deadline: "2026-09-07" as string | null,
+  deadline: null as string | null,
   /** 마감일·D-day 노출 여부 — false면 접수 마감(자동 종료)은 작동하되 화면에는 미표기
    *  (운영자 지시 2026-07-23: "9/7까지 받기는 할 거야" + "신청 마감일 일단 표기하지마") */
   showDeadline: false,
@@ -79,15 +86,15 @@ export const SEASON = {
   /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서(**화·수·토·일**, 2026-09-08 재정렬).
    *  격주, 회차 시작 = 수요일이라 화요일 날짜가 수·일보다 늦고 토요일은 그보다도 뒤다 (운영자 지시 2026-07-27) */
   sessions: [
-    { label: "1회차", dates: ["9/15", "9/9", "9/19", "9/13"] },
-    { label: "2회차", dates: ["9/29", "9/23", "10/3", "9/27"] },
-    { label: "3회차", dates: ["10/13", "10/7", "10/17", "10/11"] },
-    { label: "4회차", dates: ["10/27", "10/21", "10/31", "10/25"] },
+    { label: "1회차", dates: ["11/10", "11/4", "11/14", "11/8"] },
+    { label: "2회차", dates: ["11/24", "11/18", "11/28", "11/22"] },
+    { label: "3회차", dates: ["12/8", "12/2", "12/12", "12/6"] },
+    { label: "4회차", dates: ["12/22", "12/16", "12/26", "12/20"] },
   ] as SeasonSession[],
   /** 5회차 (자유모임) — 기수마다 구성이 달라질 수 있음 */
   fifth: {
     label: "5회차",
-    date: "11/1 (일)",
+    date: "12/27 (일)",
     timeLabel: "19:00–22:00",
   },
   /** 안내 문구 */
@@ -128,10 +135,21 @@ export function seasonPhase(): "upcoming" | "ongoing" | "past" {
 /** 신청 접수가 닫혔는가 — 알림 모드이거나 마감일이 지났으면 닫힘.
  *  ⚠ 서버(라우트)에서도 부른다: 화면 링크를 다 닫아도 `/apply` 직접 접근·옛 링크가 남는다. */
 export function isApplyClosed(): boolean {
-  if (SEASON.status === "closedEarly") return true
+  // 마감(closedEarly)이든 아직 안 연 것(upcoming)이든 접수는 받지 않는다
+  if (SEASON.status !== "open") return true
   const d = daysUntilDeadline()
   return d !== null && d < 0
 }
+
+/** 알림 폼을 띄우는 상태 — 마감(closedEarly)이거나 아직 안 연 것(upcoming). 접수는 둘 다 닫힘. */
+export const NOTIFY_MODE = SEASON.status !== "open"
+
+/** 알림 폼이 안내하는 **기수** — 마감이면 '다음 기수', 오픈 전이면 '이번 기수'.
+ *  ⚠ 이걸 SEASON.next 로 고정하면 upcoming 에서 "6기 오픈 알림"이 나간다. */
+export const NOTIFY_SEASON = SEASON.status === "upcoming" ? SEASON.name : SEASON.next
+
+/** 알림 폼이 안내하는 **일정** — 오픈 전이면 이번 기수의 기간이 곧 그 일정이다. */
+export const NOTIFY_SCHEDULE = SEASON.status === "upcoming" ? SEASON.periodLabel : SEASON.nextStartLabel
 
 /** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수). deadline이 null이면 null (마감 미표기) */
 export function daysUntilDeadline(): number | null {
@@ -171,7 +189,8 @@ const MONTH_ENG = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP"
 
 /** 시즌 연도 — deadline(YYYY-MM-DD)에서 파생 */
 export function seasonYear(): number {
-  return Number((SEASON.deadline ?? "2026-01-01").split("-")[0])
+  // 명시 필드 우선 — deadline 은 모집 전(null)·마감 미표기 기수에서 비어 있을 수 있다 (2026-09-09)
+  return SEASON.year ?? Number((SEASON.deadline ?? "2026-01-01").split("-")[0])
 }
 
 /**

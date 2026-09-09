@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { SEASON } from "./season-config"
+import { SEASON, NOTIFY_SEASON, NOTIFY_SCHEDULE } from "./season-config"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import styles from "./NextSeasonNotify.module.css"
 
@@ -102,10 +102,10 @@ export function NextSeasonNotify() {
           <>
             <p className={styles.title}>신청이 완료되었습니다.</p>
             <p className={styles.doneBody}>
-              {SEASON.next} 모집이 열리면 입력하신 번호로 가장 먼저 알려드릴게요.
+              {NOTIFY_SEASON} 모집이 열리면 입력하신 번호로 가장 먼저 알려드릴게요.
             </p>
             <p className={styles.doneFootnote}>
-              문자 안내는 {SEASON.next} 모집 시작 시 1회 발송됩니다
+              문자 안내는 {NOTIFY_SEASON} 모집 시작 시 1회 발송됩니다
             </p>
             <a
               href={SEASON.notifyKakaoUrl}
@@ -118,17 +118,19 @@ export function NextSeasonNotify() {
           </>
         ) : (
           <>
-            <p className={styles.title}>{SEASON.next} 오픈 알림</p>
+            <p className={styles.title}>{NOTIFY_SEASON} 오픈 알림</p>
             <p className={styles.lead}>
               {/* '조기'는 마감일 전에 닫았을 때만 — 마감일 경과로 닫힌 기수엔 붙이지 않는다 (2026-09-08) */}
-              {SEASON.name}는 {SEASON.closedReason === "early" ? "조기 마감" : "마감"}되었습니다.
+              {SEASON.status === "upcoming"
+                ? `${SEASON.name} 모집은 곧 열립니다.`
+                : `${SEASON.name}는 ${SEASON.closedReason === "early" ? "조기 마감" : "마감"}되었습니다.`}
               <br />
-              {SEASON.next} 소식을 가장 먼저 받아보세요.
+              {NOTIFY_SEASON} 소식을 가장 먼저 받아보세요.
             </p>
             {/* 다음 기수 진행 일정 — 종전엔 스티키 CTA 둘째 줄에 있었는데, 그 버튼이 회색
                 '모집 마감' 표기로 바뀌며(2026-09-08) 표시할 자리가 사라져 이리로 옮겼다. */}
             <p className={styles.schedule}>
-              {SEASON.next} 진행 일정: {SEASON.nextStartLabel}
+              {NOTIFY_SEASON} 진행 일정: {NOTIFY_SCHEDULE}
             </p>
             <form
               className={styles.form}
@@ -165,7 +167,7 @@ export function NextSeasonNotify() {
                 다음 기수·모임 소식 알림 수신에 동의합니다.
               </label>
               <p className={styles.footnote}>
-                수집 항목: 이름·연락처 / 이용 목적: {SEASON.next} 모집 안내 / 보유 기간: 안내 발송 후 파기
+                수집 항목: 이름·연락처 / 이용 목적: {NOTIFY_SEASON} 모집 안내 / 보유 기간: 안내 발송 후 파기
               </p>
               {fieldError && <p className={styles.errorText}>{fieldError}</p>}
               {error && (
@@ -174,7 +176,7 @@ export function NextSeasonNotify() {
                 </div>
               )}
               <button type="submit" className={styles.submitBtn} disabled={loading}>
-                {loading ? "접수 중…" : `${SEASON.next} 오픈 알림 받기`}
+                {loading ? "접수 중…" : `${NOTIFY_SEASON} 오픈 알림 받기`}
               </button>
             </form>
           </>

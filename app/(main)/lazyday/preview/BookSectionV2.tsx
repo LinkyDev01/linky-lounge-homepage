@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { season1Config, season2Config, season3Config, season4Config } from "../book-config"
 import type { SeasonConfig } from "../book-config"
-import { seasonPhase } from "../season-config"
+import { SEASON, seasonPhase } from "../season-config"
 import bstyles from "../BookSection.module.css"
 import styles from "./preview.module.css"
 import { FadeUp } from "@/components/animation/FadeUp"
@@ -31,7 +31,10 @@ export function BookSectionV2() {
 
   const season = SEASONS[seasonIdx]
   const books = season.books
-  const isCurrent = seasonIdx === 0
+  // '현재 기수' = 최신 탭이 곧 season-config 의 기수일 때만. 기수는 넘어갔는데 책 목록이
+  // 아직 이전 기수까지만 있으면(5기 책 원고 대기, 2026-09-09) 날짜 파생을 걸면 안 된다 —
+  // 걸면 진행 중인 4기 위에 5기 일정 기준의 '다가오는'이 찍힌다.
+  const isCurrent = seasonIdx === 0 && `${season.season}기` === SEASON.name
   // 현재 기수의 리드 문구는 **날짜에서** 정한다 — 수동 플래그는 시작일이 지나도 안 넘어갔다.
   // 마운트 후 계산(빌드 박제 방지)이라, 그 전 한 프레임은 book-config 플래그가 그대로 쓰인다.
   const [phase, setPhase] = useState<"upcoming" | "ongoing" | "past" | null>(null)

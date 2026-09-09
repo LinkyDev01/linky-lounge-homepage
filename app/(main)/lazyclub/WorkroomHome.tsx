@@ -63,6 +63,16 @@ export const LANDING_DOCS = [
 
 /** 지난 기수 — sold out 진열 (라운드 11; 라운드 14에서 메타·뱃지 제거, 오버레이가 상태 표시) */
 export const PAST_SEASONS = [
+  // 2026-09-09 5기 전환 — 4기는 모집이 끝나 지난 기수 진열로 내려왔다 (모임 자체는 11/1 까지 진행 중)
+  {
+    id: "bookclub-4",
+    category: "bookclub",
+    tag: "9/9-11/1",
+    status: "soldout" as const,
+    title: "레이지데이 북클럽 4기",
+    link: BOOKCLUB_BOOK_URL,
+    thumbnail: "/linky-lounge/book-club/home-v3/hero-4th-poster.webp",
+  },
   {
     id: "bookclub-3",
     category: "bookclub",

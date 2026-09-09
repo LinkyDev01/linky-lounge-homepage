@@ -33,8 +33,11 @@ export const SEASON = {
    *  (2026-09-09) **"upcoming" 신설** — 5기 일정은 공개하되 접수는 아직 안 연 상태
    *  (운영자 "일정만 노출, 접수는 알림받기 유지"). closedEarly 와 다른 점은 **문구**다:
    *  마감이 아니라 모집 예정이므로 "마감" 문구가 붙으면 안 되고, 알림 폼이 안내하는 기수도
-   *  '다음 기수'가 아니라 '이번 기수'다 (NOTIFY_SEASON). 접수 차단은 둘 다 동일. */
-  status: "upcoming" as "open" | "closedEarly" | "upcoming",
+   *  '다음 기수'가 아니라 '이번 기수'다 (NOTIFY_SEASON). 접수 차단은 둘 다 동일.
+   *  (2026-09-09) **"locked" 신설** — 접수도 알림도 받지 않는다(운영자 "일단 사람들에게
+   *  아무것도 못하게 할 거야"). 5기 일정·포스터는 그대로 노출하되 **누를 수 있는 것이
+   *  하나도 없다**: 스티키 CTA 는 회색 죽은 표기, 내비 CTA·알림 폼은 아예 렌더하지 않는다. */
+  status: "locked" as "open" | "closedEarly" | "upcoming" | "locked",
   /** 왜 닫혔나 — "deadline"(마감일 경과) | "early"(마감일 전 조기 마감). 화면 문구를 가른다.
    *  4기는 마감일(9/7)이 지나 닫혔으므로 "조기 마감"이 아니라 그냥 "마감"이다 (2026-09-08). */
   closedReason: "deadline" as "deadline" | "early",
@@ -42,6 +45,10 @@ export const SEASON = {
    *  구성(수→일→화→토, 격주 4회 + 자유 1회)으로 계산: 수 11/4 시작 … 자유모임 일 12/27 종료
    *  (운영자 2026-09-08 "끝나는 그 이어서 다음 주로 일정 잡아. 같은 모임 요일 구성으로 열 거야"). */
   nextStartLabel: "",
+  /** 잠금(locked) 상태의 스티키 CTA 문구 — 운영자 원문 그대로 (2026-09-09 "4기 모집 마감으로
+   *  했어. 그렇게 복귀해야해"). ⚠ 기수 파생으로 만들지 않는다: 지금 기수는 5기지만 5기는
+   *  모집을 연 적이 없어 "5기 모집 마감"은 사실이 아니다. 마감된 것은 4기다. */
+  lockedLabel: "4기 모집 마감",
   /** 알림 완료 화면의 카카오 채널 */
   notifyKakaoUrl: "https://pf.kakao.com/_gixaAX",
   /** 시즌 기간 표기 */
@@ -141,8 +148,12 @@ export function isApplyClosed(): boolean {
   return d !== null && d < 0
 }
 
-/** 알림 폼을 띄우는 상태 — 마감(closedEarly)이거나 아직 안 연 것(upcoming). 접수는 둘 다 닫힘. */
-export const NOTIFY_MODE = SEASON.status !== "open"
+/** 알림 폼을 띄우는 상태 — 마감(closedEarly)이거나 아직 안 연 것(upcoming).
+ *  ⚠ "locked" 는 **제외**한다 — 그 상태는 알림조차 받지 않는다. */
+export const NOTIFY_MODE = SEASON.status === "closedEarly" || SEASON.status === "upcoming"
+
+/** 아무 액션도 내주지 않는 상태 — 접수·알림 둘 다 없음 (운영자 2026-09-09) */
+export const LOCKED = SEASON.status === "locked"
 
 /** 알림 폼이 안내하는 **기수** — 마감이면 '다음 기수', 오픈 전이면 '이번 기수'.
  *  ⚠ 이걸 SEASON.next 로 고정하면 upcoming 에서 "6기 오픈 알림"이 나간다. */

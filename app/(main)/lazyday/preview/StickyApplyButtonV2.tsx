@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import styles from "../page.module.css"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
-import { SEASON, NOTIFY_SEASON, NOTIFY_SCHEDULE } from "../season-config"
+import { SEASON, LOCKED, NOTIFY_SEASON, NOTIFY_SCHEDULE } from "../season-config"
 
 /** 개선안: 스티키 CTA에 마감 D-day 자동 표기 (마감일은 preview-config에서 계산) */
 export function StickyApplyButtonV2() {
@@ -27,6 +27,17 @@ export function StickyApplyButtonV2() {
       : `${PREVIEW.season} 신청 (마감일까지 D-${d})`
 
   // 알림 모드 — 실 ApplyButton 과 동일 값 (쌍 동기화)
+  // 잠금(locked) — 접수도 알림도 없다 (운영자 2026-09-09 "일단 사람들에게 아무것도 못하게").
+  // 2기 시절 회색 죽은 표기를 그대로 쓴다(CSS .applyButtonClosed: pointer-events:none).
+  // ⚠ 문구는 기수 파생이 아니라 config 원문 — 5기는 모집을 연 적이 없어 "5기 모집 마감"은 거짓이다.
+  if (LOCKED) {
+    return (
+      <div className={styles.fixedButtonContainer}>
+        <span className={styles.applyButtonClosed} aria-disabled="true">{SEASON.lockedLabel}</span>
+      </div>
+    )
+  }
+
   // 오픈 전(upcoming): 살아있는 주황 버튼, 액션만 알림 폼으로. 클릭은 커스텀 이벤트 —
   // NextSeasonNotify 가 받아 '폼 유효하면 제출 / 아니면 #notify 스크롤'.
   if (SEASON.status === "upcoming") {

@@ -5,7 +5,7 @@ import Image from "next/image"
 import styles from "../BrandCloseSection.module.css"
 import pstyles from "./preview.module.css"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
-import { SEASON, NOTIFY_MODE } from "../season-config"
+import { SEASON, LOCKED, NOTIFY_MODE } from "../season-config"
 import { NextSeasonNotify } from "../NextSeasonNotify"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { BlurReveal } from "@/components/animation/BlurReveal"
@@ -20,7 +20,7 @@ export function ClosingSectionV2() {
   useEffect(() => { setD(daysUntilDeadline()) }, [])
 
   // 신청 버튼은 모집 중일 때만 (조기마감·마감 경과 시 미표기)
-  const open = SEASON.status !== "closedEarly" && !(d !== null && d < 0)
+  const open = !LOCKED && SEASON.status !== "closedEarly" && !(d !== null && d < 0)
 
   return (
     <>

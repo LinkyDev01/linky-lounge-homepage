@@ -5,7 +5,10 @@
  * 속도 (운영자 "마지막 24-40도 등가속 너무 느리지 않게 하고, 마지막 5초 정도만 등속으로")
  *   0–6s    12°/s 유지              읽는 구간 (1바퀴 30초)
  *   6–24s   12 → 54 등가속          α 2.333°/s²
- *   24–35s  54 → 84 등가속          α 2.727°/s² (1바퀴 4.3초)
+ *   24–35s  54 → 84 등가속          α 2.727°/s²
+ *   ⚠ 위는 **기준 프로파일**이고 실제 각속도는 전 구간 각운동량 보존 ω = ω_profile / s²  (운영자 2026-09-09
+ *     "후반 축소 후 회전되는 과정도 각운동량 보존이면 더 빨라져? 그렇다면 그렇게 가자"). 24–35s 크기 1.0→0.6 이라
+ *     회전은 1/0.36 = 2.78배 — 35s 에 84 → 233.3°/s(1바퀴 1.54초). 크기가 고정된 35s 이후엔 이 속도 등속.
  *   35–40s  84 등속                 여기선 크기도 고정
  *
  * 초반 — **작게 머물며 빨리 돌다 스프링으로 커진다** (운영자 2026-09-09 "작은 사이즈일 때는 엄청 빨리 돌아야 …
@@ -17,7 +20,7 @@
  *     s(t) = 1 − e^(−ζω₀τ)·[ D·cos(ω_d τ) + (ζω₀D/ω_d)·sin(ω_d τ) ],  τ = t − 0.6,  D = 0.88, ζ = 0.536, ω₀ = 2.33
  *     → 1.69s 에 기준 1.0 통과, **2.2s 정점 1.12(+12%)**, 되튐 뒤 6.05s 에 ±0.1% 안착 (성장 끝까지 누적 721°).
  *   ⚠ 오버슈트 동안 포스터가 무대(100%)를 넘는다 — 가로는 페이지 overflow-x 에서 잘리고 세로는 이웃 위로
- *     겹친다(운영자 용인). 키프레임은 0–6.05s 를 0.05s 간격으로(머무름 중 stop 간 41.7° — 180° 미만이라 선형 보간 안전).
+ *     겹친다(운영자 용인). 키프레임은 0–6.05s 를 0.05s 간격으로(머무름 중 stop 간 41.7°), 24–40s 는 0.25s 간격(최대 58° — 1s 간격이면 233° 로 180° 를 넘어 CSS 가 반대 방향으로 보간한다).
  * 크기 (운영자 "3구간 가속운동 시에는 크기도 등감소 … 마지막 시점에 크기는 유지")
  *   0–24s 1.00 · 24–35s 1.00 → 0.60 등감소 · 35–40s 0.60 유지
  *
@@ -30,9 +33,9 @@
  *   0.949 — 여기에 안티에일리어싱 여유 0.3% 를 더해 94.6%(한쪽 여백 2.7%).
  *   "여백 0"과 "잘림 0"은 이 판에선 양립 불가.
  *
- * ⚠ 요소를 세 겹으로 나눈 이유: 인트로 누적이 2494°(6.927바퀴)라 40초에서
- *   되감으면 334° 가 튄다. 바깥이 인트로를 forwards 로 끝 각도에 세워 두고,
- *   가운데가 40초 뒤부터 4.2857초 1바퀴(=84°/s) 정속을 돌린다 — 360° 단위라
+ * ⚠ 요소를 세 겹으로 나눈 이유: 인트로 누적이 3793°(10.536바퀴)라 40초에서
+ *   되감으면 193° 가 튄다. 바깥이 인트로를 forwards 로 끝 각도에 세워 두고,
+ *   가운데가 40초 뒤부터 1.5429초 1바퀴(=233.3°/s) 정속을 돌린다 — 360° 단위라
  *   이음매가 없다. 크기는 또 한 겹에서 따로 건다(회전과 곱해진다).
  * 프리뷰 전용 CSS — 실사이트 .module.css 는 import 하지 않는다. */
 
@@ -75,8 +78,8 @@
 .shrinkBox { animation: shrink 40s linear forwards; }
 .spinCw  { animation: introCw  40s linear forwards; }
 .spinCcw { animation: introCcw 40s linear forwards; }
-.steadyCw  { animation: steadyCw  4.2857s linear 40s infinite; }
-.steadyCcw { animation: steadyCcw 4.2857s linear 40s infinite; }
+.steadyCw  { animation: steadyCw  1.5429s linear 40s infinite; }
+.steadyCcw { animation: steadyCcw 1.5429s linear 40s infinite; }
 
 /* 구간 공식 θ = θ₀ + ω₀τ + ½ατ² 를 1초 간격으로 샘플링한 값 */
 @keyframes introCw {
@@ -220,22 +223,70 @@
   55% { transform: rotate(-1211.5deg); }
   57.5% { transform: rotate(-1262.0deg); }
   60% { transform: rotate(-1314.8deg); }
-  62.5% { transform: rotate(-1370.2deg); }
-  65% { transform: rotate(-1428.3deg); }
-  67.5% { transform: rotate(-1489.1deg); }
-  70% { transform: rotate(-1552.6deg); }
-  72.5% { transform: rotate(-1618.9deg); }
-  75% { transform: rotate(-1687.9deg); }
-  77.5% { transform: rotate(-1759.6deg); }
-  80% { transform: rotate(-1834.1deg); }
-  82.5% { transform: rotate(-1911.3deg); }
-  85% { transform: rotate(-1991.2deg); }
-  87.5% { transform: rotate(-2073.8deg); }
-  90% { transform: rotate(-2157.8deg); }
-  92.5% { transform: rotate(-2241.8deg); }
-  95% { transform: rotate(-2325.8deg); }
-  97.5% { transform: rotate(-2409.8deg); }
-  100% { transform: rotate(-2493.8deg); }
+  60.625% { transform: rotate(-1328.5deg); }
+  61.25% { transform: rotate(-1342.6deg); }
+  61.875% { transform: rotate(-1357.2deg); }
+  62.5% { transform: rotate(-1372.3deg); }
+  63.125% { transform: rotate(-1387.8deg); }
+  63.75% { transform: rotate(-1403.8deg); }
+  64.375% { transform: rotate(-1420.3deg); }
+  65% { transform: rotate(-1437.3deg); }
+  65.625% { transform: rotate(-1454.8deg); }
+  66.25% { transform: rotate(-1473.0deg); }
+  66.875% { transform: rotate(-1491.6deg); }
+  67.5% { transform: rotate(-1510.9deg); }
+  68.125% { transform: rotate(-1530.8deg); }
+  68.75% { transform: rotate(-1551.4deg); }
+  69.375% { transform: rotate(-1572.5deg); }
+  70% { transform: rotate(-1594.4deg); }
+  70.625% { transform: rotate(-1617.0deg); }
+  71.25% { transform: rotate(-1640.3deg); }
+  71.875% { transform: rotate(-1664.4deg); }
+  72.5% { transform: rotate(-1689.2deg); }
+  73.125% { transform: rotate(-1714.9deg); }
+  73.75% { transform: rotate(-1741.4deg); }
+  74.375% { transform: rotate(-1768.8deg); }
+  75% { transform: rotate(-1797.1deg); }
+  75.625% { transform: rotate(-1826.4deg); }
+  76.25% { transform: rotate(-1856.6deg); }
+  76.875% { transform: rotate(-1887.9deg); }
+  77.5% { transform: rotate(-1920.2deg); }
+  78.125% { transform: rotate(-1953.7deg); }
+  78.75% { transform: rotate(-1988.3deg); }
+  79.375% { transform: rotate(-2024.1deg); }
+  80% { transform: rotate(-2061.1deg); }
+  80.625% { transform: rotate(-2099.5deg); }
+  81.25% { transform: rotate(-2139.2deg); }
+  81.875% { transform: rotate(-2180.3deg); }
+  82.5% { transform: rotate(-2222.9deg); }
+  83.125% { transform: rotate(-2267.1deg); }
+  83.75% { transform: rotate(-2312.9deg); }
+  84.375% { transform: rotate(-2360.4deg); }
+  85% { transform: rotate(-2409.6deg); }
+  85.625% { transform: rotate(-2460.8deg); }
+  86.25% { transform: rotate(-2513.8deg); }
+  86.875% { transform: rotate(-2568.9deg); }
+  87.5% { transform: rotate(-2626.1deg); }
+  88.125% { transform: rotate(-2684.5deg); }
+  88.75% { transform: rotate(-2742.8deg); }
+  89.375% { transform: rotate(-2801.1deg); }
+  90% { transform: rotate(-2859.5deg); }
+  90.625% { transform: rotate(-2917.8deg); }
+  91.25% { transform: rotate(-2976.1deg); }
+  91.875% { transform: rotate(-3034.5deg); }
+  92.5% { transform: rotate(-3092.8deg); }
+  93.125% { transform: rotate(-3151.1deg); }
+  93.75% { transform: rotate(-3209.5deg); }
+  94.375% { transform: rotate(-3267.8deg); }
+  95% { transform: rotate(-3326.1deg); }
+  95.625% { transform: rotate(-3384.5deg); }
+  96.25% { transform: rotate(-3442.8deg); }
+  96.875% { transform: rotate(-3501.1deg); }
+  97.5% { transform: rotate(-3559.5deg); }
+  98.125% { transform: rotate(-3617.8deg); }
+  98.75% { transform: rotate(-3676.1deg); }
+  99.375% { transform: rotate(-3734.5deg); }
+  100% { transform: rotate(-3792.8deg); }
 }
 @keyframes introCcw {
   0% { transform: rotate(0.0deg); }
@@ -378,22 +429,70 @@
   55% { transform: rotate(1211.5deg); }
   57.5% { transform: rotate(1262.0deg); }
   60% { transform: rotate(1314.8deg); }
-  62.5% { transform: rotate(1370.2deg); }
-  65% { transform: rotate(1428.3deg); }
-  67.5% { transform: rotate(1489.1deg); }
-  70% { transform: rotate(1552.6deg); }
-  72.5% { transform: rotate(1618.9deg); }
-  75% { transform: rotate(1687.9deg); }
-  77.5% { transform: rotate(1759.6deg); }
-  80% { transform: rotate(1834.1deg); }
-  82.5% { transform: rotate(1911.3deg); }
-  85% { transform: rotate(1991.2deg); }
-  87.5% { transform: rotate(2073.8deg); }
-  90% { transform: rotate(2157.8deg); }
-  92.5% { transform: rotate(2241.8deg); }
-  95% { transform: rotate(2325.8deg); }
-  97.5% { transform: rotate(2409.8deg); }
-  100% { transform: rotate(2493.8deg); }
+  60.625% { transform: rotate(1328.5deg); }
+  61.25% { transform: rotate(1342.6deg); }
+  61.875% { transform: rotate(1357.2deg); }
+  62.5% { transform: rotate(1372.3deg); }
+  63.125% { transform: rotate(1387.8deg); }
+  63.75% { transform: rotate(1403.8deg); }
+  64.375% { transform: rotate(1420.3deg); }
+  65% { transform: rotate(1437.3deg); }
+  65.625% { transform: rotate(1454.8deg); }
+  66.25% { transform: rotate(1473.0deg); }
+  66.875% { transform: rotate(1491.6deg); }
+  67.5% { transform: rotate(1510.9deg); }
+  68.125% { transform: rotate(1530.8deg); }
+  68.75% { transform: rotate(1551.4deg); }
+  69.375% { transform: rotate(1572.5deg); }
+  70% { transform: rotate(1594.4deg); }
+  70.625% { transform: rotate(1617.0deg); }
+  71.25% { transform: rotate(1640.3deg); }
+  71.875% { transform: rotate(1664.4deg); }
+  72.5% { transform: rotate(1689.2deg); }
+  73.125% { transform: rotate(1714.9deg); }
+  73.75% { transform: rotate(1741.4deg); }
+  74.375% { transform: rotate(1768.8deg); }
+  75% { transform: rotate(1797.1deg); }
+  75.625% { transform: rotate(1826.4deg); }
+  76.25% { transform: rotate(1856.6deg); }
+  76.875% { transform: rotate(1887.9deg); }
+  77.5% { transform: rotate(1920.2deg); }
+  78.125% { transform: rotate(1953.7deg); }
+  78.75% { transform: rotate(1988.3deg); }
+  79.375% { transform: rotate(2024.1deg); }
+  80% { transform: rotate(2061.1deg); }
+  80.625% { transform: rotate(2099.5deg); }
+  81.25% { transform: rotate(2139.2deg); }
+  81.875% { transform: rotate(2180.3deg); }
+  82.5% { transform: rotate(2222.9deg); }
+  83.125% { transform: rotate(2267.1deg); }
+  83.75% { transform: rotate(2312.9deg); }
+  84.375% { transform: rotate(2360.4deg); }
+  85% { transform: rotate(2409.6deg); }
+  85.625% { transform: rotate(2460.8deg); }
+  86.25% { transform: rotate(2513.8deg); }
+  86.875% { transform: rotate(2568.9deg); }
+  87.5% { transform: rotate(2626.1deg); }
+  88.125% { transform: rotate(2684.5deg); }
+  88.75% { transform: rotate(2742.8deg); }
+  89.375% { transform: rotate(2801.1deg); }
+  90% { transform: rotate(2859.5deg); }
+  90.625% { transform: rotate(2917.8deg); }
+  91.25% { transform: rotate(2976.1deg); }
+  91.875% { transform: rotate(3034.5deg); }
+  92.5% { transform: rotate(3092.8deg); }
+  93.125% { transform: rotate(3151.1deg); }
+  93.75% { transform: rotate(3209.5deg); }
+  94.375% { transform: rotate(3267.8deg); }
+  95% { transform: rotate(3326.1deg); }
+  95.625% { transform: rotate(3384.5deg); }
+  96.25% { transform: rotate(3442.8deg); }
+  96.875% { transform: rotate(3501.1deg); }
+  97.5% { transform: rotate(3559.5deg); }
+  98.125% { transform: rotate(3617.8deg); }
+  98.75% { transform: rotate(3676.1deg); }
+  99.375% { transform: rotate(3734.5deg); }
+  100% { transform: rotate(3792.8deg); }
 }
 @keyframes steadyCw  { from { transform: rotate(0deg); }  to { transform: rotate(-360deg); } }
 @keyframes steadyCcw { from { transform: rotate(0deg); }  to { transform: rotate(360deg); } }

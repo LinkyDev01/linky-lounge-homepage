@@ -1,48 +1,41 @@
 /* ── 공간 둘러보기 — linkylounge 홈 'Our Space' 갤러리 이식 (북클럽 전용 사본, 운영자 지시 2026-07-12) ──
-   lounge-info 공유 CSS(page.module.css)를 건드리지 않는 독립 모듈.
-   토큰은 그 파일의 :root 값을 리터럴로 동기 (accent #D2691E · ink #1A1208 · brown #4A3020 · border #E0D0C0) */
+   독립 모듈. 2026-09-09 레이지클럽 톤 개편(lounge.module.css 머리 주석)에 맞춰 옷만 바꿨다:
+   오트 배경(부모가 칠한다) · 라벨 SUIT 11 · 제목 Gothic A1 18/600 · 라운드 0 · 그림자 0 · 잉크 베일. */
 
-.section {
-  background: #f5ede4; /* --s-cream — 문의(--s-page) 뒤 교차 */
-  padding: 48px 0;
-}
+.section { margin: 0; }
 
-.wrap {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
+.wrap { margin: 0; padding: 0; }
 
 .sectionTag {
+  display: block;
+  font-family: "SUIT", sans-serif;
   font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #d2691e;
-  font-weight: 500;
+  letter-spacing: 0.03em;
   margin: 0 0 6px;
 }
 
 .sectionTitle {
-  font-size: 22px;
-  font-weight: 700;
+  font-family: "Gothic A1", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
   color: #1a1208;
-  margin: 0 0 22px;
-  line-height: 1.35;
+  margin: 0 0 14px;
+  line-height: 1.5;
 }
 
-/* 그리드: 메인 1장 와이드 + 2×2 — 라운딩 12px(stepPhoto 문법) */
+/* 그리드: 메인 1장 와이드 + 2×2 — 간격 15(홈 캐러셀 문법), 라운드 0 */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 15px;
 }
 .cell {
   position: relative;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   border: none;
   padding: 0;
-  background: #e9ddcc;
+  background: #ece5da;
   cursor: pointer;
   aspect-ratio: 1 / 1;
   display: block;
@@ -61,7 +54,7 @@
   position: fixed;
   inset: 0;
   z-index: 400;
-  background: rgba(26, 18, 8, 0.82);
+  background: rgba(26, 18, 8, 0.86);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,12 +77,11 @@
   z-index: 2;
   background: none;
   border: none;
-  color: #f5ede4;
+  color: #f7f3ee;
   font-size: 30px;
   line-height: 1;
   padding: 8px;
   cursor: pointer;
-  text-shadow: 0 1px 3px rgba(26, 18, 8, 0.6);
 }
 .lbNav {
   position: absolute;
@@ -98,12 +90,11 @@
   z-index: 2;
   background: none;
   border: none;
-  color: #f5ede4;
+  color: #f7f3ee;
   font-size: 34px;
   line-height: 1;
   padding: 10px 12px;
   cursor: pointer;
-  text-shadow: 0 1px 3px rgba(26, 18, 8, 0.6);
 }
 .lbNav:disabled { opacity: 0.35; cursor: default; }
 .lbPrev { left: 2px; }
@@ -113,12 +104,11 @@
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
-  color: #f5ede4;
+  color: #f7f3ee;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 3px rgba(26, 18, 8, 0.6);
 }
 
 @media (prefers-reduced-motion: no-preference) {

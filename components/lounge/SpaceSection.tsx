@@ -21,7 +21,7 @@ export function SpaceSection() {
           <AnimatedSection>
             <div className="aspect-[4/3] rounded-3xl overflow-hidden group">
               <img
-                src="/landing01.png"
+                src="/landing01.webp"
                 alt="링키라운지 내부"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />

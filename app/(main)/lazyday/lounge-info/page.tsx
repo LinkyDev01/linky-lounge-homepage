@@ -138,7 +138,7 @@ export default function LazyDayLoungeInfoPage() {
       <main className={s.wrap}>
         <h1 className={s.headline}>링키라운지</h1>
         <p className={s.headSub}>with 레이지데이 북클럽</p>
-        <Image src="/linky-lounge/gallary/main.jpg" alt="링키라운지 공간 내부" width={920} height={690} className={`${s.photo} ${s.hero}`} priority />
+        <Image src="/linky-lounge/gallary/main-full.webp" alt="링키라운지 공간 내부" width={920} height={690} className={`${s.photo} ${s.hero}`} priority />
 
         <div className={s.list}>
           <div className={s.row}>
@@ -191,7 +191,7 @@ export default function LazyDayLoungeInfoPage() {
                 건물 간판에 <span className={s.strong}>트릭킹짐(W 로고) + 25시 노래방</span>이 보이면 맞습니다.<br />
                 건물 정면 유리문으로 진입하세요.
               </p>
-              <Image src="/location/entrance-building.png" alt="트릭킹짐 건물 외관" width={600} height={450} className={s.photo} />
+              <Image src="/location/entrance-building.webp" alt="트릭킹짐 건물 외관" width={600} height={450} className={s.photo} />
             </div>
             <div className={s.step}>
               <div className={s.stepHead}>
@@ -203,7 +203,7 @@ export default function LazyDayLoungeInfoPage() {
                 계단 아래 트릭킹짐(B1) 간판이 보이고,<br />
                 <span className={s.strong}>정면 링키라운지 문</span>으로 들어오시면 됩니다.
               </p>
-              <Image src="/location/entrance-stairs.png" alt="지하 계단 아래 링키라운지 입구" width={600} height={800} className={s.photo} />
+              <Image src="/location/entrance-stairs.webp" alt="지하 계단 아래 링키라운지 입구" width={600} height={800} className={s.photo} />
             </div>
           </div>
         </section>

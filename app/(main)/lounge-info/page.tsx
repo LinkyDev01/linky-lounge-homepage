@@ -204,7 +204,7 @@ export default function LoungeInfoPage() {
       <nav className={styles.topnav}>
         <div className={styles.topnavInner}>
           <Link href="/" className={styles.topnavLogo}>
-            <Image src="/logos/logoandtext.png" alt="링키라운지" width={160} height={30} className={styles.logoCombined} />
+            <Image src="/logos/logoandtext.webp" alt="링키라운지" width={160} height={30} className={styles.logoCombined} />
           </Link>
         </div>
       </nav>
@@ -232,7 +232,7 @@ export default function LoungeInfoPage() {
       {/* ── Hero ── */}
       <div className={styles.hero}>
         <Image
-          src="/linky-lounge/gallary/main.jpg"
+          src="/linky-lounge/gallary/main-full.webp"
           alt="링키라운지 공간 내부"
           fill
           className={styles.heroImg}
@@ -240,7 +240,7 @@ export default function LoungeInfoPage() {
         />
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
-          <Image src="/logos/logo_text.png" alt="링키라운지" width={220} height={44} className={styles.heroLogoText} />
+          <Image src="/logos/logo_text.webp" alt="링키라운지" width={220} height={44} className={styles.heroLogoText} />
           <p className={styles.heroSub}>with 레이지데이 북클럽</p>
         </div>
       </div>
@@ -341,7 +341,7 @@ export default function LoungeInfoPage() {
                   건물 간판에 <strong className={styles.stepDescStrong}>트릭킹짐(W 로고) + 25시 노래방</strong>이 보이면 맞습니다.<br />
                   건물 정면 유리문으로 진입하세요.
                 </p>
-                <Image src="/location/entrance-building.png" alt="트릭킹짐 건물 외관" width={600} height={450} className={styles.stepPhoto} />
+                <Image src="/location/entrance-building.webp" alt="트릭킹짐 건물 외관" width={600} height={450} className={styles.stepPhoto} />
               </div>
               <div className={styles.entranceStep}>
                 <p className={styles.stepNum}>Step 02</p>
@@ -351,7 +351,7 @@ export default function LoungeInfoPage() {
                   계단 아래 트릭킹짐(B1) 간판이 보이고,<br />
                   <strong className={styles.stepDescStrong}>정면 링키라운지 문</strong>으로 들어오시면 됩니다.
                 </p>
-                <Image src="/location/entrance-stairs.png" alt="지하 계단 아래 링키라운지 입구" width={600} height={800} className={styles.stepPhoto} />
+                <Image src="/location/entrance-stairs.webp" alt="지하 계단 아래 링키라운지 입구" width={600} height={800} className={styles.stepPhoto} />
               </div>
             </div>
           </div>
@@ -388,7 +388,7 @@ export default function LoungeInfoPage() {
                 </a>
               ))}
             </div>
-            <Image src="/location/parking.png" alt="주차장 입구 위치" width={600} height={300} className={styles.parkingPhoto} />
+            <Image src="/location/parking.webp" alt="주차장 입구 위치" width={600} height={300} className={styles.parkingPhoto} />
           </div>
         </div>
       </div>

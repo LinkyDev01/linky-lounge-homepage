@@ -56,7 +56,7 @@ export function LoungeHeroSection() {
             <div className="relative">
               <div className="aspect-[4/5] rounded-3xl overflow-hidden group">
                 <img
-                  src="/landing02.png"
+                  src="/landing02.webp"
                   alt="링키라운지 메인"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />

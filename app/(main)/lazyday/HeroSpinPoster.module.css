@@ -164,6 +164,13 @@
   100% { transform: scale(0.6000); }
 }
 
+/* 모션 감소 설정에서도 **멈추지는 않는다** — 이 히어로는 움직임이 본질이라 정지시키면
+   그냥 정지 포스터가 된다(운영자 2026-09-09 "최상단은 포스터가 아니라 동적 애니메이션
+   포스터야"). 대신 가속·축소를 걷고 1바퀴 60초 등속으로 낮춘다 — 확정 프로파일의 끝
+   속도(1바퀴 4.3초)보다 14배 느리다. */
 @media (prefers-reduced-motion: reduce) {
-  .shrinkBox, .spinCw, .spinCcw, .steadyCw, .steadyCcw { animation: none; }
+  .shrinkBox { animation: none; }
+  .spinCw, .spinCcw { animation: none; }
+  .steadyCw  { animation: steadyCw  60s linear 0s infinite; }
+  .steadyCcw { animation: steadyCcw 60s linear 0s infinite; }
 }

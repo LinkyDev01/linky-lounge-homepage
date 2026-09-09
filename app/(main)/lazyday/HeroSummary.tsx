@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { SEASON, daysUntilDeadline } from "./season-config"
+import { SEASON, NOTIFY_MODE, NOTIFY_SEASON, daysUntilDeadline } from "./season-config"
 import styles from "./HeroSummary.module.css"
 
 /**
@@ -151,8 +151,8 @@ export function HeroSummary() {
       </div>
 
       <p className={styles.summaryFoot}>
-        {closedEarly
-          ? `${SEASON.next} 오픈 알림은 아래에서 신청할 수 있어요`
+        {NOTIFY_MODE
+          ? `${NOTIFY_SEASON} 오픈 알림은 아래에서 신청할 수 있어요`
           : "인터뷰 및 결제 후 참여가 확정됩니다"}
       </p>
     </div>

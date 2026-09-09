@@ -1,0 +1,169 @@
+/* 5기 포스터 — 두 장이 엇갈려 맞물려 도는 히어로 (운영자 2026-09-09 "북클럽 랜딩페이지를
+ * 4기 모집 애니메이션과 대체"). **프리뷰 `preview/poster-5th` 가 원본** — 값은 픽셀 동일하고
+ * 무대 크기·페이지 래퍼만 히어로용으로 바꿨다 (철칙 1: 이식하며 개선 금지).
+ * 배경 #eeeeee, 회전 원점은 캔버스 중심, 한 장은 시계·한 장은 반시계.
+ * 겹침 순서는 작은 쪽(반시계)이 앞 — TSX 의 DOM 순서가 정한다.
+ *
+ * 속도 (운영자 "마지막 24-40도 등가속 너무 느리지 않게 하고, 마지막 5초 정도만 등속으로")
+ *   0–6s    12°/s 유지              읽는 구간 (1바퀴 30초)
+ *   6–24s   12 → 54 등가속          α 2.333°/s²
+ *   24–35s  54 → 84 등가속          α 2.727°/s² (1바퀴 4.3초)
+ *   35–40s  84 등속                 여기선 크기도 고정
+ * 크기 (운영자 "3구간 가속운동 시에는 크기도 등감소 … 마지막 시점에 크기는 유지")
+ *   0–24s 1.00 · 24–35s 1.00 → 0.60 등감소 · 35–40s 0.60 유지
+ *
+ * ⚠ 잘림 0 · 여백은 기하학이 허용하는 최소 (운영자 2026-09-08 "시계방향의 레자가
+ *   끊기네 이렇게 원으로 좁게 잘라버리면 안되지" — 내접원 마스크 폐기):
+ *   시계방향 판의 잉크는 중심에서 최대 2133px(캔버스 절반 2025)까지 퍼져 있어,
+ *   그 점이 수평을 향하는 각도에선 캔버스 폭보다 2.7% 더 나간다. 한 픽셀도
+ *   자르지 않고 중심을 무대 중심에 둔 채 잘림 0 을 만드는 배율은 2025/2133 =
+ *   0.949 — 여기에 안티에일리어싱 여유 0.3% 를 더해 94.6%(한쪽 여백 2.7%).
+ *   "여백 0"과 "잘림 0"은 이 판에선 양립 불가.
+ *
+ * ⚠ 요소를 세 겹으로 나눈 이유: 인트로 누적이 1845°(5.125바퀴)라 40초에서
+ *   되감으면 45° 가 튄다. 바깥이 인트로를 forwards 로 끝 각도에 세워 두고,
+ *   가운데가 40초 뒤부터 4.2857초 1바퀴(=84°/s) 정속을 돌린다 — 360° 단위라
+ *   이음매가 없다. 크기는 또 한 겹에서 따로 건다(회전과 곱해진다).
+ * 프리뷰 전용 CSS — 실사이트 .module.css 는 import 하지 않는다. */
+
+.band {
+  position: relative;
+  width: 100%;
+  background: #eeeeee;
+}
+
+/* 히어로는 폭을 꽉 채운 정사각 — 회전 포스터가 정사각이라 무대도 정사각이다.
+   (종전 4기 히어로는 4:5 였다 — 포스터가 바뀌며 밴드 높이도 따라 바뀐다) */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.shrink,
+.spin,
+.steady {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* 무대의 94.6% — 어떤 각도에서도 잉크가 무대 밖으로 나가지 않는 최대 크기 (머리말 참조) */
+.layer {
+  position: absolute;
+  inset: 2.7%;
+  width: 94.6%;
+  height: 94.6%;
+  object-fit: contain;
+}
+
+.shrinkBox { animation: shrink 40s linear forwards; }
+.spinCw  { animation: introCw  40s linear forwards; }
+.spinCcw { animation: introCcw 40s linear forwards; }
+.steadyCw  { animation: steadyCw  4.2857s linear 40s infinite; }
+.steadyCcw { animation: steadyCcw 4.2857s linear 40s infinite; }
+
+/* 구간 공식 θ = θ₀ + ω₀τ + ½ατ² 를 1초 간격으로 샘플링한 값 */
+@keyframes introCw {
+  0% { transform: rotate(-0.0deg); }
+  2.5% { transform: rotate(-12.0deg); }
+  5% { transform: rotate(-24.0deg); }
+  7.5% { transform: rotate(-36.0deg); }
+  10% { transform: rotate(-48.0deg); }
+  12.5% { transform: rotate(-60.0deg); }
+  15% { transform: rotate(-72.0deg); }
+  17.5% { transform: rotate(-85.2deg); }
+  20% { transform: rotate(-100.7deg); }
+  22.5% { transform: rotate(-118.5deg); }
+  25% { transform: rotate(-138.7deg); }
+  27.5% { transform: rotate(-161.2deg); }
+  30% { transform: rotate(-186.0deg); }
+  32.5% { transform: rotate(-213.2deg); }
+  35% { transform: rotate(-242.7deg); }
+  37.5% { transform: rotate(-274.5deg); }
+  40% { transform: rotate(-308.7deg); }
+  42.5% { transform: rotate(-345.2deg); }
+  45% { transform: rotate(-384.0deg); }
+  47.5% { transform: rotate(-425.2deg); }
+  50% { transform: rotate(-468.7deg); }
+  52.5% { transform: rotate(-514.5deg); }
+  55% { transform: rotate(-562.7deg); }
+  57.5% { transform: rotate(-613.2deg); }
+  60% { transform: rotate(-666.0deg); }
+  62.5% { transform: rotate(-721.4deg); }
+  65% { transform: rotate(-779.5deg); }
+  67.5% { transform: rotate(-840.3deg); }
+  70% { transform: rotate(-903.8deg); }
+  72.5% { transform: rotate(-970.1deg); }
+  75% { transform: rotate(-1039.1deg); }
+  77.5% { transform: rotate(-1110.8deg); }
+  80% { transform: rotate(-1185.3deg); }
+  82.5% { transform: rotate(-1262.5deg); }
+  85% { transform: rotate(-1342.4deg); }
+  87.5% { transform: rotate(-1425.0deg); }
+  90% { transform: rotate(-1509.0deg); }
+  92.5% { transform: rotate(-1593.0deg); }
+  95% { transform: rotate(-1677.0deg); }
+  97.5% { transform: rotate(-1761.0deg); }
+  100% { transform: rotate(-1845.0deg); }
+}
+@keyframes introCcw {
+  0% { transform: rotate(0.0deg); }
+  2.5% { transform: rotate(12.0deg); }
+  5% { transform: rotate(24.0deg); }
+  7.5% { transform: rotate(36.0deg); }
+  10% { transform: rotate(48.0deg); }
+  12.5% { transform: rotate(60.0deg); }
+  15% { transform: rotate(72.0deg); }
+  17.5% { transform: rotate(85.2deg); }
+  20% { transform: rotate(100.7deg); }
+  22.5% { transform: rotate(118.5deg); }
+  25% { transform: rotate(138.7deg); }
+  27.5% { transform: rotate(161.2deg); }
+  30% { transform: rotate(186.0deg); }
+  32.5% { transform: rotate(213.2deg); }
+  35% { transform: rotate(242.7deg); }
+  37.5% { transform: rotate(274.5deg); }
+  40% { transform: rotate(308.7deg); }
+  42.5% { transform: rotate(345.2deg); }
+  45% { transform: rotate(384.0deg); }
+  47.5% { transform: rotate(425.2deg); }
+  50% { transform: rotate(468.7deg); }
+  52.5% { transform: rotate(514.5deg); }
+  55% { transform: rotate(562.7deg); }
+  57.5% { transform: rotate(613.2deg); }
+  60% { transform: rotate(666.0deg); }
+  62.5% { transform: rotate(721.4deg); }
+  65% { transform: rotate(779.5deg); }
+  67.5% { transform: rotate(840.3deg); }
+  70% { transform: rotate(903.8deg); }
+  72.5% { transform: rotate(970.1deg); }
+  75% { transform: rotate(1039.1deg); }
+  77.5% { transform: rotate(1110.8deg); }
+  80% { transform: rotate(1185.3deg); }
+  82.5% { transform: rotate(1262.5deg); }
+  85% { transform: rotate(1342.4deg); }
+  87.5% { transform: rotate(1425.0deg); }
+  90% { transform: rotate(1509.0deg); }
+  92.5% { transform: rotate(1593.0deg); }
+  95% { transform: rotate(1677.0deg); }
+  97.5% { transform: rotate(1761.0deg); }
+  100% { transform: rotate(1845.0deg); }
+}
+@keyframes steadyCw  { from { transform: rotate(0deg); }  to { transform: rotate(-360deg); } }
+@keyframes steadyCcw { from { transform: rotate(0deg); }  to { transform: rotate(360deg); } }
+@keyframes shrink {
+  0% { transform: scale(1.0000); }
+  60% { transform: scale(1.0000); }
+  65% { transform: scale(0.9273); }
+  70% { transform: scale(0.8545); }
+  75% { transform: scale(0.7818); }
+  80% { transform: scale(0.7091); }
+  87.5% { transform: scale(0.6000); }
+  100% { transform: scale(0.6000); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shrinkBox, .spinCw, .spinCcw, .steadyCw, .steadyCcw { animation: none; }
+}

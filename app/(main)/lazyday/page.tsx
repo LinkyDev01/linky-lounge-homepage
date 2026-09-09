@@ -13,7 +13,7 @@ import { FaqSection } from "./FaqSection"
 import { FeatureQuietSection } from "./FeatureQuietSection"
 import { SeasonCountCta, BrandCloseV2 } from "./SeasonCountCta"
 import { NextSeasonNotify } from "./NextSeasonNotify"
-import { SEASON } from "./season-config"
+import { SEASON, NOTIFY_MODE } from "./season-config"
 import { JsonLd } from "./JsonLd"
 import shell from "./landing-shell.module.css"
 
@@ -90,7 +90,7 @@ export default function StudyForeignPage() {
         <FaqSection />
         <SeasonCountCta />
         {/* 조기마감 모드: 4기 오픈 알림 폼 — 브랜드 클로즈 직전 B밴드 (A/B 교차 유지, 운영자 확정 2026-07-13) */}
-        {SEASON.status === "closedEarly" && <NextSeasonNotify />}
+        {NOTIFY_MODE && <NextSeasonNotify />}
         {/* 거북이 레인은 제거 — 캐릭터는 로더(레이지클럽 turtle 트랙) 전용으로 아껴둔다
             (운영자 2026-08-12 "b, 레인 지우고". TurtleProgress 컴포넌트는 고아 보존) */}
         {/* 하단 CTA — sticky 라 **문서 흐름상 이 자리**(클로징 CTA 와 로고 사이)에 내려앉는다.

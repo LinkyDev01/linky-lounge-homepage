@@ -14,18 +14,23 @@ import { SEASON } from "@/app/(main)/lazyday/season-config"
 import { BOOKCLUB_URL } from "./base-path"
 
 export const CURRENT_SEASON = {
-  id: "bookclub-4",
+  id: "bookclub-5",
   /** 기수 일정 — season-config 파생 (기수 전환 시 그 파일만 고치면 따라온다).
    *  2026-08-21 운영자 "그래 통일하면 돼 … 그게 같은 맥락이라 모임 시작일이": 종전
    *  하드코딩 "9/7-11/1" 의 9/7 은 **신청 마감일**(SEASON.deadline)이지 시작일이 아니었다.
    *  기수 시작은 1회차 수요일 9/9 (sessions[0] · regularNote "9월 9일부터 격주") — 즉
    *  periodLabel "9/9 – 11/1" 이 맞고 하드코딩 쪽이 틀렸다. 하드코딩 폐기. */
   tag: SEASON.periodLabel,
+  /** 진열 카드의 클릭 가능 여부 — 접수 전(upcoming)에도 랜딩에 **오픈 알림 폼**이 있으므로
+   *  열어 둔다. 상태 문구는 카드의 tag(기간)와 랜딩이 말한다 (2026-09-09). */
   status: "open" as const,
   title: `레이지데이 북클럽 ${SEASON.name}`,
   /** 북클럽은 다른 도메인 — 내부 라우트가 없어 항상 새 탭 */
   link: BOOKCLUB_URL,
-  thumbnail: "/linky-lounge/book-club/home-v3/hero-4th-poster.webp",
+  /** 회전 애니메이션이 아니라 **정지 합성본** (운영자 2026-09-09 "애니메이션 회전 들어가지
+   *  않은 기본 이미지 조합으로 포스터 만들어 업로드") — 두 장을 회전 0 으로 겹쳐 다른 기수
+   *  포스터와 같은 4:5(620×775)로 잘랐다 */
+  thumbnail: "/linky-lounge/book-club/home-v3/hero-5th-poster.webp",
 }
 
 /** 기수를 진행하는 사람 (people-config 의 Person.slug).

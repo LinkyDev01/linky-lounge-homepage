@@ -1,5 +1,5 @@
 import styles from "./page.module.css"
-import { HeroBreathingPoster } from "./HeroBreathingPoster"
+import { HeroSpinPoster } from "./HeroSpinPoster"
 
 /**
  * Hero 포스터 자리 — **숨 쉬는 포스터** (hero-motion 시안 ③, 2026-08-11 채택).
@@ -23,7 +23,10 @@ export function HeroParallax() {
           이미 전역 로드**하고 있어 순수 중복이었고, 여기 있던 사본은 렌더 블로킹이라
           첫 페인트만 늦췄다. 책 제목·모임소개 라벨은 루트 로드(DeferredCss, 비차단)가
           공급한다. 포스터는 애초에 자체 호스팅 서브셋이라 무관. */}
-      <HeroBreathingPoster />
+      {/* 2026-09-09 5기 전환 — 히어로가 **회전 포스터**로 교체됐다 (운영자 "4기 모집
+          애니메이션과 대체"). 4기의 한붓 그리기 모션(HeroBreathingPoster)은 지우지 않고
+          고아로 보존하며, 검수대 `preview/hero-check` 에서 그대로 볼 수 있다. */}
+      <HeroSpinPoster />
       <div className={styles.heroFade} aria-hidden />
     </div>
   )

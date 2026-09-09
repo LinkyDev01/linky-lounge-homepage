@@ -14,7 +14,7 @@ import { ScenesSection } from "./ScenesSection"
 import { FaqSectionV2 } from "./FaqSectionV2"
 import { SeasonCountCta, BrandCloseV2 } from "../SeasonCountCta"
 import { NextSeasonNotify } from "../NextSeasonNotify"
-import { SEASON } from "../season-config"
+import { SEASON, NOTIFY_MODE } from "../season-config"
 import { StickyApplyButtonV2 } from "./StickyApplyButtonV2"
 import { SectionIndicator } from "../SectionIndicator"
 
@@ -81,7 +81,7 @@ export default function PreviewLandingPage() {
           <ScenesSection />
           <FaqSectionV2 />
           <SeasonCountCta />
-          {SEASON.status === "closedEarly" && <NextSeasonNotify />}
+          {NOTIFY_MODE && <NextSeasonNotify />}
           <StickyApplyButtonV2 />
           <BrandCloseV2 />
         </main>

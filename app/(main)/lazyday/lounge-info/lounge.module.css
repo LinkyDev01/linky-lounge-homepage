@@ -1,0 +1,247 @@
+/* ================================================================
+ * 링키라운지 오시는 길 (lazyday-bookclub.com/lounge-info) — 레이지클럽 톤 개편 (운영자 2026-09-09
+ * "레이지클럽과 톤앤매너 맞추어서 전체 UI/UX 개편해줘. 정보 자체는 수정할 게 없어").
+ *
+ * 신규 CSS — 종전엔 라운지 사이트의 `(main)/lounge-info/page.module.css` 를 그대로 import 했다
+ * (§4 교차). 이제 그 파일은 건드리지 않고 여기서 토큰을 자체 선언한다(§9: 기존 .module.css 미임포트).
+ * 값은 레이지클럽 트리 문법에서 가져온다 — `hosts.module.css`(본문 컬럼 460 · 본문 14.5/1.85 ·
+ * 제목 Gothic A1 24/18 600 · 라벨 SUIT 11~12.5 .03em · 절차 행 헤어라인 · 밑줄 텍스트 링크 + ↗)
+ * 와 `home.module.css`(오트 베이스 #f7f3ee · 잉크 #1a1208 · ph-gray #ece5da · 호버 밑줄 4.5/0.8).
+ * 라운드 0 · 유채색 UI 0 · 보더 버튼 0 · 그림자 0. 색은 콘텐츠 사진에서만 난다.
+ * 종전 아이콘(핀·기차·전화·경고·와이파이…)은 UI 장식이라 뺐다 — 정보는 라벨 글자가 말한다.
+ * ================================================================ */
+
+.root {
+  --ink: #1a1208;
+  --paper: #f7f3ee;
+  --ph-gray: #ece5da;
+  --hair: rgba(26, 18, 8, 0.18);
+  --muted: #6d6459;
+  --suit: "SUIT", sans-serif;
+  --gothic: "Gothic A1", sans-serif;
+  --nav-h: 41px;
+  --tab-h: 40px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.85;
+  font-weight: 400;
+  word-break: keep-all;
+  text-wrap: pretty;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+.root a { color: inherit; text-decoration: none; }
+.root a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* ── 헤더 — 워크룸 문법: 좌 워드마크(현재 페이지 밑줄 상시) · 우 텍스트 링크. 10px 15px, 실측 40.8px ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--paper);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  height: var(--nav-h);
+  font-family: var(--suit);
+  font-size: 13.2px;
+  line-height: 1.5;
+}
+.current {
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* ── 섹션 탭 — 텍스트 링크 행, 활성만 밑줄 (종전 주황 인디케이터 폐기) ── */
+.tabs {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 19;
+  background: var(--paper);
+  display: flex;
+  gap: 18px;
+  padding: 0 15px;
+  height: var(--tab-h);
+  align-items: center;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--suit);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+}
+.tab { color: var(--muted); }
+.tabOn {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+
+/* ── 본문 컬럼 ── */
+.wrap {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 0 15px 65px;
+}
+
+.headline {
+  font-family: var(--gothic);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.35;
+  margin: 26px 0 4px;
+}
+.headSub {
+  font-family: var(--suit);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+/* 사진 — 라운드 0, ph-gray 바탕. 세로 사진은 원본 비율 그대로 */
+.photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--ph-gray);
+  margin: 0;
+}
+.hero { aspect-ratio: 4 / 3; object-fit: cover; margin-bottom: 26px; }
+
+/* ── 항목 리스트 — 라벨(SUIT) + 값. 헤어라인 행, 위아래는 잉크선 ── */
+.list { margin: 0 0 44px; border-top: 1px solid var(--ink); }
+.row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.row:last-child { border-bottom: 1px solid var(--ink); }
+.rowLabel {
+  font-family: var(--suit);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding-top: 4px;
+  color: var(--muted);
+}
+.rowBody { margin: 0; }
+.rowSub { display: block; font-size: 13.5px; line-height: 1.7; color: var(--muted); }
+
+/* ── 섹션 ── */
+.section { margin: 0 0 52px; scroll-margin-top: calc(var(--nav-h) + var(--tab-h) + 8px); }
+.label {
+  display: block;
+  font-family: var(--suit);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  margin: 0 0 6px;
+}
+.title {
+  font-family: var(--gothic);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+.para { margin: 0 0 14px; }
+.strong { font-weight: 600; }
+
+/* 지도 — 카카오 러프맵. 컬럼 폭에 맞추고 라운드·테두리 없이 잉크선으로 위아래만 ── */
+.map {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--ph-gray);
+}
+@media (min-width: 721px) { .map { height: 240px; } }
+.mapBox { width: 100% !important; height: 100% !important; }
+.map :global(.wrap_map) { width: 100% !important; height: 100% !important; }
+.map :global(img) { max-width: none; }
+.mapMeta { margin: 12px 0 0; }
+.mapMeta .rowSub { margin-top: 0; }
+
+/* 텍스트 링크 + ↗ (hosts .ctaLink 문법, 본문 크기) */
+.links { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 12px 0 0; }
+.link {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1px;
+  white-space: nowrap;
+}
+.link:hover { text-decoration-thickness: 1px; }
+.arrow { margin-left: 5px; position: relative; top: 1px; display: inline-block; }
+
+/* 절차 — hosts .steps 문법 + 사진 */
+.steps { margin: 0; border-top: 1px solid var(--ink); }
+.step { padding: 14px 0 22px; border-bottom: 1px solid var(--hair); }
+.step:last-child { border-bottom: 1px solid var(--ink); }
+.stepHead { display: flex; gap: 14px; margin: 0 0 6px; }
+.stepNum { flex: 0 0 22px; font-family: var(--suit); font-size: 12px; letter-spacing: 0.06em; padding-top: 4px; }
+.stepTitle { font-weight: 600; margin: 0; }
+.stepBody { margin: 0 0 14px 36px; }
+.step .photo { margin: 0; }
+
+/* 주차 두 곳 — 항목 행 전체가 링크, 우측 ↗ */
+.parkRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hair);
+  align-items: baseline;
+}
+.parkRow:last-of-type { border-bottom: 1px solid var(--ink); }
+.parkName { margin: 0; font-weight: 600; }
+.parkMeta { display: block; font-family: var(--suit); font-size: 12px; letter-spacing: 0.03em; color: var(--muted); line-height: 1.7; }
+.parkGo { font-family: var(--suit); font-size: 12.5px; letter-spacing: 0.03em; white-space: nowrap; }
+.parkList { margin: 0 0 18px; border-top: 1px solid var(--ink); }
+
+/* 이용 정보 — 값 옆의 동작(복사)은 텍스트 버튼 */
+.textBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 12px;
+  font: inherit;
+  font-family: var(--suit);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4.5px;
+  text-decoration-thickness: 0.8px;
+}
+.copied {
+  margin-left: 10px;
+  font-family: var(--suit);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.copiedOn { opacity: 1; }
+
+/* 문의 */
+.ctaLink {
+  font-family: var(--gothic);
+  font-weight: 600;
+  font-size: 18px;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1px;
+}
+.ctaLink:hover { text-decoration-thickness: 1px; }
+.ctaWrap { margin: 0 0 22px; }

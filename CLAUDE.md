@@ -73,7 +73,7 @@ linkylounge.com 쪽은 명시 지시 없이 수정 금지 (§4 lounge-info 교�
 | `apply/**` 3종 page.module.css | 실 apply + preview/apply + one-day-talk-01/apply | `apply/interview/page.module.css` 는 소비자 없는 고아 |
 | `LandingShell`·`ProcessSection`·`ReviewsSection`·`SeasonCountCta`·`FifthSessionSection` 의 module.css | **V2 없음 — 프리뷰가 직접 import** | 수정 = 실+프리뷰 동시. 시안 실험 시 이 파일 수정 금지, 쇼케이스 전용 CSS 신설 |
 | `ScheduleSection`·`FeatureQuietSection` ↔ `ScheduleSectionV2`·`preview/FeatureQuietSection` | **분리 사본 쌍** | 한쪽 수정 시 쌍도 같은 값. 캘린더는 사본 하나 더: `apply/ApplyCalendar` — 3벌 동기화 |
-| `lazyday/lounge-info/page.tsx` | lazyday 밖 `(main)/lounge-info/page.module.css` import | 라운지 오시는길과 교차 |
+| `lazyday/lounge-info/lounge.module.css` | 북클럽 오시는길 전용 (2026-09-09 레이지클럽 톤 개편) | 종전의 `(main)/lounge-info/page.module.css` 교차 import 는 **끊었다** — 라운지 사이트 CSS 는 이제 라운지 페이지만 쓴다. 이 페이지는 §9 문법(라운드·유채색·보더 버튼·그림자 0) |
 | `preview/preview.module.css` | 프리뷰 트리 허브 (10개 파일) | 수정 전 import grep |
 
 | `lib/applications.ts` | 접수 라우트 4개 공유 (P2 에서 3개 더) | `classifyApply`(GAS type 화이트리스트와 값 집합 일치)·`recordSafe`(유령행 차단 규율). GAS `doPost` 분기를 고치면 여기도 같이 |

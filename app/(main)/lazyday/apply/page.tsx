@@ -10,7 +10,7 @@ import { FadeUp } from "@/components/animation/FadeUp"
 import { BlurReveal } from "@/components/animation/BlurReveal"
 import { SubmitOverlay } from "@/components/animation/SubmitOverlay"
 import { ApplySectionIndicator } from "./ApplySectionIndicator"
-import { SEASON } from "../season-config"
+import { SEASON, LOCKED, NOTIFY_MODE, NOTIFY_SEASON } from "../season-config"
 import { JourneyStepper } from "../JourneyStepper"
 import { ApplyCalendar } from "./ApplyCalendar"
 import styles from "./page.module.css"
@@ -396,6 +396,60 @@ export default function ApplyPage() {
               </a>
             </div>
           </FadeUp>
+        </div>
+      </main>
+    )
+  }
+
+  // 모집이 닫혔으면 폼 자체를 열지 않는다 (2026-09-08). 랜딩 CTA·내비는 이미 닫았지만
+  // 검색 유입·예전에 공유된 링크로 이 주소에 바로 들어올 수 있고, 그러면 마감된 기수에
+  // 신청이 쌓인다. 서버(`/api/lazyday/apply`)도 같은 판정으로 막는다 — 여긴 안내가 일이다.
+  // ⚠ 판정은 **정적 플래그**만 본다(마감일 경과는 서버가 맡는다) — 날짜로 갈리면 SSR 과
+  //   클라이언트가 달라 폼이 한 프레임 깜빡인다.
+  if (NOTIFY_MODE || LOCKED) {
+    return (
+      <main className={styles.successPage}>
+        <SimBanner mode={sim} />
+        <div className={styles.successInner}>
+          <BlurReveal duration={1.0} blur={10} fromScale={1.03}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/linky-lounge/book-club/lazyday_logo.png"
+              alt="레이지데이"
+              className={styles.successMark}
+            />
+          </BlurReveal>
+          <FadeUp delay={0.15}>
+            <h1 className={styles.successTitle}>
+              {LOCKED
+                ? SEASON.lockedLabel
+                : SEASON.status === "upcoming"
+                ? `${SEASON.name} 모집은 곧 열립니다.`
+                : `${SEASON.name} 모집이 마감되었습니다.`}
+            </h1>
+          </FadeUp>
+          <FadeUp delay={0.3}>
+            <p className={styles.successBody}>
+              {LOCKED ? (
+                "모집이 열리면 홈페이지에서 안내드릴게요."
+              ) : (
+                <>
+                  {SEASON.status === "upcoming" ? "모집이 열리는 대로 알려드릴게요," : "다음 기수 소식을 기다리고 계셨다면,"}
+                  <br />
+                  {NOTIFY_SEASON} 오픈 알림을 신청해주세요.
+                </>
+              )}
+            </p>
+          </FadeUp>
+          {!LOCKED && (
+            <FadeUp delay={0.45}>
+              <div className={styles.successActions}>
+                <a href={`${base}/#notify`} className={styles.successPrimaryLink}>
+                  {NOTIFY_SEASON} 오픈 알림 신청
+                </a>
+              </div>
+            </FadeUp>
+          )}
         </div>
       </main>
     )

@@ -15,7 +15,8 @@ import { season3Config } from "@/app/(main)/lazyday/book-config"
  *                 칸 표기는 "n기 n회차 레이지데이 북클럽" (운영자 지정 형식).
  *
  * 출처:
- *   · 4기 ← `season-config.ts` (sessions/fifth) — 기수 전환 시 여기만 고치면 따라온다
+ *   · 5기(현재) ← `season-config.ts` (sessions/fifth) — 기수 전환 시 여기만 고치면 따라온다
+ *   · 4기 ← 아래 SEASON4_SESSIONS (2026-09-09 5기 전환으로 지난 기수가 됐다 — 3기와 같은 처지)
  *   · 3기 ← 아래 SEASON3_SESSIONS. ⚠️ season-config 는 **현재 기수만** 담아서 지난 기수의
  *          회차 날짜는 단일 출처가 없다. 운영자 제공 구글 캘린더의 '레이지데이' 일정과
  *          `book-config` 의 3기 dateRange("7.15 – 9.6")로 확정했다
@@ -81,6 +82,24 @@ const SEASON3_TIMES = [
   "일요일 오후 14:30–17:30",
 ]
 
+/** 4기 요일·시간 — 5기 전환(2026-09-09) 직전 season-config 값 그대로. 4기는 진행 중이다(9/9–11/1) */
+const SEASON4_TIMES = [
+  "화요일 19:30–22:30",
+  "수요일 19:30–22:30",
+  "토요일 오전 10:30–13:30",
+  "일요일 오전 10:30–13:30",
+  "일요일 오후 14:30–17:30",
+]
+
+/** 4기 회차 일정 — 화·수·토·일 격주 + 자유모임 11/1 */
+const SEASON4_SESSIONS: Array<{ label: string; dates: string[] }> = [
+  { label: "1회차", dates: ["9/15", "9/9", "9/19", "9/13"] },
+  { label: "2회차", dates: ["9/29", "9/23", "10/3", "9/27"] },
+  { label: "3회차", dates: ["10/13", "10/7", "10/17", "10/11"] },
+  { label: "4회차", dates: ["10/27", "10/21", "10/31", "10/25"] },
+  { label: "5회차", dates: ["11/1"] },
+]
+
 /** 3기 회차 일정 — 수·목·일 격주 (출처는 파일 머리 주석 참조) */
 const SEASON3_SESSIONS: Array<{ label: string; dates: string[] }> = [
   { label: "1회차", dates: ["7/15", "7/16", "7/19"] },
@@ -117,7 +136,7 @@ const YEAR = seasonYear()
 // ── 프로그램 (모임) — 포스터·정보 한 벌씩 ─────────────────────
 const PROGRAMS: ClubProgram[] = [
   {
-    id: "season-4",
+    id: "season-5",
     category: "bookclub",
     title: `레이지데이 북클럽 ${SEASON.name}`,
     schedule: `${SEASON.periodLabel} (격주 ${SEASON.days.filter((d) => !d.closed).map((d) => d.label.replace("요일", "")).join("·")}, 정규 4회 + ${SEASON.fifth.label}${SEASON.days.some((d) => d.closed) ? ` · ${SEASON.days.filter((d) => d.closed).map((d) => d.label.replace("요일", "")).join("·")} 마감` : ""})`,
@@ -131,11 +150,28 @@ const PROGRAMS: ClubProgram[] = [
     // 라운드 106(운영자): 레이지데이 북클럽은 캘린더에서 가격을 노출하지 않는다
     price: "",
     description: SEASON.regularNote,
+    // 회전 애니메이션이 아니라 **정지 합성본** (운영자 2026-09-09 "애니메이션 회전 들어가지
+    // 않은 기본 이미지 조합으로 포스터 만들어 업로드") — 두 장을 회전 0 으로 겹쳐 4:5 로 잘랐다
+    image: `${IMG}/hero-5th-poster.webp`,
+    href: BOOKCLUB_URL,
+    external: true,
+    cta: "자세히 보기",
+    // upcoming = 일정만 공개하고 접수는 아직 (운영자 2026-09-09 "일정만 노출, 접수는 알림받기 유지")
+    note: SEASON.status === "upcoming" ? "모집 예정" : SEASON.status === "open" ? "모집 중" : "마감",
+  },
+  {
+    id: "season-4",
+    category: "bookclub",
+    title: "레이지데이 북클럽 4기",
+    schedule: "9/9 – 11/1 (격주 화·수·토·일, 정규 4회 + 5회차)",
+    times: SEASON4_TIMES,
+    price: "",
+    description: "",
     image: `${IMG}/hero-4th-poster.webp`,
     href: BOOKCLUB_URL,
     external: true,
     cta: "자세히 보기",
-    note: "모집 중",
+    note: "진행 중",
   },
   {
     id: "season-3",
@@ -217,10 +253,11 @@ function seasonEvents(
 }
 
 const EVENTS: ClubEvent[] = [
-  ...seasonEvents("season-4", SEASON.name, [
+  ...seasonEvents("season-5", SEASON.name, [
     ...SEASON.sessions.map((s) => ({ label: s.label, dates: s.dates })),
     { label: SEASON.fifth.label, dates: [SEASON.fifth.date.split(" ")[0]] },
   ]),
+  ...seasonEvents("season-4", "4기", SEASON4_SESSIONS),
   ...seasonEvents("season-3", season3Config.label, SEASON3_SESSIONS),
   // sessions(복수 회차, 2026-08-19) 있는 모임은 회차마다 캘린더 칸을 하나씩 —
   // flatMap 인 이유: 4주 과정 하나가 캘린더 칸 4개로 펼쳐진다

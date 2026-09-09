@@ -1,0 +1,349 @@
+/* 5기 포스터 — 두 장이 엇갈려 맞물려 도는 히어로 (운영자 2026-09-09 "북클럽 랜딩페이지를
+ * 4기 모집 애니메이션과 대체"). **프리뷰 `preview/poster-5th` 가 원본** — 값은 픽셀 동일하고
+ * 무대 크기·페이지 래퍼만 히어로용으로 바꿨다 (철칙 1: 이식하며 개선 금지).
+ * 배경은 **섹션 배경 B(#f0e9e0)** — 운영자 2026-09-09 "랜딩페이지 상단 애니메이션
+ * 배경색은 기존으로 복귀(홈페이지 섹션 배경컬러와 통일)". 히어로 아래 요약 카드·
+ * '함께 읽는 책'이 둘 다 B 라 밴드부터 한 덩어리로 이어진다(종전 4기 포스터의 종이색
+ * #f0e8e2 와도 사실상 같은 톤). ⚠ **프리뷰 `poster-5th` 는 #eeeeee 그대로** —
+ * 포스터 자체의 승인 배경이라 영상·정지 포스터도 그 색이다. 여기만 사이트 톤을 따른다.
+ * 회전 원점은 캔버스 중심, 한 장은 시계·한 장은 반시계.
+ * 겹침 순서는 작은 쪽(반시계)이 앞 — TSX 의 DOM 순서가 정한다.
+ *
+ * 속도 (운영자 "마지막 24-40도 등가속 너무 느리지 않게 하고, 마지막 5초 정도만 등속으로")
+ *   0–6s    12°/s 유지              읽는 구간 (1바퀴 30초)
+ *   6–24s   12 → 54 등가속          α 2.333°/s²
+ *   24–35s  54 → 84 등가속          α 2.727°/s² (1바퀴 4.3초)
+ *   35–40s  84 등속                 여기선 크기도 고정
+ *
+ * 초반 성장 — **감쇠 스프링 오버슈트** (운영자 2026-09-09 "기준사이즈보다 더 커졌다가 다시 반작용으로
+ * 돌아와 원점 회귀하는 걸 물리법칙 그래프에 맞게" → 시안 B 확정 "무대 밖으로 넘치는 것도 좋은데. 잘림을 용인"):
+ *   당겨 놓은 스프링을 정지 상태에서 놓는 감쇠 조화진동자  m·s″ + c·s′ + k·(s−1) = 0
+ *   s(t) = 1 − e^(−ζω₀t)·[ D·cos(ω_d t) + (ζω₀D/ω_d)·sin(ω_d t) ],  D = 0.94(시작 6%), ζ = 0.548, ω₀ = 4.69
+ *   → 0.55s 에 기준 크기 1.0 통과, **0.8s 정점 1.12(+12%)**, 0.985 까지 한 번 되튀고 2.7s 에 ±0.1% 안착.
+ *   회전은 에너지 보존 ω = ω₀/s — 작을 때 빠르고, 1.0 을 넘는 동안 12°/s 아래로 살짝 처졌다가 함께 돌아온다
+ *   (누적 51.6°, 2.7s 에서 기존 프로파일에 이음매 없이 이어짐).
+ *   ⚠ 오버슈트 동안 포스터가 무대(94.6%)를 넘는다 — 가로는 페이지 overflow-x 에서 잘리고 세로는 이웃 위로
+ *     겹친다. 운영자가 그대로 용인("무대 밖으로 넘치는 것도 좋은데"). 키프레임은 0–2.7s 를 0.05s 간격으로.
+ * 크기 (운영자 "3구간 가속운동 시에는 크기도 등감소 … 마지막 시점에 크기는 유지")
+ *   0–24s 1.00 · 24–35s 1.00 → 0.60 등감소 · 35–40s 0.60 유지
+ *
+ * ⚠ 잘림 0 · 여백은 기하학이 허용하는 최소 (운영자 2026-09-08 "시계방향의 레자가
+ *   끊기네 이렇게 원으로 좁게 잘라버리면 안되지" — 내접원 마스크 폐기):
+ *   시계방향 판의 잉크는 중심에서 최대 2133px(캔버스 절반 2025)까지 퍼져 있어,
+ *   그 점이 수평을 향하는 각도에선 캔버스 폭보다 2.7% 더 나간다. 한 픽셀도
+ *   자르지 않고 중심을 무대 중심에 둔 채 잘림 0 을 만드는 배율은 2025/2133 =
+ *   0.949 — 여기에 안티에일리어싱 여유 0.3% 를 더해 94.6%(한쪽 여백 2.7%).
+ *   "여백 0"과 "잘림 0"은 이 판에선 양립 불가.
+ *
+ * ⚠ 요소를 세 겹으로 나눈 이유: 인트로 누적이 1864°(5.178바퀴)라 40초에서
+ *   되감으면 64° 가 튄다. 바깥이 인트로를 forwards 로 끝 각도에 세워 두고,
+ *   가운데가 40초 뒤부터 4.2857초 1바퀴(=84°/s) 정속을 돌린다 — 360° 단위라
+ *   이음매가 없다. 크기는 또 한 겹에서 따로 건다(회전과 곱해진다).
+ * 프리뷰 전용 CSS — 실사이트 .module.css 는 import 하지 않는다. */
+
+.band {
+  position: relative;
+  width: 100%;
+  background: #f0e9e0;
+}
+
+/* 히어로는 폭을 꽉 채운 정사각 — 회전 포스터가 정사각이라 무대도 정사각이다.
+   (종전 4기 히어로는 4:5 였다 — 포스터가 바뀌며 밴드 높이도 따라 바뀐다) */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.shrink,
+.spin,
+.steady {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* 무대의 94.6% — 어떤 각도에서도 잉크가 무대 밖으로 나가지 않는 최대 크기 (머리말 참조) */
+.layer {
+  position: absolute;
+  inset: 2.7%;
+  width: 94.6%;
+  height: 94.6%;
+  object-fit: contain;
+}
+
+.shrinkBox { animation: shrink 40s linear forwards; }
+.spinCw  { animation: introCw  40s linear forwards; }
+.spinCcw { animation: introCcw 40s linear forwards; }
+.steadyCw  { animation: steadyCw  4.2857s linear 40s infinite; }
+.steadyCcw { animation: steadyCcw 4.2857s linear 40s infinite; }
+
+/* 구간 공식 θ = θ₀ + ω₀τ + ½ατ² 를 1초 간격으로 샘플링한 값 */
+@keyframes introCw {
+  0% { transform: rotate(-0.0deg); }
+  0.125% { transform: rotate(-8.9deg); }
+  0.25% { transform: rotate(-14.4deg); }
+  0.375% { transform: rotate(-17.7deg); }
+  0.5% { transform: rotate(-19.8deg); }
+  0.625% { transform: rotate(-21.3deg); }
+  0.75% { transform: rotate(-22.5deg); }
+  0.875% { transform: rotate(-23.5deg); }
+  1% { transform: rotate(-24.3deg); }
+  1.125% { transform: rotate(-25.0deg); }
+  1.25% { transform: rotate(-25.7deg); }
+  1.375% { transform: rotate(-26.3deg); }
+  1.5% { transform: rotate(-26.9deg); }
+  1.625% { transform: rotate(-27.4deg); }
+  1.75% { transform: rotate(-28.0deg); }
+  1.875% { transform: rotate(-28.5deg); }
+  2% { transform: rotate(-29.1deg); }
+  2.125% { transform: rotate(-29.6deg); }
+  2.25% { transform: rotate(-30.1deg); }
+  2.375% { transform: rotate(-30.7deg); }
+  2.5% { transform: rotate(-31.2deg); }
+  2.625% { transform: rotate(-31.8deg); }
+  2.75% { transform: rotate(-32.4deg); }
+  2.875% { transform: rotate(-32.9deg); }
+  3% { transform: rotate(-33.5deg); }
+  3.125% { transform: rotate(-34.1deg); }
+  3.25% { transform: rotate(-34.7deg); }
+  3.375% { transform: rotate(-35.3deg); }
+  3.5% { transform: rotate(-35.9deg); }
+  3.625% { transform: rotate(-36.5deg); }
+  3.75% { transform: rotate(-37.1deg); }
+  3.875% { transform: rotate(-37.7deg); }
+  4% { transform: rotate(-38.3deg); }
+  4.125% { transform: rotate(-38.9deg); }
+  4.25% { transform: rotate(-39.5deg); }
+  4.375% { transform: rotate(-40.1deg); }
+  4.5% { transform: rotate(-40.8deg); }
+  4.625% { transform: rotate(-41.4deg); }
+  4.75% { transform: rotate(-42.0deg); }
+  4.875% { transform: rotate(-42.6deg); }
+  5% { transform: rotate(-43.2deg); }
+  5.125% { transform: rotate(-43.8deg); }
+  5.25% { transform: rotate(-44.4deg); }
+  5.375% { transform: rotate(-45.0deg); }
+  5.5% { transform: rotate(-45.6deg); }
+  5.625% { transform: rotate(-46.2deg); }
+  5.75% { transform: rotate(-46.8deg); }
+  5.875% { transform: rotate(-47.4deg); }
+  6% { transform: rotate(-48.0deg); }
+  6.125% { transform: rotate(-48.6deg); }
+  6.25% { transform: rotate(-49.2deg); }
+  6.375% { transform: rotate(-49.8deg); }
+  6.5% { transform: rotate(-50.4deg); }
+  6.625% { transform: rotate(-51.0deg); }
+  6.75% { transform: rotate(-51.6deg); }
+  7.5% { transform: rotate(-55.2deg); }
+  10% { transform: rotate(-67.2deg); }
+  12.5% { transform: rotate(-79.2deg); }
+  15% { transform: rotate(-91.2deg); }
+  17.5% { transform: rotate(-104.3deg); }
+  20% { transform: rotate(-119.8deg); }
+  22.5% { transform: rotate(-137.7deg); }
+  25% { transform: rotate(-157.8deg); }
+  27.5% { transform: rotate(-180.3deg); }
+  30% { transform: rotate(-205.2deg); }
+  32.5% { transform: rotate(-232.3deg); }
+  35% { transform: rotate(-261.8deg); }
+  37.5% { transform: rotate(-293.7deg); }
+  40% { transform: rotate(-327.8deg); }
+  42.5% { transform: rotate(-364.3deg); }
+  45% { transform: rotate(-403.2deg); }
+  47.5% { transform: rotate(-444.3deg); }
+  50% { transform: rotate(-487.8deg); }
+  52.5% { transform: rotate(-533.7deg); }
+  55% { transform: rotate(-581.8deg); }
+  57.5% { transform: rotate(-632.3deg); }
+  60% { transform: rotate(-685.2deg); }
+  62.5% { transform: rotate(-740.5deg); }
+  65% { transform: rotate(-798.6deg); }
+  67.5% { transform: rotate(-859.4deg); }
+  70% { transform: rotate(-923.0deg); }
+  72.5% { transform: rotate(-989.3deg); }
+  75% { transform: rotate(-1058.3deg); }
+  77.5% { transform: rotate(-1130.0deg); }
+  80% { transform: rotate(-1204.4deg); }
+  82.5% { transform: rotate(-1281.6deg); }
+  85% { transform: rotate(-1361.5deg); }
+  87.5% { transform: rotate(-1444.2deg); }
+  90% { transform: rotate(-1528.2deg); }
+  92.5% { transform: rotate(-1612.2deg); }
+  95% { transform: rotate(-1696.2deg); }
+  97.5% { transform: rotate(-1780.2deg); }
+  100% { transform: rotate(-1864.2deg); }
+}
+@keyframes introCcw {
+  0% { transform: rotate(0.0deg); }
+  0.125% { transform: rotate(8.9deg); }
+  0.25% { transform: rotate(14.4deg); }
+  0.375% { transform: rotate(17.7deg); }
+  0.5% { transform: rotate(19.8deg); }
+  0.625% { transform: rotate(21.3deg); }
+  0.75% { transform: rotate(22.5deg); }
+  0.875% { transform: rotate(23.5deg); }
+  1% { transform: rotate(24.3deg); }
+  1.125% { transform: rotate(25.0deg); }
+  1.25% { transform: rotate(25.7deg); }
+  1.375% { transform: rotate(26.3deg); }
+  1.5% { transform: rotate(26.9deg); }
+  1.625% { transform: rotate(27.4deg); }
+  1.75% { transform: rotate(28.0deg); }
+  1.875% { transform: rotate(28.5deg); }
+  2% { transform: rotate(29.1deg); }
+  2.125% { transform: rotate(29.6deg); }
+  2.25% { transform: rotate(30.1deg); }
+  2.375% { transform: rotate(30.7deg); }
+  2.5% { transform: rotate(31.2deg); }
+  2.625% { transform: rotate(31.8deg); }
+  2.75% { transform: rotate(32.4deg); }
+  2.875% { transform: rotate(32.9deg); }
+  3% { transform: rotate(33.5deg); }
+  3.125% { transform: rotate(34.1deg); }
+  3.25% { transform: rotate(34.7deg); }
+  3.375% { transform: rotate(35.3deg); }
+  3.5% { transform: rotate(35.9deg); }
+  3.625% { transform: rotate(36.5deg); }
+  3.75% { transform: rotate(37.1deg); }
+  3.875% { transform: rotate(37.7deg); }
+  4% { transform: rotate(38.3deg); }
+  4.125% { transform: rotate(38.9deg); }
+  4.25% { transform: rotate(39.5deg); }
+  4.375% { transform: rotate(40.1deg); }
+  4.5% { transform: rotate(40.8deg); }
+  4.625% { transform: rotate(41.4deg); }
+  4.75% { transform: rotate(42.0deg); }
+  4.875% { transform: rotate(42.6deg); }
+  5% { transform: rotate(43.2deg); }
+  5.125% { transform: rotate(43.8deg); }
+  5.25% { transform: rotate(44.4deg); }
+  5.375% { transform: rotate(45.0deg); }
+  5.5% { transform: rotate(45.6deg); }
+  5.625% { transform: rotate(46.2deg); }
+  5.75% { transform: rotate(46.8deg); }
+  5.875% { transform: rotate(47.4deg); }
+  6% { transform: rotate(48.0deg); }
+  6.125% { transform: rotate(48.6deg); }
+  6.25% { transform: rotate(49.2deg); }
+  6.375% { transform: rotate(49.8deg); }
+  6.5% { transform: rotate(50.4deg); }
+  6.625% { transform: rotate(51.0deg); }
+  6.75% { transform: rotate(51.6deg); }
+  7.5% { transform: rotate(55.2deg); }
+  10% { transform: rotate(67.2deg); }
+  12.5% { transform: rotate(79.2deg); }
+  15% { transform: rotate(91.2deg); }
+  17.5% { transform: rotate(104.3deg); }
+  20% { transform: rotate(119.8deg); }
+  22.5% { transform: rotate(137.7deg); }
+  25% { transform: rotate(157.8deg); }
+  27.5% { transform: rotate(180.3deg); }
+  30% { transform: rotate(205.2deg); }
+  32.5% { transform: rotate(232.3deg); }
+  35% { transform: rotate(261.8deg); }
+  37.5% { transform: rotate(293.7deg); }
+  40% { transform: rotate(327.8deg); }
+  42.5% { transform: rotate(364.3deg); }
+  45% { transform: rotate(403.2deg); }
+  47.5% { transform: rotate(444.3deg); }
+  50% { transform: rotate(487.8deg); }
+  52.5% { transform: rotate(533.7deg); }
+  55% { transform: rotate(581.8deg); }
+  57.5% { transform: rotate(632.3deg); }
+  60% { transform: rotate(685.2deg); }
+  62.5% { transform: rotate(740.5deg); }
+  65% { transform: rotate(798.6deg); }
+  67.5% { transform: rotate(859.4deg); }
+  70% { transform: rotate(923.0deg); }
+  72.5% { transform: rotate(989.3deg); }
+  75% { transform: rotate(1058.3deg); }
+  77.5% { transform: rotate(1130.0deg); }
+  80% { transform: rotate(1204.4deg); }
+  82.5% { transform: rotate(1281.6deg); }
+  85% { transform: rotate(1361.5deg); }
+  87.5% { transform: rotate(1444.2deg); }
+  90% { transform: rotate(1528.2deg); }
+  92.5% { transform: rotate(1612.2deg); }
+  95% { transform: rotate(1696.2deg); }
+  97.5% { transform: rotate(1780.2deg); }
+  100% { transform: rotate(1864.2deg); }
+}
+@keyframes steadyCw  { from { transform: rotate(0deg); }  to { transform: rotate(-360deg); } }
+@keyframes steadyCcw { from { transform: rotate(0deg); }  to { transform: rotate(360deg); } }
+@keyframes shrink {
+  0% { transform: scale(0.0600); }
+  0.125% { transform: scale(0.0837); }
+  0.25% { transform: scale(0.1463); }
+  0.375% { transform: scale(0.2361); }
+  0.5% { transform: scale(0.3424); }
+  0.625% { transform: scale(0.4564); }
+  0.75% { transform: scale(0.5708); }
+  0.875% { transform: scale(0.6800); }
+  1% { transform: scale(0.7799); }
+  1.125% { transform: scale(0.8678); }
+  1.25% { transform: scale(0.9422); }
+  1.375% { transform: scale(1.0025); }
+  1.5% { transform: scale(1.0489); }
+  1.625% { transform: scale(1.0825); }
+  1.75% { transform: scale(1.1045); }
+  1.875% { transform: scale(1.1164); }
+  2% { transform: scale(1.1200); }
+  2.125% { transform: scale(1.1170); }
+  2.25% { transform: scale(1.1090); }
+  2.375% { transform: scale(1.0975); }
+  2.5% { transform: scale(1.0840); }
+  2.625% { transform: scale(1.0694); }
+  2.75% { transform: scale(1.0548); }
+  2.875% { transform: scale(1.0408); }
+  3% { transform: scale(1.0281); }
+  3.125% { transform: scale(1.0169); }
+  3.25% { transform: scale(1.0074); }
+  3.375% { transform: scale(0.9997); }
+  3.5% { transform: scale(0.9938); }
+  3.625% { transform: scale(0.9895); }
+  3.75% { transform: scale(0.9867); }
+  3.875% { transform: scale(0.9851); }
+  4% { transform: scale(0.9847); }
+  4.125% { transform: scale(0.9851); }
+  4.25% { transform: scale(0.9861); }
+  4.375% { transform: scale(0.9876); }
+  4.5% { transform: scale(0.9893); }
+  4.625% { transform: scale(0.9911); }
+  4.75% { transform: scale(0.9930); }
+  4.875% { transform: scale(0.9948); }
+  5% { transform: scale(0.9964); }
+  5.125% { transform: scale(0.9978); }
+  5.25% { transform: scale(0.9991); }
+  5.375% { transform: scale(1.0000); }
+  5.5% { transform: scale(1.0008); }
+  5.625% { transform: scale(1.0013); }
+  5.75% { transform: scale(1.0017); }
+  5.875% { transform: scale(1.0019); }
+  6% { transform: scale(1.0020); }
+  6.125% { transform: scale(1.0019); }
+  6.25% { transform: scale(1.0018); }
+  6.375% { transform: scale(1.0016); }
+  6.5% { transform: scale(1.0014); }
+  6.625% { transform: scale(1.0011); }
+  6.75% { transform: scale(1.0000); }
+  60% { transform: scale(1.0000); }
+  65% { transform: scale(0.9273); }
+  70% { transform: scale(0.8545); }
+  75% { transform: scale(0.7818); }
+  80% { transform: scale(0.7091); }
+  87.5% { transform: scale(0.6000); }
+  100% { transform: scale(0.6000); }
+}
+
+/* 모션 감소 설정에서도 **멈추지는 않는다** — 이 히어로는 움직임이 본질이라 정지시키면
+   그냥 정지 포스터가 된다(운영자 2026-09-09 "최상단은 포스터가 아니라 동적 애니메이션
+   포스터야"). 대신 가속·축소를 걷고 1바퀴 60초 등속으로 낮춘다 — 확정 프로파일의 끝
+   속도(1바퀴 4.3초)보다 14배 느리다. */
+@media (prefers-reduced-motion: reduce) {
+  .shrinkBox { animation: none; }
+  .spinCw, .spinCcw { animation: none; }
+  .steadyCw  { animation: steadyCw  60s linear 0s infinite; }
+  .steadyCcw { animation: steadyCcw 60s linear 0s infinite; }
+}

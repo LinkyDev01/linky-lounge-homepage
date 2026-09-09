@@ -21,19 +21,40 @@ export type SeasonSession = {
 
 export const SEASON = {
   /** 기수 고유명 (예: "4기") */
-  name: "4기",
+  name: "5기",
   /** 다음 기수 고유명 */
-  next: "5기",
-  /** 모집 상태 — "closedEarly"면 랜딩 전체가 조기마감+다음 기수 알림 모드 (운영자 지시 2026-07-13) */
-  status: "open" as "open" | "closedEarly",
-  /** 다음 기수 시작 시점 표기 (스티키 CTA 주석 줄) */
-  nextStartLabel: "추후 공지",
+  next: "6기",
+  /** 기수 연도 — 종전엔 deadline 에서 뽑았는데, 모집 전(deadline: null)이면 폴백("2026-01-01")으로
+   *  새서 **파기 기준일(seasonEndsOn)이 엉뚱한 해**가 된다. 명시 필드로 못 박는다 (2026-09-09). */
+  year: 2026,
+  /** 모집 상태 — "closedEarly"면 랜딩 전체가 마감+다음 기수 알림 모드 (운영자 지시 2026-07-13).
+   *  ⚠ 플래그 이름은 '조기'지만 실제로 하는 일은 **알림 모드 스위치**다 — 문구는 closedReason 이 가른다.
+   *  (2026-09-08) 4기 마감 → 5기 오픈 알림 모드 (운영자 "기존에 했던 4기 모집알림 형태로 5기 모집으로").
+   *  (2026-09-09) **"upcoming" 신설** — 5기 일정은 공개하되 접수는 아직 안 연 상태
+   *  (운영자 "일정만 노출, 접수는 알림받기 유지"). closedEarly 와 다른 점은 **문구**다:
+   *  마감이 아니라 모집 예정이므로 "마감" 문구가 붙으면 안 되고, 알림 폼이 안내하는 기수도
+   *  '다음 기수'가 아니라 '이번 기수'다 (NOTIFY_SEASON). 접수 차단은 둘 다 동일.
+   *  (2026-09-09) **"locked" 신설** — 접수도 알림도 받지 않는다(운영자 "일단 사람들에게
+   *  아무것도 못하게 할 거야"). 5기 일정·포스터는 그대로 노출하되 **누를 수 있는 것이
+   *  하나도 없다**: 스티키 CTA 는 회색 죽은 표기, 내비 CTA·알림 폼은 아예 렌더하지 않는다. */
+  status: "locked" as "open" | "closedEarly" | "upcoming" | "locked",
+  /** 왜 닫혔나 — "deadline"(마감일 경과) | "early"(마감일 전 조기 마감). 화면 문구를 가른다.
+   *  4기는 마감일(9/7)이 지나 닫혔으므로 "조기 마감"이 아니라 그냥 "마감"이다 (2026-09-08). */
+  closedReason: "deadline" as "deadline" | "early",
+  /** 다음 기수 진행 일정 표기 (스티키 CTA 주석 줄) — 4기 종료(11/1) **다음 주**부터 같은 요일
+   *  구성(수→일→화→토, 격주 4회 + 자유 1회)으로 계산: 수 11/4 시작 … 자유모임 일 12/27 종료
+   *  (운영자 2026-09-08 "끝나는 그 이어서 다음 주로 일정 잡아. 같은 모임 요일 구성으로 열 거야"). */
+  nextStartLabel: "",
+  /** 잠금(locked) 상태의 스티키 CTA 문구 — 운영자 원문 그대로 (2026-09-09 "4기 모집 마감으로
+   *  했어. 그렇게 복귀해야해"). ⚠ 기수 파생으로 만들지 않는다: 지금 기수는 5기지만 5기는
+   *  모집을 연 적이 없어 "5기 모집 마감"은 사실이 아니다. 마감된 것은 4기다. */
+  lockedLabel: "4기 모집 마감",
   /** 알림 완료 화면의 카카오 채널 */
   notifyKakaoUrl: "https://pf.kakao.com/_gixaAX",
   /** 시즌 기간 표기 */
-  periodLabel: "9/9 – 11/1",
+  periodLabel: "11/4 – 12/27",
   /** 신청 마감일 (KST, 23:59까지). null이면 마감 개념 자체가 없음 */
-  deadline: "2026-09-07" as string | null,
+  deadline: null as string | null,
   /** 마감일·D-day 노출 여부 — false면 접수 마감(자동 종료)은 작동하되 화면에는 미표기
    *  (운영자 지시 2026-07-23: "9/7까지 받기는 할 거야" + "신청 마감일 일단 표기하지마") */
   showDeadline: false,
@@ -49,37 +70,42 @@ export const SEASON = {
    *  (운영자 "랜딩 히어로에서는 토요일 오전 반을 첫 번째로 노출"). 마감 반은 `closed` 로 남겨 화면엔
    *  취소선·옅은 색으로 보이고 선택은 막힌다 — 배열에서 지우면 월력 마커·시트 기록이 같이 사라진다.
    *  토요일은 각 회차의 마지막 날(화요일 다음 주 토요일)이라 dates 에서 그 행의 최댓값이다. */
+  /** (2026-09-08 2차) **요일은 전부 활성**으로 되돌린다 — 마감은 CTA 한 곳이 말한다.
+   *  9/3 의 `closed` 는 "토요일만 열려 있던" 한때의 사정이었고, 5기도 같은 네 요일 구성으로
+   *  열기 때문에 일정표는 이 모임의 요일 구성을 그대로 보여주는 게 맞다
+   *  (운영자 "토요일만 오픈하는 게 아니라 다른 요일도 활성화해야 해").
+   *  ⚠ `closed` 필드 자체는 남겨 둔다 — 반별로 다시 닫을 때 그대로 쓴다. */
   days: [
+    { label: "화요일", time: "19:30–22:30" },
+    { label: "수요일", time: "19:30–22:30" },
     { label: "토요일", time: "10:30–13:30" },
-    { label: "화요일", time: "19:30–22:30", closed: true },
-    { label: "수요일", time: "19:30–22:30", closed: true },
-    { label: "일요일", time: "10:30–13:30, 14:30–17:30", closed: true },
+    { label: "일요일", time: "10:30–13:30, 14:30–17:30" },
   ] as SeasonDay[],
-  /** 신청 폼 '참여 불가 요일' 선택지 — 일요일은 오전·오후 슬롯 분리, 나열 순서는 화·수 관례.
+  /** 신청 폼 '참여 불가 요일' 선택지 — 일요일은 오전·오후 슬롯 분리, 나열 순서는 days 와 같다.
    *  time은 체크카드에 회색 보조 표기 (운영자 지시 2026-07-27) */
   unavailableDaySlots: [
+    { label: "화요일", time: "19:30–22:30" },
+    { label: "수요일", time: "19:30–22:30" },
     { label: "토요일 오전", time: "10:30–13:30" },
-    { label: "화요일", time: "19:30–22:30", closed: true },
-    { label: "수요일", time: "19:30–22:30", closed: true },
-    { label: "일요일 오전", time: "10:30–13:30", closed: true },
-    { label: "일요일 오후", time: "14:30–17:30", closed: true },
+    { label: "일요일 오전", time: "10:30–13:30" },
+    { label: "일요일 오후", time: "14:30–17:30" },
   ] as Array<{ label: string; time: string; closed?: boolean }>,
-  /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서(**토·화·수·일**, 2026-09-03 토 첫 순서).
+  /** 정규모임(1–4회차) 일정 — dates는 days와 같은 순서(**화·수·토·일**, 2026-09-08 재정렬).
    *  격주, 회차 시작 = 수요일이라 화요일 날짜가 수·일보다 늦고 토요일은 그보다도 뒤다 (운영자 지시 2026-07-27) */
   sessions: [
-    { label: "1회차", dates: ["9/19", "9/15", "9/9", "9/13"] },
-    { label: "2회차", dates: ["10/3", "9/29", "9/23", "9/27"] },
-    { label: "3회차", dates: ["10/17", "10/13", "10/7", "10/11"] },
-    { label: "4회차", dates: ["10/31", "10/27", "10/21", "10/25"] },
+    { label: "1회차", dates: ["11/10", "11/4", "11/14", "11/8"] },
+    { label: "2회차", dates: ["11/24", "11/18", "11/28", "11/22"] },
+    { label: "3회차", dates: ["12/8", "12/2", "12/12", "12/6"] },
+    { label: "4회차", dates: ["12/22", "12/16", "12/26", "12/20"] },
   ] as SeasonSession[],
   /** 5회차 (자유모임) — 기수마다 구성이 달라질 수 있음 */
   fifth: {
     label: "5회차",
-    date: "11/1 (일)",
+    date: "12/27 (일)",
     timeLabel: "19:00–22:00",
   },
   /** 안내 문구 */
-  regularNote: "1–4회차 · 9월 19일부터 격주 토요일 오전 (화·수·일 반 마감)",
+  regularNote: "1–4회차 · 격주 진행, 화·수·토·일 중 선택",
   freeNote: "5회차 · 정규 4회 이후 진행",
   /** 장소 */
   location: {
@@ -88,6 +114,61 @@ export const SEASON = {
     short: "링키라운지 (사당역 도보 3분)",
     note: "*상황에 따라 장소가 변경될 수 있습니다.",
   },
+}
+
+/** 현재 기수의 진행 단계 — **책 섹션 리드 문구**가 이걸로 갈린다 (2026-09-08).
+ *  종전엔 `book-config` 의 `upcoming`/`ongoing` **수동 플래그**라, 기수가 시작해도
+ *  "다가오는 4기"가 그대로 남았다(운영자가 손으로 뒤집기 전까지). 날짜에서 뽑아 저절로 넘어가게 한다.
+ *  ⚠ 마운트 후 호출할 것 — 빌드 시점에 박제되면 같은 문제가 된다 (D-day 와 같은 규율). */
+export function seasonPhase(): "upcoming" | "ongoing" | "past" {
+  const year = seasonYear()
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const at = (md: string, endOfDay = false) => {
+    const [m, d] = md.split("/").map(Number)
+    if (!m || !d) return NaN
+    return new Date(`${year}-${pad(m)}-${pad(d)}T${endOfDay ? "23:59:59" : "00:00:00"}+09:00`).getTime()
+  }
+  // 1회차는 요일별로 날짜가 흩어져 있다 — 가장 이른 날이 기수의 시작이다
+  const starts = (SEASON.sessions[0]?.dates ?? []).map((d) => at(d)).filter(Number.isFinite)
+  const start = starts.length ? Math.min(...starts) : NaN
+  const endStr = seasonEndsOn()
+  const end = endStr ? new Date(`${endStr}T23:59:59+09:00`).getTime() : NaN
+  const now = Date.now()
+  if (Number.isFinite(start) && now < start) return "upcoming"
+  if (Number.isFinite(end) && now > end) return "past"
+  return "ongoing"
+}
+
+/** 신청 접수가 닫혔는가 — 알림 모드이거나 마감일이 지났으면 닫힘.
+ *  ⚠ 서버(라우트)에서도 부른다: 화면 링크를 다 닫아도 `/apply` 직접 접근·옛 링크가 남는다. */
+export function isApplyClosed(): boolean {
+  // 마감(closedEarly)이든 아직 안 연 것(upcoming)이든 접수는 받지 않는다
+  if (SEASON.status !== "open") return true
+  const d = daysUntilDeadline()
+  return d !== null && d < 0
+}
+
+/** 알림 폼을 띄우는 상태 — 마감(closedEarly)이거나 아직 안 연 것(upcoming).
+ *  ⚠ "locked" 는 **제외**한다 — 그 상태는 알림조차 받지 않는다. */
+export const NOTIFY_MODE = SEASON.status === "closedEarly" || SEASON.status === "upcoming"
+
+/** 아무 액션도 내주지 않는 상태 — 접수·알림 둘 다 없음 (운영자 2026-09-09) */
+export const LOCKED = SEASON.status === "locked"
+
+/** 알림 폼이 안내하는 **기수** — 마감이면 '다음 기수', 오픈 전이면 '이번 기수'.
+ *  ⚠ 이걸 SEASON.next 로 고정하면 upcoming 에서 "6기 오픈 알림"이 나간다. */
+export const NOTIFY_SEASON = SEASON.status === "upcoming" ? SEASON.name : SEASON.next
+
+/** 알림 폼이 안내하는 **일정** — 오픈 전이면 이번 기수의 기간이 곧 그 일정이다. */
+export const NOTIFY_SCHEDULE = SEASON.status === "upcoming" ? SEASON.periodLabel : SEASON.nextStartLabel
+
+/** 접수를 안 받는 이유를 한 문장으로 — 라우트 403 응답이 쓴다.
+ *  ⚠ 상태마다 사실이 다르다: locked/upcoming 은 **마감이 아니다**(5기는 모집을 연 적이 없다).
+ *  "N기 모집이 마감되었습니다"를 상태와 무관하게 쓰면 거짓말이 된다 (2026-09-09). */
+export function applyClosedMessage(): string {
+  if (SEASON.status === "locked") return "지금은 신청을 받지 않습니다."
+  if (SEASON.status === "upcoming") return `${SEASON.name} 모집은 아직 열리지 않았습니다.`
+  return `${SEASON.name} 모집이 마감되었습니다.`
 }
 
 /** 마감까지 남은 일수 (마감일 당일이면 0 = D-DAY, 지났으면 음수). deadline이 null이면 null (마감 미표기) */
@@ -128,7 +209,8 @@ const MONTH_ENG = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP"
 
 /** 시즌 연도 — deadline(YYYY-MM-DD)에서 파생 */
 export function seasonYear(): number {
-  return Number((SEASON.deadline ?? "2026-01-01").split("-")[0])
+  // 명시 필드 우선 — deadline 은 모집 전(null)·마감 미표기 기수에서 비어 있을 수 있다 (2026-09-09)
+  return SEASON.year ?? Number((SEASON.deadline ?? "2026-01-01").split("-")[0])
 }
 
 /**

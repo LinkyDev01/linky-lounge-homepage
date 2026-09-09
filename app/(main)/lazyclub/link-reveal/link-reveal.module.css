@@ -1,0 +1,16 @@
+/* 약력 링크 점멸 시안 페이지 셸 (2026-09-07). 링크 자체의 서식·모션은 공용 `../blink-link.module.css` —
+ * 실사이트(people-config)와 **같은 컴포넌트**를 쓰므로 여기엔 페이지 틀만 남긴다. */
+
+.page { max-width: 640px; margin: 0 auto; padding: 8px 0 80px; font-family: var(--suit, "SUIT", sans-serif); font-size: 13.2px; line-height: 1.5; }
+.head { padding: 0 0 12px; border-bottom: 1px solid var(--ink, #1a1208); }
+.head h1 { margin: 0; font-size: 18px; font-weight: 400; }
+.head p { margin: 4px 0 0; color: #8a7660; }
+.switch { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 14px 0; border-bottom: 1px solid rgba(26, 18, 8, 0.22); }
+.switch button {
+  font: inherit; color: #8a7660; background: none; border: 0; padding: 0; cursor: pointer;
+}
+.switch button:hover { color: var(--ink, #1a1208); }
+.switch .on { color: var(--ink, #1a1208); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.note { margin: 12px 0 0; color: #8a7660; }
+.section { margin-top: 36px; }
+.sectionTitle { margin: 0 0 14px; font-size: 13.2px; color: #8a7660; }

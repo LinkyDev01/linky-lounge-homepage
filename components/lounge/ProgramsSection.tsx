@@ -26,7 +26,7 @@ const PROGRAMS = [
   {
     id: 3,
     title: "몰입의 밤",
-    image: "/linky-lounge/focus_night.png",
+    image: "/linky-lounge/focus_night.webp",
     schedule: "매주 목 3시간 진행",
     description: "디지털 디톡스, 나의 내면에 접속하는 시간",
     link: "https://focus-night.vercel.app/",

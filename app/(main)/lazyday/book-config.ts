@@ -24,8 +24,8 @@ export type SeasonConfig = {
 export const season4Config: SeasonConfig = {
   season: 4,
   label: "4기",
-  dateRange: "9월 둘째 주 시작",
-  upcoming: true,
+  dateRange: "9.9 – 11.1",
+  ongoing: true,
   books: [
     {
       week: 1,
@@ -134,7 +134,6 @@ export const season3Config: SeasonConfig = {
   season: 3,
   label: "3기",
   dateRange: "7.15 – 9.6",
-  ongoing: true,
   books: [
     {
       week: 1,

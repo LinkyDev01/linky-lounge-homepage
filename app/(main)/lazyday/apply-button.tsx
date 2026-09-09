@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { LazydayLink } from "@/components/common/LazydayLink"
 import { trackApplyCtaClick } from "@/lib/meta-pixel"
-import { SEASON, NOTIFY_SEASON, NOTIFY_SCHEDULE, daysUntilDeadline } from "./season-config"
+import { SEASON, LOCKED, NOTIFY_SEASON, NOTIFY_SCHEDULE, daysUntilDeadline } from "./season-config"
 import styles from "./page.module.css"
 
 /** 하단 고정 CTA — [4기 신청하기] 형식 (마감일은 season-config).
@@ -23,6 +23,17 @@ export function ApplyButton({ className = "", short = false }: { className?: str
   // 원본은 커밋 5001afd — <span class=applyButtonClosed aria-disabled> 로 클릭이 아예 없다
   // (CSS 에 pointer-events:none·cursor:default). 알림 신청은 페이지 안 #notify 폼과
   // 상단 내비 '5기 알림' 링크로 남는다.
+  // 잠금(locked) — 접수도 알림도 없다 (운영자 2026-09-09 "일단 사람들에게 아무것도 못하게").
+  // 2기 시절 회색 죽은 표기를 그대로 쓴다(CSS .applyButtonClosed: pointer-events:none).
+  // ⚠ 문구는 기수 파생이 아니라 config 원문 — 5기는 모집을 연 적이 없어 "5기 모집 마감"은 거짓이다.
+  if (LOCKED) {
+    return (
+      <span className={`${styles.applyButtonClosed} ${className}`} aria-disabled="true">
+        {SEASON.lockedLabel}
+      </span>
+    )
+  }
+
   // 오픈 전(upcoming): 살아있는 주황 버튼 — 액션만 알림 폼으로 (2026-07-13 문법 복원).
   // 클릭은 커스텀 이벤트 — NextSeasonNotify 가 받아 '폼 유효하면 제출 / 아니면 #notify 스크롤'.
   if (SEASON.status === "upcoming") {

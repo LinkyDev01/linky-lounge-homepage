@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { animate, createSpring } from "animejs"
 import { BlurReveal } from "@/components/animation/BlurReveal"
-import { SEASON, daysUntilDeadline } from "../../season-config"
+import { SEASON, LOCKED, daysUntilDeadline } from "../../season-config"
 import c from "./draft-closing.module.css"
 
 /**
@@ -53,7 +53,8 @@ export function DraftSeasonCountCta() {
   }, [])
 
   // 모집 중일 때만 카운트 — 마감·조기마감이면 문장형 안내를 그대로 둔다
-  const counting = SEASON.status !== "closedEarly" && !(d !== null && d < 0)
+  // locked 는 모집 상태가 아니다 — 1→N 카운트(“N기 모집”)를 돌리면 열려 있다고 말하는 셈
+  const counting = !LOCKED && SEASON.status !== "closedEarly" && !(d !== null && d < 0)
 
   useEffect(() => {
     const root = rootRef.current
@@ -128,7 +129,9 @@ export function DraftSeasonCountCta() {
         </h2>
       ) : (
         <p className={c.titleStatic}>
-          {SEASON.status === "closedEarly" && SEASON.closedReason === "early"
+          {LOCKED
+            ? SEASON.lockedLabel
+            : SEASON.status === "closedEarly" && SEASON.closedReason === "early"
             ? `${SEASON.name} 모집이 조기 마감되었습니다.`
             : `${SEASON.name} 모집이 마감되었습니다.`}
         </p>

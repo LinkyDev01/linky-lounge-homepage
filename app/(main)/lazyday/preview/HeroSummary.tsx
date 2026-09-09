@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react"
 import { PREVIEW, daysUntilDeadline } from "./preview-config"
-import { SEASON, NOTIFY_MODE, NOTIFY_SEASON } from "../season-config"
+import { SEASON, LOCKED, NOTIFY_MODE, NOTIFY_SEASON } from "../season-config"
 import styles from "./preview.module.css"
 
 /**
@@ -69,7 +69,11 @@ export function HeroSummary() {
   const closedEarly = SEASON.status === "closedEarly"
   // showDeadline=false: D-day 카운트는 숨기고 '모집 중'만 — 마감일이 지나면 '마감'은 표기 (자동 종료)
   // '조기'는 마감일 **전에** 닫았을 때만 (실 HeroSummary 와 쌍 동기화, 2026-09-08)
-  const kicker = closedEarly
+  // 잠금(locked)이면 '모집합니다'를 말할 수 없다 — 스티키 CTA 는 '4기 모집 마감'인데 킥커만
+  // 모집 중이라고 하면 서로 어긋난다. 기수 이름만 놓고, 다음 안내는 발밑 줄이 맡는다.
+  const kicker = LOCKED
+    ? `레이지데이 북클럽 ${SEASON.name}`
+    : closedEarly
     ? SEASON.closedReason === "early"
       ? `${PREVIEW.season} 모집 조기 마감`
       : `${PREVIEW.season} 모집이 마감되었어요`
@@ -149,7 +153,9 @@ export function HeroSummary() {
       </div>
 
       <p className={styles.summaryFoot}>
-        {NOTIFY_MODE
+        {LOCKED
+          ? "모집이 열리면 이 자리에서 안내드릴게요"
+          : NOTIFY_MODE
           ? `${NOTIFY_SEASON} 오픈 알림은 아래에서 신청할 수 있어요`
           : "인터뷰 및 결제 후 참여가 확정됩니다"}
       </p>

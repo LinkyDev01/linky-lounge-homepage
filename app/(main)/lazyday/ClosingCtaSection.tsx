@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import styles from "./ClosingCtaSection.module.css"
-import { SEASON, daysUntilDeadline } from "./season-config"
+import { SEASON, LOCKED, daysUntilDeadline } from "./season-config"
 
 /**
  * 클로징 CTA — 마감 안내 + 기수 요약 두 줄 (운영자 확정 2026-07-06)
@@ -19,7 +19,9 @@ export function ClosingCtaSection() {
     <div className={styles.closingCta}>
       <p className={styles.closingCtaTitle}>
         {/* showDeadline=false: 카운트다운 숨김 — 마감일 경과 시 '마감' 표기 (자동 종료) */}
-        {SEASON.status === "closedEarly"
+        {LOCKED
+          ? SEASON.lockedLabel
+          : SEASON.status === "closedEarly"
           ? `${SEASON.name} 모집이 조기 마감되었습니다.`
           : d !== null && d < 0
           ? `${SEASON.name} 모집이 마감되었습니다.`

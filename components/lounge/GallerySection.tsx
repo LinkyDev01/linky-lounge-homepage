@@ -8,11 +8,11 @@ import { SectionHeader } from "@/components/common"
 import { cn } from "@/lib/utils"
 
 const GALLERY_IMAGES = [
-  { src: "/linky-lounge/gallary/main.jpg", alt: "메인 공간", size: "large" },
-  { src: "/linky-lounge/gallary/g.jpg", alt: "라운지 공간 G", size: "small" },
-  { src: "/linky-lounge/gallary/c.jpg", alt: "라운지 공간 C", size: "small" },
-  { src: "/linky-lounge/gallary/d.jpg", alt: "라운지 공간 D", size: "small" },
-  { src: "/linky-lounge/gallary/e.jpg", alt: "라운지 공간 E", size: "small" },
+  { src: "/linky-lounge/gallary/main-full.webp", alt: "메인 공간", size: "large" },
+  { src: "/linky-lounge/gallary/g-full.webp", alt: "라운지 공간 G", size: "small" },
+  { src: "/linky-lounge/gallary/c-full.webp", alt: "라운지 공간 C", size: "small" },
+  { src: "/linky-lounge/gallary/d-full.webp", alt: "라운지 공간 D", size: "small" },
+  { src: "/linky-lounge/gallary/e-full.webp", alt: "라운지 공간 E", size: "small" },
 ]
 
 export function GallerySection() {

@@ -12,7 +12,7 @@ export default function StudyForeignPage() {
     <>
       <main className={styles.container} data-track-section="study_foreign_home">
         <Image
-          src="/linky-lounge/study-foreign/linky-study.png"
+          src="/linky-lounge/study-foreign/linky-study.webp"
           alt="Linky Study"
           className={styles.mainImage}
           width={600}

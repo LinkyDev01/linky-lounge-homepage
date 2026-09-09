@@ -18,8 +18,12 @@ import styles from "./HeroSpinPoster.module.css"
  *   마지막 것만 남는다.
  */
 export function HeroSpinPoster() {
+  // data-lz-poster: 진입 홀드 덮개(LandingShell .introMask, z 200) **위**로 올린다 — 4기 포스터와 같은
+  // 규약(landing-shell.module.css `[data-lz-poster]{z-index:201}`). 이게 없으면 덮개가 걷히는 ~2초 동안
+  // 스프링 성장(0–2.7s)이 덮개 뒤에서 다 끝나 손님은 안착된 포스터만 본다 (2026-09-09 프로덕션 실측:
+  // 3초까지 잉크 0px — 운영자 "배포 안 된 것 같네"의 원인).
   return (
-    <div className={styles.band}>
+    <div className={styles.band} data-lz-poster="">
       <div className={styles.stage}>
         <div className={`${styles.shrink} ${styles.shrinkBox}`}>
           <div className={`${styles.spin} ${styles.spinCw}`}>

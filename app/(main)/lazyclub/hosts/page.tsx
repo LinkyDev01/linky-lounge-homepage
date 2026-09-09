@@ -4,6 +4,7 @@ import { LazyclubLink } from "../LazyclubLink"
 import { BASE } from "../base-path"
 import styles from "../home.module.css"
 import h from "./hosts.module.css"
+import { PAST_MEETINGS } from "./past-meetings"
 
 /**
  * 모임장 안내 — lazy-club.com/hosts (v2, 운영자 승인 2026-09-05 "그래"). v1(한 페이지 안내+접수란)은 걷었다.
@@ -31,18 +32,6 @@ export const metadata: Metadata = {
   description: "레이지클럽의 이름으로 모임을 열어 주실 분을 찾습니다. 모임장이 직접 기획하고, 저희가 곁에서 함께 준비합니다.",
 }
 
-/** 지금까지 열린 모임 — 레포 보유 포스터·카드 (전부 4:5). 최근 것이 앞. 캡션은 각 모임의 표기 그대로 */
-const PAST = [
-  { src: "/linky-lounge/book-club/home-v3/hero-4th-poster.webp", cap: "레이지데이 북클럽 4기" },
-  { src: "/linky-lounge/book-club/home-v3/oneday-notsqueezing.webp", cap: "비로소, 나를 쥐어짜지 않는 법" },
-  { src: "/linky-lounge/book-club/home-v3/oneday-anxiety-to-calm.webp", cap: "불안을 건너 고요로..." },
-  { src: "/linky-lounge/book-club/home-v3/oneday-sisyphus.webp", cap: "원데이 토크, 시지프 신화" },
-  { src: "/linky-lounge/book-club/home-v3/oneday-brahms.webp", cap: "원데이 토크, 브람스를 좋아하세요..." },
-  { src: "/linky-lounge/book-club/home-v3/oneday-hope.webp", cap: "원데이 토크, 호프" },
-  { src: "/linky-lounge/book-club/home-v3/poster-3rd.webp", cap: "레이지데이 북클럽 3기" },
-  { src: "/linky-lounge/book-club/home-v3/poster-2nd.webp", cap: "레이지데이 북클럽 2기" },
-  { src: "/linky-lounge/book-club/home-v3/poster-1st.webp", cap: "레이지데이 북클럽 1기" },
-]
 
 export default function HostsPage() {
   return (
@@ -63,7 +52,7 @@ export default function HostsPage() {
           <div className={h.stripBlock}>
             <span className={h.stripLabel}>지금까지 열린 모임</span>
             <div className={h.strip}>
-              {PAST.map((p) => (
+              {PAST_MEETINGS.map((p) => (
                 <figure key={p.src} className={h.card}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.src} alt={p.cap} loading="lazy" decoding="async" draggable={false} />

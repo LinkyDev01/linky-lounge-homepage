@@ -27,7 +27,11 @@ export function HeroParallax() {
           애니메이션과 대체"). 4기의 한붓 그리기 모션(HeroBreathingPoster)은 지우지 않고
           고아로 보존하며, 검수대 `preview/hero-check` 에서 그대로 볼 수 있다. */}
       <HeroSpinPoster />
-      <div className={styles.heroFade} aria-hidden />
+      {/* ⚠ heroFade(하단 100px 오트 그라데이션)는 **걷어냈다** (운영자 2026-09-09
+          "배경 컬러는 #eeeeee라고 이미 지시했고"). 4기 포스터는 종이색(#f0e8e2)이 다음
+          섹션(#f0e9e0)과 거의 같아 페이드가 안 보였는데, 5기 회전 포스터는 #eeeeee 라
+          그 그라데이션이 히어로 아래쪽을 눈에 띄게 오트색으로 물들였다(실측 하단
+          240,233,224). 지금은 #eeeeee 가 밴드 끝까지 간다. */}
     </div>
   )
 }

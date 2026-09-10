@@ -628,10 +628,13 @@
    값은 전부 실측(Range.getClientRects 로 줄 top ↔ 사진 bottom 대조).
    ≤720px(사진 33%): 카드 460→9 · 450→8 · 420→8 · 384→7 · 360→7 · 345→6 · 310→6 · 290→5.
    데스크톱(사진 38%, 카드 460)은 종전 7줄 유지 — 운영자 지시가 "폭이 좁을 경우"로
-   한정됐고, 7줄이면 더보기 줄 끝이 마침 사진 아랫변과 맞아떨어진다(실측 −7px) */
+   한정됐고, 7줄이면 더보기 줄 끝이 마침 사진 아랫변과 맞아떨어진다(실측 −7px).
+   2026-09-10 **전 구간 +2줄** (운영자 "밑에 두줄 더 늘려서 사진 아래까지 좀 더 텍스트 노출하고
+   그 다음에 더보기") — 약력이 사진 아랫변을 지나 두 줄 더 흐른 뒤 더보기가 붙는다. 사다리 값은
+   위 실측표 각각 +2 (데스크톱 7→9, ≤720: 9→11 · 8→10 · 7→9 · 6→8 · 5→7) */
 .personCard .nsqHostText p:not(.personCardMore) {
   display: -webkit-box;
-  -webkit-line-clamp: 7; /* 데스크톱 2열 (카드 460 · 사진 175×252) */
+  -webkit-line-clamp: 9; /* 데스크톱 2열 (카드 460/분할 370) — 7+2 */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -667,14 +670,14 @@
 @media all and (max-width: 720px) {
   /* 모바일은 1열 — 2열로 쪼개면 사진(38%)과 텍스트가 같이 설 폭이 안 나온다 */
   .peopleGrid { grid-template-columns: 1fr; row-gap: 34px; }
-  /* 사진이 33% 로 줄어드는 구간 — 카드가 460 캡에 붙어 있는 동안은 9줄 */
-  .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 9; }
+  /* 사진이 33% 로 줄어드는 구간 — 카드가 460 캡에 붙어 있는 동안은 9줄 (+2 → 11) */
+  .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 11; }
 }
 /* 카드 폭이 460 캡에 못 미치기 시작하면 한 단씩 줄인다 (위 실측표) */
-@media all and (max-width: 485px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 8; } }
-@media all and (max-width: 430px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 7; } }
-@media all and (max-width: 380px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 6; } }
-@media all and (max-width: 335px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 5; } }
+@media all and (max-width: 485px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 10; } }
+@media all and (max-width: 430px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 9; } }
+@media all and (max-width: 380px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 8; } }
+@media all and (max-width: 335px) { .personCard .nsqHostText p:not(.personCardMore) { -webkit-line-clamp: 7; } }
 
 /* 인물 블록 = 모임 상세 본문과 같은 460px 읽기 컬럼 (새 폭 발명 금지).
    scroll-margin-top = 고정 헤더(64.8px) + 여백 — #슬러그 딥링크로 들어와도

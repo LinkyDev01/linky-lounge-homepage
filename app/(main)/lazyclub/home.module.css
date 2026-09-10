@@ -1588,3 +1588,16 @@
 }
 .myInput::placeholder { opacity: 0.45; }
 .myMsg { margin: 0; font-size: 13px; line-height: 1.7; }
+
+/* ── 사람 페이지 좌우 분할 — 우측 '호스트' aside (운영자 확정 2026-09-10 "빈 프레임, 카드 2열") ──
+   좌 열은 .meetings(1/-6, 세로 괘선, 모바일 order 2)를 그대로 쓰고 사람 그리드만 보정한다.
+   2열은 1280 에서 카드 ≈399px(사진 38%≈152px). 1200px 아래로는 좌 열이 좁아 (768 에서 카드
+   228px) 병렬 서식이 무너지므로 1열로 내린다 — 1열이면 카드가 460 상한을 그대로 지킨다. */
+.peopleSplit .peopleGrid { margin-bottom: 40px; }
+/* 카드 폭 460 → 370 (운영자 2026-09-10 "각 사람의 텍스트 폭을 조금 더 줄여서 우측 여백을 적어도
+   좌측만큼은 확보해"): 2열 컬럼 폭이 399.5 라 둘째 카드의 사진이 세로 괘선에 10px 까지 붙었다
+   (좌측 여백 15, 카드 사이 30). 370 이면 괘선까지 36px — 둘 다 넘는다. 사진은 38% 그대로(≈141px) */
+.peopleSplit .personCard { max-width: 370px; }
+@media (min-width: 721px) and (max-width: 1200px) {
+  .peopleSplit .peopleGrid { grid-template-columns: 1fr; }
+}

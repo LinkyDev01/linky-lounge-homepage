@@ -278,3 +278,7 @@
   justify-content: center;
 }
 .done p { margin: 0 0 14px; }
+
+/* 카드 원문 텍스트판(2026-09-10, /hosts v5) — 필요 사항 항목이 여러 줄이라 제목·줄을 블록으로 */
+.stepTitleBlock { display: block; font-weight: 500; }
+.stepLine { display: block; }

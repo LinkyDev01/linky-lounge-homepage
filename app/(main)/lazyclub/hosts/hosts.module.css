@@ -280,5 +280,53 @@
 .done p { margin: 0 0 14px; }
 
 /* 카드 원문 텍스트판(2026-09-10, /hosts v5) — 필요 사항 항목이 여러 줄이라 제목·줄을 블록으로 */
-.stepTitleBlock { display: block; font-weight: 500; }
+.stepTitleBlock { display: block; font-weight: 600; } /* 600 = 항목명 한 단계 굵게 (2026-09-10) */
 .stepLine { display: block; }
+
+/* 항목명 한 단계 굵게 (운영자 2026-09-10 "전체적으로 항목명은 조금 더 두껍게") —
+   요약 필드 라벨 400→500, 필요 사항 항목 제목 500→600. home.module.css 는 손대지 않고 여기서 덮는다 */
+.fieldName { font-weight: 500; }
+
+/* ── 다른 모임 샘플 — 레이지데이 북클럽 진열(shopItem: 포스터 + 카테고리 + 이름)과 같은 카드를
+   옆으로 넘기는 트랙 (운영자 2026-09-10 "클릭은 되지 않게 모임 가로슬라이드 없이 레이지데이 북클럽처럼
+   옆으로 쭉 넘길 수 있는 형태"). 값은 home.module.css 모바일 .shopTrack 그대로(1.3장/뷰, gap 15,
+   scroll-padding 15) — 데스크톱에서도 같은 트랙(본문 컬럼 460 안). 링크 없음(카드 전체가 정적). ── */
+.samples {
+  width: calc(100% + 30px);
+  position: relative;
+  left: -15px;
+  margin: 0 0 44px;
+}
+.samplesTrack {
+  display: flex;
+  gap: 15px;
+  padding: 0 15px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 15px;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.samplesTrack::-webkit-scrollbar { display: none; }
+.samplesTrack:active { cursor: grabbing; }
+.sampleItem {
+  flex: 0 0 calc((100% - 30px) / 1.3);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  scroll-snap-align: start;
+  user-select: none;
+}
+.sampleFigure {
+  grid-column: 1 / -1;
+  aspect-ratio: 3 / 4;
+  background: var(--ph-gray);
+  margin: 0;
+  overflow: hidden;
+}
+.sampleFigure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sampleBody { grid-column: 1 / -1; }
+.sampleName { font-family: var(--suit); font-size: 18px; line-height: 1.5; font-weight: 600; }
+.samplesDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
+.sampleDot { width: 8px; height: 8px; border-radius: 9999px; background: var(--ink); opacity: 0.4; }
+.sampleDotOn { opacity: 1; }

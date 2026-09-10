@@ -18,7 +18,7 @@ export const HOSTS_CARD = { cat: "레이지클럽", name: "호스트 모집 중"
 export const HOSTS_FIELDS: { label: string; lines: string[] }[] = [
   { label: "진행 횟수", lines: ["총 4회차"] },
   { label: "진행 시간", lines: ["각 회차 2시간"] },
-  { label: "시작 일정", lines: ["10월 ~ 11월 중"] },
+  { label: "시작 일정", lines: ["11월 이후"] }, // 운영자 2026-09-10 정정 (카드뉴스 "10월 ~ 11월 중" → "11월 이후")
   { label: "진행 간격", lines: ["1주 또는 2주 간격 (선택 가능)"] },
   { label: "진행 장소", lines: ["사당, 을지로, 시청, 강남, 성수, 홍대 중 선택 가능"] },
   {

@@ -306,6 +306,7 @@
   scroll-padding-inline: 15px;
   scrollbar-width: none;
   cursor: grab;
+  touch-action: pan-x pan-y; /* 터치는 브라우저 네이티브 패닝 — 포인터 드래그 핸들러가 가로채지 않는다 */
 }
 .samplesTrack::-webkit-scrollbar { display: none; }
 .samplesTrack:active { cursor: grabbing; }
@@ -328,5 +329,5 @@
 .sampleBody { grid-column: 1 / -1; }
 .sampleName { font-family: var(--suit); font-size: 18px; line-height: 1.5; font-weight: 600; }
 .samplesDots { display: flex; gap: 8px; justify-content: center; padding-top: 25px; }
-.sampleDot { width: 8px; height: 8px; border-radius: 9999px; background: var(--ink); opacity: 0.4; }
+.sampleDot { width: 8px; height: 8px; border-radius: 9999px; background: var(--ink); opacity: 0.4; border: 0; padding: 0; cursor: pointer; }
 .sampleDotOn { opacity: 1; }

@@ -10,6 +10,9 @@
  */
 
 export const HOSTS_POSTER = "/linky-lounge/book-club/home-v3/hosts-poster.webp"
+/** 사람 페이지 카드 전용 포스터 — 운영자 제공 'hiring.png'(2026-09-10, 어두운 바탕) 1080×1350 → 720 webp.
+ *  ⚠ /hosts 상세는 그대로 밝은 포스터(HOSTS_POSTER) — 운영자 "클릭했을 때 이미지는 지금 색깔의 포스터 유지" */
+export const HOSTS_CARD_POSTER = "/linky-lounge/book-club/home-v3/hosts-poster-dark.webp"
 
 /** 사람 페이지 우측 카드 문구 — 운영자 원문(2026-09-10 "위에 작은 글씨 '레이지클럽', 메인 제목 '호스트 모집 중'") */
 export const HOSTS_CARD = { cat: "레이지클럽", name: "호스트 모집 중" } as const

@@ -1,40 +1,36 @@
 /* ================================================================
- * 모임장 페이지 — /hosts(안내) · /hosts/apply(기획서). v2 시안(2026-09-04)이 09-05 승인으로 실사이트가 됐다.
- *
- * 운영자 지적 3건(09-03)에 대한 응답:
- *   ① 텍스트만의 피로 — 체계의 전제("색은 콘텐츠에서 발생")대로 **지난 모임 포스터 스트립**을 증거로 놓는다.
- *      브랜드 문장은 본문에서 뺀다(푸터가 이미 갖고 있다). 모션은 셸 공통 외 0 — 정적 골격 승인 전.
- *   ② 단일 스크롤 — 안내는 한 화면(세 단락 + 절차 3행), 기획서는 별도 페이지에서 **한 화면에 질문 하나**.
- *   ③ 리더 모집 — "누구나"가 아니라 브랜드를 함께 쓸 사람. 마지막 걸음에서 자기 모임이 홈 리스트에
- *      어떻게 놓이는지 **미리보기**로 보여 준다(플랫폼의 가치가 설명 없이 체감되는 자리).
+ * 호스트 모집 페이지 — /hosts(상세) · /hosts/apply(기획서).
+ * v2(2026-09-05 승인)의 본문 타이포 세트를 유지하고, v3(2026-09-10)에서 상세 구도를 모임 상세
+ * (home.module.css 의 nsq 계열과 product 계열 클래스 소비, 수정 0)로 바꿨다. 이 파일은 본문 컬럼 안의 서식과
+ * 기획서 흐름만 담당한다.
  *
  * 신규 CSS — 기존 .module.css 미임포트(§9). 값은 트리 문법에서 가져온다:
- *   포스터 스트립 = 홈 캐러셀(간격 15, 4:5, 도트 8px 잉크·비활성 .4) · 리스트 항목 = .item(5컬럼, gap 15,
- *   12px 0, 잉크 1px, 썸네일 2/5 3:4 ph-gray, 카테고리 SUIT, 제목 Gothic A1 18/600)
- *   제목 24/18 Gothic A1 600, 본문 14.5/1.85, 라벨 SUIT 12.5 .03em, 입력 16px 무테 하단 헤어라인, 잉크 칩.
- * 라운드 0 · 유채색 0 · 보더 버튼 0 · 그림자 0.
+ *   포스터 스트립 = 홈 캐러셀(간격 15, 4:5) · 절차/필요 자료 = 헤어라인 행 ·
+ *   제목 18 Gothic A1 600, 본문 14.5/1.85, 라벨 SUIT 12.5 .03em, 잉크 칩.
+ * 라운드 0 · 유채색 UI 0 · 보더 버튼 0 · 그림자 0.
+ *
+ * 입력창(2026-09-10, 운영자 "플레이스홀더 및 텍스트 입력창의 UX가 너무 떨어져"):
+ *   종전 '무테 + 하단 헤어라인'은 텍스트에어리어에서 위·아래 선 두 줄만 남아 어디까지가 입력
+ *   자리인지 읽히지 않았고, 플레이스홀더(#bcbcbc)는 오트 종이 위에서 거의 사라졌다.
+ *   → 입력은 **백지 면 + 1px 헤어라인 사각**(라운드 0, 포커스 시 잉크선), 안쪽 여백 10/12,
+ *     플레이스홀더는 #8f877d 로 올리고 **짧은 예시**만 적는다(긴 안내는 힌트 문단이 맡는다 —
+ *     플레이스홀더는 첫 글자를 치는 순간 사라지므로 지시문을 실으면 안 된다).
+ *     텍스트에어리어는 입력에 따라 자라고(HostPlanFlow autoGrow) 최소 높이를 줄였다.
+ *   ⚠ 모임 신청 폼(meeting-apply.module.css)은 종전 문법 그대로 — 통일은 별도 결정.
  * ================================================================ */
 
-.wrap {
-  max-width: 460px;
-  margin: 0 auto;
-  padding-bottom: 65px;
+.body {
   font-size: 14.5px;
   line-height: 1.85;
   word-break: keep-all;
   text-wrap: pretty;
 }
 
-.headline {
-  font-family: var(--gothic);
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 1.35;
-  margin: 6px 0 34px;
-}
+/* 우측 요약 칩 아래 한 줄 — .productActions(margin-bottom 30) 바로 밑에 붙인다 */
+.actionNote { margin: -18px 0 30px; font-size: 13px; line-height: 1.7; color: #6d6459; }
 
 /* ── 지난 모임 포스터 스트립 — 본문 컬럼(460)보다 넓게, 콘텐츠 패딩(15px) 안에서 전폭 ── */
-.stripBlock { margin: 0 0 56px; }
+.stripBlock { margin: 0 0 44px; }
 .stripLabel {
   display: block;
   font-family: var(--suit);
@@ -89,8 +85,9 @@
 }
 .para { margin: 0; }
 
-/* 절차 3행 — 헤어라인 */
+/* 절차 3행 · 필요 자료 4행 — 헤어라인 */
 .steps { margin: 0 0 48px; border-top: 1px solid var(--ink); }
+.section .steps { margin-bottom: 0; }
 .step {
   display: flex;
   gap: 14px;
@@ -107,6 +104,7 @@
 }
 .stepBody { margin: 0; }
 .stepTitle { font-weight: 500; margin-right: 8px; }
+.note { margin: 12px 0 0; font-size: 13.5px; line-height: 1.7; color: #6d6459; }
 
 /* 기획서로 가는 링크 — 밑줄 텍스트 + ↗ */
 .cta { margin: 0; }
@@ -152,37 +150,35 @@
   display: block;
   margin: 0 0 8px;
   font-family: var(--suit);
-  font-size: 12.5px;
+  font-size: 13px;
   letter-spacing: 0.03em;
 }
 .required { color: #a22525; margin-left: 2px; }
 .input,
 .textarea {
   width: 100%;
-  border: 0;
-  border-bottom: 1px solid rgba(26, 18, 8, 0.35);
+  border: 1px solid rgba(26, 18, 8, 0.35);
   border-radius: 0;
-  padding: 4px 0 8px;
+  padding: 10px 12px;
   font: inherit;
   font-size: 16px; /* iOS 자동 확대 방지 */
   line-height: 1.6;
-  background: transparent;
+  background: #fff; /* 오트 종이 위 백지 면 — 입력 자리가 면으로 읽힌다 */
   color: var(--ink);
 }
 .textarea {
   display: block;
-  border-top: 1px solid rgba(26, 18, 8, 0.18);
-  padding: 12px 0;
-  min-height: 200px;
+  min-height: 160px;
   resize: vertical;
+  overflow: hidden; /* autoGrow 가 높이를 맞추므로 스크롤바 대신 늘어난다 */
 }
-.textareaTall { min-height: 320px; }
-.textareaShort { min-height: 88px; }
+.textareaTall { min-height: 240px; }
+.textareaShort { min-height: 72px; }
 .input::placeholder,
-.textarea::placeholder { color: #bcbcbc; }
+.textarea::placeholder { color: #8f877d; }
 .input:focus,
-.textarea:focus { outline: 0; border-bottom-color: var(--ink); }
-.inputError { border-bottom-color: #a22525; }
+.textarea:focus { outline: 0; border-color: var(--ink); }
+.inputError { border-color: #a22525; }
 .errorText { margin: 8px 0 0; font-size: 13px; color: #a22525; }
 
 .choices { display: flex; gap: 8px; flex-wrap: wrap; }

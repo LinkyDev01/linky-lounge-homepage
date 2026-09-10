@@ -1589,23 +1589,11 @@
 .myInput::placeholder { opacity: 0.45; }
 .myMsg { margin: 0; font-size: 13px; line-height: 1.7; }
 
-/* ── 사람 페이지 좌우 분할 — 우측 '모임장' aside (2026-09-09, /meetings 구도 이식) ──
+/* ── 사람 페이지 좌우 분할 — 우측 '호스트' aside (운영자 확정 2026-09-10 "빈 프레임, 카드 2열") ──
    좌 열은 .meetings(1/-6, 세로 괘선, 모바일 order 2)를 그대로 쓰고 사람 그리드만 보정한다.
-   2열 유지 시 1280 에서 카드 ≈400px(사진 38%≈152px). 1200px 아래로는 좌 열이 좁아
-   (768 에서 카드 228px) 병렬 서식이 무너지므로 1열로 내린다 — 1열이면 카드가 460 상한을
-   그대로 지켜 전용 페이지·모임 상세와 픽셀이 같다. */
+   2열은 1280 에서 카드 ≈399px(사진 38%≈152px). 1200px 아래로는 좌 열이 좁아 (768 에서 카드
+   228px) 병렬 서식이 무너지므로 1열로 내린다 — 1열이면 카드가 460 상한을 그대로 지킨다. */
 .peopleSplit .peopleGrid { margin-bottom: 40px; }
-.peopleSplitOne .peopleGrid { grid-template-columns: 1fr; }
 @media (min-width: 721px) and (max-width: 1200px) {
   .peopleSplit .peopleGrid { grid-template-columns: 1fr; }
 }
-/* 카드 아래 문장 링크 — /hosts 헤드라인 그대로, 밑줄 텍스트(§9 보더 버튼 0) */
-.hostsAsideLead { margin: -10px 0 0; font-size: 14.5px; line-height: 1.85; word-break: keep-all; text-wrap: pretty; }
-.hostsAsideLink { text-decoration: underline; text-underline-offset: 4.5px; text-decoration-thickness: 0.8px; }
-@media all and (max-width: 720px) {
-  .hostsAsideLead { margin: -30px 0 50px; }
-}
-/* 프리뷰 전용 스위처 (people/preview — 승인 후 라우트와 함께 삭제) */
-.previewSwitch { display: flex; gap: 14px; margin: 0 0 26px; font-family: var(--suit); font-size: 12px; }
-.previewSwitch a { text-decoration: underline; text-underline-offset: 4px; opacity: 0.55; }
-.previewSwitch a.previewSwitchOn { opacity: 1; }

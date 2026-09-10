@@ -185,7 +185,7 @@ export function RecordsCarousel({ autoplay = true }: { autoplay?: boolean }) {
 }
 
 /** 가로 스크롤 캐러셀 훅 — 드래그 + 활성 인덱스 + 자동 넘김 (휠 하이재킹 없음) */
-export function useDragCarousel(slideCount: number, autoplay = false) {
+function useDragCarousel(slideCount: number, autoplay = false) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const activeRef = useRef(0)

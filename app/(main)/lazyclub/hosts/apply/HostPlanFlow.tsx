@@ -12,6 +12,12 @@
  *   · 걸음마다 필수 검증, 이전/다음. 입력은 sessionStorage 초안에 남아 새로고침·이탈 뒤에도 복원된다.
  *   · 제출 규율은 v1 과 동일 — 로더, 성공 판정 res.ok && success, 실패 시 원문 복사 + 카카오 구제, 완료 화면 유지.
  *
+ * 2026-09-10 (운영자 카드뉴스 반영 + "플레이스홀더 및 텍스트 입력창의 UX" 지적):
+ *   · 2번째 걸음의 선택지를 '형식'(원데이/4주/정기)에서 **진행 간격**(1주/2주/미정)으로 — 모임은 총 4회차,
+ *     각 2시간이 정해져 있다(카드뉴스 3장). payload 키 `format` 과 GAS '형식' 열은 그대로(값만 바뀐다).
+ *   · 가능한 시기 → **가능한 시기와 장소**(장소 6곳 중 선택) — 새 필드 없이 같은 칸(availability)에 적는다.
+ *   · 플레이스홀더는 짧은 예시만(지시문은 힌트가 맡는다), 텍스트에어리어는 입력에 따라 자란다(autoGrow).
+ *   · 사용자 화면 표기는 '호스트'. 동의 문구의 '모임장'은 방침 원문과 같아야 하므로 그대로 둔다.
  * ⚠ 질문 문구·힌트는 초안 — 운영자 교체 대상.
  */
 
@@ -26,9 +32,9 @@ import {
 import { TurtleLoader } from "../../TurtleLoader"
 import { LazyclubLink } from "../../LazyclubLink"
 import { BASE } from "../../base-path"
+import { HOST_INTERVALS } from "../hosts-config"
 import h from "../hosts.module.css"
 
-const FORMATS = ["원데이 토크", "4주 과정", "정기 모임", "아직 미정"] as const
 const DRAFT_KEY = "lzc-host-draft"
 const DONE_KEY = "lzc-host-applied"
 const TOTAL = 6
@@ -44,6 +50,13 @@ type Draft = {
   availability: string
 }
 const EMPTY: Draft = { name: "", phone: "", title: "", format: "", plan: "", intro: "", links: "", availability: "" }
+
+/** 텍스트에어리어 — 내용만큼 자란다(최소 높이는 CSS). 초안 복원 직후에도 한 번 맞춘다 */
+function autoGrow(el: HTMLTextAreaElement | null) {
+  if (!el) return
+  el.style.height = "auto"
+  el.style.height = `${el.scrollHeight}px`
+}
 
 function formatPhone(value: string) {
   const digits = value.replace(/[^0-9]/g, "").slice(0, 11)
@@ -104,7 +117,7 @@ export function HostPlanFlow() {
     }
     if (n === 2) {
       if (!d.title.trim()) next.title = "모임을 한 줄로 적어 주세요."
-      if (!d.format) next.format = "형식을 하나 골라 주세요."
+      if (!d.format) next.format = "간격을 하나 골라 주세요."
     }
     if (n === 3 && !d.plan.trim()) next.plan = "기획을 적어 주세요."
     if (n === 4 && !d.intro.trim()) next.intro = "소개를 적어 주세요."
@@ -151,8 +164,8 @@ export function HostPlanFlow() {
           `이름: ${payload.name}`,
           `연락처: ${payload.phone}`,
           `모임: ${payload.title}`,
-          `형식: ${payload.format}`,
-          `가능한 시기: ${payload.availability || "-"}`,
+          `진행 간격: ${payload.format}`,
+          `가능한 시기와 장소: ${payload.availability || "-"}`,
           `참고 링크: ${payload.links || "-"}`,
           ``,
           `[기획]`,
@@ -230,7 +243,16 @@ export function HostPlanFlow() {
             <label htmlFor="name" className={h.fieldLabel}>
               이름<span className={h.required}>*</span>
             </label>
-            <input id="name" name="name" type="text" className={cls("name", h.input)} value={d.name} onChange={(e) => set("name", e.target.value)} />
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              className={cls("name", h.input)}
+              placeholder="이름"
+              value={d.name}
+              onChange={(e) => set("name", e.target.value)}
+            />
             {err("name")}
           </div>
           <div className={h.field}>
@@ -242,8 +264,9 @@ export function HostPlanFlow() {
               name="phone"
               type="tel"
               inputMode="numeric"
+              autoComplete="tel"
               className={cls("phone", h.input)}
-              placeholder="휴대전화 번호"
+              placeholder="010-0000-0000"
               value={d.phone}
               onChange={(e) => set("phone", formatPhone(e.target.value))}
             />
@@ -260,15 +283,24 @@ export function HostPlanFlow() {
             <label htmlFor="title" className={h.fieldLabel}>
               모임 한 줄<span className={h.required}>*</span>
             </label>
-            <input id="title" name="title" type="text" className={cls("title", h.input)} value={d.title} onChange={(e) => set("title", e.target.value)} />
+            <input
+              id="title"
+              name="title"
+              type="text"
+              className={cls("title", h.input)}
+              placeholder="예) 비로소, 나를 쥐어짜지 않는 법"
+              value={d.title}
+              onChange={(e) => set("title", e.target.value)}
+            />
             {err("title")}
           </div>
           <div className={h.field}>
             <span className={h.fieldLabel}>
-              어떤 방식으로 만나고 싶으신가요<span className={h.required}>*</span>
+              네 번의 만남, 어떤 간격이 좋으신가요<span className={h.required}>*</span>
             </span>
+            <p className={h.hint}>모임은 총 4회차, 한 회차에 2시간입니다. 간격은 만나서 바꿀 수 있습니다.</p>
             <div className={h.choices} id="format-choices">
-              {FORMATS.map((f) => (
+              {HOST_INTERVALS.map((f) => (
                 <button
                   key={f}
                   type="button"
@@ -289,14 +321,26 @@ export function HostPlanFlow() {
         <>
           <p className={h.q}>모임을 어떻게 그리고 계신지 들려주세요.</p>
           <p className={h.hint}>
-            길이도 형식도 자유입니다. 어떤 이야기를 나누고 싶은지, 한 번의 모임을 어떻게 이끌어 갈지, 왜 이
-            모임을 열고 싶은지가 담겨 있으면 만나서 나눌 이야기가 한결 빨라집니다.
+            길이도 형식도 자유입니다. 왜 이 모임을 열고 싶은지, 네 번의 만남을 어떻게 이어 갈지, 회차마다
+            무엇을 다루고(책, 영화 등 무엇이든) 어떻게 진행할지가 담겨 있으면 만나서 나눌 이야기가 한결
+            빨라집니다.
           </p>
           <div className={h.field}>
             <label htmlFor="plan" className={h.fieldLabel}>
               기획<span className={h.required}>*</span>
             </label>
-            <textarea id="plan" name="plan" className={cls("plan", `${h.textarea} ${h.textareaTall}`)} value={d.plan} onChange={(e) => set("plan", e.target.value)} />
+            <textarea
+              id="plan"
+              name="plan"
+              ref={autoGrow}
+              className={cls("plan", `${h.textarea} ${h.textareaTall}`)}
+              placeholder="기획 의도, 네 번의 만남, 회차별로 다룰 것"
+              value={d.plan}
+              onChange={(e) => {
+                set("plan", e.target.value)
+                autoGrow(e.target)
+              }}
+            />
             {err("plan")}
           </div>
         </>
@@ -305,12 +349,23 @@ export function HostPlanFlow() {
       {step === 4 && (
         <>
           <p className={h.q}>어떤 분인지 들려주세요.</p>
-          <p className={h.hint}>이력은 없어도 됩니다. 어떤 분인지 알 수 있으면 충분합니다.</p>
+          <p className={h.hint}>이력은 없어도 됩니다. 참여자에게 자신을 알릴 수 있는 소개 글이면 충분합니다.</p>
           <div className={h.field}>
             <label htmlFor="intro" className={h.fieldLabel}>
               소개<span className={h.required}>*</span>
             </label>
-            <textarea id="intro" name="intro" className={cls("intro", h.textarea)} value={d.intro} onChange={(e) => set("intro", e.target.value)} />
+            <textarea
+              id="intro"
+              name="intro"
+              ref={autoGrow}
+              className={cls("intro", h.textarea)}
+              placeholder="참여자에게 건네는 자기소개"
+              value={d.intro}
+              onChange={(e) => {
+                set("intro", e.target.value)
+                autoGrow(e.target)
+              }}
+            />
             {err("intro")}
           </div>
         </>
@@ -322,17 +377,29 @@ export function HostPlanFlow() {
           <p className={h.hint}>둘 다 비워 두셔도 됩니다. 파일은 받지 않으니 자료가 있으면 주소로 남겨 주세요.</p>
           <div className={h.field}>
             <label htmlFor="links" className={h.fieldLabel}>참고 링크</label>
-            <p className={h.hint}>포트폴리오나 글, 인스타그램 주소. 여러 개면 줄을 바꿔 적어 주세요.</p>
-            <textarea id="links" name="links" className={`${h.textarea} ${h.textareaShort}`} value={d.links} onChange={(e) => set("links", e.target.value)} />
+            <p className={h.hint}>포트폴리오나 글, 인스타그램 아이디. 여러 개면 줄을 바꿔 적어 주세요.</p>
+            <textarea
+              id="links"
+              name="links"
+              ref={autoGrow}
+              className={`${h.textarea} ${h.textareaShort}`}
+              placeholder="https:// 또는 @instagram"
+              value={d.links}
+              onChange={(e) => {
+                set("links", e.target.value)
+                autoGrow(e.target)
+              }}
+            />
           </div>
           <div className={h.field}>
-            <label htmlFor="availability" className={h.fieldLabel}>가능한 시기</label>
+            <label htmlFor="availability" className={h.fieldLabel}>가능한 시기와 장소</label>
+            <p className={h.hint}>시작은 10월에서 11월 사이, 장소는 사당, 을지로, 시청, 강남, 성수, 홍대 가운데 고를 수 있습니다.</p>
             <input
               id="availability"
               name="availability"
               type="text"
               className={h.input}
-              placeholder="10월 이후 평일 저녁, 주말 오전처럼 적어 주세요."
+              placeholder="예) 10월 말 이후 토요일 오전, 성수나 을지로"
               value={d.availability}
               onChange={(e) => set("availability", e.target.value)}
             />
@@ -344,14 +411,15 @@ export function HostPlanFlow() {
         <>
           <p className={h.q}>홈과 모임 목록에는 이렇게 놓입니다.</p>
           <p className={h.hint}>만나서 이야기를 나눈 뒤 모임 페이지가 만들어지면 이 모습으로 올라갑니다.</p>
-          {/* 홈 리스트 항목 문법 — 카테고리 자리에 모임장 이름(운영자 2026-08-21 "카테고리에 이름을") */}
+          {/* 홈 리스트 항목 문법 — 카테고리 자리에 호스트 이름(운영자 2026-08-21 "카테고리에 이름을").
+              메타는 가운뎃점 없이(운영자 2026-08-21 "' · ' 문자로 작성하지 마") */}
           <article className={h.previewItem} aria-label="모임 목록 미리보기">
             <figure className={h.previewFigure} />
             <div className={h.previewBody}>
-              <div className={h.previewCat}>{d.name.trim() || "모임장"}</div>
+              <div className={h.previewCat}>{d.name.trim() || "호스트"}</div>
               <div className={h.previewTitle}>{d.title.trim() || "모임 한 줄"}</div>
               <p className={h.previewMeta}>
-                {d.format && d.format !== "아직 미정" ? d.format : "형식 미정"} · 링키라운지
+                {d.format && d.format !== "아직 미정" ? `총 4회차, ${d.format}` : "총 4회차"}
               </p>
               {d.intro.trim() && <p className={h.previewIntro}>{d.intro.trim()}</p>}
             </div>

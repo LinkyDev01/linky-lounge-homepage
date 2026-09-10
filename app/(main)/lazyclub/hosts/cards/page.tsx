@@ -4,7 +4,6 @@ import { LazyclubLink } from "../../LazyclubLink"
 import { BASE } from "../../base-path"
 import { HOSTS_CARDS, HOSTS_POSTER } from "../hosts-config"
 import styles from "../../home.module.css"
-import h from "../hosts.module.css"
 
 /**
  * 호스트 모집 — 카드뉴스 이미지판 (/hosts/cards, 2026-09-10).
@@ -33,7 +32,7 @@ export default function HostsCardsPage() {
             <h1 className={`${styles.productTitle} ${styles.productTitleNoSub}`}>호스트를 모집합니다.</h1>
             <div className={styles.productActions}>
               <LazyclubLink href={`${BASE}/hosts/apply`} className={styles.chipBtn}>
-                기획서 쓰기
+                호스트 지원
               </LazyclubLink>
             </div>
           </div>
@@ -47,14 +46,11 @@ export default function HostsCardsPage() {
                   <img src={c.src} alt={c.alt} />
                 </figure>
               ))}
-              <p className={`${h.body} ${h.cta}`}>
-                <LazyclubLink href={`${BASE}/hosts/apply`} className={h.ctaLink}>
-                  기획서 쓰기
-                  <svg className={h.ctaArrow} width="8" height="8" viewBox="0 0 8 8" aria-hidden="true">
-                    <path d="M1 7L7 1M7 1H2.5M7 1V5.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                  </svg>
+              <div className={styles.productActions}>
+                <LazyclubLink href={`${BASE}/hosts/apply`} className={styles.chipBtn}>
+                  호스트 지원
                 </LazyclubLink>
-              </p>
+              </div>
             </div>
           </section>
         </section>

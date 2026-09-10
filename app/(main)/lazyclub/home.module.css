@@ -1596,3 +1596,10 @@
 @media (min-width: 721px) and (max-width: 1200px) {
   .peopleSplit .peopleGrid { grid-template-columns: 1fr; }
 }
+/* 모바일 순서 — 사람 페이지만 **사람이 먼저, 호스트 aside 가 마지막** (운영자 2026-09-10 "특이하게도
+   사람에서는 호스트 섹션이 모바일 기준엔 마지막으로 가게 해. 사람이 먼저다").
+   전체보기·/meetings 의 '북클럽 aside 가 맨 위'(.shop order 1)는 그대로 — 이 규칙은 .peopleSplit 의
+   바로 다음 형제(aside)에만 걸린다 */
+@media all and (max-width: 720px) {
+  .peopleSplit + .shop { order: 3; }
+}

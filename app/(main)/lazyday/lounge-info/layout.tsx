@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "링키라운지 | 레이지데이 북클럽 이용안내",
     description: "레이지데이 북클럽 모임 장소 안내 — 찾아오는 길, 입구, 주차, Wi-Fi",
-    images: ["/linky-lounge/book-club/lazy%20is%20a.png"],
+    // 공유 썸네일은 **북클럽 홈과 같은 하트 이미지**로 통일 (운영자 2026-09-10 "오픈그래프도 아이러브레이지데이
+    // 레이지데이북클럽과 같이 해. 이미지만" — 제목·설명은 이 페이지 것 그대로). 종전 `lazy is a.png`(1200×1200)는
+    // 홈(og-lazyday-heart-v5.png, 1200×630)과 달라 링크를 뿌릴 때 다른 그림이 떴다.
+    images: ["/linky-lounge/book-club/og-lazyday-heart-v5.png"],
     url: "https://www.lazyday-bookclub.com/lounge-info",
   },
   // 파비콘 — 북클럽 홈이 쓰는 **바로 그 파일**(`app/(main)/lazyday/icon.png`, 파일 규약)의 사본. 상위 세그먼트

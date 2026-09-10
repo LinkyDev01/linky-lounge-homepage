@@ -15,9 +15,10 @@ import h from "./hosts.module.css"
  * 이미지판은 /hosts/cards(링크 없음·noindex).
  *
  * 구도: 좌 sticky 포스터(1장) · 우 카테고리 '레이지클럽' → 제목(2장 머리글, '레이지 클럽'은 카테고리 줄로) →
- * 2장 세 단락 → 3장 운영 안내(productFields) → 잉크 칩 '기획서 쓰기'(승인된 기획서 폼 진입) ·
- * 하단 본문 컬럼(460)에 4장(제목·문장·항목 1~4)과 5장(문장) → 텍스트 링크 '기획서 쓰기 ↗'.
- * 원문 조정은 두 곳뿐: '레이지 클럽' → '레이지클럽'(운영자 2026-09-10 표기 확정), 5장의 사이트 주소 줄은 뺐다(이 사이트다).
+ * 2장 세 단락 → 3장 운영 안내(productFields) → 잉크 칩 '호스트 지원'(=구매하기 자리, 지원 폼 진입) ·
+ * 하단 본문 컬럼(460)에 4장(제목·문장·항목 1~4) → 칩 '호스트 지원'(구매하기와 같은 서식).
+ * 버튼 라벨은 '호스트 지원'(운영자 2026-09-10 "기획서 접수 말고 호스트 지원으로") — 상·하단 둘 다 같은 칩.
+ * 5장(이메일·DM 안내)은 싣지 않는다 — 지원은 사이트 폼으로 받는다. 원문 조정: '레이지 클럽' → '레이지클럽'.
  * 레이아웃 클래스는 home.module.css 소비만(수정 0).
  */
 
@@ -77,7 +78,7 @@ export default function HostsPage() {
 
             <div className={styles.productActions}>
               <LazyclubLink href={`${BASE}/hosts/apply`} className={styles.chipBtn}>
-                기획서 쓰기
+                호스트 지원
               </LazyclubLink>
             </div>
           </div>
@@ -106,22 +107,14 @@ export default function HostsPage() {
                   </div>
                 </section>
 
-                {/* 카드뉴스 5장 원문 */}
-                <section className={h.section}>
-                  <p className={h.para}>
-                    지원을 원하시는 분은 이메일(contact@lazy-club.com) 또는 인스타그램 DM을 통해 위 내용을 남겨주세요.
-                    보내주신 내용을 확인한 후, 개별 연락을 통해 대면 인터뷰 일정을 조율할 예정입니다.
-                  </p>
-                </section>
-
-                <p className={h.cta}>
-                  <LazyclubLink href={`${BASE}/hosts/apply`} className={h.ctaLink}>
-                    기획서 쓰기
-                    <svg className={h.ctaArrow} width="8" height="8" viewBox="0 0 8 8" aria-hidden="true">
-                      <path d="M1 7L7 1M7 1H2.5M7 1V5.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                    </svg>
+                {/* 지원 — 구매하기와 같은 서식(.productActions > .chipBtn). 5장의 이메일·DM 문장은 싣지 않는다:
+                    저희는 사이트에서 지원서를 받는다(운영자 2026-09-10 "이메일 또는 인스타그램 DM 말고 우리는
+                    신청서 접수를 하고 있잖아 … 호스트 지원으로 버튼 만들어서 쓰고, 기존 것도 지우고 버튼으로 대체") */}
+                <div className={styles.productActions}>
+                  <LazyclubLink href={`${BASE}/hosts/apply`} className={styles.chipBtn}>
+                    호스트 지원
                   </LazyclubLink>
-                </p>
+                </div>
               </div>
             </div>
           </section>

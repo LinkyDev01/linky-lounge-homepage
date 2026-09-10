@@ -1,8 +1,6 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
-import { CURRENT_SEASON } from "../season-item"
-import { PAST_SEASONS } from "../WorkroomHome"
 import { ONE_DAY_MEETINGS } from "../one-day-config"
 import styles from "../home.module.css"
 import h from "./hosts.module.css"
@@ -11,14 +9,17 @@ import h from "./hosts.module.css"
  * 다른 모임 샘플 — /hosts 본문 (2026-09-10, 운영자 "다른 모임 샘플은 클릭은 되지 않게 모임 가로슬라이드 없이
  * 레이지데이 북클럽처럼 옆으로 쭉 넘길 수 있는 형태로").
  * · 카드 = 레이지데이 북클럽 진열(ClubAside 의 shopItem)과 같은 구성: 포스터 · 카테고리 · 이름.
- * · 데이터는 진열이 읽는 단일 출처 그대로(season-item · WorkroomHome.PAST_SEASONS · one-day-config) — 여기 다시 적지 않는다.
- * · 링크 없음 — 카드 어디를 눌러도 이동하지 않는다(마크업에 a 가 없다). 넘김은 스크롤·드래그·도트.
- * · 도트 활성 판정은 WorkroomHome.useDragCarousel 과 같은 진행률 방식(양 끝에서 끊기지 않게).
+ * · 목록은 **세 모임만**(운영자 2026-09-10 "북클럽 말고 불안을넘어, 비로소 나를, 원데이토크(한 가지만) 세 가지만"):
+ *   불안을 건너 고요로... · 비로소, 나를 쥐어짜지 않는 법 · 원데이 토크 하나(브람스 — 트리 진열 순서상 첫 원데이 토크,
+ *   교체는 SAMPLE_SLUGS 한 줄). 카드 값은 one-day-config 그대로 — 여기 다시 적지 않는다.
+ * · 링크 없음 — 카드 어디를 눌러도 이동하지 않는다(마크업에 a 가 없다). **넘김은 된다**: 가로 스크롤(터치·트랙패드)
+ *   + 마우스 드래그 + 도트 버튼(누르면 그 카드로). 도트 활성 판정은 WorkroomHome.useDragCarousel 과 같은 진행률 방식.
  */
-const SAMPLES = [
-  ...[CURRENT_SEASON, ...PAST_SEASONS].map((s) => ({ id: s.id, cat: "레이지데이 북클럽", name: s.title, src: s.thumbnail })),
-  ...ONE_DAY_MEETINGS.map((m) => ({ id: m.slug, cat: m.catLabel, name: m.title, src: m.thumbnail })),
-]
+const SAMPLE_SLUGS = ["anxiety-to-calm", "not-squeezing-myself", "brahms"] as const
+const SAMPLES = SAMPLE_SLUGS.flatMap((slug) => {
+  const m = ONE_DAY_MEETINGS.find((x) => x.slug === slug)
+  return m ? [{ id: m.slug, cat: m.catLabel, name: m.title, src: m.thumbnail }] : []
+})
 
 export function HostsSamples() {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -74,9 +75,20 @@ export function HostsSamples() {
           </article>
         ))}
       </div>
-      <div className={h.samplesDots} aria-hidden="true">
+      <div className={h.samplesDots}>
         {SAMPLES.map((s, i) => (
-          <span key={s.id} className={`${h.sampleDot} ${i === active ? h.sampleDotOn : ""}`} />
+          <button
+            key={s.id}
+            type="button"
+            className={`${h.sampleDot} ${i === active ? h.sampleDotOn : ""}`}
+            aria-label={`${i + 1}번째 모임 보기`}
+            onClick={() => {
+              const el = trackRef.current
+              const card = el?.children[i] as HTMLElement | undefined
+              if (!el || !card) return
+              el.scrollTo({ left: card.offsetLeft - 15, behavior: "smooth" })
+            }}
+          />
         ))}
       </div>
     </div>

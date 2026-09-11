@@ -606,6 +606,35 @@
   margin: 26px 0 0;
   word-break: keep-all;
 }
+/* 접수 뒤 버튼을 잡으려 할 때 화면 중앙에 뜨는 검정 메시지 (운영자 2026-09-11 "신청되었다고 검정색으로
+   메시지를 중앙에 띄워줘") — 잉크 면 + 종이색 글자(칩과 같은 문법), 스크림 없음, 클릭은 통과.
+   z-index 는 로더(300) 아래·티커(20) 위 */
+.doneToast {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: cbToastIn 160ms ease-out;
+}
+.doneToastText {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 16px;
+  font-family: var(--gothic);
+  font-weight: 500;
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+@keyframes cbToastIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doneToast { animation: none; }
+}
 
 /* ── 데스크톱 확장 ── */
 @media (min-width: 721px) {

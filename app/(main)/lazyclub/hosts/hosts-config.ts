@@ -1,6 +1,6 @@
 /**
  * 호스트 모집 — 진열·상세가 함께 읽는 값 (2026-09-10, 운영자 제공 카드뉴스 5장 기준).
- *   1장 = 포스터(WE ARE HIRING — NEW LEADERS, 1080×1350 → 720 축소 webp)
+ *   1장 = 포스터(WE ARE HIRING — NEW LEADERS; 화면은 2026-09-11 부터 어두운 판 hosts-poster-dark.webp)
  *   2~5장 = 소개 · 모임 운영 안내 · 지원 시 필요 사항 · 지원 방법
  *   실 /hosts 는 카드 원문을 **텍스트로 그대로** 옮긴 판(운영자 2026-09-10 "저걸 텍스트로 적어달라는 의미. 톤앤매너
  *   맞추어서" — 문장은 원문, 서식만 사이트 것). 이미지판은 /hosts/cards(링크 없음·noindex)에만.
@@ -9,10 +9,10 @@
  * ⚠ 표기는 '레이지클럽'(붙여 쓴다, 운영자 2026-09-10). 지시어 없는 모듈 — 서버·클라이언트 공용.
  */
 
-export const HOSTS_POSTER = "/linky-lounge/book-club/home-v3/hosts-poster.webp"
-/** 사람 페이지 카드 전용 포스터 — 운영자 제공 'hiring.png'(2026-09-10, 어두운 바탕) 1080×1350 → 720 webp.
- *  ⚠ /hosts 상세는 그대로 밝은 포스터(HOSTS_POSTER) — 운영자 "클릭했을 때 이미지는 지금 색깔의 포스터 유지" */
-export const HOSTS_CARD_POSTER = "/linky-lounge/book-club/home-v3/hosts-poster-dark.webp"
+/** 모집 포스터 — 운영자 제공 'hiring.png'(2026-09-10, 어두운 바탕) 1080×1350 → 720 webp. 사람 카드·/hosts·/hosts/cards 공용
+ *  (운영자 2026-09-11 "호스트 지원페이지 들어갔을 때도 people에 있는 짙은 색 포스터로 바꿔서 맞추자").
+ *  밝은 원본 `hosts-poster.webp`(카드뉴스 1장)는 파일만 남아 있고 화면에서는 쓰지 않는다 */
+export const HOSTS_POSTER = "/linky-lounge/book-club/home-v3/hosts-poster-dark.webp"
 
 /** 사람 페이지 우측 카드 문구 — 운영자 원문(2026-09-10 "위에 작은 글씨 '레이지클럽', 메인 제목 '호스트 모집 중'") */
 export const HOSTS_CARD = { cat: "레이지클럽", name: "호스트 모집 중" } as const

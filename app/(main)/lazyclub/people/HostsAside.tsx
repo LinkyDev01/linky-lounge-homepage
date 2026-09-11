@@ -1,7 +1,7 @@
 import { LazyclubLink } from "../LazyclubLink"
 import { ArrowIcon } from "../Shell"
 import { BASE } from "../base-path"
-import { HOSTS_CARD, HOSTS_CARD_POSTER } from "../hosts/hosts-config"
+import { HOSTS_CARD, HOSTS_POSTER } from "../hosts/hosts-config"
 import styles from "../home.module.css"
 
 /**
@@ -27,7 +27,7 @@ export function HostsAside() {
             <LazyclubLink href={`${BASE}/hosts`} className={styles.itemLink} aria-label="호스트 모집 안내로 이동" />
             <figure className={styles.shopFigure}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={HOSTS_CARD_POSTER} alt="" draggable={false} loading="lazy" decoding="async" />
+              <img src={HOSTS_POSTER} alt="" draggable={false} loading="lazy" decoding="async" />
             </figure>
             <div className={styles.shopBody}>
               <div>

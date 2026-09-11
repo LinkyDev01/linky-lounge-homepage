@@ -34,14 +34,17 @@
  *   · 선반 모서리 E 는 콘텐츠 왼쪽 여백 + 45px — 판이 세로로 섰을 때(두께 ≈ 99) 화면 안에 놓이는 자리. 밀기 총량은
  *     무게중심이 E 를 5% 넘는 만큼(≈56px, 한 번 5.6px).
  *   · 로고 왕복을 늦춘다: 다가감 420→520 · 밀기 130→150 · 되돌아감 560→680ms (한 사이클 1.1→1.35s).
+ *
+ * 4차(운영자 "너무 빨라 / 10번 필요없어. 7번"): 밀기 7번(한 번 ≈ 8px), 중력 2200→1100(낙하·기울기 모두 느긋하게),
+ * 로고 사이클 1.35→1.5s(580·160·760ms). 박힘 판정 속도 문턱 300→200px/s(중력이 줄어 착지 속도도 준다).
  * 좌표는 전부 런타임 실측(제목·로고·모서리·푸터 윗선), 셸은 건드리지 않고, 떨어지는 건 제목의 **클론**(body 직속).
  * 반복 없음 — 페이지 진입마다 한 번, 떨어진 채로 둔다(운영자 "정해둬도 돼").
  */
 
 import { useEffect } from "react"
 
-const PUSHES = 10
-const G = 2200 // px/s²
+const PUSHES = 7 // 운영자 2026-09-11 "10번 필요없어. 7번"
+const G = 1100 // px/s² — 2200 은 "너무 빨라"(운영자 2026-09-11): 화면 스케일의 중력을 절반으로, 낙하가 느긋해진다
 const SUB = 1 / 480 // 적분 간격(초)
 const DEG = 180 / Math.PI
 
@@ -97,14 +100,14 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       let T = 0
       for (let i = 0; i < PUSHES; i++) {
         const reach = gap + i * P
-        segs.push({ t0: T, t1: T + 520, lx0: 0, lx1: -reach, ease: easeIn, tx0: -i * P, tx1: -i * P })
-        T += 520
-        segs.push({ t0: T, t1: T + 150, lx0: -reach, lx1: -(reach + P), ease: easeOut, tx0: -i * P, tx1: -(i + 1) * P })
-        T += 150
-        segs.push({ t0: T, t1: T + 680, lx0: -(reach + P), lx1: 0, ease: easeInOut, tx0: -(i + 1) * P, tx1: -(i + 1) * P })
-        T += 680
+        segs.push({ t0: T, t1: T + 580, lx0: 0, lx1: -reach, ease: easeIn, tx0: -i * P, tx1: -i * P })
+        T += 580
+        segs.push({ t0: T, t1: T + 160, lx0: -reach, lx1: -(reach + P), ease: easeOut, tx0: -i * P, tx1: -(i + 1) * P })
+        T += 160
+        segs.push({ t0: T, t1: T + 760, lx0: -(reach + P), lx1: 0, ease: easeInOut, tx0: -(i + 1) * P, tx1: -(i + 1) * P })
+        T += 760
       }
-      const pushEnd = T - 680 // 마지막 밀기 직후 — 여기서 제목이 물리로 넘어간다
+      const pushEnd = T - 760 // 마지막 밀기 직후 — 여기서 제목이 물리로 넘어간다
       const seqEnd = T
       const logoAt = (ms: number): { lx: number; tx: number } => {
         if (ms >= seqEnd) {
@@ -129,7 +132,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const floorY = footerLine.getBoundingClientRect().top + sy
       const cloneLeft = t0.left + sx - PUSHES * P
       const cloneTop = t0.top + sy
-      const body = { c: { x: cloneLeft + wB / 2, y: cloneTop + hB / 2 } as V, phi: 0, v: { x: 0, y: 0 } as V, om: -0.12 } // 마지막 밀림이 준 작은 각속도
+      const body = { c: { x: cloneLeft + wB / 2, y: cloneTop + hB / 2 } as V, phi: 0, v: { x: 0, y: 0 } as V, om: -0.08 } // 마지막 밀림이 준 작은 각속도
       const ROT_DAMP = 1.6 // 회전 공기 저항(넓적한 판) — 방향을 바꾸는 힘이 아니라 잦아드는 힘
       let phase: "push" | "sim" | "stuck" | "done" = "push"
       let stuck: V = { x: 0, y: 0 }
@@ -226,7 +229,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
             // ④ 바닥 — 세로에 가깝게 세게 꽂히면 박힌다, 아니면 보통 충돌
             if (p.y > floorY) {
               const upright = Math.abs(body.phi + Math.PI / 2) < 0.6
-              if (upright && body.v.y > 300) {
+              if (upright && body.v.y > 200) {
                 phase = "stuck"
                 const end = rot({ x: -w / 2, y: 0 }, body.phi)
                 stuck = { x: body.c.x + end.x, y: floorY + 6 }

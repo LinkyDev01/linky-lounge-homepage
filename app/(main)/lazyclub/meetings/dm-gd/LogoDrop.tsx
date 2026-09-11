@@ -84,10 +84,17 @@ export function LogoDrop() {
       shellLogo.style.visibility = "hidden"
       pageLogo.style.visibility = ""
       sway.style.visibility = ""
+      sway.setAttribute("data-cb-landed", "") // CSS 의 초기 숨김을 푼다 (coffeebar.module.css .logoSway 주석)
       for (const a of [...sway.getAnimations(), ...pageLogo.getAnimations()]) a.currentTime = 0
     }
 
     const run = async () => {
+      // 제목 옆 로고는 **처음부터 숨긴다** — 폰트를 기다리는 0.8초 동안 보였다가 클론이 뜨는 순간 사라지면
+      // 원이 우상단에서 좌상단으로 순간이동한 것처럼 읽힌다(2026-09-11 프레임 검수: 한 프레임에 299px).
+      // 안무를 건너뛰는 경로는 settle() 이 도로 보인다.
+      // (CSS 가 첫 그림부터 숨기고 있다 — 여기서는 인라인으로 한 번 더 못박는다)
+      pageLogo.style.visibility = "hidden"
+      sway.style.visibility = "hidden"
       // 글자 좌표가 서체에 딸려 있으므로 폰트부터 기다린다.
       // ⚠ **무한정 기다리지 않는다** — 폰트 요청 하나가 매달리면(프록시·느린 망)
       //   fonts.ready 가 영영 resolve 되지 않고, 그러면 이 await 에 갇혀 셸 로고와
@@ -305,6 +312,7 @@ export function LogoDrop() {
       shellLogo.style.visibility = ""
       pageLogo.style.visibility = ""
       sway.style.visibility = ""
+      sway.setAttribute("data-cb-landed", "")
     }
   }, [])
 

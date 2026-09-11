@@ -69,13 +69,21 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
 
     const start = () => {
       if (cancelled) return
-      // 셸 로고가 굴러 떨어져 자리를 잡은 뒤(LogoDrop) 왕복·회전을 우리가 이어받는다
+      // 셸 로고가 굴러 떨어져 자리를 잡은 뒤(LogoDrop) 왕복·회전을 우리가 이어받는다.
+      // ⚠ 순간이동 금지(운영자 2026-09-11 "원의 애니메이션 끊김을 엄격히 검수해"): CSS 왕복·회전은 인계 순간 어딘가
+      //   중간값이다. 0 으로 시작하면 한 프레임에 x 160px·각 120° 가 튄다(실측). 그래서 **계산된 transform 을 읽어**
+      //   그 x 에서 첫 다가감을 시작하고, 회전은 그 각도에 굴러간 거리를 더해 간다.
+      const mSway = new DOMMatrixReadOnly(getComputedStyle(sway).transform)
+      const mLogo = new DOMMatrixReadOnly(getComputedStyle(logo).transform)
+      const lxInit = mSway.e
+      const degInit = (Math.atan2(mLogo.b, mLogo.a) * DEG) || 0
       sway.style.animation = "none"
-      sway.style.transform = "translateX(0)"
+      sway.style.transform = `translateX(${lxInit}px)`
       logo.style.animation = "none"
-      logo.style.transform = "rotate(0deg)"
+      logo.style.transform = `rotate(${degInit}deg)`
       const t0 = h1.getBoundingClientRect()
-      const s0 = sway.getBoundingClientRect()
+      const s0raw = sway.getBoundingClientRect()
+      const s0 = { left: s0raw.left - lxInit } // 왕복 0 위치의 로고 좌변
       const sx = window.scrollX
       const sy = window.scrollY
       const gap = Math.max(0, s0.left - t0.right)
@@ -100,7 +108,8 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       let T = 0
       for (let i = 0; i < PUSHES; i++) {
         const reach = gap + i * P
-        segs.push({ t0: T, t1: T + 580, lx0: 0, lx1: -reach, ease: easeIn, tx0: -i * P, tx1: -i * P })
+        // 첫 다가감은 인계 순간의 x(lxInit)에서 출발 — 그 뒤는 0 에서
+        segs.push({ t0: T, t1: T + 580, lx0: i === 0 ? lxInit : 0, lx1: -reach, ease: i === 0 ? easeInOut : easeIn, tx0: -i * P, tx1: -i * P })
         T += 580
         segs.push({ t0: T, t1: T + 160, lx0: -reach, lx1: -(reach + P), ease: easeOut, tx0: -i * P, tx1: -(i + 1) * P })
         T += 160
@@ -132,6 +141,14 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const floorY = footerLine.getBoundingClientRect().top + sy
       const cloneLeft = t0.left + sx - PUSHES * P
       const cloneTop = t0.top + sy
+      // 클론은 body 가 아니라 **콘텐츠 루트 안, z-index -1** — 본문 글자·입력칸 아래 레이어로 깔린다(운영자 2026-09-11
+      // "떨어진 텍스트는 정보에 방해되지 않도록 아래 레이어로"). 루트를 스태킹 컨텍스트로 만들면(isolate) 음수 z 가
+      // 루트 배경 위·본문 아래에 그려진다. 루트 자체엔 배경이 없어 종이색은 그대로 비친다. 티커(z 20)·헤더(z 99)는 위.
+      root.style.position = "relative"
+      root.style.isolation = "isolate"
+      const rootRect = root.getBoundingClientRect()
+      const rootLeft = rootRect.left + sx
+      const rootTop = rootRect.top + sy
       const body = { c: { x: cloneLeft + wB / 2, y: cloneTop + hB / 2 } as V, phi: 0, v: { x: 0, y: 0 } as V, om: -0.08 } // 마지막 밀림이 준 작은 각속도
       const ROT_DAMP = 1.6 // 회전 공기 저항(넓적한 판) — 방향을 바꾸는 힘이 아니라 잦아드는 힘
       let phase: "push" | "sim" | "stuck" | "done" = "push"
@@ -148,15 +165,18 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           if (val) clone.style.setProperty(v, val)
         }
         const cs = getComputedStyle(h1)
+        clone.setAttribute("data-cb-fallen", "")
+        clone.removeAttribute("id")
         Object.assign(clone.style, {
           position: "absolute",
-          left: `${cloneLeft}px`,
-          top: `${cloneTop}px`,
+          left: `${cloneLeft - rootLeft}px`,
+          top: `${cloneTop - rootTop}px`,
           width: `${wB}px`, // ⚠ 박스 폭 — 잉크 폭(w)으로 주면 4px 모자라 제목이 3줄로 접힌다(실측)
           margin: "0",
           transform: "none",
           transformOrigin: `${wB / 2}px ${hB / 2}px`,
-          zIndex: "500",
+          zIndex: "-1",
+          opacity: "0.62",
           pointerEvents: "none",
           color: cs.color,
           fontSize: cs.fontSize,
@@ -164,7 +184,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           fontFamily: cs.fontFamily,
           fontWeight: cs.fontWeight,
         } as Partial<CSSStyleDeclaration>)
-        document.body.appendChild(clone)
+        root.appendChild(clone)
         h1.style.visibility = "hidden"
         h1.getAnimations().forEach((a) => a.cancel())
       }
@@ -270,7 +290,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
         // 로고 — 구름: 회전각 = 굴러간 거리 / 반지름
         const { lx, tx } = logoAt(elapsed)
         sway.style.transform = `translateX(${lx}px)`
-        logo.style.transform = `rotate(${(lx / R) * DEG}deg)`
+        logo.style.transform = `rotate(${degInit + ((lx - lxInit) / R) * DEG}deg)`
         if (phase === "push") {
           h1.style.transform = `translateX(${tx}px)`
           if (elapsed >= pushEnd) {
@@ -304,6 +324,8 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       clearTimeout(timer)
       cancelAnimationFrame(raf)
       clone?.remove()
+      root.style.position = ""
+      root.style.isolation = ""
       h1.style.visibility = ""
       h1.style.transform = ""
       sway.style.animation = ""

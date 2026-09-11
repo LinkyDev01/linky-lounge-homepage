@@ -139,8 +139,15 @@
 .logoSway {
   flex: 0 0 auto;
   display: block;
+  /* 첫 그림부터 숨긴다 — 셸 로고가 굴러 떨어져 이 자리에 앉을 때까지(LogoDrop 이 data-cb-landed 를 단다).
+     JS 로만 숨기면 하이드레이션 전 0.5~0.9초 동안 보였다가 사라져 원이 순간이동한 것처럼 읽힌다
+     (2026-09-11 프레임 검수: 한 프레임에 299px). 모션 축소·스크롤 진입 등 안무를 건너뛰는 경로도 settle 이 단다 */
+  visibility: hidden;
   /* 1.33s = 4s 의 3배속 (운영자 2026-08-25 "좌우왕복 속도 3배 빠르게") */
   animation: cbSway 1.33s ease-in-out infinite alternate;
+}
+.logoSway[data-cb-landed] {
+  visibility: visible;
 }
 @keyframes cbSway {
   to {

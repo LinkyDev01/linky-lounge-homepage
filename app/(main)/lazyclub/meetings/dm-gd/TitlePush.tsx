@@ -17,6 +17,11 @@
  * 넘어짐·낙하는 rAF 로 직접 적분한다(회전 피벗 = 뷰포트 좌측 가장자리 × 제목 아랫변, 중력 2200px/s²)
  * 그리고 낙하 중 스크롤이 따라간다 — 푸터가 화면 밖이라 안 따라가면 박히는 장면을 못 본다.
  * 착지: 회전 -90°, 왼쪽 여백 15px, 아랫끝('동')이 푸터 윗선에 닿는다. 6px 파묻혔다 되튄다("박힌다").
+ *
+ * 2026-09-11 운영자 답: 반복 여부는 내가 정한다 → **페이지 진입마다 한 번**, 떨어진 채로 둔다(되돌아오지 않는다 —
+ * 위트는 한 번 읽히면 되고, 반복하면 페이지가 계속 들썩인다). 속도는 "조금 더 빨리" → 밀기 한 사이클
+ * 1.5s → 1.1s(다가감 560→420 · 밀기 170→130 · 되돌아감 760→560), 시작 대기 3.2→2.6s, 넘어짐 0.7→0.56s.
+ * 낙하는 중력 그대로. 전체 ≈ 27s → 17s.
  */
 
 import { useEffect } from "react"
@@ -31,7 +36,7 @@ function easeOut(t: number) {
   return 1 - (1 - t) * (1 - t)
 }
 
-export function TitlePush({ speed = 1, startDelayMs = 3200 }: { speed?: number; startDelayMs?: number }) {
+export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; startDelayMs?: number }) {
   useEffect(() => {
     let cancelled = false
     let clone: HTMLElement | null = null
@@ -61,10 +66,10 @@ export function TitlePush({ speed = 1, startDelayMs = 3200 }: { speed?: number; 
         if (cancelled) return
         const reach = gap + i * P
         // 다가간다 → 닿아서 민다(제목도 같은 양만큼) → 돌아간다
-        await anim(sway!, [{ transform: "translateX(0)" }, { transform: `translateX(${-reach}px)` }], 560, "cubic-bezier(.4,0,1,1)")
+        await anim(sway!, [{ transform: "translateX(0)" }, { transform: `translateX(${-reach}px)` }], 420, "cubic-bezier(.4,0,1,1)")
         if (cancelled) return
         await Promise.all([
-          anim(sway!, [{ transform: `translateX(${-reach}px)` }, { transform: `translateX(${-(reach + P)}px)` }], 170, "cubic-bezier(0,0,.2,1)"),
+          anim(sway!, [{ transform: `translateX(${-reach}px)` }, { transform: `translateX(${-(reach + P)}px)` }], 130, "cubic-bezier(0,0,.2,1)"),
           anim(
             h1!,
             [
@@ -72,17 +77,17 @@ export function TitlePush({ speed = 1, startDelayMs = 3200 }: { speed?: number; 
               { transform: `translateX(${-(i + 0.7) * P}px) rotate(-1.2deg)`, offset: 0.6 },
               { transform: `translateX(${-(i + 1) * P}px) rotate(0deg)` },
             ],
-            220,
+            170,
             "cubic-bezier(.2,.8,.2,1)",
           ),
         ])
         if (cancelled) return
         if (i === PUSHES - 1) break
-        await anim(sway!, [{ transform: `translateX(${-(reach + P)}px)` }, { transform: "translateX(0)" }], 760, "cubic-bezier(.45,0,.55,1)")
+        await anim(sway!, [{ transform: `translateX(${-(reach + P)}px)` }, { transform: "translateX(0)" }], 560, "cubic-bezier(.45,0,.55,1)")
       }
       if (cancelled) return
       // 로고는 제자리로 돌아가 원래 왕복을 되찾는다
-      anim(sway!, [{ transform: `translateX(${-(gap + PUSHES * P)}px)` }, { transform: "translateX(0)" }], 760, "cubic-bezier(.45,0,.55,1)").then(() => {
+      anim(sway!, [{ transform: `translateX(${-(gap + PUSHES * P)}px)` }, { transform: "translateX(0)" }], 560, "cubic-bezier(.45,0,.55,1)").then(() => {
         if (!cancelled) {
           sway!.style.animation = ""
           sway!.style.transform = ""
@@ -128,7 +133,7 @@ export function TitlePush({ speed = 1, startDelayMs = 3200 }: { speed?: number; 
       // 최종: rotate(-90) 뒤 상자의 왼변이 15px, 아랫끝이 푸터 윗선 (유도는 파일 머리 주석의 좌표식)
       const txEnd = 15 + h
       const tyEnd = footerTop - cloneTop - h - ox
-      const tipMs = 700 / speed
+      const tipMs = 560 / speed
       const fallMs = (Math.sqrt((2 * Math.max(tyEnd, 1)) / GRAVITY) * 1000) / speed
       const sinkMs = 260 / speed
       const start = performance.now()

@@ -15,6 +15,9 @@
  * 회복 장치는 모임 폼과 같은 문법이다 — 25초 타임아웃 · 실패 시 입력값 보존 +
  * 카카오 구제 원문 복사 · 완료 상태 sessionStorage 복원.
  *
+ * 접수 뒤(done)에도 폼은 남는다 (운영자 2026-09-11): 접수 문구 + 폼 + **잡히지 않는 버튼**(dodge —
+ * 닿거나 누르면 조금씩 튕겨 도망) + 중앙 검정 메시지 "신청되었습니다."(2.4초). 제출은 다시 일어나지 않는다.
+ *
  * '희망 날짜와 시간대'는 **직접 타이핑**이다 (운영자 2026-08-24 결정 4) — 달력·시간
  * 선택기를 쓰지 않는다. 운영자가 읽고 조율하는 자유 문장이라 형식을 강제하지 않는다.
  */
@@ -157,6 +160,11 @@ export function CoffeeBarForm() {
   const [failCopied, setFailCopied] = useState(false)
   /** 제출 버튼이 한 번 달아났는가 (운영자 2026-08-25 — 위트 장치) */
   const [escaped, setEscaped] = useState(false)
+  /** 접수 뒤 — 버튼을 잡으려 할 때 중앙에 띄우는 검정 메시지 (운영자 2026-09-11) */
+  const [taunt, setTaunt] = useState(false)
+  const tauntTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** 접수 뒤 버튼의 현재 위치(행 기준 translate) — 다음 도망의 출발점 */
+  const dodgePos = useRef({ x: 0, y: 0 })
   const [confirming, setConfirming] = useState(false)
   /** 개인정보 동의 상세 접기 (기본 접힘 — apply 페이지와 동일 문법) */
   const [privacyDetailOpen, setPrivacyDetailOpen] = useState(false)
@@ -249,9 +257,59 @@ export function CoffeeBarForm() {
     )
   }
 
-  /** 버튼 클릭 — 처음엔 달아나고(검증 없음), 잡아서 다시 누르면 검증 후 확인 모달 */
-  function handleButtonClick() {
+  /** 접수 뒤의 버튼 — **잡히지 않는다** (운영자 2026-09-11 "신청한 이후에도 … 그 사람들은 계속
+   *  신청하기 버튼이 튕기면서 조금씩 반복되며 도망가고, 신청되었다고 검정색으로 메시지를 중앙에 띄워줘").
+   *  마우스가 닿거나(pointerenter) 누르면(click·탭) 포인터 반대쪽으로 **조금씩**(70~130px) 튕겨
+   *  자리를 옮긴다 — 행 상자(가로 0~dx · 세로 -22~+7, flee 와 같은 구획) 안에서, 벽에 닿으면
+   *  반대로. 첫 도망(flee)처럼 물리를 풀진 않고 짧은 오버슈트 한 번(420ms)으로 '튕김'만 남긴다.
+   *  제출은 절대 일어나지 않는다 — 이미 접수된 사람이다. 매번 중앙 메시지를 다시 띄운다(2.4초). */
+  function dodge(pointerX?: number) {
+    const row = rowRef.current
+    const btn = btnRef.current
+    if (!row || !btn) return
+    const dx = Math.max(0, row.clientWidth - btn.offsetWidth)
+    const cur = dodgePos.current
+    const rowLeft = row.getBoundingClientRect().left
+    const btnCenter = rowLeft + cur.x + btn.offsetWidth / 2
+    // 포인터가 오른쪽에서 오면 왼쪽으로, 왼쪽에서 오면 오른쪽으로 — 모르면 무작위
+    let dir = pointerX == null ? (Math.random() < 0.5 ? -1 : 1) : pointerX >= btnCenter ? -1 : 1
+    const step = 70 + Math.random() * 60
+    let nx = cur.x + dir * step
+    if (nx < 0 || nx > dx) {
+      dir = -dir
+      nx = cur.x + dir * step
+    }
+    nx = Math.min(dx, Math.max(0, nx))
+    const ny = -22 + Math.random() * 29
+    const from = `translate(${cur.x}px, ${cur.y}px)`
+    const over = `translate(${nx + dir * 12}px, ${ny - 6}px)` // 살짝 지나쳤다 돌아오는 튕김
+    const to = `translate(${nx}px, ${ny}px)`
+    dodgePos.current = { x: nx, y: ny }
+    btn.style.transform = to
+    const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (!reduce && typeof btn.animate === "function") {
+      btn.animate(
+        [
+          { transform: from, offset: 0 },
+          { transform: over, offset: 0.62 },
+          { transform: to, offset: 1 },
+        ],
+        { duration: 420, easing: "cubic-bezier(.22,1,.36,1)" },
+      )
+    }
+    setTaunt(true)
+    if (tauntTimer.current) clearTimeout(tauntTimer.current)
+    tauntTimer.current = setTimeout(() => setTaunt(false), 2400)
+  }
+
+  /** 버튼 클릭 — 처음엔 달아나고(검증 없음), 잡아서 다시 누르면 검증 후 확인 모달.
+   *  접수가 끝난 사람은 영원히 도망만 친다 */
+  function handleButtonClick(e?: React.MouseEvent) {
     if (loading) return
+    if (done) {
+      dodge(e?.clientX)
+      return
+    }
     if (!escaped) {
       flee()
       return
@@ -317,19 +375,22 @@ export function CoffeeBarForm() {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior })
   }
 
-  // ── 접수 완료 — 결제가 없으니 여기서 끝난다 ──
-  if (done) {
-    return (
-      <p className={cb.doneText}>
-        신청서가 접수되었습니다.
-        <br />
-        해당 번호로 연락드리겠습니다.
-      </p>
-    )
-  }
-
+  // ── 접수 완료 — 결제가 없으니 여기서 끝난다. 단 폼은 **감추지 않는다** (운영자 2026-09-11
+  //    "신청이 접수되었다고만 뜨지 말고") — 접수 문구 아래에 폼이 그대로 남고, 버튼은 잡히지 않는다(dodge) ──
   return (
     <>
+      {done && (
+        <p className={cb.doneText}>
+          신청서가 접수되었습니다.
+          <br />
+          해당 번호로 연락드리겠습니다.
+        </p>
+      )}
+      {done && taunt && (
+        <div className={cb.doneToast} role="status" aria-live="polite">
+          <span className={cb.doneToastText}>신청되었습니다.</span>
+        </div>
+      )}
       {loading && (
         <div className={cb.busy}>
           <TurtleLoader label="로딩 중" />
@@ -519,6 +580,10 @@ export function CoffeeBarForm() {
             className={cb.actionBtn}
             disabled={loading}
             onClick={handleButtonClick}
+            onPointerEnter={(e) => {
+              // 접수 뒤에는 마우스가 닿기만 해도 튕겨 나간다 (터치는 hover 가 없어 탭=click 이 맡는다)
+              if (done && e.pointerType === "mouse") dodge(e.clientX)
+            }}
           >
             {loading ? "로딩 중" : "신청하기"}
           </button>

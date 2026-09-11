@@ -23,6 +23,17 @@
  *       ④ 박힘 — 거의 세로로 선 채 아랫끝이 바닥에 세게 닿으면 10px 파묻히고 그 점이 새 축이 된다. 박힌 막대는
  *          비틀림 스프링(강성 60·감쇠 5)으로 세로를 향해 **떨리다 멎는다**(칼이 도마에 꽂힌 뒤처럼). 스냅·고정 각도 없음.
  *   · 낙하 중 스크롤이 판을 따라 내려간다 — 푸터가 화면 밖이라 안 따라가면 박히는 장면을 못 본다.
+ *
+ * 3차(운영자 "물리법칙과 바닥 수평선이 글자 높이와 안 맞아. 떨어질 때도 다른 쪽에 힘이 들어간 것 마냥 이상해 /
+ * 레이지클럽 원 좀 빨라, 느려도 돼"):
+ *   · **판 = 글자 잉크 상자**. h1 박스는 줄간(1.3)만큼 위아래가 비어 있어 박스 아랫변을 바닥으로 삼으면 글자가 선
+ *     위에 떠 보였다 → 물리 상자를 세로 0.15em·가로 2px 안쪽으로 잡는다(모서리·바닥 접촉 모두 이 상자 기준).
+ *   · **외력 제거**: 2차의 '세로로 서려는 공기 토크'와 탁자 옆면 충돌(법선이 탁자 쪽으로 밀어 반대쪽 힘처럼 보였다)을
+ *     없앤다. 선반 아래는 빈 공간 — 이탈(70°) 뒤엔 중력과 **회전 공기 저항**(넓적한 판이라 회전이 빨리 잦아든다)만
+ *     있다. 저항 계수는 이탈 순간 각속도로 정해 회전이 세로에서 잦아들게 한다(한 방향으로만 감속, 되돌아오는 힘 없음).
+ *   · 선반 모서리 E 는 콘텐츠 왼쪽 여백 + 45px — 판이 세로로 섰을 때(두께 ≈ 99) 화면 안에 놓이는 자리. 밀기 총량은
+ *     무게중심이 E 를 5% 넘는 만큼(≈56px, 한 번 5.6px).
+ *   · 로고 왕복을 늦춘다: 다가감 420→520 · 밀기 130→150 · 되돌아감 560→680ms (한 사이클 1.1→1.35s).
  * 좌표는 전부 런타임 실측(제목·로고·모서리·푸터 윗선), 셸은 건드리지 않고, 떨어지는 건 제목의 **클론**(body 직속).
  * 반복 없음 — 페이지 진입마다 한 번, 떨어진 채로 둔다(운영자 "정해둬도 돼").
  */
@@ -32,7 +43,6 @@ import { useEffect } from "react"
 const PUSHES = 10
 const G = 2200 // px/s²
 const SUB = 1 / 480 // 적분 간격(초)
-const FACE_H = 140 // 모서리 아래 탁자 옆면의 높이(px) — 제목 블록의 두께로 본다
 const DEG = 180 / Math.PI
 
 type V = { x: number; y: number }
@@ -54,7 +64,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
     const root = document.querySelector<HTMLElement>("[data-cb-root]")
     if (!h1 || !sway || !logo || !footerLine || !root) return
 
-    const timer = setTimeout(() => {
+    const start = () => {
       if (cancelled) return
       // 셸 로고가 굴러 떨어져 자리를 잡은 뒤(LogoDrop) 왕복·회전을 우리가 이어받는다
       sway.style.animation = "none"
@@ -66,7 +76,18 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const sx = window.scrollX
       const sy = window.scrollY
       const gap = Math.max(0, s0.left - t0.right)
-      const P = (t0.width * 0.55 + t0.left) / PUSHES
+      // 물리 상자 = 글자 잉크 상자(박스에서 세로 0.15em·가로 2px 안쪽)
+      const fs = parseFloat(getComputedStyle(h1).fontSize) || 38
+      const padY = 0.15 * fs
+      const padX = 2
+      const wB = t0.width
+      const hB = t0.height
+      const w = wB - 2 * padX
+      const h = hB - 2 * padY
+      const EDGE_IN = 45 // 선반 모서리 = 콘텐츠 왼쪽 여백 + 45px — 판이 세로로 섰을 때(두께 ≈ 99) 화면 안에 놓이는 자리
+      const edgeX = t0.left + EDGE_IN
+      // 무게중심이 모서리를 5% 넘을 때까지 민다
+      const P = (t0.left + padX + w / 2 - edgeX + 0.05 * w) / PUSHES
       const R = logo.offsetWidth / 2 || 37
       const vh = window.innerHeight
 
@@ -76,14 +97,14 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       let T = 0
       for (let i = 0; i < PUSHES; i++) {
         const reach = gap + i * P
-        segs.push({ t0: T, t1: T + 420, lx0: 0, lx1: -reach, ease: easeIn, tx0: -i * P, tx1: -i * P })
-        T += 420
-        segs.push({ t0: T, t1: T + 130, lx0: -reach, lx1: -(reach + P), ease: easeOut, tx0: -i * P, tx1: -(i + 1) * P })
-        T += 130
-        segs.push({ t0: T, t1: T + 560, lx0: -(reach + P), lx1: 0, ease: easeInOut, tx0: -(i + 1) * P, tx1: -(i + 1) * P })
-        T += 560
+        segs.push({ t0: T, t1: T + 520, lx0: 0, lx1: -reach, ease: easeIn, tx0: -i * P, tx1: -i * P })
+        T += 520
+        segs.push({ t0: T, t1: T + 150, lx0: -reach, lx1: -(reach + P), ease: easeOut, tx0: -i * P, tx1: -(i + 1) * P })
+        T += 150
+        segs.push({ t0: T, t1: T + 680, lx0: -(reach + P), lx1: 0, ease: easeInOut, tx0: -(i + 1) * P, tx1: -(i + 1) * P })
+        T += 680
       }
-      const pushEnd = T - 560 // 마지막 밀기 직후 — 여기서 제목이 물리로 넘어간다
+      const pushEnd = T - 680 // 마지막 밀기 직후 — 여기서 제목이 물리로 넘어간다
       const seqEnd = T
       const logoAt = (ms: number): { lx: number; tx: number } => {
         if (ms >= seqEnd) {
@@ -97,17 +118,22 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
         return { lx: s.lx0 + (s.lx1 - s.lx0) * k, tx: s.tx0 + (s.tx1 - s.tx0) * k }
       }
 
-      // ── 제목 강체 ──
-      const w = t0.width
-      const h = t0.height
+      // ── 제목 강체 (잉크 상자 w×h, 중심은 박스 중심과 같다) ──
+      // 세계: 선반 윗면(y = E.y, x ≥ E.x) · 선반 모서리 E · 선반 앞면(x = E.x, E.y ~ E.y+FACE_H, 법선은 **왼쪽**) ·
+      //       화면 왼쪽 벽(x = 0, 선반 아래에서만 — 발코니 아래 벽, 법선 오른쪽) · 바닥(푸터 윗선).
+      //       판은 이 다섯과만 부딪힌다 — 그 밖의 힘은 중력·공기뿐.
       const I = (w * w + h * h) / 12
-      const E: V = { x: t0.left + sx, y: t0.bottom + sy } // 콘텐츠 왼쪽 가장자리의 모서리(문서 좌표)
+      const E: V = { x: edgeX + sx, y: t0.bottom - padY + sy } // 선반 모서리(문서 좌표) — 잉크 아랫변 높이
+      const FACE_H = 140
+      const WALL_X = sx // 화면 왼쪽 벽
       const floorY = footerLine.getBoundingClientRect().top + sy
       const cloneLeft = t0.left + sx - PUSHES * P
       const cloneTop = t0.top + sy
-      const body = { c: { x: cloneLeft + w / 2, y: cloneTop + h / 2 } as V, phi: 0, v: { x: 0, y: 0 } as V, om: -0.12 } // 마지막 밀림이 준 작은 각속도 — 처음엔 겨우 기운다
-      let phase: "push" | "tip" | "fly" | "stuck" | "done" = "push"
+      const body = { c: { x: cloneLeft + wB / 2, y: cloneTop + hB / 2 } as V, phi: 0, v: { x: 0, y: 0 } as V, om: -0.12 } // 마지막 밀림이 준 작은 각속도
+      const ROT_DAMP = 1.6 // 회전 공기 저항(넓적한 판) — 방향을 바꾸는 힘이 아니라 잦아드는 힘
+      let phase: "push" | "sim" | "stuck" | "done" = "push"
       let stuck: V = { x: 0, y: 0 }
+      let stuckPhi = -Math.PI / 2
       let restT = 0
       const corners = () => [-1, 1].flatMap((ix) => [-1, 1].map((iy) => rot({ x: (ix * w) / 2, y: (iy * h) / 2 }, body.phi)))
 
@@ -123,10 +149,10 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           position: "absolute",
           left: `${cloneLeft}px`,
           top: `${cloneTop}px`,
-          width: `${w}px`,
+          width: `${wB}px`, // ⚠ 박스 폭 — 잉크 폭(w)으로 주면 4px 모자라 제목이 3줄로 접힌다(실측)
           margin: "0",
           transform: "none",
-          transformOrigin: `${w / 2}px ${h / 2}px`,
+          transformOrigin: `${wB / 2}px ${hB / 2}px`,
           zIndex: "500",
           pointerEvents: "none",
           color: cs.color,
@@ -141,15 +167,15 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       }
       const drawClone = () => {
         if (!clone) return
-        clone.style.transform = `translate(${body.c.x - (cloneLeft + w / 2)}px, ${body.c.y - (cloneTop + h / 2)}px) rotate(${body.phi * DEG}deg)`
+        clone.style.transform = `translate(${body.c.x - (cloneLeft + wB / 2)}px, ${body.c.y - (cloneTop + hB / 2)}px) rotate(${body.phi * DEG}deg)`
       }
 
-      /** 모서리 한 점과 평면(법선 n)의 충돌 — 반발 e, 마찰 mu, 위치 보정 */
+      /** 접촉점 r(무게중심 기준)과 평면(법선 n, 판 쪽을 향함)의 충돌 — 반발 e, 마찰 mu, 작은 위치 보정 */
       const collide = (r: V, n: V, e: number, mu: number, pen: number) => {
         const vp = { x: body.v.x - body.om * r.y, y: body.v.y + body.om * r.x }
         const vn = vp.x * n.x + vp.y * n.y
         // 위치 보정은 한 번에 조금씩 — 통째로 밀어내면 임펄스와 무관한 '순간이동'이 생긴다(1차 실측: 200px 튐)
-        const fix = Math.min(pen * 0.15, 0.4)
+        const fix = Math.min(pen * 0.2, 0.5)
         body.c.x += n.x * fix
         body.c.y += n.y * fix
         if (vn >= 0) return
@@ -169,42 +195,42 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       }
 
       const stepPhysics = (dt: number) => {
-        if (phase === "tip") {
-          const r = { x: body.c.x - E.x, y: body.c.y - E.y }
-          const al = (G * r.x) / (I + r.x * r.x + r.y * r.y)
-          body.om += al * dt
-          body.phi += body.om * dt
-          const r2 = rot(r, body.om * dt)
-          body.c = { x: E.x + r2.x, y: E.y + r2.y }
-          if (body.phi <= -55 / DEG) {
-            body.v = { x: -body.om * r2.y, y: body.om * r2.x } // ω × r — 이탈 순간의 선속도
-            phase = "fly"
-          }
-          return
-        }
-        if (phase === "fly") {
+        if (phase === "sim") {
           body.v.y += G * dt
           body.v.x *= 1 - 0.15 * dt
-          // 긴 판이 세로로 서려는 약한 공기 토크
-          const target = -Math.PI / 2
-          body.om += (5 * (target - body.phi) - 1.0 * body.om) * dt
+          body.om -= ROT_DAMP * body.om * dt
           body.c.x += body.v.x * dt
           body.c.y += body.v.y * dt
           body.phi += body.om * dt
-          // 모서리 아래 **탁자 옆면**(두께 FACE_H) — 휘돌아 내려오던 끝이 여기를 치고 튕겨 화면 안쪽으로 떨어진다
-          for (const r of corners()) {
-            const p = { x: body.c.x + r.x, y: body.c.y + r.y }
-            if (p.y > E.y + 2 && p.y < E.y + FACE_H && p.x < E.x) collide(r, { x: 1, y: 0 }, 0.35, 0.3, E.x - p.x)
+          const nearShelf = body.c.y < E.y + 80
+          // ① 선반 모서리 E 가 판 안에 들어오면 — 판의 아랫면이 모서리에 얹혀 있다(진자의 축은 이 접촉이 만든다)
+          if (nearShelf) {
+            const rel = { x: E.x - body.c.x, y: E.y - body.c.y }
+            const loc = rot(rel, -body.phi)
+            if (Math.abs(loc.x) < w / 2 && Math.abs(loc.y) < h / 2) {
+              collide(rel, rot({ x: 0, y: -1 }, body.phi), 0, 0.6, h / 2 - loc.y)
+            }
           }
           for (const r of corners()) {
             const p = { x: body.c.x + r.x, y: body.c.y + r.y }
+            // ② 선반 몸통(x ≥ E.x, E.y ≤ y < E.y+FACE_H) — 윗면 또는 앞면 중 얕게 들어간 쪽으로 밀려난다
+            if (p.x > E.x && p.y > E.y && p.y < E.y + FACE_H && nearShelf) {
+              const penX = p.x - E.x
+              const penY = p.y - E.y
+              if (penY <= penX) collide(r, { x: 0, y: -1 }, 0, 0.6, penY)
+              else collide(r, { x: -1, y: 0 }, 0.2, 0.4, penX)
+            }
+            // ③ 화면 왼쪽 벽 — 선반 아래에서만 선다(선반이 벽보다 튀어나온 발코니 꼴). 선반 위에서 벽이 있으면
+            //    걸쳐 나간 판을 도로 밀어 넣어 영영 안 떨어진다(실측: 62px 우측 미끄러짐)
+            if (p.x < WALL_X && p.y > E.y + 40) collide(r, { x: 1, y: 0 }, 0.2, 0.4, WALL_X - p.x)
+            // ④ 바닥 — 세로에 가깝게 세게 꽂히면 박힌다, 아니면 보통 충돌
             if (p.y > floorY) {
-              const upright = Math.abs(body.phi - target) < 0.55
+              const upright = Math.abs(body.phi + Math.PI / 2) < 0.6
               if (upright && body.v.y > 300) {
-                // 박힘 — 아랫끝(왼쪽 끝 면의 중심)이 10px 파묻힌 점이 새 축
                 phase = "stuck"
                 const end = rot({ x: -w / 2, y: 0 }, body.phi)
-                stuck = { x: body.c.x + end.x, y: floorY + 10 }
+                stuck = { x: body.c.x + end.x, y: floorY + 6 }
+                stuckPhi = body.phi // 꽂힌 각도 그대로 — 스스로 곧추서지 않는다
                 body.c = { x: stuck.x - end.x, y: stuck.y - end.y }
                 body.om *= 0.6
                 return
@@ -215,17 +241,16 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           return
         }
         if (phase === "stuck") {
-          const target = -Math.PI / 2
+          // 박힌 막대: 꽂힌 점을 축으로 비틀림 스프링 — 꽂힌 각도 주위로 떨리다 멎는다
           const r = { x: body.c.x - stuck.x, y: body.c.y - stuck.y }
           const gravTorque = (G * r.x) / (I + r.x * r.x + r.y * r.y)
-          body.om += (gravTorque - 60 * (body.phi - target) - 5 * body.om) * dt
+          body.om += (gravTorque - 60 * (body.phi - stuckPhi) - 5 * body.om) * dt
           body.phi += body.om * dt
           const arm = rot({ x: w / 2, y: 0 }, body.phi)
           body.c = { x: stuck.x + arm.x, y: stuck.y + arm.y }
-          if (Math.abs(body.om) < 0.02 && Math.abs(body.phi - target) < 0.003) restT += dt
+          if (Math.abs(body.om) < 0.02) restT += dt
           else restT = 0
-          if (restT > 0.4) {
-            body.phi = target
+          if (restT > 0.5) {
             body.om = 0
             phase = "done"
           }
@@ -247,7 +272,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           h1.style.transform = `translateX(${tx}px)`
           if (elapsed >= pushEnd) {
             makeClone()
-            phase = "tip"
+            phase = "sim"
           }
         } else if ((phase as string) !== "done") {
           let acc = real * speed
@@ -257,11 +282,18 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
             acc -= dt
           }
           drawClone()
-          if (phase === "fly" || phase === "stuck") window.scrollTo(0, Math.max(0, Math.min(body.c.y - vh * 0.55, floorY - vh * 0.62)))
+          if ((phase === "sim" && body.c.y > E.y + 120) || phase === "stuck")
+            // ⚠ behavior: instant — 셸의 scroll-behavior: smooth 를 타면 스크롤이 낙하를 못 따라간다(실측: 착지까지 sy 8)
+            window.scrollTo({ top: Math.max(0, Math.min(body.c.y - vh * 0.55, floorY - vh * 0.62)), behavior: "instant" as ScrollBehavior })
         }
         raf = requestAnimationFrame(frame)
       }
       raf = requestAnimationFrame(frame)
+    }
+    // ⚠ 손글씨체가 붙기 전에 재면 제목이 3줄(폴백 서체)로 잡혀 판 크기가 틀어진다(실측) — LogoDrop 과 같이 폰트를 기다린다
+    const timer = setTimeout(() => {
+      const ready = document.fonts?.ready ?? Promise.resolve()
+      Promise.race([ready, new Promise((r) => setTimeout(r, 2500))]).then(start)
     }, startDelayMs / speed)
 
     return () => {

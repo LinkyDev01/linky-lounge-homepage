@@ -332,6 +332,20 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
                     stuck.x -= overflow
                   }
                 }
+                // 박히는 순간을 알린다 — 신청하기 버튼이 그 자리에 있으면 맞고 튕겨 나간다(CoffeeBarForm 이 듣는다,
+                // 운영자 2026-09-12 "내리꽂아질 때 신청하기가 맞으며 튕겨나가는 건?"). 상자는 문서 좌표 AABB
+                const cs = corners()
+                document.dispatchEvent(
+                  new CustomEvent("cb-title-landed", {
+                    detail: {
+                      left: body.c.x + Math.min(...cs.map((c) => c.x)),
+                      right: body.c.x + Math.max(...cs.map((c) => c.x)),
+                      top: body.c.y + Math.min(...cs.map((c) => c.y)),
+                      bottom: body.c.y + Math.max(...cs.map((c) => c.y)),
+                      speed: Math.hypot(body.v.x, body.v.y),
+                    },
+                  }),
+                )
                 return
               }
               collide(r, { x: 0, y: -1 }, 0.2, 0.5, p.y - floorY)

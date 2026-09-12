@@ -35,6 +35,7 @@ import {
 } from "@/app/(main)/lazyday/support"
 import { TurtleLoader } from "../../TurtleLoader"
 import cb from "./coffeebar.module.css"
+import shell from "../../home.module.css"
 
 const DONE_KEY = "lzc-applied-dm-gd"
 
@@ -180,6 +181,9 @@ export function CoffeeBarForm() {
   const formRef = useRef<HTMLFormElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
+
+  /** 포털 대상 — 셸 .page(변수·푸터와 같은 스태킹 컨텍스트). 못 찾으면 body */
+  const portalHost = () => formRef.current?.closest<HTMLElement>(`.${shell.page}`) ?? document.body
 
   const clearError = (k: string) => {
     setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
@@ -567,16 +571,18 @@ export function CoffeeBarForm() {
           해당 번호로 연락드리겠습니다.
         </p>
       )}
-      {/* 로더·확인 모달은 **body 로 포털** — TitlePush 가 [data-cb-root] 에 isolation: isolate 를 걸어(떨어진 제목의
+      {/* 로더·확인 모달은 **셸 .page 로 포털** — TitlePush 가 [data-cb-root] 에 isolation: isolate 를 걸어(떨어진 제목의
           z-index -1 을 루트 배경 위에 두려고) 루트가 스태킹 컨텍스트가 됐고, 그 안의 fixed 요소는 z-index 가 아무리
           커도 루트 밖 푸터(.footerInner, position: relative, DOM 상 뒤)에 덮인다(운영자 2026-09-12 스크린샷 —
-          모달 아랫단이 푸터 글자·로고 밑으로). 루트 밖으로 꺼내면 z-index 400 이 문서 전체 기준으로 선다 */}
+          모달 아랫단이 푸터 글자·로고 밑으로). 루트 밖으로 꺼내면 z-index 400 이 푸터와 같은 컨텍스트에서 선다.
+          ⚠ body 가 아니라 셸 .page 인 이유: --paper·--ink·--gothic 이 .page 에 정의돼 있어 body 로 나가면 카드가
+          투명해진다(2026-09-12 실측 — 한 번 그렇게 배포했다가 되돌렸다) */}
       {loading &&
         createPortal(
           <div className={cb.busy}>
             <TurtleLoader label="로딩 중" />
           </div>,
-          document.body,
+          portalHost(),
         )}
 
       {/* onSubmit 은 Enter 키 대비 — 버튼이 submit 이 아니라 도망 장치가 됐다 */}
@@ -820,7 +826,7 @@ export function CoffeeBarForm() {
             </div>
           </div>
         </div>,
-          document.body,
+          portalHost(),
         )}
     </>
   )

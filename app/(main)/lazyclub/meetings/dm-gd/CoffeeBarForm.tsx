@@ -527,11 +527,6 @@ export function CoffeeBarForm() {
           해당 번호로 연락드리겠습니다.
         </p>
       )}
-      {taunt && (
-        <div className={cb.doneToast} role="status" aria-live="polite">
-          <span className={cb.doneToastText}>{taunt}</span>
-        </div>
-      )}
       {loading && (
         <div className={cb.busy}>
           <TurtleLoader label="로딩 중" />
@@ -684,6 +679,16 @@ export function CoffeeBarForm() {
           <p className={cb.consentNote}>
             <span>동의하신 경우 안내를 위해 이름·연락처를 동의 철회 시까지 보관합니다.</span>
           </p>
+          {/* 신청되었습니다·빈 칸 안내 — 화면 전체를 덮는 큰 검정 박스는 문구 자체보다 시선을 더 끌어
+              튕기는 버튼(제목·본문 정보)이 묻힌다(운영자 2026-09-12 "문구 알림창이 너무 크고 강렬해서
+              묻히겠어 … 동의하신 경우 안내를 위해 … 바로 아래 더 작은 박스 작은 글씨로 중앙정렬해서").
+              폼 안(formRef 하위)에 두어 kick() 의 collectObstacles() 가 자동으로 장애물에 포함시킨다 —
+              "그 영역도 튕기는 영역으로 잡고" */}
+          {taunt && (
+            <p className={cb.doneToast} role="status" aria-live="polite">
+              <span className={cb.doneToastText}>{taunt}</span>
+            </p>
+          )}
         </div>
 
         {errors._form && (

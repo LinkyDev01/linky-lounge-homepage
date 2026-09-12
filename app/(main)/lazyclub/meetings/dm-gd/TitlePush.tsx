@@ -168,7 +168,16 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const rootLeft = rootRect.left + sx
       const rootTop = rootRect.top + sy
       const body = { c: { x: cloneLeft + wB / 2, y: cloneTop + hB / 2 } as V, phi: 0, v: { x: 0, y: 0 } as V, om: -0.08 } // 마지막 밀림이 준 작은 각속도
-      const ROT_DAMP = 1.6 // 회전 공기 저항(넓적한 판) — 방향을 바꾸는 힘이 아니라 잦아드는 힘
+      // 회전 공기 저항 — **고정값이 아니라 이번 낙하의 예상 낙하시간에서 역산한다** (7차, 운영자 2026-09-12
+      // "동민과고든 커피앤바가 하단 푸터 선 라인에 붙지 않았어 … 하단 푸터까지 가야지"): 고정 ROT_DAMP=1.6 은
+      // 390px 에서 튜닝된 값이라, 화면이 넓어져 선반↔바닥 낙차가 커지면(48px 제목·다른 레이아웃) 낙하 시간이
+      // 길어지고, 같은 저항으로는 그 시간 동안 각속도가 다 죽지 않아 **-90° 를 30°+ 지나쳐** 계속 돈다(실측:
+      // 1280px 에서 phi=-121° 로 착지 — 세로에서 한참 기운 채 바닥 훨씬 위(consent 문구 옆)에서 멎었다).
+      // 선반을 떠나는 순간(released) 남은 낙차로 **자유낙하 시간을 추정**해 그 시간에 맞춰 감쇠 계수를 다시 정한다
+      // (t_fall = √(2·낙차/G), 3/t_fall ⇒ 그 시간 안에 각속도가 초기값의 ~5% 로 줄어든다) — 화면 폭이 달라져도
+      // 같은 비율로 감쇠해 항상 비슷한 만큼만(수 도) -90° 를 벗어난다.
+      let ROT_DAMP = 1.6
+      let released = false
       let phase: "push" | "sim" | "stuck" | "done" = "push"
       let stuck: V = { x: 0, y: 0 }
       let stuckPhi = -Math.PI / 2
@@ -244,6 +253,13 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           body.c.y += body.v.y * dt
           body.phi += body.om * dt
           const nearShelf = body.c.y < E.y + 80
+          if (released === false && !nearShelf) {
+            // 방금 선반을 떠났다 — 남은 낙차로 낙하시간을 추정해 감쇠 계수를 다시 정한다
+            const fallDist = Math.max(1, floorY - body.c.y)
+            const fallTime = Math.sqrt((2 * fallDist) / G)
+            ROT_DAMP = 3 / fallTime
+            released = true
+          }
           // ① 선반 모서리 E 가 판 안에 들어오면 — 판의 아랫면이 모서리에 얹혀 있다(진자의 축은 이 접촉이 만든다)
           if (nearShelf) {
             const rel = { x: E.x - body.c.x, y: E.y - body.c.y }
@@ -266,7 +282,10 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
             if (p.x < WALL_X && p.y > E.y + 40) collide(r, { x: 1, y: 0 }, 0.2, 0.4, WALL_X - p.x)
             // ④ 바닥 — 세로에 가깝게 세게 꽂히면 박힌다, 아니면 보통 충돌
             if (p.y > floorY) {
-              const upright = Math.abs(body.phi + Math.PI / 2) < 0.6
+              // 0.6rad(34°) 는 너무 헐거워 1280px 실측에서 -121° 로도 "세로"로 오판해 그 자리에 박혔다.
+              // 0.3rad(≈17°) 로 좁힌다 — 안 맞으면 튕겨서 한 번 더 기회를 준다(위 감쇠 계수 재조정과 합쳐지면
+              // 다음 바닥 접촉 즈음엔 각속도가 더 줄어 있어 좁은 문턱도 통과하기 쉬워진다)
+              const upright = Math.abs(body.phi + Math.PI / 2) < 0.3
               if (upright && body.v.y > 200) {
                 phase = "stuck"
                 const end = rot({ x: -w / 2, y: 0 }, body.phi)

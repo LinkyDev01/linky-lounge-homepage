@@ -621,23 +621,22 @@
 /* 접수 뒤 버튼을 잡으려 할 때 화면 중앙에 뜨는 검정 메시지 (운영자 2026-09-11 "신청되었다고 검정색으로
    메시지를 중앙에 띄워줘") — 잉크 면 + 종이색 글자(칩과 같은 문법), 스크림 없음, 클릭은 통과.
    z-index 는 로더(300) 아래·티커(20) 위 */
+/* 7차: 전체 화면을 덮는 큰 중앙 박스 → **작은 인라인 박스**로 (운영자 2026-09-12 "문구 알림창이 너무 크고
+   강렬해서 묻히겠어 … 더 작은 박스 작은 글씨로 중앙정렬"). 동의 문구 바로 아래, 폼 흐름 안에 놓여
+   레이아웃을 살짝만 밀어낸다(전체화면 덮개·스크림 없음) */
 .doneToast {
-  position: fixed;
-  inset: 0;
-  z-index: 250;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
+  margin: 10px 0 0;
+  text-align: center;
   animation: cbToastIn 160ms ease-out;
 }
 .doneToastText {
+  display: inline-block;
   background: var(--ink);
   color: var(--paper);
-  padding: 10px 16px;
+  padding: 5px 10px;
   font-family: var(--gothic);
   font-weight: 500;
-  font-size: 15.5px;
+  font-size: 11.5px;
   line-height: 1.5;
 }
 @keyframes cbToastIn {

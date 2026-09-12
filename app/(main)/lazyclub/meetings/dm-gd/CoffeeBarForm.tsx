@@ -17,7 +17,8 @@
  *
  * 접수 뒤(done)에도 폼은 남는다 (운영자 2026-09-11): 접수 문구 + 폼 + **잡히지 않는 버튼**(kick — 클릭 좌표에서
  * 차는 힘으로 튕기고 마찰로 멎는다, 떨어진 제목·푸터는 장애물) + 중앙 검정 메시지 "신청되었습니다."(2.4초).
- * 빈 칸인 채로 누르면 같은 튕김 + "빈 칸이 남아 있어 제출은 없습니다." — 제출은 없다. 채우면 종전 흐름(도망 1회 → 확인 모달).
+ * 빈 칸인 채로 누르면 같은 튕김 + "미기재 영역이 있어 신청하기는 제출을 거부합니다."(운영자 2026-09-12 원문 —
+ *  "내가 초안 쓴게 차라리 더 나아") — 제출은 없다. 채우면 종전 흐름(도망 1회 → 확인 모달).
  *
  * '희망 날짜와 시간대'는 **직접 타이핑**이다 (운영자 2026-08-24 결정 4) — 달력·시간
  * 선택기를 쓰지 않는다. 운영자가 읽고 조율하는 자유 문장이라 형식을 강제하지 않는다.
@@ -161,11 +162,12 @@ export function CoffeeBarForm() {
   const [failCopied, setFailCopied] = useState(false)
   /** 제출 버튼이 한 번 달아났는가 (운영자 2026-08-25 — 위트 장치) */
   const [escaped, setEscaped] = useState(false)
-  /** 중앙에 띄우는 검정 메시지 — 접수 뒤("신청되었습니다.") 또는 빈 칸 제출("빈 칸이 남아 있어 제출은 없습니다.") */
+  /** 중앙에 띄우는 검정 메시지 — 접수 뒤("신청되었습니다.") 또는 빈 칸 제출("미기재 영역이 있어 신청하기는
+   *  제출을 거부합니다." — 운영자 2026-09-12 원문) */
   const [taunt, setTaunt] = useState<string | null>(null)
   const tauntTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  /** 튕기는 버튼의 물리 상태 — 행(.submitRow) 기준 translate 와 속도, rAF 핸들 */
-  const puck = useRef({ x: 0, y: 0, vx: 0, vy: 0, raf: 0, last: 0 })
+  /** 튕기는 버튼의 물리 상태 — 행(.submitRow) 기준 translate 와 속도, rAF 핸들, 이번 킥의 장애물 스냅숏 */
+  const puck = useRef({ x: 0, y: 0, vx: 0, vy: 0, raf: 0, last: 0, obstacles: [] as HTMLElement[] })
   const [confirming, setConfirming] = useState(false)
   /** 개인정보 동의 상세 접기 (기본 접힘 — apply 페이지와 동일 문법) */
   const [privacyDetailOpen, setPrivacyDetailOpen] = useState(false)
@@ -260,11 +262,45 @@ export function CoffeeBarForm() {
     )
   }
 
+  /** 튕기는 버튼 놀이터의 장애물 — **하단의 모든 텍스트 영역** (운영자 2026-09-12 "계속 커피앤바가 떨어져 있는
+   *  영역과 그 하단 설정한 영역을 제외하고 클릭 시마다 물리 에너지로 튕겨야 해"). 떨어진 제목 하나만이 아니라
+   *  **신청서 안의 글자를 담은 요소 전부**(라벨·힌트·오류문구·동의 문구·입력칸)를 대상으로 삼는다 — 특정 클래스명을
+   *  나열하지 않고 **"자기 자신은 텍스트를 담고 있는데 자식 중엔 텍스트를 담은 게 없는" 최소 단위 요소**(리프)를
+   *  트리워크로 골라낸다(+input·textarea 는 별도로 항상 포함). 라벨처럼 `<input>` 하나만 자식으로 둔 요소는 그
+   *  input 에 글자가 없으니 리프로 잡히고, 동의 체크박스 라벨처럼 안에 글자 있는 span 이 있으면 그 라벨은 제외되고
+   *  span 쪽이 리프가 된다 — 클래스명이 바뀌어도(카피 수정) 다시 손볼 필요가 없다.
+   *  놀이터 밖(위쪽 폼 필드·본문·메뉴)은 애초에 yMin 이 막아 두어 손대지 않는다. */
+  function collectObstacles(): HTMLElement[] {
+    const out: HTMLElement[] = []
+    const fallen = document.querySelector<HTMLElement>("[data-cb-fallen]")
+    if (fallen) out.push(fallen)
+    const form = formRef.current
+    if (!form) return out
+    for (const el of form.querySelectorAll<HTMLElement>("*")) {
+      if (el === btnRef.current || btnRef.current?.contains(el)) continue
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+        out.push(el)
+        continue
+      }
+      const text = (el.textContent ?? "").trim()
+      if (!text) continue
+      let hasTextChild = false
+      for (const child of el.children) {
+        if (((child as HTMLElement).textContent ?? "").trim()) {
+          hasTextChild = true
+          break
+        }
+      }
+      if (!hasTextChild) out.push(el)
+    }
+    return out
+  }
+
   /** 튕기는 버튼 — **물리 에너지로** (운영자 2026-09-11 "클릭 시마다 물리 에너지로 튕겨야 해 … 클릭 좌표에 따른
    *  물리 에너지 현행화도 좋아"). 클릭한 점에서 버튼 중심 쪽으로 차는 힘(퍽을 손가락으로 튕기듯): 가장자리를 누르면
    *  반대쪽으로 세게, 중앙을 누르면 방향은 무작위·힘은 작게. 그 뒤는 마찰로 잦아드는 미끄러짐 + 벽 반발.
-   *  놀이터 = 행(.submitRow) 폭 × [폼 위쪽 여유 ~ 푸터 윗선 위]. **떨어진 커피앤바 제목([data-cb-fallen])이 있으면
-   *  그 사각형은 장애물** — 버튼이 그 안으로 들어가지 않는다(운영자 "커피앤바가 떨어져 있는 영역과 그 하단 … 제외").
+   *  놀이터 = 행(.submitRow) 폭 × [폼 위쪽 여유 ~ 푸터 윗선 위]. 장애물은 `collectObstacles()` — 매 킥마다
+   *  다시 훑어 최신 상태를 쓴다(이미 도는 rAF 도 `puck.current.obstacles` 를 통해 새 목록을 받는다).
    *  접수 뒤(done)와 빈 칸 제출 둘 다 이 튕김을 쓴다. 제출은 일어나지 않는다. */
   function kick(clientX?: number, clientY?: number) {
     const row = rowRef.current
@@ -291,6 +327,7 @@ export function CoffeeBarForm() {
     const power = 520 + 26 * Math.min(off, 40) // px/s — 가장자리(≈40px)를 누르면 ≈1560
     st.vx += dx * power
     st.vy += dy * power * 0.45 // 세로는 눌러 둔다 — 행이 납작하다
+    st.obstacles = collectObstacles() // 이 킥의 장애물 스냅숏 — 이미 도는 rAF 도 다음 프레임부터 이걸 쓴다
     if (!st.raf) {
       st.last = performance.now()
       st.raf = requestAnimationFrame(step)
@@ -333,10 +370,12 @@ export function CoffeeBarForm() {
         s2.y = yMax
         s2.vy = -Math.abs(s2.vy) * e
       }
-      // 장애물 — 떨어진 제목의 사각형(행 기준). 얕게 겹친 축으로 밀어내고 그 축 속도를 뒤집는다
-      const fallen = document.querySelector("[data-cb-fallen]")
-      if (fallen) {
-        const f = fallen.getBoundingClientRect()
+      // 장애물 — 하단 텍스트 요소마다 하나씩(행 기준 사각형). 얕게 겹친 축으로 밀어내고 그 축 속도를 뒤집는다.
+      // 겹칠 수 있는 요소가 여럿이면 차례로 다 처리한다(성긴 텍스트 사이 여백을 오가는 정도라 실무상 충분하다)
+      for (const obEl of s2.obstacles) {
+        if (!obEl.isConnected) continue
+        const f = obEl.getBoundingClientRect()
+        if (f.width === 0 && f.height === 0) continue
         const ox0 = f.left - rr.left - bw
         const ox1 = f.right - rr.left
         const oy0 = f.top - rr.top - bh
@@ -409,7 +448,7 @@ export function CoffeeBarForm() {
     // 절제되게: 메뉴의 "네그로니는 없습니다"와 같은 호흡). 버튼은 물리로 튕긴다
     if (markEmptyRequired()) {
       kick(e?.clientX, e?.clientY)
-      showTaunt("빈 칸이 남아 있어 제출은 없습니다.")
+      showTaunt("미기재 영역이 있어 신청하기는 제출을 거부합니다.")
       return
     }
     if (!escaped) {

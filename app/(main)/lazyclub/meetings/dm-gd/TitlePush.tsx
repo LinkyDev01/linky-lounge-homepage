@@ -37,6 +37,20 @@
  *
  * 4차(운영자 "너무 빨라 / 10번 필요없어. 7번"): 밀기 7번(한 번 ≈ 8px), 중력 2200→1100(낙하·기울기 모두 느긋하게),
  * 로고 사이클 1.35→1.5s(580·160·760ms). 박힘 판정 속도 문턱 300→200px/s(중력이 줄어 착지 속도도 준다).
+ *
+ * 5차(운영자 "레이지클럽 원 굴러가는 애니메이션 끊기는 간격 검증해주고 개선해"):
+ *   프레임 단위 위치는 이미 연속이었지만(4차 검수), **속도**를 재보니 매 밀기 사이클마다 진짜 불연속이 있었다 —
+ *   종전엔 '다가감(580ms, easeIn)'과 '밀어붙임(160ms, easeOut)'을 별개 구간으로 나눠서, 다가감이 끝나는 속도(≈
+ *   2·reach/0.58, 밀수록 커진다)와 밀어붙임이 시작하는 속도(≈2·P/0.16, 고정)가 전혀 안 맞았다 — 뒤로 갈수록(reach
+ *   가 커질수록) 그 경계에서 로고가 급감속하는 것처럼 보였다(실측 가속도 스파이크가 사이클 경계마다·뒤로 갈수록
+ *   커짐). **다가감+밀어붙임을 하나의 연속 구간(740ms, easeInOut)으로 합친다** — 로고의 lx(t) 는 이제 사이클 전체
+ *   (740ms 접근 + 760ms 복귀)에서 시작·경계·끝 전부 속도 0인 하나의 매끄러운 S자 왕복이라 끊기는 지점이 없다.
+ *   제목의 tx 는 시간이 아니라 **lx 의 함수**로 얻는다 — 로고가 아직 안 닿았으면(lx > -reach) 제목은 그대로, 닿은
+ *   뒤(lx ≤ -reach)엔 tx = lx + reach - i·P 로 로고와 1:1 로 같이 밀린다. 충돌 순간 제목이 훅 움직이기 시작하는
+ *   것은(속도 0→갑자기 값) 부딪힌 물체의 자연스러운 성질이라 남겨 둔다 — 매끄러워야 하는 건 **원**이지 제목이 아니다.
+ *   원·왕복 요소에 `will-change: transform` 도 추가(합성 레이어 승격 — 승격이 안 되면 저사양 기기에서 메인 스레드
+ *   페인트가 밀려 매 프레임이 아니라 이따금 드롭되는 진짜 '끊김'이 생길 수 있다, coffeebar.module.css 참조).
+ *
  * 좌표는 전부 런타임 실측(제목·로고·모서리·푸터 윗선), 셸은 건드리지 않고, 떨어지는 건 제목의 **클론**(body 직속).
  * 반복 없음 — 페이지 진입마다 한 번, 떨어진 채로 둔다(운영자 "정해둬도 돼").
  */
@@ -102,21 +116,21 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const R = logo.offsetWidth / 2 || 37
       const vh = window.innerHeight
 
-      // ── 밀기 시간표(ms, 1배속 기준) — 로고 x 와 제목 x 를 시각 함수로 ──
-      type Seg = { t0: number; t1: number; lx0: number; lx1: number; ease: (t: number) => number; tx0: number; tx1: number }
+      // ── 밀기 시간표(ms, 1배속 기준) — 로고 x 는 사이클마다 접근(740ms)+복귀(760ms) 두 매끄러운 S자뿐,
+      //    제목 x 는 로고 위치의 함수로 뒤에서 유도한다(위 5차 주석) ──
+      type Seg = { t0: number; t1: number; lx0: number; lx1: number; ease: (t: number) => number; kind: "approach" | "return"; reach: number; i: number }
       const segs: Seg[] = []
       let T = 0
       for (let i = 0; i < PUSHES; i++) {
         const reach = gap + i * P
-        // 첫 다가감은 인계 순간의 x(lxInit)에서 출발 — 그 뒤는 0 에서
-        segs.push({ t0: T, t1: T + 580, lx0: i === 0 ? lxInit : 0, lx1: -reach, ease: i === 0 ? easeInOut : easeIn, tx0: -i * P, tx1: -i * P })
-        T += 580
-        segs.push({ t0: T, t1: T + 160, lx0: -reach, lx1: -(reach + P), ease: easeOut, tx0: -i * P, tx1: -(i + 1) * P })
-        T += 160
-        segs.push({ t0: T, t1: T + 760, lx0: -(reach + P), lx1: 0, ease: easeInOut, tx0: -(i + 1) * P, tx1: -(i + 1) * P })
+        // 첫 접근은 인계 순간의 x(lxInit)에서 출발 — 그 뒤는 0 에서. 시작·끝 속도가 항상 0(easeInOut)이라
+        // 사이클 경계·이전 복귀와 이어 붙여도 매끄럽다
+        segs.push({ t0: T, t1: T + 740, lx0: i === 0 ? lxInit : 0, lx1: -(reach + P), ease: easeInOut, kind: "approach", reach, i })
+        T += 740
+        segs.push({ t0: T, t1: T + 760, lx0: -(reach + P), lx1: 0, ease: easeInOut, kind: "return", reach, i })
         T += 760
       }
-      const pushEnd = T - 760 // 마지막 밀기 직후 — 여기서 제목이 물리로 넘어간다
+      const pushEnd = T - 760 // 마지막 접근 직후 — 여기서 제목이 물리로 넘어간다
       const seqEnd = T
       const logoAt = (ms: number): { lx: number; tx: number } => {
         if (ms >= seqEnd) {
@@ -127,7 +141,11 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
         const s = segs.find((g) => ms >= g.t0 && ms < g.t1) ?? segs[segs.length - 1]
         const u = Math.min(1, Math.max(0, (ms - s.t0) / (s.t1 - s.t0)))
         const k = s.ease(u)
-        return { lx: s.lx0 + (s.lx1 - s.lx0) * k, tx: s.tx0 + (s.tx1 - s.tx0) * k }
+        const lx = s.lx0 + (s.lx1 - s.lx0) * k
+        // 복귀 중엔 제목은 그 자리(그 사이클이 밀어 둔 위치)에 그대로. 접근 중엔 아직 안 닿았으면 그대로,
+        // 닿은 뒤(lx ≤ -reach)엔 로고와 1:1 로 같이 밀린다 — 부딪힌 순간 제목 속도가 훅 붙는 건 의도(충돌)
+        const tx = s.kind === "return" ? -(s.i + 1) * P : lx <= -s.reach ? lx + s.reach - s.i * P : -s.i * P
+        return { lx, tx }
       }
 
       // ── 제목 강체 (잉크 상자 w×h, 중심은 박스 중심과 같다) ──
@@ -145,7 +163,7 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       // "떨어진 텍스트는 정보에 방해되지 않도록 아래 레이어로"). 루트를 스태킹 컨텍스트로 만들면(isolate) 음수 z 가
       // 루트 배경 위·본문 아래에 그려진다. 루트 자체엔 배경이 없어 종이색은 그대로 비친다. 티커(z 20)·헤더(z 99)는 위.
       root.style.position = "relative"
-      root.style.isolation = "isolate"
+      root.style.isolation = "isolate" // 음수 z-index 가 루트 배경 위·본문 아래에만 그려지게(스태킹 컨텍스트)
       const rootRect = root.getBoundingClientRect()
       const rootLeft = rootRect.left + sx
       const rootTop = rootRect.top + sy
@@ -175,9 +193,9 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           margin: "0",
           transform: "none",
           transformOrigin: `${wB / 2}px ${hB / 2}px`,
-          zIndex: "-1",
-          opacity: "0.62",
+          zIndex: "-1", // 6차: 아래 레이어. 반투명은 없앤다(운영자 2026-09-12 "반투명으로 바뀔 필요는 없어") — 불투명 그대로
           pointerEvents: "none",
+          willChange: "transform",
           color: cs.color,
           fontSize: cs.fontSize,
           lineHeight: cs.lineHeight,

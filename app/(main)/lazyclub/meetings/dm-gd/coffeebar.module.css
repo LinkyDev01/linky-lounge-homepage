@@ -145,6 +145,10 @@
   visibility: hidden;
   /* 1.33s = 4s 의 3배속 (운영자 2026-08-25 "좌우왕복 속도 3배 빠르게") */
   animation: cbSway 1.33s ease-in-out infinite alternate;
+  /* 합성 레이어 승격 (2026-09-12, 운영자 "굴러가는 애니메이션 끊기는 간격 검증해주고 개선해") — 이 요소는
+     CSS 애니메이션과 TitlePush 의 rAF 인라인 transform 을 번갈아 쓴다. 승격이 안 되어 있으면 저사양 기기에서
+     매 프레임 페인트가 메인 스레드를 타 이따금 드롭될 수 있다(합성만으로는 못 잡는 진짜 '끊김'의 원인) */
+  will-change: transform;
 }
 .logoSway[data-cb-landed] {
   visibility: visible;
@@ -166,6 +170,7 @@
   display: block;
   /* 3.33s = 10s 의 3배속 — 위 왕복 1.33s 와 같은 배율 */
   animation: cbSpin 3.33s linear infinite;
+  will-change: transform; /* .logoSway 와 같은 이유 */
 }
 @keyframes cbSpin {
   to {

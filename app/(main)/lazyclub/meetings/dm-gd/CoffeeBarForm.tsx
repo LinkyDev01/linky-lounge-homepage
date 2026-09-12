@@ -380,7 +380,12 @@ export function CoffeeBarForm() {
         s2.vy = -Math.abs(s2.vy) * e
       }
       // 장애물 — 하단 텍스트 요소마다 하나씩(행 기준 사각형). 얕게 겹친 축으로 밀어내고 그 축 속도를 뒤집는다.
-      // 겹칠 수 있는 요소가 여럿이면 차례로 다 처리한다(성긴 텍스트 사이 여백을 오가는 정도라 실무상 충분하다)
+      // 겹칠 수 있는 요소가 여럿이면 차례로 다 처리한다(성긴 텍스트 사이 여백을 오가는 정도라 실무상 충분하다).
+      // ⚠ 밀어내는 방향은 **놀이터 안에 남는 축 중에서** 고른다 (운영자 2026-09-12 "신청하기가 동민과 고든이 박힌
+      //   이후에 좌측으로 빠지면 누를 수 없게 갇혀버려"): 390px 에선 떨어진 제목이 놀이터 왼쪽 아래 구석을
+      //   차지하고(왼쪽 벽 너머 x=-74 까지, 푸터 선 아래 11px 까지 — 박힌 깊이만큼) 있어서, 가장 얕은 축이 왼쪽·
+      //   아래면 버튼을 화면 밖·푸터 밑으로 내보냈고 경계 클램프는 이미 지나간 뒤라 거기서 멎었다. 그래서
+      //   경계를 넘는 후보는 버리고, 장애물 처리 뒤 경계를 한 번 더 건다.
       for (const obEl of s2.obstacles) {
         if (!obEl.isConnected) continue
         const f = obEl.getBoundingClientRect()
@@ -390,33 +395,57 @@ export function CoffeeBarForm() {
         const oy0 = f.top - rr.top - bh
         const oy1 = f.bottom - rr.top
         if (s2.x > ox0 && s2.x < ox1 && s2.y > oy0 && s2.y < oy1) {
-          const pl = s2.x - ox0
-          const pr = ox1 - s2.x
-          const pt = s2.y - oy0
-          const pb = oy1 - s2.y
-          const m = Math.min(pl, pr, pt, pb)
-          if (m === pl) {
-            s2.x = ox0
-            s2.vx = -Math.abs(s2.vx) * e
-          } else if (m === pr) {
-            s2.x = ox1
-            s2.vx = Math.abs(s2.vx) * e
-          } else if (m === pt) {
-            s2.y = oy0
-            s2.vy = -Math.abs(s2.vy) * e
-          } else {
-            s2.y = oy1
-            s2.vy = Math.abs(s2.vy) * e
-          }
+          const exits: { pen: number; ok: boolean; go: () => void }[] = [
+            { pen: s2.x - ox0, ok: ox0 >= 0, go: () => { s2.x = ox0; s2.vx = -Math.abs(s2.vx) * e } },
+            { pen: ox1 - s2.x, ok: ox1 <= xMax, go: () => { s2.x = ox1; s2.vx = Math.abs(s2.vx) * e } },
+            { pen: s2.y - oy0, ok: oy0 >= yMin, go: () => { s2.y = oy0; s2.vy = -Math.abs(s2.vy) * e } },
+            { pen: oy1 - s2.y, ok: oy1 <= yMax, go: () => { s2.y = oy1; s2.vy = Math.abs(s2.vy) * e } },
+          ]
+          const usable = exits.filter((x) => x.ok)
+          ;(usable.length ? usable : exits).sort((a, b) => a.pen - b.pen)[0].go()
+          // 떨어진 제목에 부딪히면 **오른쪽으로 튕겨 나간다** (운영자 2026-09-12 "커피앤바가 충돌하게 된다면 그 충돌에
+          // 의해 우측으로 튕기는 안도 고려해봐") — 제목은 왼쪽 벽에 붙어 있어 그쪽은 막다른 구석이다. 축 반사에
+          // 더해 오른쪽 성분을 얹는다(순간이동 없이 속도만)
+          if (obEl.hasAttribute("data-cb-fallen")) s2.vx = Math.max(s2.vx, 0) + 240
         }
       }
-      btn2.style.transform = `translate(${s2.x}px, ${s2.y}px)`
+      // 경계 재적용 — 장애물이 밀어낸 자리가 놀이터 밖이면(후보가 전부 밖이었던 극단) 안으로 되돌린다
+      s2.x = Math.min(xMax, Math.max(0, s2.x))
+      s2.y = Math.min(yMax, Math.max(yMin, s2.y))
       if (Math.hypot(s2.vx, s2.vy) < 6) {
+        // 멎는 자리 최종 검사 — 장애물 안이나 다른 요소 밑이면 누를 수 없다. 이 프레임의 장애물 사각형과 겹치지 않는
+        // 가장 가까운 빈자리(8px 격자)로 옮긴다. 위 두 규칙으로 여기까지 오는 일은 거의 없지만, 텍스트 요소가 그
+        // 사이 재배치되는 경우(오류 문장 등장·시안 조작칸)까지 막는 마지막 보루다
+        const free = (x: number, y: number) => {
+          for (const obEl of s2.obstacles) {
+            if (!obEl.isConnected) continue
+            const f = obEl.getBoundingClientRect()
+            if (f.width === 0 && f.height === 0) continue
+            if (x > f.left - rr.left - bw && x < f.right - rr.left && y > f.top - rr.top - bh && y < f.bottom - rr.top) return false
+          }
+          return true
+        }
+        if (!free(s2.x, s2.y)) {
+          let best: { x: number; y: number; d: number } | null = null
+          for (let y = yMin; y <= yMax; y += 8) {
+            for (let x = 0; x <= xMax; x += 8) {
+              if (!free(x, y)) continue
+              const d = Math.hypot(x - s2.x, y - s2.y)
+              if (!best || d < best.d) best = { x, y, d }
+            }
+          }
+          if (best) {
+            s2.x = best.x
+            s2.y = best.y
+          }
+        }
+        btn2.style.transform = `translate(${s2.x}px, ${s2.y}px)`
         s2.vx = 0
         s2.vy = 0
         s2.raf = 0
         return
       }
+      btn2.style.transform = `translate(${s2.x}px, ${s2.y}px)`
       s2.raf = requestAnimationFrame(step)
     }
   }

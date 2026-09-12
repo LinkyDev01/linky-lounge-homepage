@@ -133,11 +133,28 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       }
       const pushEnd = T - 760 // 마지막 접근 직후 — 여기서 제목이 물리로 넘어간다
       const seqEnd = T
-      const logoAt = (ms: number): { lx: number; tx: number } => {
+      // ── 밀어 떨어뜨린 뒤의 왕복 — **제목이 있던 자리까지** 넓혀 벽에 부딪히며 오간다
+      //    (운영자 2026-09-12 "박치기 해서 밀어버린 이후에는 동민과고든커피앤바가 있던 자리까지 확장해서 왔다갔다
+      //    부딪히는 느낌 살리면서"). 종전 폭 40 코사인 대신: 왼쪽 벽 = 제목의 왼쪽 끝(t0.left), 오른쪽 벽 = 제자리(0).
+      //    등속으로 굴러가 벽에 닿는 순간 되튀는 삼각파 — 벽에서 속도가 뚝 뒤집히는 게 '부딪힘'이고, 그 순간 원이
+      //    벽 쪽으로 살짝 눌렸다 펴진다(scaleX, 아래 squashAt). 처음 한 번만 0 에서 속도를 올린다(복귀 끝 속도 0 과 잇기).
+      const ROAM_L = Math.max(60, s0.left - t0.left) // 왕복 거리(px) — 로고 좌변이 제목 좌변까지
+      const ROAM_V = 220 // px/s
+      const ROAM_RAMP = 0.3 // s — 첫 출발 가속
+      const roamAt = (tms: number): { lx: number; squash: number } => {
+        const t = tms / 1000
+        const d = t < ROAM_RAMP ? (ROAM_V * t * t) / (2 * ROAM_RAMP) : ROAM_V * (t - ROAM_RAMP / 2) // 굴러간 누적 거리
+        const p = d % (2 * ROAM_L)
+        const lx = p <= ROAM_L ? -p : -(2 * ROAM_L - p)
+        // 벽까지 남은 거리로 눌림 — 벽 12px 안에서 최대 7%
+        const toWall = Math.min(p, Math.abs(ROAM_L - p), 2 * ROAM_L - p)
+        const squash = t < ROAM_RAMP ? 1 : 1 - 0.07 * Math.max(0, 1 - toWall / 12)
+        return { lx, squash }
+      }
+      const logoAt = (ms: number): { lx: number; tx: number; squash?: number } => {
         if (ms >= seqEnd) {
-          // 이후 왕복 — CSS cbSway(0 ↔ -40, 1.33s, ease-in-out alternate)와 같은 주기·폭을 코사인으로
-          const u = (ms - seqEnd) / 1330
-          return { lx: -20 + 20 * Math.cos(Math.PI * u), tx: -PUSHES * P }
+          const r = roamAt(ms - seqEnd)
+          return { lx: r.lx, tx: -PUSHES * P, squash: r.squash }
         }
         const s = segs.find((g) => ms >= g.t0 && ms < g.t1) ?? segs[segs.length - 1]
         const u = Math.min(1, Math.max(0, (ms - s.t0) / (s.t1 - s.t0)))
@@ -347,8 +364,8 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
         last = now
         elapsed += real * 1000 * speed
         // 로고 — 구름: 회전각 = 굴러간 거리 / 반지름
-        const { lx, tx } = logoAt(elapsed)
-        sway.style.transform = `translateX(${lx}px)`
+        const { lx, tx, squash } = logoAt(elapsed)
+        sway.style.transform = squash != null && squash !== 1 ? `translateX(${lx}px) scaleX(${squash})` : `translateX(${lx}px)`
         logo.style.transform = `rotate(${degInit + ((lx - lxInit) / R) * DEG}deg)`
         if (phase === "push") {
           h1.style.transform = `translateX(${tx}px)`

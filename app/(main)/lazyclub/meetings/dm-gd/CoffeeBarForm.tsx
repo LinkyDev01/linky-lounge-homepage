@@ -17,7 +17,7 @@
  *
  * 접수 뒤(done)에도 폼은 남는다 (운영자 2026-09-11): 접수 문구 + 폼 + **잡히지 않는 버튼**(kick — 클릭 좌표에서
  * 차는 힘으로 튕기고 마찰로 멎는다, 떨어진 제목·푸터는 장애물) + 중앙 검정 메시지 "신청되었습니다."(2.4초).
- * 빈 칸인 채로 누르면 같은 튕김 + "미기재 영역이 있어 신청하기는 제출을 거부합니다."(운영자 2026-09-12 원문 —
+ * 빈 칸인 채로 누르면 같은 튕김 + "미기재 항목이 있어 접수를 거부합니다."(운영자 2026-09-12 원문 —
  *  "내가 초안 쓴게 차라리 더 나아") — 제출은 없다. 채우면 종전 흐름(도망 1회 → 확인 모달).
  *
  * '희망 날짜와 시간대'는 **직접 타이핑**이다 (운영자 2026-08-24 결정 4) — 달력·시간
@@ -156,14 +156,19 @@ export function CoffeeBarForm() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  /** 빈 칸 클릭으로 표시만 하는 필수 항목 — 밑줄(·동의 라벨)만 붉게, 오류 문장은 넣지 않는다.
+   *  문장을 넣으면 필드마다 한 줄씩 생겨 첫 클릭 때 페이지가 아래로 밀린다(운영자 2026-09-12 "상하 위치가
+   *  튕기며 부자연스러운 경험") — 무엇이 비었는지는 동의 안내 아래 메시지 + 밑줄이 말한다 */
+  const [missing, setMissing] = useState<Record<string, boolean>>({})
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [privacyConsent, setPrivacyConsent] = useState(false)
   const [failedText, setFailedText] = useState("")
   const [failCopied, setFailCopied] = useState(false)
   /** 제출 버튼이 한 번 달아났는가 (운영자 2026-08-25 — 위트 장치) */
   const [escaped, setEscaped] = useState(false)
-  /** 중앙에 띄우는 검정 메시지 — 접수 뒤("신청되었습니다.") 또는 빈 칸 제출("미기재 영역이 있어 신청하기는
-   *  제출을 거부합니다." — 운영자 2026-09-12 원문) */
+  /** 동의 안내 아래 작은 검정 메시지 — 접수 뒤("신청되었습니다.") 또는 빈 칸 제출("미기재 항목이 있어
+   *  접수를 거부합니다." — 운영자 2026-09-12 원문). 자리는 처음부터 잡혀 있다(visibility 토글) — 첫 클릭 때
+   *  레이아웃이 밀리지 않도록. */
   const [taunt, setTaunt] = useState<string | null>(null)
   const tauntTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   /** 튕기는 버튼의 물리 상태 — 행(.submitRow) 기준 translate 와 속도, rAF 핸들, 이번 킥의 장애물 스냅숏 */
@@ -175,7 +180,10 @@ export function CoffeeBarForm() {
   const rowRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
 
-  const clearError = (k: string) => setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
+  const clearError = (k: string) => {
+    setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
+    setMissing((p) => (p[k] ? { ...p, [k]: false } : p))
+  }
 
   /** 완료 상태 복원 — useEffect 로만(초깃값 X). 서버 스냅숏과 첫 클라이언트 렌더가
    *  어긋나면 하이드레이션 불일치가 난다 (모임 폼과 같은 이유) */
@@ -217,6 +225,7 @@ export function CoffeeBarForm() {
       return false
     }
     setErrors({})
+    setMissing({})
     return true
   }
 
@@ -418,18 +427,19 @@ export function CoffeeBarForm() {
     tauntTimer.current = setTimeout(() => setTaunt(null), 2400)
   }
 
-  /** 필수 항목이 비었는가 — 표시(errors)는 남기되 스크롤로 끌고 가지 않는다(중앙 메시지가 말한다) */
+  /** 필수 항목이 비었는가 — 밑줄 표시(missing)만 남기고 스크롤로 끌고 가지도, 오류 문장을 끼워 넣지도
+   *  않는다(레이아웃 불변 — 동의 안내 아래 메시지가 말한다) */
   function markEmptyRequired(): boolean {
     const { name, age, phone, preferredWhen, intro } = readValues()
-    const next: Record<string, string> = {}
-    if (!name) next.name = "이름을 입력해주세요."
-    if (!age) next.age = "나이를 입력해주세요."
-    if (!phone) next.phone = "전화번호를 입력해주세요."
-    if (!intro) next.intro = "자기소개를 적어주세요."
-    if (!preferredWhen) next.preferredWhen = "희망하시는 날짜와 시간대를 적어주세요."
-    if (!privacyConsent) next.privacyConsent = "개인정보 수집·이용 동의가 필요합니다."
+    const next: Record<string, boolean> = {}
+    if (!name) next.name = true
+    if (!age) next.age = true
+    if (!phone) next.phone = true
+    if (!intro) next.intro = true
+    if (!preferredWhen) next.preferredWhen = true
+    if (!privacyConsent) next.privacyConsent = true
     if (Object.keys(next).length) {
-      setErrors(next)
+      setMissing(next)
       return true
     }
     return false
@@ -448,7 +458,7 @@ export function CoffeeBarForm() {
     // 절제되게: 메뉴의 "네그로니는 없습니다"와 같은 호흡). 버튼은 물리로 튕긴다
     if (markEmptyRequired()) {
       kick(e?.clientX, e?.clientY)
-      showTaunt("미기재 영역이 있어 신청하기는 제출을 거부합니다.")
+      showTaunt("미기재 항목이 있어 접수를 거부합니다.")
       return
     }
     if (!escaped) {
@@ -550,7 +560,7 @@ export function CoffeeBarForm() {
             id="cb-name"
             name="name"
             type="text"
-            className={`${cb.input} ${errors.name ? cb.inputError : ""}`}
+            className={`${cb.input} ${errors.name || missing.name ? cb.inputError : ""}`}
             onChange={() => clearError("name")}
           />
           {errors.name && <p className={cb.errorText}>{errors.name}</p>}
@@ -566,7 +576,7 @@ export function CoffeeBarForm() {
             type="text"
             inputMode="numeric"
             maxLength={3}
-            className={`${cb.input} ${errors.age ? cb.inputError : ""}`}
+            className={`${cb.input} ${errors.age || missing.age ? cb.inputError : ""}`}
             onChange={(e) => {
               e.target.value = e.target.value.replace(/[^0-9]/g, "")
               clearError("age")
@@ -584,7 +594,7 @@ export function CoffeeBarForm() {
             name="phone"
             type="tel"
             inputMode="numeric"
-            className={`${cb.input} ${errors.phone ? cb.inputError : ""}`}
+            className={`${cb.input} ${errors.phone || missing.phone ? cb.inputError : ""}`}
             onChange={(e) => {
               e.target.value = formatPhone(e.target.value)
               clearError("phone")
@@ -601,7 +611,7 @@ export function CoffeeBarForm() {
             id="cb-intro"
             name="intro"
             rows={3}
-            className={`${cb.textarea} ${errors.intro ? cb.inputError : ""}`}
+            className={`${cb.textarea} ${errors.intro || missing.intro ? cb.inputError : ""}`}
             onChange={() => clearError("intro")}
           />
           {errors.intro && <p className={cb.errorText}>{errors.intro}</p>}
@@ -619,7 +629,7 @@ export function CoffeeBarForm() {
             name="preferredWhen"
             type="text"
             placeholder="신청 가능 시간: 평일 19시 ~ 24시"
-            className={`${cb.input} ${cb.inputWhen} ${errors.preferredWhen ? cb.inputError : ""}`}
+            className={`${cb.input} ${cb.inputWhen} ${errors.preferredWhen || missing.preferredWhen ? cb.inputError : ""}`}
             onChange={() => clearError("preferredWhen")}
           />
           {errors.preferredWhen && <p className={cb.errorText}>{errors.preferredWhen}</p>}
@@ -629,7 +639,10 @@ export function CoffeeBarForm() {
           {/* 상세 고지는 접기 뒤 (운영자 2026-08-25 — apply 페이지 문법 이식, 문구도
               운영자 지정 원문). 아이콘은 + 대신 꺾은괄호 아래↔위 회전 */}
           <div className={cb.consentHead}>
-            <label htmlFor="privacyConsent" className={cb.consentLabel}>
+            <label
+              htmlFor="privacyConsent"
+              className={`${cb.consentLabel} ${missing.privacyConsent ? cb.consentLabelMissing : ""}`}
+            >
               <input
                 id="privacyConsent"
                 type="checkbox"
@@ -684,11 +697,13 @@ export function CoffeeBarForm() {
               묻히겠어 … 동의하신 경우 안내를 위해 … 바로 아래 더 작은 박스 작은 글씨로 중앙정렬해서").
               폼 안(formRef 하위)에 두어 kick() 의 collectObstacles() 가 자동으로 장애물에 포함시킨다 —
               "그 영역도 튕기는 영역으로 잡고" */}
-          {taunt && (
-            <p className={cb.doneToast} role="status" aria-live="polite">
-              <span className={cb.doneToastText}>{taunt}</span>
-            </p>
-          )}
+          {/* 자리는 **처음부터** 잡아 둔다 (운영자 2026-09-12 "처음부터 문구 나오는 곳이 투명으로라도 잡혀있어야 해.
+              안 그러면 신청하기 처음 누를 때 … 상하 위치가 튕기며 부자연스러운 경험") — 조건부 렌더가 아니라
+              항상 렌더하고 visibility 만 토글한다. 숨김 상태의 글자는 실제 메시지와 같은 길이(높이가 같아야
+              나타날 때 아래 버튼 행이 밀리지 않는다). 숨겨도 상자 자리는 남으므로 버튼 장애물로도 그대로 잡힌다 */}
+          <p className={`${cb.doneToast} ${taunt ? cb.doneToastOn : ""}`} role="status" aria-live="polite">
+            <span className={cb.doneToastText}>{taunt ?? (done ? "신청되었습니다." : "미기재 항목이 있어 접수를 거부합니다.")}</span>
+          </p>
         </div>
 
         {errors._form && (

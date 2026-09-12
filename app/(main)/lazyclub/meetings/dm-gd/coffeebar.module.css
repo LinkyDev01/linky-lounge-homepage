@@ -425,6 +425,14 @@
   margin: 3px 0 0;
   accent-color: var(--ink);
 }
+/* 빈 칸 클릭 표시 — 오류 문장 대신 라벨만 붉게 (레이아웃 불변, 2026-09-12) */
+.consentLabelMissing {
+  color: #a22525;
+}
+.consentLabelMissing input {
+  outline: 1.5px solid #a22525;
+  outline-offset: 1px;
+}
 .consentNote {
   margin: 2px 0 14px 22px;
   font-size: 12px;
@@ -624,9 +632,14 @@
 /* 7차: 전체 화면을 덮는 큰 중앙 박스 → **작은 인라인 박스**로 (운영자 2026-09-12 "문구 알림창이 너무 크고
    강렬해서 묻히겠어 … 더 작은 박스 작은 글씨로 중앙정렬"). 동의 문구 바로 아래, 폼 흐름 안에 놓여
    레이아웃을 살짝만 밀어낸다(전체화면 덮개·스크림 없음) */
+/* 8차: 항상 렌더 + visibility 토글 — 처음 누를 때 레이아웃이 튀지 않게 자리를 미리 잡는다 */
 .doneToast {
   margin: 10px 0 0;
   text-align: center;
+  visibility: hidden;
+}
+.doneToastOn {
+  visibility: visible;
   animation: cbToastIn 160ms ease-out;
 }
 .doneToastText {
@@ -644,7 +657,7 @@
   to { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .doneToast { animation: none; }
+  .doneToastOn { animation: none; }
 }
 
 /* ── 데스크톱 확장 ── */

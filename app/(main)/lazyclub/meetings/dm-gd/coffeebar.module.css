@@ -139,8 +139,19 @@
 .logoSway {
   flex: 0 0 auto;
   display: block;
+  /* 첫 그림부터 숨긴다 — 셸 로고가 굴러 떨어져 이 자리에 앉을 때까지(LogoDrop 이 data-cb-landed 를 단다).
+     JS 로만 숨기면 하이드레이션 전 0.5~0.9초 동안 보였다가 사라져 원이 순간이동한 것처럼 읽힌다
+     (2026-09-11 프레임 검수: 한 프레임에 299px). 모션 축소·스크롤 진입 등 안무를 건너뛰는 경로도 settle 이 단다 */
+  visibility: hidden;
   /* 1.33s = 4s 의 3배속 (운영자 2026-08-25 "좌우왕복 속도 3배 빠르게") */
   animation: cbSway 1.33s ease-in-out infinite alternate;
+  /* 합성 레이어 승격 (2026-09-12, 운영자 "굴러가는 애니메이션 끊기는 간격 검증해주고 개선해") — 이 요소는
+     CSS 애니메이션과 TitlePush 의 rAF 인라인 transform 을 번갈아 쓴다. 승격이 안 되어 있으면 저사양 기기에서
+     매 프레임 페인트가 메인 스레드를 타 이따금 드롭될 수 있다(합성만으로는 못 잡는 진짜 '끊김'의 원인) */
+  will-change: transform;
+}
+.logoSway[data-cb-landed] {
+  visibility: visible;
 }
 @keyframes cbSway {
   to {
@@ -159,6 +170,7 @@
   display: block;
   /* 3.33s = 10s 의 3배속 — 위 왕복 1.33s 와 같은 배율 */
   animation: cbSpin 3.33s linear infinite;
+  will-change: transform; /* .logoSway 와 같은 이유 */
 }
 @keyframes cbSpin {
   to {
@@ -413,6 +425,14 @@
   margin: 3px 0 0;
   accent-color: var(--ink);
 }
+/* 빈 칸 클릭 표시 — 오류 문장 대신 라벨만 붉게 (레이아웃 불변, 2026-09-12) */
+.consentLabelMissing {
+  color: #a22525;
+}
+.consentLabelMissing input {
+  outline: 1.5px solid #a22525;
+  outline-offset: 1px;
+}
 .consentNote {
   margin: 2px 0 14px 22px;
   font-size: 12px;
@@ -609,23 +629,27 @@
 /* 접수 뒤 버튼을 잡으려 할 때 화면 중앙에 뜨는 검정 메시지 (운영자 2026-09-11 "신청되었다고 검정색으로
    메시지를 중앙에 띄워줘") — 잉크 면 + 종이색 글자(칩과 같은 문법), 스크림 없음, 클릭은 통과.
    z-index 는 로더(300) 아래·티커(20) 위 */
+/* 7차: 전체 화면을 덮는 큰 중앙 박스 → **작은 인라인 박스**로 (운영자 2026-09-12 "문구 알림창이 너무 크고
+   강렬해서 묻히겠어 … 더 작은 박스 작은 글씨로 중앙정렬"). 동의 문구 바로 아래, 폼 흐름 안에 놓여
+   레이아웃을 살짝만 밀어낸다(전체화면 덮개·스크림 없음) */
+/* 8차: 항상 렌더 + visibility 토글 — 처음 누를 때 레이아웃이 튀지 않게 자리를 미리 잡는다 */
 .doneToast {
-  position: fixed;
-  inset: 0;
-  z-index: 250;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
+  margin: 10px 0 0;
+  text-align: center;
+  visibility: hidden;
+}
+.doneToastOn {
+  visibility: visible;
   animation: cbToastIn 160ms ease-out;
 }
 .doneToastText {
+  display: inline-block;
   background: var(--ink);
   color: var(--paper);
-  padding: 10px 16px;
+  padding: 5px 10px;
   font-family: var(--gothic);
   font-weight: 500;
-  font-size: 15.5px;
+  font-size: 11.5px;
   line-height: 1.5;
 }
 @keyframes cbToastIn {
@@ -633,7 +657,7 @@
   to { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .doneToast { animation: none; }
+  .doneToastOn { animation: none; }
 }
 
 /* ── 데스크톱 확장 ── */

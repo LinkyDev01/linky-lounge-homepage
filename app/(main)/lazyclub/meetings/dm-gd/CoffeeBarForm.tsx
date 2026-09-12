@@ -15,8 +15,10 @@
  * 회복 장치는 모임 폼과 같은 문법이다 — 25초 타임아웃 · 실패 시 입력값 보존 +
  * 카카오 구제 원문 복사 · 완료 상태 sessionStorage 복원.
  *
- * 접수 뒤(done)에도 폼은 남는다 (운영자 2026-09-11): 접수 문구 + 폼 + **잡히지 않는 버튼**(dodge —
- * 닿거나 누르면 조금씩 튕겨 도망) + 중앙 검정 메시지 "신청되었습니다."(2.4초). 제출은 다시 일어나지 않는다.
+ * 접수 뒤(done)에도 폼은 남는다 (운영자 2026-09-11): 접수 문구 + 폼 + **잡히지 않는 버튼**(kick — 클릭 좌표에서
+ * 차는 힘으로 튕기고 마찰로 멎는다, 떨어진 제목·푸터는 장애물) + 중앙 검정 메시지 "신청되었습니다."(2.4초).
+ * 빈 칸인 채로 누르면 같은 튕김 + "미기재 항목이 있어 접수를 거부합니다."(운영자 2026-09-12 원문 —
+ *  "내가 초안 쓴게 차라리 더 나아") — 제출은 없다. 채우면 종전 흐름(도망 1회 → 확인 모달).
  *
  * '희망 날짜와 시간대'는 **직접 타이핑**이다 (운영자 2026-08-24 결정 4) — 달력·시간
  * 선택기를 쓰지 않는다. 운영자가 읽고 조율하는 자유 문장이라 형식을 강제하지 않는다.
@@ -154,17 +156,23 @@ export function CoffeeBarForm() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  /** 빈 칸 클릭으로 표시만 하는 필수 항목 — 밑줄(·동의 라벨)만 붉게, 오류 문장은 넣지 않는다.
+   *  문장을 넣으면 필드마다 한 줄씩 생겨 첫 클릭 때 페이지가 아래로 밀린다(운영자 2026-09-12 "상하 위치가
+   *  튕기며 부자연스러운 경험") — 무엇이 비었는지는 동의 안내 아래 메시지 + 밑줄이 말한다 */
+  const [missing, setMissing] = useState<Record<string, boolean>>({})
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [privacyConsent, setPrivacyConsent] = useState(false)
   const [failedText, setFailedText] = useState("")
   const [failCopied, setFailCopied] = useState(false)
   /** 제출 버튼이 한 번 달아났는가 (운영자 2026-08-25 — 위트 장치) */
   const [escaped, setEscaped] = useState(false)
-  /** 접수 뒤 — 버튼을 잡으려 할 때 중앙에 띄우는 검정 메시지 (운영자 2026-09-11) */
-  const [taunt, setTaunt] = useState(false)
+  /** 동의 안내 아래 작은 검정 메시지 — 접수 뒤("신청되었습니다.") 또는 빈 칸 제출("미기재 항목이 있어
+   *  접수를 거부합니다." — 운영자 2026-09-12 원문). 자리는 처음부터 잡혀 있다(visibility 토글) — 첫 클릭 때
+   *  레이아웃이 밀리지 않도록. */
+  const [taunt, setTaunt] = useState<string | null>(null)
   const tauntTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  /** 접수 뒤 버튼의 현재 위치(행 기준 translate) — 다음 도망의 출발점 */
-  const dodgePos = useRef({ x: 0, y: 0 })
+  /** 튕기는 버튼의 물리 상태 — 행(.submitRow) 기준 translate 와 속도, rAF 핸들, 이번 킥의 장애물 스냅숏 */
+  const puck = useRef({ x: 0, y: 0, vx: 0, vy: 0, raf: 0, last: 0, obstacles: [] as HTMLElement[] })
   const [confirming, setConfirming] = useState(false)
   /** 개인정보 동의 상세 접기 (기본 접힘 — apply 페이지와 동일 문법) */
   const [privacyDetailOpen, setPrivacyDetailOpen] = useState(false)
@@ -172,7 +180,10 @@ export function CoffeeBarForm() {
   const rowRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
 
-  const clearError = (k: string) => setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
+  const clearError = (k: string) => {
+    setErrors((p) => (p[k] ? { ...p, [k]: "" } : p))
+    setMissing((p) => (p[k] ? { ...p, [k]: false } : p))
+  }
 
   /** 완료 상태 복원 — useEffect 로만(초깃값 X). 서버 스냅숏과 첫 클라이언트 렌더가
    *  어긋나면 하이드레이션 불일치가 난다 (모임 폼과 같은 이유) */
@@ -214,6 +225,7 @@ export function CoffeeBarForm() {
       return false
     }
     setErrors({})
+    setMissing({})
     return true
   }
 
@@ -249,6 +261,8 @@ export function CoffeeBarForm() {
     const endX = dx * END_N
     const endY = -5
     btn.style.transform = `translate(${endX}px, ${endY}px)`
+    puck.current.x = endX
+    puck.current.y = endY
     const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
     if (reduce || typeof btn.animate !== "function") return
     btn.animate(
@@ -257,49 +271,178 @@ export function CoffeeBarForm() {
     )
   }
 
-  /** 접수 뒤의 버튼 — **잡히지 않는다** (운영자 2026-09-11 "신청한 이후에도 … 그 사람들은 계속
-   *  신청하기 버튼이 튕기면서 조금씩 반복되며 도망가고, 신청되었다고 검정색으로 메시지를 중앙에 띄워줘").
-   *  마우스가 닿거나(pointerenter) 누르면(click·탭) 포인터 반대쪽으로 **조금씩**(70~130px) 튕겨
-   *  자리를 옮긴다 — 행 상자(가로 0~dx · 세로 -22~+7, flee 와 같은 구획) 안에서, 벽에 닿으면
-   *  반대로. 첫 도망(flee)처럼 물리를 풀진 않고 짧은 오버슈트 한 번(420ms)으로 '튕김'만 남긴다.
-   *  제출은 절대 일어나지 않는다 — 이미 접수된 사람이다. 매번 중앙 메시지를 다시 띄운다(2.4초). */
-  function dodge(pointerX?: number) {
+  /** 튕기는 버튼 놀이터의 장애물 — **하단의 모든 텍스트 영역** (운영자 2026-09-12 "계속 커피앤바가 떨어져 있는
+   *  영역과 그 하단 설정한 영역을 제외하고 클릭 시마다 물리 에너지로 튕겨야 해"). 떨어진 제목 하나만이 아니라
+   *  **신청서 안의 글자를 담은 요소 전부**(라벨·힌트·오류문구·동의 문구·입력칸)를 대상으로 삼는다 — 특정 클래스명을
+   *  나열하지 않고 **"자기 자신은 텍스트를 담고 있는데 자식 중엔 텍스트를 담은 게 없는" 최소 단위 요소**(리프)를
+   *  트리워크로 골라낸다(+input·textarea 는 별도로 항상 포함). 라벨처럼 `<input>` 하나만 자식으로 둔 요소는 그
+   *  input 에 글자가 없으니 리프로 잡히고, 동의 체크박스 라벨처럼 안에 글자 있는 span 이 있으면 그 라벨은 제외되고
+   *  span 쪽이 리프가 된다 — 클래스명이 바뀌어도(카피 수정) 다시 손볼 필요가 없다.
+   *  놀이터 밖(위쪽 폼 필드·본문·메뉴)은 애초에 yMin 이 막아 두어 손대지 않는다. */
+  function collectObstacles(): HTMLElement[] {
+    const out: HTMLElement[] = []
+    const fallen = document.querySelector<HTMLElement>("[data-cb-fallen]")
+    if (fallen) out.push(fallen)
+    const form = formRef.current
+    if (!form) return out
+    for (const el of form.querySelectorAll<HTMLElement>("*")) {
+      if (el === btnRef.current || btnRef.current?.contains(el)) continue
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+        out.push(el)
+        continue
+      }
+      const text = (el.textContent ?? "").trim()
+      if (!text) continue
+      let hasTextChild = false
+      for (const child of el.children) {
+        if (((child as HTMLElement).textContent ?? "").trim()) {
+          hasTextChild = true
+          break
+        }
+      }
+      if (!hasTextChild) out.push(el)
+    }
+    return out
+  }
+
+  /** 튕기는 버튼 — **물리 에너지로** (운영자 2026-09-11 "클릭 시마다 물리 에너지로 튕겨야 해 … 클릭 좌표에 따른
+   *  물리 에너지 현행화도 좋아"). 클릭한 점에서 버튼 중심 쪽으로 차는 힘(퍽을 손가락으로 튕기듯): 가장자리를 누르면
+   *  반대쪽으로 세게, 중앙을 누르면 방향은 무작위·힘은 작게. 그 뒤는 마찰로 잦아드는 미끄러짐 + 벽 반발.
+   *  놀이터 = 행(.submitRow) 폭 × [폼 위쪽 여유 ~ 푸터 윗선 위]. 장애물은 `collectObstacles()` — 매 킥마다
+   *  다시 훑어 최신 상태를 쓴다(이미 도는 rAF 도 `puck.current.obstacles` 를 통해 새 목록을 받는다).
+   *  접수 뒤(done)와 빈 칸 제출 둘 다 이 튕김을 쓴다. 제출은 일어나지 않는다. */
+  function kick(clientX?: number, clientY?: number) {
     const row = rowRef.current
     const btn = btnRef.current
     if (!row || !btn) return
-    const dx = Math.max(0, row.clientWidth - btn.offsetWidth)
-    const cur = dodgePos.current
-    const rowLeft = row.getBoundingClientRect().left
-    const btnCenter = rowLeft + cur.x + btn.offsetWidth / 2
-    // 포인터가 오른쪽에서 오면 왼쪽으로, 왼쪽에서 오면 오른쪽으로 — 모르면 무작위
-    let dir = pointerX == null ? (Math.random() < 0.5 ? -1 : 1) : pointerX >= btnCenter ? -1 : 1
-    const step = 70 + Math.random() * 60
-    let nx = cur.x + dir * step
-    if (nx < 0 || nx > dx) {
-      dir = -dir
-      nx = cur.x + dir * step
+    const st = puck.current
+    const bw = btn.offsetWidth
+    const bh = btn.offsetHeight
+    const rowRect = row.getBoundingClientRect()
+    const cx = rowRect.left + st.x + bw / 2
+    const cy = rowRect.top + st.y + bh / 2
+    // 클릭점 → 버튼 중심 방향으로. 중심에 가까울수록 힘은 작고 방향은 무작위에 가깝다
+    let dx = clientX == null ? 0 : cx - clientX
+    let dy = clientY == null ? 0 : cy - clientY
+    const off = Math.hypot(dx, dy)
+    if (off < 4) {
+      const a = Math.random() * Math.PI * 2
+      dx = Math.cos(a)
+      dy = Math.sin(a) * 0.4
+    } else {
+      dx /= off
+      dy /= off
     }
-    nx = Math.min(dx, Math.max(0, nx))
-    const ny = -22 + Math.random() * 29
-    const from = `translate(${cur.x}px, ${cur.y}px)`
-    const over = `translate(${nx + dir * 12}px, ${ny - 6}px)` // 살짝 지나쳤다 돌아오는 튕김
-    const to = `translate(${nx}px, ${ny}px)`
-    dodgePos.current = { x: nx, y: ny }
-    btn.style.transform = to
-    const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (!reduce && typeof btn.animate === "function") {
-      btn.animate(
-        [
-          { transform: from, offset: 0 },
-          { transform: over, offset: 0.62 },
-          { transform: to, offset: 1 },
-        ],
-        { duration: 420, easing: "cubic-bezier(.22,1,.36,1)" },
-      )
+    const power = 520 + 26 * Math.min(off, 40) // px/s — 가장자리(≈40px)를 누르면 ≈1560
+    st.vx += dx * power
+    st.vy += dy * power * 0.45 // 세로는 눌러 둔다 — 행이 납작하다
+    st.obstacles = collectObstacles() // 이 킥의 장애물 스냅숏 — 이미 도는 rAF 도 다음 프레임부터 이걸 쓴다
+    if (!st.raf) {
+      st.last = performance.now()
+      st.raf = requestAnimationFrame(step)
     }
-    setTaunt(true)
+    function step(now: number) {
+      const s2 = puck.current
+      const row2 = rowRef.current
+      const btn2 = btnRef.current
+      if (!row2 || !btn2) {
+        s2.raf = 0
+        return
+      }
+      const dt = Math.min(0.05, (now - s2.last) / 1000)
+      s2.last = now
+      // 마찰(속도 비례) — 1.4초쯤에 멎는다
+      const k = Math.exp(-2.4 * dt)
+      s2.vx *= k
+      s2.vy *= k
+      s2.x += s2.vx * dt
+      s2.y += s2.vy * dt
+      // 놀이터 경계(행 기준): 좌우 = 행 폭, 위 = 폼 위쪽 여유, 아래 = 푸터 윗선
+      const rr = row2.getBoundingClientRect()
+      const form = formRef.current
+      const footer = document.querySelector("footer > div")
+      const yMin = form ? Math.max(-(rr.top - form.getBoundingClientRect().top), -420) : -120
+      const yMax = footer ? footer.getBoundingClientRect().top - rr.top - bh : 120
+      const xMax = Math.max(0, rr.width - bw)
+      const e = 0.62
+      if (s2.x < 0) {
+        s2.x = 0
+        s2.vx = Math.abs(s2.vx) * e
+      } else if (s2.x > xMax) {
+        s2.x = xMax
+        s2.vx = -Math.abs(s2.vx) * e
+      }
+      if (s2.y < yMin) {
+        s2.y = yMin
+        s2.vy = Math.abs(s2.vy) * e
+      } else if (s2.y > yMax) {
+        s2.y = yMax
+        s2.vy = -Math.abs(s2.vy) * e
+      }
+      // 장애물 — 하단 텍스트 요소마다 하나씩(행 기준 사각형). 얕게 겹친 축으로 밀어내고 그 축 속도를 뒤집는다.
+      // 겹칠 수 있는 요소가 여럿이면 차례로 다 처리한다(성긴 텍스트 사이 여백을 오가는 정도라 실무상 충분하다)
+      for (const obEl of s2.obstacles) {
+        if (!obEl.isConnected) continue
+        const f = obEl.getBoundingClientRect()
+        if (f.width === 0 && f.height === 0) continue
+        const ox0 = f.left - rr.left - bw
+        const ox1 = f.right - rr.left
+        const oy0 = f.top - rr.top - bh
+        const oy1 = f.bottom - rr.top
+        if (s2.x > ox0 && s2.x < ox1 && s2.y > oy0 && s2.y < oy1) {
+          const pl = s2.x - ox0
+          const pr = ox1 - s2.x
+          const pt = s2.y - oy0
+          const pb = oy1 - s2.y
+          const m = Math.min(pl, pr, pt, pb)
+          if (m === pl) {
+            s2.x = ox0
+            s2.vx = -Math.abs(s2.vx) * e
+          } else if (m === pr) {
+            s2.x = ox1
+            s2.vx = Math.abs(s2.vx) * e
+          } else if (m === pt) {
+            s2.y = oy0
+            s2.vy = -Math.abs(s2.vy) * e
+          } else {
+            s2.y = oy1
+            s2.vy = Math.abs(s2.vy) * e
+          }
+        }
+      }
+      btn2.style.transform = `translate(${s2.x}px, ${s2.y}px)`
+      if (Math.hypot(s2.vx, s2.vy) < 6) {
+        s2.vx = 0
+        s2.vy = 0
+        s2.raf = 0
+        return
+      }
+      s2.raf = requestAnimationFrame(step)
+    }
+  }
+
+  function showTaunt(msg: string) {
+    setTaunt(msg)
     if (tauntTimer.current) clearTimeout(tauntTimer.current)
-    tauntTimer.current = setTimeout(() => setTaunt(false), 2400)
+    tauntTimer.current = setTimeout(() => setTaunt(null), 2400)
+  }
+
+  /** 필수 항목이 비었는가 — 밑줄 표시(missing)만 남기고 스크롤로 끌고 가지도, 오류 문장을 끼워 넣지도
+   *  않는다(레이아웃 불변 — 동의 안내 아래 메시지가 말한다) */
+  function markEmptyRequired(): boolean {
+    const { name, age, phone, preferredWhen, intro } = readValues()
+    const next: Record<string, boolean> = {}
+    if (!name) next.name = true
+    if (!age) next.age = true
+    if (!phone) next.phone = true
+    if (!intro) next.intro = true
+    if (!preferredWhen) next.preferredWhen = true
+    if (!privacyConsent) next.privacyConsent = true
+    if (Object.keys(next).length) {
+      setMissing(next)
+      return true
+    }
+    return false
   }
 
   /** 버튼 클릭 — 처음엔 달아나고(검증 없음), 잡아서 다시 누르면 검증 후 확인 모달.
@@ -307,7 +450,15 @@ export function CoffeeBarForm() {
   function handleButtonClick(e?: React.MouseEvent) {
     if (loading) return
     if (done) {
-      dodge(e?.clientX)
+      kick(e?.clientX, e?.clientY)
+      showTaunt("신청되었습니다.")
+      return
+    }
+    // 빈 칸인 채로는 제출이 없다 (운영자 2026-09-11 — 중앙 검정 메시지, 필수 항목 미작성으로 중도 제출 거부를 위트 있고
+    // 절제되게: 메뉴의 "네그로니는 없습니다"와 같은 호흡). 버튼은 물리로 튕긴다
+    if (markEmptyRequired()) {
+      kick(e?.clientX, e?.clientY)
+      showTaunt("미기재 항목이 있어 접수를 거부합니다.")
       return
     }
     if (!escaped) {
@@ -386,11 +537,6 @@ export function CoffeeBarForm() {
           해당 번호로 연락드리겠습니다.
         </p>
       )}
-      {done && taunt && (
-        <div className={cb.doneToast} role="status" aria-live="polite">
-          <span className={cb.doneToastText}>신청되었습니다.</span>
-        </div>
-      )}
       {loading && (
         <div className={cb.busy}>
           <TurtleLoader label="로딩 중" />
@@ -414,7 +560,7 @@ export function CoffeeBarForm() {
             id="cb-name"
             name="name"
             type="text"
-            className={`${cb.input} ${errors.name ? cb.inputError : ""}`}
+            className={`${cb.input} ${errors.name || missing.name ? cb.inputError : ""}`}
             onChange={() => clearError("name")}
           />
           {errors.name && <p className={cb.errorText}>{errors.name}</p>}
@@ -430,7 +576,7 @@ export function CoffeeBarForm() {
             type="text"
             inputMode="numeric"
             maxLength={3}
-            className={`${cb.input} ${errors.age ? cb.inputError : ""}`}
+            className={`${cb.input} ${errors.age || missing.age ? cb.inputError : ""}`}
             onChange={(e) => {
               e.target.value = e.target.value.replace(/[^0-9]/g, "")
               clearError("age")
@@ -448,7 +594,7 @@ export function CoffeeBarForm() {
             name="phone"
             type="tel"
             inputMode="numeric"
-            className={`${cb.input} ${errors.phone ? cb.inputError : ""}`}
+            className={`${cb.input} ${errors.phone || missing.phone ? cb.inputError : ""}`}
             onChange={(e) => {
               e.target.value = formatPhone(e.target.value)
               clearError("phone")
@@ -465,7 +611,7 @@ export function CoffeeBarForm() {
             id="cb-intro"
             name="intro"
             rows={3}
-            className={`${cb.textarea} ${errors.intro ? cb.inputError : ""}`}
+            className={`${cb.textarea} ${errors.intro || missing.intro ? cb.inputError : ""}`}
             onChange={() => clearError("intro")}
           />
           {errors.intro && <p className={cb.errorText}>{errors.intro}</p>}
@@ -483,7 +629,7 @@ export function CoffeeBarForm() {
             name="preferredWhen"
             type="text"
             placeholder="신청 가능 시간: 평일 19시 ~ 24시"
-            className={`${cb.input} ${cb.inputWhen} ${errors.preferredWhen ? cb.inputError : ""}`}
+            className={`${cb.input} ${cb.inputWhen} ${errors.preferredWhen || missing.preferredWhen ? cb.inputError : ""}`}
             onChange={() => clearError("preferredWhen")}
           />
           {errors.preferredWhen && <p className={cb.errorText}>{errors.preferredWhen}</p>}
@@ -493,7 +639,10 @@ export function CoffeeBarForm() {
           {/* 상세 고지는 접기 뒤 (운영자 2026-08-25 — apply 페이지 문법 이식, 문구도
               운영자 지정 원문). 아이콘은 + 대신 꺾은괄호 아래↔위 회전 */}
           <div className={cb.consentHead}>
-            <label htmlFor="privacyConsent" className={cb.consentLabel}>
+            <label
+              htmlFor="privacyConsent"
+              className={`${cb.consentLabel} ${missing.privacyConsent ? cb.consentLabelMissing : ""}`}
+            >
               <input
                 id="privacyConsent"
                 type="checkbox"
@@ -543,6 +692,18 @@ export function CoffeeBarForm() {
           <p className={cb.consentNote}>
             <span>동의하신 경우 안내를 위해 이름·연락처를 동의 철회 시까지 보관합니다.</span>
           </p>
+          {/* 신청되었습니다·빈 칸 안내 — 화면 전체를 덮는 큰 검정 박스는 문구 자체보다 시선을 더 끌어
+              튕기는 버튼(제목·본문 정보)이 묻힌다(운영자 2026-09-12 "문구 알림창이 너무 크고 강렬해서
+              묻히겠어 … 동의하신 경우 안내를 위해 … 바로 아래 더 작은 박스 작은 글씨로 중앙정렬해서").
+              폼 안(formRef 하위)에 두어 kick() 의 collectObstacles() 가 자동으로 장애물에 포함시킨다 —
+              "그 영역도 튕기는 영역으로 잡고" */}
+          {/* 자리는 **처음부터** 잡아 둔다 (운영자 2026-09-12 "처음부터 문구 나오는 곳이 투명으로라도 잡혀있어야 해.
+              안 그러면 신청하기 처음 누를 때 … 상하 위치가 튕기며 부자연스러운 경험") — 조건부 렌더가 아니라
+              항상 렌더하고 visibility 만 토글한다. 숨김 상태의 글자는 실제 메시지와 같은 길이(높이가 같아야
+              나타날 때 아래 버튼 행이 밀리지 않는다). 숨겨도 상자 자리는 남으므로 버튼 장애물로도 그대로 잡힌다 */}
+          <p className={`${cb.doneToast} ${taunt ? cb.doneToastOn : ""}`} role="status" aria-live="polite">
+            <span className={cb.doneToastText}>{taunt ?? (done ? "신청되었습니다." : "미기재 항목이 있어 접수를 거부합니다.")}</span>
+          </p>
         </div>
 
         {errors._form && (
@@ -582,7 +743,10 @@ export function CoffeeBarForm() {
             onClick={handleButtonClick}
             onPointerEnter={(e) => {
               // 접수 뒤에는 마우스가 닿기만 해도 튕겨 나간다 (터치는 hover 가 없어 탭=click 이 맡는다)
-              if (done && e.pointerType === "mouse") dodge(e.clientX)
+              if (done && e.pointerType === "mouse") {
+                kick(e.clientX, e.clientY)
+                showTaunt("신청되었습니다.")
+              }
             }}
           >
             {loading ? "로딩 중" : "신청하기"}

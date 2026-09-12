@@ -4,6 +4,7 @@ import { WorkroomShell } from "../../Shell"
 import { CoffeeBarForm } from "./CoffeeBarForm"
 import { LogoDrop } from "./LogoDrop"
 import { NavOffset } from "./NavOffset"
+import { TitlePush } from "./TitlePush"
 import styles from "../../home.module.css"
 import cb from "./coffeebar.module.css"
 
@@ -63,6 +64,10 @@ export default function CoffeeBarPage() {
           <NavOffset />
           {/* 탑네비 로고가 굴러 떨어져 제목 옆 로고가 된다 — 셸은 안 건드린다 */}
           <LogoDrop />
+          {/* 그 로고의 좌우 왕복이 제목을 왼쪽으로 밀어 결국 떨어뜨린다 (운영자 2026-09-11 기획,
+              2026-09-12 승인 "실사이트 배포해"). 시안 원본은 /lazyclub/coffeebar-push — 값은
+              프리뷰 그대로이고 조작칸(다시 재생·3배속)만 프리뷰에 남는다 */}
+          <TitlePush />
           {/* **탑네비 바로 밑 전폭 스티키 티커**, 좌측 등속
               (운영자 2026-08-25: "동민과 고든 커피앤바 보다 위에 있어야해 /
                탑네비 바로밑에 좌우폭에 맞추어 스티키로", 레퍼런스 outstanding-co.kr
@@ -80,7 +85,7 @@ export default function CoffeeBarPage() {
             </div>
           </div>
 
-          <div className={cb.page}>
+          <div className={cb.page} data-cb-page>
           <header className={cb.head}>
             <h1 className={cb.title}>
               {/* data-cb-* 는 LogoDrop 이 좌표를 실측할 때 쓰는 손잡이다 —

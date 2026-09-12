@@ -135,20 +135,31 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const seqEnd = T
       // ── 밀어 떨어뜨린 뒤의 왕복 — **제목이 있던 자리까지** 넓혀 벽에 부딪히며 오간다
       //    (운영자 2026-09-12 "박치기 해서 밀어버린 이후에는 동민과고든커피앤바가 있던 자리까지 확장해서 왔다갔다
-      //    부딪히는 느낌 살리면서"). 종전 폭 40 코사인 대신: 왼쪽 벽 = 제목의 왼쪽 끝(t0.left), 오른쪽 벽 = 제자리(0).
-      //    등속으로 굴러가 벽에 닿는 순간 되튀는 삼각파 — 벽에서 속도가 뚝 뒤집히는 게 '부딪힘'이고, 그 순간 원이
-      //    벽 쪽으로 살짝 눌렸다 펴진다(scaleX, 아래 squashAt). 처음 한 번만 0 에서 속도를 올린다(복귀 끝 속도 0 과 잇기).
+      //    부딪히는 느낌 살리면서"). 왼쪽 벽 = 제목의 왼쪽 끝(t0.left), 오른쪽 벽 = 제자리(0).
+      //
+      //    자체 발견·개선(2026-09-12, 운영자 "원이 굴러가는 것 위주로 부자연스러움을 발견하면 바로 개선해줘"
+      //    — 프레임 실측: 벽에 닿는 매 순간 속도가 등속 220px/s 에서 0 으로 **한 프레임 만에**
+      //    뒤집혔다. 위치는 이어지지만(삼각파) 속도는 안 이어지는 진짜 불연속이었고, 로고의 자전(구름 =
+      //    lx 의 함수)도 같이 매번 정확히 같은 속도로 순간 반전돼 "굴러가다 벽에 튕긴다"가 아니라
+      //    "돌던 바퀴가 매번 똑같이 뚝 멈췄다 반대로 도는" 기계적인 인상이었다. 매 왕복이 완전히 동일해
+      //    되풀이될수록 더 도드라졌다(반사가 사인·감쇠 없는 완전탄성).
+      //    **등속 삼각파를 사인 왕복으로 바꾼다** — lx(t) = -L/2·(1-cos(ωt)), 진폭 L/2, 각속도 ω = π/legT.
+      //    벽 접점(위상 0·π·2π…)에서 **속도가 스스로 0** 이 되어(sin(0)=sin(π)=0) 반전이 매끄럽고, 매 다리
+      //    끝의 위치·속도가 자동으로 이어져(코사인이라 그 자체로 C¹ 연속) 종전의 "처음 한 번만 가속" 특례가
+      //    필요 없다 — 첫 다리도 나머지와 같은 곡선이라 인계 순간(속도 0)과도 저절로 맞는다. legT 는
+      //    거리/평균속도(사인의 평균은 (2/π)·최고속)로 정해 종전과 같은 전체 왕복 리듬(왕복 1회 ≈ 2.6s)을
+      //    유지한다 — 다만 벽 근처는 느려지고 가운데는 최고 ≈1.57배 빨라진다(관성 있는 되튐처럼).
+      //    스쿼시도 위치 대신 **그 순간 속력**에서 얻는다 — 느릴수록(벽에 가까울수록) 눌린다, 자연히 이어짐. */
       const ROAM_L = Math.max(60, s0.left - t0.left) // 왕복 거리(px) — 로고 좌변이 제목 좌변까지
-      const ROAM_V = 220 // px/s
-      const ROAM_RAMP = 0.3 // s — 첫 출발 가속
+      const ROAM_V = 220 // px/s — 평균 속도(종전과 같은 리듬을 유지하는 기준)
+      const legT = ROAM_L / ROAM_V // 한쪽 벽까지 걸리는 시간(s) — 왕복 1회 = 2·legT
+      const omega = Math.PI / legT
+      const vPeak = (ROAM_L / 2) * omega // 사인 중앙(최고 속력) — 평균의 π/2 배
       const roamAt = (tms: number): { lx: number; squash: number } => {
         const t = tms / 1000
-        const d = t < ROAM_RAMP ? (ROAM_V * t * t) / (2 * ROAM_RAMP) : ROAM_V * (t - ROAM_RAMP / 2) // 굴러간 누적 거리
-        const p = d % (2 * ROAM_L)
-        const lx = p <= ROAM_L ? -p : -(2 * ROAM_L - p)
-        // 벽까지 남은 거리로 눌림 — 벽 12px 안에서 최대 7%
-        const toWall = Math.min(p, Math.abs(ROAM_L - p), 2 * ROAM_L - p)
-        const squash = t < ROAM_RAMP ? 1 : 1 - 0.07 * Math.max(0, 1 - toWall / 12)
+        const lx = (-ROAM_L / 2) * (1 - Math.cos(omega * t))
+        const v = ((-ROAM_L / 2) * omega * Math.sin(omega * t)) / vPeak // -1..1 로 정규화한 속력비
+        const squash = 1 - 0.07 * (1 - Math.abs(v)) ** 2
         return { lx, squash }
       }
       const logoAt = (ms: number): { lx: number; tx: number; squash?: number } => {

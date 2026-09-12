@@ -25,6 +25,7 @@
  */
 
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   copyText,
   KAKAO_CHAT_URL,
@@ -566,11 +567,17 @@ export function CoffeeBarForm() {
           해당 번호로 연락드리겠습니다.
         </p>
       )}
-      {loading && (
-        <div className={cb.busy}>
-          <TurtleLoader label="로딩 중" />
-        </div>
-      )}
+      {/* 로더·확인 모달은 **body 로 포털** — TitlePush 가 [data-cb-root] 에 isolation: isolate 를 걸어(떨어진 제목의
+          z-index -1 을 루트 배경 위에 두려고) 루트가 스태킹 컨텍스트가 됐고, 그 안의 fixed 요소는 z-index 가 아무리
+          커도 루트 밖 푸터(.footerInner, position: relative, DOM 상 뒤)에 덮인다(운영자 2026-09-12 스크린샷 —
+          모달 아랫단이 푸터 글자·로고 밑으로). 루트 밖으로 꺼내면 z-index 400 이 문서 전체 기준으로 선다 */}
+      {loading &&
+        createPortal(
+          <div className={cb.busy}>
+            <TurtleLoader label="로딩 중" />
+          </div>,
+          document.body,
+        )}
 
       {/* onSubmit 은 Enter 키 대비 — 버튼이 submit 이 아니라 도망 장치가 됐다 */}
       <form
@@ -783,7 +790,8 @@ export function CoffeeBarForm() {
         </div>
       </form>
 
-      {confirming && (
+      {confirming &&
+        createPortal(
         <div
           className={cb.confirmBack}
           role="dialog"
@@ -811,8 +819,9 @@ export function CoffeeBarForm() {
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </>
   )
 }

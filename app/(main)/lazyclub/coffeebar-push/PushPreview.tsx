@@ -68,7 +68,7 @@ export function PushPreview() {
             </div>
           </div>
 
-          <div className={cb.page}>
+          <div className={cb.page} data-cb-page>
             <header className={cb.head}>
               <h1 className={cb.title}>
                 <span className={cb.titleTop} data-cb-title-top>

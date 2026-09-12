@@ -80,7 +80,7 @@ export default function CoffeeBarPage() {
             </div>
           </div>
 
-          <div className={cb.page}>
+          <div className={cb.page} data-cb-page>
           <header className={cb.head}>
             <h1 className={cb.title}>
               {/* data-cb-* 는 LogoDrop 이 좌표를 실측할 때 쓰는 손잡이다 —

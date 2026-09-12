@@ -159,6 +159,17 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const floorY = footerLine.getBoundingClientRect().top + sy
       const cloneLeft = t0.left + sx - PUSHES * P
       const cloneTop = t0.top + sy
+      // 웹 버전(데스크톱)에서는 **아예 본문 왼쪽 거터로만 떨어뜨린다** (운영자 2026-09-12 "웹버전일 때는 아예
+      // 커피앤바가 텍스트 왼쪽으로 떨어지게 하면 되니까 글자 겹침 문제가 되지 않을 거야") — 물리에만 맡기면
+      // 안 된다: 실측 721~760px(거터가 좁은 구간)에서 정착 상자 오른쪽 끝이 본문(.page) 왼쪽 경계를 최대
+      // 67px 침범했다(1280px 은 넉넉해 우연히 안 겹쳤을 뿐). `.page` 왼쪽 경계(문서 좌표)를 실측해 두고,
+      // 바닥에 박히는 순간 그 경계를 넘으면 통째로 왼쪽으로 밀어 넣는다(못박기 — 아래 stuck 판정 참조).
+      // 폭이 500px 캡을 채우는 720px 이상에서만 켠다(그 아래 — 모바일 — 는 본문 자체가 화면 폭이라 거터가
+      // 없고, 이 조건을 걸지 않으면 지금 승인된 모바일 착지가 오히려 왼쪽으로 눌린다).
+      const pageEl = document.querySelector<HTMLElement>("[data-cb-page]")
+      const isWeb = window.innerWidth >= 721
+      const pageLeftDoc = isWeb && pageEl ? pageEl.getBoundingClientRect().left + sx : null
+      const GUTTER_MARGIN = 15
       // 클론은 body 가 아니라 **콘텐츠 루트 안, z-index -1** — 본문 글자·입력칸 아래 레이어로 깔린다(운영자 2026-09-11
       // "떨어진 텍스트는 정보에 방해되지 않도록 아래 레이어로"). 루트를 스태킹 컨텍스트로 만들면(isolate) 음수 z 가
       // 루트 배경 위·본문 아래에 그려진다. 루트 자체엔 배경이 없어 종이색은 그대로 비친다. 티커(z 20)·헤더(z 99)는 위.
@@ -293,6 +304,16 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
                 stuckPhi = body.phi // 꽂힌 각도 그대로 — 스스로 곧추서지 않는다
                 body.c = { x: stuck.x - end.x, y: stuck.y - end.y }
                 body.om *= 0.6
+                // 웹 버전 거터 못박기 — 이 각도에서 가장 오른쪽으로 튀어나온 모서리가 본문 경계를 넘으면
+                // 넘은 만큼 통째로 왼쪽으로 민다(각도·박힘 깊이는 그대로, x 만 이동)
+                if (pageLeftDoc != null) {
+                  const maxRightOffset = Math.max(...corners().map((cn) => cn.x))
+                  const overflow = body.c.x + maxRightOffset - (pageLeftDoc - GUTTER_MARGIN)
+                  if (overflow > 0) {
+                    body.c.x -= overflow
+                    stuck.x -= overflow
+                  }
+                }
                 return
               }
               collide(r, { x: 0, y: -1 }, 0.2, 0.5, p.y - floorY)

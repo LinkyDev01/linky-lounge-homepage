@@ -276,6 +276,34 @@ export function CoffeeBarForm() {
     )
   }
 
+  /** 제목이 바닥에 박히는 순간(TitlePush 의 cb-title-landed) 버튼이 그 자리에 있으면 **맞고 튕겨 나간다**
+   *  (운영자 2026-09-12 "내리꽂아질 때 신청하기가 맞으며 튕겨나가는 건?" → "반영해"). 390px 에선 제목이 버튼 바로
+   *  위로 떨어지고, 웹은 거터로 떨어져 안 닿는다 — 겹칠 때만. 힘은 착지 속도에 비례(600~1500px/s), 방향은 제목
+   *  상자 중심에서 버튼 중심 쪽. 폼 안에 포커스가 있으면(입력 중) 건드리지 않는다 — 쓰는 사람 밑에서 버튼이
+   *  움직이면 안 된다. 메시지는 없다(접수 전이라 할 말이 없다) */
+  useEffect(() => {
+    const onLanded = (e: Event) => {
+      const d = (e as CustomEvent<{ left: number; right: number; top: number; bottom: number; speed: number }>).detail
+      const btn = btnRef.current
+      const form = formRef.current
+      if (!d || !btn || !form) return
+      if (form.contains(document.activeElement)) return
+      const r = btn.getBoundingClientRect()
+      const bx0 = r.left + window.scrollX
+      const bx1 = r.right + window.scrollX
+      const by0 = r.top + window.scrollY
+      const by1 = r.bottom + window.scrollY
+      const M = 4 // 스치는 것도 맞은 것으로
+      if (bx1 < d.left - M || bx0 > d.right + M || by1 < d.top - M || by0 > d.bottom + M) return
+      const cx = (d.left + d.right) / 2 - window.scrollX
+      const cy = (d.top + d.bottom) / 2 - window.scrollY
+      kick(cx, cy, Math.min(1500, Math.max(600, d.speed * 1.2)))
+    }
+    document.addEventListener("cb-title-landed", onLanded)
+    return () => document.removeEventListener("cb-title-landed", onLanded)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   /** 튕기는 버튼 놀이터의 장애물 — **하단의 모든 텍스트 영역** (운영자 2026-09-12 "계속 커피앤바가 떨어져 있는
    *  영역과 그 하단 설정한 영역을 제외하고 클릭 시마다 물리 에너지로 튕겨야 해"). 떨어진 제목 하나만이 아니라
    *  **신청서 안의 글자를 담은 요소 전부**(라벨·힌트·오류문구·동의 문구·입력칸)를 대상으로 삼는다 — 특정 클래스명을
@@ -316,7 +344,7 @@ export function CoffeeBarForm() {
    *  놀이터 = 행(.submitRow) 폭 × [폼 위쪽 여유 ~ 푸터 윗선 위]. 장애물은 `collectObstacles()` — 매 킥마다
    *  다시 훑어 최신 상태를 쓴다(이미 도는 rAF 도 `puck.current.obstacles` 를 통해 새 목록을 받는다).
    *  접수 뒤(done)와 빈 칸 제출 둘 다 이 튕김을 쓴다. 제출은 일어나지 않는다. */
-  function kick(clientX?: number, clientY?: number) {
+  function kick(clientX?: number, clientY?: number, powerOverride?: number) {
     const row = rowRef.current
     const btn = btnRef.current
     if (!row || !btn) return
@@ -338,7 +366,7 @@ export function CoffeeBarForm() {
       dx /= off
       dy /= off
     }
-    const power = 520 + 26 * Math.min(off, 40) // px/s — 가장자리(≈40px)를 누르면 ≈1560
+    const power = powerOverride ?? 520 + 26 * Math.min(off, 40) // px/s — 가장자리(≈40px)를 누르면 ≈1560
     st.vx += dx * power
     st.vy += dy * power * 0.45 // 세로는 눌러 둔다 — 행이 납작하다
     st.obstacles = collectObstacles() // 이 킥의 장애물 스냅숏 — 이미 도는 rAF 도 다음 프레임부터 이걸 쓴다

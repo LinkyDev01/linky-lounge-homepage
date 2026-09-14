@@ -92,6 +92,26 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
       const mLogo = new DOMMatrixReadOnly(getComputedStyle(logo).transform)
       const lxInit = mSway.e
       const degInit = (Math.atan2(mLogo.b, mLogo.a) * DEG) || 0
+      // 자체 발견·개선(2026-09-14, 운영자 "박히는 게 아니라 처음에 좌측으로 회전하며 굴러가는 초반 상황") —
+      // 위치는 이어 붙였지만(바로 위 lxInit/degInit) **속도**는 안 이었다. CSS 왕복(cbSway, ease-in-out
+      // 1.33s)과 회전(cbSpin, 3.33s 등속)은 서로 무관하게 도는 장식 애니메이션이라, 인계 순간 실제로는 초당
+      // 49~90px 로 미끄러지고 초당 108° 로 돌던 것이 JS 의 첫 다가감(easeInOut, u=0 속도 0)으로 넘어가는
+      // 순간 **둘 다 거의 멈췄다가 다시 붙는다**(실측: 직전 -49~-108, 직후 -0.7~-1.1 — 사실상 정지).
+      // "굴러오다 브레이크를 밟는" 첫 순간의 딸꾹질이었다. CSS 애니메이션의 `currentTime` 을 1ms 미리 돌려
+      // 그 순간의 실제 속도를 수치 미분으로 재고(스크럽 직후 바로 되돌려 화면엔 안 보인다), 첫 다가감 구간만
+      // 에르미트 보간(위치·시작속도·끝속도 4조건)으로 그 속도에서 매끄럽게 이어 붙인다. 회전은 여전히 lx 의
+      // 함수라(구름 관계) 속도가 이어지면 자전 속도도 따라 붙는다 — 회전만 위해 별도 곡선을 두지 않는다.
+      let v0Init = 0
+      const swayAnim = sway.getAnimations()[0]
+      if (swayAnim) {
+        const cur = swayAnim.currentTime
+        if (typeof cur === "number") {
+          swayAnim.currentTime = cur + 1
+          const lxNext = new DOMMatrixReadOnly(getComputedStyle(sway).transform).e
+          v0Init = (lxNext - lxInit) / 0.001 // px/s — 1ms 앞선 표본과의 차분
+          swayAnim.currentTime = cur // 다음 줄에서 animation:none 으로 덮어써 되돌린 티는 안 난다
+        }
+      }
       sway.style.animation = "none"
       sway.style.transform = `translateX(${lxInit}px)`
       logo.style.animation = "none"
@@ -119,14 +139,15 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
 
       // ── 밀기 시간표(ms, 1배속 기준) — 로고 x 는 사이클마다 접근(740ms)+복귀(760ms) 두 매끄러운 S자뿐,
       //    제목 x 는 로고 위치의 함수로 뒤에서 유도한다(위 5차 주석) ──
-      type Seg = { t0: number; t1: number; lx0: number; lx1: number; ease: (t: number) => number; kind: "approach" | "return"; reach: number; i: number }
+      type Seg = { t0: number; t1: number; lx0: number; lx1: number; ease: (t: number) => number; kind: "approach" | "return"; reach: number; i: number; v0?: number }
       const segs: Seg[] = []
       let T = 0
       for (let i = 0; i < PUSHES; i++) {
         const reach = gap + i * P
         // 첫 접근은 인계 순간의 x(lxInit)에서 출발 — 그 뒤는 0 에서. 시작·끝 속도가 항상 0(easeInOut)이라
-        // 사이클 경계·이전 복귀와 이어 붙여도 매끄럽다
-        segs.push({ t0: T, t1: T + 740, lx0: i === 0 ? lxInit : 0, lx1: -(reach + P), ease: easeInOut, kind: "approach", reach, i })
+        // 사이클 경계·이전 복귀와 이어 붙여도 매끄럽다. **딱 이 첫 세그먼트만** v0(위에서 잰 실제 인계 속도)를
+        // 지니고 있어 아래 logoAt 이 에르미트로 보간한다 — 그 뒤로는 항상 정지에서 시작하니 손댈 필요가 없다
+        segs.push({ t0: T, t1: T + 740, lx0: i === 0 ? lxInit : 0, lx1: -(reach + P), ease: easeInOut, kind: "approach", reach, i, v0: i === 0 ? v0Init : undefined })
         T += 740
         segs.push({ t0: T, t1: T + 760, lx0: -(reach + P), lx1: 0, ease: easeInOut, kind: "return", reach, i })
         T += 760
@@ -168,9 +189,16 @@ export function TitlePush({ speed = 1, startDelayMs = 2600 }: { speed?: number; 
           return { lx: r.lx, tx: -PUSHES * P, squash: r.squash }
         }
         const s = segs.find((g) => ms >= g.t0 && ms < g.t1) ?? segs[segs.length - 1]
+        const dur = (s.t1 - s.t0) / 1000 // s
         const u = Math.min(1, Math.max(0, (ms - s.t0) / (s.t1 - s.t0)))
-        const k = s.ease(u)
-        const lx = s.lx0 + (s.lx1 - s.lx0) * k
+        // 첫 세그먼트(v0 있음)만 에르미트 — 시작 속도 = 실측 인계 속도, 끝 속도 = 0(다음 세그먼트가 기대하는 값).
+        // 나머지는 종전대로 시작·끝 속도 둘 다 0 인 easeInOut
+        const lx =
+          s.v0 != null
+            ? (2 * u ** 3 - 3 * u ** 2 + 1) * s.lx0 +
+              (u ** 3 - 2 * u ** 2 + u) * dur * s.v0 +
+              (-2 * u ** 3 + 3 * u ** 2) * s.lx1
+            : s.lx0 + (s.lx1 - s.lx0) * s.ease(u)
         // 복귀 중엔 제목은 그 자리(그 사이클이 밀어 둔 위치)에 그대로. 접근 중엔 아직 안 닿았으면 그대로,
         // 닿은 뒤(lx ≤ -reach)엔 로고와 1:1 로 같이 밀린다 — 부딪힌 순간 제목 속도가 훅 붙는 건 의도(충돌)
         const tx = s.kind === "return" ? -(s.i + 1) * P : lx <= -s.reach ? lx + s.reach - s.i * P : -s.i * P
